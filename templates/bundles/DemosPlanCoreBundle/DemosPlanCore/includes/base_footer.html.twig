@@ -48,10 +48,10 @@
             {% endif %}
 
             {% if hasPermission('area_terms_of_use') %}
-            <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
-               aria-label="{{ 'terms.of.use'|trans }}">
-                {{- "terms.of.use"|trans -}}
-            </a>
+                <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
+                   aria-label="{{ 'terms.of.use'|trans }}">
+                    {{- "terms.of.use"|trans -}}
+                </a>
             {% endif %}
 
             {% if hasPermission('area_main_contact') %}
@@ -66,9 +66,9 @@
         {% endapply %}
     </nav>
 
-    <div class="c-footer__version float--right u-pt-0_25-palm"
+    <div class=" version-number c-footer__version u-pt-0_25-palm u-pr-0_5 float--right"
          aria-label="{{ 'system.version_info'|trans }}">
-        v{{ projectVersion }}
+          v{{ projectVersion }}
     </div>
 
 </footer>

@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 
 /**
  * Generiere den Title aus einem translations key.

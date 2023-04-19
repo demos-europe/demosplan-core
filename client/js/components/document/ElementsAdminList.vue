@@ -55,9 +55,9 @@
       :options="treeListOptions"
       :tree-data="treeData"
       ref="treeList"
-      @draggable-change="saveNewSort"
+      @draggable:change="saveNewSort"
       @node-selection-change="nodeSelectionChange"
-      @tree-data-change="updateTreeData">
+      @tree:change="updateTreeData">
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -84,8 +84,14 @@
 </template>
 
 <script>
-import { DpBulkEditHeader, DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
-import { dpRpc, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
+import {
+  DpBulkEditHeader,
+  DpLoading,
+  dpRpc,
+  DpTreeList,
+  hasAnyPermissions,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
@@ -258,7 +264,7 @@ export default {
         }
 
         // Push item to correct position in map
-        if (node.attributes.parentId !== null) {
+        if (node.attributes.parentId) {
           list.find(el => el.id === node.attributes.parentId)?.children.push(node)
         } else {
           roots.push(node)

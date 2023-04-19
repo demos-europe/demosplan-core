@@ -20,7 +20,7 @@
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
       @reset="resetFormFields"
-      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => saveSimilarStatementSubmitter(index), false)"
+      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
       ref="listComponent">
       <template v-slot:list="{ entry, index }">
         <ul class="o-list o-list--csv display--inline">
@@ -95,7 +95,7 @@
                 id="statementSubmitterName"
                 v-model="formFields.submitterName"
                 :label="{
-                  text: Translator.trans('institution')
+                  text: Translator.trans('name')
                 }"
                 required />
               <dp-input
@@ -155,8 +155,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpContextualHelp, DpEditableList, DpInput } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpContextualHelp,
+  DpEditableList,
+  DpInput,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',
@@ -209,7 +216,6 @@ export default {
   data () {
     return {
       isFormVisible: false,
-      isListUpdated: false,
       listEntries: [],
       formFields: {
         submitterName: null,
@@ -219,7 +225,6 @@ export default {
         submitterPostalCode: null,
         submitterCity: null
       },
-      similarStatementSubmitterId: '',
       updating: false
     }
   },
@@ -243,6 +248,61 @@ export default {
   },
 
   methods: {
+    ...mapMutations('statement', {
+      updateStatement: 'update'
+    }),
+
+    ...mapMutations('similarStatementSubmitter', {
+      setSimilarStatementSubmitter: 'setItem'
+    }),
+
+    createSimilarStatementSubmitter () {
+      const index = this.listEntries.length - 1
+      const payload = {
+        type: 'SimilarStatementSubmitter',
+        attributes: this.getSimilarStatementSubmitterAttributes(index),
+        relationships: {
+          similarStatements: {
+            data: [
+              {
+                type: 'Statement',
+                id: this.statementId
+              }
+            ]
+          },
+          procedure: {
+            data: {
+              type: 'Procedure',
+              id: this.procedureId
+            }
+          }
+        }
+      }
+
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SimilarStatementSubmitter' }), {}, { data: payload })
+        .then(response => {
+          // Assign backend generated id to local item
+          const similarStatementSubmitterId = this.listEntries[index].id = response.data.data.id
+
+          // Update local state - statement
+          this.updateStatement({
+            id: this.statementId,
+            relationship: 'similarStatementSubmitters',
+            action: 'add',
+            value: {
+              id: similarStatementSubmitterId,
+              type: 'SimilarStatementSubmitter'
+            }
+          })
+
+          // Update local state - similarStatementSubmitter
+          this.setSimilarStatementSubmitter({
+            ...payload,
+            id: similarStatementSubmitterId
+          })
+        })
+    },
+
     deleteSimilarStatementSubmitter () {
       const payload = {
         type: 'Statement',
@@ -270,6 +330,49 @@ export default {
       this.resetFormFields()
     },
 
+    getSimilarStatementSubmitterAttributes (index) {
+      return {
+        fullName: this.listEntries[index].submitterName,
+        city: this.listEntries[index].submitterCity || null,
+        streetName: this.listEntries[index].submitterAddress || null,
+        streetNumber: this.listEntries[index].submitterHouseNumber || null,
+        postalCode: this.listEntries[index].submitterPostalCode || null,
+        emailAddress: this.listEntries[index].submitterEmailAddress || null
+      }
+    },
+
+    /**
+     * Save new or update existing entry from the list.
+     * @param index
+     */
+    handleSaveEntry (index) {
+      // Are we editing an existing list entry, or are we adding a new one?
+      const updatingExistingEntry = !!this.listEntries.find(entry => entry.id === this.listEntries[index]?.id)
+
+      // The id is generated in the backend when adding a new entry
+      const listEntry = {
+        id: updatingExistingEntry ? this.listEntries[index].id : '',
+        ...this.formFields
+      }
+
+      if (updatingExistingEntry) {
+        this.listEntries.splice(index, 1, listEntry)
+
+        if (this.isRequestFormPost === false) {
+          this.updateSimilarStatementSubmitter(index)
+        }
+      } else {
+        this.listEntries.push(listEntry)
+
+        if (this.isRequestFormPost === false) {
+          this.createSimilarStatementSubmitter(index)
+        }
+      }
+
+      this.resetFormFields()
+      this.$refs.listComponent.toggleFormVisibility(false)
+    },
+
     loadInitialListEntries () {
       if (this.similarStatementSubmitters) {
         this.listEntries = this.similarStatementSubmitters.map(el => {
@@ -287,110 +390,28 @@ export default {
       }
     },
 
-    removeItemFromListEntries (index) {
-      this.listEntries.splice(index, 1)
-    },
-
     resetFormFields () {
       for (const [key] of Object.entries(this.formFields)) {
         this.formFields[key] = null
       }
     },
 
-    saveSimilarStatementSubmitter (index) {
-      const { submitterName, submitterEmailAddress, submitterAddress, submitterHouseNumber, submitterCity, submitterPostalCode } = this.formFields
-      if (this.isListUpdated === false) {
-        this.listEntries.push({
-          id: this.similarStatementSubmitterId,
-          submitterName,
-          submitterEmailAddress,
-          submitterAddress,
-          submitterHouseNumber,
-          submitterCity,
-          submitterPostalCode
-        })
-        if (this.isRequestFormPost === false) {
-          const payload = {
-            type: 'SimilarStatementSubmitter',
-            attributes: {
-              fullName: submitterName,
-              city: submitterCity,
-              streetName: submitterAddress,
-              streetNumber: submitterHouseNumber,
-              postalCode: submitterPostalCode,
-              emailAddress: submitterEmailAddress
-            },
-            relationships: {
-              similarStatements: {
-                data: [
-                  {
-                    type: 'Statement',
-                    id: this.statementId
-                  }
-                ]
-              },
-              procedure: {
-                data: {
-                  type: 'Procedure',
-                  id: this.procedureId
-                }
-              }
-            }
-          }
-          dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SimilarStatementSubmitter' }), {}, { data: payload })
-            // The similarStatementSubmitterId is generated by BE after the API call
-            .then(response => {
-              this.listEntries[this.listEntries.length - 1].id = response.data.data.id
-            })
-        }
-      }
-      if (this.isListUpdated) {
-        const updatedList = {
-          id: this.listEntries[index].id,
-          submitterName,
-          submitterEmailAddress,
-          submitterAddress,
-          submitterHouseNumber,
-          submitterCity,
-          submitterPostalCode
-        }
-
-        this.updateListEntry(index, updatedList)
-        if (this.isRequestFormPost === false) {
-          this.updateSimilarStatementSubmitter(index)
-        }
-        this.isListUpdated = false
-      }
-
-      this.resetFormFields()
-      this.$refs.listComponent.toggleFormVisibility(false)
-    },
-
     toggleFormVisibility (visibility) {
       this.isFormVisible = visibility
-    },
-
-    updateListEntry (index, list) {
-      this.listEntries.splice(index, 1, list)
     },
 
     updateSimilarStatementSubmitter (index) {
       const payload = {
         type: 'SimilarStatementSubmitter',
         id: this.listEntries[index].id,
-        attributes: {
-          fullName: this.listEntries[index].submitterName,
-          city: this.listEntries[index].submitterCity !== '' ? this.listEntries[index].submitterCity : null,
-          streetName: this.listEntries[index].submitterAddress !== '' ? this.listEntries[index].submitterPostalCode : null,
-          streetNumber: this.listEntries[index].submitterHouseNumber !== '' ? this.listEntries[index].submitterPostalCode : null,
-          postalCode: this.listEntries[index].submitterPostalCode !== '' ? this.listEntries[index].submitterPostalCode : null,
-          emailAddress: this.listEntries[index].submitterEmailAddress !== '' ? this.listEntries[index].submitterEmailAddress : null
-        }
+        attributes: this.getSimilarStatementSubmitterAttributes(index)
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
         .then(response => { checkResponse(response) })
         .then(() => {
+          // Update local state - similarStatementSubmitter.
+          this.setSimilarStatementSubmitter(payload)
           dplan.notify.notify('confirm', Translator.trans('confirm.entry.updated'))
         })
         .catch(() => {
@@ -403,7 +424,18 @@ export default {
     this.loadInitialListEntries()
 
     this.$on('delete', (index) => {
-      this.removeItemFromListEntries(index)
+      this.updateStatement({
+        id: this.statementId,
+        relationship: 'similarStatementSubmitters',
+        action: 'remove',
+        value: {
+          id: this.listEntries[index].id,
+          type: 'SimilarStatementSubmitter'
+        }
+      })
+
+      this.listEntries.splice(index, 1)
+
       if (this.isRequestFormPost === false) {
         this.deleteSimilarStatementSubmitter()
       }
@@ -413,7 +445,6 @@ export default {
     })
 
     this.$on('showUpdateForm', (index) => {
-      this.isListUpdated = true
       this.formFields.submitterCity = this.listEntries[index].submitterCity
       this.formFields.submitterName = this.listEntries[index].submitterName
       this.formFields.submitterAddress = this.listEntries[index].submitterAddress

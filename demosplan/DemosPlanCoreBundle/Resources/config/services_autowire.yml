@@ -6,40 +6,11 @@ services:
 
     # makes classes in demosplan/* available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    demosplan\DemosPlanAdminBundle\:
-        resource: '../../../../demosplan/DemosPlanAdminBundle/*'
-        # you can exclude directories or files
-        # but if a service is unused, it's removed anyway
-        exclude: '../../../../demosplan/DemosPlanAdminBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanAssessmentTableBundle\:
-        resource: '../../../../demosplan/DemosPlanAssessmentTableBundle/*'
-        exclude: '../../../../demosplan/DemosPlanAssessmentTableBundle/{Entity,Tests}'
 
     demosplan\DemosPlanCoreBundle\:
         resource: '../../../../demosplan/DemosPlanCoreBundle/*'
         exclude:
             - '../../../../demosplan/DemosPlanCoreBundle/{Entity,Tests,ResourceTypes,StoredQuery,Resources/config}'
-
-    demosplan\DemosPlanDocumentBundle\:
-        resource: '../../../../demosplan/DemosPlanDocumentBundle/*'
-        exclude: '../../../../demosplan/DemosPlanDocumentBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanFaqBundle\:
-        resource: '../../../../demosplan/DemosPlanFaqBundle/*'
-        exclude: '../../../../demosplan/DemosPlanFaqBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanForumBundle\:
-        resource: '../../../../demosplan/DemosPlanForumBundle/*'
-        exclude: '../../../../demosplan/DemosPlanForumBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanMapBundle\:
-        resource: '../../../../demosplan/DemosPlanMapBundle/*'
-        exclude: '../../../../demosplan/DemosPlanMapBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanMiscContentBundle\:
-        resource: '../../../../demosplan/DemosPlanMiscContentBundle/*'
-        exclude: '../../../../demosplan/DemosPlanMiscContentBundle/{Entity,Tests}'
 
     demosplan\DemosPlanProcedureBundle\:
         resource: '../../../../demosplan/DemosPlanProcedureBundle/*'
@@ -48,10 +19,6 @@ services:
     demosplan\DemosPlanReportBundle\:
         resource: '../../../../demosplan/DemosPlanReportBundle/*'
         exclude: '../../../../demosplan/DemosPlanReportBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanStatementBundle\:
-        resource: '../../../../demosplan/DemosPlanStatementBundle/*'
-        exclude: '../../../../demosplan/DemosPlanStatementBundle/{Entity,Tests}'
 
     demosplan\DemosPlanUserBundle\:
         resource: '../../../../demosplan/DemosPlanUserBundle/*'

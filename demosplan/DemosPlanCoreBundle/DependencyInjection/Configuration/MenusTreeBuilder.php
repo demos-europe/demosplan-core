@@ -18,8 +18,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class MenusTreeBuilder implements ConfigurationInterface
 {
-
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('menus');
 
@@ -35,7 +34,8 @@ class MenusTreeBuilder implements ConfigurationInterface
     private function addMenuEntry(string $name, int $depth = 0): NodeDefinition
     {
         if (2 <= $depth) {
-            $treeBuilder =  new TreeBuilder($name, 'variable');
+            $treeBuilder = new TreeBuilder($name, 'variable');
+
             return $treeBuilder->getRootNode();
         }
         $treeBuilder = new TreeBuilder($name);

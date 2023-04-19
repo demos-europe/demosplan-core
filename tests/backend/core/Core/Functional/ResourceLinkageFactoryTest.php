@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
+use Exception;
 use JsonException;
 use Tests\Base\FunctionalTestCase;
 use TypeError;
@@ -30,7 +31,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonA()
     {
@@ -41,7 +42,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonB()
     {
@@ -52,7 +53,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonC()
     {
@@ -63,7 +64,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonD()
     {
@@ -74,7 +75,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonE()
     {
@@ -83,7 +84,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonF()
     {
@@ -92,7 +93,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonG()
     {
@@ -103,7 +104,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestStringWithInvalidJsonH()
     {
@@ -112,7 +113,7 @@ class ResourceLinkageFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateFromJsonRequestString()
     {

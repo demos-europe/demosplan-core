@@ -66,7 +66,7 @@ final class Registrator
             'addons' => $this->addons,
         ];
 
-        $content = '# This file is auto-generated and should not be edited manually unless you know what you\'re doing.';
+        $content = "# This file is auto-generated and should not be edited manually unless you know what you're doing.\n";
         $content .= Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH);
 
         file_put_contents(
@@ -87,7 +87,8 @@ final class Registrator
         $this->addons[$addonName] = [
             'enabled'      => false,
             'installed_at' => Carbon::now()->toIso8601String(),
-            'install_path' => realpath($this->packageInformation->getInstallPath($addonName)),
+            // use relative path to be compatible with different environments
+            'install_path' => 'addons/vendor/'.$addonName,
             'manifest'     => $this->loadManifest($addonName),
         ];
     }

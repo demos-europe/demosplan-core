@@ -14,8 +14,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
-use demosplan\DemosPlanMapBundle\Logic\MapHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use InvalidArgumentException;
 use Tests\Base\FunctionalTestCase;
 
 class MapHandlerTest extends FunctionalTestCase
@@ -133,7 +135,7 @@ class MapHandlerTest extends FunctionalTestCase
         $this->sut->updateGisLayerCategory($testGisLayerCategory6->getId(), $updateData);
         $updatedCategory = $this->sut->getGisLayerCategory($testGisLayerCategory6->getId());
 
-        //expect no changes:
+        // expect no changes:
         static::assertEquals($updatedCategory->getId(), $updatedCategory->getId());
         static::assertEquals($updatedCategory->getParentId(), $updatedCategory->getParentId());
         static::assertEquals($updatedCategory->getParent(), $currentPartent);
@@ -186,7 +188,7 @@ class MapHandlerTest extends FunctionalTestCase
 
     public function testRemoveChildren()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         /** @var GisLayerCategory $testGisLayerCategory5 */
         $testGisLayerCategory5 = $this->fixtures->getReference('testGisLayerCategory5');
@@ -204,7 +206,7 @@ class MapHandlerTest extends FunctionalTestCase
         /** @var GisLayer $testGisLayer3 */
         $testGisLayer3 = $this->fixtures->getReference('testGisLayer3');
 
-        //because of test data, this layers have no category:
+        // because of test data, this layers have no category:
         static::assertEquals($testGisLayerCategoryRoot, $testGisLayer2->getCategory());
         static::assertEquals($testGisLayerCategoryRoot, $testGisLayer3->getCategory());
         static::assertEmpty($testGisLayerCategory2->getGisLayers());
@@ -225,7 +227,7 @@ class MapHandlerTest extends FunctionalTestCase
         static::assertEquals($testGisLayer3->getCategoryId(), $testGisLayerCategory2->getId());
     }
 
-    //test change treeOrder:
+    // test change treeOrder:
 
     public function testChangeTreeOrderWithGisLayersOnly()
     {
@@ -238,7 +240,7 @@ class MapHandlerTest extends FunctionalTestCase
 
         static::assertEmpty($testGisLayerCategory2->getGisLayers());
 
-        //prepare data:
+        // prepare data:
         $this->sut->updateGisLayer($testGisLayer5->getId(), ['categoryId' => $testGisLayerCategory2->getId()]);
         $this->sut->updateGisLayer($testGisLayer7->getId(), ['categoryId' => $testGisLayerCategory2->getId()]);
 
@@ -366,7 +368,7 @@ class MapHandlerTest extends FunctionalTestCase
         static::assertEquals($testGisLayerCategoryRoot->getId(), $testGisLayerCategory3->getParentId());
         static::assertEquals($testGisLayerCategoryRoot->getId(), $testGisLayerCategory4->getParentId());
 
-        //update parents also:
+        // update parents also:
         $updateData = [
             'included' => [
                 [
@@ -476,7 +478,7 @@ class MapHandlerTest extends FunctionalTestCase
         static::assertEquals(0, $testGisLayerCategory5->getTreeOrder());
         static::assertEquals(0, $testGisLayerCategory6->getTreeOrder());
 
-        //because of test data this gislayer have no category
+        // because of test data this gislayer have no category
         static::assertEquals($testGisLayerCategory1, $testGisLayer5->getCategory());
         static::assertEquals($testGisLayerCategory1, $testGisLayer7->getCategory());
 
@@ -566,7 +568,7 @@ class MapHandlerTest extends FunctionalTestCase
         $updatedGisLayerCategory5 = $this->sut->getGisLayerCategory($testGisLayerCategory5->getId());
         $updatedGisLayerCategory6 = $this->sut->getGisLayerCategory($testGisLayerCategory6->getId());
 
-        //check for changed parent/children structure of categories:
+        // check for changed parent/children structure of categories:
         static::assertNull($updatedRoot->getParent());
         static::assertCount($numberOfChildrenOfRootCategoryBefore - 4, $updatedRoot->getChildren());
 
@@ -596,7 +598,7 @@ class MapHandlerTest extends FunctionalTestCase
 
         static::assertCount(0, $updatedGisLayerCategory6->getChildren());
 
-        //check for changed Category of Gislayers:
+        // check for changed Category of Gislayers:
         static::assertEquals($testGisLayerCategory3->getId(), $testGisLayer7->getCategory()->getId());
         static::assertEquals($testGisLayerCategory3->getId(), $testGisLayer5->getCategory()->getId());
         static::assertEquals(1, $testGisLayer5->getTreeOrder());
@@ -672,7 +674,7 @@ class MapHandlerTest extends FunctionalTestCase
 
     public function testDenyNewGisLayerCategoryWithoutName()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure2');
@@ -824,7 +826,7 @@ class MapHandlerTest extends FunctionalTestCase
         static::assertTrue($updatedGisLayer->hasDefaultVisibility());
         static::assertEquals($visibilityGroupId, $updatedGisLayer->getVisibilityGroupId());
 
-        //default visibility of gisLayer2 was updated indirectly via visibilityGroup
+        // default visibility of gisLayer2 was updated indirectly via visibilityGroup
         static::assertTrue($gisLayer2->hasDefaultVisibility());
         static::assertEquals($visibilityGroupId, $gisLayer2->getVisibilityGroupId());
     }
@@ -838,7 +840,7 @@ class MapHandlerTest extends FunctionalTestCase
         /** @var GisLayer $gisLayer3 */
         $gisLayer3 = $this->fixtures->getReference('testGisLayer3');
 
-        //check setup
+        // check setup
         static::assertNull($gisLayer1->getVisibilityGroupId());
         static::assertNull($gisLayer2->getVisibilityGroupId());
         static::assertNull($gisLayer3->getVisibilityGroupId());
@@ -867,7 +869,7 @@ class MapHandlerTest extends FunctionalTestCase
         static::assertContains($gisLayer2, $gisLayersOfGroup);
         static::assertContains($gisLayer3, $gisLayersOfGroup);
 
-        //check site of gisLayers:
+        // check site of gisLayers:
         static::assertEquals($newVisibilityGroupId, $gisLayer1->getVisibilityGroupId());
         static::assertEquals($newVisibilityGroupId, $gisLayer2->getVisibilityGroupId());
         static::assertEquals($newVisibilityGroupId, $gisLayer3->getVisibilityGroupId());
@@ -942,7 +944,7 @@ class MapHandlerTest extends FunctionalTestCase
         $visibilityGroup = $this->sut->getVisibilityGroup($visibilityGroupId);
         static::assertCount(2, $visibilityGroup);
 
-        //unset All:
+        // unset All:
         foreach ($visibilityGroup as $gisLayer) {
             $this->sut->updateGisLayer($gisLayer->getId(), ['visibilityGroupId' => null]);
         }
@@ -958,7 +960,7 @@ class MapHandlerTest extends FunctionalTestCase
         /** @var GisLayer $gisLayer1 */
         $gisLayer1 = $this->fixtures->getReference('invisibleGisLayer1');
 
-        //check setup:
+        // check setup:
         static::assertNotNull($gisLayer1->getVisibilityGroupId());
         static::assertTrue($gisLayer1->getUserToggleVisibility());
 
@@ -969,7 +971,7 @@ class MapHandlerTest extends FunctionalTestCase
     {
         /** @var GisLayer $gisLayer1 */
         $gisLayer1 = $this->fixtures->getReference('invisibleGisLayer1');
-        //check setup:
+        // check setup:
         static::assertNotNull($gisLayer1->getVisibilityGroupId());
         static::assertTrue($gisLayer1->getUserToggleVisibility());
 
@@ -991,7 +993,7 @@ class MapHandlerTest extends FunctionalTestCase
         $this->sut->updateGisLayer($gisLayer1->getId(), ['userToggleVisibility' => false]);
         $gisLayer1 = $this->sut->getGisLayer($gisLayer1->getId());
         static::assertFalse($gisLayer1->canUserToggleVisibility());
-        //gisLayer is Member of visibilityGroup
+        // gisLayer is Member of visibilityGroup
         static::assertNotNull($gisLayer1->getVisibilityGroupId());
 
         $this->sut->updateGisLayer($gisLayer1->getId(),

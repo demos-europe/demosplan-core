@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-const config = require('./client/setup/config').config
+const config = require('./client/fe/config/config').config
 const webpackConfig = require('./config.webpack')
 
 const aliases = webpackConfig[0].resolve.alias
@@ -47,8 +47,7 @@ module.exports = {
   },
   // Do not transform dependencies from node_nodules, but transform demosplan-ui components.
   transformIgnorePatterns: [
-    '/node_modules/(?!(demosplan-ui)/)',
-    '/node_modules/(?!(demosplan-utils)/)'
+    '/node_modules/(?!(demosplan-ui)/)'
   ],
   // Send a notification when tests fail or once when they pass
   notifyMode: 'failure-success',

@@ -10,27 +10,35 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
-    demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         lazy: true
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
+    demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
-    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
-        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
 
-    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
-    EDT\Wrapping\Contracts\TypeProviderInterface:
-        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+    DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
-    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+        class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -39,10 +47,7 @@ services:
         class:
 
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
-        class:
-
-    DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
-        class:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
@@ -51,7 +56,7 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
 
     DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface:
-        class:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserHandler'
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
@@ -60,7 +65,7 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
 
     DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
-        class: demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator
+        class: demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator
 
     DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\FileService
@@ -77,8 +82,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-#    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
-#       class:
+    demosplan\DemosPlanCoreBundle\Permissions\permissions: ~
+
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
 
 #    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
 #        class:
@@ -99,7 +105,17 @@ services:
 #        class:
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
-        class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
+        class: 'demosplan\DemosPlanStatementBundle\Logic\StatementHandler'
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
+
 
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler
@@ -143,9 +159,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface:
         class: demosplan\DemosPlanCoreBundle\Exception\ViolationsException
 
-    DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface:
-        class: DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel
-
     DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Services\ApiResourceService
 
@@ -174,13 +187,20 @@ services:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
 
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
-        class: demosplan\DemosPlanStatementBundle\Logic\StatementService
+        class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
         class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
+        arguments:
+            $esProcedurePersister : '@fos_elastica.object_persister.procedures'
+            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $environment: '%kernel.environment%'
 
     DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\File
@@ -217,6 +237,11 @@ services:
 
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
+
+    demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
+        arguments:
+            $locator: '@file_locator'
+            $loader: '@routing.loader.annotation'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -425,6 +450,13 @@ services:
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
+    Doctrine\ORM\EntityManager:
+        arguments:
+            $config: '@doctrine.orm.default_configuration'
+
+    EDT\JsonApi\RequestHandling\EntityFetcherInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher
+
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
     # Used in Migrations. As long as DI is not usable in Migrations yet these have to be public
@@ -489,6 +521,8 @@ services:
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
@@ -632,57 +666,52 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
+        lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
     ##########Handler
 
-    demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphHandler: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler: ~
 
 
-    demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
+    demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         calls:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\RpcElementsBulkEditor:
+    demosplan\DemosPlanCoreBundle\Logic\Document\RpcElementsBulkEditor:
         lazy: true
 
     ########## Transformers
 
-    demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
-
-    demosplan\DemosPlanForumBundle\Logic\ForumHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-        lazy: true
-
-    demosplan\DemosPlanForumBundle\Logic\ForumService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-        lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
@@ -692,49 +721,49 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo: ~
+    demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo: ~
 
-    demosplan\DemosPlanMapBundle\Logic\MapService:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
-            - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanStatementBundle\Logic\DraftStatementService' ] ]
+            - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService' ] ]
             - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
 
-    demosplan\DemosPlanMapBundle\Logic\MapHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter:
+    demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
         arguments:
             $logger: '@monolog.logger.dplan'
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToCoordinatesCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToCoordinatesCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToPolygonCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToPolygonCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PolygonIntoMapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PrintLayerToMapLayerConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PrintLayerToMapLayerConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\WmsToWmtsCoordinatesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
@@ -863,74 +892,71 @@ services:
 
     demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter: ~
 
-    demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanStatementBundle\Logic\ElasticSearchService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
             - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanStatementBundle\Logic\DraftStatementService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\AssignService:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
+    demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository:
         $fragmentSearchType: '@fos_elastica.index.statementFragments'
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsStatementType', [ '@fos_elastica.index.statements' ]]
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementCopyAndMoveService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopyAndMoveService:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementMover:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementCopier:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementClusterService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementClusterService:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 
-    demosplan\DemosPlanStatementBundle\Logic\TagService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\SubmitterService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\EventListener\UpdateElasticaStatementPostListener:
+    demosplan\DemosPlanCoreBundle\EventListener\UpdateElasticaStatementPostListener:
         lazy: true
         tags:
             - { name: doctrine.event_listener, event: preRemove }
@@ -938,22 +964,22 @@ services:
             - { name: doctrine.event_listener, event: postPersist }
 
 
-    demosplan\DemosPlanStatementBundle\EventListener\DoctrineStatementListener:
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
 
 
-    demosplan\DemosPlanStatementBundle\EventListener\IndexFilesListener:
+    demosplan\DemosPlanCoreBundle\EventListener\IndexFilesListener:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions:
         lazy: true
         arguments:
             $env: '%kernel.environment%'
 
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
@@ -975,55 +1001,55 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanStatementBundle\Validator\StatementIdsInProcedureValidator:
+    demosplan\DemosPlanCoreBundle\Validator\StatementIdsInProcedureValidator:
         tags:
-            - { name: validator.constraint_validator, alias: demosplan\DemosPlanStatementBundle\Validator\StatementIdsInProcedureValidator }
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\StatementIdsInProcedureValidator }
 
-    demosplan\DemosPlanStatementBundle\Validator\ClaimedStatementIdsValidator:
+    demosplan\DemosPlanCoreBundle\Validator\ClaimedStatementIdsValidator:
         tags:
-            - { name: validator.constraint_validator, alias: demosplan\DemosPlanStatementBundle\Validator\ClaimedStatementIdsValidator }
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimedStatementIdsValidator }
 
-    demosplan\DemosPlanStatementBundle\Logic\CountyService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\Logic\MunicipalityService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\Logic\PresentableOriginalStatementFactory:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\PresentableOriginalStatementFactory:
         lazy: true
 
     # Assessment Table Exporter Strategy
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableExporterStrategy:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy:
         lazy: true
         arguments: [!tagged dplan.assessment.table.exporter]
 
     # Assessment Table Exporter Abstract
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableFileExporterAbstract: ~
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableFileExporterAbstract: ~
 
     # PDF Exporter
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTablePdfExporter:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter:
         lazy: true
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
     # XLS Exporter
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter:
         lazy: true
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
     # DOCX Exporter
-    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableDocxExporter:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableDocxExporter:
         lazy: true
         tags:
             - { name: "dplan.assessment.table.exporter" }
@@ -1056,9 +1082,9 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\SimplifiedStatementCreator: ~
 
-    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator:
         lazy: true
 
     # Drafts Info Service
@@ -1223,7 +1249,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\EventSubscriber\OrganisationUpdateSubscriber:
+    demosplan\DemosPlanCoreBundle\EventSubscriber\OrganisationUpdateSubscriber:
         tags:
             - { name: kernel.event_subscriber }
 
@@ -1238,6 +1264,17 @@ services:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
+
+
+    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+
+    EDT\Wrapping\Contracts\TypeProviderInterface:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
@@ -1273,7 +1310,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1284,9 +1321,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
@@ -1325,3 +1362,8 @@ services:
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
+
+    # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
+    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
+
+    EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'

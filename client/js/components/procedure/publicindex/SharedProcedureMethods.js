@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { formatDate } from '@demos-europe/demosplan-ui'
 
 const Methods = {
   period () {

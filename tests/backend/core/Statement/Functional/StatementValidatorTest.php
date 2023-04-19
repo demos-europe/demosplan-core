@@ -33,17 +33,17 @@ class StatementValidatorTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //***********************
+        // ***********************
         // Correct Statement
-        //***********************
+        // ***********************
         $successObject = $this->getStatementReference('testStatementOrig');
         $meta = $successObject->getMeta();
         $result = $this->sut->validate($successObject);
         static::assertCount(0, $result);
 
-        //*********************
+        // *********************
         // Wrong Statement
-        //*********************
+        // *********************
         $errorMeta = $meta;
         $errorMeta->setOrgaName(null);
         $errorMeta->setOrgaDepartmentName(null);

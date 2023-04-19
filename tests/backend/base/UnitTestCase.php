@@ -10,8 +10,6 @@
 
 namespace Tests\Base;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
 /**
  * Base Class for Unit Tests in Demos Plan
  * Class UnitTestCase.

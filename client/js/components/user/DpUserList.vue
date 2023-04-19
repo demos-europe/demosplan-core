@@ -105,8 +105,7 @@
 </template>
 
 <script>
-import { debounce, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -202,7 +201,7 @@ export default {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete'))) {
+        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
           ids.forEach(id => {
             this.deleteUser(id)
               .then(() => {

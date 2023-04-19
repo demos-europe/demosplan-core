@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Event\LanguageSwitchRequestEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
@@ -32,11 +33,9 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
-use demosplan\DemosPlanCoreBundle\Services\SubdomainHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
@@ -316,7 +315,7 @@ class DemosPlanUserController extends BaseController
      */
     public function switchLanguageAction(EventDispatcherPostInterface $eventDispatcherPost, Request $request)
     {
-        //change url:
+        // change url:
         $event = new LanguageSwitchRequestEvent($request);
         try {
             $eventDispatcherPost->post($event);
@@ -325,11 +324,11 @@ class DemosPlanUserController extends BaseController
             $this->logger->warning('Could not successfully process LanguageSwitchEvent ', [$e]);
         }
 
-        //invert current locale set by setting current session:
+        // invert current locale set by setting current session:
         $languageKey = ('de' === $request->getSession()->get('_locale', 'de')) ? 'de_plain' : 'de';
         $request->getSession()->set('_locale', $languageKey);
 
-        //redirect to current page:
+        // redirect to current page:
         return $this->redirectBack($request);
     }
 
@@ -625,7 +624,7 @@ class DemosPlanUserController extends BaseController
         }
 
         $addressBookEntry = null;
-        //no violation? persist new entry
+        // no violation? persist new entry
         if (0 === $violations->count()) {
             try {
                 $addressBookEntry = $addressBookEntryService->createAddressBookEntry($addressBookEntryVO);
@@ -686,7 +685,7 @@ class DemosPlanUserController extends BaseController
             $addressBookEntryService->deleteAddressBookEntries($addressBookEntryIds);
             $this->getMessageBag()->add('confirm', 'confirm.addressBookEntry.deleted');
         } catch (Exception $e) {
-            //while loop over addressbookentries, exception was thrown
+            // while loop over addressbookentries, exception was thrown
             $this->getMessageBag()->add('warning', 'warning.addressBookEntries.not.deleted');
         }
 

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,17 +37,18 @@ class AddonBuildFrontendCommand extends CoreCommand
         $this->addArgument('addon-name', InputArgument::REQUIRED, 'Addon name, du\'h.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln("Building frontend assets for {$input->getArgument('addon-name')}");
 
         $addonInfo = $this->registry[$input->getArgument('addon-name')];
 
+        $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
         $consoleReturn = Batch::create($this->getApplication(), $output)
-            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonInfo->getInstallPath())
-            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonInfo->getInstallPath())
+            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonPath)
+            ->addShell(['yarn', 'prod'], $addonPath)
             ->run();
 
-        return $consoleReturn === 0 ? self::SUCCESS : self::FAILURE;
+        return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;
     }
 }

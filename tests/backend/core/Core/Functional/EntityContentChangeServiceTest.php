@@ -10,13 +10,14 @@
 
 namespace Tests\Core\Core\Functional;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Monolog\Logger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
@@ -69,14 +70,14 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             'text',
             $contentChangeDiff['text'],
             $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY),
-            new \DateTime()
+            new DateTime()
         );
 
         // have to do, because of doctrine proxy object
         $expectedSimplifyClassName =
-            (substr(Statement::class, strrpos(Statement::class, '\\') + 1));
+            substr(Statement::class, strrpos(Statement::class, '\\') + 1);
         $actualSimplifyClassName =
-            (substr($result->getEntityType(), strrpos($result->getEntityType(), '\\') + 1));
+            substr($result->getEntityType(), strrpos($result->getEntityType(), '\\') + 1);
 
         static::assertSame($expectedSimplifyClassName, $actualSimplifyClassName);
         static::assertInstanceOf(EntityContentChange::class, $result);
@@ -108,7 +109,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $testStatement = $this->fixtures->getReference('testStatement');
 
         $amountOfEntities = $this->countEntries(
-        EntityContentChange::class,
+            EntityContentChange::class,
             ['entityType' => Statement::class, 'entityId' => $testStatement->getId()]);
 
         $historyOfStatement = $this->sut->getChangesByEntityId($testStatement->getId());
@@ -216,7 +217,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $logger = $mockBuilder->getMock();
         $logger->method('info')->with('Could not determine content changes for statement because of object structure.');
 
-        //->will(function($message) {
+        // ->will(function($message) {
 //        $testCase::assertEquals('Could not determine content changes for statement because of object structure.', $message);
 //        });
 

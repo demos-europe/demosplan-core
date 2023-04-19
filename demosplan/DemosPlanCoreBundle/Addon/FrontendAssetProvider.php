@@ -28,7 +28,7 @@ final class FrontendAssetProvider
      */
     public function getFrontendClassesForHook(string $hookName): array
     {
-        return array_map(function (AddonInfo $addonInfo) use ($hookName) {
+        $assetList = array_map(function (AddonInfo $addonInfo) use ($hookName) {
             if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
                 return [];
             }
@@ -40,42 +40,63 @@ final class FrontendAssetProvider
             }
 
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = $addonInfo->getInstallPath().'/'.$uiData['manifest'];
+            $manifestPath =  DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
             try {
-                $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
-                // Try to get the content of the actual asset
-                $entryFilePath = $addonInfo->getInstallPath().'/dist/'.$entryFile;
-                $assetContent = file_get_contents($entryFilePath);
-                if (!$assetContent) {
+                $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
+
+                // TODO: handle this for all asset file types
+                if (!array_key_exists('js', $entries)) {
+                    throw new AddonException('Entry has no javascript and is thus pretty much useless');
+                }
+
+                $assetContents = [];
+
+                foreach ($entries['js'] as $entry) {
+                    // Try to get the content of the actual asset
+                    $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
+                    $assetContents[$entry] = file_get_contents($entryFilePath);
+                }
+
+                if (0 === count($assetContents)) {
                     return [];
                 }
             } catch (AddonException $e) {
                 return [];
             }
 
-            return $this->createAddonFrontendAssetsEntry($hookData, $assetContent);
+            return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());
+
+        // avoid exposing addon information unnecessarily
+        return array_filter($assetList, fn (array $assetInfo) => 0 !== count($assetInfo));
     }
 
     /**
      * @param array<string, string|array> $hookData
+     * @param array<string, string>       $assetContents
      *
      * @return array<string, array{entry:string, options:array, content:string}>
      */
-    private function createAddonFrontendAssetsEntry(array $hookData, string $assetContent): array
+    private function createAddonFrontendAssetsEntry(array $hookData, array $assetContents): array
     {
         return [
             'entry'   => $hookData['entry'],
             'options' => $hookData['options'],
-            'content' => $assetContent,
+            'content' => $assetContents,
         ];
     }
 
     /**
+     * Get the asset dictionary of an entry.
+     *
+     * Returns a dictionary of assets mapped by file type (i.e. ['js' => ['asset.js']])
+     *
+     * @return array<string,mixed>
+     *
      * @throws AddonException
      */
-    private function getAssetPathFromManifest(string $manifestPath, string $entryName): string
+    private function getAssetPathsFromManifest(string $manifestPath, string $entryName): array
     {
         if (!file_exists($manifestPath)) {
             AddonException::invalidManifest($manifestPath);
@@ -83,10 +104,10 @@ final class FrontendAssetProvider
 
         $manifestContent = Yaml::parseFile($manifestPath);
 
-        if (!array_key_exists($entryName, $manifestContent)) {
+        if (!array_key_exists($entryName, $manifestContent['entrypoints'])) {
             AddonException::manifestEntryNotFound($entryName);
         }
 
-        return $manifestContent[$entryName];
+        return $manifestContent['entrypoints'][$entryName]['assets'];
     }
 }

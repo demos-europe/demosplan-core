@@ -11,11 +11,13 @@
 namespace Tests\Core\Procedure\Functional;
 
 use Carbon\Carbon;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class ProcedureHandlerTest extends FunctionalTestCase
@@ -46,7 +48,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddInvitedPublicAffairsAgentsFromResourceLinkage(): void
     {
@@ -57,7 +59,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
         /** @var Orga $orga */
         $orga = $this->fixtures->getReference('testOrgaInvitableInstitutionOnly');
         static::assertFalse($procedure->hasOrganisation($orga->getId()));
-        $resourceLinkage = (new ResourceLinkageFactory)->createFromJsonRequestString(
+        $resourceLinkage = (new ResourceLinkageFactory())->createFromJsonRequestString(
             sprintf(
                 '{"data": [{ "type": "publicAffairsAgent", "id": "%s" }]}',
                 $orga->getId()
@@ -70,7 +72,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
     /**
      * Checks if all relevant procedures will be found and changed.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
@@ -79,7 +81,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
         $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
         $idsOfEndedInternalParticipation = [];
         $idsOfEndedExternalParticipation = [];
 
@@ -99,7 +101,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
 
         static::assertNotEmpty($idsOfEndedInternalParticipation);
         static::assertNotEmpty($idsOfEndedExternalParticipation);
-        //merge ids, because some of the procedure are changed public dates and internal dates
+        // merge ids, because some of the procedure are changed public dates and internal dates
         $idsOfChangedProcedures = array_merge($idsOfEndedExternalParticipation, $idsOfEndedInternalParticipation);
 
         $changedProcedures = $this->sut->switchToEvaluationPhasesOnEndOfParticipationPhase();
@@ -140,11 +142,11 @@ class ProcedureHandlerTest extends FunctionalTestCase
 
         /** @var Procedure[] $procedures */
         $procedures = $this->getEntries(Procedure::class, ['deleted' => false]);
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
         $datesOfEndedInternalParticipationProcedures = [];
         $datesOfEndedExternalParticipationProcedures = [];
 
-        //setup:
+        // setup:
         foreach ($procedures as $procedure) {
             if ($procedure->getEndDate() < $currentDate
                 && in_array($procedure->getPhase(), $internalWritePhaseKeys, true)) {
@@ -158,10 +160,10 @@ class ProcedureHandlerTest extends FunctionalTestCase
         static::assertNotEmpty($datesOfEndedInternalParticipationProcedures);
         static::assertNotEmpty($datesOfEndedExternalParticipationProcedures);
 
-        //execution method of interest:
+        // execution method of interest:
         $this->sut->switchToEvaluationPhasesOnEndOfParticipationPhase();
 
-        //actual check of result:
+        // actual check of result:
         foreach ($datesOfEndedInternalParticipationProcedures as $procedureId => $endDate) {
             /** @var Procedure $procedure */
             $procedure = $this->find(Procedure::class, $procedureId);

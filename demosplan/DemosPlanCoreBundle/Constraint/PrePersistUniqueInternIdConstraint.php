@@ -33,7 +33,7 @@ class PrePersistUniqueInternIdConstraint extends Constraint
         return PrePersistUniqueInternIdConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

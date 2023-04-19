@@ -10,43 +10,32 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
-use function collect;
-
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
-
-use function http_build_query;
-use function is_array;
-use function str_replace;
-use function strlen;
-use function strpos;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,6 +43,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_merge;
+use function collect;
+use function http_build_query;
+use function is_array;
+use function str_replace;
+use function strlen;
+use function strpos;
 
 /**
  * Class DemosPlanAssessmentStatementFragmentController
@@ -86,6 +84,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/verfahren/{procedure}/fragment/{statementId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
@@ -135,12 +134,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             if (isset($resElements['documents'])) {
                 $templateVars['documents'] = $resElements['documents'];
+            } else {
+                // assure that at least one planningCategory Group is present if no documents are available
+                $templateVars['documents'][$statement->getElementId()] = [];
             }
             if (isset($resElements['elements'])) {
                 $templateVars['elements'] = $resElements['elements'];
             }
             if (isset($resElements['paragraph'])) {
                 $templateVars['paragraph'] = $resElements['paragraph'];
+            } else {
+                // assure that at least one planningCategory Group is present if no paragraph are available
+                $templateVars['paragraph'][$statement->getElementId()] = [];
             }
 
             $templateVars['availableTags'] = $statementHandler->getTopicsAndTagsOfProcedureAsArray($procedureId);
@@ -156,7 +161,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/fragment_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -176,6 +181,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     name="DemosPlan_statement_fragment_list_fragment_archived_reviewer",
      *     path="/datensatz/liste/archive"
      * )
+     *
      *  @DplanPermissions({"area_statement_fragments_department_archive","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
@@ -245,7 +251,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments_archive.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list.archive',
@@ -262,6 +268,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/datensatz/liste",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
@@ -350,7 +357,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list',
@@ -372,6 +379,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     defaults={"isReviewer": true},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
@@ -444,6 +452,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     methods={"POST"},
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_admin_assessmenttable","feature_statements_fragment_edit"})
      *
      * @param string $fragmentId
@@ -496,6 +505,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param string $procedure
@@ -523,6 +533,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
      *
      * @param string $statementId
@@ -561,6 +572,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Fragment Statement into multiple slices.
      *
      * @DplanPermissions({"area_statements_fragment", "feature_statements_fragment_add"})
+     *
      * @Route(
      *     name="DemosPlan_statement_fragment_add",
      *     path="/verfahren/{procedure}/fragment/{statementId}/add"
@@ -655,6 +667,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     name="DemosPlan_statement_fragment_update_redirect",
      *     path="/datensatz/update",
      * )
+     *
      *  @DplanPermissions({"area_statements_fragment","feature_statements_fragment_edit"})
      *
      * @param bool $isReviewer
@@ -742,6 +755,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Returns fragment data for a statement on the assessment table.
      *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @Route(
      *     name="DemosPlan_assessment_statement_fragments_ajax",
      *     path="/_ajax/assessment/{procedureId}/{statementId}",
@@ -819,6 +833,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/datensatz/liste/export",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param Request $request ;

@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use Geometry;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {
@@ -54,7 +54,7 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
         $geoJsonObject = Json::decodeToMatchingType($geoJson);
         $features = $this->sut->convert($geoJson);
         $i = 0;
-        /** @var \demosplan\DemosPlanMapBundle\ValueObject\Feature $feature */
+        /** @var \demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature $feature */
         foreach ($features as $feature) {
             $inputFeature = $geoJsonObject->features[$i];
             $this->assertValidGeometry($inputFeature->geometry, $feature->getGeometry());

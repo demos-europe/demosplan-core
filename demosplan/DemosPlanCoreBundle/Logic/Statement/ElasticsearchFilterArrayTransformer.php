@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanStatementBundle\Logic\ElasticSearchService;
 use Psr\Log\LoggerInterface;
 
 class ElasticsearchFilterArrayTransformer
@@ -42,7 +41,6 @@ class ElasticsearchFilterArrayTransformer
     {
         $filter = [];
         if ((!\is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
-
             return $filter;
         }
 

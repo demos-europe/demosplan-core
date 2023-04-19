@@ -13,11 +13,6 @@ namespace Tests\Core\Procedure\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Doctrine\ORM\ORMInvalidArgumentException;
-use Exception;
-use Psr\Log\NullLogger;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -53,10 +48,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
+use Doctrine\ORM\ORMInvalidArgumentException;
+use Exception;
+use InvalidArgumentException;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Tests\Base\FunctionalTestCase;
 
 class ProcedureServiceTest extends FunctionalTestCase
 {
@@ -75,7 +76,7 @@ class ProcedureServiceTest extends FunctionalTestCase
     /** @var ReportService */
     protected $reportService;
 
-    /** @var FileService|object|null  */
+    /** @var FileService|object|null */
     private $fileService;
     /**
      * @var EntityHelper
@@ -99,13 +100,20 @@ class ProcedureServiceTest extends FunctionalTestCase
         $this->entityHelper = new EntityHelper(new NullLogger());
 
         $this->loginTestUser();
-
     }
 
     public function testGetProcedureAdminList(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], null, null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
         static::assertEquals($this->countEntries(Procedure::class, ['master' => false]), $procedureList['total']);
@@ -131,7 +139,17 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Is there even one with both closed?
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([], null, null, $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY), false, false, false);
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
+                null,
+                $this->getUserReference(
+                    LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+                ),
+                null,
+                false,
+                false,
+                false
+            );
         } catch (Exception $e) {
             $this->fail('Unable to test excludeArchived param on getProcedureAdminList(): '.$e);
         }
@@ -154,7 +172,16 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Also test default exclude :)
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([], null, null, $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY), false, false);
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
+                null,
+                $this->getUserReference(
+                    LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+                ),
+                null,
+                false,
+                false
+            );
         } catch (Exception $e) {
             $this->fail('Unable to test excludeArchived param on getProcedureAdminList() - Exception: '.$e);
         }
@@ -176,7 +203,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     {
         $blaupause = $this->fixtures->getReference('masterBlaupause');
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], null, ['name' => 'desc'], $user, true, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            ['name' => 'desc'],
+            true,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
 
@@ -196,7 +231,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListPlanningOffice(): void
     {
         $user = $this->getUserReference('testUserPlanningOffice');
-        $procedureList = $this->sut->getProcedureAdminList([], null, null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
 
@@ -218,7 +261,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListSearch(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], 'two', null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            'two',
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
         static::assertEquals(1, $procedureList['total']);
@@ -471,8 +522,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     /**
      * Test general REsult structure.
-     *
-     * @param $procedureList
      */
     protected function checkListResultStructure($procedureList)
     {
@@ -490,7 +539,7 @@ class ProcedureServiceTest extends FunctionalTestCase
             $this->fixtures->getReference('masterBlaupause')
         );
 
-        $dateTime = new \DateTime();
+        $dateTime = new DateTime();
         $microTimestamp = $dateTime->getTimestamp() * 1000;
         $procedure = [
         'copymaster'                    => $this->fixtures->getReference('masterBlaupause')->getId(),
@@ -518,7 +567,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals('testAdded', $resultProcedure->getName());
         static::assertEquals('some:logodata:string', $resultProcedure->getLogo());
         static::assertEquals('configuration', $resultProcedure->getPublicParticipationPhase());
-        //nearly current timestamp?
+        // nearly current timestamp?
         static::assertTrue(3000 > ($resultProcedure->getStartDateTimestamp() - $microTimestamp));
         static::assertEquals('', $resultProcedure->getSettings()->getLinks());
 
@@ -637,7 +686,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         $users = $this->getEntriesWhereInIds(User::class, [$relatedAuthorizedUserIds]);
 
-        //check for users are not deleted from system:
+        // check for users are not deleted from system:
         static::assertCount($amountBefore, $users);
     }
 
@@ -657,12 +706,12 @@ class ProcedureServiceTest extends FunctionalTestCase
             })->toArray();
         $amountBefore = count($notificationReceiverIds);
 
-        //delete Procedure:
+        // delete Procedure:
         $this->sut->purgeProcedure($procedureId);
 
         $notificationReceivers = $this->getEntriesWhereInIds(NotificationReceiver::class, [$notificationReceiverIds]);
 
-        //check for notificationReceivers are not deleted from system:
+        // check for notificationReceivers are not deleted from system:
         static::assertCount($amountBefore, $notificationReceivers);
     }
 
@@ -716,7 +765,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertIsArray($foundStatements);
         static::assertEmpty($foundStatements);
 
-        //check total amount of Statements:
+        // check total amount of Statements:
         static::assertEquals(
             $amountOfAllStatements - $amountOfStatementsOfProcedure,
             $amountOfAllStatements = $this->countEntries(Statement::class)
@@ -759,7 +808,7 @@ class ProcedureServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //todo: enhance test fixture data (statementCluster needed)
+        // todo: enhance test fixture data (statementCluster needed)
         $procedure = $this->sut->getProcedure($this->testProcedure->getId());
         $procedureId = $procedure->getId();
 
@@ -835,17 +884,17 @@ class ProcedureServiceTest extends FunctionalTestCase
         $relatedUserFilterSets = $this->getEntries(UserFilterSet::class, ['procedure' => $procedureId]);
         $relatedStatementFragments = $this->getEntries(StatementFragment::class, ['procedure' => $procedureId]);
 
-        //check cluster
-        //check headstatement
-        //check placeholderstatement
-        //check parent statement
-        //check originalstatement
-        //check movedStatement
-        //check user + orga of statement
-        //check element of statement
-        //check assignee of statement
+        // check cluster
+        // check headstatement
+        // check placeholderstatement
+        // check parent statement
+        // check originalstatement
+        // check movedStatement
+        // check user + orga of statement
+        // check element of statement
+        // check assignee of statement
 
-        //check orgas, users, amount of counties, usw...
+        // check orgas, users, amount of counties, usw...
 
         $relatedPriorityAreas = [];
         $relatedCounties = [];
@@ -996,8 +1045,6 @@ class ProcedureServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $data
-     *
      * @dataProvider exceptionAddProvider
      *
      * @throws Exception
@@ -1027,7 +1074,7 @@ class ProcedureServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
         $settings = $this->testProcedure->getSettings();
         $settings
             ->setProcedure($this->testProcedure)
@@ -1089,16 +1136,16 @@ Email:'
     public function testUpdateProcedure(): void
     {
         $data = [
-            'ident'                      => $this->testProcedure->getId(),
-            'name'                       => 'Ein neues Testverfahren 1',
-            'desc'                       => '',
-            'phase'                      => 'participation',
-            'closed'                     => false,
-            'startDate'                  => '05.02.2015',
-            'endDate'                    => '26.02.2015',
-            'externalName'               => 'Ein neues Testverfahren',
-            'externalDesc'               => 'Es geht um die Neubebauung von Hoisbüttel',
-            'publicParticipationContact' => 'Frau Musterfrau
+            'ident'                        => $this->testProcedure->getId(),
+            'name'                         => 'Ein neues Testverfahren 1',
+            'desc'                         => '',
+            'phase'                        => 'participation',
+            'closed'                       => false,
+            'startDate'                    => '05.02.2015',
+            'endDate'                      => '26.02.2015',
+            'externalName'                 => 'Ein neues Testverfahren',
+            'externalDesc'                 => 'Es geht um die Neubebauung von Hoisbüttel',
+            'publicParticipationContact'   => 'Frau Musterfrau
 Tel.
 Email:',
             'locationName'                 => 'Ammersbek',
@@ -1121,7 +1168,7 @@ Email:',
                     'planPara2PDF' => '{planPara2PDF}',
                     'links'        => '<a href="about:blank">link</a>',
                 ],
-            'municipalCode' => '01062',
+            'municipalCode'                => '01062',
         ];
 
         $procedure = $this->sut->updateProcedure($data);
@@ -1193,7 +1240,7 @@ Email:',
 
     public function testUserinputTimeConverter(): void
     {
-        $expected = \DateTime::createFromFormat('d.m.Y H:i:s', '01.02.2012 02:00:00');
+        $expected = DateTime::createFromFormat('d.m.Y H:i:s', '01.02.2012 02:00:00');
         static::assertEquals('01.02.2012 02:00:00', $this->sut->internalMakeUserInputDateTestable('1.2.12')->format('d.m.Y H:i:s'));
         static::assertEquals(0, $this->getSecondsDiff($expected, $this->sut->internalMakeUserInputDateTestable('1.2.12')));
         static::assertEquals('01.02.2012 02:00:00', $this->sut->internalMakeUserInputDateTestable('01.2.12')->format('d.m.Y H:i:s'));
@@ -1209,7 +1256,7 @@ Email:',
         static::assertEquals('01.02.2012 02:00:00', $this->sut->internalMakeUserInputDateTestable('1.02.12')->format('d.m.Y H:i:s'));
         static::assertEquals(0, $this->getSecondsDiff($expected, $this->sut->internalMakeUserInputDateTestable('1.02.12')));
 
-        $expected = \DateTime::createFromFormat('d.m.Y H:i:s', '01.02.2012 04:00:00');
+        $expected = DateTime::createFromFormat('d.m.Y H:i:s', '01.02.2012 04:00:00');
         static::assertEquals(
             '01.02.2012 04:00:00',
             $this->sut->internalMakeUserInputDateTestable('1.2.12', '04:00:00')->format('d.m.Y H:i:s')
@@ -1246,7 +1293,7 @@ Email:',
         $this->sut->addOrganisations($testBlueprint, [$testOrganisation]);
         // if no exception was thrown we're fine
 
-        //to successfully test execution, at least one assertion is required:
+        // to successfully test execution, at least one assertion is required:
         static::assertContains($testOrganisation->getId(), $testBlueprint->getOrganisationIds());
     }
 
@@ -1455,10 +1502,10 @@ Email:',
             'ident'   => $this->fixtures->getReference('testProcedure')->getId(),
             'endDate' => $limitForPhase,
         ];
-        //update procedure that participation phase end in given time
+        // update procedure that participation phase end in given time
         $this->sut->updateProcedure($data);
 
-        //test the result
+        // test the result
         $procedureList = $this->sut->getListOfProceduresEndingSoon($daysToGo);
         static::assertIsArray($procedureList);
         static::assertCount(1, $procedureList);
@@ -1480,10 +1527,10 @@ Email:',
             'ident'                      => $this->fixtures->getReference('testProcedure')->getId(),
             'publicParticipationEndDate' => $limitForPhase,
         ];
-        //update procedure that participation phase end in given time
+        // update procedure that participation phase end in given time
         $this->sut->updateProcedure($data);
 
-        //test the result
+        // test the result
         $procedureList = $this->sut->getListOfProceduresEndingSoon($daysToGo, false);
         static::assertIsArray($procedureList);
         static::assertCount(1, $procedureList);
@@ -1698,7 +1745,7 @@ Email:',
         static::assertNotNull($endDate);
         $this->isCurrentTimestamp($endDate);
 
-        $procedure->setPublicParticipationEndDate(new \DateTime());
+        $procedure->setPublicParticipationEndDate(new DateTime());
         $this->sut->updateProcedureObject($procedure);
 
         $newEndDate = $procedure->getPublicParticipationEndDate();
@@ -1723,8 +1770,8 @@ Email:',
         static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
         static::assertNull($procedureSettings->getDesignatedSwitchDate());
 
-        $date = new \DateTime();
-        $endDate = new \DateTime();
+        $date = new DateTime();
+        $endDate = new DateTime();
 
         $phase = 'configuration';
         $date->setDate(1999, 4, 4);
@@ -1786,7 +1833,7 @@ Email:',
         static::assertNull($procedureSettings->getDesignatedSwitchDate());
 
         $phase = 'configuration';
-        $date4 = new \DateTime();
+        $date4 = new DateTime();
         $date4->setDate(1999, 9, 9);
         $updatedProcedure = $this->setAutoSwitchPublic($procedure, $date4, $phase);
         static::assertEquals($procedure, $updatedProcedure);
@@ -1932,7 +1979,7 @@ Email:',
         /** @var Procedure $procedure */
         $procedure = $this->getTestProcedure();
 
-        //check setup:
+        // check setup:
         $designatedSwitchDate = new Carbon($procedure->getSettings()->getDesignatedSwitchDate());
         $designatedEndDate = new Carbon($procedure->getSettings()->getDesignatedEndDate());
         static::assertSame(06, $designatedSwitchDate->hour);
@@ -1953,13 +2000,13 @@ Email:',
 
         $listOfProcedures = $this->sut->getProceduresToSwitchUntilNow();
 
-        //check structure of result
+        // check structure of result
         static::assertIsArray($listOfProcedures);
         static::assertCount(2, $listOfProcedures);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $listOfProcedures);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $listOfProcedures);
 
-        //one external and one internal are expected:
+        // one external and one internal are expected:
         static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
         static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
         static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
@@ -1968,19 +2015,19 @@ Email:',
         $autoSwitchDate = Carbon::create(2002, 12, 15, 9, 30, 45);
         $autoSwitchPublicDate = Carbon::create(2002, 11, 12, 7, 20, 10);
 
-        //reset autoswitch?!
+        // reset autoswitch?!
         $procedure = $this->sut->getProcedure($procedure->getId());
         $this->setAutoSwitchPublic($procedure, $autoSwitchPublicDate->toDateTime(), 'configuration');
         $this->setAutoSwitch($procedure, $autoSwitchDate->toDateTime(), 'participation');
         $listOfProcedures = $this->sut->getProceduresToSwitchUntilNow();
 
-        //check structure of result
+        // check structure of result
         static::assertIsArray($listOfProcedures);
         static::assertCount(2, $listOfProcedures);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $listOfProcedures);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $listOfProcedures);
 
-        //check content of result
+        // check content of result
         static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
         static::assertCount(1, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
         static::assertEquals($procedure, $listOfProcedures[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
@@ -2019,10 +2066,10 @@ Email:',
         $designatedSwitchDate = Carbon::now()->subMinutes(10)->subSeconds(45);
         $designatedPublicSwitchDate = Carbon::now()->addMinutes(30)->addSeconds(45);
 
-        //should be switch:
+        // should be switch:
         $testProcedure->getSettings()->setDesignatedSwitchDate($designatedSwitchDate->toDateTime());
 
-        //should not be switch:
+        // should not be switch:
         $testProcedure->getSettings()->setDesignatedPublicSwitchDate($designatedPublicSwitchDate->toDateTime());
         $this->loginTestUser();
         $this->sut->updateProcedureObject($testProcedure);
@@ -2035,13 +2082,13 @@ Email:',
 
         $proceduresToSwitch = $this->sut->getProceduresToSwitchUntilNow();
 
-        //check structure of result
+        // check structure of result
         static::assertIsArray($proceduresToSwitch);
         static::assertCount(2, $proceduresToSwitch);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL, $proceduresToSwitch);
         static::assertArrayHasKey(Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL, $proceduresToSwitch);
 
-        //check content of result
+        // check content of result
         static::assertCount(1, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL]);
         static::assertEquals($testProcedure, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL][0]);
         static::assertCount(0, $proceduresToSwitch[Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL]);
@@ -2077,7 +2124,7 @@ Email:',
         $numberOfGisLayerCategoriesBefore = $this->countEntries(GisLayerCategory::class);
         $numberOfGisLayerBefore = $this->countEntries(GisLayer::class);
 
-        //check setup:
+        // check setup:
         $rootGisLayerCategoryOfMaster = $this->mapService->getRootLayerCategory($procedureMaster2->getId());
         $numberOfGisLayersOfRootBefore = $rootGisLayerCategoryOfMaster->getGisLayers()->count();
         $numberOfChildrenOfRootBefore = $rootGisLayerCategoryOfMaster->getChildren()->count();
@@ -2118,13 +2165,13 @@ Email:',
 
         $procedureMaster2 = $this->sut->getProcedure($procedureMaster2->getId());
 
-        //CHECK GLOBAL:
+        // CHECK GLOBAL:
         $numberOfGisLayerCategoriesAfter = $this->countEntries(GisLayerCategory::class);
         static::assertEquals($numberOfGisLayerCategoriesBefore + 4, $numberOfGisLayerCategoriesAfter);
         $numberOfGisLayerAfter = $this->countEntries(GisLayer::class);
         static::assertEquals($numberOfGisLayerBefore + 2, $numberOfGisLayerAfter);
 
-        //CHECK MASTER:
+        // CHECK MASTER:
         $rootGisLayerCategoryOfMaster = $this->mapService->getRootLayerCategory($procedureMaster2->getId());
         static::assertInstanceOf(GisLayerCategory::class, $rootGisLayerCategoryOfMaster);
 
@@ -2145,13 +2192,13 @@ Email:',
         $rootGisLayerCategoryOfMaster = $this->mapService->getRootLayerCategory($procedureMaster2->getId());
         static::assertInstanceOf(GisLayerCategory::class, $rootGisLayerCategoryOfMaster);
 
-        //-------assert no differences on categories and blueprints of master procedure:
+        // -------assert no differences on categories and blueprints of master procedure:
         static::assertCount($numberOfGisLayersOfRootBefore, $rootGisLayerCategoryOfMaster->getGisLayers());
         static::assertCount($numberOfChildrenOfRootBefore, $rootGisLayerCategoryOfMaster->getChildren());
         static::assertCount(1, $rootGisLayerCategoryOfMaster->getChildren());
         static::assertCount(0, $rootGisLayerCategoryOfMaster->getGisLayers());
 
-        //-------------lvl1---------------------
+        // -------------lvl1---------------------
         /** @var GisLayerCategory $category1 */
         $category1 = $rootGisLayerCategoryOfMaster->getChildren()[0];
         static::assertEquals($procedureMaster2->getId(), $category1->getProcedure()->getId());
@@ -2160,7 +2207,7 @@ Email:',
         static::assertEquals($category1->getId(), $category1->getChildren()[0]->getParentId());
         static::assertEquals($rootGisLayerCategoryOfMaster->getId(), $category1->getParentId());
 
-        //-------------lvl2---------------------
+        // -------------lvl2---------------------
         /** @var GisLayerCategory $category2 */
         $category2 = $category1->getChildren()[0];
         static::assertEquals($procedureMaster2->getId(), $category2->getProcedure()->getId());
@@ -2171,7 +2218,7 @@ Email:',
         static::assertEquals($category2->getId(), $category2->getChildren()[0]->getParentId());
         static::assertEquals($category1->getId(), $category2->getParentId());
 
-        //-------------lvl3---------------------
+        // -------------lvl3---------------------
         /** @var GisLayerCategory $category3 */
         $category3 = $category2->getChildren()[0];
         static::assertEquals($procedureMaster2->getId(), $category3->getProcedure()->getId());
@@ -2181,7 +2228,7 @@ Email:',
         static::assertCount(0, $category3->getChildren());
         static::assertEquals($category2->getId(), $category3->getParentId());
 
-        //check new created procedure and his gis and category
+        // check new created procedure and his gis and category
 
         $rootGisLayerCategoryOfNewProcedure = $this->mapService->getRootLayerCategory($createdProcedure->getId());
         static::assertInstanceOf(GisLayerCategory::class, $rootGisLayerCategoryOfNewProcedure);
@@ -2197,7 +2244,7 @@ Email:',
         static::assertCount(1, $rootGisLayerCategoryOfNewProcedure->getChildren());
         static::assertCount(0, $rootGisLayerCategoryOfNewProcedure->getGisLayers());
 
-        //-------------lvl1---------------------
+        // -------------lvl1---------------------
         /** @var GisLayerCategory $category1 */
         $category1 = $rootGisLayerCategoryOfNewProcedure->getChildren()[0];
         static::assertEquals($createdProcedure->getId(), $category1->getProcedure()->getId());
@@ -2206,7 +2253,7 @@ Email:',
         static::assertEquals($category1->getId(), $category1->getChildren()[0]->getParentId());
         static::assertEquals($rootGisLayerCategoryOfNewProcedure->getId(), $category1->getParentId());
 
-        //-------------lvl2---------------------
+        // -------------lvl2---------------------
         /** @var GisLayerCategory $category2 */
         $category2 = $category1->getChildren()[0];
         static::assertEquals($createdProcedure->getId(), $category2->getProcedure()->getId());
@@ -2217,7 +2264,7 @@ Email:',
         static::assertEquals($category2->getId(), $category2->getChildren()[0]->getParentId());
         static::assertEquals($category1->getId(), $category2->getParentId());
 
-        //-------------lvl3---------------------
+        // -------------lvl3---------------------
         /** @var GisLayerCategory $category3 */
         $category3 = $category2->getChildren()[0];
         static::assertEquals($createdProcedure->getId(), $category3->getProcedure()->getId());
@@ -2241,7 +2288,7 @@ Email:',
         $visibleGisLayer1 = $this->fixtures->getReference('visibleGisLayer1');
         $originalVisibilityGroupId2 = $visibleGisLayer1->getVisibilityGroupId();
 
-        //check setupdata (gislayer and visibilitygroups of $testProcedure2
+        // check setupdata (gislayer and visibilitygroups of $testProcedure2
         $gisLayersOfMasterProcedure =
             $this->mapService->getGisAdminList($testProcedure2->getId());
 
@@ -2334,7 +2381,7 @@ Email:',
 
         static::assertCount(2, $updatedProcedure->getAuthorizedUsers());
 
-        //check for ids only, because of checking authorized users contains object, will fail
+        // check for ids only, because of checking authorized users contains object, will fail
         $userId1 = $updatedProcedure->getAuthorizedUsers()[0]->getId();
         $userId2 = $updatedProcedure->getAuthorizedUsers()[1]->getId();
         $containedUserIds = [$userId1, $userId2];
@@ -2382,7 +2429,7 @@ Email:',
             'authorizedUsers' => [$testUser2, $testUser],
         ];
 
-        //change authorizedUser:
+        // change authorizedUser:
         $this->sut->updateProcedure($updateData);
         $numberOfReportEntriesAfter = $this->countEntries(ReportEntry::class);
         static::assertEquals($numberOfReportEntriesBefore + 1, $numberOfReportEntriesAfter);
@@ -2399,7 +2446,7 @@ Email:',
 
         static::assertCount(1, $entries);
 
-        //"{'oldAuthorizedUsers':'','newAuthorizedUsers':'functionaltestuser@demos-deutschland.de, user3@demos-deutschland.de'}"
+        // "{'oldAuthorizedUsers':'','newAuthorizedUsers':'functionaltestuser@demos-deutschland.de, user3@demos-deutschland.de'}"
         $expectedMessage = '{"oldAuthorizedUsers":"","newAuthorizedUsers":"'.$testUserFullName2.', '.$testUserFullName.'"}';
         static::assertEquals($expectedMessage, $entries[0]->getMessage());
     }
@@ -2412,7 +2459,7 @@ Email:',
 
         $oldName = $testProcedure2->getName();
 
-        //change authorizedUser:
+        // change authorizedUser:
         $updateData = [
             'ident' => $testProcedure2->getId(),
             'name'  => 'updatedName',
@@ -2434,7 +2481,7 @@ Email:',
 
         static::assertCount(1, $entries);
 
-        //"{'oldAuthorizedUsers':'','newAuthorizedUsers':'functionaltestuser@demos-deutschland.de, user3@demos-deutschland.de'}"
+        // "{'oldAuthorizedUsers':'','newAuthorizedUsers':'functionaltestuser@demos-deutschland.de, user3@demos-deutschland.de'}"
         $expectedMessage = '{"oldName":"'.$oldName.'","newName":"'.$updateData['name'].'"}';
         static::assertEquals($expectedMessage, $entries[0]->getMessage());
     }
@@ -2443,7 +2490,7 @@ Email:',
     {
         self::markSkippedForCIIntervention();
 
-        //this test will fail, because creating reportentry on updateProcedureObject() doesnt work yet:
+        // this test will fail, because creating reportentry on updateProcedureObject() doesnt work yet:
 
         /** @var Procedure $testProcedure2 */
         $testProcedure2 = $this->fixtures->getReference('testProcedure2');
@@ -2598,7 +2645,7 @@ Email:',
         /** @var BoilerplateCategory $newsCategory */
         $emptyCategory = $this->fixtures->getReference('testBoilerplateEmptyCategory');
 
-        //check setup:
+        // check setup:
         static::assertEquals($blueprintProcedure->getId(), $emptyCategory->getPId());
         static::assertCount(0, $emptyCategory->getBoilerplates());
 
@@ -2648,11 +2695,11 @@ Email:',
 
         $newProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
 
-        //check blueprint categories+boilerplates and new categories+boilerplates on DB-level:
+        // check blueprint categories+boilerplates and new categories+boilerplates on DB-level:
 
         static::assertInstanceOf(Procedure::class, $newProcedure);
 
-        //get boilerplates
+        // get boilerplates
         /** @var Boilerplate[] $boilerplates */
         $newNewsBoilerplates = $this->getEntries(
             Boilerplate::class,
@@ -2684,7 +2731,7 @@ Email:',
             ['procedure' => $blueprintProcedure->getId(), 'title' => 'aktuelle Mitteilung und mail']
         );
 
-        //get categories
+        // get categories
         /** @var BoilerplateCategory[] $newMailCategories */
         $newMailCategories = $this->getEntries(
             BoilerplateCategory::class,
@@ -2717,7 +2764,7 @@ Email:',
         );
         /* @var BoilerplateCategory[] $newNewsCategories */
 
-        //check blueprint boilerplates
+        // check blueprint boilerplates
         static::assertCount(1, $newNewsBoilerplates);
         static::assertCount(1, $newNewsBoilerplates[0]->getCategories());
         static::assertEquals($newProcedure->getId(), $newNewsBoilerplates[0]->getProcedureId());
@@ -2730,7 +2777,7 @@ Email:',
         static::assertCount(2, $blueprintMultyBoilerplates[0]->getCategories());
         static::assertEquals($blueprintProcedure->getId(), $blueprintMultyBoilerplates[0]->getProcedureId());
 
-        //check new boilerplates
+        // check new boilerplates
         static::assertCount(1, $blueprintNewsBoilerplates);
         static::assertCount(1, $blueprintNewsBoilerplates[0]->getCategories());
         static::assertEquals($blueprintProcedure->getId(), $blueprintNewsBoilerplates[0]->getProcedureId());
@@ -2743,7 +2790,7 @@ Email:',
         static::assertCount(2, $newMultyBoilerplates[0]->getCategories());
         static::assertEquals($newProcedure->getId(), $newMultyBoilerplates[0]->getProcedureId());
 
-        //check blueprint categories
+        // check blueprint categories
         static::assertCount(1, $blueprintMailCategories);
         static::assertCount(3, $blueprintMailCategories[0]->getBoilerplates());
         static::assertEquals($blueprintProcedure->getId(), $blueprintMailCategories[0]->getPId());
@@ -2760,7 +2807,7 @@ Email:',
         static::assertCount(0, $blueprintEmptyCategories[0]->getBoilerplates());
         static::assertEquals($blueprintProcedure->getId(), $blueprintEmptyCategories[0]->getPId());
 
-        //check new categories:
+        // check new categories:
         static::assertCount(1, $newMailCategories);
         static::assertCount(3, $newMailCategories[0]->getBoilerplates());
         static::assertEquals($newProcedure->getId(), $newMailCategories[0]->getPId());
@@ -2906,7 +2953,7 @@ Email:',
         $numberOfAllCategoriesBefore = $this->countEntries(BoilerplateCategory::class);
         $numberOfAllGroupesBefore = $this->countEntries(BoilerplateGroup::class);
 
-        //create new + fresh testing procedure
+        // create new + fresh testing procedure
         $procedureData = [
             'copymaster'   => $blueprintWithBoilerplates->getId(),
             'desc'         => '',
@@ -2925,10 +2972,10 @@ Email:',
         $newProcedureId = $newProcedure->getId();
         $sourceProcedure = $blueprintWithBoilerplates;
 
-        //copy boilerplates within relations:
+        // copy boilerplates within relations:
         $this->sut->copyBoilerplates($blueprintWithBoilerplates->getId(), $newProcedure);
 
-        //ensure no related Objects are lost form blueprint:
+        // ensure no related Objects are lost form blueprint:
         static::assertCount($numberOfBoilerpltesOfBlueprintBefore, $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]));
         static::assertCount($numberOfGroupsOfBlueprintBefore, $this->getEntries(BoilerplateGroup::class, ['procedure' => $blueprintWithBoilerplates->getId()]));
         static::assertCount($numberOfCategoriesOfBlueprintBefore, $this->getEntries(BoilerplateCategory::class, ['procedure' => $blueprintWithBoilerplates->getId()]));
@@ -2944,7 +2991,7 @@ Email:',
         static::assertCount($numberOfGroupsOfBlueprintBefore, $newGroups, 'Too many/few groups are created.');
         static::assertCount($numberOfCategoriesOfBlueprintBefore, $newCategories, 'Too many/few categories are created.');
 
-        //check new created Boilerplates, Groups and Categories
+        // check new created Boilerplates, Groups and Categories
         /** @var Boilerplate $newBoilerplate */
         foreach ($newBoilerplates as $newBoilerplate) {
             static::assertInstanceOf(Boilerplate::class, $newBoilerplate);
@@ -2974,12 +3021,12 @@ Email:',
         $sourceBoilerplatesAfter = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
         $sourceCategoriesAfter = $this->getEntries(BoilerplateCategory::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
         $sourceGroupsAfter = $this->getEntries(BoilerplateGroup::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
-        //check setup:
+        // check setup:
         static::assertCount($numberOfBoilerpltesOfBlueprintBefore, $sourceBoilerplatesAfter);
         static::assertCount($numberOfCategoriesOfBlueprintBefore, $sourceCategoriesAfter);
         static::assertCount($numberOfGroupsOfBlueprintBefore, $sourceGroupsAfter);
 
-        //check old source Boilerplates, Groups and Categories
+        // check old source Boilerplates, Groups and Categories
         /** @var Boilerplate $sourceBoilerplate */
         foreach ($sourceBoilerplatesAfter as $sourceBoilerplate) {
             static::assertInstanceOf(Boilerplate::class, $sourceBoilerplate);
@@ -3005,7 +3052,7 @@ Email:',
             }
         }
 
-        //blueprint was copied, therefore, new amount of boilerplates, categories and groups, has to be increased by amount of related objects of blueprint
+        // blueprint was copied, therefore, new amount of boilerplates, categories and groups, has to be increased by amount of related objects of blueprint
         static::assertCount($numberOfAllBoilerplatesBefore + $numberOfBoilerpltesOfBlueprintBefore, $this->getEntries(Boilerplate::class));
         static::assertCount($numberOfAllCategoriesBefore + $numberOfCategoriesOfBlueprintBefore, $this->getEntries(BoilerplateCategory::class));
         static::assertCount($numberOfAllGroupesBefore + $numberOfGroupsOfBlueprintBefore, $this->getEntries(BoilerplateGroup::class));
@@ -3035,7 +3082,7 @@ Email:',
     {
         self::markSkippedForCIIntervention();
 
-        //get procedure with different casess of statements
+        // get procedure with different casess of statements
         /** @var Procedure $procedureToDelete */
         $procedureToDelete = $this->fixtures->getReference('procedureToDelete');
         static::assertInstanceOf(Procedure::class, $procedureToDelete);
@@ -3045,7 +3092,7 @@ Email:',
         $originalStatementIdsOfThisProcedureBefore = collect($this->getEntryIds(Statement::class, ['procedure' => $procedureToDelete->getId(), 'original' => null]));
         $numberOfOriginalStatementsOfThisProcedureBefore = $originalStatementIdsOfThisProcedureBefore->count();
 
-        //todo:
+        // todo:
         // zähle originalSTNs die von einem fremden verfahren referenziert werden:
         // get all original STNs of this procedure
         // get all STNs, die nicht in dieser procedure sind
@@ -3122,7 +3169,7 @@ Email:',
             'desc'                     => 'new description',
             'copymaster'               => $copyMaster,
             'settings'                 => ['emailTitle' => 'new EmailTitle Of new procedure'],
-            'master'                   => false, //this method only creates procedures (no blueprints)
+            'master'                   => false, // this method only creates procedures (no blueprints)
             'publicParticipationPhase' => 'configuration',
             'procedureType'            => $this->getReference(LoadProcedureTypeData::BPLAN),
         ];
@@ -3274,7 +3321,7 @@ Email:',
         $procedureData = $this->newProcedureData($templateProcedure);
         $newlyCreatedProcedure = $this->sut->addProcedureEntity($procedureData, $this->loginTestUser()->getId());
 
-        //2. create new procedure (blueprint-procedureID)
+        // 2. create new procedure (blueprint-procedureID)
         $newlyCreatedSingleDocumentFileStrings = $this->getFileStringsOfSingleDocuments($newlyCreatedProcedure);
         self::assertCount(count($singleDocumentFileStrings), $newlyCreatedSingleDocumentFileStrings);
 
@@ -3288,7 +3335,7 @@ Email:',
             );
         }
 
-        //3. blueprintProcedure->element->singleDocument->file === count(1) === ID
+        // 3. blueprintProcedure->element->singleDocument->file === count(1) === ID
         $blueprintSingleDocumentFileStrings = $this->getFileStringsOfSingleDocuments($templateProcedure);
         self::assertCount(count($singleDocumentFileStrings), $blueprintSingleDocumentFileStrings);
 
@@ -3302,7 +3349,6 @@ Email:',
             );
         }
     }
-
 
     /**
      * Test to cover that (Procedure->Elements)->Files are still on masterTemplate as well as
@@ -3340,9 +3386,9 @@ Email:',
      * The idea is, that a cronjob will switch the external phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure        $procedure            - procedure, whose external designated phase and designated date will be set
-     * @param DateTime|null    $designatedSwitchDate
-     * @param string|null      $designatedPhase
+     * @param procedure     $procedure            - procedure, whose external designated phase and designated date will be set
+     * @param DateTime|null $designatedSwitchDate
+     * @param string|null   $designatedPhase
      *
      * @return Procedure - updated procedure
      *
@@ -3355,7 +3401,7 @@ Email:',
                 $procedure->getSettings()->setDesignatedPublicPhase($designatedPhase);
                 $procedure->getSettings()->setDesignatedPublicSwitchDate($designatedSwitchDate);
             } else {
-                throw new \InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
+                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
             }
 
             return $this->sut->updateProcedureObject($procedure);
@@ -3370,9 +3416,9 @@ Email:',
      * The cronjob will switch the phase of the procedure
      * to the designatedPhase on the given date.
      *
-     * @param procedure        $procedure            - procedure, whose internal designated phase and designated date will be set
-     * @param DateTime|null    $designatedSwitchDate
-     * @param string|null      $designatedPhase
+     * @param procedure     $procedure            - procedure, whose internal designated phase and designated date will be set
+     * @param DateTime|null $designatedSwitchDate
+     * @param string|null   $designatedPhase
      *
      * @return Procedure - updated procedure
      *
@@ -3385,7 +3431,7 @@ Email:',
                 $procedure->getSettings()->setDesignatedPhase($designatedPhase);
                 $procedure->getSettings()->setDesignatedSwitchDate($designatedSwitchDate);
             } else {
-                throw new \InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
+                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
             }
 
             return $this->sut->updateProcedureObject($procedure);
@@ -3445,7 +3491,7 @@ Email:',
         foreach ($templateProcedure->getElements() as $element) {
             foreach ($element->getDocuments() as $singleDocument) {
                 if ('' !== $singleDocument->getDocument()) {
-                    $fileStrings[] = $singleDocument->getDocument(); //returns fileString
+                    $fileStrings[] = $singleDocument->getDocument(); // returns fileString
                 }
             }
         }

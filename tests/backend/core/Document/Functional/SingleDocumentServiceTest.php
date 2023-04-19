@@ -12,7 +12,7 @@ namespace Tests\Core\Document\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use Tests\Base\FunctionalTestCase;
 
 class SingleDocumentServiceTest extends FunctionalTestCase
@@ -192,10 +192,10 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($referenceDocument->getText(), $singleDocumentResult['text']);
         static::assertEquals($referenceDocument->getDocument(), $singleDocumentResult['document']);
         static::assertEquals($referenceDocument->getElementId(), $singleDocumentResult['elementId']);
-        //static::assertTrue($this->isCurrentTimestamp($singleDocumentResult['createdate']));
-        //static::assertTrue($this->isCurrentTimestamp($singleDocumentResult['modifydate']));
+        // static::assertTrue($this->isCurrentTimestamp($singleDocumentResult['createdate']));
+        // static::assertTrue($this->isCurrentTimestamp($singleDocumentResult['modifydate']));
 
-        //with category = null we assert no result:
+        // with category = null we assert no result:
         $result = $this->sut->getSingleDocumentAdminList($this->testProcedure->getId(), null);
         static::assertIsArray($result);
         static::assertEquals(5, sizeof($result));
@@ -287,7 +287,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($data['document'], $result['document']);
         static::assertEquals($data['elementId'], $result['elementId']);
         static::assertTrue($this->isCurrentTimestamp($result['createdate']));
-        //before refactoring there was no modifydate key in the result array -> no check for these
+        // before refactoring there was no modifydate key in the result array -> no check for these
     }
 
     public function testDeleteSingleDocumentWithoutVersions()

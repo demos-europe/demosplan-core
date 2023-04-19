@@ -10,11 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
-
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -25,28 +21,29 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-
-use function strcmp;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
+use function array_merge;
+use function strcmp;
 use function usort;
 
 /**
@@ -73,6 +70,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_assessment_set_statement_assignment",
      *     path="/assignment/statement/{entityId}/{assignOrUnassign}",
      * )
+     *
      * @DplanPermissions("feature_statement_assignment")
      *
      * @throws Exception
@@ -126,6 +124,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_orga_list",
      *     path="/statement/manual/list/{procedureId}",
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -146,7 +145,7 @@ class DemosPlanAssessmentController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_orga_statements.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statements',
@@ -163,6 +162,7 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/statement/new/manual/{procedureId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -225,7 +225,7 @@ class DemosPlanAssessmentController extends BaseController
         // atm use Template from DemosPlanAssessmentTableBundle as refactoring it to this Bundle
         // generates quite a hassle as it needs to be done in all projects
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,
@@ -239,6 +239,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_single_view",
      *     path="procedure/{procedureId}/statement/{statementId}/dataInput"
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -249,40 +250,14 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId): Response
-    {
-        $statement = $statementHandler->getStatement($statementId);
-        $procedure = $procedureService->getProcedure($procedureId);
+        string $statementId
+    ): Response {
+        $statement = $statementHandler->getStatementWithCertainty($statementId);
+        $procedure = $procedureService->getProcedureWithCertainty($procedureId);
+
         $templateVars = [];
         $templateVars['table']['statement'] = $statement;
-
-        $templateVars['table']['procedure'] = null;
-        if (null !== $statement) {
-            $templateVars['table']['procedure'] = $procedure;
-        }
-
-        $templateVars['sendFinalEmail'] = true;
-
-        // wenn es Mitzeichner gibt, dann wird die Option "Schlussmitteilung versenden" plus Extra-Erklärung im template wieder einblendet
-        $templateVars['finalEmailOnlyToVoters'] = false;
-        if (array_key_exists('feedback', $templateVars['table']['statement'])) {
-            switch ($templateVars['table']['statement']['feedback']) {
-                case 'snailmail':
-                    if (empty($templateVars['table']['statement']['votes'])) {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = false;
-                    } else {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = true;
-                        $templateVars['finalEmailOnlyToVoters'] = true;
-                    }
-                    break;
-                case 'email':
-                    $templateVars['table']['statement']['feedback'] = $translator->trans('via.mail');
-                    $templateVars['sendFinalEmail'] = true;
-                    break;
-            }
-        }
+        $templateVars['table']['procedure'] = $procedure;
 
         $title = 'statement.view';
         $breadcrumb->addItem(
@@ -301,7 +276,7 @@ class DemosPlanAssessmentController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             compact('title', 'templateVars')
         );
     }
@@ -313,6 +288,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_single_statement_view",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}"
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -325,7 +301,7 @@ class DemosPlanAssessmentController extends BaseController
         $templateVars['table']['procedure'] = $statement->getProcedure();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.view',
@@ -340,6 +316,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_detach_statement",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}/detach",
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -369,6 +346,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_resolve",
      *     path="/verfahren/{procedure}/cluster/resolve/{headStatementId}",
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -398,6 +376,7 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/_ajax/assessment/{procedureId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_procedure_get_base_data")
      */
     public function assessmentBaseAjaxAction(

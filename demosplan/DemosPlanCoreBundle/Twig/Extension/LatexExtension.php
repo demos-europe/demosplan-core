@@ -13,8 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+
 use function preg_quote;
 use function preg_replace;
+
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
@@ -249,7 +251,7 @@ class LatexExtension extends ExtensionBase
 
             $this->logger->debug('text nach striptags'.$text);
 
-            //UTF8!
+            // UTF8!
             if (null != $text && '' != $text) {
                 $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
             }
@@ -280,9 +282,9 @@ class LatexExtension extends ExtensionBase
 
             $postlatex = [
                 '',
-                '\\\\', //"\\\\\n",
-                '\\\\', //"\\\\\n",
-                '\\\\', //"\\\\\n"
+                '\\\\', // "\\\\\n",
+                '\\\\', // "\\\\\n",
+                '\\\\', // "\\\\\n"
             ];
 
             // Kill situations in which a end{itemize} is directly followed by a latex paragraph feed
@@ -560,7 +562,7 @@ class LatexExtension extends ExtensionBase
         // alt text from Image
         $text = preg_replace('/ALTTEXTBEGIN(.*?)ALTTEXTEND/', '', $text);
         preg_match_all(
-        //'/[.*]?IMAGEPLACEHOLDER-([\\a-z0-9\-&=]*)[.*]?(IMAGEPLACEHOLDEREND)?/U',
+            // '/[.*]?IMAGEPLACEHOLDER-([\\a-z0-9\-&=]*)[.*]?(IMAGEPLACEHOLDEREND)?/U',
             '/[.*]?IMAGEPLACEHOLDER-([^IMAGEPLACEHOLDEREND]+)/',
             $text,
             $imageMatches,
@@ -595,10 +597,10 @@ class LatexExtension extends ExtensionBase
 ';
                 // Ersetze die \ durch \\ im Regex
                 $pregReplacePatternFileinfo = '/'.str_replace(
-                        '\\',
-                        '\\\\',
-                        $imageMatches[0][$matchKey]
-                    ).'IMAGEPLACEHOLDEREND/';
+                    '\\',
+                    '\\\\',
+                    $imageMatches[0][$matchKey]
+                ).'IMAGEPLACEHOLDEREND/';
                 // Füge das Latexmarkup ein
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,

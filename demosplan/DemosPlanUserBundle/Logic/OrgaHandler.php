@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -22,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanUserBundle\ValueObject\DataProtectionOrganisation;
 use demosplan\DemosPlanUserBundle\ValueObject\ImprintOrganisation;
+use Exception;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {
@@ -188,6 +187,14 @@ class OrgaHandler extends CoreHandler
 
         if ($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
             $writableAttributes[] = 'copy';
+        }
+
+        if ($this->currentUser->hasPermission('field_data_protection_text_customized_edit_orga')) {
+            $writableAttributes[] = 'dataProtection';
+        }
+
+        if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_orga')) {
+            $writableAttributes[] = 'imprint';
         }
 
         // these are writable in 'portal' mode only

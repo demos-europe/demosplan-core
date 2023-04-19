@@ -49,7 +49,6 @@ class MigrateCommand extends CoreCommand
             $db = '--conn='.$db;
         }
 
-
         $commands = [
             "dplan:migrations:cache --env={$env}",
             "doctrine:migrations:sync-metadata-storage {$db} --env={$env}",
@@ -62,15 +61,14 @@ class MigrateCommand extends CoreCommand
 
         // ensure that rollup migrations are applied before core migrations are performed
         if (file_exists(DemosPlanPath::getProjectPath($lastRollupMigration))) {
-            $commands[] = $migrationsSyncCommand . $migrationsConfigurationPath . " {$db} --env={$env}";
-            $commands[] = $migrationsCommand . $migrationsConfigurationPath .
-                    'Application\Migrations\Version20220914133419' . " {$db} --env={$env}";
-
+            $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+            $commands[] = $migrationsCommand.$migrationsConfigurationPath.
+                    ' Application\Migrations\Version20220914133419'." {$db} --env={$env}";
         }
 
         $commands[] = "doctrine:migrations:migrate {$db} --env={$env}";
-        $commands[] = $migrationsSyncCommand . $migrationsConfigurationPath . " {$db} --env={$env}";
-        $commands[] = $migrationsCommand . $migrationsConfigurationPath . " {$db} --env={$env}";
+        $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+        $commands[] = $migrationsCommand.$migrationsConfigurationPath." {$db} --env={$env}";
 
         $batch = Batch::create($this->getApplication(), $output);
 

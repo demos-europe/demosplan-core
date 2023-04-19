@@ -13,9 +13,9 @@ namespace Tests\Core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementGeoServiceTest extends FunctionalTestCase
@@ -63,7 +63,7 @@ class StatementGeoServiceTest extends FunctionalTestCase
         $updatedStatements = $this->sut->saveStatementGeoData($statements);
         static::assertEquals('PR3_STE_027', $updatedStatements[0]->getPriorityAreas()->first()->getKey());
         static::assertEquals('Steinburg', $updatedStatements[0]->getCounties()->first()->getName());
-        static::assertEquals(1, $updatedStatements[0]->getCounties()->count()); //Dies
+        static::assertEquals(1, $updatedStatements[0]->getCounties()->count()); // Dies
         static::assertEquals('Willenscharen', $updatedStatements[0]->getMunicipalities()->first()->getName());
         static::assertEquals(1, $updatedStatements[0]->getMunicipalities()->count());
     }
@@ -266,7 +266,7 @@ class StatementGeoServiceTest extends FunctionalTestCase
             $statements[] = $this->statementService->getStatement($statement['ident']);
         }
         $updatedStatements = $this->sut->saveStatementGeoData($statements);
-        //nur diejenigen, die in den Feixtures geladen werden
+        // nur diejenigen, die in den Feixtures geladen werden
         static::assertEquals(13, $updatedStatements[0]->getPriorityAreas()->count());
         static::assertEquals(4, $updatedStatements[0]->getCounties()->count());
         // alle, auch neu angelegte
@@ -350,16 +350,16 @@ class StatementGeoServiceTest extends FunctionalTestCase
     private function addDefaultData(array $data)
     {
         return array_merge($data,
-        [
-            'pId'   => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
-            'text'  => 'Mein Text',
-            'uId'   => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
-            'uName' => 'ein ganz anderer',
-            'dId'   => $this->fixtures->getReference(LoadUserData::TEST_DEPARTMENT)->getId(),
-            'dName' => $this->fixtures->getReference(LoadUserData::TEST_DEPARTMENT)->getName(),
-            'oId'   => $this->fixtures->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY)->getId(),
-            'oName' => $this->fixtures->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY)->getName(),
-        ]
+            [
+                'pId'   => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
+                'text'  => 'Mein Text',
+                'uId'   => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
+                'uName' => 'ein ganz anderer',
+                'dId'   => $this->fixtures->getReference(LoadUserData::TEST_DEPARTMENT)->getId(),
+                'dName' => $this->fixtures->getReference(LoadUserData::TEST_DEPARTMENT)->getName(),
+                'oId'   => $this->fixtures->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY)->getId(),
+                'oName' => $this->fixtures->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY)->getName(),
+            ]
         );
     }
 }

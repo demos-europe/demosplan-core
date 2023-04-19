@@ -36,7 +36,11 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
     {
         $this->verificationRoute = $this->userMapper->getVerificationRoute();
 
-        return parent::authenticate($request);
+        $credentials = $this->getCredentials($request);
+
+        $this->validateCredentials($credentials);
+
+        return $this->getPassport($credentials);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Handler;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -37,7 +38,7 @@ class SegmentHandler implements SegmentHandlerInterface
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function updateObjects(array $segments, \DateTime $updateTime): void
+    public function updateObjects(array $segments, DateTime $updateTime): void
     {
         $this->segmentService->prepareAndSaveWithContentChange($segments, $updateTime);
     }
@@ -102,7 +103,7 @@ class SegmentHandler implements SegmentHandlerInterface
      *
      * @throws ORMException
      */
-    public function editSegmentRecommendations(array $segments, string $procedureId, string $recommendationText, bool $attach, User $user, string $entityType, \DateTime $updateTime): void
+    public function editSegmentRecommendations(array $segments, string $procedureId, string $recommendationText, bool $attach, User $user, string $entityType, DateTime $updateTime): void
     {
         $this->segmentService->editSegmentRecommendations($segments, $procedureId, $recommendationText, $attach, $user, $entityType, $updateTime);
     }

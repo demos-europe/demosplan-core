@@ -38,14 +38,17 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 
     protected function getOperatorFunctions(): array
     {
-        $functions = parent::getOperatorFunctions();
-        $functions[self::FALSE] = fn (
-            array $path, $conditionValue
+        $operators = parent::getOperatorFunctions();
+        $operators['IS NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNull($path);
+        $operators['IS NOT NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNotNull($path);
+
+        $operators[self::FALSE] = fn (
+             $conditionValue, array $path
         ): PathsBasedInterface => $this->conditionFactory->false();
-        $functions[self::NOT_SIZE] = fn (
-            array $path, $conditionValue
+        $operators[self::NOT_SIZE] = fn (
+             $conditionValue, array $path
         ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($conditionValue, $path);
 
-        return $functions;
+        return $operators;
     }
 }

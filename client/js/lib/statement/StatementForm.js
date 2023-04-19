@@ -11,7 +11,7 @@
  * Formerly known as js__statement.js
  */
 
-import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-utils'
+import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
 
 export default function StatementForm () {
   //  Statement Form Behavior

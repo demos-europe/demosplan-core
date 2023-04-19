@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -94,7 +94,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return true;
     }
 
     public function isReferencable(): bool
@@ -109,9 +109,9 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
             return $this->conditionFactory->false();
         }
 
-        // As resources of this type ar not directly accessible but via relationships only,
-        // we can simply return true here.
-        return $this->conditionFactory->true();
+        $procedureId = $procedure->getId();
+
+        return $this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id);
     }
 
     /**

@@ -11,20 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use Exception;
-
-use function is_array;
-
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,6 +35,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Throwable;
+
+use function is_array;
 
 abstract class BaseController extends AbstractController
 {
@@ -60,7 +59,7 @@ abstract class BaseController extends AbstractController
     protected $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     /**
-     * @var MessageBag
+     * @var MessageBagInterface
      */
     protected $messageBag;
 
@@ -115,7 +114,7 @@ abstract class BaseController extends AbstractController
      *
      * @required
      */
-    public function setMessageBag(MessageBag $messageBag): void
+    public function setMessageBag(MessageBagInterface $messageBag): void
     {
         $this->messageBag = $messageBag;
     }
@@ -140,7 +139,7 @@ abstract class BaseController extends AbstractController
         $this->initializeService = $initializeService;
     }
 
-    protected function getMessageBag(): MessageBag
+    protected function getMessageBag(): MessageBagInterface
     {
         return $this->messageBag;
     }

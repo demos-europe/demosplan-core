@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanSurveyBundle\Logic;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
+use Exception;
 
 class SurveyCreateHandler
 {

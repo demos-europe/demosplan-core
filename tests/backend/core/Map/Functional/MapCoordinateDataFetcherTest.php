@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Functional;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCoordinateDataFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Provider\Nominatim\Model\NominatimAddress;
@@ -55,7 +55,7 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
     {
         return [
                 [
-                    'in' => [
+                    'in'  => [
                         'latMap' => 1061889.1340879,
                         'lonMap' => 7269899.6631521,
                         'lat'    => 54.523336555209,
@@ -69,7 +69,7 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
                     ],
                 ],
                 [
-                    'in' => [
+                    'in'  => [
                         'latMap' => 961070.91179295,
                         'lonMap' => 7292446.8204785,
                         'lat'    => 54.640718486421,
@@ -109,13 +109,13 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
     {
         return [
             [
-                'in' => [
+                'in'        => [
                     'latMap' => -1,
                     'lonMap' => -1,
                     'lat'    => 0,
                     'lon'    => 0,
                 ],
-                'out' => [
+                'out'       => [
                     'postalCode'    => '',
                     'city'          => '',
                     'municipalCode' => '',
@@ -124,13 +124,13 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
                 'exception' => ExternalDataFetchException::class,
             ],
             [
-                'in' => [
+                'in'        => [
                     'latMap' => 1123961070.91179295,
                     'lonMap' => 443567292446.8204785,
                     'lat'    => 0,
                     'lon'    => 0,
                 ],
-                'out' => [
+                'out'       => [
                     'postalCode'    => '',
                     'city'          => '',
                     'municipalCode' => '',

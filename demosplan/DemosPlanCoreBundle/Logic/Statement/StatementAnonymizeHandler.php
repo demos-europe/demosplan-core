@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -40,7 +40,7 @@ class StatementAnonymizeHandler extends CoreHandler
             self::ANONYMIZE_STATEMENT_META      => 'bool',
             self::DELETE_STATEMENT_TEXT_HISTORY => 'bool',
         ],
-        'data' => [
+        'data'    => [
             self::STATEMENT_ID => 'UUID',
         ],
     ];

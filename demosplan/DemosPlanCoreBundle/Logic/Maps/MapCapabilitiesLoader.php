@@ -14,12 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanMapBundle\ValueObject\MapCapabilities;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapCapabilities;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
 use function in_array;
 use function simplexml_load_string;
 use function str_replace;
 use function strtolower;
-use Symfony\Component\HttpFoundation\Response;
 
 class MapCapabilitiesLoader
 {
@@ -62,7 +64,7 @@ class MapCapabilitiesLoader
             if (200 > $response['responseCode'] || 300 < $response['responseCode']) {
                 throw ExternalDataFetchException::fetchFailed($response['responseCode']);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw ExternalDataFetchException::fetchFailed(Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
 

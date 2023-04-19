@@ -89,8 +89,14 @@
 </template>
 
 <script>
-import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpLabel, DpSelect } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import {
+  DpCheckbox,
+  DpDateRangePicker,
+  DpDatetimePicker,
+  DpLabel,
+  DpSelect,
+  formatDate
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',

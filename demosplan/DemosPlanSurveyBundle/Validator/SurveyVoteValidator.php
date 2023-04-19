@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanSurveyBundle\Validator;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use Exception;
-use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
+use Exception;
+use JsonSchema\Exception\InvalidSchemaException;
 
 class SurveyVoteValidator
 {

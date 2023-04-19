@@ -10,11 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
-use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use function array_merge;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
+use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;

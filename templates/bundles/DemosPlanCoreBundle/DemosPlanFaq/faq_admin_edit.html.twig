@@ -1,9 +1,10 @@
-{% set faq = templateVars.faq %}
+{% set faq = templateVars.faq|default({}) %}
 
 {# Rollengruppe initialisieren #}
 {% set GGUEST = false %}
 {% set GLAUTH = false %}
 {% set GPSORG = false %}
+
 {# Rollengruppe setzen #}
 {% if faq.roles is defined %}
     {% for role in faq.roles %}
@@ -17,19 +18,21 @@
     {% endfor %}
 {% endif %}
 
-{% set actionname = 'faqnew' %}
 {% if faq.id is defined %}
     {% set actionName = 'faqedit' %}
+    {% set actionPath = path('DemosPlan_faq_administration_faq_edit',{'faqID':faq.id}) %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
+{% else %}
+    {% set actionName = 'faqnew' %}
+    {% set actionPath = path('DemosPlan_faq_administration_faq_new',{'procedure': procedure }) %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq',{'procedure': procedure}) %}
 {% endif %}
 
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
 {% block component_part %}
 
-    {% set actionPath = path('DemosPlan_faq_administration_faq_edit',{'faqID':faq.id}) %}
-    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
-
-    <h1>{{ 'edit.entity'|trans({ entity: 'faq'|trans }) }}</h1>
+    <h1>{{ (actionName == 'faqedit' ? 'edit.entity' : 'add.entity')|trans({ entity: 'faq'|trans }) }}</h1>
 
     <form class="cf u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
 		<input name="action" type="hidden" value="{{ actionName }}">
@@ -45,12 +48,12 @@
                             {
                                 label: 'released',
                                 value: '1',
-                                selected: templateVars.faq.enabled == true
+                                selected: faq.enabled|default(false) == true
                             },
                             {
                                 label: 'blocked',
                                 value: '0',
-                                selected: templateVars.faq.enabled == false
+                                selected: faq.enabled|default(false) == false
                             }
                         ],
                         attributes: ['data-cy=FAQStatus']
@@ -63,35 +66,50 @@
         }) }}
 
         <div class="u-mb" id="groupCodeWrapper" data-cy="groupVisibleCheckbox">
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'role.fp.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GLAUTH', checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
-                        id: 'fachplanerVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium'
-                    },
-                    {
-                        label: { text: 'citizen.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GGUEST', checked: GGUEST == true, attributes: ['data-cy=citizenVisibility'] },
-                        id: 'citizenVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium'
-                    },
-                    {
-                        label: { text: 'invitable_institution.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GPSORG', checked: GPSORG == true, attributes: ['data-cy=publicAgencyVisibility'] },
-                        id: 'publicAgencyVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium',
-                        display: hasPermission('feature_institution_participation')
-                    }
-                ]|filter(item => item.display is not defined or item.display),
-                heading: 'visible',
-                required: true,
-                isFieldset: true
-            }) }}
+            {% set roleGroupsFaqVisibilityOptions = [
+                {
+                    label: { text: 'role.fp.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GLAUTH', checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
+                    id: 'fachplanerVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GLAUTH'
+                },
+                {
+                    label: { text: 'citizen.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GGUEST', checked: GGUEST == true, attributes: ['data-cy=citizenVisibility'] },
+                    id: 'citizenVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GGUEST'
+                },
+                {
+                    label: { text: 'invitable_institution.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GPSORG', checked: GPSORG == true, attributes: ['data-cy=publicAgencyVisibility'] },
+                    id: 'publicAgencyVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GPSORG'
+                }
+            ]|filter(item => item.showFor in templateVars.roleGroupsFaqVisibility) %}
+
+            {% if (roleGroupsFaqVisibilityOptions|length > 1) %}
+                {{ uiComponent('form.row', {
+                    elements: roleGroupsFaqVisibilityOptions,
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+            {% else %}
+                {#  If there is only one role group to activate within the project,
+                    users may control visibility by using the "status" toggle.
+                    The value for visibility for that role group is saved as true,
+                    in case another role group is activated later within the project. #}
+                <input
+                    type="hidden"
+                    name="{{ roleGroupsFaqVisibilityOptions[0].control.name }}"
+                    value="{{ roleGroupsFaqVisibilityOptions[0].control.value }}">
+            {% endif %}
         </div>
 
         {% if templateVars.categories is defined %}
@@ -120,7 +138,7 @@
             elements: [
                 {
                     label: { text: 'heading'|trans },
-                    control: { name: 'r_title', value: faq.title, attributes: ['data-cy=FAQTitle'] },
+                    control: { name: 'r_title', value: faq.title|default, attributes: ['data-cy=FAQTitle'] },
                     type: 'text',
                     required: true
                 }
@@ -132,7 +150,7 @@
                 {
                     label: { text: 'text'|trans },
                     control: {
-                        value: faq.text,
+                        value: faq.text|default,
                         hiddenInput: 'r_text',
                         linkButton: true,
                         ref: 'r_text'
@@ -150,7 +168,7 @@
         }) }}
     </form>
 
-{% endblock %}
+{% endblock component_part %}
 
 {% block javascripts %}
     {{ parent() }}

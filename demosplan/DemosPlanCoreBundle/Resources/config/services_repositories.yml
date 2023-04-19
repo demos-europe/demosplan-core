@@ -57,6 +57,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'
 
+    demosplan\DemosPlanCoreBundle\Repository\FloodRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Flood'
+
     demosplan\DemosPlanCoreBundle\Repository\SettingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Setting'
 
@@ -74,73 +77,73 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
     demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
-    demosplan\DemosPlanMapBundle\Repository\MapRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MapRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer'
 
-    demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
 
-    demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
 
-    demosplan\DemosPlanStatementBundle\Repository\GdprConsentRevokeTokenRepository:
+    demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken'
 
-    demosplan\DemosPlanStatementBundle\Repository\CountyRepository:
+    demosplan\DemosPlanCoreBundle\Repository\CountyRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\County'
 
-    demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository:
+    demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic'
 
-    demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
 
-    demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository:
+    demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
 
-    demosplan\DemosPlanStatementBundle\Repository\TagRepository:
+    demosplan\DemosPlanCoreBundle\Repository\TagRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Tag'
 
-    demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion'
 
-    demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote'
 
-    demosplan\DemosPlanStatementBundle\Repository\StatementRepository:
+    demosplan\DemosPlanCoreBundle\Repository\StatementRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement'
 
-    demosplan\DemosPlanStatementBundle\Repository\PriorityAreaRepository:
+    demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea'
 
-    demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement'
 
-    demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
 
-    demosplan\DemosPlanStatementBundle\Repository\MunicipalityRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality'
 
     demosplan\DemosPlanReportBundle\Repository\ReportRepository:
@@ -233,16 +236,16 @@ services:
     demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 
     demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository:
@@ -250,3 +253,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'

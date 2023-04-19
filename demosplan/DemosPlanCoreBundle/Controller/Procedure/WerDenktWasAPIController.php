@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;

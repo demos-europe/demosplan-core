@@ -11,6 +11,7 @@
 namespace Tests\Core\Statement\Functional;
 
 use Carbon\Carbon;
+use Closure;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -24,12 +25,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementStatistic;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
+use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -90,7 +92,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetStatementStructure()
     {
@@ -124,7 +126,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetStatementsByProcedureIdStructure()
     {
@@ -140,7 +142,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetStatementsByProcedureIdNotOriginal()
     {
@@ -160,7 +162,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetStatementsByProcedureIdOnlyPublic()
     {
@@ -205,7 +207,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testVoteStk()
     {
@@ -219,7 +221,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertSame('full', $stmnt->getVoteStk());
         try {
             $stmnt->setVoteStk('doge');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
         static::assertSame('full', $stmnt->getVoteStk());
         $stmnt->setVoteStk('partial');
@@ -227,7 +229,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testVotePla()
     {
@@ -241,7 +243,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertSame('full', $stmnt->getVotePla());
         try {
             $stmnt->setVotePla('doge');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
         static::assertSame('full', $stmnt->getVotePla());
         $stmnt->setVotePla('partial');
@@ -269,27 +271,27 @@ class StatementServiceTest extends FunctionalTestCase
             'submitType'     => 'system',
         ];
 
-        //first new Statement
+        // first new Statement
         $created = $this->sut->newStatement($data);
 
         static::assertNotFalse($created);
         static::assertInstanceOf(Statement::class, $created);
 
-        //simulating creation of Copy:
+        // simulating creation of Copy:
         $this->sut->copyStatementWithinProcedure($created->getId(), false);
 
         static::assertNull($created->getInternId());
-        //ist STN und STN-Kopie vorhanden?
+        // ist STN und STN-Kopie vorhanden?
         static::assertSame(
             $amountBefore + 2,
             $this->countEntries(Statement::class)
         );
 
-        //second new Statement
+        // second new Statement
         $data['internId'] = '88793';
         $data['text'] = 'tralalalalla';
         $created = $this->sut->newStatement($data);
-        //simulating creation of Copy:
+        // simulating creation of Copy:
         $this->sut->copyStatementWithinProcedure($created->getId(), false);
 
         static::assertSame($data['internId'], $created->getInternId());
@@ -298,10 +300,10 @@ class StatementServiceTest extends FunctionalTestCase
             $this->countEntries(Statement::class)
         );
 
-        //third new Statement
+        // third new Statement
         $data['text'] = 'Text of invalid STN because of non unique intern ID';
         $created = $this->sut->newStatement($data);
-        //simulating creation of Copy:
+        // simulating creation of Copy:
         static::assertFalse($created);
 
         static::assertSame(
@@ -318,11 +320,11 @@ class StatementServiceTest extends FunctionalTestCase
         $amountBefore = $this->countEntries(Statement::class);
 
         $data = [
-            'civic'      => true,
-            'documentId' => '',
-            'elementId'  => '-',
-            'externId'   => 'M5527',
-            'miscData'   => [
+            'civic'          => true,
+            'documentId'     => '',
+            'elementId'      => '-',
+            'externId'       => 'M5527',
+            'miscData'       => [
                 'one'    => 'first',
                 'two'    => true,
                 'third'  => 3,
@@ -339,12 +341,12 @@ class StatementServiceTest extends FunctionalTestCase
             'text'           => '<p>Test Data Array in misc Data</p>',
         ];
 
-        //first new Statement
+        // first new Statement
         $createdStatement = $this->sut->newStatement($data);
 
         static::assertNotFalse($createdStatement);
         static::assertInstanceOf(Statement::class, $createdStatement);
-        //ist STN und STN-Kopie vorhanden?
+        // ist STN und STN-Kopie vorhanden?
         static::assertSame(
             $amountBefore + 1,
             $this->countEntries(Statement::class)
@@ -369,7 +371,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testDeleteStatementButNotCopyOfStatement()
     {
@@ -405,7 +407,7 @@ class StatementServiceTest extends FunctionalTestCase
         $initialAmountOfStatementsOfTag1 = count($testTag1->getStatements());
         $this->sut->addTagToStatement($testTag1, $testStatement2);
 
-        //total amount of tags in DB has not changed
+        // total amount of tags in DB has not changed
         static::assertCount($entireAmountOfTagsBefore, $this->getEntries(Tag::class));
         static::assertCount($initialAmountOfStatementsOfTag1 + 1, $testTag1->getStatements());
         static::assertContains($testStatement2, $testTag1->getStatements());
@@ -413,24 +415,24 @@ class StatementServiceTest extends FunctionalTestCase
         $tags = $testStatement2->getTags();
         static::assertCount($amountOfTagsBefore + 1, $tags);
 
-        //the actually deletion:
+        // the actually deletion:
         $result = $this->sut->deleteStatement($testStatement2->getId());
 
         static::assertTrue($result);
         static::assertCount($initialAmountOfStatementsOfTag1, $testTag1->getStatements());
         static::assertNotContains($testStatement2, $testTag1->getStatements());
-        //total amount of tags in DB has still not changed
+        // total amount of tags in DB has still not changed
         static::assertCount($entireAmountOfTagsBefore, $this->getEntries(Tag::class));
 
-        //total amount of StatementMeta in DB is decremeted
+        // total amount of StatementMeta in DB is decremeted
         static::assertSame(
             $amountOfMetasBefore - 1,
             $this->countEntries(StatementMeta::class)
         );
     }
 
-    //test DB-sited onDelete:Cascade
-    //will only work if cascading in sqlite enabled
+    // test DB-sited onDelete:Cascade
+    // will only work if cascading in sqlite enabled
     public function testDBSitedCasading()
     {
         // No cascading on sqlite
@@ -455,11 +457,11 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertInstanceOf(PriorityArea::class, $priorityAreasOfStatement[0]);
         static::assertInstanceOf(StatementAttribute::class, $attributesOfStatement[0]);
 
-        //delete Statement
+        // delete Statement
         $result = $this->sut->deleteStatement($testStatement->getId());
         static::assertTrue($result);
 
-        //still the same of amount of counties/municipalities/priorityAreas in the DB
+        // still the same of amount of counties/municipalities/priorityAreas in the DB
         static::assertSame(
             $totalAmountOfCounties,
             $this->countEntries(County::class)
@@ -473,7 +475,7 @@ class StatementServiceTest extends FunctionalTestCase
             $this->countEntries(PriorityArea::class)
         );
 
-        //exactly one StatementAttribute Entry is deleted via cascading:
+        // exactly one StatementAttribute Entry is deleted via cascading:
         static::assertSame(
             $totalAmountOfStatementAttributes - 1,
             $this->countEntries(StatementAttribute::class)
@@ -501,20 +503,20 @@ class StatementServiceTest extends FunctionalTestCase
         $updatedStatement = $this->sut->getStatement($testStatement2->getId());
         static::assertNotSame($updatedStatement->getAssignee()->getId(), $currentUser->getId());
 
-        //this delete operation must fail due to an assignee on the statement
+        // this delete operation must fail due to an assignee on the statement
         $result = $this->sut->deleteStatement($updatedStatement->getId());
         static::assertFalse($result);
 
         $testStatement2->setAssignee(null);
         $this->sut->updateStatementFromObject($testStatement2, true);
 
-        //this delete operation must succeed because there is no assignee anymore
+        // this delete operation must succeed because there is no assignee anymore
         $result = $this->sut->deleteStatement($testStatement2->getId());
         static::assertTrue($result);
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCopyStatementWithFragments()
     {
@@ -528,7 +530,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertEquals($testStatement->getFragments()->count(), $createdCopy->getFragments()->count());
     }
 
-    //-----------------------------------Tag/Topic-----------------------------------------------------
+    // -----------------------------------Tag/Topic-----------------------------------------------------
 
     public function testDuplicateAddingTagToStatement()
     {
@@ -542,7 +544,7 @@ class StatementServiceTest extends FunctionalTestCase
         $statementsOfTagBefore = $resultTag->getStatements();
         $tagsOfStatementBefore = $resultStatement->getTags();
 
-        //Hinzuzufügenes Statement soll bereits vorhanden sein!
+        // Hinzuzufügenes Statement soll bereits vorhanden sein!
         static::assertTrue($statementsOfTagBefore->contains($statement));
 
         $this->sut->addTagToStatement($tag, $statement);
@@ -604,8 +606,6 @@ class StatementServiceTest extends FunctionalTestCase
 
     /**
      * Helping method.
-     *
-     * @param $statement
      */
     protected function checkStatementStructure($statement)
     {
@@ -698,8 +698,6 @@ class StatementServiceTest extends FunctionalTestCase
 
     /**
      * Helping method.
-     *
-     * @param $paragraph
      */
     public function checkParagraphStructure($paragraph)
     {
@@ -712,7 +710,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('order', $paragraph);
         static::assertArrayHasKey('deleted', $paragraph);
         static::assertArrayHasKey('visible', $paragraph);
-        //static::assertArrayHasKey('versionDate',$paragraph);
+        // static::assertArrayHasKey('versionDate',$paragraph);
         static::assertArrayHasKey('createDate', $paragraph); // kann hier anders sein als in der Originalentität, weil nicht genutzt und CamelCase ein Problem der gesamten Anwendung
         static::assertArrayHasKey('modifyDate', $paragraph); // kann hier anders sein als in der Originalentität, weil nicht genutzt und CamelCase ein Problem der gesamten Anwendung
         static::assertArrayHasKey('pId', $paragraph);
@@ -805,17 +803,17 @@ class StatementServiceTest extends FunctionalTestCase
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         static::assertNull($testStatement2->getAssignee());
 
-        //normal update should fail, because no assignee:
+        // normal update should fail, because no assignee:
         $testStatement2->setTitle('updatedTitle2435');
         $result = $this->sut->updateStatementFromObject($testStatement2);
         static::assertFalse($result);
 
-        //assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
+        // assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
         $testStatement2->setAssignee($user);
         $result = $this->sut->updateStatementFromObject($testStatement2, true);
         static::assertInstanceOf('\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement', $result);
 
-        //with assigned user == current user, it should work
+        // with assigned user == current user, it should work
         $testStatement2->setTitle('updatedTitle666');
         $result = $this->sut->updateStatementFromObject($testStatement2);
         static::assertInstanceOf('\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement', $result);
@@ -846,7 +844,7 @@ class StatementServiceTest extends FunctionalTestCase
             'text'              => '<p>zuzuzuzzu</p>',
         ];
 
-        //first new Statement
+        // first new Statement
         $newStatement = $this->sut->newStatement($data);
         static::assertIsArray($newStatement->getFiles());
         static::assertCount(1, $newStatement->getFiles());
@@ -876,7 +874,7 @@ class StatementServiceTest extends FunctionalTestCase
             'text'              => '<p>zuzuzuzzu</p>',
         ];
 
-        //first new Statement
+        // first new Statement
         $newStatement = $this->sut->newStatement($data);
 
         static::assertIsArray($newStatement->getFiles());
@@ -885,7 +883,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCreateStatementWithTwoFiles()
     {
@@ -911,7 +909,7 @@ class StatementServiceTest extends FunctionalTestCase
             'text'              => '<p>zuzuzuzzu</p>',
         ];
 
-        //first new Statement as original Statement
+        // first new Statement as original Statement
         $newStatement = $this->sut->newStatement($data);
         // fake creation of copy to be used in assessment table until AssessmentTableServiceStorage
         // is testable
@@ -935,7 +933,7 @@ class StatementServiceTest extends FunctionalTestCase
         $testFile1 = $this->getFileReference('testFile');
         $fileString1 = $testFile1->getFilename().':'.$testFile1->getHash().':1234:'.$testFile1->getMimetype();
 
-        //first new Statement
+        // first new Statement
         $newStatement = $this->sut->addFilesToStatement([$fileString1], $this->getStatementReference('testStatement'));
         static::assertIsArray($newStatement->getFiles());
         static::assertCount(1, $newStatement->getFiles());
@@ -965,7 +963,7 @@ class StatementServiceTest extends FunctionalTestCase
         $result = $this->sut->deleteStatement($statementId);
         static::assertFalse($result);
 
-        //Still there?
+        // Still there?
         static::assertInstanceOf(Statement::class, $this->sut->getStatement($statementId));
         static::assertSame($statementId, $this->sut->getStatement($statementId)->getId());
     }
@@ -988,7 +986,7 @@ class StatementServiceTest extends FunctionalTestCase
 
     protected function enableStatementAssignmentFeature()
     {
-        //modify permissions for test
+        // modify permissions for test
         $permissions = $this->getMockSession()->get('permissions');
         $permissions['feature_statement_assignment']['enabled'] = true;
         $this->getMockSession()->set('permissions', $permissions);
@@ -996,7 +994,7 @@ class StatementServiceTest extends FunctionalTestCase
 
     protected function enableStatementClusterFeature()
     {
-        //modify permissions for test
+        // modify permissions for test
         $permissions = $this->getMockSession()->get('permissions');
         $permissions['feature_statement_cluster']['enabled'] = true;
         $this->getMockSession()->set('permissions', $permissions);
@@ -1006,7 +1004,7 @@ class StatementServiceTest extends FunctionalTestCase
      * Depending on the permission feature_statement_assignment.
      * If it is turned off the test fails, because it can update.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testRefuseAddStatementToNotClaimedClusterViaUpdateStatement()
     {
@@ -1040,7 +1038,7 @@ class StatementServiceTest extends FunctionalTestCase
             'true'        => true,
         ];
 
-        //behavior of isset
+        // behavior of isset
         static::assertFalse(isset($testArray['null']));
         static::assertTrue(isset($testArray['0']));
         static::assertTrue(isset($testArray['1']));
@@ -1049,7 +1047,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertTrue(isset($testArray['true']));
         static::assertFalse(isset($testArray['undefinedIndex']));
 
-        //behavior of coalescingOperator
+        // behavior of coalescingOperator
         static::assertSame('default1', $testArray['null'] ?? 'default1');
         static::assertSame(0, $testArray['0'] ?? 'default2');
         static::assertSame(1, $testArray['1'] ?? 'default3');
@@ -1058,7 +1056,7 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertTrue($testArray['true'] ?? 'default6');
         static::assertSame('default7', $testArray['undefinedIndex'] ?? 'default7');
 
-        //compare directly:
+        // compare directly:
         static::assertSame($testArray['null'] ?? false, $testArray['null'] ?? false);
         static::assertSame($testArray['0'] ?? false, $testArray['0'] ?? false);
         static::assertSame($testArray['1'] ?? false, $testArray['1'] ?? false);
@@ -1073,9 +1071,9 @@ class StatementServiceTest extends FunctionalTestCase
         $statement = $this->getStatementReference('testStatement');
         $statements = $this->getEntries(Statement::class, ['name' => null, 'id' => $statement->getId()]);
 
-        //one statement was found, means the statement has null as value in name
+        // one statement was found, means the statement has null as value in name
         static::assertCount(1, $statements);
-        //expectedgetName() will return '' in case of name == null
+        // expectedgetName() will return '' in case of name == null
         static::assertSame('', $statement->getName());
     }
 
@@ -1090,8 +1088,8 @@ class StatementServiceTest extends FunctionalTestCase
         static::assertSame($name, $currentStatement->getName());
     }
 
-    //test to cover storing name of department instead of name of user in case of Bearbeitung abschliessend
-    //indicator: copyConsiderationAdviceToConsideration
+    // test to cover storing name of department instead of name of user in case of Bearbeitung abschliessend
+    // indicator: copyConsiderationAdviceToConsideration
 
     public function testGetUnusedNextValidExternalIdForProcedure()
     {
@@ -1295,8 +1293,8 @@ class StatementServiceTest extends FunctionalTestCase
         $procedures = $this->getEntries(Procedure::class, ['deleted' => false]);
 
         $statistic = [
-            'guestStatements'   => [],
-            'citizenStatements' => [],
+            'guestStatements'                    => [],
+            'citizenStatements'                  => [],
             'invitableInstitutionsStatements'    => [],
         ];
 
@@ -1307,11 +1305,9 @@ class StatementServiceTest extends FunctionalTestCase
                 if (null === $statement->getSubmitterId()) {
                     $statistic['guestStatements'][] = $statement;
                     $statistic[$statement->getProcedureId()]['guestStatements'][] = $statement;
-
                 } elseif ($statement->isCreatedByInvitableInstitution()) {
                     $statistic['invitableInstitutionsStatements'][] = $statement;
                     $statistic[$statement->getProcedureId()]['invitableInstitutionsStatements'][] = $statement;
-
                 } elseif ($statement->isCreatedByCitizen()) {
                     $statistic['citizenStatements'][] = $statement;
                     $statistic[$statement->getProcedureId()]['citizenStatements'][] = $statement;
@@ -1322,7 +1318,7 @@ class StatementServiceTest extends FunctionalTestCase
         /** @var Statement[] $originalStatements */
         $originalStatements = $this->getEntries(Statement::class, ['deleted' => false, 'original' => null]);
 
-        //convert to array to be compatible with changed constructor of StatementStatistic
+        // convert to array to be compatible with changed constructor of StatementStatistic
         $originalStatementArrays = [];
         foreach ($originalStatements as $originalStatement) {
             $originalStatementArrays[$originalStatement->getId()]['publicStatement'] = $originalStatement->getPublicStatement();
@@ -1394,8 +1390,8 @@ class StatementServiceTest extends FunctionalTestCase
         ];
 
         collect($statementIdentifiers)
-            ->map(\Closure::fromCallable([$this, 'getStatementReference']))
-            ->each(\Closure::fromCallable([$this, 'assertAllWithSameUserId']));
+            ->map(Closure::fromCallable([$this, 'getStatementReference']))
+            ->each(Closure::fromCallable([$this, 'assertAllWithSameUserId']));
     }
 
     private function assertAllWithSameUserId(Statement $statement): void
@@ -1418,12 +1414,12 @@ class StatementServiceTest extends FunctionalTestCase
     public function testCollectRequest(): void
     {
         $testArray = [
-            'r_email' => 'test@test.de',
-            'filter_publicVerified' => 'filter'
+            'r_email'               => 'test@test.de',
+            'filter_publicVerified' => 'filter',
         ];
         $resultArray = $this->sut->collectRequest($testArray);
         $expectedResultArray = [
-            'email' => 'test@test.de'
+            'email' => 'test@test.de',
         ];
         self::assertEquals($expectedResultArray, $resultArray);
     }
@@ -1466,13 +1462,13 @@ class StatementServiceTest extends FunctionalTestCase
         ];
 
         foreach ($testStatements as $key => $testStatement) {
-            //Logic which was used in assessment_statement_detail_statement_data.html.twig:231 before creation of statement.anonymous
+            // Logic which was used in assessment_statement_detail_statement_data.html.twig:231 before creation of statement.anonymous
             $emailAddressNeedsToBeAnonymized =
                 ('' == $testStatement->getMeta()->getAuthorName() || User::ANONYMOUS_USER_NAME == $testStatement->getMeta()->getAuthorName())
                 && Statement::EXTERNAL === $testStatement->getPublicStatement()
                 && !$testStatement->isManual();
 
-            //Logic which was used for migration to fill statement.anonymous
+            // Logic which was used for migration to fill statement.anonymous
             $emailAddressAnonymized = $testStatement->hasBeenSubmittedAndAuthoredByUnregisteredCitizen() && User::ANONYMOUS_USER_NAME === $testStatement->getAuthorName();
             self::assertSame($emailAddressNeedsToBeAnonymized, $emailAddressAnonymized, $key);
         }

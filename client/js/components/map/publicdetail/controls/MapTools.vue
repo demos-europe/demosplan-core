@@ -114,7 +114,7 @@
 
 <script>
 import isMobile from 'ismobilejs'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMapTools',
@@ -158,7 +158,7 @@ export default {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.emit('map-tools:unfolded')
+        this.$root.$emit('map-tools:unfolded')
       }
     },
 

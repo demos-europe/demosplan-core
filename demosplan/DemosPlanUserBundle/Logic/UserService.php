@@ -10,22 +10,9 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use DOMDocument;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
-use LSS\XML2Array;
-use ReflectionException;
-use RuntimeException;
-use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
+use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -42,13 +29,14 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ProdLogger;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
@@ -61,11 +49,26 @@ use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 use demosplan\DemosPlanUserBundle\ValueObject\OrgaUsersPair;
-use function array_key_exists;
-use function in_array;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use DOMDocument;
+use Exception;
+use LSS\XML2Array;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
-class UserService extends CoreService
+use function array_key_exists;
+
+class UserService extends CoreService implements UserServiceInterface
 {
+    private const HEX_CHARS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
     /**
      * The hash function that is being used to generate password hashes.
      */
@@ -340,7 +343,7 @@ class UserService extends CoreService
             return false;
         }
 
-        //In case more than one user was found, do not login
+        // In case more than one user was found, do not login
         if (1 < count($foundUsers)) {
             $this->getLogger()->warning('Found more than one user matched to given mail.',
                 ['loginOrEmail' => $loginOrEmail]);
@@ -496,8 +499,8 @@ class UserService extends CoreService
             $user = $this->userRepository->find($entityId);
 
             foreach ($user->getAddresses() as $address) {
-                //remove addresses form user, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form user, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $user->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
@@ -851,9 +854,9 @@ class UserService extends CoreService
      *
      * @param string $entityId
      *
-     * @throws Exception
-     *
      * @return bool
+     *
+     * @throws Exception
      */
     public function deleteDepartment($entityId)
     {
@@ -934,9 +937,9 @@ class UserService extends CoreService
      * @improve: incoming userId should only be type of string
      * Alle Organisationen zu einer UserId herausfinden.
      *
-     * @throws Exception
-     *
      * @return Orga|null
+     *
+     * @throws Exception
      */
     public function getUserOrga(?string $userId)
     {
@@ -951,9 +954,9 @@ class UserService extends CoreService
     /**
      * Get all users of specific roles.
      *
-     * @throws Exception
-     *
      * @return User[]
+     *
+     * @throws Exception
      */
     public function getUsersOfRole(string $role)
     {
@@ -1000,6 +1003,19 @@ class UserService extends CoreService
         arsort($roles);
 
         return $roles;
+    }
+
+    public function createMasterUserForCustomer(string $userLogin, Customer $customer): User
+    {
+        return $this->userRepository->add([
+            'firstname'    => '',
+            'lastname'     => '',
+            'email'        => $userLogin,
+            'login'        => $userLogin,
+            'password'     => $this->generateRandomString(128, self::HEX_CHARS),
+            'customer'     => $customer,
+            'roles'        => [Role::CUSTOMER_MASTER_USER],
+        ]);
     }
 
     /**
@@ -1135,9 +1151,9 @@ class UserService extends CoreService
     /**
      * Liste der InvitableInstitutionsichtbarkeitenänderungen anfordern.
      *
-     * @throws Exception
-     *
      * @return DemosPlanPaginator
+     *
+     * @throws Exception
      */
     public function getInvitableInstitutionShowlistChanges()
     {
@@ -1182,14 +1198,14 @@ class UserService extends CoreService
     {
         try {
             foreach ($department->getAddresses() as $address) {
-                //remove addresses form department, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form department, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $department->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
 
-            //remove addresses form department, to avoid undefined index
-            //doctrine will not do this, because there are no address sited relation, to use annotations
+            // remove addresses form department, to avoid undefined index
+            // doctrine will not do this, because there are no address sited relation, to use annotations
             $department->setAddresses([]);
         } catch (Exception $e) {
             throw new CouldNotDeleteAddressesOfDepartmentException('', 0, $e);
@@ -1316,7 +1332,7 @@ class UserService extends CoreService
                 return true;
             }
 
-            //number of found users is one:
+            // number of found users is one:
             if (!is_string($ignoreUserId)) {
                 return true;
             }
@@ -1353,7 +1369,7 @@ class UserService extends CoreService
                 return true;
             }
 
-            //number of found users is one:
+            // number of found users is one:
             if (!is_string($ignoreUserId)) {
                 return true;
             }
@@ -1387,14 +1403,14 @@ class UserService extends CoreService
             $isEmailChanging = $userToUpdate instanceof User ? ($userToUpdate->getEmail() !== $stringToCheck) : false;
             $updateUserId = $userToUpdate instanceof User ? $userToUpdate->getId() : null;
 
-            //in case of not changing the email address, we do not want to check if the current email is unique.
+            // in case of not changing the email address, we do not want to check if the current email is unique.
             if (!$isEmailChanging && $userToUpdate instanceof User) {
                 $this->getLogger()->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
 
                 return true;
             }
 
-            //in case of email is changing, check if incoming email is already existing as email or as login.
+            // in case of email is changing, check if incoming email is already existing as email or as login.
             if (!$this->isEmailExisting($stringToCheck, $updateUserId) && !$this->isLoginExisting($stringToCheck, $updateUserId)) {
                 $this->getLogger()->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
 
@@ -1427,14 +1443,14 @@ class UserService extends CoreService
             $isLoginChanging = $userToUpdate instanceof User ? ($userToUpdate->getLogin() !== $stringToCheck) : false;
             $updateUserId = $userToUpdate instanceof User ? $userToUpdate->getId() : null;
 
-            //in case of not changing the login, we do not want to check if the current login is unique.
+            // in case of not changing the login, we do not want to check if the current login is unique.
             if (!$isLoginChanging && $userToUpdate instanceof User) {
                 $this->getLogger()->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
 
                 return true;
             }
 
-            //in case of login is changing, check if incoming login is already existing as email or as login.
+            // in case of login is changing, check if incoming login is already existing as email or as login.
             if (!$this->isEmailExisting($stringToCheck, $updateUserId) && !$this->isLoginExisting($stringToCheck, $updateUserId)) {
                 $this->getLogger()->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
 
@@ -1644,5 +1660,28 @@ class UserService extends CoreService
     protected function isNotDefaultDepartment(Department $department): bool
     {
         return 'Keine Abteilung' !== $department->getName();
+    }
+
+    /**
+     * Generates a cryptographically random string.
+     *
+     * The implementation is probably slower and more greedy for randomness than necessary, but as
+     * it is intended for the creation of customers on container-build it is seldom used and
+     * performance is not a concern.
+     *
+     * @param list<string> $allowedCharacters
+     *
+     * @throws Exception
+     */
+    private function generateRandomString(int $length, array $allowedCharacters): string
+    {
+        $allowedCharactersCount = count($allowedCharacters);
+        $string = '';
+        for ($i = 0; $i < $length; ++$i) {
+            $position = random_int(1, $allowedCharactersCount);
+            $string .= $allowedCharacters[$position - 1];
+        }
+
+        return $string;
     }
 }

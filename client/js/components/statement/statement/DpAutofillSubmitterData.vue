@@ -145,8 +145,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -313,8 +312,7 @@ export default {
               field: 'city',
               name: 'r_orga_city',
               width: 'u-4-of-12',
-              type: 'text',
-              pattern: '^[A-Za-zÄäÜüÖöß -]+$'
+              type: 'text'
             }
           ]
         }

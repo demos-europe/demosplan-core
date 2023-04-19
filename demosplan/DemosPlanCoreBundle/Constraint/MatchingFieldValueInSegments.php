@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -9,7 +11,6 @@
  */
 
 namespace demosplan\DemosPlanCoreBundle\Constraint;
-
 
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Validator\MatchingStatementIdValidator;
@@ -65,7 +66,7 @@ class MatchingFieldValueInSegments extends Constraint
         return MatchingStatementIdValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

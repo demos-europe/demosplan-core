@@ -11,16 +11,13 @@
 namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanStatementBundle\Exception\ReservedSystemNameException;
-use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
+use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHasher;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use InvalidArgumentException;
 use Tests\Base\FunctionalTestCase;
 
 class UserHandlerTest extends FunctionalTestCase
@@ -67,15 +64,15 @@ class UserHandlerTest extends FunctionalTestCase
      */
     private function wipeUserDataFields()
     {
-        //todo: check permissions, featruesfields, condition(no user in orga but orga still have a proceudre)
-        //multi delete: foreach deleted element, a specific information message
-        //before and after checks:
-        //statements + versions, draftstatements  versions:
+        // todo: check permissions, featruesfields, condition(no user in orga but orga still have a proceudre)
+        // multi delete: foreach deleted element, a specific information message
+        // before and after checks:
+        // statements + versions, draftstatements  versions:
 
         /** @var User $userToWipe */
         $userToWipe = $this->fixtures->getReference('testUserDelete');
 
-        //check UserFields before:
+        // check UserFields before:
         static::assertFalse($userToWipe->isDeleted());
         static::assertFalse($userToWipe->isNewUser());
 
@@ -115,7 +112,7 @@ class UserHandlerTest extends FunctionalTestCase
         /** @var User $userToWipe */
         $wipedUser = $this->sut->getSingleUser($user->getId());
 
-        //check UserFields after:
+        // check UserFields after:
         static::assertTrue($wipedUser->isDeleted());
         static::assertFalse($wipedUser->isAccessConfirmed());
         static::assertFalse($wipedUser->isIntranet());
@@ -136,7 +133,7 @@ class UserHandlerTest extends FunctionalTestCase
 
         static::assertIsInt($wipedUser->getEmail());
         static::assertEmpty($wipedUser->getSalt());
-        //because of unable to set null (part of FOS\UserBundle\Model\User.php)
+        // because of unable to set null (part of FOS\UserBundle\Model\User.php)
         static::assertEmpty($wipedUser->getPassword());
         static::assertEmpty($wipedUser->getAddresses());
 

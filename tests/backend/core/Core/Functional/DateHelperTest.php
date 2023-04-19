@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use Tests\Base\FunctionalTestCase;
 
@@ -27,10 +28,10 @@ class DateHelperTest extends FunctionalTestCase
     public function testConvertDateToString(): void
     {
         $dateStringToCreate = '2014-10-26T02:30:00';
-        $date = new \DateTime($dateStringToCreate);
+        $date = new DateTime($dateStringToCreate);
         $convertedString = $this->sut->convertDateToString($date);
 
         static::assertEquals($dateStringToCreate.'+0100', $convertedString);
-        static::assertEquals($date, new \DateTime($dateStringToCreate));
+        static::assertEquals($date, new DateTime($dateStringToCreate));
     }
 }

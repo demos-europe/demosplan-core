@@ -46,7 +46,6 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
-
         // create defaultcustomer
         $customer = new Customer('demos', 'demos');
         $manager->persist($customer);

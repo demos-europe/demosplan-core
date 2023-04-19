@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,8 +21,8 @@ use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
-use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
@@ -118,14 +118,14 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeResourceUpdateEvent::class             => 'preventUpdateAndDeletion',
-            BeforeResourceDeletionEvent::class           => 'preventUpdateAndDeletion',
-            PostNewProcedureCreatedEvent::class          => [
+            BeforeResourceUpdateEvent::class                => 'preventUpdateAndDeletion',
+            BeforeResourceDeletionEvent::class              => 'preventUpdateAndDeletion',
+            PostNewProcedureCreatedEventInterface::class    => [
                 ['createTokenForProcedure'],
                 ['coupleProcedures'],
             ],
-            GetPropertiesEventInterface::class           => 'addProperties',
-            GetInternalPropertiesEvent::class            => 'addInternalProperties',
+            GetPropertiesEventInterface::class              => 'addProperties',
+            GetInternalPropertiesEvent::class               => 'addInternalProperties',
         ];
     }
 
@@ -150,7 +150,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function createTokenForProcedure(PostNewProcedureCreatedEvent $event): void
+    public function createTokenForProcedure(PostNewProcedureCreatedEventInterface $event): void
     {
         try {
             // Note that this may not always be the creating user, e.g. when a procedure is created via XTA.
@@ -176,7 +176,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function coupleProcedures(PostNewProcedureCreatedEvent $event): void
+    public function coupleProcedures(PostNewProcedureCreatedEventInterface $event): void
     {
         try {
             // Note that this may not always be the creating user, e.g. when a procedure is created via XTA.

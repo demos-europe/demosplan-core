@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\ValueObject;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**

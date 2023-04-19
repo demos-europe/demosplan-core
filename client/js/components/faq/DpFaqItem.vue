@@ -14,9 +14,10 @@
     </div><!--
  --><div class="layout__item u-4-of-12  u-pt-0_125">
       <dp-multiselect
+        v-if="availableGroupOptions.length > 1"
         track-by="id"
         multiple
-        :options="permittedGroups"
+        :options="availableGroupOptions"
         :allow-empty="false"
         :custom-label="option =>`${option.title}`"
         data-cy="selectedGroups"
@@ -67,9 +68,8 @@
 </template>
 
 <script>
-import { DpMultiselect, DpToggle } from '@demos-europe/demosplan-ui'
+import { DpMultiselect, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpFaqItem',
@@ -80,6 +80,11 @@ export default {
   },
 
   props: {
+    availableGroupOptions: {
+      type: Array,
+      required: true
+    },
+
     faqItem: {
       type: Object,
       required: true
@@ -93,21 +98,6 @@ export default {
 
   data () {
     return {
-      groups: [
-        {
-          title: Translator.trans('role.fp'),
-          id: 'fpVisible'
-        },
-        {
-          title: Translator.trans('institution'),
-          id: 'invitableInstitutionVisible',
-          permission: 'feature_institution_participation'
-        },
-        {
-          title: Translator.trans('guest.citizen'),
-          id: 'publicVisible'
-        }
-      ],
       /**
        * This fifo-queue performs all API request in order. If a request should be performed an API request has to be pushed
        * to the end of the queue.
@@ -128,9 +118,6 @@ export default {
     }),
     ...mapState('faqCategory', {
       faqCategories: 'items'
-    }),
-    ...mapState('role', {
-      roles: 'items'
     }),
 
     currentParentItem () {
@@ -161,17 +148,23 @@ export default {
       }
     },
 
-    // Groups filtered by enabled (or non existent) permissions
-    permittedGroups () {
-      return this.groups.filter(group => hasOwnProp(group, 'permission') ? hasPermission(group.permission) : true)
-    },
-
     selectedGroups () {
-      return this.permittedGroups.filter(group => this.visibilities[group.id])
+      return this.availableGroupOptions.filter(group => this.visibilities[group.id])
     },
 
     visibilities () {
       const faq = this.faqItem.attributes
+
+      /**
+       * If there is only one role group to activate within the project,
+       * users may control visibility by using the "status" toggle.
+       * The value for visibility for that role group is saved as true,
+       * in case another role group is activated later on within the project.
+       */
+      if (this.availableGroupOptions.length === 1) {
+        faq[this.availableGroupOptions[0].id] = true
+      }
+
       return {
         fpVisible: faq.fpVisible,
         invitableInstitutionVisible: faq.invitableInstitutionVisible,
@@ -204,7 +197,6 @@ export default {
     }),
 
     selectGroups (val) {
-      console.log('valval', val)
       const selectedGroups = val.reduce((acc, group) => {
         return {
           ...acc,
@@ -212,7 +204,7 @@ export default {
         }
       }, {})
       let newSelection = {}
-      this.permittedGroups.forEach(group => {
+      this.availableGroupOptions.forEach(group => {
         newSelection = selectedGroups[group.id] ? newSelection : { ...newSelection, ...{ [group.id]: false } }
       })
 

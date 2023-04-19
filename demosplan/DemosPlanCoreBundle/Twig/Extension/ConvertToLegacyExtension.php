@@ -14,8 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use Exception;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFilter;
 
@@ -64,7 +65,7 @@ class ConvertToLegacyExtension extends ExtensionBase
     /**
      * Check whether value is not defined, then return given return value.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function convertToLegacy(array $statements): array
     {

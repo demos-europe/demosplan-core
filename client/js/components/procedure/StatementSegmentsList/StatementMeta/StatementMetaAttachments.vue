@@ -38,6 +38,7 @@
         v-else />
       <dp-upload-files
         :class="editable ? '' : 'pointer-events-none opacity-7'"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         ref="uploadStatementAttachment"
         id="uploadStatementAttachment"
         name="uploadStatementAttachment"
@@ -57,8 +58,7 @@
 </template>
 
 <script>
-import { DpButton, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
-import { dpApi } from '@demos-europe/demosplan-utils'
+import { dpApi, DpButton, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {

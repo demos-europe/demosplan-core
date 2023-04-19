@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use ArrayAccess;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use LogicException;
 
@@ -24,7 +25,7 @@ use LogicException;
  * The name of the `ToBy` object is for now considered temporary and can
  * be changed later to something more appropriate if necessary.
  */
-class ToBy implements \ArrayAccess
+class ToBy implements ArrayAccess
 {
     public const DIRECTION_ASC = 'asc';
     public const DIRECTION_DESC = 'desc';

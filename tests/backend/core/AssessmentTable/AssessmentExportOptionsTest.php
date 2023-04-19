@@ -10,8 +10,8 @@
 
 namespace Tests\Core\AssessmentTable;
 
-use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use Tests\Base\FunctionalTestCase;
 
 class AssessmentExportOptionsTest extends FunctionalTestCase
@@ -55,10 +55,10 @@ class AssessmentExportOptionsTest extends FunctionalTestCase
     public function testMergeOptionsMerges()
     {
         $options = [
-            'defaults' => [
+            'defaults'            => [
                 'print' => true,
             ],
-            'assessment_table' => [
+            'assessment_table'    => [
                 'print' => false,
             ],
             'original_statements' => [],

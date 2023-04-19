@@ -11,7 +11,25 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
@@ -20,24 +38,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+
 use function array_key_exists;
 use function is_array;
 
@@ -144,7 +145,7 @@ class ServiceOutput
      *
      * @return array<int, Orga>|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getPlanningOffices(Customer $customer): ?array
     {
@@ -173,7 +174,7 @@ class ServiceOutput
      */
     public function procedureListHandler($esQuery): array
     {
-        //Procedureliste abholen
+        // Procedureliste abholen
         $orgaId = '';
         $user = $this->currentUser->getUser();
         if ($user instanceof User) {
@@ -236,7 +237,15 @@ class ServiceOutput
         }
 
         $user = $this->currentUser->getUser();
-        $sResult = $this->service->getProcedureAdminList($filter, $search, null, $user, true, true, false);
+        $sResult = $this->service->getProcedureAdminList(
+            $filter,
+            $search,
+            $user,
+            null,
+            true,
+            true,
+            false
+        );
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];
@@ -319,8 +328,8 @@ class ServiceOutput
         );
 
         return [
-            'procedure' => $procedureAsArray,
-            'orgas'     => $orgaRes,
+            'procedure'      => $procedureAsArray,
+            'orgas'          => $orgaRes,
             // return the numbers of statemements per orga to be able to show the stats in public
             // agency list for planners
             'orgaStatements' => $oStatement,
@@ -406,14 +415,14 @@ class ServiceOutput
     {
         $publicAgenciesToBeNotified = [];
 
-        //Do they want to have a notification email? ->Info saved in Settings
+        // Do they want to have a notification email? ->Info saved in Settings
         /** @var Orga $publicAgency */
         foreach ($publicAgencies as $publicAgency) {
             try {
                 $settingForEndingPhase = $this->contentService->getSettings('emailNotificationEndingPhase');
                 foreach ($settingForEndingPhase as $settingStatement) {
                     if ($publicAgency->getId() === $settingStatement['orgaId'] && 'true' === $settingStatement['content']) {
-                        //if they want notification, fetch their participationEmail and save it
+                        // if they want notification, fetch their participationEmail and save it
                         $publicAgenciesToBeNotified[] = $publicAgency->getEmail2();
                     }
                 }
@@ -463,7 +472,7 @@ class ServiceOutput
             }
         }
 
-        //Only orgas, who have been selected
+        // Only orgas, who have been selected
         $selectedOrgasOnly = [];
         if (0 < count($selectedOrgas)) {
             /** @var Orga $orga */
@@ -483,7 +492,7 @@ class ServiceOutput
                 'procedure'    => $procedure,
             ]
         );
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content));
         $file = base64_decode($response);
 
@@ -514,7 +523,7 @@ class ServiceOutput
             ]
         );
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content));
         $pdf = base64_decode($response);
 

@@ -13,11 +13,12 @@ declare(strict_types=1);
 namespace Tests\Base;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 class JsonApiTest extends AbstractApiTest
 {
@@ -110,7 +111,7 @@ class JsonApiTest extends AbstractApiTest
         $content = $response->getContent();
         if (Response::HTTP_NO_CONTENT === $actualStatus) {
             if ('' !== $content) {
-                throw new \Exception('response body for 204 status code must be empty');
+                throw new Exception('response body for 204 status code must be empty');
             }
 
             return null;

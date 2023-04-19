@@ -10,12 +10,14 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -29,7 +31,6 @@ use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureTypeRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -41,7 +42,7 @@ use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProcedureTypeService extends CoreService
+class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
     /**
      * @var EntityFetcher
@@ -495,7 +496,10 @@ class ProcedureTypeService extends CoreService
         }, $entities);
     }
 
-    public function getProcedureTypeByName(string $name): ?ProcedureType
+    /**
+     * @return ProcedureType|null
+     */
+    public function getProcedureTypeByName(string $name)
     {
         return $this->procedureTypeRepository->findOneBy(['name' => $name]);
     }

@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
-use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 
 class ValueObject implements JsonSerializable, ValueObjectInterface
 {
@@ -120,7 +120,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
      *
      * @return $this
      */
-    public function lock(): self
+    public function lock(): ValueObjectInterface
     {
         $this->locked = true;
 

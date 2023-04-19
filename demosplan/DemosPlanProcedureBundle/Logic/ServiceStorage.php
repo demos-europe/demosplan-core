@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
@@ -35,19 +37,18 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Exception;
-
-use function is_string;
-
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function is_string;
+
 /**
  * Speicherung von Planverfahren.
  */
-class ServiceStorage
+class ServiceStorage implements ServiceStorageInterface
 {
     /**
      * @var ContentService
@@ -210,7 +211,10 @@ class ServiceStorage
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
     {
         /** @var PreNewProcedureCreatedEvent $procedureFileSubmitEvent */
-        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(new PreNewProcedureCreatedEvent($data));
+        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(
+            new PreNewProcedureCreatedEvent($data),
+            PreNewProcedureCreatedEventInterface::class
+        );
         $criticalEventConcernMessages = $procedureFileSubmitEvent->getCriticalEventConcernMessages();
         if ([] !== $criticalEventConcernMessages) {
             $preNewProcedureCreatedEventConcernException = new PreNewProcedureCreatedEventConcernException();
@@ -257,7 +261,7 @@ class ServiceStorage
             ];
         }
 
-        if (!array_key_exists(AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
+        if (!array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -339,9 +343,9 @@ class ServiceStorage
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'plisId');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'publicParticipationContact');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'publicParticipationPublicationEnabled');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'customer', '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'xtaPlanId', '');
         $procedureData['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedureData['settings'] ?? [], $data, 'mapExtent');
@@ -509,9 +513,9 @@ class ServiceStorage
             $procedure['externalDesc'] = $singleLineExternalDesc;
         }
 
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, '');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationName');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');

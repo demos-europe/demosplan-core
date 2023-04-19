@@ -40,7 +40,7 @@ class MapCapabilitiesLoaderTest extends FunctionalTestCase
     }
 
     /**
-     * @return \string[][]
+     * @return string[][]
      */
     public function evaluateCapabilitiesDataProvider(): array
     {

@@ -11,17 +11,18 @@
 namespace demosplan\DemosPlanReportBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Psr\Log\LoggerInterface;
-use Seld\JsonLint\JsonParser;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanReportBundle\ValueObject\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\RegisteredInvitationReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\StatementFinalMailReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\UnregisteredInvitationReportEntryData;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Seld\JsonLint\JsonParser;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ReportMessageConverter
 {
@@ -137,12 +138,12 @@ class ReportMessageConverter
                     $message = $this->getOriginalStatementMessage($reportEntryMessage, 'confirm.original.statement.attachment.deleted');
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Exception when converting protocol message', [$e]);
             $message = '';
         }
 
-        return $message ?? '';
+        return $message;
     }
 
     /**
@@ -261,7 +262,7 @@ class ReportMessageConverter
     {
         $outputLines = [];
         $outputLines[] = $this->translator->trans('text.protocol.procedure.finalMail', [
-            'url' => $this->router->generate('dplan_assessmenttable_view_table', [
+            'url'      => $this->router->generate('dplan_assessmenttable_view_table', [
                 'procedureId' => $entryData->getProcedureId(),
                 '_fragment'   => $entryData->getStatementId(),
             ]),
@@ -418,7 +419,7 @@ class ReportMessageConverter
         }
         if (array_key_exists('mapExtent', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.mapextent.changed', [
-                'mapExtent' => str_replace(',', ', ', $message['mapExtent']), //T15125
+                'mapExtent' => str_replace(',', ', ', $message['mapExtent']), // T15125
             ]);
         }
         if (array_key_exists('targetProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
@@ -447,7 +448,7 @@ class ReportMessageConverter
         $returnMessage = [];
 
         $invitedOrgas = [];
-        //only log recipients with email address
+        // only log recipients with email address
         $recipients = $entryData->getRecipients();
         foreach ($recipients as $recipient) {
             if (isset($recipient['email2']) && 0 < strlen($recipient['email2'])) {
@@ -468,13 +469,13 @@ class ReportMessageConverter
             $returnMessage[] = $this->getSubjectLine($mailSubject);
         }
 
-        //hole den Phasennamen
+        // hole den Phasennamen
         $returnMessage[] = $this->globalConfig->getPhaseNameWithPriorityInternal($entryData->getPhase());
         if (0 !== count($invitedOrgas)) {
             $returnMessage[] = $this->translator->trans('email.invitation.sent');
 
             foreach ($invitedOrgas as $orga) {
-                $returnMessage[] = $orga['nameLegal'] ?? ''.', '.$orga['email2'] ?? '';
+                $returnMessage[] = $orga['nameLegal'] ?? ', '.$orga['email2'] ?? '';
                 if (array_key_exists('ccEmails', $orga) && 0 < count($orga['ccEmails'])) {
                     $returnMessage[] = $this->translator->trans('email.cc').': '.
                         implode(', ', $orga['ccEmails']);
@@ -707,12 +708,12 @@ class ReportMessageConverter
                 $category = [];
                 $fileNumber = 0;
 
-                //Nur wenn Dokumente zu der Kategorie eingestellt wurden, soll diese im Protokoll erscheinen.
+                // Nur wenn Dokumente zu der Kategorie eingestellt wurden, soll diese im Protokoll erscheinen.
                 if (array_key_exists('files', $element) && is_array($element['files'])) {
-                    //Name der Kategorie speichern
+                    // Name der Kategorie speichern
                     $category['name'] = $key;
 
-                    //Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
+                    // Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
                     foreach ($element['files'] as $fileKey => $document) {
                         $documentParts = explode(':', $document);
                         // report messages format changed over time
@@ -725,26 +726,26 @@ class ReportMessageConverter
                         }
                         ++$fileNumber;
                     }
-                    //alle Dokumente(-Namen) der Kategorie speichern.
+                    // alle Dokumente(-Namen) der Kategorie speichern.
                     $category['documents'] = $documentsOfElement;
 
-                    //ist Zugriffsbeschränkung gesetzt?
+                    // ist Zugriffsbeschränkung gesetzt?
                     if (isset($element['access'][0])) {
-                        //übernehme das Array mit dem Inhalt der zugriffsberechtigten Institutionen
+                        // übernehme das Array mit dem Inhalt der zugriffsberechtigten Institutionen
                         $category['access'] = $element['access'];
                     }
                 } elseif (isset($element[0])) {
                     // is this part ever needed?
                     $category['name'] = $key;
 
-                    //Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
+                    // Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
                     foreach ($element as $document) {
                         $documentParts = explode(':', $document);
                         $documentsOfElement[$fileNumber]['name'] = $documentParts[0];
                         $documentsOfElement[$fileNumber]['fileName'] = $documentParts[1];
                         ++$fileNumber;
                     }
-                    //alle Dokumente(-Namen) der Kategorie speichern.
+                    // alle Dokumente(-Namen) der Kategorie speichern.
                     $category['documents'] = $documentsOfElement;
                 }
 

@@ -55,7 +55,7 @@ class SamlUserFactoryTest extends FunctionalTestCase
 
         $userService = $this->getContainer()->get(UserService::class);
 
-        $this->sut = new SamlUserFactory($customerService, $eventDispatcher, (new NullLogger()), $orgaService, $roleHandler, $userService);
+        $this->sut = new SamlUserFactory($customerService, $eventDispatcher, new NullLogger(), $orgaService, $roleHandler, $userService);
     }
 
     public function testCreateNewUserFromSAML(): void

@@ -10,6 +10,7 @@
 
 namespace Tests\Core\DraftStatement;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -19,10 +20,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementServiceTest extends FunctionalTestCase
@@ -42,12 +44,12 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'elementTitle', 'externId', 'feedback', 'file', 'files', 'houseNumber', 'id', 'ident', 'lastModifiedDate', 'mapFile', 'miscData', 'negativ',
         'number', 'oGatewayName', 'oId', 'oName', 'organisation', 'phase', 'pId', 'polygon', 'procedure',
         'publicAllowed', 'publicDraftStatement', 'publicUseName', 'rejected', 'rejectedDate', 'rejectedReason',
-        'released', 'releasedDate', 'represents', 'showToAll', 'statementAttributes', /*'statementAttributesObject',*/
+        'released', 'releasedDate', 'represents', 'showToAll', 'statementAttributes', /* 'statementAttributesObject', */
         'submitted', 'submittedDate', 'text', 'title', 'uCity', 'uEmail', 'uId', 'uName', 'uPostalCode',
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanDocumentBundle\Logic\ElementsService|object|null
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
      */
     protected $elementsService;
 
@@ -167,8 +169,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * Test general REsult structure.
-     *
-     * @param $draftStatement
      */
     protected function checkDraftStatementStructure($draftStatement)
     {
@@ -176,7 +176,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         $addToAssertedStructure = [];
 
-        //add additional keys to the asserted Structure:
+        // add additional keys to the asserted Structure:
         if (isset($draftStatement['documentId'])) {
             $addToAssertedStructure[] = 'documentId';
             $addToAssertedStructure[] = 'document';
@@ -197,7 +197,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         }
         // check whether all keys are defined in assertedStructure
 
-        //statementAttributesObject fehlt in assertedStructure
+        // statementAttributesObject fehlt in assertedStructure
         static::assertEquals(count($assertedStructure), count($draftStatement));
         static::assertTrue(is_array($draftStatement['categories']));
         static::assertTrue(is_numeric($draftStatement['createdDate']));
@@ -361,7 +361,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         $data = $this->getBaseDraftStatementData();
         $overrides = [
-            'statementAttributes' => [
+            'statementAttributes'     => [
                 'noLocation' => 1,
             ],
             'files'                   => [$fileString1],
@@ -386,7 +386,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         $data = $this->getBaseDraftStatementData();
         $overrides = [
-            'statementAttributes' => [
+            'statementAttributes'     => [
                 'noLocation' => 1,
             ],
             'files'                   => $fileString1,
@@ -413,7 +413,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         $data = $this->getBaseDraftStatementData();
         $overrides = [
-            'statementAttributes' => [
+            'statementAttributes'     => [
                 'noLocation' => 1,
             ],
             'files'                   => [$fileString1, $fileString2],
@@ -457,18 +457,18 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $draftStatementId = $draftStatement->getId();
         static::assertCount(0, $draftStatement->getStatementAttributes());
 
-        //create attribute relation by using updateDraftStatement:
+        // create attribute relation by using updateDraftStatement:
         $data['statementAttributes'] = ['noLocation' => true];
         $data['ident'] = $draftStatementId;
         $this->sut->updateDraftStatement($data);
 
-        //check attributes of object
+        // check attributes of object
         $draftStatementAttributes = $draftStatement->getStatementAttributes();
         static::assertNotEmpty($draftStatementAttributes);
         static::assertCount(1, $draftStatementAttributes);
         static::assertEquals($draftStatementId, $draftStatementAttributes[0]->getDraftStatement()->getId());
 
-        //check amount entities of _statement_attributes in DB
+        // check amount entities of _statement_attributes in DB
         $after = $this->countEntries(StatementAttribute::class);
         static::assertEquals($before + 1, $after);
     }
@@ -478,7 +478,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $attributesBefore = $this->countEntries(StatementAttribute::class);
-        //todo: add attribute and all available relations to draftstatemt
+        // todo: add attribute and all available relations to draftstatemt
         // to test relations are deleted after delete draftstatement
 
         /** @var DraftStatement $draftStatement */
@@ -486,7 +486,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $draftStatementId = $draftStatement->getId();
         static::assertCount(0, $draftStatement->getStatementAttributes());
 
-        //create attribute relation by using updateDraftStatement:
+        // create attribute relation by using updateDraftStatement:
         $data['statementAttributes'] = ['noLocation' => true];
         $data['ident'] = $draftStatementId;
         $this->sut->updateDraftStatement($data);
@@ -507,7 +507,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
             static::assertNotEquals($draftStatementId, $id);
         }
 
-        //is deleted from DB?
+        // is deleted from DB?
         $attributesAfter = $this->countEntries(StatementAttribute::class);
         static::assertEquals($attributesBefore, $attributesAfter);
     }
@@ -625,21 +625,21 @@ class DraftStatementServiceTest extends FunctionalTestCase
         self::markSkippedForCIElasticsearchUnavailable();
 
         $data = [
-            'pId'   => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
-            'text'  => 'Mein MiscData Test',
-            'uId'   => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
-            'uName' => $this->otherUserName,
-            'dId'   => $this->fixtures->getReference('testDepartment')->getId(),
-            'dName' => $this->fixtures->getReference('testDepartment')->getName(
+            'pId'                 => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
+            'text'                => 'Mein MiscData Test',
+            'uId'                 => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
+            'uName'               => $this->otherUserName,
+            'dId'                 => $this->fixtures->getReference('testDepartment')->getId(),
+            'dName'               => $this->fixtures->getReference('testDepartment')->getName(
             ),
-            'oId'       => $this->fixtures->getReference('testOrgaInvitableInstitution')->getId(),
-            'oName'     => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
-            'elementId' => $this->fixtures->getReference('testElement1')->getId(
+            'oId'                 => $this->fixtures->getReference('testOrgaInvitableInstitution')->getId(),
+            'oName'               => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
+            'elementId'           => $this->fixtures->getReference('testElement1')->getId(
             ),
             'statementAttributes' => [
                 'noLocation' => 1,
             ],
-            'miscData' => [
+            'miscData'            => [
                 'userGroup'        => 'myGroup',
                 'userOrganisation' => 'myOrga',
                 'userPosition'     => 'myPosition',
@@ -718,7 +718,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         // initial Submitted
         $draftStatementListSubmitted = $this->sut->getDraftStatementList($procedureId, $scopeGroup, $filtersSubmitted, $search, $sort, $user, $manualSortScope);
-        static::assertTrue(count($draftStatementListSubmitted->getResult()) == ($numDraftStatementsSubmitted));
+        static::assertTrue(count($draftStatementListSubmitted->getResult()) == $numDraftStatementsSubmitted);
     }
 
     public function testRejectDraftStatement()
@@ -769,7 +769,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $resultRejectStatement = $this->sut->getSingleDraftStatement(
             $draftStatementId
         );
-        static::assertFalse(\DateTime::createFromFormat('d.m.Y', '2.1.1970')->getTimestamp() * 1000 == $resultRejectStatement['rejectedDate']);
+        static::assertFalse(DateTime::createFromFormat('d.m.Y', '2.1.1970')->getTimestamp() * 1000 == $resultRejectStatement['rejectedDate']);
         static::assertEquals($rejectReason, $resultRejectStatement['rejectedReason']);
         static::assertTrue($resultRejectStatement['rejected']);
         static::assertFalse($resultRejectStatement['released']);
@@ -777,15 +777,15 @@ class DraftStatementServiceTest extends FunctionalTestCase
         // Draft
         $draftStatementListAfter = $this->sut->getDraftStatementList($procedureId, $scope, $filtersDraft, $search, $sort, $user, $manualSortScope);
         static::assertTrue(is_array($draftStatementListAfter->getResult()));
-        static::assertTrue(count($draftStatementListAfter->getResult()) == ($numDraftStatements));
+        static::assertTrue(count($draftStatementListAfter->getResult()) == $numDraftStatements);
 
         // Released own
         $draftStatementListReleased = $this->sut->getDraftStatementList($procedureId, $scope, $filtersReleased, $search, $sort, $user, $manualSortScope);
-        static::assertTrue(count($draftStatementListReleased->getResult()) == ($numDraftStatementsReleased));
+        static::assertTrue(count($draftStatementListReleased->getResult()) == $numDraftStatementsReleased);
 
         // Submitted
         $draftStatementListSubmitted = $this->sut->getDraftStatementList($procedureId, $scopeSubmitted, $filtersSubmitted, $search, $sort, $user, $manualSortScope);
-        static::assertTrue(count($draftStatementListSubmitted->getResult()) == ($numDraftStatementsSubmitted));
+        static::assertTrue(count($draftStatementListSubmitted->getResult()) == $numDraftStatementsSubmitted);
     }
 
     public function testGetOtherCompaniesPublicDraftStatement()
@@ -1145,14 +1145,14 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $testDraftStatement = $this->fixtures->getReference('testDraftStatement');
         $testDraftStatementId = $testDraftStatement->getId();
 
-        /** @var DraftStatement $testDraftStatement2 */ //is not a statement of the user
+        /** @var DraftStatement $testDraftStatement2 */ // is not a statement of the user
         $testDraftStatement2 = $this->fixtures->getReference('testDraftStatement2');
         $testDraftStatementId2 = $testDraftStatement2->getId();
 
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
-        //check setup:
+        // check setup:
         static::assertFalse($testDraftStatement->isReleased());
         static::assertEquals($user->getId(), $testDraftStatement->getUser()->getId());
         static::assertEquals($testProcedureId, $testDraftStatement->getProcedure()->getId());
@@ -1161,7 +1161,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         static::assertNotEquals($user->getId(), $testDraftStatement2->getUser()->getId());
         static::assertEquals($testProcedureId, $testDraftStatement2->getProcedure()->getId());
 
-        //execute method of interest:
+        // execute method of interest:
         $list = $this->sut->getDraftStatementReleasedOwnList(
             $testProcedureId,
             ['released' => true],
@@ -1170,12 +1170,12 @@ class DraftStatementServiceTest extends FunctionalTestCase
             $user
         );
 
-        //check results becase of no draftstatements are released
+        // check results becase of no draftstatements are released
         static::assertEmpty($list->getResult());
 
-        //create own released statement:
+        // create own released statement:
         $this->sut->releaseDraftStatement([$testDraftStatementId]);
-        //will be released, but not shown in own list, because it isnt a draftstatement of the user
+        // will be released, but not shown in own list, because it isnt a draftstatement of the user
         $this->sut->releaseDraftStatement([$testDraftStatementId2]);
 
         $list = $this->sut->getDraftStatementReleasedOwnList(
@@ -1186,7 +1186,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
             $user
         );
 
-        //because $testDraftStatement2 is not a draftStatement of the user
+        // because $testDraftStatement2 is not a draftStatement of the user
         static::assertEquals(1, $list->getTotal());
         static::assertEquals($testDraftStatement->getId(), $list->getResult()[0]['id']);
     }
@@ -1202,7 +1202,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
-        //check setup:
+        // check setup:
         static::assertFalse($testDraftStatement->isReleased());
         static::assertEquals($user->getId(), $testDraftStatement->getUser()->getId());
         static::assertEquals($testProcedureId, $testDraftStatement->getProcedure()->getId());
@@ -1217,7 +1217,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         static::assertEmpty($list->getResult());
 
-        //prepare:  release statement:
+        // prepare:  release statement:
         $this->sut->releaseDraftStatement([$testDraftStatementId]);
         $list = $this->sut->getDraftStatementReleasedOwnList(
             $testProcedureId,
@@ -1227,11 +1227,11 @@ class DraftStatementServiceTest extends FunctionalTestCase
             $user
         );
 
-        //check preparation:
+        // check preparation:
         static::assertEquals(1, $list->getTotal());
         static::assertEquals($testDraftStatement->getId(), $list->getResult()[0]['id']);
 
-        //execute method of interest:
+        // execute method of interest:
         $resetDraftStatementsSuccessfully = $this->sut->resetReleasedDraftStatements([$testDraftStatementId]);
         static::assertTrue($resetDraftStatementsSuccessfully);
 
@@ -1243,7 +1243,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
             $user
         );
 
-        //check results because of no draftstatements are released
+        // check results because of no draftstatements are released
         static::assertEmpty($list->getResult());
     }
 
@@ -1257,7 +1257,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $determinedCategoryId = $this->sut->determineStatementCategory($testDraftStatement->getProcedure()->getId(), $data);
         $determinedCategory = $this->elementsService->getElementObject($determinedCategoryId);
 
-        //assert no changes:$determinedCategory
+        // assert no changes:$determinedCategory
         static::assertEquals($testDraftStatement->getElement()->getId(), $determinedCategory->getId());
         static::assertEquals($testDraftStatement->getElement()->getTitle(), $determinedCategory->getTitle());
     }
@@ -1279,7 +1279,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $testDraftStatement = $this->fixtures->getReference('testDraftStatement');
         static::assertEquals('paragraph', $testDraftStatement->getElement()->getCategory());
 
-        //overwrite current elementID
+        // overwrite current elementID
         $data = [
             'r_ident'      => $testDraftStatement->getId(),
             'r_element_id' => 'irgendeine ElementID',
@@ -1287,7 +1287,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
         $determinedCategory = $this->sut->determineStatementCategory($testDraftStatement->getProcedure()->getId(), $data);
 
-        //assert no changes:$determinedCategory
+        // assert no changes:$determinedCategory
         static::assertEquals($data['r_element_id'], $determinedCategory);
     }
 
@@ -1295,7 +1295,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
      * @param $providerData
      *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSetNoElementIdOnDetermineStatementCategory()
     {
@@ -1308,15 +1308,15 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $procedureId = $testDraftStatement->getProcedure()->getId();
 
         static::assertEquals('paragraph', $testDraftStatement->getElement()->getCategory());
-        //element on testDraftStatement is the 'testElement1':
+        // element on testDraftStatement is the 'testElement1':
         static::assertEquals($testElement->getId(), $testDraftStatement->getElement()->getId());
 
-        //get Element from category 'statement' of this procedure:
+        // get Element from category 'statement' of this procedure:
         $gesamtStnElement = $this->elementsService
             ->getStatementElement($testDraftStatement->getProcedure()->getId());
         static::assertEquals('Gesamtstellungnahme', $gesamtStnElement->getTitle());
 
-        //empty string and null as elementId via providerData, should result in category 'statement'
+        // empty string and null as elementId via providerData, should result in category 'statement'
         $determinedElementId = $this->sut->determineStatementCategory($procedureId, $providerData);
 
         $determinedElement = $this->elementsService->getElementObject($determinedElementId);
@@ -1329,7 +1329,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
      * @param $providerData
      * dataProvider getDetermineStatementCategoryData
      */
-    public function testDetermineStatementCategory(/*array $providerData*/)
+    public function testDetermineStatementCategory(/* array $providerData */)
     {
         self::markSkippedForCIIntervention();
 
@@ -1369,7 +1369,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
      * dataProvider getCreateDraftStatementData
      *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDetermineStatementCategoryOnCreateCategory(/* $providerData */)
     {
@@ -1379,7 +1379,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $testDraftStatement = $this->sut->getDraftStatementObject($testDraftStatement['id']);
         $procedureId = $testDraftStatement->getProcedure()->getId();
 
-        //create new DraftStatement with category
+        // create new DraftStatement with category
         if (array_key_exists('elementId', $providerData)) {
             $element = $this->elementsService->getElementObject($providerData['elementId']);
             $d = $testDraftStatement->getElement();
@@ -1390,7 +1390,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
             $element = $this->elementsService->getElementObject($determinedCategoryId);
             static::assertEquals('paragraph', $element->getCategory());
         } else {
-            //create new draftstatement without category
+            // create new draftstatement without category
             static::assertNull($testDraftStatement->getElement());
             $determinedCategoryId = $this->sut->determineStatementCategory($procedureId, $providerData);
             $element = $this->elementsService->getElementObject($determinedCategoryId);
@@ -1426,15 +1426,15 @@ class DraftStatementServiceTest extends FunctionalTestCase
     {
         return [
             [[
-                'pId'   => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
-                'text'  => $this->text,
-                'uId'   => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
-                'uName' => $this->otherUserName,
-                'dId'   => $this->fixtures->getReference('testDepartment')->getId(),
-                'dName' => $this->fixtures->getReference('testDepartment')->getName(),
-                'oId'   => $this->fixtures->getReference('testOrgaInvitableInstitution')->getId(),
-                'oName' => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
-                //attention: on create new DraftStatement the repository expects 'elementId' or 'element', but not 'r_element_id'
+                'pId'                 => $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(),
+                'text'                => $this->text,
+                'uId'                 => $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId(),
+                'uName'               => $this->otherUserName,
+                'dId'                 => $this->fixtures->getReference('testDepartment')->getId(),
+                'dName'               => $this->fixtures->getReference('testDepartment')->getName(),
+                'oId'                 => $this->fixtures->getReference('testOrgaInvitableInstitution')->getId(),
+                'oName'               => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
+                // attention: on create new DraftStatement the repository expects 'elementId' or 'element', but not 'r_element_id'
                 'elementId'           => $this->fixtures->getReference('testElement1')->getId(),
                 'statementAttributes' => ['noLocation' => 1],
             ]],

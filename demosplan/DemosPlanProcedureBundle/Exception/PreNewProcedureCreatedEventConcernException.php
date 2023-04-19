@@ -10,26 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Exception;
 
-use Exception;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonPreNewProcedureCreatedEventConcernException;
 
-class PreNewProcedureCreatedEventConcernException extends Exception
+class PreNewProcedureCreatedEventConcernException extends AddonPreNewProcedureCreatedEventConcernException
 {
-    /** @var string[] */
-    protected $messages = [];
-
-    /**
-     * @return string[]
-     */
-    public function getMessages(): array
-    {
-        return $this->messages;
-    }
-
-    /**
-     * @param string[] $messages
-     */
-    public function setMessages(array $messages)
-    {
-        $this->messages = $messages;
-    }
 }

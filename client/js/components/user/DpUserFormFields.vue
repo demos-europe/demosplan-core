@@ -134,6 +134,7 @@
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
+        v-if="organisations[this.currentUserOrga.id]"
         class="u-mb-0_5"
         multiple
         :options="allowedRolesForOrga"
@@ -156,11 +157,9 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
+import { dpApi, DpMultiselect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import qs from 'qs'
-import { sortAlphabetically } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpUserFormFields',
@@ -252,18 +251,28 @@ export default {
      * - user is set: roles for current organisation
      */
     allowedRolesForOrga () {
-      return (this.currentUserOrga.id === '')
-        ? this.rolesInRelationshipFormat
-        : Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
+      let allowedRoles
+
+      if (this.currentUserOrga.id === '') {
+        allowedRoles = this.rolesInRelationshipFormat
+      } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+      } else {
+        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
+      }
+
+      return allowedRoles
     },
 
     currentOrgaDepartments () {
       const departments = sortAlphabetically(Object.values(this.currentUserOrga.departments), 'name')
       const noDepartmentIdx = departments.findIndex(el => el.name === Translator.trans('department.none'))
+
       if (noDepartmentIdx > -1) {
         const noDepartment = departments.splice(noDepartmentIdx, 1)[0]
         departments.unshift(noDepartment)
       }
+
       return departments
     },
 
@@ -285,6 +294,12 @@ export default {
   },
 
   methods: {
+    ...mapActions('orga', {
+      organisationList: 'list'
+    }),
+
+    ...mapMutations('orga', ['setItem']),
+
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
@@ -327,6 +342,30 @@ export default {
       }
 
       return new Promise((resolve, reject) => resolve(true))
+    },
+
+    /**
+     *  Handle cases in which organisation lost allowedRoles from the relationships after user update action
+     *  a separate method is used to avoid fetching allowedRoles by mounting (DpUserList component fetches orga.allowedRoles)
+     *  @param types {String}
+     */
+    fetchOrgaById (orgaId) {
+      const url = Routing.generate('dplan_api_orga_get', { id: orgaId })
+
+      return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
+    },
+
+    getOrgaAllowedRoles (orgaId) {
+      let allowedRoles = this.rolesInRelationshipFormat
+
+      this.fetchOrgaById(orgaId).then((orga) => {
+        this.setOrga(orga.data.data)
+        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+        }
+      })
+
+      return allowedRoles
     },
 
     /**
@@ -421,6 +460,48 @@ export default {
       if (this.isDepartmentSet === false) {
         this.setDefaultDepartment(userOrga)
       }
+    },
+
+    setOrga (payload) {
+      const payloadRel = payload.relationships
+      const payloadWithNewType = {
+        ...payload,
+        id: payload.id,
+        attributes: {
+          ...payload.attributes
+        },
+        // We have to hack it like this, because the types for relationships have to be in camelCase and not in PascalCase
+        relationships: {
+          allowedRoles: {
+            data: payloadRel.allowedRoles?.data[0].id
+              ? payloadRel.allowedRoles.data.map(el => {
+                return {
+                  ...el,
+                  type: 'role'
+                }
+              })
+              : null
+          },
+          currentSlug: {
+            data: {
+              id: payloadRel.currentSlug.data.id,
+              type: 'slug'
+            }
+          },
+          departments: {
+            data: payloadRel.departments?.data[0].id
+              ? payloadRel.departments.data.map(el => {
+                return {
+                  ...el,
+                  type: 'department'
+                }
+              })
+              : null
+          }
+        }
+      }
+
+      this.setItem(payloadWithNewType)
     }
   },
 

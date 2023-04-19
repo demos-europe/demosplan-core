@@ -138,8 +138,17 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpFormRow, DpInput, DpLabel, DpLoading, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
-import { dpApi } from '@demos-europe/demosplan-utils'
+import {
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpFormRow,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpSelect,
+  DpTextArea
+} from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
 export default {

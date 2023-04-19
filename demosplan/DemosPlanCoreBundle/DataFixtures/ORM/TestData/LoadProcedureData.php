@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -39,6 +40,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
@@ -65,6 +67,14 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     private $testOrgaFP;
     private $testUser;
 
+    public function __construct(EntityManagerInterface $entityManager, GlobalConfigInterface $globalConfig)
+    {
+        parent::__construct($entityManager);
+
+        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
+        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
+    }
+
     public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
@@ -73,9 +83,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $this->testOrgaFP = $this->getReference('testOrgaFP');
         /* @var User $testUser */
         $this->testUser = $this->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
-        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
-        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
 
         // Erstelle die Masterblaupause.
         // sie hat eine festgeschriebene Id, kann aber nicht ohne weiteres via doctrine
@@ -922,19 +929,19 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            Elements::FILE_TYPE_FNP_AENDERUNG,
-            Elements::FILE_TYPE_LAPRO_AENDERUNG,
-            Elements::FILE_TYPE_ERGAENZENDE_UNTERLAGE,
-            Elements::FILE_TYPE_ARBEITSKREISPAPIER,
-            Elements::FILE_TYPE_VERTEILER,
-            Elements::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
-            Elements::FILE_TYPE_SCOPING_PAPIER,
-            Elements::FILE_TYPE_GUTACHTEN,
-            Elements::FILE_TYPE_ARBEITSKREISPAPIER_I,
-            Elements::FILE_TYPE_ARBEITSKREISPAPIER_II,
-            Elements::FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
-            Elements::FILE_TYPE_GROBABSTIMMUNGSPAPIER,
-            Elements::FILE_TYPE_SCOPING_PROTOKOLL,
+            ElementsInterface::FILE_TYPE_FNP_AENDERUNG,
+            ElementsInterface::FILE_TYPE_LAPRO_AENDERUNG,
+            ElementsInterface::FILE_TYPE_ERGAENZENDE_UNTERLAGE,
+            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER,
+            ElementsInterface::FILE_TYPE_VERTEILER,
+            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
+            ElementsInterface::FILE_TYPE_SCOPING_PAPIER,
+            ElementsInterface::FILE_TYPE_GUTACHTEN,
+            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_I,
+            ElementsInterface::FILE_TYPE_ARBEITSKREISPAPIER_II,
+            ElementsInterface::FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
+            ElementsInterface::FILE_TYPE_GROBABSTIMMUNGSPAPIER,
+            ElementsInterface::FILE_TYPE_SCOPING_PROTOKOLL,
         ];
 
         foreach ($elementsToCreate as $key => $elementTitle) {
@@ -959,13 +966,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         Procedure $masterBlueprint
     ): void {
         $elementsToCreate = [
-            Elements::FILE_TYPE_VERORDNUNG,
-            Elements::FILE_TYPE_BEGRUENDUNG,
+            ElementsInterface::FILE_TYPE_VERORDNUNG,
+            ElementsInterface::FILE_TYPE_BEGRUENDUNG,
         ];
         foreach ($elementsToCreate as $key => $elementTitle) {
             $element = new Elements();
             $element->setProcedure($masterBlueprint);
-            $element->setCategory(Elements::ELEMENTS_CATEGORY_PARAGRAPH);
+            $element->setCategory(ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH);
             $element->setOrder($key);
             $element->setEnabled(1);
             $element->setTitle($elementTitle);

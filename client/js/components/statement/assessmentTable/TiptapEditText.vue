@@ -27,20 +27,38 @@
 
     <div v-if="isEditing">
       <dp-editor
-        class="u-mb-0_5"
         ref="editor"
-        :entity-id="entityId"
+        class="u-mb-0_5"
         :editor-id="editorId"
-        v-model="fullText"
+        :entity-id="entityId"
         :toolbar-items="{
-          boilerPlate: boilerPlate ? 'consideration' : '',
           insertAndDelete: insertAndDelete,
           linkButton: linkButton,
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
         }"
-        :procedure-id="procedureId" />
+        v-model="fullText">
+        <template v-slot:modal="modalProps">
+          <dp-boiler-plate-modal
+            v-if="boilerPlate"
+            ref="boilerPlateModal"
+            boiler-plate-type="consideration"
+            :editor-id="editorId"
+            :procedure-id="procedureId"
+            @insert="text => modalProps.handleInsertText(text)" />
+        </template>
+        <template v-slot:button>
+          <button
+            v-if="boilerPlate"
+            :class="prefixClass('menubar__button')"
+            type="button"
+            v-tooltip="Translator.trans('boilerplate.insert')"
+            @click.stop="openBoilerPlate">
+            <i :class="prefixClass('fa fa-puzzle-piece')" />
+          </button>
+        </template>
+      </dp-editor>
       <div class="text--right space-inline-s">
         <dp-button
           :busy="loading"
@@ -99,14 +117,15 @@
 </template>
 
 <script>
-import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpHeightLimit, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 
 export default {
   name: 'TiptapEditText',
 
   components: {
+    DpBoilerPlateModal,
     DpButton,
     DpHeightLimit,
     DpLoading,
@@ -116,11 +135,16 @@ export default {
     }
   },
 
+  mixins: [prefixClassMixin],
+
   props: {
-    procedureId: {
-      required: true,
-      type: String
+    // Set to true if you want to enable the 'add boilerplate' button
+    boilerPlate: {
+      type: Boolean,
+      required: false,
+      default: false
     },
+
     editable: {
       required: false,
       type: Boolean,
@@ -154,22 +178,17 @@ export default {
       required: true
     },
 
+    heightLimitElementLabel: {
+      type: String,
+      required: true
+    },
+
     initialIsShortened: {
       type: Boolean,
       required: true
     },
 
     initialText: {
-      type: String,
-      required: true
-    },
-
-    heightLimitElementLabel: {
-      type: String,
-      required: true
-    },
-
-    title: {
       type: String,
       required: true
     },
@@ -202,11 +221,9 @@ export default {
       default: false
     },
 
-    // Set to true if you want to enable the 'add boilerplate' button
-    boilerPlate: {
-      type: Boolean,
-      required: false,
-      default: false
+    procedureId: {
+      required: true,
+      type: String
     },
 
     // Set to true if you want to enable a line through (strike through) option
@@ -214,23 +231,32 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    title: {
+      type: String,
+      required: true
     }
   },
 
   data () {
     return {
-      isEditing: false,
-      shortText: '',
       fullText: '',
       fullTextLoaded: false,
-      uneditedFullText: '',
-      loading: false,
+      isEditing: false,
+      isInitialUpdate: true,
       isShortened: false,
-      isInitialUpdate: true
+      loading: false,
+      shortText: '',
+      uneditedFullText: ''
     }
   },
 
   methods: {
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
     reset () {
       this.fullText = this.uneditedFullText
       this.isEditing = false

@@ -10,15 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
-use function array_key_exists;
-use function collect;
-
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -34,16 +31,18 @@ use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use InvalidArgumentException;
-
-use function is_array;
-
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
+use function collect;
+use function is_array;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
@@ -155,7 +154,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(User $user, array $context = null): self
+    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -342,17 +341,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
-
-            if ($this->isMemberOfPlanningOrganisation()) {
-                $this->enablePermissions([
-                    'area_institution_tag_manage',
-                    'feature_institution_tag_assign',
-                    'feature_institution_tag_create',
-                    'feature_institution_tag_delete',
-                    'feature_institution_tag_read',
-                    'feature_institution_tag_update',
-                ]);
-            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
@@ -522,7 +510,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::CUSTOMER_MASTER_USER)) {
             $this->enablePermissions([
                 'area_organisations',
-                'area_organisations_applications_manage',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
@@ -943,6 +930,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->permissions['feature_statements_released_email']['enabled'] = true; // Eigene Stellungnahmen (Freigaben) E-Mail
     }
 
+    protected function setProcedurePermissionsetWrite(): void
+    {
+        // hook that may be overridden
+    }
+
     /**
      * Prüfe, ob ein bestimmtes Permissionset für die Rolle in dem Verfahren gilt.
      *
@@ -1270,7 +1262,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
     }
 
-    public function setProcedure(?Procedure $procedure): void
+    public function setProcedure(?ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }

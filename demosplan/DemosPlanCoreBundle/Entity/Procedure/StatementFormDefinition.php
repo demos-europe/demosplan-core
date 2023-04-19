@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,7 +27,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * A StatementFormDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
  * @ORM\Table
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository")
+ *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
@@ -51,8 +53,11 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -61,6 +66,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -69,6 +75,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
@@ -81,6 +88,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      *      mappedBy="statementFormDefinition",
      *      cascade={"persist", "remove"}
      *     )
+     *
      * @ORM\OrderBy({"orderNumber" = "ASC"})
      */
     private $fieldDefinitions;
@@ -95,6 +103,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var Procedure|null
      *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
+     *
      * @JoinColumn(referencedColumnName="_p_id")
      */
     private $procedure;
@@ -107,6 +116,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var ProcedureType|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
+     *
      * @JoinColumn()
      */
     private $procedureType;
