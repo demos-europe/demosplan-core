@@ -108,7 +108,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
                 $optionsFiles[] = $projectPath;
             }
 
-            $optionsFiles[] = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/statement/assessment_export_options.yml');
+            $optionsFiles[] = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/statement/assessment_export_options.yml');
 
             $optionsYaml = collect($optionsFiles)->map(static function ($filename) {
                 return file_exists($filename) ? file_get_contents($filename) : null;
