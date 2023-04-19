@@ -49,8 +49,6 @@ class LinkMessageSerializable extends MessageSerializable
      * @param string $routeName
      * @param array  $routeParameters
      * @param string $linkText
-     *
-     * @return LinkMessageSerializable
      */
     public static function createLinkMessage(
         $severity,
@@ -59,8 +57,7 @@ class LinkMessageSerializable extends MessageSerializable
         $routeName = '',
         $routeParameters = [],
         $linkText = ''
-    ): LinkMessageSerializable
-    {
+    ): LinkMessageSerializable {
         return new self($severity, $text, $textParameters, $routeName, $routeParameters, $linkText);
     }
 

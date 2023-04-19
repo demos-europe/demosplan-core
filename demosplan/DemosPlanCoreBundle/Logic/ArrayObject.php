@@ -24,8 +24,6 @@ class ArrayObject extends \ArrayObject
 
     /**
      * @param mixed $offset
-     *
-     * @return bool
      */
     public function offsetExists($offset): bool
     {
@@ -38,7 +36,6 @@ class ArrayObject extends \ArrayObject
 
     /**
      * @param mixed $offset
-     *
      */
     public function offsetGet($offset): mixed
     {
@@ -84,7 +81,6 @@ class ArrayObject extends \ArrayObject
      * or there are more getters than properties, but for the old checks
      * ```0 < count($arrayObject)``` to check whether array is populated this
      * should be sufficient
-     *
      */
     public function count(): int
     {
