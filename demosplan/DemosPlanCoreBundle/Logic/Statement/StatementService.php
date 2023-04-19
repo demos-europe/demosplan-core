@@ -49,7 +49,6 @@ use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\ErroneousDoctrineResult;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
