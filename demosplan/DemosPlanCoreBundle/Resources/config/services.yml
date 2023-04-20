@@ -40,12 +40,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
         class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
-    DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
-        class:
-
-    DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface:
-        class:
-
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
@@ -82,27 +76,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-    demosplan\DemosPlanCoreBundle\Permissions\permissions: ~
-
     DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
-
-#    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Permission\PermissionMetaInterface:
-#        class:
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
         class: 'demosplan\DemosPlanStatementBundle\Logic\StatementHandler'
@@ -131,12 +105,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
-
-#    DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface:
-#        class:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService
@@ -219,18 +187,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\Statement\Tag
-
-#    DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityChangeInterface:
-#        class:
-
-#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface:
-#        class:
 
     DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator
