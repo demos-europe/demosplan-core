@@ -70,7 +70,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PlaceServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService
 
-    DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface:
+    DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent
 
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
@@ -79,7 +79,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
-        class: 'demosplan\DemosPlanStatementBundle\Logic\StatementHandler'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
