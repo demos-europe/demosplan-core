@@ -24,10 +24,8 @@ class ArrayObject extends \ArrayObject
 
     /**
      * @param mixed $offset
-     *
-     * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         if (0 == parent::count()) {
             return false;
@@ -38,10 +36,8 @@ class ArrayObject extends \ArrayObject
 
     /**
      * @param mixed $offset
-     *
-     * @return mixed|null
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         $getterMethod = 'get'.ucfirst($offset);
         if (method_exists($this, $getterMethod)) {
@@ -56,6 +52,8 @@ class ArrayObject extends \ArrayObject
         if (array_key_exists($offset, parent::getArrayCopy())) {
             return parent::offsetGet($offset);
         }
+
+        return null;
     }
 
     /**
@@ -83,10 +81,8 @@ class ArrayObject extends \ArrayObject
      * or there are more getters than properties, but for the old checks
      * ```0 < count($arrayObject)``` to check whether array is populated this
      * should be sufficient
-     *
-     * @return int
      */
-    public function count()
+    public function count(): int
     {
         $publicProperties = parent::count();
         $nonPublicProperties = count(get_class_vars(get_class($this)));
