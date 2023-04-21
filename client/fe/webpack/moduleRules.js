@@ -104,7 +104,14 @@ const moduleRules =
     },
     {
       test: /\.vue$/,
-      loader: 'vue-loader'
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
     },
     {
       test: /\.js$/,
