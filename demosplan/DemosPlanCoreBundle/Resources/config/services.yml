@@ -136,9 +136,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent
 
-    DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface:
-        class: DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent
-
     DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
 
