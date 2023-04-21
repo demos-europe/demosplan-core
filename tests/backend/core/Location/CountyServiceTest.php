@@ -11,7 +11,7 @@
 namespace Tests\Core\Location;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use Tests\Base\FunctionalTestCase;
 
 class CountyServiceTest extends FunctionalTestCase

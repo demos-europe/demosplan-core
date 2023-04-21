@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable;
 
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementIdsInProcedureVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementIdsInProcedureVO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class StatementBulkEditVO extends ValueObject

@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInter
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;

@@ -17,15 +17,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
+
 use function array_key_exists;
 
 class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface

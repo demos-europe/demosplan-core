@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Exception;
 use League\Fractal\Resource\Collection;
