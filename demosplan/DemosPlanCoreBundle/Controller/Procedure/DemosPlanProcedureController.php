@@ -83,6 +83,7 @@ use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanStatementBundle\Logic\MultiTermsAggregation;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
@@ -132,6 +133,10 @@ use function collect;
 class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
+
+    private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+    private const AGGREGATION_STATUS = 'status';
+    private const AGGREGATION_PRIORITY = 'status';
 
     /**
      * @var MapService
@@ -296,23 +301,6 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = $this->collectProcedureDashboard($statementService, $translator, $permissions, $procedureId);
 
         try {
-            $statements = $statementService->getStatementsByProcedureId(
-                $procedureId,
-                [],
-                null,
-                null,
-                0,
-                1,
-                [],
-                true
-            );
-
-            $templateVars['statementsTotal'] = $statements->getTotal();
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-        }
-
-        try {
             if ($permissions->hasPermission('area_statements_fragment')) {
                 $statementFragments = $statementFragmentService->getStatementFragmentsProcedure($procedureId);
                 $fragmentStatusEmptyData = $this->getFragmentStatusEmptyData($translator);
@@ -437,7 +425,8 @@ class DemosPlanProcedureController extends BaseController
             $procedureId
         );
         if (null !== $statementStatusData) {
-            $templateVars['statementStatusData'] = $statementStatusData;
+            $templateVars['statementStatusData'] = $statementStatusData['statementStatusData'];
+            $templateVars['statementsTotal'] = $statementStatusData['total'];
         }
 
         // try block is about getting count for moved statements
@@ -492,44 +481,52 @@ class DemosPlanProcedureController extends BaseController
         // generate a statementStatusData item for each statement status
         foreach ($statementStatuses as $statusKey => $statusLabel) {
             // set default data if no aggregation is found
-            $statementData = [
+            $statementStatusData[$statusKey] = [
                 'Category' => $translator->trans($statusLabel),
                 'count'    => 0,
                 'freq'     => $priorityInitialValues,
             ];
-
-            $statementsForStatus = $this->getStatements($statementService, $procedureId, $statusKey);
-            if (null !== $statementsForStatus) {
-                $totalStatementsForStatusCount = $statementsForStatus->getTotal();
-
-                // save total statement count per status
-                $statementData['count'] = $totalStatementsForStatusCount;
-
-                // add link with filterhash to assessment table
-                if (0 < $totalStatementsForStatusCount) {
-                    $statementData['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                        $statusKey,
-                        $procedureId,
-                        'statement'
-                    );
-                }
-
-                $filterSet = $statementsForStatus->getFilterSet();
-                $filters = $filterSet['filters'];
-                // save priorities per status
-                foreach ($filters['priority'] ?? [] as $aggregation) {
-                    $priorityKey = $aggregation['value'];
-                    if ('' == $priorityKey || 'no_value' === $priorityKey) {
-                        $priorityKey = self::NONE;
-                    }
-                    $statementData['freq'][$priorityKey] = $aggregation['count'];
-                }
-            }
-
-            $statementStatusData[] = $statementData;
         }
 
-        return $statementStatusData;
+        $statementQueryResult = $this->getStatements($statementService, $procedureId);
+        if (null === $statementQueryResult) {
+            return [
+                'statementStatusData' => array_values($statementStatusData),
+                'total'               => 0,
+            ];
+        }
+
+        // save status counts
+        $esResultMeta = $statementQueryResult->getFilterSet();
+        foreach ($esResultMeta['filters'][self::AGGREGATION_STATUS] as $aggregationBucket) {
+            $statusValue = $aggregationBucket['value'];
+            $statusCount = $aggregationBucket['count'];
+            $statementStatusData[$statusValue]['count'] = $statusCount;
+
+            // add link with filterhash to assessment table
+            if (0 < $statusCount) {
+                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                    $statusValue,
+                    $procedureId,
+                    'statement'
+                );
+            }
+        }
+
+        // save priority count per status
+        $esResultMeta = $statementQueryResult->getFilterSet();
+        foreach ($esResultMeta['filters'][self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+            [$statusValue, $priorityValue] = $aggregationBucket['value'];
+            if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                $priorityValue = self::NONE;
+            }
+            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
+        }
+
+        return [
+            'statementStatusData' => array_values($statementStatusData),
+            'total'               => $statementQueryResult->getTotal()
+        ];
     }
 
     /**
@@ -2983,17 +2980,26 @@ class DemosPlanProcedureController extends BaseController
         return str_contains(strtolower($eMailTitle), strtolower($oldProcedureName));
     }
 
-    protected function getStatements(
-        StatementService $statementService,
-        string $procedureId,
-        string $statusKey
-    ): ?ElasticsearchResultSet {
+    protected function getStatements(StatementService $statementService, string $procedureId): ?ElasticsearchResultSet
+    {
         try {
+            $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
+            $statusPriorityAggregation->addTerm(self::AGGREGATION_STATUS);
+            $statusPriorityAggregation->addTerm(self::AGGREGATION_PRIORITY);
+
             return $statementService->getStatementsByProcedureId(
                 $procedureId,
-                ['status' => $statusKey, 'isPlaceholder' => false],
+                ['isPlaceholder' => false],
                 null,
-                null
+                null,
+                0,
+                1,
+                [],
+                true,
+                1,
+                true,
+                true,
+                [$statusPriorityAggregation]
             );
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
