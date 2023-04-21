@@ -20,7 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_county")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\CountyRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CountyRepository")
  */
 class County extends CoreEntity implements UuidEntityInterface
 {
@@ -28,8 +29,11 @@ class County extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_c_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -62,6 +66,7 @@ class County extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Statement>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="counties")
+     *
      * @ORM\JoinTable(
      *     name="_statement_county",
      *     joinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id")},
@@ -74,6 +79,7 @@ class County extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, StatementFragment>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="counties", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_county",
      *     joinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id")},

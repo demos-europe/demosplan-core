@@ -136,7 +136,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->add('cache:clear')
+                ->addShell(["bin/{$activeProject}", 'cache:clear'])
                 ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
                 ->run();
 

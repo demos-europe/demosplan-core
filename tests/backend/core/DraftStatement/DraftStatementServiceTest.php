@@ -21,9 +21,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
