@@ -525,7 +525,7 @@ class DemosPlanProcedureController extends BaseController
 
         return [
             'statementStatusData' => array_values($statementStatusData),
-            'total'               => $statementQueryResult->getTotal()
+            'total'               => $statementQueryResult->getTotal(),
         ];
     }
 
