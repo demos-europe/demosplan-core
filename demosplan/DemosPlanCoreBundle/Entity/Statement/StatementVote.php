@@ -18,7 +18,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_statement_votes")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository")
  */
 class StatementVote implements UuidEntityInterface
 {
@@ -26,8 +27,11 @@ class StatementVote implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_stv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -37,6 +41,7 @@ class StatementVote implements UuidEntityInterface
      *                onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="votes")
+     *
      * @ORM\JoinColumn(name="_st_id", nullable = false, referencedColumnName="_st_id", onDelete="CASCADE")
      */
     protected $statement;
@@ -45,6 +50,7 @@ class StatementVote implements UuidEntityInterface
      * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", nullable = true, referencedColumnName="_u_id", onDelete="RESTRICT")
      */
     protected $user;
@@ -88,6 +94,7 @@ class StatementVote implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -96,6 +103,7 @@ class StatementVote implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -104,6 +112,7 @@ class StatementVote implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_deleted_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $deletedDate;

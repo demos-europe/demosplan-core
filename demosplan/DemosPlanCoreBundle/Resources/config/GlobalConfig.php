@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
@@ -492,6 +492,13 @@ class GlobalConfig implements GlobalConfigInterface
     protected $rolesAllowed;
 
     /**
+     * List of Role Group codes that may be set as allowed to view Faq articles.
+     *
+     * @var array<int, string>
+     */
+    protected $roleGroupsFaqVisibility;
+
+    /**
      * Defines whether access to procedure is granted by owning organisation (false)
      * or whether it is possible to define specific users withing the organisation
      * who are granted access (true).
@@ -794,6 +801,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->entityContentChangeFieldMapping = $parameterBag->get('entity_content_change_fields_mapping');
 
         $this->rolesAllowed = $parameterBag->get('roles_allowed');
+
+        $this->roleGroupsFaqVisibility = $parameterBag->get('role_groups_faq_visibility');
 
         // project specific params
 
@@ -1796,6 +1805,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getRolesAllowed(): array
     {
         return $this->rolesAllowed;
+    }
+
+    public function getRoleGroupsFaqVisibility(): array
+    {
+        return $this->roleGroupsFaqVisibility;
     }
 
     public function isSharedFolder(): bool

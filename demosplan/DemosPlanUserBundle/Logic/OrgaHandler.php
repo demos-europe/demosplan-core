@@ -189,6 +189,14 @@ class OrgaHandler extends CoreHandler
             $writableAttributes[] = 'copy';
         }
 
+        if ($this->currentUser->hasPermission('field_data_protection_text_customized_edit_orga')) {
+            $writableAttributes[] = 'dataProtection';
+        }
+
+        if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_orga')) {
+            $writableAttributes[] = 'imprint';
+        }
+
         // these are writable in 'portal' mode only
         if ('portal' === $this->getDemosplanConfig()->getProjectType()) {
             $writableAttributes = array_merge(

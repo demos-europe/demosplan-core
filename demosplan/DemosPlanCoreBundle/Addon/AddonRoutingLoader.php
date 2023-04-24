@@ -34,12 +34,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     {
         $routeCollection = new RouteCollection();
         foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
-            if ('' !== $addonInfo->getInstallPath()) {
-                $controllerPath = AddonPath::getRootPath(
-                    $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT
-                );
-                $routeCollection->addCollection($this->load($controllerPath));
-            }
+            $this->addControllers($addonInfo, $routeCollection);
         }
 
         return $routeCollection;
@@ -51,6 +46,18 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
             $route->setDefault('_controller', $class->getName());
         } else {
             $route->setDefault('_controller', $class->getName().'::'.$method->getName());
+        }
+    }
+
+    /**
+     * Add controllers from addon to route collection if they exist.
+     */
+    private function addControllers(mixed $addonInfo, RouteCollection $routeCollection): void
+    {
+        $controllerDir = $addonInfo->getInstallPath() . self::PATH_TO_CONTROLLERS_FROM_ADDONROOT;
+        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerDir)) {
+            $controllerPath = AddonPath::getRootPath($controllerDir);
+            $routeCollection->addCollection($this->load($controllerPath));
         }
     }
 }
