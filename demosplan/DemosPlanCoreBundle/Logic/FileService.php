@@ -73,11 +73,6 @@ class FileService extends CoreService implements FileServiceInterface
     protected $fileString;
 
     /**
-     * @var RpcClient
-     */
-    protected $client;
-
-    /**
      * @var RequestStack
      */
     private $requestStack;
@@ -134,7 +129,8 @@ class FileService extends CoreService implements FileServiceInterface
         MessageBagInterface $messageBag,
         RequestStack $requestStack,
         SingleDocumentRepository $singleDocumentRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        protected RpcClient $rpcClient
     ) {
         $this->currentProcedureService = $currentProcedureService;
         $this->entityManager = $entityManager;
