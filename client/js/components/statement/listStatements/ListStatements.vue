@@ -447,6 +447,9 @@ export default {
             originalPdf: originalPdf
           }
         })
+    },
+    storageKey () {
+      return `${currentUserId}-${pagination}`
     }
   },
 
@@ -704,12 +707,12 @@ export default {
          * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
          * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
          */
-        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage['pagination'] === false) {
-          window.sessionStorage.setItem('pagination', data.meta.pagination.current_page)
-          data.meta.pagination.current_page = window.sessionStorage.getItem('pagination')
+        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage[this.storageKey] === false) {
+          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
+          data.meta.pagination.current_page = window.sessionStorage.getItem(this.storageKey)
         }
-        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage['pagination'] === true) {
-          window.sessionStorage.setItem('pagination', data.meta.pagination.current_page)
+        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage[this.storageKey] === true) {
+          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
         }
 
         this.setNumSelectableItems(data)
@@ -846,7 +849,7 @@ export default {
       const dataPag = data.meta.pagination
       this.pagination = {
         count: dataPag.count,
-        currentPage: Number(window.sessionStorage['pagination']),
+        currentPage: Number(window.sessionStorage[this.storageKey]),
         limits: [10, 25, 50, 100],
         perPage: dataPag.per_page,
         total: dataPag.total,
