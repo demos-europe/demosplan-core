@@ -833,7 +833,7 @@ export default {
       const dataPag = data.meta.pagination
       this.pagination = {
         count: dataPag.count,
-        currentPage: dataPag.current_page,
+        currentPage: window.sessionStorage['pagination'] ? window.sessionStorage['pagination'] : dataPag.current_page,
         limits: [10, 25, 50, 100],
         perPage: dataPag.per_page,
         total: dataPag.total,
@@ -892,6 +892,10 @@ export default {
       }
     })
     this.getItemsByPage(1)
+  },
+
+  unmounted () {
+    window.sessionStorage['pagination'] = this.pagination.currentPage
   }
 }
 </script>
