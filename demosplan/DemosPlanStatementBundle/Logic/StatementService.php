@@ -155,6 +155,23 @@ use function array_map;
 class StatementService extends CoreService implements StatementServiceInterface
 {
     /**
+     * The name of the terms aggregation on the {@link Statement::$status} field.
+     */
+    public const AGGREGATION_STATEMENT_STATUS = 'status';
+    /**
+     * The name of the terms aggregation on the {@link Statement::$priority} field.
+     */
+    public const AGGREGATION_STATEMENT_PRIORITY = 'priority';
+    /**
+     * Name of the {@link Statement::$status} field.
+     */
+    public const FIELD_STATEMENT_STATUS = 'status';
+    /**
+     * Name of the {@link Statement::$priority} field.
+     */
+    public const FIELD_STATEMENT_PRIORITY = 'priority';
+
+    /**
      * @var ProcedureService
      */
     protected $procedureService;
@@ -3346,8 +3363,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $query = $this->searchService->addEsMissingAggregation($query, 'assignee.id');
             }
             // Bearbeitungsstatus - status - status
-            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
-                $query = $this->searchService->addEsAggregation($query, 'status');
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
+                $query = $this->searchService->addEsAggregation($query, self::FIELD_STATEMENT_STATUS, null, null, self::AGGREGATION_STATEMENT_STATUS);
             }
             // Votum - votePla - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
@@ -3407,8 +3424,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $query = $this->searchService->addEsAggregation($query, 'type');
             }
             // Priorität - priority - priority
-            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
-                $query = $this->searchService->addEsAggregation($query, 'priority');
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
+                $query = $this->searchService->addEsAggregation($query, self::FIELD_STATEMENT_PRIORITY, null, null, self::AGGREGATION_STATEMENT_PRIORITY);
             }
             // Empfehlung - voteStk - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
@@ -3617,8 +3634,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Bearbeitungsstatus - status
-            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
-                $processedAggregation = $this->searchService->addAggregationResultToArray('status', 'status', $esResultAggregations, $processedAggregation);
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray(self::AGGREGATION_STATEMENT_STATUS, self::AGGREGATION_STATEMENT_STATUS, $esResultAggregations, $processedAggregation);
             }
             // Votum - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
@@ -3702,8 +3719,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Priorität - priority
-            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
-                $processedAggregation = $this->searchService->addAggregationResultToArray('priority', 'priority', $esResultAggregations, $processedAggregation);
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray(self::AGGREGATION_STATEMENT_PRIORITY, self::AGGREGATION_STATEMENT_PRIORITY, $esResultAggregations, $processedAggregation);
             }
             // Empfehlung - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
@@ -3982,8 +3999,8 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ('submitDate' === $sortProperty) {
             $esSort = ['submit' => $sortDirection];
         }
-        if ('priority' === $sortProperty) {
-            $esSort = ['priority' => $sortDirection];
+        if (self::FIELD_STATEMENT_PRIORITY === $sortProperty) {
+            $esSort = [self::FIELD_STATEMENT_PRIORITY => $sortDirection];
         }
         if ('forPoliticians' === $sortProperty) {
             $esSort = [

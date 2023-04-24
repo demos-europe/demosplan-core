@@ -133,10 +133,7 @@ use function collect;
 class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
-
     private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
-    private const AGGREGATION_STATUS = 'status';
-    private const AGGREGATION_PRIORITY = 'status';
 
     /**
      * @var MapService
@@ -498,7 +495,8 @@ class DemosPlanProcedureController extends BaseController
 
         // save status counts
         $esResultMeta = $statementQueryResult->getFilterSet();
-        foreach ($esResultMeta['filters'][self::AGGREGATION_STATUS] as $aggregationBucket) {
+        $aggregations = $esResultMeta['filters'];
+        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
             $statusValue = $aggregationBucket['value'];
             $statusCount = $aggregationBucket['count'];
             $statementStatusData[$statusValue]['count'] = $statusCount;
@@ -514,8 +512,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // save priority count per status
-        $esResultMeta = $statementQueryResult->getFilterSet();
-        foreach ($esResultMeta['filters'][self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
             [$statusValue, $priorityValue] = $aggregationBucket['value'];
             if ('' == $priorityValue || 'no_value' === $priorityValue) {
                 $priorityValue = self::NONE;
@@ -2984,8 +2981,8 @@ class DemosPlanProcedureController extends BaseController
     {
         try {
             $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
-            $statusPriorityAggregation->addTerm(self::AGGREGATION_STATUS);
-            $statusPriorityAggregation->addTerm(self::AGGREGATION_PRIORITY);
+            $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_STATUS);
+            $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_PRIORITY);
 
             return $statementService->getStatementsByProcedureId(
                 $procedureId,
