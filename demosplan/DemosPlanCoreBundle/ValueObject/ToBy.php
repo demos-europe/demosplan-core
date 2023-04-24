@@ -96,10 +96,7 @@ class ToBy implements ArrayAccess
         return 'to' === $offset || 'by' === $offset;
     }
 
-    /**
-     * @return mixed
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if ('to' === $offset) {
             return $this->direction;
