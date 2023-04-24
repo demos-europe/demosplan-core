@@ -62,7 +62,7 @@
                 v-else-if="item.type === 'link'"
                 v-bind="item.attrs"
                 class="o-link--default u-valign--middle"
-                :href=renderUrl("item.url")>
+                :href=renderUrl('item.url')>
                 {{ item.text }}
               </a>
               <h4
