@@ -450,7 +450,7 @@ class DemosPlanProcedureController extends BaseController
      * @param array<string, string> $statementStatuses
      * @param array<string, string> $statementPriorities
      *
-     * @return list<array{Category: string, count: int, freq: array<string, int>, url?: string}>|null
+     * @return array{statementStatusData: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, total: int}|null
      *
      * @throws Exception
      */
