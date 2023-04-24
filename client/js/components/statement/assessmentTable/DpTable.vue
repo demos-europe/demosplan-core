@@ -14,7 +14,6 @@
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
     :data-statement-admin-container="procedureId"
     name="bpform"
-    :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
     method="post"
     ref="root"
     v-cloak>
