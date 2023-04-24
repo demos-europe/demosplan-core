@@ -76,7 +76,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler'
