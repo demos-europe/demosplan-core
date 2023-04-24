@@ -35,10 +35,10 @@
             <span>{{ headerContent }}</span>
             <button
               v-if="unsavedChangesItem"
+              v-bind="unsavedChangesItem.attrs"
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
-              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
-              v-bind="unsavedChangesItem.attrs">
+              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
               <i
                 class="fa fa-exclamation-circle color-ui-highlight u-mr-0_5"
                 v-tooltip="Translator.trans('unsaved.changes')" />
@@ -53,16 +53,16 @@
               class="display--inline u-mr-0_5">
               <button
                 v-if="item.type === 'button'"
+                v-bind="item.attrs"
                 class="btn--blank o-link--default u-valign--middle"
-                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
-                v-bind="item.attrs">
+                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
                 {{ item.text }}
               </button>
               <a
                 v-else-if="item.type === 'link'"
+                v-bind="item.attrs"
                 class="o-link--default u-valign--middle"
-                :href="item.url"
-                v-bind="item.attrs">
+                :href="item.url">
                 {{ item.text }}
               </a>
               <h4
@@ -80,16 +80,16 @@
                 :key="item.id">
                 <a
                   v-if="item.type === 'link'"
+                  v-bind="item.attrs"
                   class="o-link--default"
-                  :href="item.url"
-                  v-bind="item.attrs">
+                  :href="item.url">
                   {{ item.text }}
                 </a>
                 <button
                   v-if="item.type === 'button'"
+                  v-bind="item.attrs"
                   class="btn--blank o-link--default"
-                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
-                  v-bind="item.attrs">
+                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
                   {{ item.text }}
                 </button>
                 <h4
