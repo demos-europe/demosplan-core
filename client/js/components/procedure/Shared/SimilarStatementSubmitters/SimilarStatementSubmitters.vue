@@ -163,6 +163,7 @@ import {
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',

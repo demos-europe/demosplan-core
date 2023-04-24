@@ -19,7 +19,7 @@ import {
   DpMultiselect,
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
-import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 
