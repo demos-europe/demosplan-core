@@ -415,6 +415,10 @@ export default {
         : []
     },
 
+    currentSessionPage () {
+      return window.sessionStorage['pagination'] !== 'undefined' ? Number(window.sessionStorage['pagination']) : 1
+    },
+
     exportRoute: function () {
       return (exportRoute) => Routing.generate(exportRoute, {
         filter: {
@@ -701,6 +705,11 @@ export default {
       }).then((data) => {
         this.setNumSelectableItems(data)
         this.initPagination(data)
+
+        if (window.sessionStorage['pagination'] !== 'undefined' || data.meta.pagination.currentPage !== 1) {
+          window.sessionStorage.setItem('pagination', this.currentPage)
+        }
+        this.pagination.currentPage = Number(window.sessionStorage['pagination'])
       })
     },
 
@@ -833,7 +842,7 @@ export default {
       const dataPag = data.meta.pagination
       this.pagination = {
         count: dataPag.count,
-        currentPage: window.sessionStorage['pagination'] ? window.sessionStorage['pagination'] : dataPag.current_page,
+        currentPage: window.sessionStorage['pagination'] !== 'undefined' ? Number(window.sessionStorage['pagination']) : 1,
         limits: [10, 25, 50, 100],
         perPage: dataPag.per_page,
         total: dataPag.total,
@@ -892,10 +901,12 @@ export default {
       }
     })
     this.getItemsByPage(1)
+    if (Number(window.sessionStorage['pagination']) === 1) {
+      console.log('pagination removed')
+      window.sessionStorage.removeItem('pagination');
+    } else {
+      console.log('something went wrong')
+    }
   },
-
-  unmounted () {
-    window.sessionStorage['pagination'] = this.pagination.currentPage
-  }
 }
 </script>
