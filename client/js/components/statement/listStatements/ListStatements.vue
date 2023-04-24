@@ -637,7 +637,7 @@ export default {
       return formatDate(d)
     },
 
-    getItemsByPage (page) {
+    getItemsByPage (page, isOnMountedRequest=false) {
       this.fetchStatements({
         page: {
           number: page,
@@ -699,13 +699,21 @@ export default {
           ].join()
         }
       }).then((data) => {
+        /**
+         * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+         * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
+         * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
+         */
+        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage['pagination'] === false) {
+          window.sessionStorage.setItem('pagination', data.meta.pagination.current_page)
+          data.meta.pagination.current_page = window.sessionStorage.getItem('pagination')
+        }
+        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage['pagination'] === true) {
+          window.sessionStorage.setItem('pagination', data.meta.pagination.current_page)
+        }
+
         this.setNumSelectableItems(data)
         this.initPagination(data)
-
-        if (window.sessionStorage['pagination'] !== 'undefined' || data.meta.pagination.currentPage !== 1) {
-          window.sessionStorage.setItem('pagination', this.currentPage)
-        }
-        this.pagination.currentPage = Number(window.sessionStorage['pagination'])
       })
     },
 
@@ -838,7 +846,7 @@ export default {
       const dataPag = data.meta.pagination
       this.pagination = {
         count: dataPag.count,
-        currentPage: window.sessionStorage['pagination'] !== 'undefined' ? Number(window.sessionStorage['pagination']) : 1,
+        currentPage: Number(window.sessionStorage['pagination']),
         limits: [10, 25, 50, 100],
         perPage: dataPag.per_page,
         total: dataPag.total,
@@ -896,13 +904,7 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1)
-    if (Number(window.sessionStorage['pagination']) === 1) {
-      console.log('pagination removed')
-      window.sessionStorage.removeItem('pagination');
-    } else {
-      console.log('something went wrong')
-    }
+    this.getItemsByPage(1, true)
   },
 }
 </script>
