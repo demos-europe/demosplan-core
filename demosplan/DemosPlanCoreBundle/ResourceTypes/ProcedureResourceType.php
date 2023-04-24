@@ -137,6 +137,8 @@ final class ProcedureResourceType extends DplanResourceType
         $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->owningOrganisation->id);
         // check for invited organisation
         $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->invitedOrganisations->id);
+        // check for allowed planning offices
+        $planningOfficesCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->planningOffices->id);
 
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
@@ -145,7 +147,8 @@ final class ProcedureResourceType extends DplanResourceType
             $this->conditionFactory->anyConditionApplies(
                 $owningOrgaCondition,
                 $invitedOrgaCondition,
-                $dataInputCondition
+                $dataInputCondition,
+                $planningOfficesCondition
             )
         );
     }
