@@ -415,10 +415,6 @@ export default {
         : []
     },
 
-    currentSessionPage () {
-      return window.sessionStorage['pagination'] !== 'undefined' ? Number(window.sessionStorage['pagination']) : 1
-    },
-
     exportRoute: function () {
       return (exportRoute) => Routing.generate(exportRoute, {
         filter: {
