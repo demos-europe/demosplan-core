@@ -76,7 +76,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler'
@@ -135,9 +135,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent
-
-    DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface:
-        class: DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent
 
     DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
@@ -828,25 +825,25 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanReportBundle\Logic\MasterPublicAgencyReportEntryFactory: ~
-    demosplan\DemosPlanReportBundle\Logic\OrganisationReportEntryFactory: ~
-    demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\MasterPublicAgencyReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\OrganisationReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory: ~
 
-    demosplan\DemosPlanReportBundle\Logic\ReportService:
+    demosplan\DemosPlanCoreBundle\Logic\Report\ReportService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
 
-    demosplan\DemosPlanReportBundle\Logic\ExportReportService:
+    demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanReportBundle\EventSubscriber\ReportSubscriber:
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ReportSubscriber:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true
@@ -1092,42 +1089,42 @@ services:
             -   name: dplan.json_api_transformer
 
     # Survey Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler:
         $surveyStatuses: '%survey.statuses%'
 
     # Survey New Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyNewHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler:
         $defaultStatus: '%survey.status.default%'
 
     # Survey Update Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyUpdateHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler:
         $schemaFilePath: '%survey.schema_path_update%'
 
     # Survey Create Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyCreateHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler:
         $schemaFilePath: '%survey.schema_path_create%'
 
     # Survey Show Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler: ~
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler: ~
 
     # Survey Service
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService: ~
 
     # Survey Validator
-    demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator: ~
+    demosplan\DemosPlanCoreBundle\Validator\SurveyValidator: ~
 
     # SurveyVote Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
         $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
 
     # SurveyVote Create Handler
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler: ~
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
 
     # SurveyVote Service
-    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService: ~
 
     # SurveyVote Validator
-    demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator:
+    demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
         $schemaFilePath: '%surveyvote.schema_path_create%'
 
     demosplan\DemosPlanUserBundle\Logic\UserService:
