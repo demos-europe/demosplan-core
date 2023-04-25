@@ -137,9 +137,9 @@
       :key="idx">
       <dp-input
         v-for="(element, index) in generalElements(idx)"
+        v-bind="element"
         class="layout__item u-1-of-2 u-mb-0_75"
-        :key="`${element.id}_${index}`"
-        v-bind="element" />
+        :key="`${element.id}_${index}`" />
     </div>
   </div>
 </template>

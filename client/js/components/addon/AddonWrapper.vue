@@ -10,8 +10,8 @@
 <template>
   <div>
     <component
-      :is="component"
       v-bind="addonProps"
+      :is="component"
     />
   </div>
 </template>

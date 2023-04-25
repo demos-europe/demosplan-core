@@ -70,8 +70,8 @@
       :procedure-id="procedureId" />
 
     <slot
-      name="filter"
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
+      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
+      name="filter" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
