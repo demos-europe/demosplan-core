@@ -8,13 +8,13 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanSurveyBundle\Repository\SurveyRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SurveyRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 

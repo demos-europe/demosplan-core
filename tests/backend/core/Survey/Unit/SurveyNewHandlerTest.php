@@ -11,7 +11,7 @@
 namespace Tests\Core\Survey\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyNewHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler;
 use Exception;
 
 class SurveyNewHandlerTest extends SurveyTestUtils

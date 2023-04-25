@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;

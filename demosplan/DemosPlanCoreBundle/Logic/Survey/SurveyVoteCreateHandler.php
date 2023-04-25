@@ -8,11 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Exception;
 use JsonSchema\Exception\InvalidArgumentException;
