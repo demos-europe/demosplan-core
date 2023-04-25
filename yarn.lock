@@ -2181,20 +2181,12 @@
     nanoid "^4.0.0"
     preact "^10.5.13"
 
-"@uppy/drag-drop@^3.0.0":
+"@uppy/drag-drop@^3.0.0", "@uppy/drag-drop@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@uppy/drag-drop/-/drag-drop-3.0.2.tgz#9047f549b1fe7c52eda2eaf29e00406fccd6790d"
   integrity sha512-zUOEYuUBtO1kfFbiwq24ZuDninu17IWkTTyV1covARm9YiZkrqG11n6VsTe/SQbXJxYh0kAttKIVP+QK1/n48g==
   dependencies:
     "@uppy/utils" "^5.3.0"
-    preact "^10.5.13"
-
-"@uppy/drag-drop@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@uppy/drag-drop/-/drag-drop-3.0.1.tgz#3d28e908d930f8247f7f3dd787eae387ce56db40"
-  integrity sha512-1jMlF2V5AFfvSYtbIR1N2M8WbjhQPW14FcEElpeWjzwlF3OnbUARwk4jBlGfcAsDcV4dYf6hG192xPPdnuBc6A==
-  dependencies:
-    "@uppy/utils" "^5.0.2"
     preact "^10.5.13"
 
 "@uppy/progress-bar@^3.0.0":
