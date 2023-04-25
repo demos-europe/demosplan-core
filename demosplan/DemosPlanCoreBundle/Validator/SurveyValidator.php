@@ -8,14 +8,14 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Validator;
+namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 use Exception;
 use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;

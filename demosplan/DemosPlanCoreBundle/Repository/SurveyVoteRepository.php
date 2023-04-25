@@ -8,11 +8,10 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use Exception;
 
 class SurveyVoteRepository extends CoreRepository
