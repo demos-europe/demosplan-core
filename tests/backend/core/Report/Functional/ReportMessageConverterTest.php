@@ -11,7 +11,7 @@
 namespace Tests\Core\Report\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -22,7 +22,7 @@ class ReportMessageConverterTest extends FunctionalTestCase
     /** @var \Symfony\Component\Routing\Router */
     protected $router;
 
-    /** @var \demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter */
+    /** @var \demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter */
     protected $sut;
 
     protected function setUp(): void

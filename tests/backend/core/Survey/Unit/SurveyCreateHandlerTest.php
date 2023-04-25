@@ -11,8 +11,8 @@
 namespace Tests\Core\Survey\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyCreateHandler;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler;
 use Exception;
 
 class SurveyCreateHandlerTest extends SurveyTestUtils
