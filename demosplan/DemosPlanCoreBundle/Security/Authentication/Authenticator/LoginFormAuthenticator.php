@@ -87,7 +87,10 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         return new Passport(
             new UserBadge($user ? $user->getLogin() : ''),
             new PasswordCredentials($credentials->getPassword()),
-            [new PasswordUpgradeBadge($credentials->getPassword())]
+            [
+                new PasswordUpgradeBadge($credentials->getPassword()),
+                new CsrfTokenBadge('authenticate', $credentials->getToken()),
+            ]
         );
     }
 
