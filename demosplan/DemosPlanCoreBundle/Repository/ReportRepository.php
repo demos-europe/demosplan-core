@@ -8,14 +8,13 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanReportBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\Query;

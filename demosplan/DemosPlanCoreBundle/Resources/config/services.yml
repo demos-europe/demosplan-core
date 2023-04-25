@@ -825,25 +825,25 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanReportBundle\Logic\MasterPublicAgencyReportEntryFactory: ~
-    demosplan\DemosPlanReportBundle\Logic\OrganisationReportEntryFactory: ~
-    demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\MasterPublicAgencyReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\OrganisationReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory: ~
 
-    demosplan\DemosPlanReportBundle\Logic\ReportService:
+    demosplan\DemosPlanCoreBundle\Logic\Report\ReportService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
 
-    demosplan\DemosPlanReportBundle\Logic\ExportReportService:
+    demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanReportBundle\EventSubscriber\ReportSubscriber:
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ReportSubscriber:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true

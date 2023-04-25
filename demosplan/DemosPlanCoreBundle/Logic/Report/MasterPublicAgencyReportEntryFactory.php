@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanReportBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
