@@ -57,14 +57,6 @@ class MigrateCommand extends CoreCommand
         $migrationsConfigurationPath = DemosPlanPath::getProjectPath('app/config/project_migrations.yml');
         $migrationsSyncCommand = 'doctrine:migrations:sync-metadata-storage --configuration ';
         $migrationsCommand = 'doctrine:migrations:migrate --configuration ';
-        $lastRollupMigration = 'app/Resources/DemosPlanCoreBundle/DoctrineMigrations/2022/09/Version20220914133419.php';
-
-        // ensure that rollup migrations are applied before core migrations are performed
-        if (file_exists(DemosPlanPath::getProjectPath($lastRollupMigration))) {
-            $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
-            $commands[] = $migrationsCommand.$migrationsConfigurationPath.
-                    ' Application\Migrations\Version20220914133419'." {$db} --env={$env}";
-        }
 
         $commands[] = "doctrine:migrations:migrate {$db} --env={$env}";
         $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
