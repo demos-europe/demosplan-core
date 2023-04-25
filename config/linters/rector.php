@@ -12,26 +12,28 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-use Rector\Core\Configuration\Option;
+use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
-use Rector\Symfony\Set\SymfonySetList;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Rector\Symfony\Set\SymfonyLevelSetList;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
+return static function (RectorConfig $rectorConfig): void {
     // Define what rule sets will be applied
-    $containerConfigurator->import(SetList::CODE_QUALITY);
-    $containerConfigurator->import(SymfonySetList::SYMFONY_44);
+    $rectorConfig->sets([
+        SetList::CODE_QUALITY,
+        SymfonyLevelSetList::UP_TO_SYMFONY_44,
+//        SymfonyLevelSetList::UP_TO_SYMFONY_54,
+//        LevelSetList::UP_TO_PHP_74,
+//        LevelSetList::UP_TO_PHP_80,
+    ]);
+    $rectorConfig->paths([__DIR__ . '/../../demosplan']);
 
-    $parameters = $containerConfigurator->parameters();
-
-    $parameters->set(
-        Option::SYMFONY_CONTAINER_XML_PATH_PARAMETER,
-        '/tmp/bimschgsh/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
+    $rectorConfig->symfonyContainerXml(
+        '/tmp/diplanbau/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
     );
-    $parameters->set(Option::AUTOLOAD_PATHS, [__DIR__.'/../../vendor/autoload.php']);
-
-    $parameters->set(Option::AUTO_IMPORT_NAMES, true);
-
+    $rectorConfig->autoloadPaths([__DIR__.'/../../vendor/autoload.php']);
+    $rectorConfig->importNames();
+    $rectorConfig->disableParallel();
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
-    $parameters->set(Option::PHPSTAN_FOR_RECTOR_PATH, getcwd().'/../../phpstan.neon');
+    //$rectorConfig->phpstanConfig('/srv/www/phpstan.neon');
 };
