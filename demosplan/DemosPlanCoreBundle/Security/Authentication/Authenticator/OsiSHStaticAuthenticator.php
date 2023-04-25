@@ -30,7 +30,7 @@ final class OsiSHStaticAuthenticator extends OsiAuthenticator
             && $request->query->has('TokenTest');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('TokenTest');
         $request->getSession()->set(Security::LAST_USERNAME, $osiToken);

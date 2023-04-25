@@ -30,7 +30,7 @@ final class OsiHHAuthenticator extends OsiAuthenticator
             && $request->query->has('Token');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('Token');
         $request->getSession()->set(Security::LAST_USERNAME, $osiToken);

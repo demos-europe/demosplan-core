@@ -31,7 +31,7 @@ final class OsiHHStaticAuthenticator extends OsiAuthenticator
             && 'bobhh' === $request->query->get('project');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('TokenTest');
         $request->getSession()->set(Security::LAST_USERNAME, $osiToken);
