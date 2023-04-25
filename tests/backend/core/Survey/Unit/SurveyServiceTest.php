@@ -12,7 +12,7 @@ namespace Tests\Core\Survey\Unit;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
 
 class SurveyServiceTest extends SurveyTestUtils
 {
