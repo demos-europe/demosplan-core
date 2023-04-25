@@ -62,7 +62,7 @@
                 v-else-if="item.type === 'link'"
                 v-bind="item.attrs"
                 class="o-link--default u-valign--middle"
-                :href=renderUrl('item.url')>
+                :href="item.url">
                 {{ item.text }}
               </a>
               <h4
@@ -82,7 +82,7 @@
                   v-if="item.type === 'link'"
                   v-bind="item.attrs"
                   class="o-link--default"
-                  :href=renderUrl('item.url')>
+                  :href="item.url">
                   {{ item.text }}
                 </a>
                 <button
@@ -243,7 +243,6 @@
 import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import { mapState } from 'vuex'
-import { sanitizeUrl } from "@braintree/sanitize-url";
 
 export default {
   name: 'DpPublicStatement',
@@ -422,10 +421,6 @@ export default {
         content += `${ln}<br />`
       })
       return DomPurify.sanitize(content)
-    },
-
-    renderUrl (url) {
-      return sanitizeUrl(url)
     }
   }
 }
