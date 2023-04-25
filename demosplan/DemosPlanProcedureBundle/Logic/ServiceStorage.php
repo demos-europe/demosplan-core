@@ -30,7 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;

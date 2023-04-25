@@ -51,5 +51,5 @@ services:
     Tests\CoreApplication\Permissions\Permissions:
         autowire: true
 
-    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'

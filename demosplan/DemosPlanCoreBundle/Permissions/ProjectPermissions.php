@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use Symfony\Component\Security\Core\User\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 
 abstract class ProjectPermissions extends Permissions implements ProjectPermissionsInterface
 {

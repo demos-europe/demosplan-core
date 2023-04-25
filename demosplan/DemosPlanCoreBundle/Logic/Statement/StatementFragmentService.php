@@ -40,7 +40,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;

@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 
 interface CurrentUserInterface

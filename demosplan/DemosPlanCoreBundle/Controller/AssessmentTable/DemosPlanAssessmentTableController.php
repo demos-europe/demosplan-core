@@ -37,7 +37,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;

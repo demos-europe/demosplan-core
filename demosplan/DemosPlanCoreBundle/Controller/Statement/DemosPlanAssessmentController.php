@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;

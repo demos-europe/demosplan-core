@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Event\GuestStatementSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 
 class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber

@@ -60,7 +60,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;

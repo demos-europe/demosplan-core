@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenNotFoundExcept
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
