@@ -11,8 +11,8 @@
   <div data-dp-validate="segmentsStatementForm">
     <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments, display segments -->
-    <template v-else-if="hasSegments">
+    <!-- if statement has segments and user has the permission, display segments -->
+    <template v-else-if="hasSegments && hasPermission('area_statement_segmentation')">
       <div
         v-for="segment in segments"
         :key="segment.id"
