@@ -13,7 +13,7 @@ namespace Tests\Core\Survey\Unit;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use Exception;
 
 class SurveyShowHandlerTest extends SurveyTestUtils
