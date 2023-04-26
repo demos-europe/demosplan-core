@@ -26,10 +26,10 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -155,7 +155,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Add a report about a sent invitation by means of the DemosPlanReportBundle.
+     * Add a report about a sent invitation.
      */
     public function addReportInvite(array $recipientsWithEmail, string $procedureId, string $phase, string $mailSubject): void
     {
@@ -200,7 +200,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Create a Report by means of the DemosPlanReportBundle.
+     * Create a Report.
      *
      * @throws Exception
      */

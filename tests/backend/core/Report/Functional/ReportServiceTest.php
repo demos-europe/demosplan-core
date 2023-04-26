@@ -14,7 +14,7 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Tests\Base\FunctionalTestCase;
 
 class ReportServiceTest extends FunctionalTestCase
