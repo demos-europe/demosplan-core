@@ -39,7 +39,7 @@ use function in_array;
  *
  *     @ORM\UniqueConstraint(name="_u_login", columns={"_u_login"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRepository")
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */

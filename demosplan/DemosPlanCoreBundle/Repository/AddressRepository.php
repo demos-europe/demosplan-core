@@ -8,10 +8,9 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NoResultException;
 use Exception;

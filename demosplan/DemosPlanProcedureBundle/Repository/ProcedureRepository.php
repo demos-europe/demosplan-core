@@ -57,7 +57,7 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -69,7 +69,6 @@ use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
-
 use function array_key_exists;
 use function array_merge;
 use function array_unique;

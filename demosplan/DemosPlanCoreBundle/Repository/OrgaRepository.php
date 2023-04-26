@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
-use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
 use demosplan\DemosPlanUserBundle\ValueObject\DataProtectionOrganisation;
 use demosplan\DemosPlanUserBundle\ValueObject\ImprintOrganisation;
 use Doctrine\Common\Collections\ArrayCollection;

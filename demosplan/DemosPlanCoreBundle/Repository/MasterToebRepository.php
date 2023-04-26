@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -21,11 +21,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use function demosplan\DemosPlanCoreBundle\Repository\count;
 
 class MasterToebRepository extends CoreRepository implements ArrayInterface
 {

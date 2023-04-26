@@ -14,10 +14,10 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\CustomerConf
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -30,7 +30,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
-
 use function is_string;
 
 class ContainerInitCommand extends CoreCommand

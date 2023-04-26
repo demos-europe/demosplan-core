@@ -8,10 +8,9 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 
 class MasterToebVersionRepository extends CoreRepository
 {

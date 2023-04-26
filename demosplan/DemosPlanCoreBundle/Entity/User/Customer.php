@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Table(name="customer")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
 {

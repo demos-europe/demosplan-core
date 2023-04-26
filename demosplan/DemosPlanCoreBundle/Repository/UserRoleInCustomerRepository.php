@@ -8,10 +8,9 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 
 class UserRoleInCustomerRepository extends CoreRepository
 {

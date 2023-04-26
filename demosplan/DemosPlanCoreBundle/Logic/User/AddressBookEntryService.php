@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository;
+use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;

@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_master_toeb_versions")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\MasterToebVersionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository")
  */
 class MasterToebVersion extends CoreEntity implements UuidEntityInterface
 {

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
-use demosplan\DemosPlanUserBundle\Repository\AddressRepository;
+use demosplan\DemosPlanCoreBundle\Repository\AddressRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 

@@ -15,13 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-
 use function collect;
 use function in_array;
 

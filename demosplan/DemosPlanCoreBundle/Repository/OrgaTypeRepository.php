@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Repository;
-
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 class OrgaTypeRepository extends FluentRepository
 {
