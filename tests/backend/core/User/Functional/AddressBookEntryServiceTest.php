@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Tests\Base\FunctionalTestCase;

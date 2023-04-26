@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanUserBundle\ValueObject\DataProtectionOrganisation;
-use demosplan\DemosPlanUserBundle\ValueObject\ImprintOrganisation;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

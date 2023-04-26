@@ -10,9 +10,9 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\User;
 
-class DataProtectionOrganisation
+final class ImprintOrganisation
 {
     /**
      * @var string
@@ -27,13 +27,13 @@ class DataProtectionOrganisation
     /**
      * @var string
      */
-    private $dataProtection;
+    private $imprint;
 
-    public function __construct(string $id, string $name, string $dataProtection)
+    public function __construct(string $id, string $name, string $imprint)
     {
         $this->id = $id;
         $this->name = $name;
-        $this->dataProtection = $dataProtection;
+        $this->imprint = $imprint;
     }
 
     public function getId(): string
@@ -46,8 +46,8 @@ class DataProtectionOrganisation
         return $this->name;
     }
 
-    public function getDataProtection(): string
+    public function getImprint(): string
     {
-        return $this->dataProtection;
+        return $this->imprint;
     }
 }

@@ -12,7 +12,7 @@ namespace Tests\Project\Branding\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use Tests\Base\UnitTestCase;
 
 class BrandingRepositoryTest extends UnitTestCase
