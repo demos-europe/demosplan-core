@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use LogicException;
-use function demosplan\DemosPlanUserBundle\Exception\gettype;
 
 class UserModificationException extends LogicException
 {
