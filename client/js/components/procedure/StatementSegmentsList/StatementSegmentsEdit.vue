@@ -12,7 +12,7 @@
     <dp-loading v-if="isLoading" />
 
     <!-- if statement has segments and user has the permission, display segments -->
-    <template v-else-if="hasSegments && hasPermission('area_statement_segmentation')">
+    <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
         :key="segment.id"
@@ -177,7 +177,7 @@ export default {
     },
 
     hasSegments () {
-      return Object.keys(this.segments).length > 0
+      return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
     statement () {
