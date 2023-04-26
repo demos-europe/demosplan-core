@@ -101,21 +101,18 @@ class ApiResourceService implements ApiResourceServiceInterface
     }
 
     /**
-     * @param                 $data
      * @param BaseTransformer $baseTransformer
-     * @param                 $type
-     *
-     * @return Collection
      */
     public function makeAddonCollection($data, BaseTransformerInterface $baseTransformer, $type = ''): Collection
     {
         $transformerName = get_class($baseTransformer);
+
         return $this->makeCollection($data, $transformerName, $type);
     }
 
     /**
      * @param iterable|CoreEntity[]|ValueObject[] $data
-     * @param string $resourceTypeName The value returned by {@link ResourceTypeInterface::getName()}
+     * @param string                              $resourceTypeName The value returned by {@link ResourceTypeInterface::getName()}
      */
     public function makeCollectionOfResources($data, string $resourceTypeName): Collection
     {
