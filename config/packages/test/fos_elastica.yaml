@@ -24,4 +24,4 @@ fos_elastica:
                 listener: { enabled: false }
 
 imports:
-    - { resource: "@DemosPlanCoreBundle/Resources/config/elasticsearch.yml" }
+    - { resource: "../../../config/elasticsearch.yml" }
