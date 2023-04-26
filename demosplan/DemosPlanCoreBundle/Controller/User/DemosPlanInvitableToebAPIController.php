@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 

@@ -14,7 +14,7 @@ namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\UserHasher;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use Tests\Base\FunctionalTestCase;
 
 class UserHasherTest extends FunctionalTestCase

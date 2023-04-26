@@ -41,7 +41,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Faker\Provider\Uuid;

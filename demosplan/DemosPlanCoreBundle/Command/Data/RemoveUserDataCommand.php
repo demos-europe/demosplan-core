@@ -36,7 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;

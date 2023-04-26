@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Constraint\AllRolesInGroupPresentConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanUserBundle\Logic\RoleService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

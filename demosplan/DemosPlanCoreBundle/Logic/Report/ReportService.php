@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -36,12 +36,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ReportService extends CoreService
 {
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface
      */
     protected $currentUser;
 
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\CustomerHandler
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler
      */
     private $customerHandler;
     /**

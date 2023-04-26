@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\MenuBuilder;
 
 use demosplan\DemosPlanCoreBundle\Event\ConfigureMenuEvent;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 
 use function is_string;
 

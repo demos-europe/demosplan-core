@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Exception;
 

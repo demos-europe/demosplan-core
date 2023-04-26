@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use Exception;
 use JsonSchema\Exception\InvalidArgumentException;
 

@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;

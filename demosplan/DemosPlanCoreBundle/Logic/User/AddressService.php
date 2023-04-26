@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanUserBundle\Repository\AddressRepository;

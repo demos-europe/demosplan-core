@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 class UserMapperDataportGatewaySHStatic extends UserMapperDataportGatewaySH
 {

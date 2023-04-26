@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FaqRepository;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;

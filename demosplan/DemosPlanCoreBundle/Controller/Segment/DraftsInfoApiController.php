@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInt
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Forum\ForumHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanForumBaseController extends BaseController

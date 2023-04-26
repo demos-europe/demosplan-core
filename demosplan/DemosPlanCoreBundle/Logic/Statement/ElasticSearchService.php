@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -39,7 +39,7 @@ class ElasticSearchService extends CoreService
      */
     protected $aggregationsMinDocumentCount = 1;
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\UserService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserService
      */
     private $userService;
 

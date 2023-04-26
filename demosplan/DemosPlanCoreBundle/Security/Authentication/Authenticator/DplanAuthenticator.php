@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;

@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

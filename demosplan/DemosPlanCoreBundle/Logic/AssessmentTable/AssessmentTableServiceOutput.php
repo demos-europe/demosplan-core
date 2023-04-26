@@ -35,7 +35,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalState
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Exception;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;

@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

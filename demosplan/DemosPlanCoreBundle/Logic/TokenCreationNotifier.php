@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;

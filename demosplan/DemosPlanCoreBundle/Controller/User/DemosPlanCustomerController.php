@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;

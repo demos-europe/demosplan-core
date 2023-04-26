@@ -14,14 +14,14 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class MasterToebServiceTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\MasterToebService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService
      */
     protected $sut;
 

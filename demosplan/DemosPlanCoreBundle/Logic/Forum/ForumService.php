@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;

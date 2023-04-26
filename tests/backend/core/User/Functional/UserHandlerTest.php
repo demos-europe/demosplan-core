@@ -16,14 +16,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 use Tests\Base\FunctionalTestCase;
 
 class UserHandlerTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\UserHandler
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserHandler
      */
     protected $sut;
 

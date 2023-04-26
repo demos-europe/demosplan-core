@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -74,7 +74,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
-                file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanUserBundle/Logic').'/UserMapperDataportGatewayHH.yml')
+                file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Logic/User').'/UserMapperDataportGatewayHH.yml')
             )
         );
     }

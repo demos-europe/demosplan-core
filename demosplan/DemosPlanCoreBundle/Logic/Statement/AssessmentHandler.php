@@ -29,7 +29,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingR
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;

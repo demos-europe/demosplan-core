@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Exception;
 
 class CountyService extends CoreService

@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCoordinateDataFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
