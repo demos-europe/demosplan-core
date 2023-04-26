@@ -33,7 +33,6 @@ return [
     Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle::class                            => ['all' => true],
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class                           => ['all' => true],
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class                 => ['all' => true],
-    demosplan\DemosPlanUserBundle\DemosPlanUserBundle::class                           => ['all' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
     Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class                          => ['test' => true],
     Liip\TestFixturesBundle\LiipTestFixturesBundle::class                              => ['test' => true],

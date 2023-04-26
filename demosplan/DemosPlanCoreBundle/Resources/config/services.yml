@@ -1213,7 +1213,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanUserBundle\EventListener\DoctrineUserListener:
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineUserListener:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
