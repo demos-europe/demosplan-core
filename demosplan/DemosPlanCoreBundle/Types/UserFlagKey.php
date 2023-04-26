@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Types;
+namespace demosplan\DemosPlanCoreBundle\Types;
 
 use MyCLabs\Enum\Enum;
 
