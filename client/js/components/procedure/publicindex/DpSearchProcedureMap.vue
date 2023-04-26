@@ -135,7 +135,7 @@
             </optgroup>
             <option
               v-else
-              :key="'opt_' + municipalityGroup.value"
+              :key="`opt_${municipalityGroup.value}`"
               :value="municipalityGroup.value">
               {{ municipalityGroup.label }}
             </option>
