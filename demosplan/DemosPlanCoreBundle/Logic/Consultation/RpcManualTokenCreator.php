@@ -105,7 +105,7 @@ class RpcManualTokenCreator implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-token-create-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-token-create-schema.json')
         );
     }
 

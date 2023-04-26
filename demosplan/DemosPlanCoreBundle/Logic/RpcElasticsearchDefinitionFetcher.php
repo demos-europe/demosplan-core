@@ -95,9 +95,7 @@ class RpcElasticsearchDefinitionFetcher implements RpcMethodSolverInterface
     {
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(
-                'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-elasticsearch-definition-fetcher-schema.json'
-            )
+            DemosPlanPath::getConfigPath('json-schema/rpc-elasticsearch-definition-fetcher-schema.json')
         );
     }
 

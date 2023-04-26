@@ -25,7 +25,7 @@ class MenusLoaderPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $fileLocator = new FileLocator([
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config'),
+            DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
         ]);
 

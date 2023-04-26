@@ -71,7 +71,7 @@ class CachingYamlPermissionCollection implements PermissionCollectionInterface
     {
         return $this->cache->get($this->cacheKey, function (ItemInterface $item): array {
             $this->logger->info("Read Permissions from YAML: $this->path");
-            $permissions = collect(Yaml::parseFile(DemosPlanPath::getRootPath($this->path)))
+            $permissions = collect(Yaml::parseFile(DemosPlanPath::getConfigPath($this->path)))
                 ->map(
                     static function ($permissionsArray, $permissionName) {
                         return Permission::instanceFromArray($permissionName, $permissionsArray);

@@ -57,7 +57,7 @@ class PermissionListCommand extends CoreCommand
 
     protected function loadGlobalPermissions(): Collection
     {
-        $permissionsPath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml');
+        $permissionsPath = DemosPlanPath::getConfigPath('permissions.yml');
 
         $permissions = Yaml::parseFile($permissionsPath);
 

@@ -113,7 +113,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-procedure-analytics-retrieve-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-procedure-analytics-retrieve-schema.json')
         );
     }
 

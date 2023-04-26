@@ -136,9 +136,7 @@ final class RpcElementsListReorderer implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(
-                'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-elements-list-reorder-schema.json'
-            )
+            DemosPlanPath::getConfigPath('config/json-schema/rpc-elements-list-reorder-schema.json')
         );
     }
 

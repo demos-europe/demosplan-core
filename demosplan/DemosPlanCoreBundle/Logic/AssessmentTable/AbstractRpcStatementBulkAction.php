@@ -201,7 +201,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath($this->getJsonSchemaPath())
+            $this->getJsonSchemaPath()
         );
     }
 

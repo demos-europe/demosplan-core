@@ -140,7 +140,7 @@ EOT
         $this->removeCacheData($output, $fs, 'dev');
         $this->removeCacheData($output, $fs, 'prod');
 
-        $fs->remove(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/config_dev_container.yml'));
+        $fs->remove(DemosPlanPath::getConfigPath('config_dev_container'));
 
         if ($isDeployment) {
             // delete files not suitable for deployment
