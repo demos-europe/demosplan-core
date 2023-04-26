@@ -11,10 +11,11 @@
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
     id="start"
-    name="bpform"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
-    method="post"
     :data-statement-admin-container="procedureId"
+    name="bpform"
+    method="post"
+    ref="root"
     v-cloak>
     <input
       type="hidden"
@@ -166,21 +167,19 @@
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
-      <template
+      <dp-assessment-table-card
         v-else
-        v-for="statement in statements">
-        <dp-assessment-table-card
-          :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
-          class="o-list__item"
-          :init-statement="{}"
-          :statement-procedure-id="statement.procedureId"
-          :statement-id="statement.id"
-          :is-selected="getSelectionStateById(statement.id)"
-          @statement:updated="hasChangedStatements = true"
-          @statement:addToSelection="addToSelectionAction"
-          @statement:removeFromSelection="removeFromSelectionAction" />
-      </template>
+        v-for="statement in statements"
+        :ref="'itemdisplay_' + statement.id"
+        :key="`statement:${statement.id}`"
+        class="o-list__item"
+        :init-statement="{}"
+        :statement-procedure-id="statement.procedureId"
+        :statement-id="statement.id"
+        :is-selected="getSelectionStateById(statement.id)"
+        @statement:updated="hasChangedStatements = true"
+        @statement:addToSelection="addToSelectionAction"
+        @statement:removeFromSelection="removeFromSelectionAction" />
     </ul>
 
     <!-- If there are no statements: -->
