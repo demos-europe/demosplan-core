@@ -375,6 +375,9 @@ export default {
             this.scrollToSegment()
           })
         })
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   },
 
