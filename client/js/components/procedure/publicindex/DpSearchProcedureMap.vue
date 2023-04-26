@@ -121,13 +121,13 @@
           :class="prefixClass('o-form__control-select')"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
           <template
-            v-for="municipalityGroups in municipalities"
-            :key="'group_' + municipalityGroups.label">
+            v-for="municipalityGroup in municipalities"
+            :key="`group_${municipalityGroup.label}`">
             <optgroup
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :label="municipalityGroups.label">
+              v-if="hasOwnProp(municipalityGroup,'options')"
+              :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroups.options"
+                v-for="county in municipalityGroup.options"
                 :selected="county.value === form.municipalCode"
                 :value="county.value">
                 {{ county.title }}
@@ -135,9 +135,9 @@
             </optgroup>
             <option
               v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              :key="'opt_' + municipalityGroup.value"
+              :value="municipalityGroup.value">
+              {{ municipalityGroup.label }}
             </option>
           </template>
         </select>
