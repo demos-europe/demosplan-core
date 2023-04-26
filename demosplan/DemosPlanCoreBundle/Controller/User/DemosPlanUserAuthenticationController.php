@@ -188,7 +188,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
+            '@DemosPlanCore/DemosPlanUser/password_recover.html.twig',
             [
                 'title'        => 'user.password.recover',
                 'templateVars' => [],
@@ -298,7 +298,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
+            '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
@@ -386,7 +386,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 return $this->redirectToRoute('core_home');
             }
 
-            return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/logout_success.html.twig');
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
         } catch (Exception $e) {
             return $this->handleError($e);
         }
@@ -414,7 +414,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
+            '@DemosPlanCore/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,
                 'uId'   => $uId,

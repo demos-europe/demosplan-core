@@ -519,7 +519,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     private function sendChangeEmailVerificationEmail(User $user, string $newEmailAddress, string $token): User
     {
         $emailTextChangeEmail = $this->twig
-            ->load('@DemosPlanUser/DemosPlanUser/email_user_change_email.html.twig')
+            ->load('@DemosPlanCore/DemosPlanUser/email_user_change_email.html.twig')
             ->render(
                 [
                     'templateVars' => [
@@ -582,10 +582,10 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         switch ($type) {
             case 'new':
-                $templateName = '@DemosPlanUser/DemosPlanUser/email_user_new.html.twig';
+                $templateName = '@DemosPlanCore/DemosPlanUser/email_user_new.html.twig';
                 break;
             case 'recover':
-                $templateName = '@DemosPlanUser/DemosPlanUser/email_user_recover.html.twig';
+                $templateName = '@DemosPlanCore/DemosPlanUser/email_user_recover.html.twig';
                 break;
             default:
                 throw new RuntimeException('Unsupported invitation type: '.$type);

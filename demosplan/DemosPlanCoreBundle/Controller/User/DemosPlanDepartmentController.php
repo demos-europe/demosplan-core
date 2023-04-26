@@ -52,7 +52,7 @@ class DemosPlanDepartmentController extends BaseController
             $session = $request->getSession();
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/verify_orga_switch_or_update.html.twig',
+                '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
                 [
                     'templateVars' => [
                         'type'        => 'Department',
@@ -124,7 +124,7 @@ class DemosPlanDepartmentController extends BaseController
         $templateVars['organisation'] = $orga;
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_departments.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_departments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.admin.departments',
@@ -192,7 +192,7 @@ class DemosPlanDepartmentController extends BaseController
     public function editDepartmentAction(Request $request)
     {
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/edit_department.html.twig',
+            '@DemosPlanCore/DemosPlanUser/edit_department.html.twig',
             [
                 'templateVars' => [],
                 'title'        => 'project.name',

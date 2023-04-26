@@ -31,7 +31,7 @@ class InstitutionTagController extends BaseController
     public function getInstitutionTagManagement(): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/institution_tag_management.html.twig',
+            '@DemosPlanCore/DemosPlanUser/institution_tag_management.html.twig',
             [
                 'title' => 'institution.tags.management',
             ]

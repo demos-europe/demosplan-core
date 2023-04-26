@@ -954,7 +954,7 @@ class EntityContentChangeService extends CoreService
         }
         try {
             $mail['mailbody'] = $this->twig->load(
-                '@DemosPlanUser/DemosPlanUser/email_assigned_tasks.html.twig'
+                '@DemosPlanCore/DemosPlanUser/email_assigned_tasks.html.twig'
             )->renderBlock(
                 'body_plain',
                 [

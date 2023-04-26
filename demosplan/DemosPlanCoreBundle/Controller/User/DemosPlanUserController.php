@@ -253,7 +253,7 @@ class DemosPlanUserController extends BaseController
         $this->getLogger()->info('Welcomepage display page');
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/gateway_newUser.html.twig',
+            '@DemosPlanCore/DemosPlanUser/gateway_newUser.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
     }
@@ -295,7 +295,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/toeb_showlist_changes.html.twig',
+            '@DemosPlanCore/DemosPlanUser/toeb_showlist_changes.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.list.visibility.changes.invitable_institution',
@@ -371,7 +371,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/portal_user.html.twig',
+            '@DemosPlanCore/DemosPlanUser/portal_user.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -512,7 +512,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/citizen_register_form.html.twig',
+            '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
             ['title' => $title, 'useSaml' => $useSaml]
         );
     }
@@ -718,7 +718,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['statements'] = $statementService->getSubmittedOrAuthoredStatements($userId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_users_statements.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_users_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.statements',

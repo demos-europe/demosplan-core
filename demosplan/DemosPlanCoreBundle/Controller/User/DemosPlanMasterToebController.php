@@ -70,7 +70,7 @@ class DemosPlanMasterToebController extends BaseController
         $results = $this->masterToebService->getMasterToebs(true);
         $templateVars['orgas'] = $results;
 
-        $template = '@DemosPlanUser/DemosPlanUser/mastertoeblist.html.twig';
+        $template = '@DemosPlanCore/DemosPlanUser/mastertoeblist.html.twig';
 
         return $this->renderTemplate($template, [
             'templateVars' => $templateVars,
@@ -414,7 +414,7 @@ class DemosPlanMasterToebController extends BaseController
             $procedure = $currentProcedure instanceof Procedure ? $currentProcedure->getId() : '';
         }
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_report.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_report.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.report',
@@ -503,7 +503,7 @@ class DemosPlanMasterToebController extends BaseController
         $orgasMasterToeb = $masterToebListService->getOrganisationsOfMasterToeb();
         $templateVars['orgasMasterToeb'] = $orgasMasterToeb;
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_merge.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_merge.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.merge',
         ]);

@@ -50,7 +50,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         $templateVars['orgas'] = $orgaService->getParticipants();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/showParticipants.html.twig',
+            '@DemosPlanCore/DemosPlanUser/showParticipants.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.participants',
@@ -76,7 +76,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         $title = 'user.admin.user';
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_user.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_user.html.twig',
             ['title' => $title]
         );
     }
@@ -104,7 +104,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         $templateVars['addressBookEntries'] = $addressBookEntryService->getAddressBookEntriesOfOrganisation($organisationId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/unregistered_publicagency_list.html.twig',
+            '@DemosPlanCore/DemosPlanUser/unregistered_publicagency_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'invitable_institution.unregistered.administer',

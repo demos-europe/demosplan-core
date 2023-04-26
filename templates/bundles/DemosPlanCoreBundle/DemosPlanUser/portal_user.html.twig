@@ -11,7 +11,7 @@
 
         {% block content %}
             {%- if hasPermission('area_mydata') %}
-                {%- include '@DemosPlanUser/DemosPlanUser/portal_profile.html.twig' with {
+                {%- include '@DemosPlanCore/DemosPlanUser/portal_profile.html.twig' with {
                     hasIdentityprovider: user.isProvidedByIdentityProvider ?? false
                 } -%}
 
@@ -22,7 +22,7 @@
                             title="{{ 'email.change'|trans }}"
                             class="u-mb u-mt-0_75">
                             <div class="u-mv">
-                                {%- include '@DemosPlanUser/DemosPlanUser/portal_email.html.twig' -%}
+                                {%- include '@DemosPlanCore/DemosPlanUser/portal_email.html.twig' -%}
                             </div>
                         </dp-accordion>
                     {% endif -%}

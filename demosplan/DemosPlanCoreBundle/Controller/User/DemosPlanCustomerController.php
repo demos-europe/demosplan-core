@@ -69,7 +69,7 @@ class DemosPlanCustomerController extends BaseController
             ];
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/customer_settings.html.twig',
+                '@DemosPlanCore/DemosPlanUser/customer_settings.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => $translator->trans('customer.settings'),
@@ -151,7 +151,7 @@ class DemosPlanCustomerController extends BaseController
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
                 return $this->renderTemplate(
-                    '@DemosPlanUser/DemosPlanUser/customer_settings_update_mail.html.twig',
+                    '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                     [
                         'templateVars' => $templateVars,
                         'title'        => $translator->trans('customer.settings.update.mail.title'),
@@ -175,7 +175,7 @@ class DemosPlanCustomerController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.email.sent');
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/customer_settings_update_mail.html.twig',
+                '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => $translator->trans('customer.settings.update.mail.title'),

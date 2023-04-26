@@ -24,7 +24,7 @@
                 value="{% if organisation is defined %}{{ organisation.address_ident|default }}{% endif %}"
             >
 
-            {% include '@DemosPlanUser/DemosPlanUser/orga_data_entry.html.twig' %}
+            {% include '@DemosPlanCore/DemosPlanUser/orga_data_entry.html.twig' %}
         </form>
 
         {% endblock content %}
