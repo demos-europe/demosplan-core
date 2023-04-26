@@ -72,7 +72,7 @@ class ContextualHelp implements ContextualHelpInterface
     /**
      * Set ident.
      *
-     * @param string $ident
+     * @param string|null $ident
      *
      * @return ContextualHelp
      */
