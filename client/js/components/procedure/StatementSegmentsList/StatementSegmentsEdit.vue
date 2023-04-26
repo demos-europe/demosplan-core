@@ -348,7 +348,7 @@ export default {
   },
 
   mounted () {
-    if (Object.keys(this.segments).length === 0) {
+    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
@@ -379,7 +379,7 @@ export default {
   },
 
   beforeDestroy () {
-    if (this.editingSegmentIds.length > 0) {
+    if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }
     if (this.hasSegments === false && this.segment) {
