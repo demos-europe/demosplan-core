@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -44,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 {
@@ -952,7 +951,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @return array<int, string>
      *
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
      */
     private function getPlaningAgencyCCEmailRecipients(array $procedure, array $formEmailCC): array
     {

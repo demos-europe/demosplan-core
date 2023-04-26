@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonOrgaNotFoundException;
 

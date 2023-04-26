@@ -42,7 +42,6 @@ use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function is_string;
 
 /**
@@ -204,8 +203,8 @@ class ServiceStorage implements ServiceStorageInterface
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws ReflectionException
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
      * @throws CriticalConcernException
      */
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
@@ -373,7 +372,7 @@ class ServiceStorage implements ServiceStorageInterface
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {

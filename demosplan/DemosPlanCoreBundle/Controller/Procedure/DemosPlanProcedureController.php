@@ -29,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoade
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -86,8 +88,6 @@ use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
 use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -121,8 +121,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-
-use function collect;
 
 /**
  * Seitenausgabe Planverfahren.

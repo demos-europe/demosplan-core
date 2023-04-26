@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Doctrine\ORM\Mapping\PostLoad;
 

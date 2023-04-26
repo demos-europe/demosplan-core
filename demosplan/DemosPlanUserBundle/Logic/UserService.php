@@ -19,6 +19,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
+use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
+use demosplan\DemosPlanCoreBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
+use demosplan\DemosPlanCoreBundle\Exception\CouldNotWipeDepartmentException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -37,11 +42,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
-use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
-use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
-use demosplan\DemosPlanUserBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
-use demosplan\DemosPlanUserBundle\Exception\CouldNotWipeDepartmentException;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
@@ -62,7 +62,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
-
 use function array_key_exists;
 
 class UserService extends CoreService implements UserServiceInterface

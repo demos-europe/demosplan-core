@@ -8,10 +8,10 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use Exception;
 
-class CouldNotDeleteAddressesOfDepartmentException extends Exception
+class CouldNotDeleteDraftStatementsOfDepartmentException extends Exception
 {
 }

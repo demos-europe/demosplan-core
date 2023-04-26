@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanUserBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 

@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class DuplicateSlugException extends InvalidArgumentException
 {

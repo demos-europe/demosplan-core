@@ -175,7 +175,7 @@ class PublicIndexProcedureLister
      *
      * @return array<string,mixed>
      *
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
      */
     public function reformatPhases(bool $isLoggedIn, array $procedures): array
     {

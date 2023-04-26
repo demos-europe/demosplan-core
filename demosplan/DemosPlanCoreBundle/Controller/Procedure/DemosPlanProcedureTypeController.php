@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceTyp
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\QueryException;

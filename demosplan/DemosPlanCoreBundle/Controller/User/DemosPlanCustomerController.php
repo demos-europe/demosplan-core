@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;

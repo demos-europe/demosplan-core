@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanUserBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class DepartmentNotFoundException extends ResourceNotFoundException
 {
