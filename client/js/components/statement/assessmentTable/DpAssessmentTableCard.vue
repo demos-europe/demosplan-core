@@ -188,12 +188,12 @@
                       </template>
 
                       <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
-                      <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
+                      <template v-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
                         {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
                       </template>
 
                       <!-- if anonymous citizen (unregistered or manual statement) -->
-                      <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
+                      <template v-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
                         {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
                       </template>
 
@@ -215,14 +215,14 @@
                       </template>
                     </div>
                   </template>
-                  <template v-else>
+                  <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
                 </v-popover>
               </div>
             </div>
             <div
-              v-else-if="true === statement.isCluster && statement.clusterName !== ''"
+              v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}
