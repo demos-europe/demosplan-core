@@ -250,8 +250,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * Set parent element.
-     *
-     * @param ElementsInterface|null $parent
      */
     public function setParent(?ElementsInterface $parent): void
     {
