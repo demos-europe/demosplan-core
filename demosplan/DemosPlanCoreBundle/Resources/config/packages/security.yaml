@@ -65,6 +65,7 @@ security:
                 path: /saml/logout
         main:
             provider: dplan_default_user_provider
+            lazy: true
             custom_authenticators: '%demosplan_user_authenticator_service%'
             entry_point: '%demosplan_user_authenticator_service_entry_point%'
 
