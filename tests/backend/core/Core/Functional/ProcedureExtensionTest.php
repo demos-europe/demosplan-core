@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -84,7 +85,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
 
         $this->permissionsStub = new Permissions(
-            new SplFixedArray(),
+            $this->createMock(AddonRegistry::class),
             $currentCustomerProvider,
             new NullLogger(),
             $this->globalConfig,

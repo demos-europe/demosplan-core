@@ -21,13 +21,13 @@ use demosplan\DemosPlanCoreBundle\Repository\SearchIndexTaskRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -132,7 +132,7 @@ class SearchIndexTaskService extends CoreService
         try {
             $userId = null;
             $token = $this->tokenStorage->getToken();
-            if ($token instanceof DemosToken && $token->getUser() instanceof User) {
+            if ($token instanceof TokenInterface && $token->getUser() instanceof User) {
                 $userId = $token->getUser()->getId();
             }
 

@@ -57,8 +57,8 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function initializeUser(User $user): string
     {
         $token = $this->tokenManager->create($user);
-        $demosToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
-        $this->tokenStorage->setToken($demosToken);
+        $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
+        $this->tokenStorage->setToken($userToken);
 
         return $token;
     }

@@ -11,15 +11,16 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\NotAuthenticatedToken;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
@@ -29,47 +30,37 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
     private $tokenStorage;
 
     /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-    /**
      * @var PermissionsInterface
      */
     private $permissions;
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
 
     public function __construct(
-        LoggerInterface $logger,
-        CustomerHandler $customerHandler,
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         PermissionsInterface $permissions,
         TokenStorageInterface $tokenStorage
     ) {
         $this->tokenStorage = $tokenStorage;
-        $this->customerHandler = $customerHandler;
         $this->permissions = $permissions;
-        $this->logger = $logger;
     }
 
     public function getUser(): User
     {
         $user = $this->getToken()->getUser();
+
+        if ($user instanceof SecurityUser) {
+            $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
+        }
+
         if (!$user instanceof User) {
-            throw new UserNotFoundException('Invalid User');
+            $user = new AnonymousUser();
         }
 
         return $user;
     }
 
-    /**
-     * @throws CustomerNotFoundException
-     */
     public function setUser(User $user, Customer $customer = null): void
     {
-        $customer = $customer ?? $this->customerHandler->getCurrentCustomer();
-        $token = new DemosToken($user, $customer);
+        $token = $this->getToken();
         $token->setUser($user);
         $this->tokenStorage->setToken($token);
     }
@@ -90,22 +81,9 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $this->permissions->hasPermission($permission);
     }
 
-    /**
-     * @throws UserNotFoundException
-     */
-    private function getToken(): DemosToken
+    private function getToken(): TokenInterface
     {
-        $token = $this->tokenStorage->getToken();
-        // convert PostAuthenticationToken generated during symfony login to DemosToken
-        if ($token instanceof PostAuthenticationToken) {
-            $token = new DemosToken($token->getUser());
-        }
-        if (!$token instanceof DemosToken) {
-            $this->logger->error('invalid user', [$token, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 30)]);
-            throw new UserNotFoundException('Token could not be found');
-        }
-
-        return $token;
+        return $this->tokenStorage->getToken() ?? new NotAuthenticatedToken();
     }
 
     public function hasAnyPermissions(string ...$permissions): bool

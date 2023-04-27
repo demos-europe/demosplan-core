@@ -52,6 +52,10 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
     {
         $user = $this->userMapper->getValidUser($credentials);
 
+        if (!$user) {
+            throw new AuthenticationException('User not found');
+        }
+
         return new SelfValidatingPassport(new UserBadge($user->getLogin()));
     }
 
