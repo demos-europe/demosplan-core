@@ -11,8 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -136,4 +138,9 @@ interface PermissionsInterface extends \DemosEurope\DemosplanAddon\Contracts\Per
      * @param array $permissions permission names
      */
     public function disablePermissions(array $permissions);
+
+    /**
+     * @deprecated see deprecation on property userInvitedInProcedure
+     */
+    public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void;
 }
