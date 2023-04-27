@@ -82,7 +82,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 
     /**
      * @var Collection<int, GisLayerInterface>
-     *                                One GisLayerCategory has many GisLayers
+     *                                         One GisLayerCategory has many GisLayers
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer", mappedBy="category", fetch="EAGER")
      */
@@ -267,9 +267,9 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @throws InvalidArgumentException
-     *
      * @param GisLayerCategoryInterface $newParent
+     *
+     * @throws InvalidArgumentException
      */
     public function setParent($newParent)
     {
@@ -298,9 +298,9 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @throws InvalidArgumentException
-     *
      * @param GisLayerCategoryInterface[] $children
+     *
+     * @throws InvalidArgumentException
      */
     public function setChildren($children)
     {
