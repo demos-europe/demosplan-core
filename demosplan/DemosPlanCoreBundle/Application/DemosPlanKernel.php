@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use function array_merge;
-
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
@@ -23,9 +21,6 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPa
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
-
-use function file_exists;
-
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -35,6 +30,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
+
+use function array_merge;
+use function file_exists;
 
 /**
  * This class loads all classes used by DPlan core and may be

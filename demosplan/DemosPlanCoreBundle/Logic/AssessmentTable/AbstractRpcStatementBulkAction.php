@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
