@@ -118,6 +118,13 @@
             name="gdpr_consent"
             required
             value-to-send="on" />
+
+          <dp-input
+            id="_csrf_token"
+            name="_csrf_token"
+            type="hidden"
+            :value="csrfToken"/>
+
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
@@ -173,6 +180,10 @@ export default {
 
   props: {
     customer: {
+      type: String,
+      required: true
+    },
+    csrfToken: {
       type: String,
       required: true
     }
