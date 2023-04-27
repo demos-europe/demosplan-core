@@ -135,8 +135,7 @@ export default {
 
     csrfToken: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     }
   }
 }
