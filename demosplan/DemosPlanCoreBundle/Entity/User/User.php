@@ -1768,5 +1768,4 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     {
         return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
     }
-
 }

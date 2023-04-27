@@ -1,8 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
-namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -37,6 +45,7 @@ final class UserFromSecurityUserProvider
 
         return $this->userRepository->findOneBy(['login' => $token->getUser()->getUserIdentifier()]);
     }
+
     public function fromSecurityUser(SecurityUser $securityUser): ?User
     {
         return $this->userRepository->findOneBy(['login' => $securityUser->getUserIdentifier()]);
