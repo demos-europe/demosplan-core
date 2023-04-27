@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
@@ -30,7 +30,7 @@ class InitializeService implements InitializeServiceInterface
     public function __construct(
         private readonly CurrentUserService $currentUserService,
         private readonly LoggerInterface $logger,
-        private readonly  MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
         private readonly RequestStack $requestStack,
     ) {

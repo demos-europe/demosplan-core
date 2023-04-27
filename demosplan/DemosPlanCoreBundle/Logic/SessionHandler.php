@@ -16,8 +16,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 class SessionHandler extends PdoSessionHandler
 {
-
-    public function __construct(ParameterBagInterface $parameterBag) {
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
         // configure PdoSessionHandler
         $dsn = 'mysql:host='.$parameterBag->get('database_host').';dbname='.$parameterBag->get('database_name');
         $pdoOptions = [
@@ -36,5 +36,4 @@ class SessionHandler extends PdoSessionHandler
         // Note: This will destroy the session, and not just the session data!
         $request->getSession()->invalidate();
     }
-
 }
