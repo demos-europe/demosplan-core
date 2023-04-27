@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 class WerDenktWasAPIController extends BaseController
 {
@@ -97,7 +98,7 @@ class WerDenktWasAPIController extends BaseController
                 ];
 
                 $geojson['features'][] = $feature;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $logger->warning('Could not add procedure to GeoJSON', [
                     'procedure' => $procedureInfo,
                     'exception' => $e,
