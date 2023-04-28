@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table (uniqueConstraints={@UniqueConstraint(name="slug_unique", columns={"name"})})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SlugRepository")
  */
-class Slug extends CoreEntity implements UuidEntityInterface
+class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
 {
     /**
      * @var string|null

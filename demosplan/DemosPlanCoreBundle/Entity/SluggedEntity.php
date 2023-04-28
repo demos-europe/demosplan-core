@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
 {
     /**
-     * @var Slug
+     * @var SlugInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
@@ -27,7 +28,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
     protected $currentSlug;
 
     /**
-     * @var Collection Slug[]
+     * @var Collection SlugInterface[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug", cascade={"persist"})
      * @ORM\JoinTable(
@@ -49,11 +50,9 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Given a Slug object adds it to the Entity, updating its slugs history and sets it as current Slug.
-     *
      * @return SluggedEntity
      */
-    public function addSlug(Slug $slug)
+    public function addSlug(SlugInterface $slug)
     {
         $slugs = $this->slugs;
         $slugs[] = $slug;
@@ -68,7 +67,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
         return $this->currentSlug;
     }
 
-    public function setCurrentSlug(Slug $currentSlug)
+    public function setCurrentSlug(SlugInterface $currentSlug)
     {
         if (!$this->hasSlugString($currentSlug)) {
             throw new InvalidArgumentException('Slug '.$currentSlug->getName().'  must already exist in the Entity.');
@@ -76,10 +75,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
         $this->currentSlug = $currentSlug;
     }
 
-    /**
-     * Returns true if the Orga already had the received slug, false otherwise.
-     */
-    public function hasSlugString(Slug $slug): bool
+    public function hasSlugString(SlugInterface $slug): bool
     {
         return $this->getSlugs()->map(function (Slug $slug) {
             return $slug->getName();
