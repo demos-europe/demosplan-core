@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -56,7 +57,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
      *
-     * @var Collection<int, Orga>
+     * @var Collection<int, OrgaInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
@@ -118,7 +119,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     }
 
     /**
-     * @param Collection<int, Orga> $institutions
+     * @param Collection<int, OrgaInterface> $institutions
      */
     public function setTaggedInstitutions(Collection $institutions): void
     {
@@ -138,7 +139,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     /**
      * @return bool - true if the given statement was added to this tag, otherwise false
      */
-    public function addTaggedInstitution(Orga $institution): bool
+    public function addTaggedInstitution(OrgaInterface $institution): bool
     {
         if (!$this->taggedInstitutions->contains($institution)) {
             $this->taggedInstitutions->add($institution);
