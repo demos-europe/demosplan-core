@@ -59,7 +59,7 @@
           <div class="u-ml">
             <p
               class="u-mb-0"
-              :inner-html.prop="Translator.trans('warning.consolidate.only.clusters.selected')" />
+              :inner-html="Translator.trans('warning.consolidate.only.clusters.selected')" />
           </div>
         </div>
         <!-- display if the user has selected group statements -->
@@ -72,7 +72,7 @@
           <div class="u-ml">
             <p
               class="u-mb-0"
-              :inner-html.prop="Translator.trans('warning.statement.cluster.resolve')" />
+              :inner-html="Translator.trans('warning.statement.cluster.resolve')" />
           </div>
         </div>
       </fieldset>

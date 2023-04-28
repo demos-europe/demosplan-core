@@ -32,7 +32,7 @@
             <div class="u-ml">
               <p
                 class="u-mb-0"
-                :inner-html.prop="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')" />
+                :inner-html="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')" />
             </div>
           </div>
 
