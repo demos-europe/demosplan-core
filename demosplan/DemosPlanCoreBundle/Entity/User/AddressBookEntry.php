@@ -14,6 +14,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressBookEntryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -43,7 +44,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
     protected $name;
 
     /**
-     * @var Orga
+     * @var OrgaInterface
      *
      * Many address book entries have one organisation. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
@@ -148,7 +149,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
         return $this->organisation;
     }
 
-    public function setOrganisation(Orga $organisation)
+    public function setOrganisation(OrgaInterface $organisation)
     {
         $this->organisation = $organisation;
     }
