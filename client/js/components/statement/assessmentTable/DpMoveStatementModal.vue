@@ -29,11 +29,11 @@
             <div class="u-ml">
               <p
                 :class="{'u-mb-0': false === hasPermission('feature_statement_move_to_foreign_procedure')}"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.description')" />
+                :inner-html="Translator.trans('statement.moveto.procedure.description')" />
               <p
                 class="u-mb-0"
                 v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.description.foreignProcedures')" />
+                :inner-html="Translator.trans('statement.moveto.procedure.description.foreignProcedures')" />
             </div>
           </div>
 
@@ -45,7 +45,7 @@
             <div class="u-ml">
               <p
                 class="u-mb-0"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')" />
+                :inner-html="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')" />
             </div>
           </div>
 
