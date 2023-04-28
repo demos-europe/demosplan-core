@@ -25,7 +25,7 @@
       class="u-mt-1_5 u-ml" />
 
     <div
-      v-else-if="false === isLoading"
+      v-else
       class="c-slidebar__content overflow-y-auto"
       :class="{'u-mr': days.length === 0}"
       style="height: 88vh;">
