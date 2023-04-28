@@ -20,6 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_master_toeb")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\MasterToebRepository")
  */
 class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebInterface
@@ -28,8 +29,11 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var string|null
      *
      * @ORM\Column(name="_mt_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -52,6 +56,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var Orga
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"}, inversedBy="masterToeb")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="SET NULL")
      */
     protected $orga;
@@ -67,6 +72,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      */
     protected $department;
@@ -220,6 +226,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_mt_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -228,6 +235,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_mt_modified_date",type="datetime", nullable=false)
      */
     protected $modifiedDate;

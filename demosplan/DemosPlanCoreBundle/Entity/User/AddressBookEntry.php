@@ -22,6 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository")
  */
 class AddressBookEntry extends CoreEntity implements UuidEntityInterface, AddressBookEntryInterface
@@ -30,8 +31,11 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -50,6 +54,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="addressBookEntries")
+     *
      * @ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")
      */
     protected $organisation;
@@ -65,6 +70,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -73,6 +79,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;

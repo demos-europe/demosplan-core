@@ -25,8 +25,11 @@ class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterf
      * @var string|null
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -45,6 +48,7 @@ class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterf
      * @var FileInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
+     *
      * @ORM\JoinColumn(name="logo", referencedColumnName="_f_ident", nullable=true, onDelete="CASCADE")
      */
     protected $logo;

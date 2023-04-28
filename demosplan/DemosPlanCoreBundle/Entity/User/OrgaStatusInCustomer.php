@@ -21,10 +21,12 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="relation_customer_orga_orga_type",
  *    uniqueConstraints={
+ *
  *        @ORM\UniqueConstraint(name="o_c_ot_unique",
  *            columns={"_o_id", "_c_id", "_ot_id"})
  *    }
  * )
+ *
  * @ORM\Entity
  */
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
@@ -37,8 +39,11 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      * @var string|null
      *
      * @ORM\Column(name="_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -49,6 +54,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers", cascade={"remove"})
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
      */
     protected $orga;
@@ -59,6 +65,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      * @var OrgaType
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers", cascade={"remove"})
+     *
      * @ORM\JoinColumn(name="_ot_id", referencedColumnName="_ot_id", nullable=false)
      */
     protected $orgaType;
@@ -69,6 +76,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses", cascade={"remove"})
+     *
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
      */
     protected $customer;

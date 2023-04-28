@@ -19,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_orga_type")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository")
  */
 class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
@@ -72,8 +73,11 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
      * @var string|null
      *
      * @ORM\Column(name="_ot_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

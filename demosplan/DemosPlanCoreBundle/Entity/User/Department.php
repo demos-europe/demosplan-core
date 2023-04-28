@@ -22,6 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_department", uniqueConstraints={@ORM\UniqueConstraint(name="_d_gw_id", columns={"_d_gw_id"})})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\DepartmentRepository")
  */
 class Department extends CoreEntity implements UuidEntityInterface, DepartmentInterface
@@ -36,8 +37,11 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var string|null
      *
      * @ORM\Column(name="_d_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -60,6 +64,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var DateTime
      *
      * @ORM\Column(name="_d_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -68,6 +73,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var DateTime
      *
      * @ORM\Column(name="_d_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -107,6 +113,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var Collection<int, Address>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address")
+     *
      * @ORM\JoinTable(
      *     name="_department_addresses_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},
@@ -122,6 +129,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var Collection<int, User>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="departments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_department_users_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},

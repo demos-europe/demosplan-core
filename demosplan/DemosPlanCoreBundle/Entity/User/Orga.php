@@ -345,7 +345,7 @@ class Orga extends SluggedEntity implements OrgaInterface
 
     /**
      * @var Collection<int, AddressBookEntryInterface>
-     *                                        One organisation has many address book entries. This is the inverse side.
+     *                                                 One organisation has many address book entries. This is the inverse side.
      *
      * @ORM\OneToMany(targetEntity="AddressBookEntry", mappedBy="organisation")
      */
