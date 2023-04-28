@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="_orga_type")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository")
  */
-class OrgaType extends CoreEntity implements UuidEntityInterface
+class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
 {
     /**
      * AHB = Anhörungsbehörde = hearing authority.

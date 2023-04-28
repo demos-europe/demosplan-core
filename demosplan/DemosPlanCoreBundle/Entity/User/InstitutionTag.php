@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owning_organisation_id", "label"})})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository")
  */
-class InstitutionTag extends CoreEntity implements UuidEntityInterface
+class InstitutionTag extends CoreEntity implements UuidEntityInterface, InstitutionTagInterface
 {
     /**
      * @var string|null

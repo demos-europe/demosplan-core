@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_department", uniqueConstraints={@ORM\UniqueConstraint(name="_d_gw_id", columns={"_d_gw_id"})})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\DepartmentRepository")
  */
-class Department extends CoreEntity implements UuidEntityInterface
+class Department extends CoreEntity implements UuidEntityInterface, DepartmentInterface
 {
     /**
      * For technical reasons, a department is always required, even if none is given.

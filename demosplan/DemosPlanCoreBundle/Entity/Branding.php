@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=BrandingRepository::class)
  */
-class Branding extends CoreEntity implements UuidEntityInterface
+class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterface
 {
     /**
      * @var string|null
@@ -40,7 +42,7 @@ class Branding extends CoreEntity implements UuidEntityInterface
     protected $cssvars;
 
     /**
-     * @var File|null
+     * @var FileInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
      * @ORM\JoinColumn(name="logo", referencedColumnName="_f_ident", nullable=true, onDelete="CASCADE")
@@ -69,7 +71,7 @@ class Branding extends CoreEntity implements UuidEntityInterface
         return $this->logo;
     }
 
-    public function setLogo(?File $logo): void
+    public function setLogo(?FileInterface $logo): void
     {
         $this->logo = $logo;
     }

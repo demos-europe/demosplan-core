@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressBookEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository")
  */
-class AddressBookEntry extends CoreEntity implements UuidEntityInterface
+class AddressBookEntry extends CoreEntity implements UuidEntityInterface, AddressBookEntryInterface
 {
     /**
      * @var string|null

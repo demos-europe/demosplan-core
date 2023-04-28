@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_address")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressRepository")
  */
-class Address extends CoreEntity implements UuidEntityInterface
+class Address extends CoreEntity implements UuidEntityInterface, AddressInterface
 {
     /**
      * @var string|null

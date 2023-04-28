@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -26,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
  * )
  * @ORM\Entity
  */
-class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface
+class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {
     public const STATUS_PENDING = 'pending';
     public const STATUS_ACCEPTED = 'accepted';

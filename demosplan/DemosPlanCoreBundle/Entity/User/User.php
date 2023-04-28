@@ -43,7 +43,12 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface
+class User implements
+    UserInterface,
+    SamlUserInterface,
+    UuidEntityInterface,
+    PasswordAuthenticatedUserInterface,
+    \DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface
 {
     /**
      * Set hard coded anonymous user Values until refactored.
