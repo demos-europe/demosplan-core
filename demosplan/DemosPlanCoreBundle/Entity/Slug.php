@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table (uniqueConstraints={@UniqueConstraint(name="slug_unique", columns={"name"})})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SlugRepository")
  */
 class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
@@ -28,8 +29,11 @@ class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -38,6 +42,7 @@ class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
      * @var string
      *
      * @Assert\Length(min=0, max=255)
+     *
      * @ORM\Column(type="string")
      */
     protected $name;
