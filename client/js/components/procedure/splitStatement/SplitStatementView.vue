@@ -29,7 +29,7 @@
               <dp-flyout
                 ref="metadataFlyout"
                 :has-menu="false">
-                <template v-slot:trigger>
+                <template #trigger>
                   <span>
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
                     <i

@@ -79,7 +79,7 @@
             class="display--inline-block"
             v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <slot name="trigger">
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -87,7 +87,7 @@
                     class="fa fa-angle-down"
                     aria-hidden="true" />
                 </span>
-              </template>
+              </slot>
               <template v-if="statement">
                 <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
                   <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
@@ -111,7 +111,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template v-slot:trigger>
+              <template #trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
