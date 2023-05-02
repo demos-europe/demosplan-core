@@ -9,22 +9,11 @@
 
 //  DPLAN CORE
 //  Color Palette
-//  @TODO describe relation of demosplan-ui tokens and overrides
 //
-//  This file serves as global color palette, making it obvious which colors are in use globally
-//  and which colors are very similar, making unreflected growth of color usage harder.
-//  Colors defined here are assigned a functional context in _settings-color-assignment.dplan.scss,
-//  making it easy to style similar functionality in a coherent way throughout projects.
-//
-//  When maintaining projects with different coloring it makes no sense to name colors after their real tone.
-//  Instead, projects are limited to use following tints and shades:
-//  - neutrals  (normally should not be reassigned)
-//  - data (differentiates from brand/ui, used for data visualizations)
-//  - main project color (may be a brand color)
-//  - alternate project color (may be a brand color)
-//  - highlight (accent) color (may be a brand color)
-//  - system (normally should not be reassigned, only when a brand color is very similar)
-
+//  As demosplan uses the design tokens defined in demosplan-ui, those are imported here.
+//  Additional color variables (needed only in the public area) are defined in addition.
+//  For an overview on available colors, clone demosplan-ui and run storybook locally.
+//  All colors can be found in demosplan-ui/tokens/color/*.json.
 
 
 // Color tokens from demosplan-ui.
@@ -35,13 +24,12 @@
 @import '@demos-europe/demosplan-ui/tokens/scss/color.ui';
 
 
-
 // Variables that are not defined in demosplan-ui but used globally within demosplan.
 
 // Headings in public area
-$h1-color:                              $dp-color-text-default !default;
-$h2-color:                              $dp-color-text-default !default;
-$h3-color:                              $dp-color-text-default !default;
+$h1-color:                                      $dp-color-text-default !default;
+$h2-color:                                      $dp-color-text-default !default;
+$h3-color:                                      $dp-color-text-default !default;
 
 // The [cta] tokens are used for coloring interactive elements of high importance (eg. actionbox).
 // The value of [cta] should pass AAA contrast check with the value of [cta-contrast].
