@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
@@ -469,6 +470,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws MessageBagException
      */
     public function createOrgaRegisterAction(
+        CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
         OrgaService $orgaService,
@@ -485,6 +487,21 @@ class DemosPlanOrgaController extends BaseController
 
                 return $this->redirectToRoute('DemosPlan_orga_register');
             }
+
+            $submittedToken = $request->request->get('_csrf_token');
+            $tokenId = 'register-orga';
+            if (!$this->isCsrfTokenValid($tokenId, $submittedToken)) {
+                $this->logger->warning('User entered invalid csrf token on orga registration', [$submittedToken]);
+                $this->getMessageBag()->add('error', 'user.registration.invalid.csrf');
+
+                return $this->redirectToRoute('DemosPlan_orga_register');
+            }
+
+            // explicitly remove token, so it can not be used again, as tokens
+            // are by design valid as long as the session exists to avoid problems
+            // in xhr requests. We do not need this here, instead, we need to
+            // make sure that the token is only valid once.
+            $csrfTokenManager->refreshToken($tokenId);
 
             $customer = $customerHandler->getCurrentCustomer();
             $customerName = $customer->getName();
