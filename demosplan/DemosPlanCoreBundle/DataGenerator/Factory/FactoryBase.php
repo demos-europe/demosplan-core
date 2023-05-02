@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Faker\Factory;
 use Faker\Generator;
