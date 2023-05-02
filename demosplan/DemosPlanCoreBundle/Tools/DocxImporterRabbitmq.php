@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
@@ -18,18 +27,13 @@ class DocxImporterRabbitmq implements DocxImporterInterface
      * @var RpcClient
      */
     protected $client;
+
     public function __construct(private readonly LoggerInterface $logger, private readonly GlobalConfigInterface $globalConfig)
     {
     }
 
     /**
      * Importiere ein docx-Dokument mittels RabbitMQ Instanz.
-     *
-     * @param string $elementId
-     * @param string $procedure
-     * @param string $category
-     *
-     * @return array
      *
      * @throws Exception
      */
@@ -39,9 +43,9 @@ class DocxImporterRabbitmq implements DocxImporterInterface
             // Generiere Message
             $msg = Json::encode([
                 'procedure' => $procedure,
-                'category' => $category,
+                'category'  => $category,
                 'elementId' => $elementId,
-                'path' => $file->getRealPath(),
+                'path'      => $file->getRealPath(),
             ]);
 
             $routingKey = $this->globalConfig->getProjectPrefix();
@@ -51,7 +55,7 @@ class DocxImporterRabbitmq implements DocxImporterInterface
 
             // Füge Message zum Request hinzu
             $this->logger->debug(
-                'Import docx with RabbitMQ, with routingKey: ' . $routingKey
+                'Import docx with RabbitMQ, with routingKey: '.$routingKey
             );
             $this->client->addRequest(
                 $msg,
@@ -65,7 +69,7 @@ class DocxImporterRabbitmq implements DocxImporterInterface
 
             if ('' != $replies['import']) {
                 $this->logger->info(
-                    'Incoming message size:' . strlen($replies['import'])
+                    'Incoming message size:'.strlen($replies['import'])
                 );
             }
 

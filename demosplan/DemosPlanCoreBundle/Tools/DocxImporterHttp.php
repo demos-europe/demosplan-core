@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
@@ -14,7 +23,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class DocxImporterHttp implements DocxImporterInterface
 {
-
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
@@ -33,19 +41,18 @@ class DocxImporterHttp implements DocxImporterInterface
 
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => $formData->getPreparedHeaders()->toArray(),
-                'body' => $formData->bodyToIterable(),
+                'body'    => $formData->bodyToIterable(),
             ]);
 
             $result = [
-                'procedure' => $procedure,
-                'category' => $category,
-                'elementId' => $elementId,
-                'path' => $file->getRealPath(),
+                'procedure'  => $procedure,
+                'category'   => $category,
+                'elementId'  => $elementId,
+                'path'       => $file->getRealPath(),
                 'paragraphs' => Json::decodeToArray($response->getContent()),
             ];
-
         } catch (Exception $e) {
-            $this->logger->error('Error while creating pdf with http: ' . $e->getMessage());
+            $this->logger->error('Error while creating pdf with http: '.$e->getMessage());
             throw $e;
         }
 
