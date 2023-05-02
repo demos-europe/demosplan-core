@@ -52,7 +52,7 @@
                 margin-top: $inuit-base-spacing-unit--small;
                 padding: $inuit-base-spacing-unit;
 
-                border-bottom: 1px solid $default-border-color;
+                border-bottom: 1px solid $dp-color-border-default;
 
                 &:nth-of-type(2n) {
                     border-bottom: none;
@@ -78,15 +78,15 @@
 
                 //  state feedback
                 .is-added {
-                    background: $msg-confirm-bg-color !important;
-                    color: $msg-confirm-color;
+                    background: $dp-color-message-success-bg !important;
+                    color: $dp-color-message-success-text;
 
                     &[data-statement-state-feedback='element'] {
                         padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
                     }
 
                     a {
-                        color: $msg-confirm-color;
+                        color: $dp-color-message-success-interactive;
                     }
                 }
             }
@@ -108,7 +108,7 @@
                 }
 
                 &[data-toggle-id].is-visible {
-                    background-color: color.adjust($default-border-color, $lightness: 12%);
+                    background-color: color.adjust($dp-color-border-default, $lightness: 12%);
                 }
 
                 &[data-toggle-target] {

@@ -147,7 +147,7 @@
             type="button">
             <i
               class="fa"
-              :class="(headerData.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color--highlight' : 'fa-sort-down color--highlight') : 'fa-sort color--grey'" />
+              :class="(headerData.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-brand-highlight' : 'fa-sort-down color-brand-highlight') : 'fa-sort color--grey'" />
           </button>
           {{ headerData.value }}
         </div>
@@ -517,7 +517,7 @@ export default {
         .then(data => {
           if (data.code === 100 && data.success === true && data.hasNewReportEntry === true) {
             // @todo find a more solid way to detect the target.
-            document.querySelector('.fa-bell').classList.add('color--system-error-dark')
+            document.querySelector('.fa-bell').classList.add('color-ui-status-failed-fill')
           }
         })
     },

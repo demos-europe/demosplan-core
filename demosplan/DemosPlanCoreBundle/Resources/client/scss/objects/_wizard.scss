@@ -34,7 +34,7 @@
     }
 
     legend:not(.is-label) {
-        color: $dp-color-brand-main-base;
+        color: $dp-color-main;
         cursor: pointer;
 
         i.caret {
@@ -65,7 +65,7 @@
             form:not(.o-wizard-mode) & {
                 padding: $inuit-base-spacing-unit--small;
 
-                background-color: $dp-token-color-ui-bg-neutral-medium;
+                background-color: $dp-color-background-medium;
             }
         }
     }
@@ -110,7 +110,7 @@
                 position: absolute;
                 top: 22px;
                 left: 22px;
-                color: $dp-color-brand-main-base;
+                color: $dp-color-main;
             }
 
             .o-wizard__main {
@@ -139,7 +139,7 @@
             right: 20px;
             top: 6px;
 
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
             cursor: pointer;
 
             font-size: 24px;
@@ -209,11 +209,11 @@
 
                     &.active,
                     &.active i {
-                        color: $dp-token-color-brand-main;
+                        color: $dp-color-main;
                     }
 
                     &.active i {
-                        background-color: $dp-token-color-brand-main;
+                        background-color: $dp-color-main;
                     }
 
                     &.finished i {

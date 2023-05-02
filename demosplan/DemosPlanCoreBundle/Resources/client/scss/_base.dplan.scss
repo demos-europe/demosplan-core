@@ -51,7 +51,7 @@ html.fixtinyfixed {
 
 body {
     min-height: 100%; // ensures complete display of absolutely positioned flyouts
-    background: $dp-bg-color;
+    background: $dp-color-background-default;
     letter-spacing: $base-letter-spacing;
     outline: none;
 }
@@ -139,7 +139,7 @@ h6 {
 }
 
 a {
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-default;
     text-decoration: #{$dp-links-textdecoration};
 
     @if ($transition-nav == true) {
@@ -149,7 +149,7 @@ a {
     &:hover,
     &:active {
         text-decoration: #{$dp-links-textdecoration-hover};
-        color: $dp-token-color-brand-link-hover;
+        color: $dp-color-interactive-hover;
     }
 }
 
@@ -177,7 +177,7 @@ th {
 hr {
     border: none;
     height: 0;
-    border-top: 2px solid $table-row-alternate-bg-color;
+    border-top: 2px solid $dp-color-border-default;
     margin: $inuit-base-spacing-unit--small auto;
 }
 

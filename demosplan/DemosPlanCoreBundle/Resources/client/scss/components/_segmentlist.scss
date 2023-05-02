@@ -7,7 +7,7 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$utility-border-color: $default-border-color;
+$utility-border-color: $dp-color-border-default;
 $utility-border-thickness: $dp-border-thickness;
 
 .segment-list {
@@ -28,7 +28,7 @@ $utility-border-thickness: $dp-border-thickness;
         }
 
         &--assigned {
-            background-color: $dp-color-system-info--light-1;
+            background-color: $dp-color-selection-bg;
         }
 
         &--assigned + .segment-list-row--assigned {
@@ -132,7 +132,7 @@ $utility-border-thickness: $dp-border-thickness;
             }
 
             &.is-active {
-                background: $dp-color-brand-main-base;
+                background: $dp-color-main;
                 color: $dp-color-white;
                 border-radius: $dp-token-rounded-medium;
             }

@@ -16,23 +16,23 @@
     // Brand tokens
     &-brand {
         &-main {
-            color: $dp-token-color-brand-main;
+            color: $dp-color-main;
         }
 
         &-main-contrast {
-            color: $dp-token-color-brand-main-contrast;
+            color: $dp-color-main-contrast;
         }
 
         &-alt {
-            color: $dp-token-color-brand-alt;
+            color: $dp-color-alt;
         }
 
         &-alt-contrast {
-            color: $dp-token-color-brand-alt-contrast;
+            color: $dp-color-alt-contrast;
         }
 
         &-highlight {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         &-cta-dark {
@@ -42,62 +42,76 @@
 
     // UI tokens
     &-ui {
-        &-dimmed-text {
-            color: $dp-token-color-ui-dimmed-text;
+        &-text-muted {
+            color: $dp-color-text-muted;
         }
 
-        &-neutral-text {
-            color: $dp-token-color-ui-neutral-text;
+        &-text-default {
+            color: $dp-color-text-default;
         }
 
-        &-confirm {
-            color: $dp-token-color-ui-confirm;
+        &-message-success {
+            &-text {
+                color: $dp-color-message-success-text;
+            }
+
+            &-fill {
+                color: $dp-color-message-success-fill;
+            }
         }
 
-        &-confirm-text {
-            color: $dp-token-color-ui-confirm-text;
+        &-message-info {
+            &-text {
+                color: $dp-color-message-info-text;
+            }
+            &-fill {
+                color: $dp-color-message-info-fill;
+            }
         }
 
-        &-info {
-            color: $dp-token-color-ui-info;
+        &-message-warning-text {
+            color: $dp-color-message-warning-text;
         }
 
-        &-info-text {
-            color: $dp-token-color-ui-info-text;
-        }
-
-        &-warning {
-            color: $dp-token-color-ui-warning;
-        }
-
-        &-warning-text {
-            color: $dp-token-color-ui-warning-text;
-        }
-
-        &-error {
-            color: $dp-token-color-ui-error;
-        }
-
-        &-error-text {
-            color: $dp-token-color-ui-error-text;
+        &-message-severe {
+            &-text {
+                color: $dp-color-message-severe-text;
+            }
+            &-fill {
+                color: $dp-color-message-severe-fill;
+            }
         }
 
         &-interactive {
-            color: $dp-token-color-ui-interactive;
+            color: $dp-color-interactive-default;
         }
 
-        &-highlight {
-            color: $dp-token-color-ui-highlight;
+        &-status-failed {
+            &-text {
+                color: $dp-color-status-failed-text;
+            }
+            &-fill {
+                color: $dp-color-status-failed-fill;
+            }
+        }
+
+        &-status-progress-text {
+            color: $dp-color-status-progress-text;
+        }
+
+        &-status-complete {
+            &-fill {
+                color: $dp-color-status-complete-fill;
+            }
+            &-text {
+                color: $dp-color-status-complete-text;
+            }
         }
     }
 
 
     // Utility classes mapping directly to color palette values
     // @deprecated use brand/ui color tokens instead
-
-    &--highlight {
-        color: $dp-token-color-brand-highlight;
-    }
 
     &--white {
         color: $dp-color-white !important;
@@ -120,105 +134,73 @@
     &--black {
         color: $dp-color-black;
     }
-
-    &--system-confirm {
-        color: $dp-color-system-confirm;
-    }
-
-    &--system-info {
-        color: $dp-color-system-info;
-    }
-
-    &--system-warning {
-        color: $dp-color-system-warning;
-    }
-
-    &--system-error {
-        color: $dp-color-system-error;
-    }
-
-    &--system-error-dark {
-        color: $dp-color-system-error--dark;
-    }
 }
 
 .bg-color {
     // Brand tokens
     &-brand {
         &-main {
-            background-color: $dp-token-color-brand-main;
+            background-color: $dp-color-main;
         }
 
         &-main-contrast {
-            background-color: $dp-token-color-brand-main-contrast;
+            background-color: $dp-color-main-contrast;
         }
 
         &-alt {
-            background-color: $dp-token-color-brand-alt;
+            background-color: $dp-color-alt;
         }
 
         &-alt-contrast {
-            background-color: $dp-token-color-brand-alt-contrast;
+            background-color: $dp-color-alt-contrast;
         }
 
         &-highlight {
-            background-color: $dp-token-color-brand-highlight;
+            background-color: $dp-color-highlight;
         }
     }
 
     // UI tokens
     &-ui {
-        &-neutral-light {
-            background-color: $dp-token-color-ui-bg-neutral-light;
+        &-light {
+            background-color: $dp-color-background-light;
         }
 
-        &-neutral {
-            background-color: $dp-token-color-ui-neutral-bg;
+        &-medium {
+            background-color: $dp-color-background-medium;
         }
 
-        &-confirm {
-            background-color: $dp-token-color-ui-confirm-bg;
+        &-message-success {
+            background-color: $dp-color-message-success-bg;
         }
 
-        &-info {
-            background-color: $dp-token-color-ui-info-bg;
+        &-message-info {
+            background-color: $dp-color-message-info-bg;
         }
 
-        &-warning {
-            background-color: $dp-token-color-ui-warning-bg;
+        &-message-warning {
+            background-color: $dp-color-message-warning-bg;
         }
 
-        &-error {
-            background-color: $dp-token-color-ui-error-bg;
+        &-message-severe {
+            background-color: $dp-color-message-severe-bg;
+        }
+
+        &-selection {
+            background-color: $dp-color-selection-bg;
+        }
+
+        &-text-inserted-muted {
+            background-color: $dp-color-text-inserted-bg-muted;
+        }
+
+        &-text-deleted-muted {
+            background-color: $dp-color-text-deleted-bg-muted;
         }
     }
 
     // Utility classes mapping directly to color palette values
     // @deprecated use brand/ui color tokens instead
-
-    &--system-confirm-light {
-        background-color: $dp-color-system-confirm--light;
-    }
-
-    &--system-info-light-1 {
-        background-color: $dp-color-system-info--light-1;
-    }
-
-    &--system-info-light-2 {
-        background-color: $dp-color-system-info--light-2;
-    }
-
-    &--system-warning-light {
-        background-color: $dp-color-system-warning--light;
-    }
-
-    &--system-warning-light-1 {
-        background-color: $dp-color-system-warning--light-1;
-    }
-
-    &--system-error-light {
-        background-color: $dp-color-system-error--light;
-    }
 
     &--grey {
         background-color: $dp-color-neutral-base;

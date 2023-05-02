@@ -28,14 +28,14 @@
     // When a row is hovered, the interactive color scheme is applied.
     // This pattern should also be applied to the actionFlyout trigger and resizeHandle.
     &__wrap-trigger {
-        color: $dp-token-color-ui-interactive-dimmed;
+        color: $dp-color-interactive-muted;
 
         .row:hover & {
-            color: $dp-token-color-ui-interactive;
+            color: $dp-color-interactive-default;
         }
 
         &:hover {
-            color: $dp-token-color-ui-interactive-hover;
+            color: $dp-color-interactive-hover;
         }
     }
 
@@ -52,7 +52,7 @@
 
         i,
         span {
-            color: $dp-color-highlight;
+            color: $dp-color-interactive-default;
             display: inline;
             font-size: 1em;
         }

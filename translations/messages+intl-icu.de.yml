@@ -240,7 +240,6 @@ branding.styling.details.description: |
     link: "#123456"<br />
     link-hover: "#123456"<br />
     link-active: "#123456"<br />
-    link-alt: "#123456"<br />
     Aktive und sichtbar fokussierte Elemente:<br />
     highlight: "#123456"<br />
     "Reden Sie mit!"-Box, Suchfeld auf Startseite:<br />
@@ -3341,8 +3340,8 @@ statements.selected: |
     }
 statements.splittable.now: |
     {count, plural,
-        =1 { <span class="weight--bold color--system-info">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
-        other { <span class="weight--bold color--system-info">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
+        =1 { <span class="weight--bold color-ui-message-info-text">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
+        other { <span class="weight--bold color-ui-message-info-text">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
     }
 statements.submitted: "eingereichte Stellungnahmen"
 statements.submitted.heading: "Eingereichte Stellungnahmen"

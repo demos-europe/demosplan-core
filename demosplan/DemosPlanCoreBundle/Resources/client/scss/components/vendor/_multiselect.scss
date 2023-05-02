@@ -21,8 +21,8 @@
 
 //  variables
 $dp-multiselect-color-highlight:                    $dp-color-highlight !default;
-$dp-multiselect-color-dark:                         $dp-color-brand-main-dark-1 !default;
-$dp-multiselect-color-dark-disabled:                $dp-color-neutral-dark-2 !default;
+$dp-multiselect-color-dark:                         $dp-color-text-default !default;
+$dp-multiselect-color-dark-disabled:                $dp-color-text-muted !default;
 
 $dp-multiselect-color-border:                       $dp-color-neutral-light-1 !default;
 $dp-multiselect-color-border-hover:                 $dp-color-neutral-light-2 !default;
@@ -127,7 +127,7 @@ fieldset[disabled] .multiselect {
 
 .multiselect.is-invalid {
     outline: none;
-    box-shadow: 0 0 0 2px $dp-color-system-error;
+    box-shadow: 0 0 0 2px $dp-color-status-failed-border;
     border-radius: $dp-multiselect-border-radius-outer;
 }
 
@@ -256,7 +256,7 @@ fieldset[disabled] .multiselect {
     background-color: $dp-color-neutral-light-3;
 
     line-height: $dp-multiselect-line-height;
-    color: $dp-color-brand-main-base;
+    color: $dp-color-main;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -287,7 +287,7 @@ fieldset[disabled] .multiselect {
 
 .multiselect__tag-icon:focus,
 .multiselect__tag-icon:hover {
-    background: $dp-token-color-brand-highlight;
+    background: $dp-color-highlight;
 }
 
 .multiselect__tag-icon:focus::after,

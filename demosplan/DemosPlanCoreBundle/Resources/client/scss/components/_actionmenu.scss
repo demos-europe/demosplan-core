@@ -102,7 +102,7 @@
         @extend %btn-base;
 
         background-color: transparent;
-        color: $dp-token-color-brand-link;
+        color: $dp-color-interactive-default;
         outline: 0;
 
         text-align: left;
@@ -167,11 +167,11 @@
 
         &:hover,
         &.is-active {
-            color: $dp-token-color-brand-link-hover;
+            color: $dp-color-interactive-hover;
         }
 
         &[data-actionmenu-current] {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         // The active menu item shall not be interactive

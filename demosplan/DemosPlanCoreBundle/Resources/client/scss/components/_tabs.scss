@@ -19,19 +19,19 @@
 
 //  placeholders
 %tabs-btn-color {
-    background-color: $dp-token-color-brand-main;
-    color: $dp-token-color-brand-main-contrast;
+    background-color: $dp-color-main;
+    color: $dp-color-main-contrast;
 }
 
 %tabs-btn-color-active {
-    background-color: $dp-color-white;
-    color: $dp-token-color-brand-highlight;
+    background-color: $dp-color-highlight-contrast;
+    color: $dp-color-highlight;
 }
 
 // Contains tab-nav. Tab content is a sibling of .c-tabs.
 .c-tabs {
 
-    background-color: $dp-token-color-brand-alt;
+    background-color: $dp-color-alt;
 
     &__title {
         display: inline-block;
@@ -128,7 +128,7 @@
         overflow-y: hidden;
 
         .tab-header {
-            border-bottom: 1px solid $dp-token-color-brand-main;
+            border-bottom: 1px solid $dp-color-main;
 
             .tab {
                 margin: 0;
@@ -148,7 +148,7 @@
                 &.active,
                 &:hover {
                     @extend %tabs-btn-color;
-                    background: $dp-token-color-brand-main;
+                    background: $dp-color-main;
                 }
             }
         }

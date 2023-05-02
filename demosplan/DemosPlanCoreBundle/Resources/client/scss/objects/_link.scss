@@ -28,12 +28,12 @@
 
         &,
         &:visited {
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
         }
 
         &:hover,
         &:active {
-            color: $dp-token-color-brand-link-hover;
+            color: $dp-color-interactive-hover;
         }
 
         //  @TODO unify disabled styles, see _at.scss
@@ -41,18 +41,18 @@
             @extend %disabled-opacity;
 
             &:hover {
-                color: $dp-token-color-brand-link;
+                color: $dp-color-interactive-default;
             }
         }
     }
 
     // Assuming links on $dp-color-alt
     &--on-alt {
-        color: $dp-color-white;
+        color: $dp-color-alt-contrast;
         text-decoration: underline;
 
         &:hover {
-            color: $dp-color-alt--light-1;
+            opacity: .8;
         }
     }
 
@@ -72,7 +72,7 @@
             @include keyboard-focus;
 
             pointer-events: none;
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
             text-decoration: #{$dp-links-textdecoration-hover};
         }
     }

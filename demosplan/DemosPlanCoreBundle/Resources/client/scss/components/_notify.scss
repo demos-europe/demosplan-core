@@ -37,28 +37,48 @@
         }
 
         &--info {
-            background-color: $msg-info-bg-color;
-            color: $msg-info-color;
+            background-color: $dp-color-message-info-bg;
+            color: $dp-color-message-info-text;
+
+            .c-notify__icon {
+                color: $dp-color-message-info-fill;
+            }
         }
 
         &--confirm {
-            background-color: $msg-confirm-bg-color;
-            color: $msg-confirm-color;
+            background-color: $dp-color-message-success-bg;
+            color: $dp-color-message-success-text;
+
+            .c-notify__icon {
+                color: $dp-color-message-success-fill;
+            }
         }
 
         &--warning {
-            background-color: $msg-warning-bg-color;
-            color: $msg-warning-color;
+            background-color: $dp-color-message-warning-bg;
+            color: $dp-color-message-warning-text;
+
+            .c-notify__icon {
+                color: $dp-color-message-warning-fill;
+            }
         }
 
         &--error {
-            background-color: $msg-error-bg-color;
-            color: $msg-error-color;
+            background-color: $dp-color-message-severe-bg;
+            color: $dp-color-message-severe-text;
+
+            .c-notify__icon {
+                color: $dp-color-message-severe-fill;
+            }
         }
 
         &--dev {
-            background-color: $msg-dev-bg-color;
-            color: $msg-dev-color;
+            background-color: $dp-color-message-debug-bg;
+            color: $dp-color-message-debug-text;
+
+            .c-notify__icon {
+                color: $dp-color-message-debug-fill;
+            }
         }
     }
 
@@ -71,12 +91,28 @@
     &__link {
         display: block;
 
-        color: $msg-color;
-
-        text-decoration: underline;
-
         &:hover {
-            color: $msg-color;
+            text-decoration: underline;
+        }
+
+        .c-notify__message--info & {
+            color: $dp-color-message-info-interactive;
+        }
+
+        .c-notify__message--confirm & {
+            color: $dp-color-message-success-interactive;
+        }
+
+        .c-notify__message--warning & {
+            color: $dp-color-message-warning-interactive;
+        }
+
+        .c-notify__message--error & {
+            color: $dp-color-message-severe-interactive;
+        }
+
+        .c-notify__message--dev & {
+            color: $dp-color-message-debug-interactive;
         }
     }
 }

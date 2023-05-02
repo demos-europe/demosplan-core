@@ -54,7 +54,7 @@
     }
 
     a {
-        color: $dp-color-brand-main-base !important;
+        color: $dp-color-main !important;
 
         &:hover {
             color: $dp-color-highlight !important;
@@ -219,7 +219,7 @@
                 padding: 15px;
 
                 &.is-invalid {
-                    border: 2px solid $dp-color-system-error !important;
+                    border: 2px solid $dp-color-status-failed-border !important;
                 }
             }
 
@@ -287,12 +287,12 @@
             // styling of del and ins tags should match diff styling in version sidebar in assessment table
 
             del {
-                background-color: $dp-color-system-warning--light;
+                background-color: $dp-color-text-deleted-bg;
                 text-decoration: line-through;
             }
 
             ins {
-                background-color: $dp-color-system-info--light-1;
+                background-color: $dp-color-text-inserted-bg;
             }
 
             table {
@@ -380,7 +380,7 @@
 
             &:active,
             &:focus {
-                border: 2px solid $dp-token-color-brand-link;
+                border: 2px solid $dp-color-interactive-default;
             }
         }
     }

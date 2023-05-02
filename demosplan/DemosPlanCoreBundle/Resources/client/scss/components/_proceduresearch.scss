@@ -44,7 +44,7 @@
         &__reset-btn {
             background-color: transparent;
             border: none;
-            color: $dp-color-brand-main-base;
+            color: $dp-color-main;
             cursor: pointer;
         }
 
@@ -60,7 +60,7 @@
         }
 
         &__result {
-            color: $default-font-color;
+            color: $dp-color-text-default;
             padding-top: 1em;
         }
 
@@ -80,7 +80,7 @@
             }
 
             background-color: $dp-color-neutral-light-2;
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
             padding: .1rem .3rem;
             margin: 0 $inuit-base-spacing-unit--tiny;
         }

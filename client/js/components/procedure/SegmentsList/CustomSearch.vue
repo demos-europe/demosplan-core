@@ -22,7 +22,7 @@
         :padded="false">
         <template v-slot:trigger>
           <dp-icon
-            :class="{ 'color-ui-highlight': selectedFields.length > 0 }"
+            :class="{ 'color-ui-message-severe-fill': selectedFields.length > 0 }"
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->

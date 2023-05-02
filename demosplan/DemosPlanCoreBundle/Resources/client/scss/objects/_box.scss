@@ -15,8 +15,8 @@
 
 //  vars
 $box-hellip-transparent: rgb(255 255 255 / 0%);
-$box-hellip-fullcolor: $dp-color-white;
-$box-hellip-fullcolor-dark: $dp-token-color-ui-bg-neutral-medium;
+$box-hellip-fullcolor: $dp-color-background-default;
+$box-hellip-fullcolor-dark: $dp-color-background-medium;
 $box-hellip-line-height: 24px;
 $box-hellip-lines: 4;
 $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
@@ -26,14 +26,14 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
 
     @include media-query('palm') {
         border-radius: 0;
-        border-top: 1px solid $default-border-color;
+        border-top: 1px solid $dp-color-border-default;
     }
 
     background: $dp-color-white;
     border-radius: $dp-box-radius;
 
     &--dark {
-        background: $dp-token-color-ui-bg-neutral-medium;
+        background: $dp-color-background-medium;
         border-radius: $dp-box-radius;
     }
 
@@ -46,7 +46,7 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
         &.closed {
 
             background: $dp-color-neutral-light-3; // check if the color fits
-            color: $deactivated-font-color !important;
+            color: $dp-color-text-muted !important;
         }
     }
 
@@ -79,7 +79,7 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
             opacity: .5;
 
             .o-box--dark & {
-                background-color: $dp-token-color-ui-bg-neutral-medium;
+                background-color: $dp-color-background-medium;
             }
         }
     }

@@ -36,7 +36,7 @@
 ///         :overlay="true"/>
 
 .c-loading {
-    $loading-color: $dp-token-color-brand-main !default;
+    $loading-color: $dp-color-main !default;
     $loading-color-bg: $dp-color-white !default;
     $loading-size: $inuit-base-spacing-unit * .75 !default;
     $loading-stroke: 2px !default;

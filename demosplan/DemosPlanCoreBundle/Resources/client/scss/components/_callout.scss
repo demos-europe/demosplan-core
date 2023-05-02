@@ -29,7 +29,7 @@
                 @include inuit-font-size($dp-token-font-size-brand-hero);
             }
 
-            color: $dp-color-brand-main-base;
+            color: $dp-color-main;
         }
 
         &__subclaim {
@@ -41,7 +41,7 @@
                 @include inuit-font-size($dp-token-font-size-h3, none);
             }
 
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         //  title container "Als Institution teilnehmen"

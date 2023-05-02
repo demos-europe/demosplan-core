@@ -72,7 +72,7 @@
 
 .o-badge--light {
     background-color: $dp-color-neutral-light-3;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 }
 
 .o-badge--dark {
@@ -85,7 +85,7 @@
 }
 
 .o-badge--alert {
-    background-color: $dp-color-system-error;
+    background-color: $dp-color-message-severe-fill;
     color: $dp-color-white;
 }
 

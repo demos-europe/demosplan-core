@@ -33,9 +33,9 @@
 // Primary button
 $dp-button-color:                       $dp-color-white !default;
 $dp-button-color-hover:                 $dp-color-white !default;
-$dp-button-bg-color:                    $dp-token-color-brand-link !default;
-$dp-button-bg-color-hover:              $dp-token-color-brand-link-hover !default;
-$dp-button-bg-color-active:             $dp-token-color-brand-link-active !default;
+$dp-button-bg-color:                    $dp-color-interactive-default !default;
+$dp-button-bg-color-hover:              $dp-color-interactive-hover !default;
+$dp-button-bg-color-active:             $dp-color-interactive-active !default;
 // Secondary button
 $dp-button-color-alt:                   $dp-color-white !default;
 $dp-button-color-alt-hover:             $dp-color-white !default;
@@ -45,9 +45,9 @@ $dp-button-bg-color-alt-active:         $dp-color-neutral-dark-2 !default;
 // Warning button
 $dp-button-color-warning:               $dp-color-white !default;
 $dp-button-color-warning-hover:         $dp-color-white !default;
-$dp-button-bg-color-warning:            $dp-color-system-error--dark !default;
-$dp-button-bg-color-warning-hover:      $dp-color-system-error--dark-1 !default;
-$dp-button-bg-color-warning-active:     color.adjust($dp-color-system-error--dark-1, $lightness: -5%) !default;
+$dp-button-bg-color-warning:            $dp-color-red-base !default;
+$dp-button-bg-color-warning-hover:      $dp-color-red-dark-1 !default;
+$dp-button-bg-color-warning-active:     $dp-color-red-dark-2 !default;
 // Spacing
 $dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small * 1.2;
 
@@ -212,7 +212,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-token-color-brand-link;
+        box-shadow: 0 0 0 2px $dp-color-interactive-default;
         border-color: transparent !important;
     }
 
@@ -326,7 +326,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-token-color-ui-interactive;
+        box-shadow: 0 0 0 2px $dp-color-interactive-default;
         border-color: transparent !important;
     }
 
@@ -343,16 +343,16 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
 
     border-radius: $dp-token-rounded-small;
 
-    color: $dp-token-color-ui-interactive;
+    color: $dp-color-interactive-default;
     background-color: $dp-color-white;
 
     &:not(:disabled, :active, .is-disabled):hover {
-        color: $dp-token-color-ui-interactive-hover;
+        color: $dp-color-interactive-hover;
         background-color: $dp-color-neutral-light-4;
     }
 
     &:active {
-        color: $dp-token-color-ui-interactive-active;
+        color: $dp-color-interactive-active;
         background-color: $dp-color-neutral-light-3;
     }
 
@@ -418,7 +418,7 @@ a.is-disabled {
 
     background: transparent;
     border: none;
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-default;
     cursor: pointer;
 
     font-weight: $bold-font-weight; // does not work for fonts that need a "bold" font style
@@ -428,12 +428,12 @@ a.is-disabled {
     &:focus,
     &.is-current {
         background: transparent;
-        color: $dp-token-color-brand-link-hover;
+        color: $dp-color-interactive-hover;
     }
 
     &:disabled,
     &:disabled:hover {
-        color: $deactivated-font-color;
+        color: $dp-color-text-muted;
     }
 
     //  used to show small icon buttons without any vertical spacing between
@@ -452,7 +452,7 @@ a.is-disabled {
 //  @TODO move icons inside buttons (which means, change <input type="button"> to <button>)
 //  @deprecated See above.
 .btn-icns-icon {
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-default;
 
     font-size: .9em;
 
@@ -461,6 +461,6 @@ a.is-disabled {
     }
 
     &--disabled {
-        color: $deactivated-font-color;
+        color: $dp-color-text-muted;
     }
 }
