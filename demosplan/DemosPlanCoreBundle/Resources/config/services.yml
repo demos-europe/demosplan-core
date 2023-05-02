@@ -164,7 +164,7 @@ services:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
         arguments:
             $esProcedurePersister : '@fos_elastica.object_persister.procedures'
-            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
             $environment: '%kernel.environment%'
 
     DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
@@ -765,7 +765,7 @@ services:
         lazy: true
         arguments:
             $esProcedurePersister: '@fos_elastica.object_persister.procedures'
-            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
             $environment: '%kernel.environment%'
 
     demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService:
@@ -1111,7 +1111,7 @@ services:
 
     # SurveyVote Handler
     demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
 
     # SurveyVote Create Handler
     demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~

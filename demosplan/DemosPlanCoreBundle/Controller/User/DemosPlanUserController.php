@@ -52,6 +52,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -427,8 +428,8 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     public function registerCitizenAction(
+        CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
-        ParameterBagInterface $parameterBag,
         Request $request,
         TranslatorInterface $translator,
         UserHandler $userHandler
@@ -446,7 +447,22 @@ class DemosPlanUserController extends BaseController
                 return $this->redirectToRoute('DemosPlan_citizen_register');
             }
 
-            $user = $userHandler->createCitizen($request->request, $parameterBag);
+            $submittedToken = $request->request->get('_csrf_token');
+            $tokenId = 'register-user';
+            if (!$this->isCsrfTokenValid($tokenId, $submittedToken)) {
+                $this->logger->warning('User entered invalid csrf token on user registration', [$submittedToken]);
+                $this->getMessageBag()->add('error', 'user.registration.invalid.csrf');
+
+                return $this->redirectToRoute('DemosPlan_citizen_register');
+            }
+
+            // explicitly remove token, so it can not be used again, as tokens
+            // are by design valid as long as the session exists to avoid problems
+            // in xhr requests. We do not need this here, instead, we need to
+            // make sure that the token is only valid once.
+            $csrfTokenManager->refreshToken($tokenId);
+
+            $user = $userHandler->createCitizen($request->request);
 
             try {
                 $userHandler->inviteUser($user);
