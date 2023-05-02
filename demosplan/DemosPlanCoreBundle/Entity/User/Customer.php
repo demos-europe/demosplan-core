@@ -135,7 +135,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * T16986
      * Will be used to store licence information about used map by customer.
-     * e.g. "© basemap.de BKG"
+     * e.g. "© basemap.de BKG".
      *
      * @var string
      *

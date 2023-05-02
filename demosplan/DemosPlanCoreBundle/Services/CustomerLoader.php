@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Services;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\CustomerValueObject;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 
 class CustomerLoader
 {

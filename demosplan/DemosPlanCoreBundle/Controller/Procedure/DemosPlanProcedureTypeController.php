@@ -49,6 +49,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     path="verfahrenstypen",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws QueryException
@@ -76,6 +77,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     path="verfahrenstypen/auswahl",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -132,6 +134,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws ResourceNotFoundException
@@ -196,6 +199,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -256,6 +260,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"POST"},
      *     options={"expose": false}
      * )
+     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response
@@ -386,6 +391,7 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"POST"},
      *     options={"expose": false}
      * )
+     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response

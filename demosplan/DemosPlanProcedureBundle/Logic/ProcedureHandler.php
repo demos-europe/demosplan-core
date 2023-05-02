@@ -25,6 +25,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
@@ -32,9 +35,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\InvitationEmailResult;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
-use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
@@ -42,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
 use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface

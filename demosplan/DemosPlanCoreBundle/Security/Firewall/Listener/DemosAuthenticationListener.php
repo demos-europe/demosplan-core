@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Security\Firewall\Listener;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use Exception;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;

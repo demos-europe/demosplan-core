@@ -76,6 +76,9 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -94,9 +97,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -117,6 +117,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
 use function array_key_exists;
 use function is_string;
 

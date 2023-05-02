@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Elastica\Query\AbstractQuery as AbstractQueryES;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_key_exists;
 use function in_array;
 use function is_array;

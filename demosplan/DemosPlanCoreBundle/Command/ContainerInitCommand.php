@@ -30,6 +30,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
+
 use function is_string;
 
 class ContainerInitCommand extends CoreCommand
@@ -86,7 +87,6 @@ EOT
             $this->migrateDatabase($output);
             $this->elasticsearchPopulate($output);
         } catch (Exception) {
-
             return Command::FAILURE;
         }
 
@@ -102,7 +102,7 @@ EOT
             $output->writeln('Delete existing database');
             try {
                 $this->createDatabase($output);
-            }  catch (Exception $exception) {
+            } catch (Exception $exception) {
                 $output->writeln(
                     "Something went wrong during database override: {$exception->getMessage()}",
                     OutputInterface::VERBOSITY_NORMAL
@@ -201,14 +201,13 @@ EOT
                 ->add('fos:elastica:reset -e prod --no-debug')
                 ->add('fos:elastica:populate -e prod --no-debug')
                 ->run();
-        }  catch (Exception $exception) {
+        } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during elasticsearch populate: {$exception->getMessage()}",
                 OutputInterface::VERBOSITY_NORMAL
             );
 
             throw $exception;
-
         }
 
         return Command::SUCCESS;
@@ -223,14 +222,13 @@ EOT
             Batch::create($this->getApplication(), $output)
                 ->add('dplan:migrate -e prod')
                 ->run();
-        }  catch (Exception $exception) {
+        } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during database migration: {$exception->getMessage()}",
                 OutputInterface::VERBOSITY_NORMAL
             );
 
             throw $exception;
-
         }
 
         return Command::SUCCESS;
@@ -249,7 +247,7 @@ EOT
      * Loads, parses and validates the config if it is given as option in the input.
      *
      * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the
-     * loaded config as associative array or `null` if no config path was given
+     *                                                                                        loaded config as associative array or `null` if no config path was given
      *
      * @throws Exception if the config path or config content is invalid
      */

@@ -111,7 +111,7 @@ class OzgKeycloakUserDataMapper
 
     /**
      * Maps incoming data to dplan:user.
-     * Creates
+     * Creates.
      *
      * @throws CustomerNotFoundException
      * @throws Exception
@@ -135,7 +135,7 @@ class OzgKeycloakUserDataMapper
     /**
      * Creates a new organisation in case of incoming organisation could not match with existing organisations.
      * In case of incoming organisation can be found, it will be updated with incoming data.
-     * Also handles the special case of citizen organisation
+     * Also handles the special case of citizen organisation.
      *
      * @param array<int, Role> $requestedRoles
      *

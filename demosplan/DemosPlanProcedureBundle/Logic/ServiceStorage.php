@@ -30,18 +30,19 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
+use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function is_string;
 
 /**

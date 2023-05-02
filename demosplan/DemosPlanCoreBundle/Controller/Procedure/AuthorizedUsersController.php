@@ -33,6 +33,7 @@ class AuthorizedUsersController extends BaseController
      *      name="dplan_admin_procedure_authorized_users",
      *      methods={"HEAD", "GET"}
      * )
+     *
      * @DplanPermissions("area_admin_consultations")
      */
     public function listAction(string $procedureId)
@@ -52,6 +53,7 @@ class AuthorizedUsersController extends BaseController
      *      name="dplan_admin_procedure_authorized_users_export",
      *      methods={"HEAD", "GET"}, options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_consultations")
      */
     public function exportAction(

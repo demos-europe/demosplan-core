@@ -13,10 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -24,6 +24,7 @@ use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
 use Exception;
+
 use function array_key_exists;
 
 class ElasticSearchService extends CoreService
@@ -498,9 +499,9 @@ class ElasticSearchService extends CoreService
      * Convert Result to Legacy.
      *
      * @param string|null $search
-     * @param array  $filters
-     * @param array  $sort
-     * @param string $resultKey
+     * @param array       $filters
+     * @param array       $sort
+     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,
