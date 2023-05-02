@@ -96,12 +96,6 @@ class SessionHandler extends PdoSessionHandler
     public function initialize(array $context = null): void
     {
         try {
-            // Migrate session to avoid blocking parallel requests due to session file locks.
-            // Session values are not used to persist data between requests (apart from userId)
-            // so concurrent requests could not overwrite data.
-            // This bloats the amount of session files but these could well be garbage collected
-            $this->request->getSession()->migrate();
-
             $user = $this->currentUser->getUser();
 
             // Die Berechtigungen und das Menühighlighting initialisieren und in der Session ablegen.

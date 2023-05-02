@@ -275,14 +275,14 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      * @throws LoginNameInUseException
      * @throws Exception
      */
-    public function createCitizen(ParameterBag $data, ParameterBagInterface $parameterBag): User
+    public function createCitizen(ParameterBag $data): User
     {
         $firstname = $data->get('r_firstname');
         $lastname = $data->get('r_lastname');
         $emailAddress = $data->get('r_email');
 
-        $fieldsExpected = 4;
-        if (!$parameterBag->get('honeypot_disabled')) {
+        $fieldsExpected = 5;
+        if ($data->has('r_loadtime')) {
             $fieldsExpected += 2;
         }
 
@@ -291,7 +291,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             || null === $emailAddress
             || !is_string($firstname)
             || !is_string($lastname)
-            // there are only six values expected. Three "real" values + 1 checkbox + eventually 2 Honeypot values
+            // there are only seven values expected. Three "real" values + 1 checkbox + 1 csrf token + eventually 2 Honeypot values
             || $fieldsExpected !== $data->count()) {
             throw new InvalidArgumentException('Invalid request');
         }
