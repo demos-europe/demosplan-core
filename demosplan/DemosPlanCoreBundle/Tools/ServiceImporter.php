@@ -90,6 +90,7 @@ class ServiceImporter implements ServiceImporterInterface
         MessageBagInterface $messageBag,
         ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
+        private readonly PdfCreatorInterface $pdfCreator,
         RouterInterface $router
     ) {
         $this->router = $router;
@@ -138,45 +139,7 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function exportPdfWithRabbitMQ($content, $pictures = [])
     {
-        $payload = [
-            'file' => $content,
-        ];
-        $payload = array_merge($payload, $pictures);
-        $msg = Json::encode($payload);
-
-        $this->getLogger()->debug(
-            'Export pdf with RabbitMQ, with routingKey: '.$this->globalConfig->getProjectPrefix());
-        $this->getLogger()->debug(
-            'Content to send to RabbitMQ: '.DemosPlanTools::varExport(base64_decode($content), true));
-        $this->getLogger()->debug(
-            'Number of pictures send to RabbitMQ: '.count($pictures));
-
-        try {
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-            $this->client->addRequest($msg, 'pdfDemosPlan', 'exportPDF', $routingKey, 600);
-            $replies = $this->client->getReplies();
-            $this->getLogger()->debug('Got replies ', [DemosPlanTools::varExport($replies, true)]);
-
-            $exportResult = Json::decodeToArray($replies['exportPDF']);
-            if (null === $exportResult) {
-                $this->getLogger()->error('Reply from RabbitMQ: ', [DemosPlanTools::varExport($replies, true)]);
-                throw new Exception('Could not decode export result');
-            } elseif (!isset($exportResult['file'])) {
-                $this->getLogger()->error('AMPQResult has wrong format ', [DemosPlanTools::varExport($exportResult, true)]);
-                throw new Exception('AMPQResult has wrong format');
-            }
-
-            return $exportResult['file'];
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException('Timeout ');
-        } catch (Exception $e) {
-            $this->getLogger()->error('Could not create PDF ', [$e]);
-            throw new Exception('Could not create PDF ');
-        }
+        return $this->pdfCreator->createPdf($content, $pictures);
     }
 
     /**

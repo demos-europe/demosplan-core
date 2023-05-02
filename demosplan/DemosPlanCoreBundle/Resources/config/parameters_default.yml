@@ -152,6 +152,9 @@ parameters:
     database_port: "3306"
     database_user: "user"
 
+    # route to tex2pdf service without trailing slash
+    tex2pdf_url: ""
+
     #RabbitMQ setting with default values
     rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
     rabbitmq_routing_disabled: false
