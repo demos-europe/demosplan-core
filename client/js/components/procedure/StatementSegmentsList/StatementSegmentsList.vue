@@ -56,6 +56,7 @@
         <ul class="float--right u-m-0 space-inline-s flex">
           <li class="display--inline-block">
             <dp-claim
+              v-if="!statement.attributes.synchronized"
               class="o-flyout__trigger u-ph-0_25 line-height--2"
               entity-type="statement"
               :assigned-id="currentAssignee.id"
@@ -506,7 +507,8 @@ export default {
             'submitDate',
             'submitName',
             'submitType',
-            'submitterEmailAddress'
+            'submitterEmailAddress',
+            'synchronized'
           ].join(),
           SimilarStatementSubmitter: [
             'city',
