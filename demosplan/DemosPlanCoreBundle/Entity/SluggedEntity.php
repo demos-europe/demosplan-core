@@ -24,6 +24,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
      * @var SlugInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
     protected $currentSlug;
@@ -32,6 +33,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
      * @var Collection SlugInterface[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="entity_slugs_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="entity_id", referencedColumnName="_entity_id", onDelete="RESTRICT")},
