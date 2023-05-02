@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
@@ -57,6 +57,7 @@ class DemosPlanMasterToebController extends BaseController
      *     name="DemosPlan_user_mastertoeblist",
      *     path="/mastertoeblist"
      * )
+     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return RedirectResponse|Response
@@ -86,6 +87,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/update",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -112,6 +114,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/report/hasNewReportentry/{userId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @param string $userId
@@ -178,6 +181,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/add",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -246,6 +250,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/delete",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -271,6 +276,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/report",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @return RedirectResponse|Response
@@ -433,6 +439,7 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/export",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_use_mastertoeblist")
      *
      * @return RedirectResponse|StreamedResponse
@@ -467,6 +474,7 @@ class DemosPlanMasterToebController extends BaseController
      *     name="DemosPlan_user_mastertoeblist_merge",
      *     path="/mastertoeblist/merge"
      * )
+     *
      * @DplanPermissions("area_merge_mastertoeblist")
      *
      * @return RedirectResponse|Response

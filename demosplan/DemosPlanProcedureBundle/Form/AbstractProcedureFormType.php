@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanProcedureBundle\Form;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
@@ -148,7 +148,7 @@ abstract class AbstractProcedureFormType extends AbstractType
         $allowableSegmentAccessProcedures = $this->procedureService->getProcedureAdminList(
             [
                 'procedureIdToExclude' => $procedureIdToExclude,
-                'orgaCustomerId' => $orgaCustomerId,
+                'orgaCustomerId'       => $orgaCustomerId,
             ],
             null,
             $currentUser,
