@@ -130,7 +130,10 @@ export default {
 
   data () {
     return {
-      selectInteraction: new Select({ wrapX: false }),
+      selectInteraction: new Select({
+        hitTolerance: 10,
+        wrapX: false
+      }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
       selectedFeatureId: [],
