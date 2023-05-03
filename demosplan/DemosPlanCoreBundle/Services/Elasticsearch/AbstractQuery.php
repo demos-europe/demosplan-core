@@ -10,19 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Elastica\Query\AbstractQuery as AbstractQueryES;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
 use function in_array;
 use function is_array;
-
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractQuery
 {

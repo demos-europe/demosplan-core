@@ -257,12 +257,18 @@
         </template>
       </dp-data-table>
 
-      <dp-sliding-pagination
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'visibility--hidden': isLoading }"
+        class="u-pt-0_5 text--right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="getItemsByPage"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
 
     <dp-inline-notification
@@ -283,9 +289,9 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  DpPager,
   dpRpc,
   DpSelect,
-  DpSlidingPagination,
   DpStickyElement,
   formatDate,
   tableSelectAllItems
@@ -306,8 +312,8 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpPager,
     DpSelect,
-    DpSlidingPagination,
     DpStickyElement,
     SearchModal,
     StatementMetaData
@@ -357,6 +363,7 @@ export default {
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
       ],
+      pagination: {},
       searchFields: [
         'authorName',
         'department',
@@ -394,7 +401,6 @@ export default {
     ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages',
       totalFiles: 'totalFiles',
       isLoading: 'loading'
     }),
@@ -441,6 +447,9 @@ export default {
             originalPdf: originalPdf
           }
         })
+    },
+    storageKey () {
+      return `${currentUserId}-${pagination}`
     }
   },
 
@@ -489,6 +498,12 @@ export default {
         name: '',
         orgaName: ''
       }
+    },
+
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.getItemsByPage(page)
     },
 
     /**
@@ -625,10 +640,11 @@ export default {
       return formatDate(d)
     },
 
-    getItemsByPage (page) {
+    getItemsByPage (page, isOnMountedRequest=false) {
       this.fetchStatements({
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         search: {
           value: this.searchValue,
@@ -686,7 +702,21 @@ export default {
           ].join()
         }
       }).then((data) => {
+        /**
+         * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+         * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
+         * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
+         */
+        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage[this.storageKey] === false) {
+          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
+          data.meta.pagination.current_page = window.sessionStorage.getItem(this.storageKey)
+        }
+        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage[this.storageKey] === true) {
+          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
+        }
+
         this.setNumSelectableItems(data)
+        this.initPagination(data)
       })
     },
 
@@ -815,6 +845,18 @@ export default {
       }
     },
 
+    initPagination (data) {
+      const dataPag = data.meta.pagination
+      this.pagination = {
+        count: dataPag.count,
+        currentPage: Number(window.sessionStorage[this.storageKey]),
+        limits: [10, 25, 50, 100],
+        perPage: dataPag.per_page,
+        total: dataPag.total,
+        totalPages: dataPag.total_pages
+      }
+    },
+
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
@@ -865,7 +907,7 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1)
-  }
+    this.getItemsByPage(1, true)
+  },
 }
 </script>

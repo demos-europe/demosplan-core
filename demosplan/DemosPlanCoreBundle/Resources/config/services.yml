@@ -50,7 +50,7 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
 
     DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface:
-        class: 'demosplan\DemosPlanUserBundle\Logic\UserHandler'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserHandler'
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
@@ -155,16 +155,16 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
-        class: 'demosplan\DemosPlanUserBundle\Logic\UserService'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
-        class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
+        class: demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
         arguments:
             $esProcedurePersister : '@fos_elastica.object_persister.procedures'
-            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
             $environment: '%kernel.environment%'
 
     DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
@@ -478,19 +478,19 @@ services:
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
-        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapper'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHAuthenticator:
-        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH'
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHH'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHStaticAuthenticator:
-        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHHStatic'
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHHStatic'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHAuthenticator:
-        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH'
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHStaticAuthenticator:
-        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySHStatic'
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySHStatic'
 
     demosplan\DemosPlanCoreBundle\Security\Firewall\Listener\DemosAuthenticationListener:
         tags:
@@ -769,7 +769,7 @@ services:
         lazy: true
         arguments:
             $esProcedurePersister: '@fos_elastica.object_persister.procedures'
-            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
             $environment: '%kernel.environment%'
 
     demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService:
@@ -1115,7 +1115,7 @@ services:
 
     # SurveyVote Handler
     demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
 
     # SurveyVote Create Handler
     demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
@@ -1127,78 +1127,78 @@ services:
     demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
         $schemaFilePath: '%surveyvote.schema_path_create%'
 
-    demosplan\DemosPlanUserBundle\Logic\UserService:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
+    demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
 
-    demosplan\DemosPlanUserBundle\Logic\AddressService:
+    demosplan\DemosPlanCoreBundle\Logic\User\AddressService:
         lazy: true
 
-    demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService:
+    demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\OrgaService:
+    demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         public: true
 
-    demosplan\DemosPlanUserBundle\Logic\BrandingService:
+    demosplan\DemosPlanCoreBundle\Logic\User\BrandingService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\OrgaHandler:
+    demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanUserBundle\Logic\UserHandler:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserHandler:
         public: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanUserBundle\Logic\UserHasher:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserHasher:
         lazy: true
 
 
-    demosplan\DemosPlanUserBundle\Logic\RoleService:
+    demosplan\DemosPlanCoreBundle\Logic\User\RoleService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 
-    demosplan\DemosPlanUserBundle\Logic\RoleHandler:
+    demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapper: ~
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapper: ~
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway:
         lazy: true
         arguments:
             $logger: '@monolog.logger.dplan_gateway'
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH:
         lazy: true
-        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway
+        parent: demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySHStatic:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySHStatic:
         lazy: true
-        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH
+        parent: demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHH:
         lazy: true
-        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway
+        parent: demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway
 
-    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHHStatic:
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHHStatic:
         lazy: true
-        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH
+        parent: demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHH
 
-    demosplan\DemosPlanUserBundle\Logic\MasterToebService:
+    demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
@@ -1206,14 +1206,14 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanUserBundle\Logic\CustomerService:
+    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService:
         lazy: true
 
-    demosplan\DemosPlanUserBundle\Logic\CustomerHandler:
+    demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanUserBundle\EventListener\DoctrineUserListener:
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineUserListener:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
