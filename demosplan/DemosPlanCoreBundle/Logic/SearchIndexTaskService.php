@@ -123,6 +123,9 @@ class SearchIndexTaskService extends CoreService
      */
     public function addIndexTask(string $entityClass, $entityIds): void
     {
+        // do not add new SearchIndexTasks as it is disabled for testing
+        return;
+
         if (!is_array($entityIds)) {
             $entityIds = [$entityIds];
         }
