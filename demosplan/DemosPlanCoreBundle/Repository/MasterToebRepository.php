@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
 use Exception;
-use function demosplan\DemosPlanCoreBundle\Repository\count;
 
 class MasterToebRepository extends CoreRepository implements ArrayInterface
 {
