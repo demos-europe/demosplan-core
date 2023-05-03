@@ -146,40 +146,40 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality'
 
-    demosplan\DemosPlanReportBundle\Repository\ReportRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ReportRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry'
 
-    demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry'
 
-    demosplan\DemosPlanUserBundle\Repository\MasterToebVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion'
 
-    demosplan\DemosPlanUserBundle\Repository\OrgaRepository:
+    demosplan\DemosPlanCoreBundle\Repository\OrgaRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Orga'
 
-    demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository:
+    demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag'
 
-    demosplan\DemosPlanUserBundle\Repository\MasterToebRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb'
 
-    demosplan\DemosPlanUserBundle\Repository\UserRepository:
+    demosplan\DemosPlanCoreBundle\Repository\UserRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
 
-    demosplan\DemosPlanUserBundle\Repository\DepartmentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Department'
 
-    demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository:
+    demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\OrgaType'
 
-    demosplan\DemosPlanUserBundle\Repository\CustomerRepository:
+    demosplan\DemosPlanCoreBundle\Repository\CustomerRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Customer'
 
-    demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository:
+    demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer'
 
-    demosplan\DemosPlanUserBundle\Repository\AddressRepository:
+    demosplan\DemosPlanCoreBundle\Repository\AddressRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Address'
 
     demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository:
@@ -230,10 +230,10 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition'
 
-    demosplan\DemosPlanSurveyBundle\Repository\SurveyRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SurveyRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\Survey'
 
-    demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
 
     demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:

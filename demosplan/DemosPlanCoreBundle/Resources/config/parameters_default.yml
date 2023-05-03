@@ -466,9 +466,9 @@ parameters:
     survey.status.default: 'configuration'
 
     # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/surveyvote-schema-create.json"
+    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-create.json"
+    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-update.json"
+    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/surveyvote-schema-create.json"
 
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]

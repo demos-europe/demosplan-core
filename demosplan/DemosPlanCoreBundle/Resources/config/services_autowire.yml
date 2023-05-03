@@ -16,14 +16,6 @@ services:
         resource: '../../../../demosplan/DemosPlanProcedureBundle/*'
         exclude: '../../../../demosplan/DemosPlanProcedureBundle/{Entity,Tests}'
 
-    demosplan\DemosPlanReportBundle\:
-        resource: '../../../../demosplan/DemosPlanReportBundle/*'
-        exclude: '../../../../demosplan/DemosPlanReportBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanUserBundle\:
-        resource: '../../../../demosplan/DemosPlanUserBundle/*'
-        exclude: '../../../../demosplan/DemosPlanUserBundle/{Entity,Tests}'
-
 ############### Fixtures
 
     demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\:
