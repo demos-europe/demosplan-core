@@ -19,10 +19,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory

@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use function array_filter;
-
-use const ARRAY_FILTER_USE_KEY;
-
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
@@ -22,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +28,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
+
+use function array_filter;
+
+use const ARRAY_FILTER_USE_KEY;
 
 class EntrypointController extends BaseController
 {
@@ -73,6 +73,7 @@ class EntrypointController extends BaseController
      * the platform's external start page.
      *
      * @Route(path="/loggedin", name="core_home_loggedin")
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function loggedInIndexEntrypointAction(Request $request): Response
@@ -150,6 +151,7 @@ class EntrypointController extends BaseController
      * their designated logged-in index page.
      *
      * @Route(path="/", name="core_home", options={"expose": true})
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response

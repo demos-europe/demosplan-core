@@ -26,15 +26,15 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\InvitationEmailResult;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
@@ -952,7 +952,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @return array<int, string>
      *
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
      */
     private function getPlaningAgencyCCEmailRecipients(array $procedure, array $formEmailCC): array
     {

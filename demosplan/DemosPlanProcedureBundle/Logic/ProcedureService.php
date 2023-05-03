@@ -39,10 +39,12 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
@@ -58,6 +60,10 @@ use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
@@ -84,12 +90,6 @@ use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateCategoryVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -116,8 +116,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
-
-use function array_key_exists;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
