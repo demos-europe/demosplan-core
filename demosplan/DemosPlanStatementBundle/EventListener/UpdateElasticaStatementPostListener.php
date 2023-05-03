@@ -24,6 +24,9 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Exception;
 
+/**
+ * @deprecated should not be used anymore as default indexing via fos elastica is used
+ */
 class UpdateElasticaStatementPostListener
 {
     /**
