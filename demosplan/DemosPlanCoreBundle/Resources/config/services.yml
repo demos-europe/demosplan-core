@@ -959,12 +959,12 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanStatementBundle\EventListener\UpdateElasticaStatementPostListener:
-        lazy: true
-        tags:
-            - { name: doctrine.event_listener, event: preRemove }
-            - { name: doctrine.event_listener, event: postUpdate }
-            - { name: doctrine.event_listener, event: postPersist }
+#    demosplan\DemosPlanStatementBundle\EventListener\UpdateElasticaStatementPostListener:
+#        lazy: true
+#        tags:
+#            - { name: doctrine.event_listener, event: preRemove }
+#            - { name: doctrine.event_listener, event: postUpdate }
+#            - { name: doctrine.event_listener, event: postPersist }
 
 
     demosplan\DemosPlanStatementBundle\EventListener\DoctrineStatementListener:
