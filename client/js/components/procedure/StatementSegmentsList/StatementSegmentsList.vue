@@ -345,7 +345,7 @@ export default {
     },
 
     editable () {
-      return this.isCurrentUserAssigned && !this.statement.synchronized
+      return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
 
     filteredAttachments () {
