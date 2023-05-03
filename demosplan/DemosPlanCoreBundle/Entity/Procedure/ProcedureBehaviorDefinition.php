@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -24,7 +24,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * A ProcedureBehaviorDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
  * @ORM\Table
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository")
+ *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterface
@@ -33,8 +35,11 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -43,6 +48,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -51,6 +57,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
@@ -65,6 +72,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * @var Procedure|null
      *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureBehaviorDefinition")
+     *
      * @JoinColumn(referencedColumnName="_p_id")
      */
     private $procedure;
@@ -77,6 +85,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * @var ProcedureType|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureBehaviorDefinition")
+     *
      * @JoinColumn() // Without this, Doctrine doesn't add the column to table, so please don't delete.
      */
     private $procedureType;

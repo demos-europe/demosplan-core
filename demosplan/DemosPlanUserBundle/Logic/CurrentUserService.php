@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;

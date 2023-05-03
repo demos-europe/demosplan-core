@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;

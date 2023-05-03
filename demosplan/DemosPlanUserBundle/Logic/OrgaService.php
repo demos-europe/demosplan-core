@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,15 +28,14 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\OrganisationReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanReportBundle\Logic\OrganisationReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;

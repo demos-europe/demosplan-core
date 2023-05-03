@@ -321,11 +321,6 @@ export default {
           checked: false,
           success: false
         },
-        assignPlace: {
-          selected: [],
-          checked: false,
-          success: false
-        },
         assignSegment: {
           selected: [],
           checked: false,

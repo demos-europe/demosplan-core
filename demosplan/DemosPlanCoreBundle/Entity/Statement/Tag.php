@@ -25,13 +25,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *     name="_tag",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(
  *             name="tag_unique_title",
  *             columns={"_tt_id", "_t_title"}
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\TagRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagRepository")
  */
 class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 {
@@ -39,8 +41,11 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var string|null
      *
      * @ORM\Column(name="_t_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -49,8 +54,11 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic
      *
      * @ORM\ManyToOne(targetEntity="TagTopic", inversedBy="tags", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
+     *
      * @Assert\NotNull(groups={"Default", "segments_import"})
+     *
      * @Assert\Type(groups={"segments_import"}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic")
      */
     protected $topic;
@@ -59,6 +67,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var string
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
+     *
      * @Assert\NotBlank(groups={"Default", "segments_import"}, message="Tag title may not be empty.");
      */
     protected $title = '';
@@ -67,6 +76,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var DateTime
      *
      * @ORM\Column(name="_t_create_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createDate;
@@ -75,6 +85,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var Collection<int,Statement>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="tags", cascade={"persist", "refresh"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_tag",
      *     joinColumns={@ORM\JoinColumn(name="_t_id", referencedColumnName="_t_id")},
@@ -87,6 +98,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate
      *
      * @ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id", onDelete="SET NULL")
+     *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", inversedBy="tags")
      */
     protected $boilerplate = null;

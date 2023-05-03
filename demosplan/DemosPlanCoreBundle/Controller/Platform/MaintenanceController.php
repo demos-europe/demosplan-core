@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -22,10 +23,9 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -110,6 +110,7 @@ class MaintenanceController extends BaseController
      * User facing page for active service mode.
      *
      * @Route(path="/servicemode", name="core_service_mode")
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -138,6 +139,7 @@ class MaintenanceController extends BaseController
      * Simple Action to evaluate response code for heartbeat monitoring.
      *
      * @Route(path="/_heartbeat", name="core_server_heartbeat")
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function heartbeatAction(): Response
@@ -152,6 +154,7 @@ class MaintenanceController extends BaseController
      * why they are currently managed in this action
      *
      * @Route(path="/maintenance/{key}", name="core_maintenance")
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key

@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

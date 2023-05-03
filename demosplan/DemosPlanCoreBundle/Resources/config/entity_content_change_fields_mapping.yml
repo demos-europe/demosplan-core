@@ -19,11 +19,11 @@ parameters:
                 translationKey: "assignment"
                 translationKeyIfValueIsNotSet: "no.assignment" # Note that there is a default values for this variable.
                 noHighlighting: true
-                class: "\\demosplan\\DemosPlanUserBundle\\Entity\\User"
+                class: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
             cluster:
                 fieldType: "object"
                 translationKey: "cluster"
-                class: "demosplan\\DemosPlanStatementBundle\\Entity\\Statement"
+                class: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement'
             memo:
                 fieldType: "tipTapHtmlString"
                 translationKey: "memo"
@@ -46,7 +46,7 @@ parameters:
                 translationKey: "assignment"
                 translationKeyIfValueIsNotSet: "no.assignment" # Note that there is a default values for this variable
                 noHighlighting: true
-                class: "\\demosplan\\DemosPlanUserBundle\\Entity\\User"
+                class: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
             consideration:
                 fieldType: "tipTapHtmlString"
                 translationKey: "consideration"

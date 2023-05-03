@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementStatistic;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;

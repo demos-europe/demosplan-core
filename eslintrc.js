@@ -32,7 +32,6 @@ module.exports = {
   ],
   globals: {
     '$': true,
-    Bus: true,
     dpconfirm: true,
     dplan: true,
     hasPermission: true,

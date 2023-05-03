@@ -20,14 +20,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +37,7 @@ class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
+     *
      * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
      *        methods={"GET"},
      *        name="dplan_surveyvote_list",
@@ -66,6 +67,7 @@ class SurveyVoteAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_surveyvote_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -101,6 +103,7 @@ class SurveyVoteAPIController extends APIController
      *     methods="POST",
      *     path="/api/1.0/surveyVote",
      *     options={"expose": true})
+     *
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException

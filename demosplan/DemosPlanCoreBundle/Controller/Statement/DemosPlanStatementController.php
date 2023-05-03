@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
@@ -28,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CookieException;
+use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -36,32 +39,29 @@ use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanStatementBundle\Exception\DraftStatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListHandlerResult;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementListFilters;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
@@ -290,7 +290,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedureLayer'] = 'participation';
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_public.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_public.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -499,7 +499,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -608,14 +608,14 @@ class DemosPlanStatementController extends BaseController
         $fscope = 'group';
 
         if (Role::CITIZEN === $userRole) {
-            $template = '@DemosPlanStatement/DemosPlanStatement/'.$templateName.'_citizen.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/'.$templateName.'_citizen.html.twig';
             // Ändere den Templatename für den pdf-export
             $templateName = 'list_final_group_citizen';
             if ('statements.final.group' === $title) {
                 $title = 'statements.final.own';
             }
         } else {
-            $template = '@DemosPlanStatement/DemosPlanStatement/'.$templateName.'.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/'.$templateName.'.html.twig';
         }
 
         $manualSortScope = null;
@@ -903,7 +903,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedure'] = $procedureService->getProcedure($procedureId);
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -1155,7 +1155,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_public_participation_published_entry.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_public_participation_published_entry.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.public',
@@ -1352,7 +1352,7 @@ class DemosPlanStatementController extends BaseController
             ];
 
             $templateVars['mailbody'] = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/send_statement_email.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/send_statement_email.html.twig')
                 ->renderBlock(
                     'body_plain',
                     [
@@ -1366,7 +1366,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['procedureLayer'] = 'participation';
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/send_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
@@ -1429,7 +1429,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['backToUrl'] = $refererRoute;
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/versions_of_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/versions_of_statement.html.twig',
             [
                 'templateVars'    => $templateVars,
                 'origStatementId' => $statementID,
@@ -2072,7 +2072,7 @@ class DemosPlanStatementController extends BaseController
             ];
 
             $rejectMailBody = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/reject_statement_email.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/reject_statement_email.html.twig')
                 ->renderBlock(
                     'body_plain',
                     [
@@ -2205,7 +2205,7 @@ class DemosPlanStatementController extends BaseController
                     );
                     $orgaName = $countyNotificationData->getOrgaName();
                     $mailBody = $this->twig
-                        ->load('@DemosPlanStatement/DemosPlanStatement/notify_county_email.html.twig')
+                        ->load('@DemosPlanCore/DemosPlanStatement/notify_county_email.html.twig')
                         ->renderBlock(
                             'body_content',
                             [
@@ -2498,7 +2498,7 @@ class DemosPlanStatementController extends BaseController
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statements.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
                 'procedure'    => $procedureId,
                 'title'        => 'statements',

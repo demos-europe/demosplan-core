@@ -409,7 +409,7 @@
                     aria-labelledby="procedureDetailsMapTab">
 
                         {# openlayers map #}
-                        {% include '@DemosPlanMap/DemosPlanMap/map_public_participation_detail.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanMap/map_public_participation_detail.html.twig' %}
 
                     </section>
                 {% endif %}
@@ -428,7 +428,7 @@
 
                             <div class="{{ 'layout__item width-map-toolbar u-pr-0_5-lap-up'|prefixClass }}">
 
-                                {% include '@DemosPlanDocument/DemosPlanDocument/includes/actionbox.html.twig' with {
+                                {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
                                     css_classes: '',
                                     context: 'documents',
                                     jump_marker: jump_marker|default
@@ -461,7 +461,7 @@
 
                         <div class="{{ 'layout__item width-map-toolbar u-pr-0_5-lap-up'|prefixClass }}">
 
-                            {% include '@DemosPlanDocument/DemosPlanDocument/includes/actionbox.html.twig' with {
+                            {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
                                 css_classes: '',
                                 context: 'statements',
                                 jump_marker: jump_marker|default

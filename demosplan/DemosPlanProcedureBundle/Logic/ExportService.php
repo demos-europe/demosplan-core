@@ -13,8 +13,7 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -23,24 +22,25 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
-use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
@@ -82,7 +82,7 @@ class ExportService
     protected $newsOutput;
 
     /**
-     * @var \demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput
+     * @var \demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput
      */
     protected $assessmentTableOutput;
 
@@ -92,7 +92,7 @@ class ExportService
     protected $paragraphExporter;
 
     /**
-     * @var \demosplan\DemosPlanStatementBundle\Logic\DraftStatementService DraftStatementService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService DraftStatementService
      */
     protected $draftStatementService;
 

@@ -303,10 +303,10 @@ class MenuBuilder
         $processedExtras = [];
 
         if (isset($menuEntry['extras']) && is_array($menuEntry['extras'])) {
-            foreach ($menuEntry['extras'] as $extraKey => $extraValue) {
-                $processedExtras[$extraKey] = $extraValue;
-                if (isset($this->availableRouteParameters[$extraValue])) {
-                    $processedExtras[$extraKey] = $this->availableRouteParameters[$extraValue];
+            foreach ($menuEntry['extras'] as $extraKey) {
+                $processedExtras[$extraKey] = true;
+                if (isset($this->availableRouteParameters[$extraKey])) {
+                    $processedExtras[$extraKey] = $this->availableRouteParameters[$extraKey];
                 }
             }
         }

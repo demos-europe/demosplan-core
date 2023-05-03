@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 
 /**
  * @method string|null            getDestinationAddress()

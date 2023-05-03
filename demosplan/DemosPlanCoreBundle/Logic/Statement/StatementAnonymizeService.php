@@ -11,17 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;

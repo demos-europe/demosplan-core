@@ -23,13 +23,15 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(
  *     name="_tag_topic",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(
  *             name="tag_topic_unique_title",
  *             columns={"_p_id", "_tt_title"}
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository")
  */
 class TagTopic extends CoreEntity implements UuidEntityInterface
 {
@@ -39,8 +41,11 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_tt_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -56,6 +61,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_tt_create_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createDate;
@@ -64,6 +70,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -72,6 +79,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Tag>
      *
      * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "topic", cascade={"remove"})
+     *
      * @ORM\OrderBy({"title" = "ASC"})
      */
     protected $tags;

@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;

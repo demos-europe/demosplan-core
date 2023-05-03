@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -40,13 +42,11 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\ValueObject\EmailAddressVO;
-use demosplan\DemosPlanStatementBundle\Exception\ReservedSystemNameException;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
 use demosplan\DemosPlanUserBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
@@ -275,14 +275,14 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      * @throws LoginNameInUseException
      * @throws Exception
      */
-    public function createCitizen(ParameterBag $data, ParameterBagInterface $parameterBag): User
+    public function createCitizen(ParameterBag $data): User
     {
         $firstname = $data->get('r_firstname');
         $lastname = $data->get('r_lastname');
         $emailAddress = $data->get('r_email');
 
-        $fieldsExpected = 4;
-        if (!$parameterBag->get('honeypot_disabled')) {
+        $fieldsExpected = 5;
+        if ($data->has('r_loadtime')) {
             $fieldsExpected += 2;
         }
 
@@ -291,7 +291,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             || null === $emailAddress
             || !is_string($firstname)
             || !is_string($lastname)
-            // there are only six values expected. Three "real" values + 1 checkbox + eventually 2 Honeypot values
+            // there are only seven values expected. Three "real" values + 1 checkbox + 1 csrf token + eventually 2 Honeypot values
             || $fieldsExpected !== $data->count()) {
             throw new InvalidArgumentException('Invalid request');
         }
