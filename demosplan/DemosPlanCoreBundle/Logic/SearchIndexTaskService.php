@@ -176,6 +176,10 @@ class SearchIndexTaskService extends CoreService
      */
     public function refreshIndex($entityClass = null)
     {
+        // the reindexing is disabled as we want to test, whether the default
+        // indexing via fos elastica listener works and does not lead to
+        // performance issues. When it does, we can reenable this code
+        return;
         try {
             $this->logStatus();
             $itemsToIndex = $this->searchIndexTaskRepository->getItemsToIndex($entityClass);
