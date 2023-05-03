@@ -24,9 +24,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInt
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;

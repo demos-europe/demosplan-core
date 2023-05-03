@@ -23,7 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owning_organisation_id", "label"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
  */
 class InstitutionTag extends CoreEntity implements UuidEntityInterface
 {
@@ -31,8 +32,11 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -41,7 +45,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(message="institutionTag.label.not.null")
+     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     protected $label;
@@ -61,6 +67,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
     protected $owningOrganisation;
@@ -69,6 +76,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -77,6 +85,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
