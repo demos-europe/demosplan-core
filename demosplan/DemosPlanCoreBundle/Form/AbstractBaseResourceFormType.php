@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use ReflectionException;

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

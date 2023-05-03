@@ -19,19 +19,19 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHAuthenticator;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -78,7 +78,7 @@ class DemosPlanOrgaController extends BaseController
         $session = $request->getSession();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/verify_orga_switch_or_update.html.twig',
+            '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
             [
                 'templateVars' => [
                     'type'        => 'Organisation',
@@ -141,7 +141,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/edit_orga.html.twig',
+            '@DemosPlanCore/DemosPlanUser/edit_orga.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.edit.orga',
@@ -255,7 +255,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/edit_orga_branding.html.twig',
+            '@DemosPlanCore/DemosPlanUser/edit_orga_branding.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.edit.orga.branding',
@@ -349,7 +349,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars['availableOrgaTypes'] = $this->getFormParameter('orga_types');
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_orgas.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_orgas.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.admin.orgas',
@@ -449,7 +449,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars['customerName'] = $customer->getName();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/orga_register_form.html.twig',
+            '@DemosPlanCore/DemosPlanUser/orga_register_form.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.register',

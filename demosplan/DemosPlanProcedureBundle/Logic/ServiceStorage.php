@@ -31,11 +31,11 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -204,8 +204,8 @@ class ServiceStorage implements ServiceStorageInterface
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws ReflectionException
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
      * @throws CriticalConcernException
      */
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
@@ -373,7 +373,7 @@ class ServiceStorage implements ServiceStorageInterface
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {
