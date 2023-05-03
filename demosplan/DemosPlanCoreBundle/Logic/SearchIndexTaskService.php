@@ -120,6 +120,7 @@ class SearchIndexTaskService extends CoreService
      * Add Entities to Queue to be Indexed asynchronously.
      *
      * @param array|string $entityIds
+     *
      * @deprecated should not be used anymore as default indexing via fos elastica is used
      */
     public function addIndexTask(string $entityClass, $entityIds): void
@@ -177,6 +178,7 @@ class SearchIndexTaskService extends CoreService
      * Get Tasks from Index Queue and send them to Elasticsearch.
      *
      * @param string|null $entityClass
+     *
      * @deprecated should not be used anymore as default indexing via fos elastica is used
      */
     public function refreshIndex($entityClass = null)
