@@ -16,18 +16,18 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebListExport;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebListExport;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -71,7 +71,7 @@ class DemosPlanMasterToebController extends BaseController
         $results = $this->masterToebService->getMasterToebs(true);
         $templateVars['orgas'] = $results;
 
-        $template = '@DemosPlanUser/DemosPlanUser/mastertoeblist.html.twig';
+        $template = '@DemosPlanCore/DemosPlanUser/mastertoeblist.html.twig';
 
         return $this->renderTemplate($template, [
             'templateVars' => $templateVars,
@@ -420,7 +420,7 @@ class DemosPlanMasterToebController extends BaseController
             $procedure = $currentProcedure instanceof Procedure ? $currentProcedure->getId() : '';
         }
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_report.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_report.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.report',
@@ -511,7 +511,7 @@ class DemosPlanMasterToebController extends BaseController
         $orgasMasterToeb = $masterToebListService->getOrganisationsOfMasterToeb();
         $templateVars['orgasMasterToeb'] = $orgasMasterToeb;
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_merge.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_merge.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.merge',
         ]);

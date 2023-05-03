@@ -10,7 +10,7 @@
 
 namespace Tests\Core\User\Functional;
 
-use demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use Tests\Base\FunctionalTestCase;
 
 class PublicAffairsAgentHandlerTest extends FunctionalTestCase
