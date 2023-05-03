@@ -13,8 +13,8 @@ namespace Tests\Core\Core\Unit\Logic\Platform;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use Tests\Base\FunctionalTestCase;
 
 class EntryPointDeciderTest extends FunctionalTestCase

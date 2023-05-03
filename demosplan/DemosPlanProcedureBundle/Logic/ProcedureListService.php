@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class ProcedureListService extends CoreService
 {

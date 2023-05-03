@@ -34,16 +34,16 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -254,7 +254,7 @@ class DemosPlanUserController extends BaseController
         $this->getLogger()->info('Welcomepage display page');
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/gateway_newUser.html.twig',
+            '@DemosPlanCore/DemosPlanUser/gateway_newUser.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
     }
@@ -296,7 +296,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/toeb_showlist_changes.html.twig',
+            '@DemosPlanCore/DemosPlanUser/toeb_showlist_changes.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.list.visibility.changes.invitable_institution',
@@ -372,7 +372,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/portal_user.html.twig',
+            '@DemosPlanCore/DemosPlanUser/portal_user.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -528,7 +528,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/citizen_register_form.html.twig',
+            '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
             ['title' => $title, 'useSaml' => $useSaml]
         );
     }
@@ -734,7 +734,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['statements'] = $statementService->getSubmittedOrAuthoredStatements($userId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_users_statements.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_users_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.statements',

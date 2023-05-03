@@ -37,7 +37,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  *     }
  * )
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaRepository")
  *
  * @ORM\AssociationOverrides({
  *
