@@ -547,7 +547,7 @@ export default {
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
         Vue.set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
-          Vue.set(this.values.submitter, key, value)
+          Vue.set(this.values.submitter, key === 'toeb' ? 'institution' : key, value)
         }
       }
     },
