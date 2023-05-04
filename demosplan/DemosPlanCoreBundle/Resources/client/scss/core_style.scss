@@ -42,6 +42,8 @@
 // Design tokens - the visual atoms of the design system.
 // The files are included here to make tokens available to objects and components.
 @import 'token/index';
+@import '@demos-europe/demosplan-ui/tokens/scss/boxShadow';
+@import '@demos-europe/demosplan-ui/tokens/scss/rounded';
 
 @import 'settings.dplan';
 @import 'inuit-5/settings.defaults';
