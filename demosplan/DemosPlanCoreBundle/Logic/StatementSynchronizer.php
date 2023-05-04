@@ -62,11 +62,6 @@ class StatementSynchronizer
     private $statementCopier;
 
     /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
-
-    /**
      * @var ValidatorInterface
      */
     private $validator;
@@ -83,7 +78,6 @@ class StatementSynchronizer
 
     public function __construct(
         CurrentUserInterface $currentUserProvider,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementCopier $statementCopier,
         StatementReportEntryFactory $statementReportEntryFactory,
         StatementRepository $statementRepository,
@@ -92,7 +86,6 @@ class StatementSynchronizer
         ValidatorInterface $validator
     ) {
         $this->currentUserProvider = $currentUserProvider;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementCopier = $statementCopier;
         $this->statementReportEntryFactory = $statementReportEntryFactory;
         $this->statementRepository = $statementRepository;
@@ -181,10 +174,6 @@ class StatementSynchronizer
             throw new InvalidArgumentException('Statement IDs not set yet.');
         }
 
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statementIds
-        );
     }
 
     /**

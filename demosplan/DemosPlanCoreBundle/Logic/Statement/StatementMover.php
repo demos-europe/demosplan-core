@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
@@ -67,9 +66,6 @@ class StatementMover extends CoreService
     /** @var EntityContentChangeService */
     private $entityContentChangeService;
 
-    /** @var SearchIndexTaskService */
-    private $searchIndexTaskService;
-
     /** @var StatementReportEntryFactory */
     private $statementReportEntryFactory;
 
@@ -90,7 +86,6 @@ class StatementMover extends CoreService
         StatementCopyAndMoveService $statementCopyAndMoveService,
         StatementHandler $statementHandler,
         EntityContentChangeService $entityContentChangeService,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementReportEntryFactory $statementReportEntryFactory,
         ReportService $reportService,
         StatementCopier $statementCopier
@@ -104,7 +99,6 @@ class StatementMover extends CoreService
         $this->statementCopyAndMoveService = $statementCopyAndMoveService;
         $this->statementHandler = $statementHandler;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementReportEntryFactory = $statementReportEntryFactory;
         $this->reportService = $reportService;
         $this->statementCopier = $statementCopier;
@@ -268,13 +262,6 @@ class StatementMover extends CoreService
                 return false;
             }
 
-            if ($updatedStatementToMove instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $updatedStatementToMove->getId()
-                );
-            }
-
             if (!$updatedOriginalStatementToMove instanceof Statement) {
                 $this->messageBag->add('error', 'error.statement.move');
                 $this->logger->error('Cant move Statement: '.$statementToMove->getId().'.');
@@ -283,26 +270,6 @@ class StatementMover extends CoreService
                 return false;
             }
 
-            if ($updatedOriginalStatementToMove instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $updatedOriginalStatementToMove->getId()
-                );
-            }
-
-            if ($placeholderStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $placeholderStatement->getId()
-                );
-            }
-
-            if ($originalStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $originalStatement->getId()
-                );
-            }
         } catch (Exception $e) {
             $doctrineConnection->rollBack();
 

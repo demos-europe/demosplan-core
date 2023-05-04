@@ -83,11 +83,6 @@ class JsonApiActionService extends AbstractApiService
     private $entityFetcher;
 
     /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
-
-    /**
      * @var TransactionService
      */
     private $transactionService;
@@ -119,7 +114,6 @@ class JsonApiActionService extends AbstractApiService
         PropertyValuesGenerator $propertyValuesGenerator,
         ResourcePersister $resourcePersister,
         ResourceTypeService $resourceTypeService,
-        SearchIndexTaskService $searchIndexTaskService,
         TransactionService $transactionService
     ) {
         parent::__construct(
@@ -132,7 +126,6 @@ class JsonApiActionService extends AbstractApiService
         $this->eventDispatcher = $eventDispatcher;
         $this->resourceTypeService = $resourceTypeService;
         $this->entityFetcher = $entityFetcher;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->transactionService = $transactionService;
         $this->resourcePersister = $resourcePersister;
         $this->paginationParser = $paginationParser;
@@ -310,11 +303,6 @@ class JsonApiActionService extends AbstractApiService
     public function persistResourceChange(ResourceChange $resourceChange): ?object
     {
         $this->transactionService->persistResourceChange($resourceChange);
-
-        $entityIdsByClass = $resourceChange->getEntityIdsToUpdateInIndex();
-        collect($entityIdsByClass)->each(function (array $entityIds, string $class): void {
-            $this->searchIndexTaskService->addIndexTask($class, $entityIds);
-        });
 
         return $resourceChange->getUnrequestedChangesToTargetResource()
             ? $resourceChange->getTargetResource()

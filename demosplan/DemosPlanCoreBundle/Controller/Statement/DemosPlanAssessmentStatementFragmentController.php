@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
@@ -387,7 +386,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     public function editStatementFragmentAjaxAction(
         CurrentUserService $currentUser,
         Request $request,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementFragmentService $statementFragmentService,
         string $fragmentId,
         bool $isReviewer = false)
@@ -422,10 +420,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $updatedStatementFragment = $this->statementHandler->updateStatementFragment($fragmentId, $updateData, $isReviewer);
             $returnCode = 200;
             $success = true;
-
-            // as fragments are fetched from ES later on to get current structure
-            // ES needs to be indexed beforehand
-            $searchIndexTaskService->refreshIndex(StatementFragment::class);
 
             if (false === ($updatedStatementFragment instanceof StatementFragment)) {
                 $this->getLogger()->error(

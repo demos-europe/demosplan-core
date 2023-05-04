@@ -85,7 +85,6 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -184,9 +183,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /** @var HashedQueryService */
     protected $filterSetService;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /**
      * @var JsonApiPaginationParser
@@ -391,7 +387,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         ReportService $reportService,
         ResourceTypeService $resourceTypeService,
         RouterInterface $router,
-        SearchIndexTaskService $searchIndexTaskService,
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
@@ -440,7 +435,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         $this->reportService = $reportService;
         $this->resourceTypeService = $resourceTypeService;
         $this->router = $router;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->searchService = $elasticSearchService;
         $this->serviceElements = $serviceElements;
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
@@ -577,11 +571,6 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
         }
-
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statement->getId()
-        );
 
         $statementArray = $this->convertToLegacy($statement);
         try {
@@ -751,26 +740,12 @@ class StatementService extends CoreService implements StatementServiceInterface
             // add Files to Statement
             $originalStatement = $this->addFilesToStatementObject($draftStatement->getFiles(), $originalStatement);
 
-            if ($originalStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $originalStatement->getId()
-                );
-            }
-
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
             $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
-
-            if ($assessableStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $assessableStatement->getId()
-                );
-            }
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
             $statementCreatedEvent = $this->eventDispatcher->dispatch(
@@ -953,13 +928,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ($statementEntitiesCount < $statementIdsCount) {
             $this->getLogger()->warning('At least one statement could not be found.
             It may have been deleted or moved into a different procedure.', [$procedureId]);
-            // schedule reindexing of statements warnings
-            $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
         if ($statementEntitiesCount > $statementIdsCount) {
             $this->getLogger()->warning('Doctrine returned more results than asked for.', [$procedureId]);
-            // schedule reindexing of statements warnings
-            $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
 
         // assign the objects to the corresponding keys, preserving the order of the Elasticsearch result
@@ -992,55 +963,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return \collect($statementIds)->filter(static function ($entry) {
             return $entry instanceof Statement;
         })->toArray();
-    }
-
-    /**
-     * Schedule reindexing of statements that differ in index.
-     *
-     * @param Statement[] $dbStatements
-     */
-    protected function triggerElasticsearchReindex(array $esIndexStatementIds, array $dbStatements): void
-    {
-        $dbStatementIds = \collect($dbStatements)->transform(static function (Statement $statement) {
-            return $statement->getId();
-        });
-
-        // diff arrays both ways and combine results so that every id not
-        // existent in the other array gets indexed
-        $statementIdsToIndex = $dbStatementIds->diff($esIndexStatementIds)
-            ->concat(
-                \collect($esIndexStatementIds)->diff($dbStatementIds)
-            );
-
-        if (0 < $statementIdsToIndex->count()) {
-            $this->getLogger()->warning('Applied autoreindexing', ['statementIds' => $statementIdsToIndex->all()]);
-
-            // fetch statements as it is necessary to update placeholders
-            // and other referenced Statements as well
-            $idsToIndex = \collect();
-            foreach ($statementIdsToIndex->all() as $statementId) {
-                $statement = $this->getStatement($statementId);
-                if (!$statement instanceof Statement) {
-                    continue;
-                }
-                $idsToIndex->push($statementId);
-                $idsToIndex->push($statement->getMovedStatementId());
-                $idsToIndex->push($statement->getParentId());
-                $idsToIndex->push($statement->getOriginalId());
-                $idsToIndex->push($statement->getHeadStatementId());
-                if ($statement->getPlaceholderStatement() instanceof Statement) {
-                    $idsToIndex->push($statement->getPlaceholderStatement()->getId());
-                }
-            }
-            $idsToIndex = $idsToIndex->reject(static function ($value, $key) {
-                return null === $value;
-            });
-
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $idsToIndex->all()
-            );
-        }
     }
 
     /**
@@ -1754,10 +1676,6 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $statement = $this->addFilesToStatement($data['files'], $statement);
             }
 
-            $this->reindexStatement($statement);
-            // update fragments in index as well
-            $this->statementFragmentService->reindexStatementFragments($statement);
-
             try {
                 $entry = $this->statementReportEntryFactory->createUpdateEntry($statement);
                 $this->reportService->persistAndFlushReportEntries($entry);
@@ -2032,23 +1950,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             ];
 
             // only one vote per user per statement
-            $vote = $this->statementVoteRepository->findOneBy([
+            return $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
                 'statement' => $statementId,
                 'deleted'   => false,
                 'active'    => true, ]);
-
-            // user already voted this statement?
-            if (null === $vote) {
-                $vote = $this->statementVoteRepository->add($data);
-                // melde ElasticSearch, dass das Statement neu indiziert werden soll
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $statementId
-                );
-            }
-
-            return $vote;
         } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
 
@@ -2075,15 +1981,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $data['user'] = $em->getReference(User::class, $user->getId());
             }
 
-            $like = $this->statementRepository->addLike($data);
-
-            // melde ElasticSearch, dass das Statement neu indiziert werden soll
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $statementId
-            );
-
-            return $like;
+            return $this->statementRepository->addLike($data);
         } catch (Exception $e) {
             $this->logger->error('Create new StatementLike failed:', [$e]);
 
@@ -3787,19 +3685,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Reindex Statement in Elasticsearch index.
-     *
-     * @param Statement $statement
-     */
-    public function reindexStatement($statement): void
-    {
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statement->getId()
-        );
-    }
-
-    /**
      * Map given sort to es-sort.
      * Also set default sort values.
      *
@@ -3986,13 +3871,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function updateStatementObject(Statement $statement): Statement
     {
-        $resultStatement = $this->statementRepository->updateStatementObject($statement);
-
-        $this->reindexStatement($statement);
-        // update fragments in index as well
-        $this->statementFragmentService->reindexStatementFragments($statement);
-
-        return $resultStatement;
+        return $this->statementRepository->updateStatementObject($statement);
     }
 
     /**

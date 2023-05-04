@@ -414,15 +414,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
 
@@ -774,9 +765,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
@@ -972,21 +960,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int
@@ -1885,5 +1858,20 @@ class GlobalConfig implements GlobalConfigInterface
         }
 
         return $externalLinks;
+    }
+
+    public function isElasticsearchAsyncIndexing(): bool
+    {
+        throw new NotYetImplementedException('Method not yet implemented.');
+    }
+
+    public function isElasticsearchAsyncIndexingLogStatus(): bool
+    {
+        throw new NotYetImplementedException('Method not yet implemented.');
+    }
+
+    public function getElasticsearchAsyncIndexingPoolSize(): int
+    {
+        throw new NotYetImplementedException('Method not yet implemented.');
     }
 }
