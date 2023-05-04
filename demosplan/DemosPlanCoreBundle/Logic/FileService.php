@@ -130,7 +130,7 @@ class FileService extends CoreService implements FileServiceInterface
         RequestStack $requestStack,
         SingleDocumentRepository $singleDocumentRepository,
         TranslatorInterface $translator,
-        protected RpcClient $rpcClient
+        protected RpcClient $client
     ) {
         $this->currentProcedureService = $currentProcedureService;
         $this->entityManager = $entityManager;
@@ -1034,14 +1034,6 @@ class FileService extends CoreService implements FileServiceInterface
         }
 
         return $mimeTypeReadable;
-    }
-
-    /**
-     * @param RpcClient $client
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
     }
 
     /**

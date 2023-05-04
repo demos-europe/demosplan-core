@@ -399,7 +399,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\FileService:
         arguments:
-            $rpcClient: '@old_sound_rabbit_mq.demos_plan_import_rpc'
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
