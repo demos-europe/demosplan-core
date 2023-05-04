@@ -40,8 +40,8 @@ $dp-multiselect-color-option-disabled-highlight:    #dedede !default;
 
 $dp-multiselect-font-size:                          $base-font-size !default;
 $dp-multiselect-line-height:                        $base-line-height !default;
-$dp-multiselect-border-radius-outer:                $dp-token-rounded-small;
-$dp-multiselect-border-radius-inner:                $dp-token-rounded-smallest;
+$dp-multiselect-border-radius-outer:                $dp-rounded-small;
+$dp-multiselect-border-radius-inner:                $dp-rounded-smallest;
 $dp-multiselect-arrow-area-width:                   40px;
 
 fieldset[disabled] .multiselect {

@@ -92,7 +92,7 @@ $utility-border-thickness: $dp-border-thickness;
 
     &-toolbar {
         background: $dp-color-white;
-        border-radius: $dp-token-rounded-large; // 5px
+        border-radius: $dp-rounded-large; // 5px
         padding: 5px;
 
         &.segment-list-toolbar--dark {
@@ -119,7 +119,7 @@ $utility-border-thickness: $dp-border-thickness;
 
             .segment-list-toolbar--dark & {
                 background: $dp-color-white;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
 
             &:last-child {
@@ -128,13 +128,13 @@ $utility-border-thickness: $dp-border-thickness;
 
             &:hover {
                 border: 1px solid $dp-color-neutral-dark-2;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
 
             &.is-active {
                 background: $dp-color-main;
                 color: $dp-color-white;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
         }
     }

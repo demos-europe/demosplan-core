@@ -11,7 +11,7 @@
 // It serves as the starting point for user interaction on a procedure detail page.
 
 .c-actionbox {
-    $actionbox-border-radius:           $dp-token-rounded-small;               // buttons, input field
+    $actionbox-border-radius:           $dp-rounded-small;               // buttons, input field
     $actionbox-color:                   $dp-token-color-brand-cta;             // tab + content bg
     $actionbox-color-dark:              $dp-token-color-brand-cta-dark;        // inactive tab
     $actionbox-color-light:             $dp-token-color-brand-cta-light;       // tab:hover tab
