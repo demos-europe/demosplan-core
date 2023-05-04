@@ -356,9 +356,11 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
+    OldSound\RabbitMqBundle\RabbitMq\RpcClient: '@old_sound_rabbit_mq.demos_plan_import_rpc'
+
     demosplan\DemosPlanCoreBundle\Logic\FileService:
-        calls:
-            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
