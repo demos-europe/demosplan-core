@@ -333,7 +333,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
     /**
      * @return ArrayCollection<int,Address>
      */
-    public function getAddresses(): self
+    public function getAddresses()
     {
         return $this->addresses;
     }
