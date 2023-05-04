@@ -10,22 +10,22 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +40,7 @@ class SegmentController extends BaseController
      *     methods="GET",
      *     path="/verfahren/{procedureId}/abschnitte",
      *     options={"expose": true})
+     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
@@ -60,6 +61,7 @@ class SegmentController extends BaseController
      *        methods="GET",
      *        path="/verfahren/{procedureId}/{statementId}/abschnitte",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_segments_of_statement_list")
      *
      * @throws ProcedureNotFoundException
@@ -112,6 +114,7 @@ class SegmentController extends BaseController
      *     methods="POST",
      *     path="/verfahren/{procedureId}/abschnitte/speichern",
      *     options={"expose": true})
+     *
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException
@@ -197,6 +200,7 @@ class SegmentController extends BaseController
      *     methods="GET",
      *     path="/verfahren/{procedureId}/abschnitte/{queryHash}",
      *     options={"expose": true})
+     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function listFilteredAction(

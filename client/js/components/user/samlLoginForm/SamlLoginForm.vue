@@ -101,8 +101,7 @@
 </template>
 
 <script>
-import { DpButton, DpFormRow, DpInput } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SamlLoginForm',

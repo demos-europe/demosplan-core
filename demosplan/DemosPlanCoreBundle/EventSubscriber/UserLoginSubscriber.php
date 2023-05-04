@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;

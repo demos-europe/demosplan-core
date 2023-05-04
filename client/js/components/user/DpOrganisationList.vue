@@ -160,10 +160,11 @@ import {
   DpCheckboxGroup,
   DpLoading,
   DpSearchField,
+  dpSelectAllMixin,
   DpSkeletonBox,
-  DpSlidingPagination
+  DpSlidingPagination,
+  hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 

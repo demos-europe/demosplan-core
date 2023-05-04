@@ -11,13 +11,12 @@
  * This is the entrypoint for assessment_statement.html.twig and cluster_detail.html.twig
  */
 
-import { DpEditor, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpLabel, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'

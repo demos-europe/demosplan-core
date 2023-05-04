@@ -103,8 +103,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
 
 export default {
@@ -221,7 +220,7 @@ export default {
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            Bus.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', response.data)
           } else {
             this.$root.$emit('fragment-saved', response.data)
 

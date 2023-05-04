@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from '@demos-europe/demosplan-utils'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const AssessmentTable = {
   namespaced: true,

@@ -2300,6 +2300,7 @@ field_data_protection_text_customized_edit_customer:
 field_data_protection_text_customized_edit_orga:
     description: 'See parent for longer description.'
     label: 'Edit customized data protection text for orga'
+    expose: true
     parent: feature_data_protection_text_customized_view
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
@@ -2319,6 +2320,7 @@ field_imprint_text_customized_edit_orga:
     description: 'See parent for longer description.'
     label: 'Edit customized imprint text for orga'
     parent: feature_imprint_text_customized_view
+    expose: true
 field_municipality_list:
     label: 'betroffene Vorranggebiete'
     loginRequired: true
@@ -2458,6 +2460,11 @@ field_procedure_single_document_title:
     label: 'Titel für hochgeladenes Dokument'
     loginRequired: true
     parent: field_procedure
+field_required_procedure_end_date:
+    descriptiom: this permission makes the end date required when creating procedure
+    label: 'require procedure end date'
+    expose: true
+    loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true

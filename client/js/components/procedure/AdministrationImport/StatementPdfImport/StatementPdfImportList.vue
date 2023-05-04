@@ -84,8 +84,13 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpDataTable,
+  DpLoading,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementPdfImportList',

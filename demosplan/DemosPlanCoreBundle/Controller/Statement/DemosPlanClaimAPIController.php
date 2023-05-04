@@ -23,10 +23,10 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -86,6 +86,7 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_statements_api",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateStatementAssignmentAction(string $statementId): APIResponse
@@ -98,6 +99,7 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_fragments_api",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateFragmentAssignmentAction(string $entityId): APIResponse

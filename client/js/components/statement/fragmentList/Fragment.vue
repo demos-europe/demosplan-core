@@ -493,8 +493,15 @@
 </template>
 
 <script>
-import { CleanHtml, DpHeightLimit, DpTextWrapper, VPopover } from '@demos-europe/demosplan-ui'
-import { formatDate, getFileInfo, hasOwnProp } from '@demos-europe/demosplan-utils'
+import {
+  CleanHtml,
+  DpHeightLimit,
+  DpTextWrapper,
+  formatDate,
+  getFileInfo,
+  hasOwnProp,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
 import DpFragmentEdit from '../fragment/Edit'
@@ -690,7 +697,7 @@ export default {
     })
 
     //  Destroy instance on reassign
-    Bus.on('fragment-reassigned', data => {
+    this.$root.$on('fragment-reassigned', data => {
       if (data.id === this.fragmentId) {
         this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment.statement.id })
         /*
@@ -698,13 +705,6 @@ export default {
          * this can be refactored when the fragment-list gets the data from the store
          */
         this.fragmentExists = false
-      }
-    })
-
-    // When a fragment is unassigned by <dp-assessment-claim>, editing is not possible anymore
-    Bus.on('dp-fragment-assignment-reset', () => {
-      if (this.editing === true) {
-        this.toggleEditing()
       }
     })
   }

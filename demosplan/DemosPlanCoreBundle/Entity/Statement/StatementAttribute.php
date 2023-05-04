@@ -16,7 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_statement_attribute")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository")
  */
 class StatementAttribute extends CoreEntity implements UuidEntityInterface
 {
@@ -24,8 +25,11 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_sta_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -34,6 +38,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
      * @var Statement|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="statementAttributes")
+     *
      * @ORM\JoinColumn(name="_sta_st_id", referencedColumnName="_st_id", onDelete="CASCADE")
      */
     protected $statement;
@@ -47,6 +52,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
      * @var DraftStatement|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="statementAttributes")
+     *
      * @ORM\JoinColumn(name="_sta_ds_id", referencedColumnName="_ds_id", onDelete="CASCADE")
      */
     protected $draftStatement;

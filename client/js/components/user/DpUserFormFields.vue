@@ -157,9 +157,8 @@
 </template>
 
 <script>
+import { dpApi, DpMultiselect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { dpApi, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-utils'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
 
 export default {

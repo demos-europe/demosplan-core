@@ -1,0 +1,43 @@
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+
+{% block demosplanbundlecontent %}
+	\section*{{ '{' }}{{title}}{{ '}' }}
+	{% if templateVars.table.entries is defined and templateVars.table.entries.statements is defined %}
+		{% if templateVars.table.entries.total is defined %}
+			{% if templateVars.table.entries.total > 0 %}
+				{% for statement in templateVars.table.entries.statements %}
+					{% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/export_assessment_table_entry_anonymous.tex.twig' %}
+				{% endfor %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
+
+    {% if templateVars.table.entries is defined and templateVars.table.entries.statementGroups is defined %}
+		\textbf{{ '{' }}{{ 'Gliederung:' }}{{ '}' }}
+		\begin{itemize}
+		{% for elements in templateVars.table.navigation %}
+			\item{{ '{' }}{{ elements.title }}{{ '}' }}
+			{% if elements.paragraphs is defined and elements.paragraphs | length > 0 %}
+				\begin{itemize}
+				{% for paragraph in elements.paragraphs %}
+					\item{{ '{' }}{{ paragraph.label }}{{ '}' }}
+				{% endfor %}
+				\end{itemize}
+			{% endif %}
+		{% endfor %}
+		\end{itemize}
+		\textbf{{ '{' }}{{ 'Inhalt:' }}{{ '}' }}
+
+        {% if templateVars.table.entries.total is defined %}
+            {% if templateVars.table.entries.total > 0 %}
+                {% for statementGroup in templateVars.table.entries.statementGroups %}
+					{{ statementGroup.title }}
+					\hline
+					{% for statement in statementGroup.statements %}
+                    	{% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/export_assessment_table_entry_anonymous.tex.twig' %}
+					{% endfor %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

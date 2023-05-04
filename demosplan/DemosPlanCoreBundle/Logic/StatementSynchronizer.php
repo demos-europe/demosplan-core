@@ -20,14 +20,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanStatementBundle\Exception\CopyException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
@@ -35,10 +35,9 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 use function in_array;
-
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementSynchronizer
 {

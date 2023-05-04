@@ -14,7 +14,7 @@ namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Logic\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use Tests\Base\FunctionalTestCase;
 
 class StatementDeleterTest extends FunctionalTestCase

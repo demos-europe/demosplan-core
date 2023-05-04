@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ExportService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureServiceOutput;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +34,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     name="DemosPlan_title_page_export.tex.twig",
      *     path="/verfahren/{procedure}/titlepage/export"
      * )
+     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure
@@ -82,6 +83,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     path="/verfahren/{procedure}/einstellungen/benutzer/pdf",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @param string $procedure
@@ -134,6 +136,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_export",
      *     path="/verfahren/{procedure}/export",
      * )
+     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure

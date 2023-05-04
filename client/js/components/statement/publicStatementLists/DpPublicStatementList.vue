@@ -38,9 +38,8 @@
 </template>
 
 <script>
-import { dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-utils'
+import { DpInlineNotification, dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import draggable from 'vuedraggable'

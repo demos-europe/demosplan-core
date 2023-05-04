@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInter
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -135,6 +135,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->owningOrganisation->id);
         // check for invited organisation
         $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->invitedOrganisations->id);
+        // check for allowed planning offices
+        $planningOfficesCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->planningOffices->id);
 
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
@@ -143,7 +145,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $this->conditionFactory->anyConditionApplies(
                 $owningOrgaCondition,
                 $invitedOrgaCondition,
-                $dataInputCondition
+                $dataInputCondition,
+                $planningOfficesCondition
             )
         );
     }

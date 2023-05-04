@@ -10,51 +10,45 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_keys;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
-use demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
+use demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
-
-use function is_int;
-
 use League\Fractal\Resource\Collection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -64,6 +58,10 @@ use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_keys;
+use function is_int;
 
 class DemosPlanStatementAPIController extends APIController
 {
@@ -104,6 +102,7 @@ class DemosPlanStatementAPIController extends APIController
      *        options={"expose": true})
      *
      * Copy Statement into (another) procedure.
+     *
      * @DplanPermissions("feature_statement_copy_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -199,6 +198,7 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_statement_move",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_move_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -411,6 +411,7 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_assessmentqueryhash_get_procedure_statement_list",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      */
     public function listAction(
@@ -500,6 +501,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -548,6 +550,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -601,6 +604,7 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent placeholder statements (only or together with other statements): Show message "%count% der markierten Stellungnahmen befinden sich nicht im aktuellen Verfahren und wurden Ihnen nicht zugewiesen."
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
      *
      * @return JsonResponse

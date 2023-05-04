@@ -194,13 +194,16 @@
 <script>
 import {
   bindFullScreenChange,
+  dataTableSearch,
   dpApi,
+  DpDataTable,
+  DpSelectPageItemCount,
+  DpStickyElement,
   isActiveFullScreen,
   makeFormPost,
   toggleFullscreen,
   unbindFullScreenChange
-} from '@demos-europe/demosplan-utils'
-import { dataTableSearch, DpDataTable, DpSelectPageItemCount, DpStickyElement } from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
 import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'

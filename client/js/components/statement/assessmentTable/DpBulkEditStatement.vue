@@ -210,8 +210,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton, DpMultiselect, DpTextWrapper, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpMultiselect,
+  DpTextWrapper,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'

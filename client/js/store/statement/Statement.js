@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 /**
  * Adds empty title attribute for element/paragraph/document

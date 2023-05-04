@@ -216,20 +216,38 @@
         </p>
       </div>
 
-      <dp-sliding-pagination
-        class="u-mt-0_5"
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="applyQuery" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'visibility--hidden': isLoading }"
+        class="u-pt-0_5 text--right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="applyQuery"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi, tableSelectAllItems } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpBulkEditHeader, DpButton, DpColumnSelector, DpLoading, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement, VPopover } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpBulkEditHeader,
+  DpButton,
+  DpColumnSelector,
+  DpDataTable,
+  DpFlyout,
+  DpLoading,
+  DpPager,
+  DpStickyElement,
+  tableSelectAllItems,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
@@ -247,7 +265,7 @@ export default {
     DpDataTable,
     DpFlyout,
     DpLoading,
-    DpSlidingPagination,
+    DpPager,
     DpStickyElement,
     FilterFlyout,
     StatementMetaTooltip,
@@ -311,6 +329,7 @@ export default {
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
         toggledSegments: `${this.procedureId}:toggledSegments`
       },
+      pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: []
     }
@@ -326,9 +345,7 @@ export default {
     }),
 
     ...mapState('statementSegment', {
-      currentPage: 'currentPage',
-      segmentsObject: 'items',
-      totalPages: 'totalPages'
+      segmentsObject: 'items'
     }),
 
     ...mapState('statement', {
@@ -424,7 +441,8 @@ export default {
       const payload = {
         include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter: filter,
@@ -482,6 +500,7 @@ export default {
           this.isLoading = false
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
+          this.initPagination(data)
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
@@ -527,6 +546,25 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    handleSizeChange (newSize) {
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.applyQuery(page)
+    },
+
+    initPagination (data) {
+      const dataPag = data.meta.pagination
+      this.pagination = {
+        count: dataPag.count,
+        currentPage: dataPag.current_page,
+        limits: [10, 25, 50, 100],
+        perPage: dataPag.per_page,
+        total: dataPag.total,
+        totalPages: dataPag.total_pages
+      }
     },
 
     resetQuery () {

@@ -15,7 +15,7 @@ namespace Tests\Core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Tests\Base\FunctionalTestCase;
 
 class StatementRepositoryTest extends FunctionalTestCase

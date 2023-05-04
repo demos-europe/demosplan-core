@@ -51,10 +51,8 @@
 </template>
 
 <script>
+import { checkResponse, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
-import { checkResponse } from '@demos-europe/demosplan-utils'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AssignEntityModal',

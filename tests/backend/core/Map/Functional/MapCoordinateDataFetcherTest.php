@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Functional;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCoordinateDataFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Provider\Nominatim\Model\NominatimAddress;

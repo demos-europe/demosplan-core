@@ -164,8 +164,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, MatchMedia, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpCheckbox, DpTextArea } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpTextArea,
+  MatchMedia,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import DpPublicSurveyComment from '@DpJs/components/procedure/survey/DpPublicSurveyComment'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
 

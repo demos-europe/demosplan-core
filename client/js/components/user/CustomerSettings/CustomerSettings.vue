@@ -193,8 +193,7 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpLabel, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'

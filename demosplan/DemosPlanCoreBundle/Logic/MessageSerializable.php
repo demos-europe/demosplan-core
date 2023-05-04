@@ -107,10 +107,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
         $this->textParameters = $textParameters;
     }
 
-    /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return ['message' => $this->text, 'severity' => $this->severity];
     }

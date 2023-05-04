@@ -10,31 +10,31 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -161,7 +161,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/fragment_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -251,7 +251,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments_archive.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list.archive',
@@ -357,7 +357,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list',

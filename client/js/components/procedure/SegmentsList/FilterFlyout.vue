@@ -156,8 +156,16 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { dataTableSearch, DpButton, DpFlyout, DpLoading, DpResettableInput } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dataTableSearch,
+  DpButton,
+  DpFlyout,
+  DpLoading,
+  DpResettableInput,
+  dpRpc,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 

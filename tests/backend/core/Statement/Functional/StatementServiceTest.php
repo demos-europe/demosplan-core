@@ -25,12 +25,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementStatistic;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
@@ -371,7 +371,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testDeleteStatementButNotCopyOfStatement()
     {
@@ -516,7 +516,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCopyStatementWithFragments()
     {
@@ -883,7 +883,7 @@ class StatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCreateStatementWithTwoFiles()
     {

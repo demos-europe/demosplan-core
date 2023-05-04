@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Table(name="customer")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
 {
@@ -135,6 +135,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * T16986
      * Will be used to store licence information about used map by customer.
+     * e.g. "© basemap.de BKG".
      *
      * @var string
      *
@@ -146,7 +147,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * T16986
      * A short Url with an ID as parameter.
      * This defines the baselayer chosen by this customer.
-     * e.g. "https://wms.onmaps.de/?key=8ae2a661a3374681f5b409787b17f34c".
+     * e.g. "https://sgx.geodatenzentrum.de/wms_basemapde".
      *
      * @var string
      *
@@ -158,7 +159,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * T16986
      * Layer of the baserlayers in public area.
      * Additional layer on the baseLayer. E.g. used for coloring.
-     * e.g. "onmaps_graustufen" or "webatlasde".
+     * e.g. "de_basemapde_web_raster_grau".
      *
      * @var string
      *

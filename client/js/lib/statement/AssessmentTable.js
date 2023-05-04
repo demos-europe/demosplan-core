@@ -12,7 +12,7 @@
  * inside the webpack scope. These are to be refactored, generalized or made obsolete by migrating
  * their functionality to other components.
  */
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 
 export default function AssessmentTable () {
   /*

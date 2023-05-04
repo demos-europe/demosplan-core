@@ -1,0 +1,81 @@
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+
+{% import '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/statement_macros.tex.twig' as statement_macros %}
+{% block demosplanbundlecontent %}
+    \section*{{ '{' }}{{title}}{{ '}' }}
+    {% if templateVars.table.entries is defined and templateVars.table.entries.total is defined and templateVars.table.entries.total > 0 and templateVars.table.entries.statements is defined %}
+        {% for statement in templateVars.table.entries.statements %}
+            {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/snipped_statement_head.tex.twig' %}
+            {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/snipped_statement_moved.tex.twig' %}
+            {% else %}
+                {% if statement.fragments is defined and statement.fragments is iterable and statement.fragments|length > 0 %}
+                    {% for fragment in statement.fragments %}
+                        {{ statement_macros.statement_content_anonymous(
+                            "fragment"|trans|latex|raw,
+                            "considerationadvice"|trans|latex|raw,
+                            fragment.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                            fragment.consideration|default("notspecified"|trans)|dpObscure|latex|raw,
+                            fragment,
+                            procedure) }}
+                    {% endfor %}
+                    {{ statement_macros.statement_map(statement, procedure) }}
+                {% else %}
+                    {{ statement_macros.statement_content_anonymous(
+                        "statement"|trans|latex|raw,
+                        "considerationadvice"|trans|latex|raw,
+                        statement.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                        statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
+                        statement,
+                        procedure) }}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if templateVars.table.entries is defined and templateVars.table.entries.total is defined and templateVars.table.entries.total > 0 and templateVars.table.entries.statementGroups is defined %}
+        \textbf{{ '{' }}{{ 'Gliederung:' }}{{ '}' }}
+        \begin{itemize}
+		{% for elements in templateVars.table.navigation %}
+                \item{{ '{' }}{{ elements.title }}{{ '}' }}
+        {% endfor %}
+        \end{itemize}
+
+        \textbf{{ '{' }}{{ 'Inhalt:' }}{{ '}' }}
+
+        {% if templateVars.table.entries.total is defined %}
+            {% if templateVars.table.entries.total > 0 %}
+                {% for statementGroup in templateVars.table.entries.statementGroups %}
+                    {{ statementGroup.title }}
+                    \hline
+                    {% for statement in statementGroup.statements %}
+                        {% include '@DemosPlanAssessmentTable/DemosPlan/snipped_statement_head.tex.twig' %}
+                        {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
+                            {% include '@DemosPlanAssessmentTable/DemosPlan/snipped_statement_moved.tex.twig' %}
+                        {% else %}
+                            {% if statement.fragments is defined and statement.fragments is iterable and statement.fragments|length > 0 %}
+                                {% for fragment in statement.fragments %}
+                                    {{ statement_macros.statement_content_anonymous(
+                                        "fragment"|trans|latex|raw,
+                                        "considerationadvice"|trans|latex|raw,
+                                        fragment.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                                        fragment.consideration|default("notspecified"|trans)|dpObscure|latex|raw,
+                                        fragment,
+                                        procedure) }}
+                                {% endfor %}
+                                {{ statement_macros.statement_map(statement, procedure) }}
+                            {% else %}
+                                {{ statement_macros.statement_content_anonymous(
+                                    "statement"|trans|latex|raw,
+                                    "considerationadvice"|trans|latex|raw,
+                                    statement.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                                    statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
+                                    statement,
+                                    procedure) }}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}

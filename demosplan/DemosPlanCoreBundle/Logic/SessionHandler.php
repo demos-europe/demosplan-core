@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Application\Header;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -96,12 +96,6 @@ class SessionHandler extends PdoSessionHandler
     public function initialize(array $context = null): void
     {
         try {
-            // Migrate session to avoid blocking parallel requests due to session file locks.
-            // Session values are not used to persist data between requests (apart from userId)
-            // so concurrent requests could not overwrite data.
-            // This bloats the amount of session files but these could well be garbage collected
-            $this->request->getSession()->migrate();
-
             $user = $this->currentUser->getUser();
 
             // Die Berechtigungen und das Menühighlighting initialisieren und in der Session ablegen.

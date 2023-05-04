@@ -15,9 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentContextProvider implements CurrentContextProviderInterface

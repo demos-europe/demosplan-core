@@ -24,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table(name="_elements")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ElementsRepository")
  */
 class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {

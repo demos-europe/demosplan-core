@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use JsonException;
 use stdClass;

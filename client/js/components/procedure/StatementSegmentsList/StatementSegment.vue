@@ -9,13 +9,14 @@
 
 <template>
   <div
+    ref="statementSegment"
     class="border-radius segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :id="'segment_' + segment.id">
     <div class="flex flex-column flex-content-start flex-basis-20 u-pt-0_5 u-pl-0_5">
-      <v-popover>
+      <v-popover :container="$refs.statementSegment">
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
@@ -118,7 +119,7 @@
               ref="recommendationModal"
               :procedure-id="procedureId"
               :segment-id="segment.id"
-              @insert-recommendation="text => modalProps.appendText(text)"/>
+              @insert-recommendation="text => modalProps.appendText(text)" />
           </template>
           <template v-slot:button>
             <button
@@ -200,7 +201,10 @@
           class="segment-list-toolbar__button btn--blank"
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
-          v-tooltip="Translator.trans('editor.fullscreen')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('editor.fullscreen')
+          }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
             :icon="isFullscreen ? 'compress' : 'expand'"
@@ -212,7 +216,10 @@
           class="segment-list-toolbar__button btn btn--primary"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
-          v-tooltip="Translator.trans('edit')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('edit')
+          }"
           @click="startEditing">
           <i
             class="fa fa-pencil"
@@ -224,7 +231,10 @@
           :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('history')"
-          v-tooltip="Translator.trans('history')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('history')
+          }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
           <dp-icon icon="history" />
@@ -236,7 +246,10 @@
           :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('comments')"
-          v-tooltip="Translator.trans('comments')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('comments')
+          }"
           data-cy="segmentComments"
           @click.prevent="showComments">
           <i
@@ -254,7 +267,10 @@
           :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
-          v-tooltip="Translator.trans('public.participation.relation')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('public.participation.relation')
+          }"
           data-cy="segmentMap"
           @click.prevent="showMap">
           <i
@@ -267,8 +283,18 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, prefixClassMixin, VPopover } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpCheckbox,
+  DpIcon,
+  DpLabel,
+  DpMultiselect,
+  prefixClassMixin,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'

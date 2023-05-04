@@ -54,7 +54,6 @@ $tooltip-width: 400px;
 .tooltip {
     z-index: $z-tooltip-super;
 
-    margin: $inuit-base-spacing-unit--small;
     max-width: $tooltip-width;
 
     cursor: help;
@@ -72,7 +71,7 @@ $tooltip-width: 400px;
         z-index: -1;
 
         height: $inuit-base-spacing-unit--small;
-        margin: - $inuit-base-spacing-unit--tiny;
+        margin: - $inuit-base-spacing-unit--tiny 0;
         width: $inuit-base-spacing-unit--small;
 
         background: $default-font-color;

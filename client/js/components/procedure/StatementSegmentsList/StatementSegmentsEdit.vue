@@ -95,8 +95,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpLoading,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'

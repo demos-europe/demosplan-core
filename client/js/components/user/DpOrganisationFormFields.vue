@@ -678,18 +678,51 @@
         </div>
       </div>
     </fieldset>
+
+    <!-- Imprint -->
+    <fieldset v-if="hasPermission('field_imprint_text_customized_edit_orga') && organisation.attributes.isPlanningOrganisation === true">
+      <legend class="layout__item u-p-0 u-pb-0_5">
+        {{ Translator.trans('procedure.agency.imprint') }}
+      </legend>
+      <dp-editor
+        data-cy="imprint"
+        v-model="localOrganisation.attributes.imprint"
+        @input="emitOrganisationUpdate"
+        :toolbar-items="{
+          fullscreenButton: true,
+          headings: [2,3,4],
+          linkButton: true
+        }" />
+    </fieldset>
+
+    <!-- Data Protection -->
+    <fieldset v-if="hasPermission('field_data_protection_text_customized_edit_orga') && organisation.attributes.isPlanningOrganisation === true">
+      <legend class="layout__item u-p-0 u-pb-0_5">
+        {{ Translator.trans('data.protection.organisations') }}
+      </legend>
+      <dp-editor
+        data-cy="dataProtection"
+        v-model="localOrganisation.attributes.dataProtection"
+        @input="emitOrganisationUpdate"
+        :toolbar-items="{
+          fullscreenButton: true,
+          headings: [2,3,4],
+          linkButton: true
+        }" />
+    </fieldset>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpTextArea } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
     DpDetails,
+    DpEditor,
+    DpLabel,
     DpTextArea
   },
 
@@ -727,6 +760,7 @@ export default {
           attributes: {
             ccEmail2: '',
             city: '',
+            dataProtection: '',
             postalcode: '',
             competence: '',
             contactPerson: null,
@@ -735,6 +769,7 @@ export default {
             email2: '',
             emailNotificationEndingPhase: false,
             emailNotificationNewStatement: false,
+            imprint: '',
             name: '',
             participationEmail: '',
             phone: '',

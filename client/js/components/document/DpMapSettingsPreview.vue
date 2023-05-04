@@ -232,8 +232,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpDatepicker, DpToggle } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'

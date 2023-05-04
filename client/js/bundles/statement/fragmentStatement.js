@@ -14,7 +14,7 @@
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DeleteFragmentButton from '@DpJs/lib/statement/DeleteFragmentButton'
 import DpCreateStatementFragment from '@DpJs/components/statement/statement/DpCreateStatementFragment'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {

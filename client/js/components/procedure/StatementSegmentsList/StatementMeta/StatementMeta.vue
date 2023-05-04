@@ -221,9 +221,17 @@
 </template>
 
 <script>
-import { DpButtonRow, DpDatepicker, DpIcon, DpInput, DpLabel, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
+import {
+  DpButtonRow,
+  DpDatepicker,
+  DpIcon,
+  DpInput,
+  DpLabel,
+  DpSelect,
+  DpTextArea,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 

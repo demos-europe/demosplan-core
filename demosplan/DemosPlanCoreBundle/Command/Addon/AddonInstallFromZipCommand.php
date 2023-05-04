@@ -80,6 +80,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $output = new SymfonyStyle($input, $output);
 
+        $reinstall = $input->getOption('reinstall');
+
         $this->setPaths($input->getArgument('path'));
         try {
             $this->initializeAddonsInfrastructure();
@@ -89,12 +91,12 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $this->copyAndUnzipFileIfNecessary($output);
+        $this->copyAndUnzipFileIfNecessary($output, $reinstall);
 
         try {
             $packageDefinition = $this->loadPackageDefinition();
 
-            $this->checkReinstall($packageDefinition, $input->getOption('reinstall'));
+            $this->checkReinstall($packageDefinition, $reinstall);
 
             $this->addAddonToComposerRequire($packageDefinition);
         } catch (JsonException $e) {
@@ -134,7 +136,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->add('cache:clear')
+                ->addShell(["bin/{$activeProject}", 'cache:clear'])
                 ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
                 ->run();
 
@@ -220,12 +222,13 @@ class AddonInstallFromZipCommand extends CoreCommand
     /**
      * This will try to copy and unzip the Repo if the path is correct and the repo is not already present in the cache.
      */
-    private function copyAndUnzipFileIfNecessary(OutputInterface $output): void
+    private function copyAndUnzipFileIfNecessary(OutputInterface $output, bool $reinstall): void
     {
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
+        $shouldUnzip = !$addonExistsInCache || $reinstall;
 
-        if ($doesFileExist && !$addonExistsInCache) {
+        if ($doesFileExist && $shouldUnzip) {
             $zipArchive = new ZipArchive();
             $open = $zipArchive->open($this->zipSourcePath);
             if ($open) {

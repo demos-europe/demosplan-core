@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementSimilarity;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementSimilarity;
 
 class StatementActionEvent extends DPlanEvent
 {

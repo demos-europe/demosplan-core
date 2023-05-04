@@ -10,55 +10,48 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
-use function array_key_exists;
-use function compact;
-
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\CopyException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
+use demosplan\DemosPlanCoreBundle\Form\StatementBulkEditType;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\ClusterStatementCopyNotImplementedException;
-use demosplan\DemosPlanStatementBundle\Exception\CopyException;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use LogicException;
-
-use function nl2br;
-use function strlen;
-
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -66,6 +59,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function compact;
+use function nl2br;
+use function strlen;
 
 /**
  * Klasse fuer die Abwaegungstabelle.
@@ -150,6 +148,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/ Wiki: Abwägungstabelle
      *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @Route(
      *     name="dplan_assessmenttable_view_table",
      *     path="/verfahren/abwaegung/view/{procedureId}/{filterHash}",
@@ -343,7 +342,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'assessment.table',
@@ -359,6 +358,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/ Wiki: Abwägungstabelle
      *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @Route(
      *     name="dplan_assessmenttable_view_original_table",
      *     path="/verfahren/original/{procedureId}/{filterHash}",
@@ -614,7 +614,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['table']['baseData'] = Json::encode($baseData);
 
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_view.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_view.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'assessment.table',
@@ -663,6 +663,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     defaults={"title": "assessment.table.statement.detail"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param bool $isCluster Determines if the given Statement is a cluster
@@ -807,9 +808,9 @@ class DemosPlanAssessmentTableController extends BaseController
         // reload files as the might be updated
         $templateVars['table']['statement']['files'] = $fileService->getEntityFileString(Statement::class, $statementObject->getId(), 'file');
 
-        $template = '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
+        $template = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
         if ($isCluster) {
-            $template = '@DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
             $clusterStatements = $templateVars['table']['statement']['cluster'];
             $templateVars['table']['countOfClusterElements'] =
                 $clusterStatements instanceof Collection ? $clusterStatements->count() : 0;
@@ -834,6 +835,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     name="dm_plan_assessment_single_copy",
      *     path="/verfahren/{procedure}/abwaegung/copy/{statement}"
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -869,6 +871,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     path="/boilerplatetext/{procedure}/{tag}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $tag
@@ -918,6 +921,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     path="/_ajax/statement/{statementId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * Optionally pass `includeShortened=true` as get parameter to include
@@ -963,6 +967,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     path="/_ajax/recommendation/{statementId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "field_statement_recommendation"})
      *
      * @param string $statementId
@@ -1010,6 +1015,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     defaults={"isReviewer": true},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @param bool   $isReviewer
@@ -1095,6 +1101,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_bulk_edit"})
      *
      * @return Response
@@ -1116,7 +1123,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['form'] = $statementBulkEditForm->createView();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.bulk.edit',
@@ -1134,6 +1141,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_fragment_bulk_edit"})
      *
      * @param string $procedureId
@@ -1150,7 +1158,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragment.bulk.edit',

@@ -11,9 +11,8 @@
  * This is the entrypoint for public_paragraph_document.html.twig
  */
 
-import { prefixClass, TableWrapper } from '@demos-europe/demosplan-utils'
+import { DpUploadFiles, prefixClass, TableWrapper } from '@demos-europe/demosplan-ui'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
-import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import TocStateMemorizer from '@DpJs/lib/statement/TocStateMemorizer'

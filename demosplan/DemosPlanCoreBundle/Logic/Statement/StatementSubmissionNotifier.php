@@ -22,11 +22,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -138,7 +137,7 @@ class StatementSubmissionNotifier
 
         $vars['mailsubject'] = $this->translator->trans('email.subject.statement.submitted');
         $vars['mailbody'] = $this->twig
-            ->load('@DemosPlanStatement/DemosPlanStatement/email_statement_submitted.html.twig')
+            ->load('@DemosPlanCore/DemosPlanStatement/email_statement_submitted.html.twig')
             ->render(
                 [
                     'templateVars' => [
@@ -218,7 +217,7 @@ class StatementSubmissionNotifier
         // does the orga want to receive notification mails?
         if ($this->isOrgaWantingNotifications($procedure)) {
             $emailText = $this->twig->load(
-                '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_new_statement.html.twig'
+                '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement.html.twig'
             )->renderBlock(
                 'body_plain',
                 [
@@ -334,7 +333,7 @@ class StatementSubmissionNotifier
         $ccs = []
     ): void {
         $emailText = $this->twig->load(
-            '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
+            '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
         )->renderBlock(
             'body_plain',
             [
@@ -466,7 +465,7 @@ class StatementSubmissionNotifier
         ];
 
         $emailText = $this->twig->load(
-            '@DemosPlanStatement/DemosPlanStatement/new_statement_confirm_email.html.twig'
+            '@DemosPlanCore/DemosPlanStatement/new_statement_confirm_email.html.twig'
         )->renderBlock('body_plain', ['templateVars' => $mailTemplateVars]);
         $vars['mailsubject'] = $this->translator->trans(
             'email.subject.public.confirm',

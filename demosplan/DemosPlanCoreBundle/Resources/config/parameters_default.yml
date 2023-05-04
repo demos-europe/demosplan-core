@@ -313,17 +313,23 @@ parameters:
 
     # SAML-related settings. These are set in config files in project folder
     # this is just an example to document the keys
-    saml_baseurl: ''
-    saml_idp_entityid: ''
-    saml_idp_slo_url: ''
-    saml_idp_sso_url: ''
-    saml_idp_x509_string: ''
-    saml_sp_acs_url: ''
-    saml_sp_entityid: ''
-    saml_sp_sls_url: ''
-    saml_sp_x509_private_string: ''
-    saml_sp_x509_string: ''
-    saml_registration_url: ''
+    saml_baseurl: 'http://localhost/'
+    saml_idp_entityid: 'id'
+    saml_idp_slo_url: 'http://localhost/'
+    saml_idp_sso_url: 'http://localhost/'
+    saml_idp_x509_string: 'secretString'
+    saml_sp_acs_url: 'http://localhost/'
+    saml_sp_entityid: 'id'
+    saml_sp_sls_url: 'http://localhost/'
+    saml_sp_x509_private_string: 'secretString'
+    saml_sp_x509_string: 'secretString'
+    saml_registration_url: 'http://localhost/'
+
+    # knpu_oauth2_client settings
+    oauth_keycloak_client_id: ''
+    oauth_keycloak_client_secret: ''
+    oauth_keycloak_auth_server_url: ''
+    oauth_keycloak_realm: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
@@ -341,7 +347,7 @@ parameters:
     avscan_enable: true
 
     # should file table entries be checked regularly whether they are referenced in some other entities
-    # and be soft deleted if no reference is found?
+    # and be fully deleted if no reference is found?
     delete_removed_files: true
 
     # disable honeypot check
@@ -466,9 +472,9 @@ parameters:
     survey.status.default: 'configuration'
 
     # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/surveyvote-schema-create.json"
+    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-create.json"
+    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-update.json"
+    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/surveyvote-schema-create.json"
 
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]

@@ -15,13 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanStatementBundle\Exception\DuplicateInternIdException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementDeleter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

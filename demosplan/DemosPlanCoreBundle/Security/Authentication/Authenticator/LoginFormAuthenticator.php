@@ -37,7 +37,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             && $request->isMethod('POST');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         // check Honeypotfields
         try {

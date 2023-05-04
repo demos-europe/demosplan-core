@@ -56,6 +56,7 @@
         <ul class="float--right u-m-0 space-inline-s flex">
           <li class="display--inline-block">
             <dp-claim
+              v-if="!statement.attributes.synchronized"
               class="o-flyout__trigger u-ph-0_25 line-height--2"
               entity-type="statement"
               :assigned-id="currentAssignee.id"
@@ -160,8 +161,13 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpFlyout, DpSlidebar, DpStickyElement } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpFlyout,
+  DpSlidebar,
+  DpStickyElement
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
@@ -344,7 +350,7 @@ export default {
     },
 
     editable () {
-      return this.isCurrentUserAssigned && !this.statement.synchronized
+      return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
 
     filteredAttachments () {
@@ -501,7 +507,8 @@ export default {
             'submitDate',
             'submitName',
             'submitType',
-            'submitterEmailAddress'
+            'submitterEmailAddress',
+            'synchronized'
           ].join(),
           SimilarStatementSubmitter: [
             'city',
