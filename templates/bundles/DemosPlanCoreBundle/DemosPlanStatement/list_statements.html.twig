@@ -19,7 +19,7 @@
     <list-statements
         class="u-mv-0_5"
         current-user-id="{{ currentUser.ident }}"
-        :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure|default('false') }}"
+        :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
         procedure-id="{{ procedure }}"
         :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')"
     ></list-statements>
