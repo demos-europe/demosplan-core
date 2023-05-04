@@ -92,11 +92,12 @@
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId }">
+        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />
           <dp-claim
+            v-if="!synchronized"
             entity-type="statement"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
@@ -155,7 +156,6 @@
             </button>
             <a
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
-              :class="{'is-disabled': synchronized }"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
