@@ -541,10 +541,16 @@ export default {
   },
 
   methods: {
+    logValue (val) {
+      console.log(val)
+    },
     setInitialValues () {
       this.values = { ...this.initValues }
       // Set default values to ensure reactivity.
-      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
+      if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
+        Vue.set(this.values.submitter, 'institution',  this.values.submitter.toeb)
+      }
+      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {
         Vue.set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
           Vue.set(this.values.submitter, key === 'toeb' ? 'institution' : key, value)
