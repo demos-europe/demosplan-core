@@ -541,9 +541,6 @@ export default {
   },
 
   methods: {
-    logValue (val) {
-      console.log(val)
-    },
     setInitialValues () {
       this.values = { ...this.initValues }
       // Set default values to ensure reactivity.
