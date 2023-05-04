@@ -129,7 +129,7 @@
         }
 
         &.is-active:active {
-            box-shadow: $dp-token-box-shadow-1;
+            box-shadow: $dp-box-shadow-1;
             color: $actionbox-color-dark;
         }
 
@@ -143,13 +143,13 @@
 
         &.is-active {
             background-color: $actionbox-color-contrast;
-            box-shadow: $dp-token-box-shadow-1;
+            box-shadow: $dp-box-shadow-1;
             color: $actionbox-color;
 
             &:hover:not(:active),
             &.is-activated:not(:active) {
                 color: $actionbox-color-dark;
-                box-shadow: $dp-token-box-shadow-2;
+                box-shadow: $dp-box-shadow-2;
                 cursor: pointer;
             }
         }
