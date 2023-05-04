@@ -1860,18 +1860,4 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        throw new NotYetImplementedException('Method not yet implemented.');
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        throw new NotYetImplementedException('Method not yet implemented.');
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        throw new NotYetImplementedException('Method not yet implemented.');
-    }
 }
