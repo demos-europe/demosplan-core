@@ -99,7 +99,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
      */
     private $transactionService;
 
-    public const JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-workflowPlace-list-reorder-schema.json';
+    public const JSON_SCHEMA_PATH = 'json-schema/rpc-workflowPlace-list-reorder-schema.json';
     public const SUPPORTED_METHOD_NAME = 'workflowPlacesOfProcedure.reorder';
 
     public function __construct(
@@ -157,7 +157,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(self::JSON_SCHEMA_PATH)
+            DemosPlanPath::getConfigPath(self::JSON_SCHEMA_PATH)
         );
     }
 

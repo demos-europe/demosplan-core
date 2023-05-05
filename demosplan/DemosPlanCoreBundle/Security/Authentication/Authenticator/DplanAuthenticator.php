@@ -126,7 +126,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         $this->translator = $translator;
     }
 
-    abstract public function getCredentials(Request $request): Credentials;
+    abstract protected function getCredentials(Request $request): Credentials;
 
     public function authenticate(Request $request): Passport
     {

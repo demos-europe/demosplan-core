@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
@@ -201,7 +200,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath($this->getJsonSchemaPath())
+            $this->getJsonSchemaPath()
         );
     }
 
