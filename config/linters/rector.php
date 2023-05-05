@@ -43,6 +43,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->skip([
         TypedPropertyFromAssignsRector::class,
         UnionTypesRector::class,
+        __DIR__.'/../../config/bundles.php',
     ]);
     //$rectorConfig->paths([__DIR__ . '/../../demosplan']);
 
