@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
@@ -10,7 +19,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PdfCreatorHttp implements PdfCreatorInterface
 {
-
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
@@ -25,15 +33,16 @@ class PdfCreatorHttp implements PdfCreatorInterface
             $response = $this->httpClient->request('POST', $url, [
                 'json' => [
                     'latex_code' => $content,
-                    'pictures' => $pictures,
-                ]
+                    'pictures'   => $pictures,
+                ],
             ]);
             // result needs to be base64 encoded
             $response = base64_encode($response->getContent());
         } catch (Exception $e) {
-            $this->logger->error('Error while creating pdf with http: ' . $e->getMessage());
+            $this->logger->error('Error while creating pdf with http: '.$e->getMessage());
             throw $e;
         }
+
         return $response;
     }
 }

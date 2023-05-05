@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
@@ -14,7 +23,6 @@ use Psr\Log\LoggerInterface;
 
 class PdfCreatorRabbitmq implements PdfCreatorInterface
 {
-
     /**
      * @var RpcClient
      */
@@ -30,8 +38,6 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
      * @param string $content  base64 encodierte tex-Datei
      * @param array  $pictures array der Form ['picture0 => base64_encode(''), 'picture1' => ....]
      *
-     * @return string
-     *
      * @throws Exception
      */
     public function createPdf(string $content, array $pictures = []): string
@@ -43,16 +49,16 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
         $msg = Json::encode($payload);
 
         $this->logger->debug(
-            'Export pdf with RabbitMQ, with routingKey: ' . $this->globalConfig->getProjectPrefix()
+            'Export pdf with RabbitMQ, with routingKey: '.$this->globalConfig->getProjectPrefix()
         );
         $this->logger->debug(
-            'Content to send to RabbitMQ: ' . DemosPlanTools::varExport(
+            'Content to send to RabbitMQ: '.DemosPlanTools::varExport(
                 base64_decode($content),
                 true
             )
         );
         $this->logger->debug(
-            'Number of pictures send to RabbitMQ: ' . count($pictures)
+            'Number of pictures send to RabbitMQ: '.count($pictures)
         );
 
         try {
@@ -80,8 +86,7 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
                     [DemosPlanTools::varExport($replies, true)]
                 );
                 throw new Exception('Could not decode export result');
-            }
-            elseif (!isset($exportResult['file'])) {
+            } elseif (!isset($exportResult['file'])) {
                 $this->logger->error(
                     'AMPQResult has wrong format ',
                     [DemosPlanTools::varExport($exportResult, true)]
