@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
@@ -27,16 +27,15 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\InvitationEmailResult;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
@@ -44,6 +43,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
+use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 {
@@ -277,7 +278,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     public function markSelectedElementInSortByField(array $procedures)
     {
         if (isset($procedures['sort']['selection'])) {
-            /** @var \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort $option */
+            /** @var Sort $option */
             foreach ($procedures['definition']->getAvailableSorts() as $option) {
                 $option->setSelected(false);
 
@@ -952,7 +953,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @return array<int, string>
      *
-     * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
+     * @throws UserNotFoundException
      */
     private function getPlaningAgencyCCEmailRecipients(array $procedure, array $formEmailCC): array
     {

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -51,7 +52,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $id;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic
+     * @var TagTopic
      *
      * @ORM\ManyToOne(targetEntity="TagTopic", inversedBy="tags", cascade={"persist"})
      *
@@ -95,7 +96,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $statements;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate
+     * @var Boilerplate
      *
      * @ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id", onDelete="SET NULL")
      *
@@ -230,7 +231,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * Sets the boilerplate text that is associated to this tag.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate|null $boilerplate
+     * @param Boilerplate|null $boilerplate
      */
     public function setBoilerplate($boilerplate)
     {
@@ -240,7 +241,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * Returns the boilerplate text that is associated with this tag.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate|null
+     * @return Boilerplate|null
      */
     public function getBoilerplate()
     {

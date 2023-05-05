@@ -87,7 +87,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
         // This test fails yet depending on which project config is used as form_options may be overridden
 
-        $yaml = Yaml::parseFile(__DIR__.'/../../../../Resources/config/form_options.yml');
+        $yaml = Yaml::parseFile(__DIR__.'/../../../../config/form_options.yml');
         $options = $yaml['parameters']['form_options'];
 
         static::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));

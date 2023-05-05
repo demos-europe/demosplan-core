@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use GuzzleHttp\Client;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -63,7 +64,7 @@ class LocationUpdateService
         $csvFile = DemosPlanPath::getTemporaryPath('GV1Q.csv');
         $fs = new Filesystem();
         $fileUrl = 'https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GVAuszugQ/AuszugGV1QAktuell.xlsx?__blob=publicationFile';
-        $guzzleClient = new \GuzzleHttp\Client();
+        $guzzleClient = new Client();
         $this->logger->info('Fetch new Data', ['url', $fileUrl]);
         $excelFile = $guzzleClient->get($fileUrl);
         $this->logger->info('Dump xls File');

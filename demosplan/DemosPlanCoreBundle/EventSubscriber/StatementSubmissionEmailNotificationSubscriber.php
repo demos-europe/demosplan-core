@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\GuestStatementSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 
 class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber

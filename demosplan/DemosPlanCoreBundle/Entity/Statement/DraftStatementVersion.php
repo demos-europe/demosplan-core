@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -46,7 +47,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement
+     * @var DraftStatement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="versions", )
      *
@@ -164,7 +165,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     protected $file = '';
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\FileContainer
+     * @var FileContainer
      *                                                          No doctrine connection because of multiple inheritance. Real inheritance mapping as described in
      *                                                          http://doctrine-orm.readthedocs.io/en/latest/reference/inheritance-mapping.html
      *                                                          is not possible atm, because primary keys are named differently across entities
@@ -730,7 +731,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return ArrayCollection
      */
     public function getFiles()
     {
@@ -738,7 +739,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \Doctrine\Common\Collections\ArrayCollection $files
+     * @param ArrayCollection $files
      */
     public function setFiles($files)
     {

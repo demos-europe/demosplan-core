@@ -18,10 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PathsBasedInterface;
 

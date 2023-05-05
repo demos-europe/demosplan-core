@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -104,8 +106,8 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool true if the entry was found and deleted, otherwise false
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function delete($procedureId)
     {
@@ -167,8 +169,8 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return int number of deleted Reports
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function deleteByProcedure(string $procedureId): int
     {

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -47,8 +49,8 @@ class BoilerplateGroupRepository extends CoreRepository implements ObjectInterfa
      *
      * @param BoilerplateGroup $boilerplateGroup
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function addObject($boilerplateGroup): BoilerplateGroup
     {
@@ -64,8 +66,8 @@ class BoilerplateGroupRepository extends CoreRepository implements ObjectInterfa
      *
      * @param BoilerplateGroup $boilerplateGroup
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function updateObject($boilerplateGroup): BoilerplateGroup
     {
@@ -82,8 +84,8 @@ class BoilerplateGroupRepository extends CoreRepository implements ObjectInterfa
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function delete($boilerplateGroup)
     {

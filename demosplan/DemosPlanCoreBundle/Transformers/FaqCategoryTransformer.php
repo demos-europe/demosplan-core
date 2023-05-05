@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Transformers;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
 use League\Fractal\Resource\Collection;
 

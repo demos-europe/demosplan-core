@@ -93,7 +93,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
+     * @return Statement
      */
     public function getStatement()
     {
@@ -101,7 +101,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement $statement
+     * @param Statement $statement
      *
      * @return StatementLike
      */
@@ -113,7 +113,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @return User
      */
     public function getUser()
     {
@@ -121,7 +121,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\User\User $user
+     * @param User $user
      *
      * @return StatementLike
      */

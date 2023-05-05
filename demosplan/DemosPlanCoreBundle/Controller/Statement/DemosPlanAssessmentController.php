@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -26,13 +27,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;

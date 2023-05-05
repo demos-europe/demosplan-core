@@ -53,7 +53,7 @@ class PolygonIntoMapLayerMerger
         $imageWidth = $mapLayer->getWidthInPixels();
         $imageHeight = $mapLayer->getHeightInPixels();
 
-        /** @var \demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature $geoJsonFeature */
+        /** @var Feature $geoJsonFeature */
         foreach ($geo as $geoJsonFeature) {
             $geometry = $geoJsonFeature->getGeometry();
             $feature = $geometry->out('wkt');

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\TransactionRequiredException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -26,7 +27,7 @@ class ProcedureCategoryRepository extends CoreRepository
      *
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws TransactionRequiredException
      */
     public function get($procedureCategoryId)
     {

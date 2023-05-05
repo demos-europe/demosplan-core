@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -113,7 +114,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      * @return NotificationReceiver
      *
      * @throws OptimisticLockException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function update($entityId, array $data)
     {

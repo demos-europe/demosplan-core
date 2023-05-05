@@ -10,12 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
+use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -57,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
@@ -83,9 +87,10 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -95,6 +100,7 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
@@ -109,11 +115,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\ConnectionException;
@@ -184,9 +185,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /** @var HashedQueryService */
     protected $filterSetService;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /**
      * @var JsonApiPaginationParser
@@ -391,7 +389,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         ReportService $reportService,
         ResourceTypeService $resourceTypeService,
         RouterInterface $router,
-        SearchIndexTaskService $searchIndexTaskService,
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
@@ -440,7 +437,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         $this->reportService = $reportService;
         $this->resourceTypeService = $resourceTypeService;
         $this->router = $router;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->searchService = $elasticSearchService;
         $this->serviceElements = $serviceElements;
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
@@ -577,11 +573,6 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
         }
-
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statement->getId()
-        );
 
         $statementArray = $this->convertToLegacy($statement);
         try {
@@ -751,26 +742,12 @@ class StatementService extends CoreService implements StatementServiceInterface
             // add Files to Statement
             $originalStatement = $this->addFilesToStatementObject($draftStatement->getFiles(), $originalStatement);
 
-            if ($originalStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $originalStatement->getId()
-                );
-            }
-
             $this->statementAttributeRepository->copyStatementAttributes($draftStatement, $originalStatement);
 
             // Create a statement copy for the assessment table
             $assessableStatement = $this->statementCopier->copyStatementObjectWithinProcedure($originalStatement, false);
 
             $assessableStatement = $this->postSubmitDraftStatement($assessableStatement, $draftStatement);
-
-            if ($assessableStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $assessableStatement->getId()
-                );
-            }
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
             $statementCreatedEvent = $this->eventDispatcher->dispatch(
@@ -953,13 +930,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ($statementEntitiesCount < $statementIdsCount) {
             $this->getLogger()->warning('At least one statement could not be found.
             It may have been deleted or moved into a different procedure.', [$procedureId]);
-            // schedule reindexing of statements warnings
-            $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
         if ($statementEntitiesCount > $statementIdsCount) {
             $this->getLogger()->warning('Doctrine returned more results than asked for.', [$procedureId]);
-            // schedule reindexing of statements warnings
-            $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
 
         // assign the objects to the corresponding keys, preserving the order of the Elasticsearch result
@@ -992,55 +965,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return \collect($statementIds)->filter(static function ($entry) {
             return $entry instanceof Statement;
         })->toArray();
-    }
-
-    /**
-     * Schedule reindexing of statements that differ in index.
-     *
-     * @param Statement[] $dbStatements
-     */
-    protected function triggerElasticsearchReindex(array $esIndexStatementIds, array $dbStatements): void
-    {
-        $dbStatementIds = \collect($dbStatements)->transform(static function (Statement $statement) {
-            return $statement->getId();
-        });
-
-        // diff arrays both ways and combine results so that every id not
-        // existent in the other array gets indexed
-        $statementIdsToIndex = $dbStatementIds->diff($esIndexStatementIds)
-            ->concat(
-                \collect($esIndexStatementIds)->diff($dbStatementIds)
-            );
-
-        if (0 < $statementIdsToIndex->count()) {
-            $this->getLogger()->warning('Applied autoreindexing', ['statementIds' => $statementIdsToIndex->all()]);
-
-            // fetch statements as it is necessary to update placeholders
-            // and other referenced Statements as well
-            $idsToIndex = \collect();
-            foreach ($statementIdsToIndex->all() as $statementId) {
-                $statement = $this->getStatement($statementId);
-                if (!$statement instanceof Statement) {
-                    continue;
-                }
-                $idsToIndex->push($statementId);
-                $idsToIndex->push($statement->getMovedStatementId());
-                $idsToIndex->push($statement->getParentId());
-                $idsToIndex->push($statement->getOriginalId());
-                $idsToIndex->push($statement->getHeadStatementId());
-                if ($statement->getPlaceholderStatement() instanceof Statement) {
-                    $idsToIndex->push($statement->getPlaceholderStatement()->getId());
-                }
-            }
-            $idsToIndex = $idsToIndex->reject(static function ($value, $key) {
-                return null === $value;
-            });
-
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $idsToIndex->all()
-            );
-        }
     }
 
     /**
@@ -1754,10 +1678,6 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $statement = $this->addFilesToStatement($data['files'], $statement);
             }
 
-            $this->reindexStatement($statement);
-            // update fragments in index as well
-            $this->statementFragmentService->reindexStatementFragments($statement);
-
             try {
                 $entry = $this->statementReportEntryFactory->createUpdateEntry($statement);
                 $this->reportService->persistAndFlushReportEntries($entry);
@@ -1781,8 +1701,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param array  $accessMap
      * @param string $statementId
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      * @throws ReflectionException
      */
     private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
@@ -2019,7 +1939,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param string $statementId ID der Stellungnahme
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote|bool
+     * @return StatementVote|bool
      */
     public function addVote($statementId, User $user)
     {
@@ -2041,11 +1961,6 @@ class StatementService extends CoreService implements StatementServiceInterface
             // user already voted this statement?
             if (null === $vote) {
                 $vote = $this->statementVoteRepository->add($data);
-                // melde ElasticSearch, dass das Statement neu indiziert werden soll
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $statementId
-                );
             }
 
             return $vote;
@@ -2075,15 +1990,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $data['user'] = $em->getReference(User::class, $user->getId());
             }
 
-            $like = $this->statementRepository->addLike($data);
-
-            // melde ElasticSearch, dass das Statement neu indiziert werden soll
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $statementId
-            );
-
-            return $like;
+            return $this->statementRepository->addLike($data);
         } catch (Exception $e) {
             $this->logger->error('Create new StatementLike failed:', [$e]);
 
@@ -3787,19 +3694,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Reindex Statement in Elasticsearch index.
-     *
-     * @param Statement $statement
-     */
-    public function reindexStatement($statement): void
-    {
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statement->getId()
-        );
-    }
-
-    /**
      * Map given sort to es-sort.
      * Also set default sort values.
      *
@@ -3918,7 +3812,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // Speichere ggf. ein Potenzialfläche am Statement
-        /** @var \Doctrine\Common\Collections\Collection|null $statementAttributes */
+        /** @var Collection|null $statementAttributes */
         $statementAttributes = $draftStatement->getStatementAttributes();
         if (!is_null($statementAttributes) && 0 < $statementAttributes->count()) {
             try {
@@ -3931,7 +3825,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 );
                 if (1 == $hasPriorityArea->count()) {
                     // lade die Potenzialfläche
-                    /** @var \Doctrine\Common\Collections\Collection|null $priorityArea */
+                    /** @var Collection|null $priorityArea */
                     $priorityArea = $this->getPriorityAreaService()->getPriorityAreasByKey($hasPriorityArea->first()->getValue());
                     if (!is_null($priorityArea) && 1 === count($priorityArea)) {
                         // Füge die Potenzialfläche der SN zu
@@ -3986,13 +3880,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function updateStatementObject(Statement $statement): Statement
     {
-        $resultStatement = $this->statementRepository->updateStatementObject($statement);
-
-        $this->reindexStatement($statement);
-        // update fragments in index as well
-        $this->statementFragmentService->reindexStatementFragments($statement);
-
-        return $resultStatement;
+        return $this->statementRepository->updateStatementObject($statement);
     }
 
     /**
@@ -4162,7 +4050,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
         // transaction is needed here, because we want both the Statement changes and the
         // ContentChange creations inside a single transaction
-        /** @var \Doctrine\DBAL\Connection $conn */
+        /** @var Connection $conn */
         $conn = $this->getDoctrine()->getConnection();
         try {
             $conn->beginTransaction();

@@ -17,9 +17,9 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -124,7 +124,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         $this->translator = $translator;
     }
 
-    abstract public function getCredentials(Request $request): Credentials;
+    abstract protected function getCredentials(Request $request): Credentials;
 
     public function authenticate(Request $request): Passport
     {

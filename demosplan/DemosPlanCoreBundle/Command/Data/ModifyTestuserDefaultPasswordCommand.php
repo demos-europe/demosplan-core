@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
