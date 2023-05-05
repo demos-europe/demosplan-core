@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use Doctrine\ORM\NonUniqueResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
@@ -29,7 +33,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function get($entityId)
     {
@@ -82,10 +86,10 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      */
     private function getEntryResponses($threadId)
     {
@@ -118,9 +122,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function add(array $data)
     {
@@ -197,8 +201,8 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry Beitrag der erstellt wurde, inkl. der generierten File-Einträge.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     private function createFileEntries($files, $entry)
     {
@@ -229,10 +233,10 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws NonUniqueResultException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function update($entityId, array $data)
     {

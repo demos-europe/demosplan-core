@@ -9,7 +9,8 @@
         {% block content %}
             <saml-login-form
                 :is-saml="{{ useSaml|json_encode }}"
-                :saml-login-path="{{ path('saml_login')|json_encode }}">
+                :saml-login-path="{{ path('saml_login')|json_encode }}"
+                :csrf-token="{{ csrf_token('authenticate')|json_encode }}">
                 {# Using the |raw filter in this special case is needed, as html tags are returned. #}
                 {{ extensionPointMarkup('formExtraFields')|raw }}
             </saml-login-form>
@@ -39,6 +40,7 @@
                             :action="loginRoute">
                             <input type="hidden" name="r_useremail" :value="rowData.login">
                             <input type="hidden" name="password" :value="password">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate')|json_encode }}">
                             <input type="submit" class="{{ 'btn btn--primary'|prefixClass }}" value="Login">
                         </form>
                     </template>

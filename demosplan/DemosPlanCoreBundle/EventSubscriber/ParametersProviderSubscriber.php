@@ -29,7 +29,7 @@ class ParametersProviderSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            'DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent' => 'processParameters',
+            ParameterProviderEventInterface::class => 'processParameters',
         ];
     }
 

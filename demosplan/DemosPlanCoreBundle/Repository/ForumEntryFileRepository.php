@@ -10,6 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -26,7 +31,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntryFile file-Eintrag als FileResponse Objekt
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function get($hash)
     {
@@ -41,7 +46,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
 
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -185,9 +190,9 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      *
      * @return bool true wenn die ID als gültig eingestuft wird, ansonsten false
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      */
     private function isValidEntry($entryId)
     {
@@ -265,7 +270,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
      * @return void
      */

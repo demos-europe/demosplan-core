@@ -34,7 +34,7 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
@@ -42,7 +42,7 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface
     protected $procedure;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\Orga
+     * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="cascade")

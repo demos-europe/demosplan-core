@@ -29,7 +29,7 @@ class MapHandler extends CoreHandler
      */
     protected $mapService;
     /**
-     * @var \Doctrine\ORM\EntityManagerInterface
+     * @var EntityManagerInterface
      */
     private $entityManager;
 

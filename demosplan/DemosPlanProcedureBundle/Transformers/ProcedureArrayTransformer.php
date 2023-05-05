@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Transformers;
 
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 
 /**
  * @deprecated use {@link ProcedureResourceType} instead
  */
-class ProcedureArrayTransformer extends \demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+class ProcedureArrayTransformer extends BaseTransformer
 {
     protected $type = 'Procedure';
 

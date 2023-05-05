@@ -57,7 +57,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
      */
     private $orgaService;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface
+     * @var EventDispatcherPostInterface
      */
     private $eventDispatcherPost;
 

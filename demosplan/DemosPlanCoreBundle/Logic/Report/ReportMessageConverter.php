@@ -29,7 +29,7 @@ class ReportMessageConverter
     /** @var JsonParser */
     protected $jsonParser;
 
-    /** @var \demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension */
+    /** @var DateExtension */
     protected $dateExtension;
 
     /**

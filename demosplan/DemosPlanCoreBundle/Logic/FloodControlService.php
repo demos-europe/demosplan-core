@@ -128,7 +128,7 @@ class FloodControlService extends CoreService
     /**
      * Check, whether Cookie has been set to prevent multiple submissions.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CookieException
+     * @throws CookieException
      */
     public function checkCookie(RequestValidationEvent $event)
     {

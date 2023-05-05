@@ -46,6 +46,10 @@
               :prevent-default-on-enter="false"
               required
               type="password" />
+            <input
+              type="hidden"
+              name="_csrf_token"
+              :value="csrfToken">
 
             <dp-button
               :class="prefixClass('u-mt')"
@@ -125,6 +129,11 @@ export default {
       type: String,
       required: true,
       default: ''
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     }
   }
 }
