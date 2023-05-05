@@ -303,6 +303,8 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedure = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
+            $this->logger->error('Could not get procedure object', [$exception]);
+
             return '';
         }
 
