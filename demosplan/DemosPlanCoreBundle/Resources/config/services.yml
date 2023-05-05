@@ -69,6 +69,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\FileService
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
