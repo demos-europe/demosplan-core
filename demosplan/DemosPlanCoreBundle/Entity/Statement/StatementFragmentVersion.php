@@ -78,7 +78,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $tagAndTopicNames;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -182,7 +182,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * User who triggered this Version.
      *
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
@@ -513,7 +513,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param Procedure $procedure
      */
     public function setProcedure($procedure)
     {
@@ -585,7 +585,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @return User
      */
     public function getModifiedByUser()
     {
@@ -615,7 +615,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\Department
+     * @return Department
      */
     public function getModifiedByDepartment()
     {
@@ -635,7 +635,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\User\Department $modifiedByDepartment
+     * @param Department $modifiedByDepartment
      */
     public function setModifiedByDepartment($modifiedByDepartment)
     {

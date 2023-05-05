@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
@@ -277,7 +278,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     public function markSelectedElementInSortByField(array $procedures)
     {
         if (isset($procedures['sort']['selection'])) {
-            /** @var \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort $option */
+            /** @var Sort $option */
             foreach ($procedures['definition']->getAvailableSorts() as $option) {
                 $option->setSelected(false);
 
@@ -952,7 +953,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @return array<int, string>
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
+     * @throws UserNotFoundException
      */
     private function getPlaningAgencyCCEmailRecipients(array $procedure, array $formEmailCC): array
     {

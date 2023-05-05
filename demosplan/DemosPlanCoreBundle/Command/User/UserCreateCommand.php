@@ -45,7 +45,7 @@ class UserCreateCommand extends CoreCommand
      */
     private $userRepository;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers
+     * @var Helpers
      */
     private $helpers;
 

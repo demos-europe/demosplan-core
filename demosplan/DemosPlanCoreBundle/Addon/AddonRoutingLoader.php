@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use ReflectionClass;
+use ReflectionMethod;
 use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -40,7 +42,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
         return $routeCollection;
     }
 
-    protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $annot)
+    protected function configureRoute(Route $route, ReflectionClass $class, ReflectionMethod $method, object $annot)
     {
         if ('__invoke' === $method->getName()) {
             $route->setDefault('_controller', $class->getName());

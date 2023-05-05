@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Pagerfanta\Adapter\ElasticaAdapter;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -153,7 +154,7 @@ class StatementFragmentService extends CoreService
      */
     private $statementService;
     /**
-     * @var \Doctrine\Persistence\ManagerRegistry
+     * @var ManagerRegistry
      */
     private $managerRegistry;
     /**
@@ -1522,7 +1523,7 @@ class StatementFragmentService extends CoreService
             $this->logger->debug('Elasticsearch StatementFragmentList Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
             $search = $this->esStatementFragmentType;
-            $elasticaAdapter = new \Pagerfanta\Adapter\ElasticaAdapter($search, $query);
+            $elasticaAdapter = new ElasticaAdapter($search, $query);
             $paginator = new DemosPlanPaginator($elasticaAdapter);
             $paginator->setLimits($this->getPaginatorLimits());
 

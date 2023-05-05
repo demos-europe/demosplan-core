@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
+use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -1781,8 +1783,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param array  $accessMap
      * @param string $statementId
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      * @throws ReflectionException
      */
     private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
@@ -2019,7 +2021,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param string $statementId ID der Stellungnahme
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote|bool
+     * @return StatementVote|bool
      */
     public function addVote($statementId, User $user)
     {
@@ -3918,7 +3920,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // Speichere ggf. ein Potenzialfläche am Statement
-        /** @var \Doctrine\Common\Collections\Collection|null $statementAttributes */
+        /** @var Collection|null $statementAttributes */
         $statementAttributes = $draftStatement->getStatementAttributes();
         if (!is_null($statementAttributes) && 0 < $statementAttributes->count()) {
             try {
@@ -3931,7 +3933,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 );
                 if (1 == $hasPriorityArea->count()) {
                     // lade die Potenzialfläche
-                    /** @var \Doctrine\Common\Collections\Collection|null $priorityArea */
+                    /** @var Collection|null $priorityArea */
                     $priorityArea = $this->getPriorityAreaService()->getPriorityAreasByKey($hasPriorityArea->first()->getValue());
                     if (!is_null($priorityArea) && 1 === count($priorityArea)) {
                         // Füge die Potenzialfläche der SN zu
@@ -4162,7 +4164,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
         // transaction is needed here, because we want both the Statement changes and the
         // ContentChange creations inside a single transaction
-        /** @var \Doctrine\DBAL\Connection $conn */
+        /** @var Connection $conn */
         $conn = $this->getDoctrine()->getConnection();
         try {
             $conn->beginTransaction();

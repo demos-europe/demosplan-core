@@ -136,7 +136,7 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeItem($data, string $transformerName, $type = ''): Item
     {
-        /** @var \demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer $transformer */
+        /** @var BaseTransformer $transformer */
         $transformer = $this->getTransformer($transformerName);
 
         if ('' === $type) {

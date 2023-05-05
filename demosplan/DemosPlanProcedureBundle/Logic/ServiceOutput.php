@@ -168,7 +168,7 @@ class ServiceOutput
      * Verarbeitet alle Anfragen aus der Listenansicht.
      * Liefert eine Liste von Verfahren.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure $esQuery
+     * @param QueryProcedure $esQuery
      *
      * @throws Exception
      */

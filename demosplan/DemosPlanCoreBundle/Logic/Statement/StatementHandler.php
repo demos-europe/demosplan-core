@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
@@ -503,7 +506,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $statementId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      */
     public function getStatementFragmentsStatement($statementId)
     {
@@ -515,7 +518,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $departmentId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      *
      * @throws Exception
      */
@@ -535,7 +538,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $departmentId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      */
     public function getStatementFragmentsDepartmentArchive($departmentId)
     {
@@ -808,7 +811,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Send a notification mail to the currently assigned organization of a
      * Statement Fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment $fragment
+     * @param StatementFragment $fragment
      * @param bool                                                              $isReviewer
      *
      * @throws Exception
@@ -1302,9 +1305,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param bool         $is_archive   true if the export should apply to the archive rather to the fragment list
      *
      * @throws HandlerException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function generateFragmentPdf($fragmentIds = [], $procedureId = null, $departmentId = null, $is_archive = false): PdfFile
     {
@@ -1417,7 +1420,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param bool $asObject
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\Department[]
+     * @return Department[]
      *
      * @throws Exception
      */
@@ -1529,7 +1532,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param array $data
      * @param bool  $propagateTags add tags added to this fragment to the corresponding statement as well
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment|null
+     * @return StatementFragment|null
      *
      * @throws Exception
      */
@@ -1861,7 +1864,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag|false
+     * @return Tag|false
      */
     public function renameTag($id, $name)
     {
@@ -3452,7 +3455,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * @deprecated use DI instead
      *
-     * @return \demosplan\DemosPlanCoreBundle\Permissions\Permissions
+     * @return Permissions
      *
      * @throws Exception
      */
