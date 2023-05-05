@@ -13,8 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use ReflectionClass;
 use ReflectionMethod;
 use DemosEurope\DemosplanAddon\Utilities\AddonPath;
-use ReflectionClass;
-use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
