@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MasterToebInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository")
  */
-class MasterToeb extends CoreEntity implements UuidEntityInterface
+class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebInterface
 {
     /**
      * @var string|null
