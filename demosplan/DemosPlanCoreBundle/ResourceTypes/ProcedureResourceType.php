@@ -136,7 +136,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         // check for invited organisation
         $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->invitedOrganisations->id);
         // check for allowed planning offices
-        $planningOfficesCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->planningOffices->id);
+        $planningOfficesCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->planningOffices->id);
 
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
