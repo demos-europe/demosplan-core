@@ -1,42 +1,5 @@
 <?php
 
-use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
-use BabDev\PagerfantaBundle\BabDevPagerfantaBundle;
-use Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle;
-use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
-use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
-use Enqueue\Bundle\EnqueueBundle;
-use Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle;
-use FOS\ElasticaBundle\FOSElasticaBundle;
-use FOS\JsRoutingBundle\FOSJsRoutingBundle;
-use Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle;
-use Intriro\Bundle\CsvBundle\IntriroCsvBundle;
-use JMS\SerializerBundle\JMSSerializerBundle;
-use Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle;
-use Nelmio\SecurityBundle\NelmioSecurityBundle;
-use OldSound\RabbitMqBundle\OldSoundRabbitMqBundle;
-use Sentry\SentryBundle\SentryBundle;
-use Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle;
-use Symfony\Bundle\MakerBundle\MakerBundle;
-use Symfony\Bundle\MonologBundle\MonologBundle;
-use Symfony\Bundle\SecurityBundle\SecurityBundle;
-use Symfony\Bundle\TwigBundle\TwigBundle;
-use Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle;
-use demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle;
-use demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle;
-use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
-use Liip\FunctionalTestBundle\LiipFunctionalTestBundle;
-use Liip\TestFixturesBundle\LiipTestFixturesBundle;
-use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
-use Symfony\Bundle\DebugBundle\DebugBundle;
-use Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle;
-use Bazinga\GeocoderBundle\BazingaGeocoderBundle;
-use Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle;
-use EFrane\TusBundle\Bundle\TusBundle;
-use Knp\Bundle\MenuBundle\KnpMenuBundle;
-use KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle;
-use Enqueue\ElasticaBundle\EnqueueElasticaBundle;
-use DemosEurope\DemosplanAddon\DemosPlanAddonBundle;
 /**
  * This file is part of the package demosplan.
  *
@@ -44,42 +7,43 @@ use DemosEurope\DemosplanAddon\DemosPlanAddonBundle;
  *
  * All rights reserved
  */
+
 return [
-    FrameworkBundle::class                              => ['all' => true],
-    BabDevPagerfantaBundle::class                              => ['all' => true],
-    BazingaJsTranslationBundle::class               => ['all' => true],
-    DoctrineBundle::class                               => ['all' => true],
-    DoctrineMigrationsBundle::class                   => ['all' => true],
-    EnqueueBundle::class                                                => ['all' => true],
-    ExerciseHTMLPurifierBundle::class                      => ['all' => true],
-    FOSElasticaBundle::class                                        => ['all' => true],
-    FOSJsRoutingBundle::class                                      => ['all' => true],
-    HslavichOneloginSamlBundle::class                      => ['all' => true],
-    IntriroCsvBundle::class                                   => ['all' => true],
-    JMSSerializerBundle::class                                    => ['all' => true],
-    LexikJWTAuthenticationBundle::class           => ['all' => true],
-    NelmioSecurityBundle::class                                  => ['all' => true],
-    OldSoundRabbitMqBundle::class                              => ['all' => true],
-    SentryBundle::class                                            => ['all' => true],
-    StofDoctrineExtensionsBundle::class                  => ['all' => true],
-    MakerBundle::class                                      => ['dev' => true],
-    MonologBundle::class                                  => ['all' => true],
-    SecurityBundle::class                                => ['all' => true],
-    TwigBundle::class                                        => ['all' => true],
-    PhpSpreadsheetBundle::class                            => ['all' => true],
-    DemosPlanCoreBundle::class                           => ['all' => true],
-    DemosPlanProcedureBundle::class                 => ['all' => true],
-    DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
-    LiipFunctionalTestBundle::class                          => ['test' => true],
-    LiipTestFixturesBundle::class                              => ['test' => true],
-    WebProfilerBundle::class                          => ['test' => true, 'dev' => true],
-    DebugBundle::class                                      => ['dev' => true],
-    SensioFrameworkExtraBundle::class               => ['all' => true],
-    BazingaGeocoderBundle::class                                => ['all' => true],
-    RollerworksPasswordStrengthBundle::class => ['all' => true],
-    TusBundle::class                                           => ['all' => true],
-    KnpMenuBundle::class                                         => ['all' => true],
-    KnpUOAuth2ClientBundle::class                              => ['all' => true],
-    EnqueueElasticaBundle::class                                => ['all' => true],
-    DemosPlanAddonBundle::class                             => ['all' => true],
+    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class                              => ['all' => true],
+    BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class                              => ['all' => true],
+    Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle::class               => ['all' => true],
+    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class                               => ['all' => true],
+    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class                   => ['all' => true],
+    Enqueue\Bundle\EnqueueBundle::class                                                => ['all' => true],
+    Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class                      => ['all' => true],
+    FOS\ElasticaBundle\FOSElasticaBundle::class                                        => ['all' => true],
+    FOS\JsRoutingBundle\FOSJsRoutingBundle::class                                      => ['all' => true],
+    Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class                      => ['all' => true],
+    Intriro\Bundle\CsvBundle\IntriroCsvBundle::class                                   => ['all' => true],
+    JMS\SerializerBundle\JMSSerializerBundle::class                                    => ['all' => true],
+    Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class           => ['all' => true],
+    Nelmio\SecurityBundle\NelmioSecurityBundle::class                                  => ['all' => true],
+    OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class                              => ['all' => true],
+    Sentry\SentryBundle\SentryBundle::class                                            => ['all' => true],
+    Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class                  => ['all' => true],
+    Symfony\Bundle\MakerBundle\MakerBundle::class                                      => ['dev' => true],
+    Symfony\Bundle\MonologBundle\MonologBundle::class                                  => ['all' => true],
+    Symfony\Bundle\SecurityBundle\SecurityBundle::class                                => ['all' => true],
+    Symfony\Bundle\TwigBundle\TwigBundle::class                                        => ['all' => true],
+    Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle::class                            => ['all' => true],
+    demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class                           => ['all' => true],
+    demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class                 => ['all' => true],
+    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
+    Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class                          => ['test' => true],
+    Liip\TestFixturesBundle\LiipTestFixturesBundle::class                              => ['test' => true],
+    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class                          => ['test' => true, 'dev' => true],
+    Symfony\Bundle\DebugBundle\DebugBundle::class                                      => ['dev' => true],
+    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class               => ['all' => true],
+    Bazinga\GeocoderBundle\BazingaGeocoderBundle::class                                => ['all' => true],
+    Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle::class => ['all' => true],
+    EFrane\TusBundle\Bundle\TusBundle::class                                           => ['all' => true],
+    Knp\Bundle\MenuBundle\KnpMenuBundle::class                                         => ['all' => true],
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class                              => ['all' => true],
+    Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
+    DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
 ];
