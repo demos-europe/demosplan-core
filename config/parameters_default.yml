@@ -451,7 +451,7 @@ parameters:
     ai_service_post_url: ""
 
     # #refactor: used only once, could be constant
-    drafts_info_schema_path: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/json-schema/drafts-info-schema.json"
+    drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"
 
     public_css_class_prefix: ""
 
@@ -464,9 +464,9 @@ parameters:
     survey.status.default: 'configuration'
 
     # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/surveyvote-schema-create.json"
+    survey.schema_path_create: "%kernel.project_dir%/config/Survey/survey-schema-create.json"
+    survey.schema_path_update: "%kernel.project_dir%/config/Survey/survey-schema-update.json"
+    surveyvote.schema_path_create: "%kernel.project_dir%/config/Survey/surveyvote-schema-create.json"
 
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]
