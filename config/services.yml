@@ -494,10 +494,6 @@ services:
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHStaticAuthenticator:
         $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySHStatic'
 
-    demosplan\DemosPlanCoreBundle\Security\Firewall\Listener\DemosAuthenticationListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 6 }
-
     demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb: ~
 
     demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery:
