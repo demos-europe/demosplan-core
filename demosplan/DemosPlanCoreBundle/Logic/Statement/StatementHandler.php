@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -60,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
@@ -74,9 +76,10 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -93,10 +96,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -117,6 +116,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
 use function array_key_exists;
 use function is_string;
 
@@ -186,9 +186,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /** @var QueryFragment */
     protected $esQueryFragment;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /** @var StatementClusterService */
     protected $statementClusterService;
@@ -311,7 +308,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         ProcedureHandler $procedureHandler,
         ProcedureService $procedureService,
         QueryFragment $esQueryFragment,
-        SearchIndexTaskService $searchIndexTaskService,
         ServiceImporter $serviceImporter,
         ServiceOutput $procedureOutput,
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
@@ -354,7 +350,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $this->procedureHandler = $procedureHandler;
         $this->procedureOutput = $procedureOutput;
         $this->procedureService = $procedureService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->serviceImporter = $serviceImporter;
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
         $this->singleDocumentService = $singleDocumentService;
@@ -779,15 +774,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         $statement = $fragmentToDelete->getStatement();
-        $deleted = $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
 
-        // on successful deletion only:
-        if (true === $deleted) {
-            // reindex corresponding statement
-            $statementService->reindexStatement($statement);
-        }
-
-        return $deleted;
+        return $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
     }
 
     /**
@@ -1594,10 +1582,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             // add all tags from the new fragment to the related statement if propagation is enabled
             $tagsToAdd = collect($propagateTags ? $result->getTags() : []);
             $relatedStatementUpdated = $this->addAdditionalAreaInformationToStatement($result, $tagsToAdd);
-            // reindex all statementFragments of related statement to make the changes visible:
-            if ($relatedStatementUpdated) {
-                $this->statementFragmentService->reindexStatementFragment($result);
-            }
         }
 
         if (array_key_exists('r_notify', $data) && !is_null($result) && false !== $result) {
@@ -4585,12 +4569,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $this->entityContentChangeService->convertArraysAndAddVersion(
                 $newClusterStatement, [], 'cluster');
-
-            // update Statement status in index
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                array_merge([$clusterStatement->getId(), $newClusterStatement->getId()], $statementIds)
-            );
 
             // copy fragments in the end, to avoid fragments get copied in newStatementCluster()
             if (0 < $headStatement->getFragments()->count()) {

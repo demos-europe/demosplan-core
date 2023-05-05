@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
@@ -28,13 +28,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -387,7 +386,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     public function editStatementFragmentAjaxAction(
         CurrentUserService $currentUser,
         Request $request,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementFragmentService $statementFragmentService,
         string $fragmentId,
         bool $isReviewer = false)
@@ -422,10 +420,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $updatedStatementFragment = $this->statementHandler->updateStatementFragment($fragmentId, $updateData, $isReviewer);
             $returnCode = 200;
             $success = true;
-
-            // as fragments are fetched from ES later on to get current structure
-            // ES needs to be indexed beforehand
-            $searchIndexTaskService->refreshIndex(StatementFragment::class);
 
             if (false === ($updatedStatementFragment instanceof StatementFragment)) {
                 $this->getLogger()->error(

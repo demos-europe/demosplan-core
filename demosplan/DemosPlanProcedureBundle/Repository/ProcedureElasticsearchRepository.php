@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use Elastica\Index;

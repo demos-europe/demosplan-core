@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 

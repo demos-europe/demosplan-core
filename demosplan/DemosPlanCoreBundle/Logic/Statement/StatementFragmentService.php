@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -33,17 +34,19 @@ use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementFragmentNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
@@ -53,10 +56,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -82,9 +81,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class StatementFragmentService extends CoreService
 {
     use RefreshElasticsearchIndexTrait;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /** @var PermissionsInterface */
     protected $permissions;
@@ -197,7 +193,6 @@ class StatementFragmentService extends CoreService
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        SearchIndexTaskService $searchIndexTaskService,
         SortMethodFactory $sortMethodFactory,
         StatementFragmentRepository $statementFragmentRepository,
         StatementFragmentVersionRepository $statementFragmentVersionRepository,
@@ -220,7 +215,6 @@ class StatementFragmentService extends CoreService
         $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->procedureService = $procedureService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->searchService = $elasticSearchService;
         $this->sortMethodFactory = $sortMethodFactory;
         $this->statementFragmentRepository = $statementFragmentRepository;
@@ -337,10 +331,6 @@ class StatementFragmentService extends CoreService
             // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
             $this->statementFragmentRepository->delete($fragmentToDelete);
 
-            $this->searchIndexTaskService->deleteFromIndexTask(
-                StatementFragment::class,
-                $statementFragmentId
-            );
             $success = true;
         } catch (Exception $e) {
             $this->getLogger()->error('Fehler beim Löschen eines StatementFragments: ', [$e]);
@@ -530,11 +520,6 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->statementFragmentRepository->addObject($newFragment);
-                // index Fragment
-                $this->searchIndexTaskService->addIndexTask(
-                    StatementFragment::class,
-                    $newFragment->getId()
-                );
                 $this->getLogger()->debug('Cluster single fragment copied');
             }
         } catch (NotAssignedException $e) {
@@ -543,14 +528,6 @@ class StatementFragmentService extends CoreService
             $this->getLogger()->error('Could not copy StatementFragment', [$e]);
 
             return null;
-        }
-
-        if (null !== $statementToCopyTo) {
-            // somehow fragments are not updated in Cluster
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $statementToCopyTo->getId()
-            );
         }
 
         return $statementToCopyTo;
@@ -921,35 +898,6 @@ class StatementFragmentService extends CoreService
     }
 
     /**
-     * Reindexes StatementFragment in Elasticsearch.
-     *
-     * @param StatementFragment|false $statementFragment
-     * @param bool                    $updateSiblings    Should other StatementFragments of the parent Statement be updated as well?
-     */
-    public function reindexStatementFragment($statementFragment, $updateSiblings = true)
-    {
-        $this->searchIndexTaskService->addIndexTask(
-            StatementFragment::class,
-            $statementFragment->getId()
-        );
-
-        // Should other StatementFragments of the parent Statement be updated as well
-        if ($updateSiblings) {
-            $siblings = $this->getStatementFragmentsStatement($statementFragment->getStatement()->getId());
-            // insert also $statementFragment, it doesn't matter if it is inserted twice
-            foreach ($siblings as $sibling) {
-                $this->searchIndexTaskService->addIndexTask(
-                    StatementFragment::class,
-                    $sibling->getId()
-                );
-            }
-        }
-
-        // nested fragments at parent statement index needs to be updated in any case
-        $this->statementService->reindexStatement($statementFragment->getStatement());
-    }
-
-    /**
      * @param array $data
      *
      * @throws NoResultException
@@ -968,17 +916,8 @@ class StatementFragmentService extends CoreService
         $statementFragment->getStatement()->addFragment($statementFragment);
         // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
 
-        // add StatementFragment to Elasticsearch index
-        $this->searchIndexTaskService->addIndexTask(
-            StatementFragment::class,
-            $statementFragment->getId()
-        );
-
         $version = new StatementFragmentVersion($statementFragment);
         $this->statementFragmentVersionRepository->addObject($version);
-
-        // when creating a new fragment no update of siblings needed as nothing could have changed
-        $this->reindexStatementFragment($statementFragment, false);
 
         return $statementFragment;
     }
@@ -1025,7 +964,6 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->createStatementFragmentVersion($version);
-                $this->reindexStatementFragment($result);
             }
         } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
@@ -1117,7 +1055,6 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->createStatementFragmentVersion($version);
-                $this->reindexStatementFragment($result);
             }
         } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
@@ -1700,15 +1637,6 @@ class StatementFragmentService extends CoreService
         return $statementFragment;
     }
 
-    public function reindexStatementFragments(Statement $statement): void
-    {
-        $fragmentIds = $statement->getFragments()->map(static function (StatementFragment $fragment): string {
-            return $fragment->getId();
-        })->getValues();
-
-        $this->searchIndexTaskService->addIndexTask(StatementFragment::class, $fragmentIds);
-    }
-
     protected function getFragmentElasticsearchRepository(): FragmentElasticsearchRepository
     {
         return new FragmentElasticsearchRepository(
@@ -1844,11 +1772,7 @@ class StatementFragmentService extends CoreService
             $statementFragments = $this->statementFragmentRepository->findBy(
                 ['id' => $statementFragmentIds, 'procedure' => $procedureId]
             );
-            // This can be optimized by reindexing multiple objects at once
-            // however it is of minor priority as this is an edge case anyway
-            foreach ($statementFragments as $statementFragment) {
-                $this->reindexStatementFragment($statementFragment);
-            }
+
             $this->refreshElasticsearchIndexes();
             throw $e;
         }

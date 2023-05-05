@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Exception;
@@ -954,7 +954,7 @@ class EntityContentChangeService extends CoreService
         }
         try {
             $mail['mailbody'] = $this->twig->load(
-                '@DemosPlanUser/DemosPlanUser/email_assigned_tasks.html.twig'
+                '@DemosPlanCore/DemosPlanUser/email_assigned_tasks.html.twig'
             )->renderBlock(
                 'body_plain',
                 [

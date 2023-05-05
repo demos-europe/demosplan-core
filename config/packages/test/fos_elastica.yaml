@@ -1,0 +1,27 @@
+fos_elastica:
+    indexes:
+        procedures:
+            index_name: '%project_prefix%_procedures_test'
+            persistence:
+                listener: { enabled: false }
+        draftStatements:
+            index_name: '%project_prefix%_draft_statements_test'
+            persistence:
+                listener: { enabled: false }
+        statements:
+            index_name: '%project_prefix%_statements_test'
+        statementFragments:
+            index_name: '%project_prefix%_statement_fragments_test'
+            persistence:
+                listener: { enabled: false }
+        statementSegments:
+            index_name: '%project_prefix%_segments_test'
+            persistence:
+                listener: { enabled: false }
+        users:
+            index_name: '%project_prefix%_user_test'
+            persistence:
+                listener: { enabled: false }
+
+imports:
+    - { resource: "../../../config/elasticsearch.yml" }

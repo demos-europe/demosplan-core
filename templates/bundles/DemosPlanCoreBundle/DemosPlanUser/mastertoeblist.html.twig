@@ -1,0 +1,51 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('user-mastertoeblist.js') }}
+{% endblock javascripts %}
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanUser/includes/mastertoeblist_pageheader.html.twig' with {
+        heading: 'invitable_institution.master'|trans,
+        highlighted: 'mastertoeblist'
+    } %}
+
+    {% set fields = [
+        { field: 'ident', value: 'ident'},
+        { field: 'gatewayGroup', value: "gatewayGroup"|trans({}, "master-toeb-list") },
+        { field: 'orgaName', value: "orgaName"|trans({}, "master-toeb-list") },
+        { field: 'departmentName', value:  "departmentName"|trans({}, "master-toeb-list") },
+        { field: 'sign', value: "sign"|trans({}, "master-toeb-list") },
+        { field: 'email', value: "email"|trans({}, "master-toeb-list") },
+        { field: 'ccEmail', value: "ccEmail"|trans({}, "master-toeb-list") },
+        { field: 'contactPerson', value: "contactPerson"|trans({}, "master-toeb-list") },
+        { field: 'registered', value: "registered"|trans({}, "master-toeb-list") },
+        { field: 'memo', value: "memo"|trans({}, "master-toeb-list") },
+        { field: 'districtHHMitte', value: "districtHHMitte"|trans({}, "master-toeb-list") },
+        { field: 'districtAltona', value: "districtAltona"|trans({}, "master-toeb-list") },
+        { field: 'districtEimsbuettel', value: "districtEimsbuettel"|trans({}, "master-toeb-list") },
+        { field: 'districtHHNord', value: "districtHHNord"|trans({}, "master-toeb-list") },
+        { field: 'districtWandsbek', value: "districtWandsbek"|trans({}, "master-toeb-list") },
+        { field: 'districtBergedorf', value: "districtBergedorf"|trans({}, "master-toeb-list") },
+        { field: 'districtHarburg', value: "districtHarburg"|trans({}, "master-toeb-list") },
+        { field: 'districtBsu', value: "districtBsu"|trans({}, "master-toeb-list") },
+        { field: 'comment', value: "comment"|trans({}, "master-toeb-list") },
+        { field: 'documentRoughAgreement', value: "documentRoughAgreement"|trans({}, "master-toeb-list") },
+        { field: 'documentAgreement', value: "documentAgreement"|trans({}, "master-toeb-list") },
+        { field: 'documentNotice', value: "documentNotice"|trans({}, "master-toeb-list") },
+        { field: 'documentAssessment', value: "documentAssessment"|trans({}, "master-toeb-list") }
+    ] %}
+
+    <form method="post" id="orgalistForm" class="cf" action="">
+        <dp-master-toeb-list
+            user-id="{{ currentUser.ident|default }}"
+            :fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"
+            :is-editable="true"
+            :items="JSON.parse('{{ templateVars.orgas|default([])|json_encode|e('js', 'utf-8') }}')"></dp-master-toeb-list>
+    </form>
+{% endblock component_part %}
+
+{% block base_backtotop %}{% endblock base_backtotop %}
