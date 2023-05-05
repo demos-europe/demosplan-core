@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
  */
-class InstitutionTag extends CoreEntity implements UuidEntityInterface
+class InstitutionTag extends CoreEntity implements UuidEntityInterface, InstitutionTagInterface
 {
     /**
      * @var string|null
@@ -55,7 +57,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
      *
-     * @var Collection<int, Orga>
+     * @var Collection<int, OrgaInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
@@ -117,7 +119,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Collection<int, Orga> $institutions
+     * @param Collection<int, OrgaInterface> $institutions
      */
     public function setTaggedInstitutions(Collection $institutions): void
     {
@@ -137,7 +139,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @return bool - true if the given statement was added to this tag, otherwise false
      */
-    public function addTaggedInstitution(Orga $institution): bool
+    public function addTaggedInstitution(OrgaInterface $institution): bool
     {
         if (!$this->taggedInstitutions->contains($institution)) {
             $this->taggedInstitutions->add($institution);
