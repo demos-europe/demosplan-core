@@ -544,7 +544,13 @@ export default {
     setInitialValues () {
       this.values = { ...this.initValues }
       // Set default values to ensure reactivity.
-      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
+      if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
+        // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
+        Vue.set(this.values.submitter, 'institution',  this.values.submitter.toeb)
+        Vue.delete(this.values.submitter, 'toeb')
+      }
+
+      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {
         Vue.set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
           Vue.set(this.values.submitter, key, value)
