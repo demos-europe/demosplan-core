@@ -1950,11 +1950,18 @@ class StatementService extends CoreService implements StatementServiceInterface
             ];
 
             // only one vote per user per statement
-            return $this->statementVoteRepository->findOneBy([
+            $vote = $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
                 'statement' => $statementId,
                 'deleted'   => false,
                 'active'    => true, ]);
+
+            // user already voted this statement?
+            if (null === $vote) {
+                $vote = $this->statementVoteRepository->add($data);
+            }
+
+            return $vote;
         } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
 
