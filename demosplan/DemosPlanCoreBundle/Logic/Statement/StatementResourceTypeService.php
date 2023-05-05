@@ -114,7 +114,6 @@ class StatementResourceTypeService extends ResourceTypeService
 
         $this->resourceTypeService->validateObject($object);
         $this->resourceTypeService->validateObject($meta);
-        $resourceChange->addEntityToUpdateInIndex(Statement::class, $object->getId());
 
         return $resourceChange;
     }
