@@ -85,6 +85,7 @@ class FileUploadService
                 }
             }
         } catch (FileException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             // Falscher MimeType
             if (20 === $e->getCode()) {
                 $messageBag->add('warning', 'warning.filetype');
@@ -92,8 +93,8 @@ class FileUploadService
 
             // Lösche bei einer Exception die Datei aus dem Request
             $request->files->remove($field);
-            $this->logger->warning($e);
         } catch (Exception $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             if (false === $suppressWarning) {
                 $messageBag->add('error', 'error.fileupload');
             }
@@ -150,8 +151,10 @@ class FileUploadService
                         $this->fileService->saveUploadedFile($file);
                         $filesUploaded[] = $this->fileService->getFileString();
                     } catch (VirusFoundException $e) {
+                        $this->logger->error($e->getMessage(), ['exception' => $e]);
                         $this->messageBag->add('warning', 'warning.virus.found', ['filename' => $e->getMessage()]);
                     } catch (Exception $e) {
+                        $this->logger->error($e->getMessage(), ['exception' => $e]);
                         $this->messageBag->add('warning', 'error.fileupload', ['filename' => $e->getMessage()]);
                     }
                 }
