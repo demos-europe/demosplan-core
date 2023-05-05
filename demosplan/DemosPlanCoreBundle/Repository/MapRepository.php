@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -63,7 +66,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             ->getQuery();
         try {
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $this->logger->error('Get Legends of procedure failed', [$e]);
 
             return null;
@@ -384,8 +387,8 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @param string $globalGisId - The global gislayer ID
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     private function deleteGlobals($globalGisId)
     {
@@ -501,7 +504,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($gisLayer, array $data)
     {
@@ -629,8 +632,8 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
     /**
      * @return CoreEntity
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function addObject($entity): GisLayer
     {

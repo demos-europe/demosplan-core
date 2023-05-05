@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -164,7 +165,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return StatementVote
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($entity, array $data)
     {

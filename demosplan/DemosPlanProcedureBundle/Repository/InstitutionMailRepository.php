@@ -36,7 +36,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+     * @return CoreEntity
      *
      * @throws Exception
      */
@@ -102,9 +102,9 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+     * @return CoreEntity
      */
     public function generateObjectValues($entity, array $data)
     {

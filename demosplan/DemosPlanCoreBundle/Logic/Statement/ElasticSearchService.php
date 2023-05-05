@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -40,7 +42,7 @@ class ElasticSearchService extends CoreService
      */
     protected $aggregationsMinDocumentCount = 1;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserService
+     * @var UserService
      */
     private $userService;
 
@@ -80,7 +82,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsMissingAggregation(Query $query, $key): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -369,7 +371,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsFragmentsMissingAggregation($key, Query $query): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -382,7 +384,7 @@ class ElasticSearchService extends CoreService
         // we do only need the amount, not the ids
         $aggPriority->addAggregation($statementCount);
 
-        $nested = new \Elastica\Aggregation\Nested(
+        $nested = new Nested(
             $key.'_missing',
             'fragments'
         );
@@ -399,7 +401,7 @@ class ElasticSearchService extends CoreService
      * @param string $field
      * @param array  $terms
      *
-     * @return \Elastica\Query\Terms
+     * @return Terms
      *
      * @throws Exception
      */

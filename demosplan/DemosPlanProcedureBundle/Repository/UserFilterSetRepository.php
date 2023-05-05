@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
@@ -28,7 +29,7 @@ class UserFilterSetRepository extends CoreRepository
     {
         try {
             return $this->find($entityId);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -343,8 +345,8 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     /**
      * @param array<int, SingleDocument> $planningDocuments
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function persistAndFlushNewPlanningDocumentsFromImport(array $planningDocuments): void
     {

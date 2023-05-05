@@ -37,7 +37,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
      */
     private $permissions;
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 

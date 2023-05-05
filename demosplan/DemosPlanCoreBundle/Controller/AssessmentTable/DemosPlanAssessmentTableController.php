@@ -929,7 +929,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @param string $statementId
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
      *
      * @throws Exception
      */
@@ -972,7 +972,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @param string $statementId
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
      *
      * @throws Exception
      */
@@ -1021,7 +1021,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @param bool   $isReviewer
      * @param string $fragmentId
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return JsonResponse
      *
      * @throws Exception
      */
