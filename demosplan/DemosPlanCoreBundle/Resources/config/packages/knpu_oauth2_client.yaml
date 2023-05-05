@@ -7,16 +7,16 @@ knpu_oauth2_client:
         keycloak_ozg:
             # must be "keycloak" - it activates that type!
             type: keycloak
-            # add and set these environment variables in your .env files
-            client_id: '%env(OAUTH_KEYCLOAK_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_KEYCLOAK_CLIENT_SECRET)%'
+            # add and set these environment variables in your parameters.yml files
+            client_id: '%oauth_keycloak_client_id%'
+            client_secret: '%oauth_keycloak_client_secret%'
             # a route name you'll create
             redirect_route: connect_keycloak_ozg_check
             redirect_params: {}
             # Keycloak server URL
-            auth_server_url: '%env(OAUTH_KEYCLOAK_AUTH_SERVER_URL)%'
+            auth_server_url: '%oauth_keycloak_auth_server_url%'
             # Keycloak realm
-            realm: '%env(OAUTH_KEYCLOAK_REALM)%'
+            realm: '%oauth_keycloak_realm%'
             # Optional: Encryption algorith, i.e. RS256
             # encryption_algorithm: null
             # Optional: Encryption key path, i.e. ../key.pem

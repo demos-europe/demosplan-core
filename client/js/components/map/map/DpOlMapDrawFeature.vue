@@ -307,6 +307,10 @@ export default {
       }
     },
 
+    getExtent () {
+      return this.drawingExtent
+    },
+
     toggle () {
       if (this.currentlyActive === false) {
         this.$root.$emit('setDrawingActive', this.name)

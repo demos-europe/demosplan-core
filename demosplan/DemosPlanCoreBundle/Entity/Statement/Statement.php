@@ -2613,7 +2613,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->paragraphParentTitle = $parentTitle;
         }
 
-        return trim($this->paragraphParentTitle);
+        return trim($this->paragraphParentTitle ?? '');
     }
 
     /**
