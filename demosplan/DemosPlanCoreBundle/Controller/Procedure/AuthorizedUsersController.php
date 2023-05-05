@@ -15,11 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\BulkLetterExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,6 +33,7 @@ class AuthorizedUsersController extends BaseController
      *      name="dplan_admin_procedure_authorized_users",
      *      methods={"HEAD", "GET"}
      * )
+     *
      * @DplanPermissions("area_admin_consultations")
      */
     public function listAction(string $procedureId)
@@ -52,6 +53,7 @@ class AuthorizedUsersController extends BaseController
      *      name="dplan_admin_procedure_authorized_users_export",
      *      methods={"HEAD", "GET"}, options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_consultations")
      */
     public function exportAction(

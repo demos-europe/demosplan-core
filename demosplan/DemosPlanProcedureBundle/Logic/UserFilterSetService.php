@@ -12,11 +12,10 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\UserFilterSetRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 
 class UserFilterSetService extends CoreService
 {

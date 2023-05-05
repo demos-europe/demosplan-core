@@ -23,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository")
  */
 class AddressBookEntry extends CoreEntity implements UuidEntityInterface, AddressBookEntryInterface
 {

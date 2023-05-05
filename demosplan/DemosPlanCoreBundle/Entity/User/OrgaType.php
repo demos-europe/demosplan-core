@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table(name="_orga_type")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository")
  */
 class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
 {

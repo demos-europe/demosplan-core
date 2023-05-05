@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Table(name="_address")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AddressRepository")
  */
 class Address extends CoreEntity implements UuidEntityInterface, AddressInterface
 {

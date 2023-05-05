@@ -26,7 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table(name="_department", uniqueConstraints={@ORM\UniqueConstraint(name="_d_gw_id", columns={"_d_gw_id"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\DepartmentRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository")
  */
 class Department extends CoreEntity implements UuidEntityInterface, DepartmentInterface
 {

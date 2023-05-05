@@ -21,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table(name="_master_toeb")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\MasterToebRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository")
  */
 class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebInterface
 {
