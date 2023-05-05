@@ -1079,17 +1079,17 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Get all statements to a specific procedure.
      *
-     * @param string $procedureId                  - identifies the procedure
-     * @param array  $filters                      - data to get more specific result
-     * @param array  $sort                         - data contains information of the order of the result
-     * @param string $search
-     * @param int    $limit
-     * @param int    $page
-     * @param array  $searchFields
-     * @param bool   $aggregationsOnly
-     * @param int    $aggregationsMinDocumentCount
-     * @param bool   $logStatementViews
-     * @param bool   $addAllAggregations           - If true all aggregations will be used. Otherwise only those fields in $filters
+     * @param string                  $procedureId                  - identifies the procedure
+     * @param array                   $filters                      - data to get more specific result
+     * @param array                   $sort                         - data contains information of the order of the result
+     * @param string                  $search
+     * @param int                     $limit
+     * @param int                     $page
+     * @param array                   $searchFields
+     * @param bool                    $aggregationsOnly
+     * @param int                     $aggregationsMinDocumentCount
+     * @param bool                    $logStatementViews
+     * @param bool                    $addAllAggregations           - If true all aggregations will be used. Otherwise only those fields in $filters
      * @param list<GlobalAggregation> $customAggregations
      *
      * @throws Exception
@@ -3128,16 +3128,16 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Gets Aggegations from Elasticsearch to use as facetted filters.
      *
-     * @param array      $userFilters
-     * @param string     $procedureId
-     * @param string     $search
-     * @param array|null $sort
-     * @param int        $limit
-     * @param int        $page                         First page is 1
-     * @param array      $searchFields
-     * @param bool       $aggregationsOnly
-     * @param int        $aggregationsMinDocumentCount
-     * @param bool       $addAllAggregations
+     * @param array                   $userFilters
+     * @param string                  $procedureId
+     * @param string                  $search
+     * @param array|null              $sort
+     * @param int                     $limit
+     * @param int                     $page                         First page is 1
+     * @param array                   $searchFields
+     * @param bool                    $aggregationsOnly
+     * @param int                     $aggregationsMinDocumentCount
+     * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
      */
     protected function getElasticsearchResult(

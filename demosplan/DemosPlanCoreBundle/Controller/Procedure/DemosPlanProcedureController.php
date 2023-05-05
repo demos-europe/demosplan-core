@@ -522,7 +522,7 @@ class DemosPlanProcedureController extends BaseController
 
         return [
             'statementStatusData' => array_values($statementStatusData),
-            'total'               => $statementQueryResult->getTotal()
+            'total'               => $statementQueryResult->getTotal(),
         ];
     }
 
@@ -3000,6 +3000,7 @@ class DemosPlanProcedureController extends BaseController
             );
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
+
             return null;
         }
     }
