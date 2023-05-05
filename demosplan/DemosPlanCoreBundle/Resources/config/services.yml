@@ -799,16 +799,6 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
         $procedureSearchType: "@fos_elastica.index.procedures"
 
-    demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-        public: true
-        lazy: true
-        arguments:
-            $statementPersister: '@fos_elastica.object_persister.statements'
-            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments'
-            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments'
-            $environment: '%kernel.environment%'
-
     demosplan\DemosPlanProcedureBundle\Logic\ExportService:
         lazy: true
         arguments:
@@ -910,14 +900,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-
-    demosplan\DemosPlanCoreBundle\EventListener\UpdateElasticaStatementPostListener:
-        lazy: true
-        tags:
-            - { name: doctrine.event_listener, event: preRemove }
-            - { name: doctrine.event_listener, event: postUpdate }
-            - { name: doctrine.event_listener, event: postPersist }
-
 
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener:
         lazy: true

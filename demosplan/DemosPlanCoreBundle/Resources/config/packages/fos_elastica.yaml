@@ -110,7 +110,7 @@ fos_elastica:
                 model_to_elastica_transformer:
                     service: path_based_model_to_elastica_transformer
                 provider: ~
-                listener: { enabled: false }
+                listener: ~
                 finder: ~
 
         procedures:
@@ -654,7 +654,7 @@ fos_elastica:
                 driver: orm
                 model: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
                 provider: ~
-                listener: { enabled: false }
+                listener: ~
                 finder: ~
         statementFragments:
             index_name: '%project_prefix%_statement_fragments'
@@ -906,7 +906,7 @@ fos_elastica:
                 driver: orm
                 model: demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment
                 provider: ~
-                listener: { enabled: false }
+                listener: ~
                 finder: ~
         users:
             index_name: '%project_prefix%_users'
