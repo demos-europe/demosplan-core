@@ -29,7 +29,7 @@ class SubmitterService extends CoreService
      */
     protected $mailService;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Report\ReportService
+     * @var ReportService
      */
     private $reportService;
 

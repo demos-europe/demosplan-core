@@ -647,7 +647,7 @@ class ContentService extends CoreService
     protected function convertToLegacy($singleGlobalContent): array
     {
         // returnValue, if globalContent doesn't exist
-        if (!$singleGlobalContent instanceof Entity\GlobalContent) {
+        if (!$singleGlobalContent instanceof GlobalContent) {
             // Legacy returnvalues if no globalContent found
             return [];
         }

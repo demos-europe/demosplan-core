@@ -86,7 +86,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -270,7 +270,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      *
@@ -381,7 +381,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function editStatementFragmentAjaxAction(
         CurrentUserService $currentUser,
@@ -451,7 +451,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param string $fragmentId
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function deleteFragmentStatementAjaxAction(Request $request, $fragmentId)
     {
@@ -572,7 +572,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/verfahren/{procedure}/fragment/{statementId}/add"
      * )
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -666,7 +666,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param bool $isReviewer
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -832,7 +832,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param Request $request ;
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      *
      * @throws MessageBagException
      */

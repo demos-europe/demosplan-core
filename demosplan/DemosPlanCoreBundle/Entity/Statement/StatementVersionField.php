@@ -84,7 +84,7 @@ class StatementVersionField implements UuidEntityInterface
     protected $created;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
+     * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="version")
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")

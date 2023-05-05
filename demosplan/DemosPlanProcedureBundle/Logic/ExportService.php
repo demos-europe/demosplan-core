@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use Monolog\Logger;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -67,7 +68,7 @@ class ExportService
      */
     protected $literals = [];
     /**
-     * @var \Monolog\Logger
+     * @var Logger
      */
     protected $logger;
 
@@ -82,7 +83,7 @@ class ExportService
     protected $newsOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput
+     * @var AssessmentTableServiceOutput
      */
     protected $assessmentTableOutput;
 
@@ -92,7 +93,7 @@ class ExportService
     protected $paragraphExporter;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService DraftStatementService
+     * @var DraftStatementService DraftStatementService
      */
     protected $draftStatementService;
 

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use ReflectionClass;
+use ReflectionMethod;
 use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use ReflectionClass;
 use ReflectionMethod;

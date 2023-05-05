@@ -528,7 +528,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $customer;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory[]
+     * @var ProcedureCategory[]
      *
      * @ORM\ManyToMany(
      *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory",
