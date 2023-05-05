@@ -56,7 +56,6 @@ class StatementAnonymizeHandler extends CoreHandler
     /** @var StatementAnonymizeService */
     private $statementAnonymizeService;
 
-
     public function __construct(
         CurrentUserInterface $currentUserInterface,
         ManagerRegistry $doctrine,

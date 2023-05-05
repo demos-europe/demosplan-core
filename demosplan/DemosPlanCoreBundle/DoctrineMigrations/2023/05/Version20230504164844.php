@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -21,7 +31,6 @@ class Version20230504164844 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('DROP TABLE search_index_task');
-
     }
 
     /**

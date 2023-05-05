@@ -774,6 +774,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         $statement = $fragmentToDelete->getStatement();
+
         return $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
     }
 

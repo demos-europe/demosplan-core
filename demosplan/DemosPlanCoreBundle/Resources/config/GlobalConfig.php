@@ -1859,5 +1859,4 @@ class GlobalConfig implements GlobalConfigInterface
 
         return $externalLinks;
     }
-
 }

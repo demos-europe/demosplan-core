@@ -269,7 +269,6 @@ class StatementMover extends CoreService
 
                 return false;
             }
-
         } catch (Exception $e) {
             $doctrineConnection->rollBack();
 

@@ -24,7 +24,6 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
  */
 class DemosPlanResponseListener
 {
-
     /** @var GlobalConfigInterface */
     protected $globalConfig;
 

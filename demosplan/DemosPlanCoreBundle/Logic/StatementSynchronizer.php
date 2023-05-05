@@ -173,7 +173,6 @@ class StatementSynchronizer
         if (in_array(null, $statementIds, true)) {
             throw new InvalidArgumentException('Statement IDs not set yet.');
         }
-
     }
 
     /**
