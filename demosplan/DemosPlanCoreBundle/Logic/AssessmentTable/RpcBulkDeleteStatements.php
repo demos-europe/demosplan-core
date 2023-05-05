@@ -13,7 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 
 /**
@@ -31,7 +32,7 @@ use Exception;
  **/
 class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
 {
-    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-statements-bulk-delete-schema.json';
+    public const RPC_JSON_SCHEMA_PATH = 'json-schema/rpc-statements-bulk-delete-schema.json';
 
     public const STATEMENTS_BULK_DELETE_METHOD = 'statements.bulk.delete';
 
@@ -49,7 +50,7 @@ class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
 
     protected function getJsonSchemaPath(): string
     {
-        return self::RPC_JSON_SCHEMA_PATH;
+        return DemosPlanPath::getConfigPath(self::RPC_JSON_SCHEMA_PATH);
     }
 
     protected function handleStatementAction(array $statements): bool

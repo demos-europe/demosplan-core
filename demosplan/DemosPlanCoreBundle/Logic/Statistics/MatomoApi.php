@@ -55,7 +55,7 @@ class MatomoApi
      */
     private $procedureRepository;
     /**
-     * @var \Symfony\Component\Routing\RouterInterface
+     * @var RouterInterface
      */
     private $router;
 

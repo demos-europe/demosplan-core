@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
@@ -31,8 +30,6 @@ class StatementClusterService extends CoreService
 {
     /** @var StatementService */
     protected $statementService;
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /**
      * @var EntityFetcher
@@ -60,7 +57,6 @@ class StatementClusterService extends CoreService
         ClusterStatementResourceType $clusterStatementResourceType,
         DqlConditionFactory $conditionFactory,
         EntityFetcher $entityFetcher,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementCopier $statementCopier,
         StatementRepository $statementRepository,
         StatementService $statementService
@@ -68,7 +64,6 @@ class StatementClusterService extends CoreService
         $this->clusterStatementResourceType = $clusterStatementResourceType;
         $this->conditionFactory = $conditionFactory;
         $this->entityFetcher = $entityFetcher;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementCopier = $statementCopier;
         $this->statementRepository = $statementRepository;
         $this->statementService = $statementService;
@@ -106,16 +101,6 @@ class StatementClusterService extends CoreService
                 ->addCluster($statementAssessmentTable, $statementIdsToCluster);
 
             $doctrineConnection->commit();
-
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $headStatement->getId()
-            );
-            // update original statement in ES index to hide it from list
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $headStatement->getParent()->getId()
-            );
 
             return $headStatement;
         } catch (Exception $e) {

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -191,7 +192,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     protected $size;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="files")
      *
@@ -388,7 +389,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this->procedure;
     }
 
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }

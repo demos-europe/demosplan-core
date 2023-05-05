@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -32,7 +35,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     {
         try {
             return $this->findOneBy(['draftStatement' => $statementId]);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -60,7 +63,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             }
 
             return $draftStatementVersion;
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -84,7 +87,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             ->getQuery();
         try {
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $this->logger->error('Get Files of DraftStatementVersion failed ', [$e]);
 
             return null;
@@ -96,7 +99,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @param string $procedureId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement[]
+     * @return DraftStatement[]
      *
      * @throws Exception
      */
@@ -155,7 +158,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
+     * @return DraftStatementVersion
      *
      * @throws Exception
      */
@@ -209,7 +212,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @param string $entityId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
+     * @return DraftStatementVersion
      *
      * @throws Exception
      */
@@ -235,8 +238,8 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     /**
      * Deletes all DraftStatementVersions of a procedure.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function deleteByProcedureId(string $procedureId): int
     {
@@ -270,7 +273,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @param DraftStatementVersion $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
+     * @return DraftStatementVersion
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -284,7 +287,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      * @param DraftStatement        $copyFromEntity
      * @param array                 $excludeProperties
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
+     * @return DraftStatementVersion
      */
     protected function generateObjectValuesFromObject($copyToEntity, $copyFromEntity, $excludeProperties = [])
     {

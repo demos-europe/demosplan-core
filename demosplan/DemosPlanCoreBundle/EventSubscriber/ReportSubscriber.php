@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
@@ -56,7 +57,7 @@ class ReportSubscriber extends BaseEventSubscriber
             $inData = $event->getInData();
             $currentProcedure = $event->getOriginalProcedureArray();
             $procedureId = $event->getProcedureId();
-            /** @var \demosplan\DemosPlanCoreBundle\Entity\User\User $user */
+            /** @var User $user */
             $user = $event->getUser();
 
             if (!isset($inData['r_externalDesc'])) {

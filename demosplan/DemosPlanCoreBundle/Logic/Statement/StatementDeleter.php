@@ -13,20 +13,19 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
@@ -39,7 +38,6 @@ class StatementDeleter extends CoreService
     protected StatementFragmentService $statementFragmentService;
     protected ConsultationTokenService $consultationTokenService;
     protected StatementAttachmentService $statementAttachmentService;
-    private SearchIndexTaskService $searchIndexTaskService;
     private StatementRepository $statementRepository;
     private StatementReportEntryFactory $statementReportEntryFactory;
     private ReportService $reportService;
@@ -53,7 +51,6 @@ class StatementDeleter extends CoreService
         StatementFragmentService $statementFragmentService,
         ConsultationTokenService $consultationTokenService,
         StatementAttachmentService $statementAttachmentService,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementRepository $statementRepository,
         StatementReportEntryFactory $statementReportEntryFactory,
         ReportService $reportService,
@@ -66,7 +63,6 @@ class StatementDeleter extends CoreService
         $this->statementFragmentService = $statementFragmentService;
         $this->consultationTokenService = $consultationTokenService;
         $this->statementAttachmentService = $statementAttachmentService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementRepository = $statementRepository;
         $this->statementReportEntryFactory = $statementReportEntryFactory;
         $this->reportService = $reportService;
@@ -129,14 +125,6 @@ class StatementDeleter extends CoreService
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
                     $this->statementAttachmentService->deleteStatementAttachments($statement->getAttachments()->getValues());
-
-                    // remove placeholderstatement from index if exists
-                    if ($statement->wasMoved()) {
-                        $this->searchIndexTaskService->deleteFromIndexTask(
-                            Statement::class,
-                            $statement->getPlaceholderStatement()->getId()
-                        );
-                    }
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
                     try {
@@ -150,11 +138,6 @@ class StatementDeleter extends CoreService
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
                     $doctrineConnection->commit();
-                    // remove Statement from Elasticsearch Index
-                    $this->searchIndexTaskService->deleteFromIndexTask(
-                        Statement::class,
-                        $statementId
-                    );
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;

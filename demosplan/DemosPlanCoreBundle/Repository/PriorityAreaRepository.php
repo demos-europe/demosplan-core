@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -42,7 +43,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea
+     * @return PriorityArea
      *
      * @throws Exception
      */
@@ -180,7 +181,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
                 ->getQuery();
 
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }

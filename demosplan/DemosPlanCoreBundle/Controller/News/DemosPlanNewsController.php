@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\News;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -20,13 +21,12 @@ use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +81,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_public_detail",
      *     path="/verfahren/{procedure}/public/aktuelles/{newsID}"
      * )
+     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure Procedure Id
@@ -129,6 +130,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news_export",
      *     path="/news/export"
      * )
+     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
@@ -154,6 +156,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_export",
      *     path="/verfahren/{procedure}/aktuelles/export"
      * )
+     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
@@ -179,6 +182,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news",
      *     path="/news"
      * )
+     *
      * @DplanPermissions("area_globalnews")
      *
      * @return Response
@@ -238,6 +242,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_public",
      *     path="/verfahren/{procedure}/public/aktuelles"
      * )
+     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
@@ -289,6 +294,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/aktuelles",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_news")
      *
      * @return RedirectResponse|Response
@@ -330,6 +336,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/news/verwalten",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -435,6 +442,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/aktuelles/neu",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_news")
      *
      * @throws Exception
@@ -480,6 +488,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/aktuelles/{newsID}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_news")
      *
      * @return RedirectResponse|Response
@@ -526,6 +535,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/news/{newsID}/edit",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -568,6 +578,7 @@ class DemosPlanNewsController extends BaseController
      *     path="/news/neu",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -607,6 +618,7 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news_detail",
      *     path="/news/{newsID}"
      * )
+     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
@@ -640,11 +652,10 @@ class DemosPlanNewsController extends BaseController
     }
 
     // @improve T12637
-
     /**
      * @param string|null $procedureId
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleNewsAdminNewPostRequest(Request $request, FileUploadService $fileUploadService, array &$templateVars, $procedureId = null): bool
     {
@@ -677,12 +688,11 @@ class DemosPlanNewsController extends BaseController
     }
 
     // @improve T12637
-
     /**
      * @param GlobalNewsHandler|ProcedureNewsService $updater
      * @param string|null                            $procedure
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      *
      * @DplanPermissions("area_admin_news")
      */

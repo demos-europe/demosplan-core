@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
@@ -23,7 +25,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -95,7 +97,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @return StatementAttribute
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -359,8 +361,8 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      */
     private function assertIsSupportedType($entity)
     {
-        if (!(is_a($entity, \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement::class)
-            ^ is_a($entity, \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement::class))) {
+        if (!(is_a($entity, Statement::class)
+            ^ is_a($entity, DraftStatement::class))) {
             throw new Exception('Argument $entity must be Statement or DraftStatement');
         }
     }

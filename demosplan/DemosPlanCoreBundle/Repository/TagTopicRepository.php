@@ -128,7 +128,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($entity)
     {

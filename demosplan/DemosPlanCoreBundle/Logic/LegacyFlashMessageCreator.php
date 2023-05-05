@@ -19,7 +19,7 @@ use UnexpectedValueException;
 class LegacyFlashMessageCreator
 {
     /**
-     * @var \Symfony\Contracts\Translation\TranslatorInterface
+     * @var TranslatorInterface
      */
     private $translator;
     /**
