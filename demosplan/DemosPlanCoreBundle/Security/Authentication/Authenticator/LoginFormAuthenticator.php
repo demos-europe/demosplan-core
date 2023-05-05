@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
@@ -49,17 +50,12 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             throw new AuthenticationException('Error during authentication', 0, $e);
         }
 
-        $credentials = [
-            'login'    => trim($request->request->get('r_useremail')),
-            'password' => trim($request->request->get('password')),
-        ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['login']
-        );
+        $login = trim($request->request->get('r_useremail'));
+        $request->getSession()->set(Security::LAST_USERNAME, $login);
         $credentialsVO = new Credentials();
-        $credentialsVO->setLogin($credentials['login']);
-        $credentialsVO->setPassword($credentials['password']);
+        $credentialsVO->setLogin($login);
+        $credentialsVO->setPassword(trim($request->request->get('password')));
+        $credentialsVO->setToken($request->request->get('_csrf_token'));
         $credentialsVO->lock();
 
         return $credentialsVO;
@@ -91,7 +87,10 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         return new Passport(
             new UserBadge($user ? $user->getLogin() : ''),
             new PasswordCredentials($credentials->getPassword()),
-            [new PasswordUpgradeBadge($credentials->getPassword())]
+            [
+                new PasswordUpgradeBadge($credentials->getPassword()),
+                new CsrfTokenBadge('authenticate', $credentials->getToken()),
+            ]
         );
     }
 
