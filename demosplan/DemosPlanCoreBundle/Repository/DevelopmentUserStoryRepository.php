@@ -45,7 +45,7 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function getDevelopmentUserStoryList($releaseId)
     {

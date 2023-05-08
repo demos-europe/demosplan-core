@@ -869,7 +869,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $files;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
@@ -1896,7 +1896,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[] $fragments
+     * @param StatementFragment[] $fragments
      */
     public function setFragments($fragments)
     {
@@ -2926,7 +2926,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike[]
+     * @return StatementLike[]
      */
     public function getLikes()
     {

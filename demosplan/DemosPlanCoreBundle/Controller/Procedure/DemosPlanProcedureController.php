@@ -1196,9 +1196,9 @@ class DemosPlanProcedureController extends BaseController
      * Helper method to creates an defined text to attach to an Email.
      *
      * @throws Throwable
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private function generateAdditionalEmailText(Procedure $procedure, array $selectedOrganisations): string
     {
@@ -2778,7 +2778,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @param string $boilerplateId - Identifies the Boilerplate to delete
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplate(string $boilerplateId)
     {
@@ -2799,7 +2799,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroup and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroup(
         string $boilerplateGroupId
@@ -2850,7 +2850,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroups and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroups(
         array $boilerplateGroupIds

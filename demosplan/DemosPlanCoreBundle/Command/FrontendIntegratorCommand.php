@@ -157,7 +157,7 @@ class FrontendIntegratorCommand extends CoreCommand
         $this->currentUser->setUser($user);
         $this->currentUser->getPermissions()->initPermissions($user);
 
-        $allPermissions = Yaml::parseFile(DemosPlanPath::getRootPath(Permissions::PERMISSIONS_YML));
+        $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
 
         $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();

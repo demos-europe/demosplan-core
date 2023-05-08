@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
@@ -29,7 +30,7 @@ class ProcedureElasticsearchRepository
     protected $globalConfig;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Permissions\Permissions
+     * @var Permissions
      */
     protected $permissions;
 
@@ -48,7 +49,7 @@ class ProcedureElasticsearchRepository
     /**
      * Search for Procedures.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure $esQuery
+     * @param QueryProcedure $esQuery
      */
     public function searchProcedures($esQuery): array
     {

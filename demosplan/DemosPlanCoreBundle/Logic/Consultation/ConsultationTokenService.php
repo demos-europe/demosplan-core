@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
+use EDT\Querying\Contracts\PathException;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -272,7 +273,7 @@ class ConsultationTokenService
     /**
      * @param array<int, string> $sortParams
      *
-     * @throws \EDT\Querying\Contracts\PathException
+     * @throws PathException
      */
     public function getTokenListFromResourceType(string $procedureId, array $sortParams): array
     {
@@ -315,7 +316,7 @@ class ConsultationTokenService
     /**
      * @param array<int, string> $sortParams
      *
-     * @throws \EDT\Querying\Contracts\PathException
+     * @throws PathException
      */
     private function getSortMethod(array $sortParams): SortMethodInterface
     {

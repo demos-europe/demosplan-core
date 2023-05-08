@@ -224,14 +224,6 @@ parameters:
     #  Set shard settings to dev settings. When use in cluster with 3 nodes use 3 shards, 2 replicas
     elasticsearch_number_of_shards: "1"
     elasticsearch_number_of_replicas: "1"
-    # #refactor: Asynchronous indexing was never finished and has conceptual problems.
-    # No performance issues due to Elasticsearch are recently known. We can delete it.
-    # use asynchronous indexing via SearchTask Queue. When used Command dplan:search:index needs to be started
-    elasticsearch_async_indexing: false
-    # Log queue status into logfile when elasticsearch_async_indexing is activated
-    elasticsearch_async_indexing_log_status: true
-    # Number of processes to crunch SearchIndexTasks when elasticsearch_async_indexing is activated
-    elasticsearch_async_indexing_pool_size: 3
     # Major version of elasticsearch
     elasticsearch_major_version: 6
     # Number of workers to use during populate in command dplan:elasticsearch:populate
@@ -459,7 +451,7 @@ parameters:
     ai_service_post_url: ""
 
     # #refactor: used only once, could be constant
-    drafts_info_schema_path: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/json-schema/drafts-info-schema.json"
+    drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"
 
     public_css_class_prefix: ""
 
@@ -472,9 +464,9 @@ parameters:
     survey.status.default: 'configuration'
 
     # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/Survey/surveyvote-schema-create.json"
+    survey.schema_path_create: "%kernel.project_dir%/config/Survey/survey-schema-create.json"
+    survey.schema_path_update: "%kernel.project_dir%/config/Survey/survey-schema-update.json"
+    surveyvote.schema_path_create: "%kernel.project_dir%/config/Survey/surveyvote-schema-create.json"
 
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]

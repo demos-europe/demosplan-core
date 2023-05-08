@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -36,12 +37,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ReportService extends CoreService
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface
+     * @var CurrentUserInterface
      */
     protected $currentUser;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler
+     * @var CustomerHandler
      */
     private $customerHandler;
     /**

@@ -182,7 +182,7 @@
         "bin-links": false,
         "target-directory": "."
       },
-      "config-dir": "demosplan/DemosPlanCoreBundle/Resources/config",
+      "config-dir": "config",
       "src-dir": "demosplan",
       "symfony": {
             "allow-contrib": true,

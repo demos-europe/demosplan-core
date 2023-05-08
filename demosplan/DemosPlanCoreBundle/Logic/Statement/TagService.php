@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Doctrine\ORM\EntityNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -222,7 +223,7 @@ class TagService extends CoreService
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic|false
+     * @return TagTopic|false
      */
     public function renameTopic($id, $name)
     {
@@ -238,7 +239,7 @@ class TagService extends CoreService
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag|false
+     * @return Tag|false
      */
     public function renameTag($id, $name)
     {
@@ -265,7 +266,7 @@ class TagService extends CoreService
      *
      * @param TagTopic $topic
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteTopic($topic): bool
     {

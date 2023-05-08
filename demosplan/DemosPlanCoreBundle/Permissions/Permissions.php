@@ -50,7 +50,7 @@ use function is_array;
  */
 class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
-    public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
+    public const PERMISSIONS_YML = 'permissions.yml';
 
     public const PROCEDURE_PERMISSIONSET_READ = 'read';
     public const PROCEDURE_PERMISSIONSET_WRITE = 'write';

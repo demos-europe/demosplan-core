@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
@@ -76,7 +79,6 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -187,9 +189,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /** @var QueryFragment */
     protected $esQueryFragment;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /** @var StatementClusterService */
     protected $statementClusterService;
@@ -312,7 +311,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         ProcedureHandler $procedureHandler,
         ProcedureService $procedureService,
         QueryFragment $esQueryFragment,
-        SearchIndexTaskService $searchIndexTaskService,
         ServiceImporter $serviceImporter,
         ServiceOutput $procedureOutput,
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
@@ -355,7 +353,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $this->procedureHandler = $procedureHandler;
         $this->procedureOutput = $procedureOutput;
         $this->procedureService = $procedureService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->serviceImporter = $serviceImporter;
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
         $this->singleDocumentService = $singleDocumentService;
@@ -503,7 +500,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $statementId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      */
     public function getStatementFragmentsStatement($statementId)
     {
@@ -515,7 +512,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $departmentId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      *
      * @throws Exception
      */
@@ -535,7 +532,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param string $departmentId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[]|null
+     * @return StatementFragment[]|null
      */
     public function getStatementFragmentsDepartmentArchive($departmentId)
     {
@@ -780,15 +777,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         $statement = $fragmentToDelete->getStatement();
-        $deleted = $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
 
-        // on successful deletion only:
-        if (true === $deleted) {
-            // reindex corresponding statement
-            $statementService->reindexStatement($statement);
-        }
-
-        return $deleted;
+        return $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
     }
 
     /**
@@ -808,7 +798,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Send a notification mail to the currently assigned organization of a
      * Statement Fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment $fragment
+     * @param StatementFragment $fragment
      * @param bool                                                              $isReviewer
      *
      * @throws Exception
@@ -1302,9 +1292,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param bool         $is_archive   true if the export should apply to the archive rather to the fragment list
      *
      * @throws HandlerException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function generateFragmentPdf($fragmentIds = [], $procedureId = null, $departmentId = null, $is_archive = false): PdfFile
     {
@@ -1417,7 +1407,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * @param bool $asObject
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\Department[]
+     * @return Department[]
      *
      * @throws Exception
      */
@@ -1529,7 +1519,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param array $data
      * @param bool  $propagateTags add tags added to this fragment to the corresponding statement as well
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment|null
+     * @return StatementFragment|null
      *
      * @throws Exception
      */
@@ -1595,10 +1585,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             // add all tags from the new fragment to the related statement if propagation is enabled
             $tagsToAdd = collect($propagateTags ? $result->getTags() : []);
             $relatedStatementUpdated = $this->addAdditionalAreaInformationToStatement($result, $tagsToAdd);
-            // reindex all statementFragments of related statement to make the changes visible:
-            if ($relatedStatementUpdated) {
-                $this->statementFragmentService->reindexStatementFragment($result);
-            }
         }
 
         if (array_key_exists('r_notify', $data) && !is_null($result) && false !== $result) {
@@ -1861,7 +1847,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag|false
+     * @return Tag|false
      */
     public function renameTag($id, $name)
     {
@@ -3452,7 +3438,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * @deprecated use DI instead
      *
-     * @return \demosplan\DemosPlanCoreBundle\Permissions\Permissions
+     * @return Permissions
      *
      * @throws Exception
      */
@@ -4586,12 +4572,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $this->entityContentChangeService->convertArraysAndAddVersion(
                 $newClusterStatement, [], 'cluster');
-
-            // update Statement status in index
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                array_merge([$clusterStatement->getId(), $newClusterStatement->getId()], $statementIds)
-            );
 
             // copy fragments in the end, to avoid fragments get copied in newStatementCluster()
             if (0 < $headStatement->getFragments()->count()) {

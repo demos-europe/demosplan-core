@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
@@ -160,7 +161,7 @@ class DemosPlanMailController extends BaseController
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -208,7 +209,7 @@ class DemosPlanMailController extends BaseController
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */

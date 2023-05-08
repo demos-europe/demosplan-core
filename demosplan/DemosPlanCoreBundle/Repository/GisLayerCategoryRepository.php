@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Faker\Provider\Uuid;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -216,7 +217,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($gisLayerCategory, array $data)
     {
@@ -329,7 +330,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      * @throws Exception
      */
     protected function copyChildren(GisLayerCategory $sourceCategory, Procedure $newProcedure)
@@ -414,8 +415,8 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
     /**
      * @param string $procedureId
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function resetVisibilityGroupIdsOfProcedure($procedureId)
     {
@@ -427,7 +428,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
         $visibilityGroups = $gisLayerRepository->getGisLayerVisibilityGroupsOfProcedure($procedureId);
 
         foreach ($visibilityGroups as $visibilityGroup) {
-            $newGroupId = \Faker\Provider\Uuid::uuid();
+            $newGroupId = Uuid::uuid();
             foreach ($visibilityGroup as $gisLayer) {
                 $gisLayer->setVisibilityGroupId($newGroupId);
                 $entityManager->persist($gisLayer);

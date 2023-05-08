@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -66,9 +65,6 @@ class StatementCopier extends CoreService
 
     /** @var StatementAttachmentService */
     private $statementAttachmentService;
-
-    /** @var SearchIndexTaskService */
-    private $searchIndexTaskService;
 
     /** @var FileService */
     private $fileService;
@@ -107,7 +103,6 @@ class StatementCopier extends CoreService
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         ReportService $reportService,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementAttachmentService $statementAttachmentService,
         StatementCopyAndMoveService $statementCopyAndMoveService,
         StatementFragmentService $statementFragmentService,
@@ -124,7 +119,6 @@ class StatementCopier extends CoreService
         $this->messageBag = $messageBag;
         $this->permissions = $permissions;
         $this->reportService = $reportService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementAttachmentService = $statementAttachmentService;
         $this->statementCopyAndMoveService = $statementCopyAndMoveService;
         $this->statementFragmentService = $statementFragmentService;
@@ -299,13 +293,6 @@ class StatementCopier extends CoreService
             $this->getLogger()->error('Cant copy Statement to another procedure: '.$copiedStatement->getId().'.');
 
             return false;
-        }
-
-        if ($addedStatement instanceof Statement) {
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $addedStatement->getId()
-            );
         }
 
         $doctrineConnection->commit();
@@ -646,13 +633,6 @@ class StatementCopier extends CoreService
             } else {
                 $this->getLogger()->info(
                     'Can not copy files, because the given statement to copy does not exist in database yet.'
-                );
-            }
-
-            if ($persistAndFlush && $newStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $newStatement->getId()
                 );
             }
 

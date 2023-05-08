@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
@@ -67,10 +71,10 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
      * @return array<string, mixed>
      *
      * @throws JsonException
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public function execute(?Procedure $procedure, $rpcRequests): array
     {
@@ -113,7 +117,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-procedure-analytics-retrieve-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-procedure-analytics-retrieve-schema.json')
         );
     }
 

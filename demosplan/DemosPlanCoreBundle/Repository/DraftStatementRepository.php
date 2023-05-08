@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -124,7 +127,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return DraftStatement
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -423,7 +426,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $draftStatement
+     * @param CoreEntity $draftStatement
      *
      * @return bool
      *
@@ -445,8 +448,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
     /**
      * Deletes all DraftStatements of a procedure.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function deleteByProcedureId(string $procedureId): int
     {

@@ -81,7 +81,7 @@ class MunicipalityService extends CoreService
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality
+     * @return Municipality
      *
      * @throws Exception
      */
