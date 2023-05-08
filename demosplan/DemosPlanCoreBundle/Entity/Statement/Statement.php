@@ -985,7 +985,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @var Collection<int, ProcedurePerson>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
+     *     cascade={"persist"}
+     * )
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
