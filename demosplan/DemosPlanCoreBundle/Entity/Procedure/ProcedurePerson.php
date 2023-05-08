@@ -114,6 +114,7 @@ class ProcedurePerson implements UuidEntityInterface
     {
         $this->fullName = $fullName;
         $this->procedure = $procedure;
+        $this->similarForeignStatements = new ArrayCollection();
     }
 
     public function getId(): ?string
