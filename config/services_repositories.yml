@@ -45,9 +45,6 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken'
 
-    demosplan\DemosPlanCoreBundle\Repository\SearchIndexTaskRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\SearchIndexTask'
-
     demosplan\DemosPlanCoreBundle\Repository\MailRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\MailSend'
 

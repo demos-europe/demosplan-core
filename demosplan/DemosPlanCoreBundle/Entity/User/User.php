@@ -1347,7 +1347,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getDplanRolesArray(Customer $customer = null): array
     {
-        if (null === $this->rolesArrayCache) {
+        if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
             $customer = $customer ?? $this->getCurrentCustomer();
             /** @var Role $role */
@@ -1762,5 +1762,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function setProvidedByIdentityProvider(bool $providedByIdentityProvider): void
     {
         $this->providedByIdentityProvider = $providedByIdentityProvider;
+    }
+
+    private function hasInvalidRoleCache(): bool
+    {
+        return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
     }
 }

@@ -110,7 +110,7 @@ class ExecuteAddonExtension extends ExtensionBase
     }
 
     /**
-     * @return \Twig\Environment
+     * @return Environment
      */
     protected function getTwig()
     {
@@ -118,7 +118,7 @@ class ExecuteAddonExtension extends ExtensionBase
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher
+     * @return TraceableEventDispatcher
      */
     protected function getEventDispatcher()
     {

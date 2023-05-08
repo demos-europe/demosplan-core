@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
@@ -101,6 +102,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     protected $translator;
 
     public function __construct(
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         UserMapperInterface $authenticator,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
@@ -166,8 +168,8 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
             return new RedirectResponse($this->urlGenerator->generate($this->verificationRoute));
         }
 
-        /** @var User $user */
-        $user = $token->getUser();
+        // get real User from SecurityUser that was saved in token
+        $user = $this->userFromSecurityUserProvider->fromToken($token);
         $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another

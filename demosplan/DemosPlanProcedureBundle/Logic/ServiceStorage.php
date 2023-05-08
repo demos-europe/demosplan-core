@@ -10,6 +10,12 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use Doctrine\ORM\TransactionRequiredException;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
@@ -200,12 +206,12 @@ class ServiceStorage implements ServiceStorageInterface
      *
      * @throws ContentMandatoryFieldsException
      * @throws PreNewProcedureCreatedEventConcernException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      * @throws ReflectionException
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException
+     * @throws MessageBagException
+     * @throws CustomerNotFoundException
+     * @throws UserNotFoundException
      * @throws CriticalConcernException
      */
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
@@ -369,11 +375,11 @@ class ServiceStorage implements ServiceStorageInterface
      *
      * @return array|false
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     * @throws MessageBagException
+     * @throws CustomerNotFoundException
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {

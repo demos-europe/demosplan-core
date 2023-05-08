@@ -64,7 +64,7 @@ use stdClass;
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
-    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schemas/segment/rpc-segment-bulk-edit-schema.json';
+    public const RPC_JSON_SCHEMA_PATH = 'json-schemas/segment/rpc-segment-bulk-edit-schema.json';
 
     public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
@@ -274,7 +274,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(self::RPC_JSON_SCHEMA_PATH)
+            DemosPlanPath::getConfigPath(self::RPC_JSON_SCHEMA_PATH)
         );
     }
 

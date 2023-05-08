@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
+use Doctrine\Common\Collections\Collection;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -99,7 +100,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
      */
     private $transactionService;
 
-    public const JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-workflowPlace-list-reorder-schema.json';
+    public const JSON_SCHEMA_PATH = 'json-schema/rpc-workflowPlace-list-reorder-schema.json';
     public const SUPPORTED_METHOD_NAME = 'workflowPlacesOfProcedure.reorder';
 
     public function __construct(
@@ -157,7 +158,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(self::JSON_SCHEMA_PATH)
+            DemosPlanPath::getConfigPath(self::JSON_SCHEMA_PATH)
         );
     }
 
@@ -210,11 +211,11 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection<int, Place> keys are the sortIndex of the corresponding {@link Place} value
+     * @return Collection<int, Place> keys are the sortIndex of the corresponding {@link Place} value
      *
      * @throws PathException
      */
-    private function loadPlaces(string $procedureId): \Doctrine\Common\Collections\Collection
+    private function loadPlaces(string $procedureId): Collection
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, $this->placeResourceType->procedure->id);
         $sortMethod = $this->sortMethodFactory->propertyAscending(['sortIndex']);

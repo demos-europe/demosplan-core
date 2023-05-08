@@ -31,8 +31,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
@@ -49,6 +47,7 @@ use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -133,7 +132,12 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function logIn(UserInterface $user)
     {
-        $this->tokenStorage->setToken(new DemosToken($user));
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')
+            ->willReturn($user);
+        $token->method('getRoleNames')
+            ->willReturn($user->getDplanRolesArray());
+        $this->tokenStorage->setToken($token);
     }
 
     /**

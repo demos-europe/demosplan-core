@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -44,7 +46,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\County
+     * @return County
      *
      * @throws Exception
      */
@@ -97,7 +99,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      * @return County
      *
      * @throws OptimisticLockException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function update($entityId, array $data)
     {
@@ -192,7 +194,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
                 ->getQuery();
 
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }

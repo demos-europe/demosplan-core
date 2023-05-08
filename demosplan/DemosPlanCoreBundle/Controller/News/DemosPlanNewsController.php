@@ -652,11 +652,10 @@ class DemosPlanNewsController extends BaseController
     }
 
     // @improve T12637
-
     /**
      * @param string|null $procedureId
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleNewsAdminNewPostRequest(Request $request, FileUploadService $fileUploadService, array &$templateVars, $procedureId = null): bool
     {
@@ -689,12 +688,11 @@ class DemosPlanNewsController extends BaseController
     }
 
     // @improve T12637
-
     /**
      * @param GlobalNewsHandler|ProcedureNewsService $updater
      * @param string|null                            $procedure
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      *
      * @DplanPermissions("area_admin_news")
      */

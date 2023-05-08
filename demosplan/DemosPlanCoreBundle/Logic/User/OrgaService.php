@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -55,6 +54,7 @@ use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaService extends CoreService
@@ -771,7 +771,7 @@ class OrgaService extends CoreService
     public function addReport(string $orgaId, $data, $showListBefore)
     {
         $user = null;
-        if ($this->tokenStorage instanceof TokenStorageInterface && $this->tokenStorage->getToken() instanceof DemosToken) {
+        if ($this->tokenStorage instanceof TokenStorageInterface && $this->tokenStorage->getToken() instanceof TokenInterface) {
             $user = $this->tokenStorage->getToken()->getUser();
         }
 

@@ -239,7 +239,7 @@ class DemosPlanMapController extends BaseController
      * @param string $procedure
      * @param string $gislayerID
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
@@ -326,7 +326,7 @@ class DemosPlanMapController extends BaseController
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
@@ -399,7 +399,7 @@ class DemosPlanMapController extends BaseController
      * @param string $procedureId
      * @param string $gislayerCategoryId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
@@ -914,7 +914,7 @@ class DemosPlanMapController extends BaseController
      *
      * @param string $layerId
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function getCapabilitiesLocalAjaxAction(CacheInterface $cache, MapCapabilitiesLoader $capabilitiesLoader, MapService $mapService, $layerId)
     {

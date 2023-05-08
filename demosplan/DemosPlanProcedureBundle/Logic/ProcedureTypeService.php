@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use EDT\Querying\Contracts\PathException;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
@@ -480,7 +481,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     /**
      * @return array<int, TwigableWrapperObject>
      *
-     * @throws \EDT\Querying\Contracts\PathException
+     * @throws PathException
      */
     public function getAllProcedureTypeResources(): array
     {

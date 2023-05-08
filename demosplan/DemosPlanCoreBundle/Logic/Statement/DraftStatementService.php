@@ -110,7 +110,7 @@ class DraftStatementService extends CoreService
      */
     protected $fileService;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Report\ReportService
+     * @var ReportService
      */
     private $reportService;
     /**
@@ -1857,7 +1857,7 @@ class DraftStatementService extends CoreService
      * @param string|null $orderBy
      * @param string|null $orderDir asc|desc
      *
-     * @return \Elastica\Query
+     * @return Query
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/guide/1.x/_intrinsic_sorts.html
      */

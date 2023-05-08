@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -69,7 +70,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             ->select('sf')
             ->from(StatementFragment::class, 'sf')
             ->andWhere('sf.id IN (:ids)')
-            ->setParameter('ids', $statementIds, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $statementIds, Connection::PARAM_STR_ARRAY)
             ->getQuery();
 
         return $query->getResult();
@@ -78,7 +79,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment
+     * @return StatementFragment
      *
      * @throws Exception
      *
@@ -312,7 +313,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($entity)
     {
@@ -352,7 +353,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @param StatementFragment $entity
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($entity, array $data): StatementFragment
     {
