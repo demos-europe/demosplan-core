@@ -99,17 +99,16 @@ class ProcedurePerson implements UuidEntityInterface
      *
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
-     *     mappedBy="similarStatementSubmitters"
+     *     mappedBy="similarStatementSubmitters",
+     *     orphanRemoval: true
      * )
      * @ORM\JoinTable(
      *     name="similar_statement_submitter",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="statement_id")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="id", referencedColumnName="submitter_id")}
      * )
-     *
-     * todo: orphan removal by doctrine
      */
-    private $similarForeignStatements;
+    private Collection $similarForeignStatements;
 
     public function __construct(string $fullName, Procedure $procedure)
     {
