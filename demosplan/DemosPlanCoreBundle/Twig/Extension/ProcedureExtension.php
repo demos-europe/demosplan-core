@@ -12,6 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use Carbon\Carbon;
 use DateTime;
+use Exception;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\TwigFunction;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -20,11 +26,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use Psr\Container\ContainerInterface;
-use RuntimeException;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\TwigFunction;
 
 /**
  * Procedure specific functions.
@@ -55,10 +56,16 @@ class ProcedureExtension extends ExtensionBase
      */
     private $currentUser;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         ContainerInterface $container,
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
+        LoggerInterface       $logger,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         TranslatorInterface $translator)
@@ -69,6 +76,7 @@ class ProcedureExtension extends ExtensionBase
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->currentUser = $currentUser;
+        $this->logger       = $logger;
     }
 
     public function getFunctions(): array
