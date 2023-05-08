@@ -40,7 +40,7 @@
               @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
               v-bind="unsavedChangesItem.attrs">
               <i
-                class="fa fa-exclamation-circle color-ui-message-severe-fill u-mr-0_5"
+                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
                 v-tooltip="Translator.trans('unsaved.changes')" />
             </button>
           </div>

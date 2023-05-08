@@ -59,7 +59,7 @@
               aria-hidden="true" />
             <i
               v-if="rowData.status.name === 'converted'"
-              class="fa fa-check color-ui-message-success-fill"
+              class="fa fa-check color-message-success-fill"
               aria-hidden="true" />
             <i
               v-if="rowData.status.name === 'boxes_review' || rowData.status.name === 'text_review'"

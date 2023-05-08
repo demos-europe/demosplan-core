@@ -13,99 +13,96 @@
 // https://developer.mozilla.org/de/docs/Web/CSS/color
 
 .color {
-    // Brand tokens
-    &-brand {
-        &-main {
-            color: $dp-color-main;
-        }
+    // Brand
+    &-main {
+        color: $dp-color-main;
+    }
 
-        &-main-contrast {
-            color: $dp-color-main-contrast;
-        }
+    &-main-contrast {
+        color: $dp-color-main-contrast;
+    }
 
-        &-alt {
-            color: $dp-color-alt;
-        }
+    &-alt {
+        color: $dp-color-alt;
+    }
 
-        &-alt-contrast {
-            color: $dp-color-alt-contrast;
-        }
+    &-alt-contrast {
+        color: $dp-color-alt-contrast;
+    }
 
-        &-highlight {
-            color: $dp-color-highlight;
-        }
+    &-highlight {
+        color: $dp-color-highlight;
+    }
 
-        &-cta-dark {
-            color: $dp-token-color-brand-cta-dark !important;
-        }
+    &-cta-dark {
+        color: $dp-token-color-brand-cta-dark !important;
     }
 
     // UI tokens
-    &-ui {
-        &-text-muted {
-            color: $dp-color-text-muted;
+
+    &-text-muted {
+        color: $dp-color-text-muted;
+    }
+
+    &-text-default {
+        color: $dp-color-text-default;
+    }
+
+    &-message-success {
+        &-text {
+            color: $dp-color-message-success-text;
         }
 
-        &-text-default {
-            color: $dp-color-text-default;
+        &-fill {
+            color: $dp-color-message-success-fill;
         }
+    }
 
-        &-message-success {
-            &-text {
-                color: $dp-color-message-success-text;
-            }
-
-            &-fill {
-                color: $dp-color-message-success-fill;
-            }
+    &-message-info {
+        &-text {
+            color: $dp-color-message-info-text;
         }
-
-        &-message-info {
-            &-text {
-                color: $dp-color-message-info-text;
-            }
-            &-fill {
-                color: $dp-color-message-info-fill;
-            }
+        &-fill {
+            color: $dp-color-message-info-fill;
         }
+    }
 
-        &-message-warning-text {
-            color: $dp-color-message-warning-text;
+    &-message-warning-text {
+        color: $dp-color-message-warning-text;
+    }
+
+    &-message-severe {
+        &-text {
+            color: $dp-color-message-severe-text;
         }
-
-        &-message-severe {
-            &-text {
-                color: $dp-color-message-severe-text;
-            }
-            &-fill {
-                color: $dp-color-message-severe-fill;
-            }
+        &-fill {
+            color: $dp-color-message-severe-fill;
         }
+    }
 
-        &-interactive {
-            color: $dp-color-interactive-default;
+    &-interactive {
+        color: $dp-color-interactive-default;
+    }
+
+    &-status-failed {
+        &-text {
+            color: $dp-color-status-failed-text;
         }
-
-        &-status-failed {
-            &-text {
-                color: $dp-color-status-failed-text;
-            }
-            &-fill {
-                color: $dp-color-status-failed-fill;
-            }
+        &-fill {
+            color: $dp-color-status-failed-fill;
         }
+    }
 
-        &-status-progress-text {
-            color: $dp-color-status-progress-text;
+    &-status-progress-text {
+        color: $dp-color-status-progress-text;
+    }
+
+    &-status-complete {
+        &-fill {
+            color: $dp-color-status-complete-fill;
         }
-
-        &-status-complete {
-            &-fill {
-                color: $dp-color-status-complete-fill;
-            }
-            &-text {
-                color: $dp-color-status-complete-text;
-            }
+        &-text {
+            color: $dp-color-status-complete-text;
         }
     }
 
@@ -137,67 +134,67 @@
 }
 
 .bg-color {
+
     // Brand tokens
-    &-brand {
-        &-main {
-            background-color: $dp-color-main;
-        }
 
-        &-main-contrast {
-            background-color: $dp-color-main-contrast;
-        }
+    &-main {
+        background-color: $dp-color-main;
+    }
 
-        &-alt {
-            background-color: $dp-color-alt;
-        }
+    &-main-contrast {
+        background-color: $dp-color-main-contrast;
+    }
 
-        &-alt-contrast {
-            background-color: $dp-color-alt-contrast;
-        }
+    &-alt {
+        background-color: $dp-color-alt;
+    }
 
-        &-highlight {
-            background-color: $dp-color-highlight;
-        }
+    &-alt-contrast {
+        background-color: $dp-color-alt-contrast;
+    }
+
+    &-highlight {
+        background-color: $dp-color-highlight;
     }
 
     // UI tokens
-    &-ui {
-        &-light {
-            background-color: $dp-color-background-light;
-        }
 
-        &-medium {
-            background-color: $dp-color-background-medium;
-        }
-
-        &-message-success {
-            background-color: $dp-color-message-success-bg;
-        }
-
-        &-message-info {
-            background-color: $dp-color-message-info-bg;
-        }
-
-        &-message-warning {
-            background-color: $dp-color-message-warning-bg;
-        }
-
-        &-message-severe {
-            background-color: $dp-color-message-severe-bg;
-        }
-
-        &-selection {
-            background-color: $dp-color-selection-bg;
-        }
-
-        &-text-inserted-muted {
-            background-color: $dp-color-text-inserted-bg-muted;
-        }
-
-        &-text-deleted-muted {
-            background-color: $dp-color-text-deleted-bg-muted;
-        }
+    &-light {
+        background-color: $dp-color-background-light;
     }
+
+    &-medium {
+        background-color: $dp-color-background-medium;
+    }
+
+    &-message-success {
+        background-color: $dp-color-message-success-bg;
+    }
+
+    &-message-info {
+        background-color: $dp-color-message-info-bg;
+    }
+
+    &-message-warning {
+        background-color: $dp-color-message-warning-bg;
+    }
+
+    &-message-severe {
+        background-color: $dp-color-message-severe-bg;
+    }
+
+    &-selection {
+        background-color: $dp-color-selection-bg;
+    }
+
+    &-text-inserted-muted {
+        background-color: $dp-color-text-inserted-bg-muted;
+    }
+
+    &-text-deleted-muted {
+        background-color: $dp-color-text-deleted-bg-muted;
+    }
+
 
     // Utility classes mapping directly to color palette values
     // @deprecated use brand/ui color tokens instead

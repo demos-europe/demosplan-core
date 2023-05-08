@@ -3,7 +3,7 @@
     data-nosnippet
     class="{{ 'display--none'|prefixClass }}">
     <div class="{{ 'u-ph u-pt-0_5 position--relative cf'|prefixClass }}">
-        <h3 class="{{ 'color-ui-status-failed-text font-size-medium weight--bold u-mb-0_25'|prefixClass }}">
+        <h3 class="{{ 'color-status-failed-text font-size-medium weight--bold u-mb-0_25'|prefixClass }}">
             <i class="{{ 'fa fa-exclamation-circle fa-lg'|prefixClass }}" aria-hidden="true"></i>
             Dieser Browser wird nicht mehr unterstützt.
         </h3>
@@ -31,6 +31,6 @@
 
     if (isInternetExplorer === true) {
         var el = document.getElementById('iebanner')
-        el.setAttribute('class', 'o-page__padded bg-color-ui-message-severe color-ui-message-severe-text')
+        el.setAttribute('class', 'o-page__padded bg-color-message-severe color-message-severe-text')
     }
 </script>

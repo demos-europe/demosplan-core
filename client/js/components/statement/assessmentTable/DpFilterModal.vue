@@ -23,7 +23,7 @@
     <button
       type="button"
       @click.prevent="openModal"
-      :class="{'color-brand-highlight': noFilterApplied === false }"
+      :class="{'color-highlight': noFilterApplied === false }"
       class="btn--blank o-link--default display--inline-block u-mb-0 u-p-0 u-mt-0_125"
       data-cy="openFilterModal">
       <i

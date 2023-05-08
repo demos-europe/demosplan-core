@@ -25,8 +25,8 @@ $map-width-wide:            calc(100% - #{$map-toolbar-width-wide});
 $map-height:                531px;
 
 // Drawing colors
-$map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
-$map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
+$map-color-draw-fill:       $dp-token-color-map-draw-fill;
+$map-color-draw-stroke:     $dp-token-color-map-draw-stroke;
 
 $map-layer-color: $dp-color-text-default;
 $map-layer-color-hover: $dp-color-interactive-default;
@@ -848,11 +848,11 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__draw {
             &-stroke,
             &-image {
-                color: $dp-token-color-ui-map-draw-stroke;
+                color: $dp-token-color-map-draw-stroke;
             }
 
             &-fill {
-                color: $dp-token-color-ui-map-draw-fill;
+                color: $dp-token-color-map-draw-fill;
             }
         }
     }

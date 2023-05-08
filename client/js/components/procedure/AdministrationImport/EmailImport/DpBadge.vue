@@ -41,11 +41,11 @@ export default {
   computed: {
     colorClasses () {
       const cssClassMap = {
-        default: 'color-ui-text-default bg-color-ui-light',
-        confirm: 'color-ui-message-success-text bg-color-ui-message-success',
-        info: 'color-ui-message-info-text bg-color-ui-message-info',
-        warning: 'color-ui-message-warning-text bg-color-ui-message-warning',
-        error: 'color-ui-message-severe-text bg-color-ui-message-severe'
+        default: 'color-text-default bg-color-light',
+        confirm: 'color-message-success-text bg-color-message-success',
+        info: 'color-message-info-text bg-color-message-info',
+        warning: 'color-message-warning-text bg-color-message-warning',
+        error: 'color-message-severe-text bg-color-message-severe'
       }
 
       return cssClassMap[this.color]
