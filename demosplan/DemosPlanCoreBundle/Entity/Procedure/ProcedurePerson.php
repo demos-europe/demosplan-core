@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -87,6 +89,27 @@ class ProcedurePerson implements UuidEntityInterface
      * @Assert\Email()
      */
     private $emailAddress;
+
+
+    /**
+     * Each item in this collection references a statement for which this person has submitted a similar statement.
+     * However, the latter one is unknown and may or may not have been entered into the application.
+     *
+     * @var Collection<int, Statement>
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
+     *     mappedBy="similarStatementSubmitters"
+     * )
+     * @ORM\JoinTable(
+     *     name="similar_statement_submitter",
+     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="statement_id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="id", referencedColumnName="submitter_id")}
+     * )
+     *
+     * todo: orphan removal by doctrine
+     */
+    private $similarForeignStatements;
 
     public function __construct(string $fullName, Procedure $procedure)
     {
