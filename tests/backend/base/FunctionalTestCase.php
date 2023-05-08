@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
@@ -604,6 +605,11 @@ class FunctionalTestCase extends WebTestCase
     }
 
     protected function getProcedureBehaviorDefinitionReference(string $name): ProcedureBehaviorDefinition
+    {
+        return $this->getReference($name);
+    }
+
+    protected function getProcedurePersonReference(string $name): ProcedurePerson
     {
         return $this->getReference($name);
     }
