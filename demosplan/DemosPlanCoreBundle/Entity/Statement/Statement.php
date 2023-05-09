@@ -988,14 +988,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
      *     inversedBy="similarForeignStatements",
-     *     cascade={"persist"}
+     *     cascade={"persist"},
+     *     orphanRemoval = true
      * )
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
      * )
      */
-    private $similarStatementSubmitters;
+    private Collection $similarStatementSubmitters;
 
     /**
      * True in case of the statement was given anonymously.
@@ -4094,11 +4095,45 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         return $this->similarStatementSubmitters;
     }
 
+    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    {
+        if ($this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
+            $this->similarStatementSubmitters->add($similarStatementSubmitter);
+        }
+
+        if (!$similarStatementSubmitter->getSimilarForeignStatements()->contains($this)) {
+            $similarStatementSubmitter->addSimilarForeignStatement($this);
+        }
+    }
+
+    /**
+     * @param array<int, ProcedurePerson> $similarStatementSubmitters
+     *
+     * @return void
+     */
+    public function addSimilarStatementSubmitters(array $similarStatementSubmitters): void
+    {
+        foreach ($similarStatementSubmitters as $submitter) {
+            $this->addSimilarStatementSubmitter($submitter);
+        }
+    }
+
     /**
      * @param Collection<int, ProcedurePerson> $similarStatementSubmitters
      */
     public function setSimilarStatementSubmitters(Collection $similarStatementSubmitters): Statement
     {
+        //clear currently set submitters first because this is setting, not adding
+        foreach ($this->similarStatementSubmitters as $submitter) {
+            $submitter->removeSimilarForeignStatement($this);
+        }
+
+        foreach ($similarStatementSubmitters as $submitter) {
+            $submitter->addSimilarForeignStatement($this); //handle both sites
+//            $this->similarStatementSubmitters->add($submitter);
+        }
+
+
         $this->similarStatementSubmitters = $similarStatementSubmitters;
 
         return $this;

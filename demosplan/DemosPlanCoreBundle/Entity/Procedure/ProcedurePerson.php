@@ -101,7 +101,6 @@ class ProcedurePerson implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
      *     mappedBy="similarStatementSubmitters",
      *     cascade={"persist"},
-     *     orphanRemoval = true
      * )
      * @ORM\JoinTable(
      *     name="similar_statement_submitter",
@@ -208,10 +207,14 @@ class ProcedurePerson implements UuidEntityInterface
     /**
      * Adds the given statement to the similarForeignStatements if not already containing.
      */
-    public function addSimilarForeignStatements(Statement $similarForeignStatement): void
+    public function addSimilarForeignStatement(Statement $similarForeignStatement): void
     {
         if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->add($similarForeignStatement);
+        }
+
+        if (!$similarForeignStatement->getSimilarStatementSubmitters()->contains($this)) {
+            $similarForeignStatement->addSimilarStatementSubmitter($this);
         }
     }
 
