@@ -4097,7 +4097,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
     {
-        if ($this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
+        if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
             $this->similarStatementSubmitters->add($similarStatementSubmitter);
         }
 
