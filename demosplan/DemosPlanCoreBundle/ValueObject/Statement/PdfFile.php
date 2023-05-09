@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\PdfFileInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
  * @method string getName()
  * @method string getContent()
  */
-class PdfFile extends ValueObject
+class PdfFile extends ValueObject implements PdfFileInterface
 {
     /**
      * The filename.
