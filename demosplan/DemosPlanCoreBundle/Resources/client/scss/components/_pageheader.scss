@@ -48,7 +48,7 @@
 
     &__title {
         @include media-query('palm') {
-            @include inuit-font-size($dp-token-font-size-h2, 1.2);
+            @include inuit-font-size($dp-font-size-h2, 1.2);
         }
         @include media-query('lap-up') {
             @include inuit-font-size($pageheader-title-size, 1.3);

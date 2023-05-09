@@ -34,7 +34,7 @@
             @include keyboard-focus;
 
             display: none;
-            font-size: $dp-token-font-size-smaller;
+            font-size: $dp-font-size-smaller;
 
             .js & {
                 float: right;
@@ -128,7 +128,7 @@
 
             border: none;
 
-            font-size: $dp-token-font-size-small;
+            font-size: $dp-font-size-small;
         }
 
         &__hint-icon {
