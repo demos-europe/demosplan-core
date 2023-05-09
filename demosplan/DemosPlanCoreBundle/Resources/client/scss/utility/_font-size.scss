@@ -11,7 +11,7 @@
 
 // 50px
 .font-size-brand-hero {
-    @include inuit-font-size($dp-token-font-size-brand-hero);
+    @include inuit-font-size($dp-font-size-hero);
 }
 
 // 27.65px
