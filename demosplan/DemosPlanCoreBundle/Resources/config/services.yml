@@ -36,6 +36,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
         class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -682,8 +684,8 @@ services:
 
 
     demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
-        calls:
-            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
