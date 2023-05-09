@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use JsonSchema\Exception\InvalidSchemaException;
@@ -19,7 +20,7 @@ use JsonSchema\Exception\InvalidSchemaException;
 /**
  * Interface to be implemented by the classes that execute/solve RPC Methods.
  */
-interface RpcMethodSolverInterface
+interface RpcMethodSolverInterface extends RpcMethodAddonSolverInterface
 {
     public function supports(string $method): bool;
 

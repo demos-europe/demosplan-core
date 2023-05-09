@@ -44,6 +44,8 @@ class LoadCustomerData extends TestFixture
 
         $customerDemos = new Customer(self::DEMOS, 'demos');
         $customerDemos->setAccessibilityExplanation('Barrierefreiheitserklärung');
+        $customerDemos->setBaseLayerUrl('https://sgx.geodatenzentrum.de/wms_basemapde');
+        $customerDemos->setBaseLayerLayers('de_basemapde_web_raster_farbe');
         $manager->persist($customerDemos);
         $this->setReference(self::DEMOS, $customerDemos);
 

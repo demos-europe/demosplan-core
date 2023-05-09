@@ -200,6 +200,7 @@
         class="u-mt-0_5"
         primary
         secondary
+        :secondary-text="Translator.trans('discard.changes')"
         @primary-action="dpValidateAction('statementMetaData', save, false)"
         @secondary-action="reset" />
     </div>

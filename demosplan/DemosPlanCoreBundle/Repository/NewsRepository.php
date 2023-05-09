@@ -217,7 +217,7 @@ class NewsRepository extends CoreRepository implements ArrayInterface
             ->getQuery();
         try {
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $this->logger->error('Get pdf of news failed', [$e]);
 
             return null;

@@ -27,7 +27,7 @@
             v-cleanhtml="rowData.attributes.message" />
         </template>
         <template v-slot:user="rowData">
-          {{ rowData.attributes.userName }}
+          {{ rowData.attributes.createdByDataInputOrga ? rowData.attributes.orgaName : rowData.attributes.userName }}
         </template>
       </dp-data-table>
 

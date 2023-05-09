@@ -25,18 +25,18 @@ use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -64,7 +64,7 @@ use stdClass;
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
-    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schemas/segment/rpc-segment-bulk-edit-schema.json';
+    public const RPC_JSON_SCHEMA_PATH = 'json-schemas/segment/rpc-segment-bulk-edit-schema.json';
 
     public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
@@ -274,7 +274,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(self::RPC_JSON_SCHEMA_PATH)
+            DemosPlanPath::getConfigPath(self::RPC_JSON_SCHEMA_PATH)
         );
     }
 

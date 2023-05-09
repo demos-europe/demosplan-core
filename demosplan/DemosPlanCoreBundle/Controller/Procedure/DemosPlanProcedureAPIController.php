@@ -12,17 +12,19 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
@@ -32,8 +34,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
 use demosplan\DemosPlanProcedureBundle\Transformers\AssessmentTableFilterTransformer;
 use demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer;
 use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
@@ -83,6 +83,7 @@ class DemosPlanProcedureAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_procedure_"
      * )
+     *
      * @DplanPermissions("area_public_participation")
      */
     public function listAction(Request $request): APIResponse
@@ -102,6 +103,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_mark_participated",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -129,6 +131,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_unmark_participated",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -158,6 +161,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_empty_filters",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -175,6 +179,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_statement_empty_filters",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -190,6 +195,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_filters",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -226,6 +232,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_filters",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -262,6 +269,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_filter_hash",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -280,6 +288,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_original_filter_hash",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -437,6 +446,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_delete_statement_filter",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $filterSetId
@@ -512,6 +522,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_add_invited_public_affairs_bodies",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_invitable_institution")
      */
     public function addInvitedPublicAffairsAgentsAction(Request $request, ResourceLinkageFactory $linkageFactory, string $procedureId): JsonResponse
@@ -539,6 +550,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     path="/verfahren/suche/ajax",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_public_participation")
      *
      * @return JsonResponse

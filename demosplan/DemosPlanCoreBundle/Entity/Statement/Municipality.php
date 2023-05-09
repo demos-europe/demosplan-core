@@ -18,7 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_municipality", uniqueConstraints={@ORM\UniqueConstraint(name="official_municipality_key", columns={"official_municipality_key"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\MunicipalityRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository")
  */
 class Municipality extends CoreEntity implements UuidEntityInterface
 {
@@ -26,8 +27,11 @@ class Municipality extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_m_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -50,6 +54,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Statement>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="municipalities")
+     *
      * @ORM\JoinTable(
      *     name="_statement_municipality",
      *     joinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id")},
@@ -62,6 +67,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, StatementFragment>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="municipalities", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id")}

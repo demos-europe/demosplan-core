@@ -64,10 +64,6 @@ const globalMocks = {
   Translator,
   dplan,
   Vue,
-  Bus: {
-    emit: jest.fn(),
-    on: jest.fn()
-  },
   lscache,
   dpApi,
   checkResponse
@@ -79,10 +75,6 @@ const globalMocks = {
  * in my tests it doesn't :-(
  */
 global.Vue = Vue
-global.Bus = {
-  emit: jest.fn(),
-  on: jest.fn()
-}
 global.Translator = Translator
 global.hasPermission = hasPermission
 global.lscache = lscache

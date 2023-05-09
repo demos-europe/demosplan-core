@@ -11,7 +11,7 @@
   <div data-dp-validate="segmentsStatementForm">
     <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments, display segments -->
+    <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
@@ -78,6 +78,7 @@
           class="u-mv"
           primary
           secondary
+          :secondary-text="Translator.trans('discard.changes')"
           @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
           @secondary-action="resetStatement" />
       </template>
@@ -182,7 +183,7 @@ export default {
     },
 
     hasSegments () {
-      return Object.keys(this.segments).length > 0
+      return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
     statement () {
@@ -353,7 +354,7 @@ export default {
   },
 
   mounted () {
-    if (Object.keys(this.segments).length === 0) {
+    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
@@ -380,11 +381,14 @@ export default {
             this.scrollToSegment()
           })
         })
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   },
 
   beforeDestroy () {
-    if (this.editingSegmentIds.length > 0) {
+    if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }
     if (this.hasSegments === false && this.segment) {

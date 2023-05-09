@@ -12,6 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,22 +25,20 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_department", uniqueConstraints={@ORM\UniqueConstraint(name="_d_gw_id", columns={"_d_gw_id"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\DepartmentRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository")
  */
-class Department extends CoreEntity implements UuidEntityInterface
+class Department extends CoreEntity implements UuidEntityInterface, DepartmentInterface
 {
-    /**
-     * For technical reasons, a department is always required, even if none is given.
-     * This is the default name.
-     */
-    public const DEFAULT_DEPARTMENT_NAME = 'Keine Abteilung';
-
     /**
      * @var string|null
      *
      * @ORM\Column(name="_d_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -59,6 +61,7 @@ class Department extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_d_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -67,6 +70,7 @@ class Department extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_d_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -89,7 +93,7 @@ class Department extends CoreEntity implements UuidEntityInterface
      * Diese Eigenschaft ist aus Legacygründen definiert, um das DB-Schema zu erhalten
      * $orga enthält die einzelne Organisation.
      *
-     * @var Collection<int, Orga>
+     * @var Collection<int, OrgaInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="departments")
      */
@@ -103,9 +107,10 @@ class Department extends CoreEntity implements UuidEntityInterface
     protected $orga;
 
     /**
-     * @var Collection<int, Address>
+     * @var Collection<int, AddressInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address")
+     *
      * @ORM\JoinTable(
      *     name="_department_addresses_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},
@@ -118,9 +123,10 @@ class Department extends CoreEntity implements UuidEntityInterface
      * Aus Legacygründen wird dies als Many-to-Many-Association modelliert, damit das DB-Schema erhalten bleibt
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
-     * @var Collection<int, User>
+     * @var Collection<int, UserInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="departments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_department_users_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},
@@ -150,8 +156,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Set dName.
-     *
      * @return Department
      */
     public function setName(string $name)
@@ -163,17 +167,12 @@ class Department extends CoreEntity implements UuidEntityInterface
 
     // @improve T17643
 
-    /**
-     * Get dName.
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * Set dCode.
-     *
      * @param string $code
      *
      * @return Department
@@ -186,8 +185,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get dCode.
-     *
      * @return string
      */
     public function getCode()
@@ -196,8 +193,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Set dCreatedDate.
-     *
      * @param DateTime $createdDate
      *
      * @return Department
@@ -210,8 +205,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get dCreatedDate.
-     *
      * @return DateTime
      */
     public function getCreatedDate()
@@ -220,8 +213,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Set dModifiedDate.
-     *
      * @param DateTime $modifiedDate
      *
      * @return Department
@@ -234,8 +225,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get dModifiedDate.
-     *
      * @return DateTime
      */
     public function getModifiedDate()
@@ -244,8 +233,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Set dDeleted.
-     *
      * @param bool $deleted
      *
      * @return Department
@@ -258,8 +245,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get deleted.
-     *
      * @return bool
      */
     public function getDeleted()
@@ -268,8 +253,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get deleted.
-     *
      * @return bool
      */
     public function isDeleted()
@@ -278,8 +261,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Set dGwId.
-     *
      * @param string|null $gwId
      *
      * @return Department
@@ -292,8 +273,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Get dGwId.
-     *
      * @return string|null
      */
     public function getGwId()
@@ -302,8 +281,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Organisation des Departments.
-     *
      * @return Orga|null
      */
     public function getOrga()
@@ -316,8 +293,6 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Will return an empty string, if no Orga is set.
-     *
      * @return string
      */
     public function getOrgaName()
@@ -332,7 +307,7 @@ class Department extends CoreEntity implements UuidEntityInterface
     /**
      * Add Orga to this Department.
      */
-    public function addOrga(Orga $orga)
+    public function addOrga(OrgaInterface $orga)
     {
         if ($this->orgas instanceof Collection) {
             if (!$this->orgas->contains($orga)) {
@@ -356,7 +331,7 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return ArrayCollection Address[]
+     * @return ArrayCollection<int,Address>
      */
     public function getAddresses()
     {
@@ -364,11 +339,9 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param array $addresses
-     *
-     * @return $this
+     * @param array<int,AddressInterface> $addresses
      */
-    public function setAddresses($addresses)
+    public function setAddresses($addresses): self
     {
         $this->addresses = new ArrayCollection($addresses);
 
@@ -376,9 +349,7 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Add Address to Orga.
-     *
-     * @param Address $address
+     * @param AddressInterface $address
      */
     public function addAddress($address)
     {
@@ -400,7 +371,7 @@ class Department extends CoreEntity implements UuidEntityInterface
     /**
      * Returns all users of this department, which are not deleted === true.
      *
-     * @return \Tightenco\Collect\Support\Collection
+     * @return \Tightenco\Collect\Support\Collection<int,User>
      */
     public function getUsers()
     {
@@ -418,21 +389,16 @@ class Department extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param array $users
-     *
-     * @return $this
+     * @param array<int,UserInterface> $users
      */
-    public function setUsers($users)
+    public function setUsers($users): self
     {
         $this->users = new ArrayCollection($users);
 
         return $this;
     }
 
-    /**
-     * Add user to this Department, if not already exists in the collection.
-     */
-    public function addUser(User $user)
+    public function addUser(UserInterface $user)
     {
         if ($this->users instanceof Collection) {
             if (!$this->users->contains($user)) {
@@ -445,10 +411,7 @@ class Department extends CoreEntity implements UuidEntityInterface
         $user->setDepartment($this);
     }
 
-    /**
-     * Remove user from Department.
-     */
-    public function removeUser(User $user)
+    public function removeUser(UserInterface $user)
     {
         if ($this->users instanceof Collection) {
             if ($this->users->contains($user)) {

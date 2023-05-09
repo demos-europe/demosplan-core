@@ -134,6 +134,7 @@
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
+        v-if="organisations[this.currentUserOrga.id]"
         class="u-mb-0_5"
         multiple
         :options="allowedRolesForOrga"

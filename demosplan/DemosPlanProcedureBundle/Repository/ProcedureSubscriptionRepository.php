@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
@@ -29,7 +31,7 @@ class ProcedureSubscriptionRepository extends CoreRepository implements Immutabl
     {
         try {
             return $this->findOneBy(['ident' => $entityId]);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -73,9 +75,9 @@ class ProcedureSubscriptionRepository extends CoreRepository implements Immutabl
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+     * @return CoreEntity
      */
     public function generateObjectValues($entity, array $data)
     {

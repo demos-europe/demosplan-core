@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -196,7 +198,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      *
      * @return bool - true, if the boilerplatecategory was found and deleted, otherwise false
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function delete($toDelete)
     {
@@ -246,9 +248,9 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate $entity
+     * @param Boilerplate $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate
+     * @return Boilerplate
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -273,8 +275,8 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      * @param string    $sourceProcedureId - identifies the blueprint procedure
      * @param Procedure $newProcedure      - the new created procedure object
      *
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws OptimisticLockException
+     * @throws ORMException
      */
     public function copyEmptyCategories($sourceProcedureId, $newProcedure)
     {
@@ -309,8 +311,8 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      * @param string    $masterProcedureId - identifies the master blueprint
      * @param Procedure $newProcedure      - the new created procedure object
      *
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\ORMException
+     * @throws OptimisticLockException
+     * @throws ORMException
      */
     public function ensureBaseCategories($masterProcedureId, $newProcedure)
     {

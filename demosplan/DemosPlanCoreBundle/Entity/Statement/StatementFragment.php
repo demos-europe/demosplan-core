@@ -37,13 +37,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *     name="statement_fragment",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(
  *             name="statement_fragment_unique_sort_index",
  *             columns={"statement_id", "sort_index"}
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository")
  */
 class StatementFragment extends CoreEntity implements UuidEntityInterface
 {
@@ -53,8 +55,11 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="sf_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -63,6 +68,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="fragments")
+     *
      * @ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", onDelete="CASCADE", nullable=false)
      */
     protected $statement;
@@ -85,6 +91,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Tag>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag")
+     *
      * @ORM\JoinTable(
      *     name="statement_fragment_tag",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -94,9 +101,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $tags;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -119,6 +127,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -127,6 +136,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
     protected $modified;
@@ -142,6 +152,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=true, onDelete="SET NULL")
      */
     protected $department;
@@ -164,6 +175,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, County>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_county",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -176,6 +188,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, PriorityArea>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -188,6 +201,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Municipality>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_municipality",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -200,6 +214,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_archived_d_id", referencedColumnName="_d_id", nullable=true)
      */
     protected $archivedDepartment;
@@ -229,6 +244,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      * This is the user that is currently assigned to this fragment. Assigned users are
      * exclusively permitted to change fragments
@@ -239,6 +255,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,StatementFragmentVersion>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion", mappedBy="statementFragment")
+     *
      * @ORM\OrderBy({"created" = "DESC"})
      */
     protected $versions;
@@ -247,6 +264,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var int
      *
      * @ORM\Column(type="integer", nullable=false, options={"default":-1})
+     *
      * @Assert\PositiveOrZero(groups={"mandatory"})
      */
     protected $sortIndex = -1;
@@ -257,6 +275,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $modifiedByUser;
@@ -265,6 +284,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
     protected $modifiedByDepartment;
@@ -280,6 +300,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="last_claimed", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $lastClaimed = null;
@@ -302,6 +323,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -310,6 +332,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var ParagraphVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -318,6 +341,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -612,7 +636,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Adds a tag to this statement fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
+     * @param Tag $tag
      */
     public function addTag(Tag $tag)
     {
@@ -624,7 +648,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a tag to this statement fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
+     * @param Tag $tag
      */
     public function removeTag(Tag $tag)
     {

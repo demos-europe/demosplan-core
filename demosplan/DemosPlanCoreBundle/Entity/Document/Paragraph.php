@@ -21,7 +21,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_para_doc")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository")
  */
 class Paragraph extends CoreEntity implements UuidEntityInterface
 {
@@ -29,8 +30,11 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_pd_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -39,6 +43,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -52,6 +57,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var Paragraph
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_pd_parent_id", referencedColumnName="_pd_id", onDelete="SET NULL")
      */
     protected $parent;
@@ -60,6 +66,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var Paragraph[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
+     *
      * @ORM\OrderBy({"order" = "ASC"})
      */
     protected $children;
@@ -73,6 +80,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/
     protected $element;
@@ -130,6 +138,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -138,6 +147,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -146,6 +156,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -154,6 +165,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var ParagraphVersion[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", mappedBy="paragraph")
+     *
      * @ORM\JoinColumn(name="_pd_id", referencedColumnName="_pd_id")
      */
     protected $versions;

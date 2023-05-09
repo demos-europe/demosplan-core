@@ -73,8 +73,7 @@
               class="o-form__group-item"
               :label="{
                 text: Translator.trans('city')
-              }"
-              pattern="^[A-Za-zÄäÜüÖöß -]+$" />
+              }" />
           </div>
         </div><!--
 

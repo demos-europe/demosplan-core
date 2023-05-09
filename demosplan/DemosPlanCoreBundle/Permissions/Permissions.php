@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
@@ -25,10 +26,10 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
@@ -49,7 +50,7 @@ use function is_array;
  */
 class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
-    public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
+    public const PERMISSIONS_YML = 'permissions.yml';
 
     public const PROCEDURE_PERMISSIONSET_READ = 'read';
     public const PROCEDURE_PERMISSIONSET_WRITE = 'write';
@@ -341,17 +342,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
-
-            if ($this->isMemberOfPlanningOrganisation()) {
-                $this->enablePermissions([
-                    'area_institution_tag_manage',
-                    'feature_institution_tag_assign',
-                    'feature_institution_tag_create',
-                    'feature_institution_tag_delete',
-                    'feature_institution_tag_read',
-                    'feature_institution_tag_update',
-                ]);
-            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
@@ -521,7 +511,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::CUSTOMER_MASTER_USER)) {
             $this->enablePermissions([
                 'area_organisations',
-                'area_organisations_applications_manage',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',

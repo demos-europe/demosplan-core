@@ -98,6 +98,7 @@ export default {
   methods: {
     delete (index) {
       this.emails.splice(index, 1)
+      this.updateExtraEmailAddress(index)
     },
 
     addElement () {
@@ -110,8 +111,10 @@ export default {
       if (validateEmail(this.formFields.mail)) {
         if (index === 'new') {
           this.addElement()
+          this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
+          this.updateExtraEmailAddress(index, this.formFields.mail[index])
         }
 
         this.resetForm()
@@ -123,6 +126,14 @@ export default {
     resetForm () {
       this.formFields.mail = ''
       this.itemIndex = null
+    },
+
+    saveExtraEmailAddress (extraEmailAddress) {
+      this.$emit('saved', extraEmailAddress)
+    },
+
+    updateExtraEmailAddress (index, extraEmailAddress) {
+      this.$emit('updated', (index, extraEmailAddress))
     },
 
     updateEmailAddress (index) {

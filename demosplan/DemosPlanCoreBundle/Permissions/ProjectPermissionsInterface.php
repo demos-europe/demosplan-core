@@ -22,7 +22,7 @@ interface ProjectPermissionsInterface
      *
      * When enabling permissions for {@link Role::PLANNING_AGENCY_ADMIN},
      * {@link Role::PLANNING_AGENCY_WORKER} or {@link Role::PRIVATE_PLANNING_AGENCY}
-     * almost always wrap it inside a {@link PermissionsInterface::ownsProcedure()}
+     * almost always wrap it inside a {@link \DemosEurope\DemosplanAddon\Contracts\PermissionsInterface::ownsProcedure()}
      * condition check.
      *
      * <strong>Otherwise planners get access to foreign procedures!</strong>

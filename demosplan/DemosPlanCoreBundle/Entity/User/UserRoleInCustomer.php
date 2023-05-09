@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
  *    }
  * )
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository")
  */
 class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
 {

@@ -76,7 +76,7 @@ class SegmentRepository extends CoreRepository
         $manager = $this->getEntityManager();
         $query = $manager->createQueryBuilder()
             ->select('segment.orderInProcedure')
-            ->from('SegmentsManager:Segment', 'segment')
+            ->from(Segment::class, 'segment')
             ->where('segment.orderInProcedure IS NOT NULL')
             ->andWhere('segment.procedure = :procedureId')->setParameter('procedureId', $procedureId)
             ->addOrderBy('segment.orderInProcedure', 'DESC')

@@ -18,11 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -39,21 +39,18 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @var AssessmentTableXlsExporter
      */
     private $assessmentTableXlsExporter;
-    /**
-     * @var StatementService
-     */
-    private $statementService;
+    private EntityHelper $entityHelper;
 
     public function __construct(
         AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
+        EntityHelper $entityHelper,
         Slugify $slugify,
-        StatementService $statementService,
         TranslatorInterface $translator
     ) {
         parent::__construct($currentUser, $slugify, $translator);
         $this->assessmentTableXlsExporter = $assessmentTableXlsExporter;
-        $this->statementService = $statementService;
+        $this->entityHelper = $entityHelper;
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -274,8 +271,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      */
     private function covertIntoExportableArray(SegmentInterface $segmentOrStatement): array
     {
-        $exportData = $this->statementService->toArray($segmentOrStatement);
-        $exportData['meta'] = $this->statementService->toArray($exportData['meta']);
+        $exportData = $this->entityHelper->toArray($segmentOrStatement);
+        $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
 
@@ -297,7 +294,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
-        $exportData['tags'] = array_map([$this->statementService, 'toArray'], $exportData['tags']->toArray());
+        $exportData['tags'] = array_map([$this->entityHelper, 'toArray'], $exportData['tags']->toArray());
         foreach ($exportData['tags'] as $key => $tag) {
             $exportData['tags'][$key]['topicTitle'] = $tag['topic']->getTitle();
         }

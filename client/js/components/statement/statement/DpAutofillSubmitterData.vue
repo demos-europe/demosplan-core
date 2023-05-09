@@ -312,8 +312,7 @@ export default {
               field: 'city',
               name: 'r_orga_city',
               width: 'u-4-of-12',
-              type: 'text',
-              pattern: '^[A-Za-zÄäÜüÖöß -]+$'
+              type: 'text'
             }
           ]
         }

@@ -20,7 +20,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_master_toeb_versions")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\MasterToebVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository")
  */
 class MasterToebVersion extends CoreEntity implements UuidEntityInterface
 {
@@ -28,8 +29,11 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_mtv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -38,6 +42,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
      * @var MasterToeb
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb")
+     *
      * @ORM\JoinColumn(name="_mt_id", referencedColumnName="_mt_id", nullable=false, onDelete="CASCADE")
      */
     protected $masterToeb;
@@ -65,6 +70,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="SET NULL")
      */
     protected $orga;
@@ -77,6 +83,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      */
     protected $department;
@@ -244,6 +251,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_mtv_version_date", type="datetime", nullable=false)
      */
     protected $versionDate;
