@@ -222,7 +222,7 @@ class ProcedurePerson implements UuidEntityInterface
     {
         if ($this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->removeElement($similarForeignStatement);
-            $similarForeignStatement->removeSimilarStatementSubmitters($this);
+            $similarForeignStatement->removeSimilarStatementSubmitter($this);
         }
     }
 }

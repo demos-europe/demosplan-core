@@ -4139,7 +4139,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         return $this;
     }
 
-    public function removeSimilarStatementSubmitters(ProcedurePerson $procedurePerson): void
+    public function removeSimilarStatementSubmitter(ProcedurePerson $procedurePerson): void
     {
         if ($this->similarStatementSubmitters->contains($procedurePerson)) {
             $this->similarStatementSubmitters->removeElement($procedurePerson);
