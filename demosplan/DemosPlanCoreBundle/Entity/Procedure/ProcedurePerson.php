@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -90,7 +91,6 @@ class ProcedurePerson implements UuidEntityInterface
      */
     private $emailAddress;
 
-
     /**
      * Each item in this collection references a statement for which this person has submitted a similar statement.
      * However, the latter one is unknown and may or may not have been entered into the application.
@@ -100,7 +100,8 @@ class ProcedurePerson implements UuidEntityInterface
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
      *     mappedBy="similarStatementSubmitters",
-     *     orphanRemoval: true
+     *     cascade={"persist"},
+     *     orphanRemoval = true
      * )
      * @ORM\JoinTable(
      *     name="similar_statement_submitter",
@@ -197,5 +198,28 @@ class ProcedurePerson implements UuidEntityInterface
     public function getEmailAddress(): ?string
     {
         return $this->emailAddress;
+    }
+
+    public function getSimilarForeignStatements(): Collection
+    {
+        return $this->similarForeignStatements;
+    }
+
+    /**
+     * Adds the given statement to the similarForeignStatements if not already containing.
+     */
+    public function addSimilarForeignStatements(Statement $similarForeignStatement): void
+    {
+        if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
+            $this->similarForeignStatements->add($similarForeignStatement);
+        }
+    }
+
+    public function removeSimilarForeignStatement(Statement $similarForeignStatement): void
+    {
+        if ($this->similarForeignStatements->contains($similarForeignStatement)) {
+            $this->similarForeignStatements->removeElement($similarForeignStatement);
+            $similarForeignStatement->removeSimilarStatementSubmitters($this);
+        }
     }
 }

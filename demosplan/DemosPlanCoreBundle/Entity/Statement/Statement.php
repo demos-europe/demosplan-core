@@ -987,6 +987,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
+     *     inversedBy="similarForeignStatements",
      *     cascade={"persist"}
      * )
      * @ORM\JoinTable(name="similar_statement_submitter",
@@ -4101,6 +4102,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         $this->similarStatementSubmitters = $similarStatementSubmitters;
 
         return $this;
+    }
+
+    public function removeSimilarStatementSubmitters(ProcedurePerson $procedurePerson): void
+    {
+        if ($this->similarStatementSubmitters->contains($procedurePerson)) {
+            $this->similarStatementSubmitters->removeElement($procedurePerson);
+            $procedurePerson->removeSimilarForeignStatement($this);
+        }
     }
 
     public function isAnonymous(): bool
