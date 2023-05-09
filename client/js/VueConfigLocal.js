@@ -18,7 +18,6 @@ import { createLocalVue, shallowMount } from '@vue/test-utils'
 
 // Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
-import { extendedEmit, extendedOn } from './lib/core/ExtendedVueEvents'
 import lscache from 'lscache'
 import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
@@ -34,9 +33,6 @@ const DPVueCorePlugin = {
   install: function (VueCore) {
     VueCore.prototype.dplan = window.dplan
     VueCore.prototype.hasPermission = window.hasPermission
-
-    VueCore.prototype.emit = extendedEmit
-    VueCore.prototype.on = extendedOn
   }
 }
 
