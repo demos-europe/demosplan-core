@@ -122,7 +122,7 @@
             {{ Translator.trans('survey.comments.list') }}:
           </p>
           <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up')">
-            <h3 :class="prefixClass('color-brand-cta-dark u-mb-0')">
+            <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-up u-mr-0_25')"
                 aria-hidden="true" />
@@ -140,7 +140,7 @@
             </p>
           </div>
           <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up float--right-lap-up')">
-            <h3 :class="prefixClass('color-brand-cta-dark u-mb-0')">
+            <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-down u-mr-0_25')"
                 aria-hidden="true" />

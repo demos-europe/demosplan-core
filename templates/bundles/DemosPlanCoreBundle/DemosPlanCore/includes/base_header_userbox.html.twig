@@ -17,7 +17,7 @@
 
                 {# if OrgaSwitcher user is a toeb, indicate with different color #}
                 {% block loggedInCurrentUser %}
-                    <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color-brand-highlight' : '' }}" data-extern-dataport="userMenuTrigger">
+                    <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color-highlight' : '' }}" data-extern-dataport="userMenuTrigger">
 
                         {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
 

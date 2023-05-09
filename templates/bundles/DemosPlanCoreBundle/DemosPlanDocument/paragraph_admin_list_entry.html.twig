@@ -16,17 +16,17 @@
             </td>
             <td data-cy="paragraphStatusIcon" class="text--center">
                 {% if document.visible == 1 %}
-                    <i class="fa fa-check color-ui-message-success-fill" aria-hidden="true" title="{{ "released"|trans }}"></i>
+                    <i class="fa fa-check color-message-success-fill" aria-hidden="true" title="{{ "released"|trans }}"></i>
                     <span class="hide-visually">
                         {{ "released"|trans }}
                     </span>
                 {% elseif document.visible == 0 %}
-                    <i class="fa fa-ban color-ui-message-severe-fill" aria-hidden="true" title="{{ "blocked"|trans }}"></i>
+                    <i class="fa fa-ban color-message-severe-fill" aria-hidden="true" title="{{ "blocked"|trans }}"></i>
                     <span class="hide-visually">
                         {{ "blocked"|trans }}
                     </span>
                 {% elseif document.visible == 2 %}
-                    <i class="fa fa-lock color-ui-message-info-fill" aria-hidden="true" title="{{ "paragraph.locked"|trans }}"></i>
+                    <i class="fa fa-lock color-message-info-fill" aria-hidden="true" title="{{ "paragraph.locked"|trans }}"></i>
                     <span class="hide-visually">
                         {{ "paragraph.locked"|trans }}
                     </span>

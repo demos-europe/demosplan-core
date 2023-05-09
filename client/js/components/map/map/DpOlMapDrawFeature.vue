@@ -52,7 +52,7 @@
   <button
     v-if="renderControl"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
-    :class="{'color-brand-highlight': currentlyActive}"
+    :class="{'color-highlight': currentlyActive}"
     type="button"
     :title="title"
     @click="toggle">

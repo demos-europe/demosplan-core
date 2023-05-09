@@ -73,10 +73,10 @@
             :data-cy="Translator.trans(link.label)"
             :href="href(link)"
             class="o-link"
-            :class="{'color-ui-status-complete-text': link.done()}">
+            :class="{'color-status-complete-text': link.done()}">
             <i
               class="width-20"
-              :class="{'fa fa-check color-ui-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
+              :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
               aria-hidden="true" />{{ link.done() ? Translator.trans(link.labelDone) : Translator.trans(link.label) }}
           </a>
         </li>
