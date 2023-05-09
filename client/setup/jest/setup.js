@@ -9,11 +9,6 @@
 const features = []
 const hasPermission = jest.fn(feature => !!features[feature])
 
-jest.mock('@uppy/core', () => () => 'mock result')
-jest.mock('@uppy/drag-drop', () => () => 'mock result')
-jest.mock('@uppy/progress-bar', () => () => 'mock result')
-jest.mock('@uppy/tus', () => () => 'mock result')
-
 const Translator = {
   trans: jest.fn(key => key)
 }
