@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -17,18 +18,14 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHasher;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Exception;
-
-use function in_array;
-
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,6 +38,8 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Throwable;
+
+use function in_array;
 
 /**
  * Class DemosPlanAuthenticationController.
@@ -77,6 +76,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/change",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_mydata_password")
      *
      * @return Response
@@ -107,6 +107,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_change_email_request",
      *     path="/email/change"
      * )
+     *
      * @DplanPermissions("feature_change_own_email")
      *
      * @return RedirectResponse|Response
@@ -135,6 +136,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_change_email",
      *     path="email/change/doubleoptin/{uId}/{key}"
      * )
+     *
      * @DplanPermissions("feature_change_own_email")
      */
     public function changeEmailConfirmationAction(string $uId, string $key): RedirectResponse
@@ -167,6 +169,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/recover",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
      *
      * @return RedirectResponse|Response
@@ -185,7 +188,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
+            '@DemosPlanCore/DemosPlanUser/password_recover.html.twig',
             [
                 'title'        => 'user.password.recover',
                 'templateVars' => [],
@@ -234,14 +237,20 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/dplan/login",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
      *
      * @throws AccessDeniedException|Exception
      */
-    public function alternativeLoginAction(CustomerService $customerService, ParameterBagInterface $parameterBag, CurrentUserInterface $currentUser, CacheInterface $cache)
-    {
+    public function alternativeLoginAction(
+        CacheInterface $cache,
+        CurrentUserInterface $currentUser,
+        CustomerService $customerService,
+        ParameterBagInterface $parameterBag,
+        Request $request
+    ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
         }
@@ -254,6 +263,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $users = [];
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
+        $useIdp = false;
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
@@ -265,6 +275,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
                     return $this->userService->getTestUsers($testPassword);
                 });
+
+            // add access to test external identity provider
+            // do not display link when it targets same site
+            $gatewayUrl = $parameterBag->get('gateway_url');
+            $useIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
@@ -283,12 +298,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
+            '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'useIdp'   => $useIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
@@ -311,6 +327,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/logout/gateway",
      *     defaults={"toGateway": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param bool $toGateway
@@ -355,6 +372,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_logout_success",
      *     path="/user/logout/success"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -368,7 +386,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 return $this->redirectToRoute('core_home');
             }
 
-            return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/logout_success.html.twig');
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
         } catch (Exception $e) {
             return $this->handleError($e);
         }
@@ -379,6 +397,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_invite_confirmation",
      *     path="/doubleoptin/{uId}/{token}"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -395,7 +414,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
+            '@DemosPlanCore/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,
                 'uId'   => $uId,
@@ -409,6 +428,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/{uId}/setpass/{token}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response

@@ -2444,6 +2444,7 @@ pro: "Dafür"
 procedure.accessible: "Verfahren mit Zugriff"
 procedure.administer: "Verfahren verwalten"
 procedure.agency: "Verfahrensträger"
+procedure.agency.imprint: "Impressum der Verfahrensträger"
 procedure.all: "Alle Planverfahren"
 procedure.by.phase.invitable_institutions: |
     {count, plural,
@@ -3701,6 +3702,7 @@ user.password.recovery_vague: "Falls die eingegebene E-Mail-Adresse {email} eine
 user.password.set: "Ihr Passwort wurde erfolgreich gesetzt."
 user.registration.completed: "Registrierung abgeschlossen"
 user.registration.fail: "Registrierung fehlgeschlagen."
+user.registration.invalid.csrf: "Das Formular war ungültig. Bitte versuchen Sie es erneut."
 user.registration.confirmed: "Zugangsdaten gesendet"
 user.registration.invitation.outstanding: "Nutzer*in wurde noch nicht per E-Mail eingeladen!"
 user.registration.invitation.sent: "Nutzer*in per E-Mail eingeladen"

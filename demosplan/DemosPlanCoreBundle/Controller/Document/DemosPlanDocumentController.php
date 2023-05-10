@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -23,33 +24,32 @@ use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEve
 use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
 use Pagerfanta\Adapter\ArrayAdapter;
@@ -379,7 +379,7 @@ class DemosPlanDocumentController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/paragraph_admin_edit.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/paragraph_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -470,7 +470,7 @@ class DemosPlanDocumentController extends BaseController
                 'url' => $this->generateUrl('DemosPlan_plandocument_administration_element', ['procedure' => $procedure, 'elementId' => $elementId]), ]);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/paragraph_admin_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/paragraph_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -548,7 +548,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/single_document_admin_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -648,7 +648,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/single_document_admin_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_edit.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'title'        => 'element.detail.document.edit',
@@ -784,7 +784,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_list.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
             compact('templateVars', 'procedure', 'title', 'procedureSettings')
         );
     }
@@ -921,7 +921,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['basePath'] = $request->getBasePath();
 
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_import.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_import.html.twig',
             [
                 'entries'      => $fileDir,
                 'templateVars' => $templateVars,
@@ -1191,7 +1191,7 @@ class DemosPlanDocumentController extends BaseController
         // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('element.admin.category');
 
-        $view = '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig';
+        $view = '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig';
         $renderData = [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
@@ -1225,9 +1225,9 @@ class DemosPlanDocumentController extends BaseController
             }
             $renderData['templateVars'] = array_merge($renderData['templateVars'], $templateVars);
 
-            $view = '@DemosPlanDocument/DemosPlanDocument/paragraph_admin_list.html.twig';
+            $view = '@DemosPlanCore/DemosPlanDocument/paragraph_admin_list.html.twig';
         } elseif ('file' === $templateVars['element']['category']) {
-            $view = '@DemosPlanDocument/DemosPlanDocument/single_document_admin_list.html.twig';
+            $view = '@DemosPlanCore/DemosPlanDocument/single_document_admin_list.html.twig';
         }
 
         return $this->renderTemplate($view, $renderData);
@@ -1264,7 +1264,7 @@ class DemosPlanDocumentController extends BaseController
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
                 return $this->renderTemplate(
-                    '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+                    '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
                     [
                         'procedure' => $procedure,
                         'title'     => $title,
@@ -1303,7 +1303,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
@@ -1350,7 +1350,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['draftStatementId'] = $request->get('draftStatementId');
         }
 
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/public_elements_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_elements_list.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => $title,
@@ -1408,7 +1408,7 @@ class DemosPlanDocumentController extends BaseController
                     $templateVars['procedureLayer'] = 'participation';
                 }
 
-                return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
+                return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
                     'procedure'    => $procedureId,
                     'templateVars' => $templateVars,
                     'title'        => 'element.paragraph',
@@ -1472,7 +1472,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['procedure'] = $currentProcedureService->getProcedure();
 
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/public_paragraph_document.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/public_paragraph_document.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,

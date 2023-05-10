@@ -22,7 +22,9 @@
             {{ Translator.trans('heading') }}
           </div><!--
        --><div class="layout__item u-4-of-12">
-            {{ Translator.trans('visibility') }}
+            <span v-if="availableGroupOptions.length > 1">
+              {{ Translator.trans('visibility') }}
+            </span>
           </div><!--
        --><div class="layout__item u-2-of-12 text--center">
             {{ Translator.trans('status') }}
@@ -39,6 +41,7 @@
       </template>
       <template v-slot:leaf="{ nodeElement, parentId }">
         <dp-faq-item
+          :available-group-options="availableGroupOptions"
           :faq-item="nodeElement"
           :parent-id="parentId" />
       </template>
@@ -60,6 +63,16 @@ export default {
     DpFaqItem,
     DpLoading,
     DpTreeList
+  },
+
+  props: {
+    /**
+     * Defines which roles are allowed as options to be set for faq visibility.
+     */
+    roleGroupsFaqVisibility: {
+      type: Array,
+      required: true
+    }
   },
 
   data () {
@@ -84,6 +97,30 @@ export default {
       faqItems: 'items'
     }),
 
+    /**
+     * Available options for role groups. "showFor" will be filtered
+     * against role_groups_faq_visibility` entries in parameters_default_project.yml.
+     */
+    availableGroupOptions () {
+      return [
+        {
+          title: Translator.trans('role.fp'),
+          id: 'fpVisible',
+          showFor: 'GLAUTH'
+        },
+        {
+          title: Translator.trans('institution'),
+          id: 'invitableInstitutionVisible',
+          showFor: 'GPSORG'
+        },
+        {
+          title: Translator.trans('guest.citizen'),
+          id: 'publicVisible',
+          showFor: 'GGUEST'
+        }
+      ].filter(group => this.roleGroupsFaqVisibility.includes(group.showFor))
+    },
+
     transformedCategories () {
       return this.faqItems && this.faqCategories ? this.transformCategoryData(this.faqCategories) : []
     }
@@ -93,10 +130,6 @@ export default {
     ...mapActions('faqCategory', {
       categoryList: 'list',
       saveCategory: 'save'
-    }),
-
-    ...mapActions('role', {
-      roleList: 'list'
     }),
 
     ...mapMutations('faqCategory', {

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 
 class BrandingRepository extends CoreRepository
 {

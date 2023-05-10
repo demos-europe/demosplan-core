@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +31,7 @@ class DemosPlanElementsAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_elements_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      */
     public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
@@ -61,6 +62,7 @@ class DemosPlanElementsAPIController extends APIController
 
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/api/1.0/element/{elementId}",
      *        methods={"GET"},
      *        name="dp_api_elements_get",

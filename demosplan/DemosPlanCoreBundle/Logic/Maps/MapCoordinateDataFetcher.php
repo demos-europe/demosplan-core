@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\ValueObject\LocationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\ReverseQuery;
 use Psr\Log\LoggerInterface;

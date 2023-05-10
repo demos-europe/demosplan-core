@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use Symfony\Component\HttpFoundation\Request;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use Tightenco\Collect\Support\Collection;
@@ -26,7 +27,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
      */
     protected $likedStatementIds;
     /**
-     * @var \Symfony\Component\HttpFoundation\Request
+     * @var Request
      */
     protected $request;
     /**
@@ -43,7 +44,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
 
     public function __construct(
         Collection $statements,
-        \Symfony\Component\HttpFoundation\Request $request,
+        Request $request,
         User $user
     ) {
         $this->statements = $statements;
@@ -53,7 +54,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
     }
 
     /**
-     * @return \Tightenco\Collect\Support\Collection
+     * @return Collection
      */
     public function getStatements()
     {
@@ -61,7 +62,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
     }
 
     /**
-     * @param \Tightenco\Collect\Support\Collection $statements
+     * @param Collection $statements
      */
     public function setStatements($statements)
     {
@@ -69,7 +70,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Request
+     * @return Request
      */
     public function getRequest()
     {

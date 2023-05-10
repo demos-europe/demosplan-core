@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\StoredQuery;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 
 class AssessmentTableQuery extends AbstractStoredQuery
 {

@@ -14,6 +14,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -29,35 +30,54 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoade
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Form\BoilerplateGroupType;
@@ -75,26 +95,6 @@ use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NoResultException;
@@ -121,8 +121,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-
-use function collect;
 
 /**
  * Seitenausgabe Planverfahren.
@@ -1198,9 +1196,9 @@ class DemosPlanProcedureController extends BaseController
      * Helper method to creates an defined text to attach to an Email.
      *
      * @throws Throwable
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private function generateAdditionalEmailText(Procedure $procedure, array $selectedOrganisations): string
     {
@@ -2780,7 +2778,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @param string $boilerplateId - Identifies the Boilerplate to delete
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplate(string $boilerplateId)
     {
@@ -2801,7 +2799,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroup and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroup(
         string $boilerplateGroupId
@@ -2852,7 +2850,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroups and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroups(
         array $boilerplateGroupIds

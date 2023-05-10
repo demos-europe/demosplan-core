@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +33,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @Route(path="/einwilligung-widerrufen",
      *        methods={"POST"},
      *        name="DemosPlan_statement_revoke_gdpr_consent_post")
+     *
      * @DplanPermissions("area_gdpr_consent_revoke_page")
      *
      * @throws MessageBagException
@@ -63,6 +64,7 @@ class GdprConsentRevokeTokenController extends BaseController
 
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/einwilligung-widerrufen",
      *        methods={"GET"},
      *        name="DemosPlan_statement_revoke_gdpr_consent_get"

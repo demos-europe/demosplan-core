@@ -14,21 +14,20 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCapabilitiesLoader;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
-use demosplan\DemosPlanMapBundle\Logic\MapHandler;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\Logic\ServiceStorage;
-use demosplan\DemosPlanMapBundle\MapValidationException;
-use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
@@ -60,6 +59,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/globaleGisEinstellungen",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -135,7 +135,7 @@ class DemosPlanMapController extends BaseController
         $templateVars['territory'] = $procedureObject->getSettings()->getTerritory();
 
         return $this->renderTemplate(
-            '@DemosPlanMap/DemosPlanMap/map_admin.html.twig',
+            '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
             ['templateVars' => $templateVars, 'procedure' => $procedureId, 'title' => 'drawing.admin.adjustments.gis']
         );
     }
@@ -150,6 +150,7 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_new",
      *     path="/verfahren/{procedure}/verwalten/gislayer/neu"
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -208,7 +209,7 @@ class DemosPlanMapController extends BaseController
             $templateVars['availableProjections'] = $this->globalConfig->getMapAvailableProjections();
 
             return $this->renderTemplate(
-                '@DemosPlanMap/DemosPlanMap/map_admin_gislayer_new.html.twig',
+                '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_new.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
@@ -232,12 +233,13 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/gislayer/{gislayerID}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
      * @param string $gislayerID
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
@@ -296,7 +298,7 @@ class DemosPlanMapController extends BaseController
             $templateVars['availableProjections'] = $this->globalConfig->getMapAvailableProjections();
 
             return $this->renderTemplate(
-                '@DemosPlanMap/DemosPlanMap/map_admin_gislayer_edit.html.twig',
+                '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_edit.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
@@ -319,11 +321,12 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_category_new",
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/new-category"
      * )
+     *
      *  @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
@@ -373,7 +376,7 @@ class DemosPlanMapController extends BaseController
 
         // show empty formular if no data is given:
         return $this->renderTemplate(
-            '@DemosPlanMap/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
+            '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -390,12 +393,13 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
      * @param string $gislayerCategoryId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
@@ -441,7 +445,7 @@ class DemosPlanMapController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanMap/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
+            '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -459,6 +463,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayer",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -570,7 +575,7 @@ class DemosPlanMapController extends BaseController
         $templateVars['procedure']['map'] = $mapOfProcedure;
         $templateVars['contextualHelp Breadcrumb'] = $breadcrumb->getContextualHelp($title);
 
-        return $this->renderTemplate('@DemosPlanMap/DemosPlanMap/map_admin_gislayer_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_list.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedureId,
             'title'        => $title,
@@ -585,6 +590,7 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_global",
      *     path="/gislayer"
      * )
+     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @return RedirectResponse|Response
@@ -635,7 +641,7 @@ class DemosPlanMapController extends BaseController
         // Füge die Infos zur Sachdatenabfrage hinzu
         $templateVars['featureInfoUrl'] = $getFeatureInfo;
 
-        return $this->renderTemplate('@DemosPlanMap/DemosPlanMap/map_admin_gislayer_global_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'drawing.admin.gis.layers',
         ]);
@@ -654,6 +660,7 @@ class DemosPlanMapController extends BaseController
      *     path="/gislayer/{gislayerID}",
      *     defaults={"type": "edit"},
      * )
+     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @param string      $type
@@ -722,7 +729,7 @@ class DemosPlanMapController extends BaseController
             $templateVars['gislayer'] = $mapService->gislayerAdminGetGlobalLayer($gislayerID);
 
             return $this->renderTemplate(
-                '@DemosPlanMap/DemosPlanMap/map_admin_gislayer_global_edit.html.twig',
+                '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_edit.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => 'drawing.admin.gis.layer.global.edit',
@@ -746,6 +753,7 @@ class DemosPlanMapController extends BaseController
      *     path="/getFeatureInfo/{procedure}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_map_participation_area")
      *
      * @return Response
@@ -797,6 +805,7 @@ class DemosPlanMapController extends BaseController
      *     path="/getPlanningArea/{procedure}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_procedure_planning_area_match")
      *
      * @param string $procedure
@@ -905,7 +914,7 @@ class DemosPlanMapController extends BaseController
      *
      * @param string $layerId
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function getCapabilitiesLocalAjaxAction(CacheInterface $cache, MapCapabilitiesLoader $capabilitiesLoader, MapService $mapService, $layerId)
     {

@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
@@ -414,15 +414,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
 
@@ -490,6 +481,13 @@ class GlobalConfig implements GlobalConfigInterface
      * @var array<int, string>
      */
     protected $rolesAllowed;
+
+    /**
+     * List of Role Group codes that may be set as allowed to view Faq articles.
+     *
+     * @var array<int, string>
+     */
+    protected $roleGroupsFaqVisibility;
 
     /**
      * Defines whether access to procedure is granted by owning organisation (false)
@@ -767,9 +765,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
@@ -794,6 +789,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->entityContentChangeFieldMapping = $parameterBag->get('entity_content_change_fields_mapping');
 
         $this->rolesAllowed = $parameterBag->get('roles_allowed');
+
+        $this->roleGroupsFaqVisibility = $parameterBag->get('role_groups_faq_visibility');
 
         // project specific params
 
@@ -963,21 +960,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int
@@ -1796,6 +1778,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getRolesAllowed(): array
     {
         return $this->rolesAllowed;
+    }
+
+    public function getRoleGroupsFaqVisibility(): array
+    {
+        return $this->roleGroupsFaqVisibility;
     }
 
     public function isSharedFolder(): bool

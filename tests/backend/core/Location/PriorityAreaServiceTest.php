@@ -11,7 +11,7 @@
 namespace Tests\Core\Location;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use Tests\Base\FunctionalTestCase;
 
 class PriorityAreaServiceTest extends FunctionalTestCase

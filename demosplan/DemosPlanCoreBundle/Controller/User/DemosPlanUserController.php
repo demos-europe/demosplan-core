@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Event\LanguageSwitchRequestEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
@@ -32,18 +33,17 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -52,6 +52,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -81,6 +82,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_complete_data",
      *     path="/willkommen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -252,7 +254,7 @@ class DemosPlanUserController extends BaseController
         $this->getLogger()->info('Welcomepage display page');
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/gateway_newUser.html.twig',
+            '@DemosPlanCore/DemosPlanUser/gateway_newUser.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
     }
@@ -282,6 +284,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_orga_toeblist_changes",
      *     path="/organisations/visibilitylog"
      * )
+     *
      * @DplanPermissions("area_report_invitable_institutionlistchanges")
      *
      * @return RedirectResponse|Response
@@ -293,7 +296,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/toeb_showlist_changes.html.twig',
+            '@DemosPlanCore/DemosPlanUser/toeb_showlist_changes.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.list.visibility.changes.invitable_institution',
@@ -306,6 +309,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_switch_language",
      *     path="/language"
      * )
+     *
      * @DplanPermissions("feature_plain_language")
      *
      * @return RedirectResponse
@@ -336,6 +340,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_portal",
      *     path="/portal/user"
      * )
+     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -367,7 +372,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/portal_user.html.twig',
+            '@DemosPlanCore/DemosPlanUser/portal_user.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -380,6 +385,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_add",
      *     path="/user/add"
      * )
+     *
      * @DplanPermissions("area_manage_users")
      *
      * @throws MessageBagException
@@ -414,6 +420,7 @@ class DemosPlanUserController extends BaseController
      *     methods={"POST"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -421,8 +428,8 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     public function registerCitizenAction(
+        CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
-        ParameterBagInterface $parameterBag,
         Request $request,
         TranslatorInterface $translator,
         UserHandler $userHandler
@@ -440,7 +447,22 @@ class DemosPlanUserController extends BaseController
                 return $this->redirectToRoute('DemosPlan_citizen_register');
             }
 
-            $user = $userHandler->createCitizen($request->request, $parameterBag);
+            $submittedToken = $request->request->get('_csrf_token');
+            $tokenId = 'register-user';
+            if (!$this->isCsrfTokenValid($tokenId, $submittedToken)) {
+                $this->logger->warning('User entered invalid csrf token on user registration', [$submittedToken]);
+                $this->getMessageBag()->add('error', 'user.registration.invalid.csrf');
+
+                return $this->redirectToRoute('DemosPlan_citizen_register');
+            }
+
+            // explicitly remove token, so it can not be used again, as tokens
+            // are by design valid as long as the session exists to avoid problems
+            // in xhr requests. We do not need this here, instead, we need to
+            // make sure that the token is only valid once.
+            $csrfTokenManager->refreshToken($tokenId);
+
+            $user = $userHandler->createCitizen($request->request);
 
             try {
                 $userHandler->inviteUser($user);
@@ -487,6 +509,7 @@ class DemosPlanUserController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -505,7 +528,7 @@ class DemosPlanUserController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/citizen_register_form.html.twig',
+            '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
             ['title' => $title, 'useSaml' => $useSaml]
         );
     }
@@ -517,6 +540,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_edit",
      *     path="/user/edit"
      * )
+     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -572,6 +596,7 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/erstellen/{organisationId}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -644,6 +669,7 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/loeschen/{organisationId}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -691,6 +717,7 @@ class DemosPlanUserController extends BaseController
      *     path="/portal/user/statements",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent"})
      *
      * @return RedirectResponse|Response
@@ -707,7 +734,7 @@ class DemosPlanUserController extends BaseController
         $templateVars['statements'] = $statementService->getSubmittedOrAuthoredStatements($userId);
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_users_statements.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_users_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.statements',
@@ -720,6 +747,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_revoke_statement",
      *     path="/portal/user/statement/{statementId}/revoke"
      * )
+     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent_may_revoke"})
      *
      * @return RedirectResponse|Response

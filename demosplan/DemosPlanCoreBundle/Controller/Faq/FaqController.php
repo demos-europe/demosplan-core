@@ -15,13 +15,14 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -37,7 +38,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class FaqController extends BaseController
 {
     /**
-     * Gib die Faqliste eines Verfahrens? aus.
+     * Displays a list of Faq Articles visible to the current user (all categories).
      *
      * @throws Exception
      *
@@ -50,6 +51,7 @@ class FaqController extends BaseController
      *     path="/haeufigefragen",
      *     name="DemosPlan_haeufigefragen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function faqListAction(
@@ -82,7 +84,7 @@ class FaqController extends BaseController
     }
 
     /**
-     * Gib die öffentliche Faqliste für die Beteiligungsebene aus.
+     * Displays a list of Faq Articles visible to the current user (only one category, based on route).
      *
      * @Route(
      *     path="/faq/bauleitplanung",
@@ -94,6 +96,7 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_public_project",
      *     defaults={"type": "oeb_bob"}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $type
@@ -145,11 +148,13 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminListAction(
         Request $request,
         FaqHandler $faqHandler,
+        GlobalConfig $globalConfig,
         string $procedure = null
     ) {
         $requestPost = $request->request->all();
@@ -183,8 +188,9 @@ class FaqController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_list.html.twig',
             [
-                'procedure' => $procedure,
-                'title'     => 'faq.admin',
+                'procedure'                 => $procedure,
+                'title'                     => 'faq.admin',
+                'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
             ]
         );
     }
@@ -201,10 +207,12 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq_edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminEditAction(
         Breadcrumb $breadcrumb,
+        GlobalConfig $globalConfig,
         Request $request,
         string $faqID,
         TranslatorInterface $translator,
@@ -237,10 +245,6 @@ class FaqController extends BaseController
             }
         }
 
-        $templateVars = [
-            'faq' => $faq,
-        ];
-
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('faq.list', [], 'page-title'),
@@ -249,9 +253,12 @@ class FaqController extends BaseController
         );
 
         $categoryTypeNames = FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY;
-        $templateVars['categories'] = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(
-            $categoryTypeNames
-        );
+
+        $templateVars = [
+            'categories'                => $faqHandler->getCustomFaqCategoriesByNamesOrCustom($categoryTypeNames),
+            'faq'                       => $faq,
+            'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
+        ];
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
@@ -275,11 +282,13 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq_new",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminNewAction(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
+        GlobalConfig $globalConfig,
         Request $request,
         TranslatorInterface $translator,
         string $procedure = null
@@ -319,12 +328,14 @@ class FaqController extends BaseController
         );
 
         $categoryTypeNames = FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY;
-        $templateVars['categories'] = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(
-            $categoryTypeNames
-        );
+
+        $templateVars = [
+            'categories'                => $faqHandler->getCustomFaqCategoriesByNamesOrCustom($categoryTypeNames),
+            'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
+        ];
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanFaq/faq_admin_new.html.twig',
+            '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -386,6 +397,7 @@ class FaqController extends BaseController
 
     /**
      * @DplanPermissions("area_admin_faq")
+     *
      * @Route(
      *     path="/category/new",
      *     name="DemosPlan_faq_administration_category_new",
@@ -478,6 +490,7 @@ class FaqController extends BaseController
 
     /**
      * @DplanPermissions("area_admin_faq")
+     *
      * @Route(
      *     path="/category/{categoryId}/delete",
      *     name="DemosPlan_faq_administration_category_delete",

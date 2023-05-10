@@ -13,12 +13,15 @@ namespace Tests\Core\Core\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
@@ -26,11 +29,8 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use Psr\Log\NullLogger;
-use SplFixedArray;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
@@ -84,7 +84,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
 
         $this->permissionsStub = new Permissions(
-            new SplFixedArray(),
+            $this->createMock(AddonRegistry::class),
             $currentCustomerProvider,
             new NullLogger(),
             $this->globalConfig,

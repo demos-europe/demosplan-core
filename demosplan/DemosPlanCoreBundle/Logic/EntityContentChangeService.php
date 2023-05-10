@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use function array_key_exists;
-
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -19,12 +17,11 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Exception;
@@ -35,9 +32,12 @@ use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
+
+use function array_key_exists;
 
 /**
  * Class EntityContentChangeService.
@@ -49,8 +49,12 @@ class EntityContentChangeService extends CoreService
      */
     private $entityContentChangeRepository;
 
-    /** @var array[] */
-    protected $fieldMapping;
+    /**
+     * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
+     *
+     * @var array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|null
+     */
+    protected ?array $fieldMapping;
 
     /**
      * @var MailService
@@ -119,23 +123,44 @@ class EntityContentChangeService extends CoreService
      * Returns list of fields to create entityContentChanges for as array.
      * Including necessary meta data for each field.
      *
-     * @return array list of fields to create entityContentChanges for
+     * @return array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|array<non-empty-string, array<non-empty-string, mixed>> list of fields to create entityContentChanges for
      */
     public function getFieldMapping(string $class = ''): array
     {
+        $this->loadFieldMapping();
         if ('' === $class) {
             return $this->fieldMapping;
         }
 
         // convert Proxy-class (for tests)
         $class = str_replace('Proxies\\__CG__\\', '', $class);
-        $this->loadFieldMapping();
 
         if (array_key_exists($class, $this->fieldMapping)) {
             return $this->fieldMapping[$class];
         }
 
         return $this->fieldMapping;
+    }
+
+    /**
+     * @param class-string $class
+     *
+     * @return array<non-empty-string, array<non-empty-string, mixed>> list of fields to create entityContentChanges for
+     */
+    public function getFieldMappingForClass(string $class): array
+    {
+        $this->loadFieldMapping();
+
+        // convert Proxy-class (for tests)
+        $class = str_replace('Proxies\\__CG__\\', '', $class);
+
+        if (array_key_exists($class, $this->fieldMapping)) {
+            return $this->fieldMapping[$class];
+        }
+
+        $availableClasses = implode(', ', array_keys($this->fieldMapping));
+
+        throw new InvalidArgumentException("No mapping class found for '$class'. Available class mappings are: $availableClasses");
     }
 
     /**
@@ -231,7 +256,7 @@ class EntityContentChangeService extends CoreService
     public function diffArrayAndObject(array $preUpdateArray, CoreEntity $incomingUpdatedObject): array
     {
         $changes = [];
-        foreach ($this->getFieldMapping(ClassUtils::getClass($incomingUpdatedObject)) as $propertyName => $fieldMetaInfo) {
+        foreach ($this->getFieldMappingForClass(ClassUtils::getClass($incomingUpdatedObject)) as $propertyName => $fieldMetaInfo) {
             $methodName = $this->getGetterMethodName($incomingUpdatedObject, $propertyName);
             // If the entity is not managed by doctrine (e.g. because it was just created)
             // we use `null` as pre update value.
@@ -839,7 +864,7 @@ class EntityContentChangeService extends CoreService
     protected function determineChanger(bool $isReviewer): ?object
     {
         $token = $this->getTokenStorage()->getToken();
-        if ($token instanceof DemosToken && $token->getUser() instanceof User) {
+        if ($token instanceof TokenInterface && $token->getUser() instanceof User) {
             $user = $token->getUser();
 
             return $isReviewer ? $user->getDepartment() : $user;
@@ -929,7 +954,7 @@ class EntityContentChangeService extends CoreService
         }
         try {
             $mail['mailbody'] = $this->twig->load(
-                '@DemosPlanUser/DemosPlanUser/email_assigned_tasks.html.twig'
+                '@DemosPlanCore/DemosPlanUser/email_assigned_tasks.html.twig'
             )->renderBlock(
                 'body_plain',
                 [

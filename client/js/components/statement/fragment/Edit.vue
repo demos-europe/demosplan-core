@@ -220,7 +220,7 @@ export default {
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            Bus.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', response.data)
           } else {
             this.$root.$emit('fragment-saved', response.data)
 

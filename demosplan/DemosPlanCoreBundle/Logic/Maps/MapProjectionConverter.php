@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use Exception;
 use proj4php\Point;
 use proj4php\Proj;
