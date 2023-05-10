@@ -12,14 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\Transformer\BaseTransformerInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\TransformerAbstract;
 use LogicException;
 
-abstract class BaseTransformer extends TransformerAbstract
+abstract class BaseTransformer extends TransformerAbstract implements BaseTransformerInterface
 {
     protected $type;
 
@@ -32,7 +33,7 @@ abstract class BaseTransformer extends TransformerAbstract
     protected $permissions;
 
     /**
-     * @var ApiResourceService
+     * @var ApiResourceServiceInterface
      */
     protected $resourceService;
 
@@ -94,7 +95,7 @@ abstract class BaseTransformer extends TransformerAbstract
      *
      * @required
      */
-    public function setResourceService(ApiResourceService $resourceService): void
+    public function setResourceService(ApiResourceServiceInterface $resourceService): void
     {
         $this->resourceService = $resourceService;
     }

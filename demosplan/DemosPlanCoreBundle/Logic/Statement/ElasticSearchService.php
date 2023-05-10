@@ -10,13 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -24,6 +26,7 @@ use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
 use Exception;
+
 use function array_key_exists;
 
 class ElasticSearchService extends CoreService
@@ -39,7 +42,7 @@ class ElasticSearchService extends CoreService
      */
     protected $aggregationsMinDocumentCount = 1;
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\UserService
+     * @var UserService
      */
     private $userService;
 
@@ -79,7 +82,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsMissingAggregation(Query $query, $key): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -368,7 +371,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsFragmentsMissingAggregation($key, Query $query): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -381,7 +384,7 @@ class ElasticSearchService extends CoreService
         // we do only need the amount, not the ids
         $aggPriority->addAggregation($statementCount);
 
-        $nested = new \Elastica\Aggregation\Nested(
+        $nested = new Nested(
             $key.'_missing',
             'fragments'
         );
@@ -398,7 +401,7 @@ class ElasticSearchService extends CoreService
      * @param string $field
      * @param array  $terms
      *
-     * @return \Elastica\Query\Terms
+     * @return Terms
      *
      * @throws Exception
      */
@@ -498,9 +501,9 @@ class ElasticSearchService extends CoreService
      * Convert Result to Legacy.
      *
      * @param string|null $search
-     * @param array  $filters
-     * @param array  $sort
-     * @param string $resultKey
+     * @param array       $filters
+     * @param array       $sort
+     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,

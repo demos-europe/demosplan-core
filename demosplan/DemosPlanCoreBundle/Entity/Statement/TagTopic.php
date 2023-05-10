@@ -67,7 +67,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     protected $createDate;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
      *
@@ -212,7 +212,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @return Procedure
      */
     public function getProcedure()
     {
@@ -220,7 +220,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param Procedure $procedure
      */
     public function setProcedure($procedure)
     {

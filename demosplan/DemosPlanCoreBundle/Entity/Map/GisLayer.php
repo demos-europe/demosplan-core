@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -256,7 +257,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     protected $deleteDate;
 
     /**
-     * @var ContextualHelp
+     * @var ContextualHelpInterface
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp", cascade={"remove"}, fetch="EAGER")
      *
@@ -265,7 +266,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     protected $contextualHelp;
 
     /**
-     * @var GisLayerCategory
+     * @var GisLayerCategoryInterface
      *
      * Many GisLayers has one GisLayerCategory
      *
@@ -882,7 +883,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     }
 
     /**
-     * @param ContextualHelp $help
+     * @param ContextualHelpInterface $help
      *
      * @return GisLayer
      */

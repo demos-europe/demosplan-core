@@ -101,7 +101,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $tags;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -636,7 +636,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Adds a tag to this statement fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
+     * @param Tag $tag
      */
     public function addTag(Tag $tag)
     {
@@ -648,7 +648,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a tag to this statement fragment.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
+     * @param Tag $tag
      */
     public function removeTag(Tag $tag)
     {

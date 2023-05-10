@@ -10,13 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use ReflectionClass;
+use ReflectionMethod;
 use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoaderInterface
 {
@@ -40,7 +42,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
         return $routeCollection;
     }
 
-    protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $annot)
+    protected function configureRoute(Route $route, ReflectionClass $class, ReflectionMethod $method, object $annot)
     {
         if ('__invoke' === $method->getName()) {
             $route->setDefault('_controller', $class->getName());
@@ -54,9 +56,9 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
      */
     private function addControllers(mixed $addonInfo, RouteCollection $routeCollection): void
     {
-        $controllerDir = $addonInfo->getInstallPath() . self::PATH_TO_CONTROLLERS_FROM_ADDONROOT;
-        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerDir)) {
-            $controllerPath = AddonPath::getRootPath($controllerDir);
+        $controllerDir = $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT;
+        $controllerPath = AddonPath::getRootPath($controllerDir);
+        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerPath)) {
             $routeCollection->addCollection($this->load($controllerPath));
         }
     }

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -42,7 +43,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality
+     * @return Municipality
      *
      * @throws Exception
      */
@@ -181,7 +182,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
                 ->getQuery();
 
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }

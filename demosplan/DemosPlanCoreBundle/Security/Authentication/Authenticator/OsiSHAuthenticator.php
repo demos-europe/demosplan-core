@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
@@ -30,7 +30,7 @@ final class OsiSHAuthenticator extends OsiAuthenticator
             && $request->query->has('Token');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('Token');
         $request->getSession()->set(Security::LAST_USERNAME, $osiToken);

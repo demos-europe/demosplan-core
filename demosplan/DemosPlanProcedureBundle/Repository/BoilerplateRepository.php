@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -42,7 +45,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
 
         try {
             $boilerplates = $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
 
@@ -330,7 +333,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate $entity
+     * @param Boilerplate $entity
      *
      * @throws Exception
      */
@@ -344,8 +347,8 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @return Boilerplate
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function addObject($boilerplate)
     {
@@ -361,8 +364,8 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @return Boilerplate
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function updateObject($boilerplate)
     {

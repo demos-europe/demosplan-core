@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Composer\Package\BasePackage;
+use Composer\Package\CompleteAliasPackage;
+use Composer\Package\CompletePackage;
+use Composer\Package\RootAliasPackage;
+use Composer\Package\RootPackage;
+use Symfony\Component\Console\Input\InputDefinition;
 use Composer\Console\Input\InputOption;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
@@ -239,7 +245,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return \Composer\Package\BasePackage|\Composer\Package\CompleteAliasPackage|\Composer\Package\CompletePackage|\Composer\Package\RootAliasPackage|\Composer\Package\RootPackage|\Symfony\Component\Console\Input\InputDefinition
+     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage|InputDefinition
      *
      * @throws JsonException
      */

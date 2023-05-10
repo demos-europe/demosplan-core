@@ -157,7 +157,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($entity)
     {

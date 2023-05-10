@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
@@ -95,7 +97,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -119,7 +121,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->getQuery();
         try {
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $this->logger->error('Get Files of Statements failed ', [$e]);
 
             return null;
@@ -141,7 +143,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
             foreach ($statementIdsToCluster as $statementId) {
                 if (is_string($statementId)) {
-                    $statements[] = $manager->getReference(\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement::class, $statementId);
+                    $statements[] = $manager->getReference(Statement::class, $statementId);
                 } else {
                     $statements[] = $statementId;
                 }
@@ -559,7 +561,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike
+     * @return StatementLike
      *
      * @throws Exception
      */
@@ -1027,7 +1029,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * @return string|null null if be none found, otherwise the found ID as string
      *
      * @throws NonUniqueResultException
-     * @throws \Doctrine\ORM\NoResultException
+     * @throws NoResultException
      */
     public function getNewestInternId($procedureId)
     {
@@ -1143,7 +1145,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->from(Statement::class, 'statement')
             ->andWhere('statement.original IS NOT NULL')
             ->andWhere('statement.id IN (:ids)')
-            ->setParameter('ids', $headStatementIds->toArray(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $headStatementIds->toArray(), Connection::PARAM_STR_ARRAY)
             ->getQuery()->getResult();
 
         return $result;
@@ -1162,7 +1164,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->select('statement')
             ->from(Statement::class, 'statement')
             ->andWhere('statement.headStatement IN (:ids)')
-            ->setParameter('ids', $statementIds, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $statementIds, Connection::PARAM_STR_ARRAY)
             ->getQuery();
 
         return $query->getResult();
@@ -1181,7 +1183,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->select('statement')
             ->from(Statement::class, 'statement')
             ->andWhere('statement.id IN (:ids)')
-            ->setParameter('ids', $statementIds, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $statementIds, Connection::PARAM_STR_ARRAY)
             ->getQuery();
 
         return $query->getResult();
@@ -1270,8 +1272,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      *
      * @deprecated use {@link Statement::isManual()} instead
      */
@@ -1518,7 +1520,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * @return int Amount of deleted Statements
      *
      * @throws ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws OptimisticLockException
      * @throws Exception
      */
     public function deleteByProcedure(string $procedureId): int

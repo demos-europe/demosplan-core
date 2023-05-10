@@ -18,10 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
@@ -52,7 +52,7 @@ class DemosPlanDepartmentController extends BaseController
             $session = $request->getSession();
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/verify_orga_switch_or_update.html.twig',
+                '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
                 [
                     'templateVars' => [
                         'type'        => 'Department',
@@ -124,7 +124,7 @@ class DemosPlanDepartmentController extends BaseController
         $templateVars['organisation'] = $orga;
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_departments.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_departments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.admin.departments',
@@ -192,7 +192,7 @@ class DemosPlanDepartmentController extends BaseController
     public function editDepartmentAction(Request $request)
     {
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/edit_department.html.twig',
+            '@DemosPlanCore/DemosPlanUser/edit_department.html.twig',
             [
                 'templateVars' => [],
                 'title'        => 'project.name',

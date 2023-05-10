@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 
 class CountyService extends CoreService
@@ -103,9 +104,9 @@ class CountyService extends CoreService
      *
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\County|null
+     * @return County|null
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function findCountyByName($name)
     {
