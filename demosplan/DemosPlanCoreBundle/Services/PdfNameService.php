@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\PdfNameServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 
 class PdfNameService extends CoreService implements PdfNameServiceInterface
