@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
+use Elastica\Query\Exists;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Elastica\Index;
 use Elastica\Query;
@@ -68,7 +69,7 @@ class FragmentElasticsearchRepository extends CoreRepository
     /**
      * Search for Fragments.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment $esQuery
+     * @param QueryFragment $esQuery
      *
      * @return array
      */
@@ -80,7 +81,7 @@ class FragmentElasticsearchRepository extends CoreRepository
     /**
      * Do actual Elasticsearch Query.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment $esQuery
+     * @param QueryFragment $esQuery
      *
      * @return array
      */
@@ -93,8 +94,8 @@ class FragmentElasticsearchRepository extends CoreRepository
             $boolQuery = new BoolQuery();
 
             // The parent should not be in cluster or an original statement
-            $boolMustNotFilter[] = new Query\Exists('statement.headStatementId');
-            $boolMustFilter[] = new Query\Exists('statement.originalId');
+            $boolMustNotFilter[] = new Exists('statement.headStatementId');
+            $boolMustFilter[] = new Exists('statement.originalId');
 
             $boolQuery = $this->buildFilterMust($boolQuery, $esQuery, $boolMustFilter, $boolMustNotFilter);
 

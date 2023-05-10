@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -36,6 +37,10 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
@@ -49,11 +54,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -110,7 +110,7 @@ class DraftStatementService extends CoreService
      */
     protected $fileService;
     /**
-     * @var \demosplan\DemosPlanReportBundle\Logic\ReportService
+     * @var ReportService
      */
     private $reportService;
     /**
@@ -796,7 +796,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * Adds a report via means the DemosPlanReportBundle.
+     * Adds a report.
      *
      * @throws ORMException
      * @throws OptimisticLockException
@@ -1857,7 +1857,7 @@ class DraftStatementService extends CoreService
      * @param string|null $orderBy
      * @param string|null $orderDir asc|desc
      *
-     * @return \Elastica\Query
+     * @return Query
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/guide/1.x/_intrinsic_sorts.html
      */

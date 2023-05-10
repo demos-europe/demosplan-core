@@ -1709,7 +1709,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Add StatementAttribute to DraftStatement.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
+     * @param StatementAttribute $statementAttribute
      */
     public function addStatementAttribute(StatementAttribute $statementAttribute)
     {
@@ -1721,7 +1721,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Remove StatementAttribute from DraftStatement.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
+     * @param StatementAttribute $statementAttribute
      */
     public function removeStatementAttribute(StatementAttribute $statementAttribute)
     {

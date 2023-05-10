@@ -12,12 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,6 +37,7 @@ class DemosPlanReportController extends BaseController
      *     name="dm_plan_report_table_view",
      *     path="/report/view/{procedureId}"
      * )
+     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $procedureId
@@ -49,7 +49,7 @@ class DemosPlanReportController extends BaseController
     public function viewReportAction(Request $request, $procedureId)
     {
         return $this->renderTemplate(
-            '@DemosPlanReport/DemosPlanReport/list.html.twig',
+            '@DemosPlanCore/DemosPlanReport/list.html.twig',
             [
                 'title'     => 'procedure.report',
                 'procedure' => $procedureId,
@@ -66,6 +66,7 @@ class DemosPlanReportController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
      * @param string $procedureId

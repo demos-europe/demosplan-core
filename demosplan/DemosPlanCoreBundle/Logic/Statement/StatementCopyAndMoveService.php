@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use Doctrine\ORM\EntityNotFoundException;
 
 class StatementCopyAndMoveService extends CoreService

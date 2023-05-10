@@ -27,15 +27,15 @@
         v-slot:controls
         v-if="editable">
         <dp-procedure-coordinate-input
+          v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
           :coordinate="coordinate"
-          v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           @input="updateFeatures" />
 
         <procedure-coordinate-geolocation
+          v-if="hasPermission('feature_procedures_located_by_maintenance_service')"
           :coordinate="coordinate"
-          :location="procedureLocation"
-          v-if="hasPermission('feature_procedures_located_by_maintenance_service')" />
+          :location="procedureLocation" />
 
         <div :class="prefixClass('display--inline-block')">
           <dp-ol-map-draw-point

@@ -10,23 +10,23 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
+use function array_key_exists;
 
 // @link https://yaits.demos-deutschland.de/w/demosplan/functions/verfahren/verfahrensvorschlag/ wiki
 class ProcedureProposalController extends BaseController

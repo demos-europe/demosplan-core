@@ -14,11 +14,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
-use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
@@ -29,7 +29,7 @@ class SubmitterService extends CoreService
      */
     protected $mailService;
     /**
-     * @var \demosplan\DemosPlanReportBundle\Logic\ReportService
+     * @var ReportService
      */
     private $reportService;
 

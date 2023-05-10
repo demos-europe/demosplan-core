@@ -58,7 +58,7 @@
           :features="features.territory"
           :draw-style="drawingStyles.territory"
           name="mapSettingsPreviewTerritory" />
-      </dp-ol-map>
+    </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
       <ul class="list-style-none">

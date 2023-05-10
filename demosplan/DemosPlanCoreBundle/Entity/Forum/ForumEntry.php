@@ -52,7 +52,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     protected $threadId;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *

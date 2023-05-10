@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;

@@ -20,7 +20,7 @@
         class="u-top-0 u-right-0 position--absolute"
         :has-menu="false"
         :padded="false">
-        <template v-slot:trigger>
+        <template #trigger>
           <dp-icon
             :class="{ 'color-ui-highlight': selectedFields.length > 0 }"
             icon="settings" />

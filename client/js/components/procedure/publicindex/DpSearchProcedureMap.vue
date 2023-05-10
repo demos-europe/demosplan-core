@@ -121,14 +121,13 @@
           :class="prefixClass('o-form__control-select')"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
           <template
-            v-for="municipalityGroups in municipalities"
-            :key="'group_' + municipalityGroups.label">
+            v-for="municipalityGroup in municipalities"
+            :key="`group_${municipalityGroup.label}`">
             <optgroup
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :label="municipalityGroups.label">
+              v-if="hasOwnProp(municipalityGroup,'options')"
+              :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
+                v-for="county in municipalityGroup.options"
                 :selected="county.value === form.municipalCode"
                 :value="county.value">
                 {{ county.title }}
@@ -136,8 +135,8 @@
             </optgroup>
             <option
               v-else
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              :value="municipalityGroup.value">
+              {{ municipalityGroup.label }}
             </option>
           </template>
         </select>
@@ -158,7 +157,7 @@
             :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{ content: filter.contextHelp }" />
         </label><!--
-     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
+    --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :ref="'filter_' + idx"
             :id="filter.name"

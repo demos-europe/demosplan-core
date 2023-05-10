@@ -178,7 +178,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
      * @return void
      */

@@ -23,11 +23,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
@@ -62,11 +62,6 @@ class StatementSynchronizer
     private $statementCopier;
 
     /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
-
-    /**
      * @var ValidatorInterface
      */
     private $validator;
@@ -83,7 +78,6 @@ class StatementSynchronizer
 
     public function __construct(
         CurrentUserInterface $currentUserProvider,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementCopier $statementCopier,
         StatementReportEntryFactory $statementReportEntryFactory,
         StatementRepository $statementRepository,
@@ -92,7 +86,6 @@ class StatementSynchronizer
         ValidatorInterface $validator
     ) {
         $this->currentUserProvider = $currentUserProvider;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementCopier = $statementCopier;
         $this->statementReportEntryFactory = $statementReportEntryFactory;
         $this->statementRepository = $statementRepository;
@@ -180,11 +173,6 @@ class StatementSynchronizer
         if (in_array(null, $statementIds, true)) {
             throw new InvalidArgumentException('Statement IDs not set yet.');
         }
-
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statementIds
-        );
     }
 
     /**

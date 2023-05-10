@@ -7,10 +7,9 @@
   All rights reserved
 </license>
 
-<template>
-  <dp-modal
-    ref="recommendationModal"
-    content-classes="u-2-of-3">
+<dp-modal
+  ref="recommendationModal"
+  content-classes="u-2-of-3">
     <h3>{{ Translator.trans('segment.recommendation.insert.similar') }}</h3>
     <div class="layout u-mb">
       <div class="layout__item u-1-of-3">
@@ -54,13 +53,12 @@
           :recommendation="recommendation.attributes.recommendation" />
       </ul>
       <div
-        v-if="currentRecommendations.length === 0"
+        v-else-if="currentRecommendations.length === 0"
         class="u-pt-0_5 border--top">
         {{ Translator.trans('statement.list.empty') }}
       </div>
     </template>
-  </dp-modal>
-</template>
+</dp-modal>
 
 <script>
 import { dataTableSearch, dpApi, DpLabel, DpLoading, DpModal, DpSearchField } from '@demos-europe/demosplan-ui'

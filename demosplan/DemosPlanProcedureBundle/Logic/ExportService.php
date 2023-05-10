@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use Monolog\Logger;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -28,20 +30,19 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
-use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Faker\Provider\Uuid;
@@ -67,7 +68,7 @@ class ExportService
      */
     protected $literals = [];
     /**
-     * @var \Monolog\Logger
+     * @var Logger
      */
     protected $logger;
 
@@ -82,7 +83,7 @@ class ExportService
     protected $newsOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput
+     * @var AssessmentTableServiceOutput
      */
     protected $assessmentTableOutput;
 
@@ -92,7 +93,7 @@ class ExportService
     protected $paragraphExporter;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService DraftStatementService
+     * @var DraftStatementService DraftStatementService
      */
     protected $draftStatementService;
 

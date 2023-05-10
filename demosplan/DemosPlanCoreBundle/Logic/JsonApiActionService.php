@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -37,7 +38,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResour
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\ValueObject\ApiListResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -57,11 +57,10 @@ use EDT\Querying\Utilities\Iterables;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use Exception;
-
-use function get_class;
-
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+use function get_class;
 
 /**
  * @template-extends AbstractApiService<ClauseFunctionInterface<bool>>
@@ -82,11 +81,6 @@ class JsonApiActionService extends AbstractApiService
      * @var EntityFetcher
      */
     private $entityFetcher;
-
-    /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
 
     /**
      * @var TransactionService
@@ -120,7 +114,6 @@ class JsonApiActionService extends AbstractApiService
         PropertyValuesGenerator $propertyValuesGenerator,
         ResourcePersister $resourcePersister,
         ResourceTypeService $resourceTypeService,
-        SearchIndexTaskService $searchIndexTaskService,
         TransactionService $transactionService
     ) {
         parent::__construct(
@@ -133,7 +126,6 @@ class JsonApiActionService extends AbstractApiService
         $this->eventDispatcher = $eventDispatcher;
         $this->resourceTypeService = $resourceTypeService;
         $this->entityFetcher = $entityFetcher;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->transactionService = $transactionService;
         $this->resourcePersister = $resourcePersister;
         $this->paginationParser = $paginationParser;
@@ -311,11 +303,6 @@ class JsonApiActionService extends AbstractApiService
     public function persistResourceChange(ResourceChange $resourceChange): ?object
     {
         $this->transactionService->persistResourceChange($resourceChange);
-
-        $entityIdsByClass = $resourceChange->getEntityIdsToUpdateInIndex();
-        collect($entityIdsByClass)->each(function (array $entityIds, string $class): void {
-            $this->searchIndexTaskService->addIndexTask($class, $entityIds);
-        });
 
         return $resourceChange->getUnrequestedChangesToTargetResource()
             ? $resourceChange->getTargetResource()

@@ -131,9 +131,9 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Flood $entity
+     * @param Flood $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Flood
+     * @return Flood
      */
     public function generateObjectValues($entity, array $data)
     {

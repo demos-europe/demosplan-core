@@ -57,7 +57,7 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -109,7 +109,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return string[]|null
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getNames($procedureId)
     {
@@ -124,7 +124,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery();
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -1066,7 +1066,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return Procedure the given procedure
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      * @throws InvalidArgumentException
      */
     public function copyAgencyExtraEmailAddresses($sourceProcedureId, $newProcedure): Procedure
