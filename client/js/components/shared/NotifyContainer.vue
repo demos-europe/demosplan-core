@@ -24,12 +24,12 @@ All rights reserved
     <transition-group
       name="transition-slide-up"
       tag="span">
-        <dp-notify-message
-          v-for="message in notificationMessages"
-          :key="message.uid"
-          :message="message"
-          :role="messageRole"
-          @dp-notify-remove="removeMessage" />
+      <dp-notify-message
+        v-for="message in messages"
+        :key="message.uid"
+        :message="message"
+        :role="messageRole"
+        @dp-notify-remove="removeMessage" />
     </transition-group>
   </div>
 </template>
@@ -62,9 +62,6 @@ export default {
     },
     messageRole () {
       return (this.isVisible) ? 'message' : 'none'
-    },
-    notificationMessages () {
-      return this.messages
     }
   },
   methods: {
