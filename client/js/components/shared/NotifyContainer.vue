@@ -28,8 +28,8 @@ All rights reserved
           v-for="message in notificationMessages"
           :key="message.uid"
           :message="message"
-          @dp-notify-remove="removeMessage"
-          :role="messageRole" />
+          :role="messageRole"
+          @dp-notify-remove="removeMessage" />
     </transition-group>
   </div>
 </template>
