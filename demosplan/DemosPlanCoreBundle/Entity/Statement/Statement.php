@@ -983,18 +983,25 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     private $piSegmentsProposalResourceUrl;
 
     /**
+     * This is modelled as ManyToMany, because intentionally it should be possible, that one ProcedurePersons is
+     * related to many Statements, as well as many Statements are related to one ProcedurePerson.
+     * Actually this is used as OneToMany, because one Statement can be related to many ProcedurePersons, but a
+     * ProcedurePerson will only have one related Statement. That means, we can use cascade remove on this site,
+     * to ensure related ProcedurePersons will be deleted in case of this Statement will be deleted.
+     *
      * @var Collection<int, ProcedurePerson>
      *
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
      *     inversedBy="similarForeignStatements",
-     *     cascade={"persist"},
+     *     cascade={"persist", "remove"},
      *     orphanRemoval = true
      * )
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
      * )
+     * remove orphan submitters by using orphanRemoval=true here
      */
     private Collection $similarStatementSubmitters;
 
@@ -4133,7 +4140,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 //            $this->similarStatementSubmitters->add($submitter);
         }
 
-
         $this->similarStatementSubmitters = $similarStatementSubmitters;
 
         return $this;
@@ -4157,5 +4163,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         $this->anonymous = $anonymous;
 
         return $this;
+    }
+    public function setSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    {
+        $this->similarStatementSubmitters = new ArrayCollection([$similarStatementSubmitter]);
     }
 }

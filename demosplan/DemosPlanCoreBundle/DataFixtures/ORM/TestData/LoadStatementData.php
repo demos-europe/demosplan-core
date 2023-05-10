@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
@@ -295,6 +296,13 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement5->setText('Ich bin der Text für ein weiteres Statement');
         $statement5->setTitle('oneMoreStatement');
         $statement5->setUser($testUser);
+        $statement5->setSimilarStatementSubmitters(
+            new ArrayCollection([
+                $this->getReference('testProcedurePerson1'),
+                $this->getReference('testProcedurePerson2'),
+                ]
+            )
+        );
 
         $this->setReference('testFixtureStatement', $statement5);
         $manager->persist($statement5);
@@ -322,6 +330,8 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement2->setText('Ich bin der Text für das Statement, gleiche Orga, anderer User');
         $statement2->setTitle('Statement Orga');
         $statement2->setUser($this->getReference('testUserPlanningOffice'));
+        $statement2->setSimilarStatementSubmitter($this->getReference('testProcedurePerson1'));
+
 
         /** @var User $submitter */
         $submitter = $this->getReference('testUserDataInput1');
@@ -952,6 +962,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
             LoadProcedureData::class,
             LoadTagData::class,
             LoadUserData::class,
+            LoadProcedurePersonData::class,
         ];
     }
 

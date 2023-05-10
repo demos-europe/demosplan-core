@@ -51,6 +51,11 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
         static::assertTrue($testStatement->getSimilarStatementSubmitters()->contains($testProcedurePerson));
     }
 
+    /**
+     * testDeleteStatementWithSimilarStatementSubmitters
+     * Cover deletion of a single statement with related procedure person, by just asserting that the statement
+     * is correctly deleted.
+     */
     public function testDeleteStatementWithRelatedProcedurePerson()
     {
         $testStatement = $this->getStatementReference('testFixtureStatement');
@@ -63,10 +68,33 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
         static::assertNull($testStatement);
     }
 
+    /**
+     * Cover deletion of related ProcedurePerson on deletion of a Statement.
+     */
+    public function testDeleteRelatedSubmitterOnDeleteStatement()
+    {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        $submitters = $testStatement->getSimilarStatementSubmitters();
+        static::assertGreaterThan(0, $submitters->count());
+        $relatedSubmittersIds =
+            collect($submitters)->map(fn(ProcedurePerson $procedurePerson) => $procedurePerson->getId());
+
+        $deleted = $this->sut->deleteStatement($testStatementId);
+        static::assertTrue($deleted);
+        $testStatement = $this->find(Statement::class, $testStatementId);
+        static::assertNull($testStatement);
+
+        //orphan removal deletes "detached" ProcedurePerson, even if another Statement is connected!
+        foreach ($relatedSubmittersIds as $id) {
+            static::assertNull($this->find(ProcedurePerson::class, $id));
+        }
+    }
+
     public function testAddSimilarForeignStatement(): void
     {
         $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
-        $statementToAdd = $this->getStatementReference('testFixtureStatement');
+        $statementToAdd = $this->getStatementReference('testStatement1');
         $countStatementsBefore = $testProcedurePerson->getSimilarForeignStatements()->count();
         $countSubmittersBefore = $statementToAdd->getSimilarStatementSubmitters()->count();
         static::assertFalse($testProcedurePerson->getSimilarForeignStatements()->contains($statementToAdd));
@@ -85,54 +113,75 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
     }
 
     /**
-     * To avoid triggering orphan removals, two related statements are required
+     * Orphan removal of related procedure persons will trigger in case of submitter will be removed
+     * from related statement.
      *
      * @return void
      * @throws \Exception
      */
     public function testRemoveSimilarStatementSubmitter(): void
     {
-        $testProcedurePersonWithRelatedStatement = $this->getProcedurePersonReference('testProcedurePerson1');
-        $statementWithRelatedSubmitter = $this->getStatementReference('testStatement');
-        $countStatementsBefore = $testProcedurePersonWithRelatedStatement->getSimilarForeignStatements()->count();
-        $countSubmittersBefore = $statementWithRelatedSubmitter->getSimilarStatementSubmitters()->count();
-        static::assertTrue($testProcedurePersonWithRelatedStatement->getSimilarForeignStatements()->contains($statementWithRelatedSubmitter));
-        static::assertTrue($statementWithRelatedSubmitter->getSimilarStatementSubmitters()->contains($testProcedurePersonWithRelatedStatement));
-        static::assertGreaterThan(1, $countStatementsBefore);
+        $testProcedurePerson1= $this->getProcedurePersonReference('testProcedurePerson1');
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $similarSubmitters = $testStatement->getSimilarStatementSubmitters();
+        $countSubmittersBefore = $similarSubmitters->count();
+        static::assertContains($testProcedurePerson1, $testStatement->getSimilarStatementSubmitters());
         static::assertGreaterThan(0, $countSubmittersBefore);
+        $relatedSubmittersIds =
+            collect($similarSubmitters)->map(fn(ProcedurePerson $procedurePerson) => $procedurePerson->getId());
 
-        $statementWithRelatedSubmitter->removeSimilarStatementSubmitter($testProcedurePersonWithRelatedStatement);
-        $this->sut->updateStatementObject($statementWithRelatedSubmitter);
-        $statementToAdd = $this->find(Statement::class, $statementWithRelatedSubmitter->getId());
-        $testProcedurePerson = $this->find(ProcedurePerson::class, $testProcedurePersonWithRelatedStatement->getId());
+        $testStatement->removeSimilarStatementSubmitter($testProcedurePerson1);
+        $this->sut->updateStatementObject($testStatement);
 
-        static::assertCount($countStatementsBefore - 1, $testProcedurePerson->getSimilarForeignStatements());
-        static::assertCount($countSubmittersBefore - 1, $statementToAdd->getSimilarStatementSubmitters());
+        //Caused by orphanRemoval = true, the related ProcedurePerson will be deleted.
+        foreach ($relatedSubmittersIds as $similarSubmitterId) {
+            static::assertNull($this->find(ProcedurePerson::class, $similarSubmitterId));
+        }
 
-        static::assertFalse($testProcedurePerson->getSimilarForeignStatements()->contains($statementToAdd));
-        static::assertFalse($statementToAdd->getSimilarStatementSubmitters()->contains($testProcedurePerson));
+        $testStatement = $this->find(Statement::class, $testStatement->getId());
+        static::assertNotNull($testStatement);
+        static::assertCount($countSubmittersBefore - 1, $testStatement->getSimilarStatementSubmitters());
+        static::assertNotContains($testProcedurePerson1, $testStatement->getSimilarStatementSubmitters());
     }
 
-    public function testRemoveSimilarForeignStatement(): void
+    public function testSetEmptySimilarStatementSubmitters(): void
     {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $similarSubmitters = $testStatement->getSimilarStatementSubmitters();
+        $countSubmittersBefore = $similarSubmitters->count();
+        static::assertGreaterThan(0, $countSubmittersBefore);
+        $relatedSubmittersIds =
+            collect($similarSubmitters)->map(fn(ProcedurePerson $procedurePerson) => $procedurePerson->getId());
 
+        //set empty collection to unset all related Submitters
+        $testStatement->setSimilarStatementSubmitters(new ArrayCollection([]));
+        $this->sut->updateStatementObject($testStatement);
+
+        foreach ($relatedSubmittersIds as $similarSubmitterId) {
+            static::assertNull($this->find(ProcedurePerson::class, $similarSubmitterId));
+        }
+
+        $statementToAdd = $this->find(Statement::class, $testStatement->getId());
+        static::assertNotNull($statementToAdd);
+        static::assertCount($countSubmittersBefore - 1, $statementToAdd->getSimilarStatementSubmitters());
     }
 
     public function testSetSimilarStatementSubmitters(): void
     {
         $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
-        $testStatement = $this->getStatementReference('testStatement1');
-        static::assertNotNull($testStatement);
-        static::assertNotNull($testProcedurePerson);
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+
+        static::assertGreaterThan(1, $testStatement->getSimilarStatementSubmitters());
+        static::assertGreaterThan(1, $testProcedurePerson->getSimilarForeignStatements());
 
         $testStatement->setSimilarStatementSubmitters(new ArrayCollection([$testProcedurePerson]));
         $this->sut->updateStatementObject($testStatement);
         $testStatement = $this->sut->getStatement($testStatement->getId());
 
         static::assertCount(1, $testStatement->getSimilarStatementSubmitters());
-        static::assertSame($testStatement->getSimilarStatementSubmitters()[0]->getId(), $testProcedurePerson->getId() );
-        static::assertCount(2, $testProcedurePerson->getSimilarForeignStatements());
-        static::assertSame($testProcedurePerson->getSimilarForeignStatements()[0]->getId(), $testStatement->getId());
+        static::assertCount(1, $testProcedurePerson->getSimilarForeignStatements());
+        static::assertContains($testStatement, $testProcedurePerson->getSimilarForeignStatements());
+        static::assertContains($testProcedurePerson, $testStatement->getSimilarStatementSubmitters());
     }
 
     public function testRemoveSimilarStatementSubmitters(): void
@@ -190,16 +239,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
         static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
         static::assertEmpty($testProcedurePersons);
 //        static::assertNull($testProcedurePerson);
-    }
-
-    public function testDoNotOrphanRemovalProcedurePerson(): void
-    {
-        //in case of more than one related statement on the procdure person,
-        //the person should not be deleted
-    }
-
-    public function testDeleteStatementWithSimilarStatementSubmitters(): void
-    {
     }
 
 }
