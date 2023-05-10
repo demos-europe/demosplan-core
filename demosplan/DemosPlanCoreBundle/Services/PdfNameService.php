@@ -12,12 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Services;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 
-class PdfNameService extends CoreService
+class PdfNameService extends CoreService implements PdfNameServiceInterface
 {
     /**
-     * Generiere den Downloadfilename aus dem übergebenen Dateinamen
-     * Der IE braucht eine Extrabehandlung.
-     *
      * @param string $filename
      *
      * @return string
