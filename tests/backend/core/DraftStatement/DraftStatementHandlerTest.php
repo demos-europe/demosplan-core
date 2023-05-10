@@ -11,7 +11,7 @@
 namespace Tests\Core\DraftStatement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementHandlerTest extends FunctionalTestCase

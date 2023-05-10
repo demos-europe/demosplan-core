@@ -30,7 +30,10 @@
             name="Point"
             :options="{ multiplePoints: true }"
             render-control
-            :title="Translator.trans('map.relation.set')"
+            v-tooltip="{
+              content: Translator.trans('map.relation.set'),
+              classes: 'u-z-super'
+            }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
           <dp-ol-map-draw-feature
@@ -41,7 +44,10 @@
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
-            :title="Translator.trans('statement.map.draw.mark_line')"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_line'),
+              classes: 'u-z-super'
+            }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
           <dp-ol-map-draw-feature
@@ -52,7 +58,10 @@
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
-            :title="Translator.trans('statement.map.draw.mark_polygon')"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_polygon'),
+              classes: 'u-z-super'
+            }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
           <dp-ol-map-edit-feature
@@ -60,19 +69,16 @@
             :target="['Polygon', 'Line', 'Point']">
             <template v-slot:editButtonDesc>
               <i
-                :title="Translator.trans('map.territory.tools.edit')"
                 class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
                 aria-hidden="true" />
             </template>
             <template v-slot:removeButtonDesc>
               <i
-                :title="Translator.trans('map.territory.tools.removeSelected')"
                 class="fa fa-eraser u-mb-0_25 font-size-h2"
                 aria-hidden="true" />
             </template>
             <template v-slot:removeAllButtonDesc>
               <i
-                :title="Translator.trans('map.territory.tools.removeAll')"
                 class="fa fa-trash u-mb-0_25 font-size-h2"
                 aria-hidden="true" />
             </template>
@@ -96,6 +102,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import { extend } from 'ol/extent'
 
 export default {
   name: 'SegmentLocationMap',
@@ -181,6 +188,9 @@ export default {
     segmentId (newVal) {
       if (newVal) {
         this.setInitDrawings()
+        this.$nextTick(() => {
+          this.setCenterAndExtent()
+        })
       }
     }
   },
@@ -230,6 +240,23 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    /*
+     * Center the map around all drawings and zoom to the combined extent.
+     */
+    setCenterAndExtent () {
+      const extentPolygon = this.$refs.drawPolygon.getExtent()
+      const extentPoint = this.$refs.drawPoint.getExtent()
+      const extentLine = this.$refs.drawLine.getExtent()
+
+      let completeExtend = extend(extentPolygon, extentPoint)
+      completeExtend = extend(completeExtend, extentLine)
+
+      this.$refs.map.map.updateSize()
+      this.$nextTick(() => {
+        this.$refs.map.map.getView().fit(completeExtend, { size: this.$refs.map.map.getSize() })
+      })
     },
 
     setInitDrawings () {

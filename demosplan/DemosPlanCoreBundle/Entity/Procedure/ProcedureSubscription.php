@@ -34,7 +34,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     protected $ident;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")
@@ -122,7 +122,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Set user.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\User\User $user
+     * @param User $user
      *
      * @return ProcedureSubscription
      */
@@ -145,7 +145,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Get user.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @return User
      */
     public function getUser()
     {

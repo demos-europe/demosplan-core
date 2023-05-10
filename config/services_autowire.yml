@@ -1,0 +1,52 @@
+services:
+
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # makes classes in demosplan/* available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+
+    demosplan\DemosPlanCoreBundle\:
+        resource: '../demosplan/DemosPlanCoreBundle/*'
+        exclude:
+            - '../demosplan/DemosPlanCoreBundle/{Entity,Tests,ResourceTypes,StoredQuery,Resources/config}'
+
+    demosplan\DemosPlanProcedureBundle\:
+        resource: '../demosplan/DemosPlanProcedureBundle/*'
+        exclude: '../demosplan/DemosPlanProcedureBundle/{Entity,Tests}'
+
+############### Fixtures
+
+    demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\:
+        autowire: true
+        resource: '../demosplan/DemosPlanCoreBundle/DataFixtures/ORM/ProdData'
+        public: true
+        tags: ['doctrine.fixture.orm']
+    demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\:
+        autowire: true
+        resource: '../demosplan/DemosPlanCoreBundle/DataFixtures/ORM/TestData'
+        public: true
+        tags: ['doctrine.fixture.orm']
+
+############### Commands
+
+    demosplan\DemosPlanCoreBundle\Command\:
+        resource: '../demosplan/DemosPlanCoreBundle/Command'
+        exclude: '../demosplan/DemosPlanCoreBundle/Command/Helpers'
+        autowire: true
+        tags: ['console.command']
+
+############### Resource Types
+
+    demosplan\DemosPlanCoreBundle\ResourceTypes\:
+        resource: '../demosplan/DemosPlanCoreBundle/ResourceTypes'
+        autowire: true
+        tags: ['dplan.resourceType']
+
+############### Event Subscriber
+    demosplan\DemosPlanCoreBundle\EventSubscriber\:
+        autoconfigure: true
+        autowire: true
+        resource: '../demosplan/DemosPlanCoreBundle/EventSubscriber'
+        tags: ['kernel.event_subscriber']

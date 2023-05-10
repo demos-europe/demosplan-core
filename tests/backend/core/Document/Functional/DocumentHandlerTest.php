@@ -12,7 +12,7 @@ namespace Tests\Core\Document\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use Tests\Base\FunctionalTestCase;
 
 class DocumentHandlerTest extends FunctionalTestCase

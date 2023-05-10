@@ -17,7 +17,6 @@ import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
-  window.Bus = Bus
   Vue.prototype.Routing = window.Routing
   Vue.prototype.Translator = window.Translator
   Vue.prototype.hasPermission = window.hasPermission
@@ -52,6 +51,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
         const mountedEvent = new Event('vue-mounted')
         document.dispatchEvent(mountedEvent)
+        setTimeout(() => {
+          window.mounted = true
+        }, 5)
       }
     })
     Promise.resolve(vm)

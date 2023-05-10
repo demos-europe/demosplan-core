@@ -1,0 +1,56 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% import "@DemosPlanCore/macros.html.twig" as macros %}
+
+
+{% block demosplanbundlecontent %}
+    {%- apply spaceless %}
+
+
+        <header class="layout--flush">
+            {% block title_text %}
+                <h1 class="layout__item u-1-of-5">{{ "fragments"|trans }}</h1>
+            {% endblock title_text %}
+
+            {# Pager #}
+            <form class="layout__item u-4-of-5 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ macros.pager( templateVars|default() ) }}
+            </form>
+
+            {# Bulk actions + Filters #}
+            <form action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {% include '@DemosPlanCore/DemosPlanStatement/includes/fragment_list_filter.html.twig' with { 'backpath' : 'DemosPlan_statement_fragment_list_fragment_reviewer' } %}
+            </form>
+        </header>
+
+        {# can do this, because here we are always logged in here #}
+        {% set user = currentUser %}
+        {% set username = user.firstName ~ ' ' ~ user.lastName %}
+
+        <section class="u-mb">
+            {% set advice_values = templateVars.adviceValues|default([]) %}
+            <dp-fragment-list
+                :is-archive="false"
+                current-user-id="{{ user.ident }}"
+                current-user-name="{{ username }}"
+                :fragments="JSON.parse('{{ templateVars.list|default([])|json_encode|e('js') }}')"
+                :advice-values="JSON.parse('{{ templateVars.adviceValues|default([])|json_encode|e('js') }}')"
+            ></dp-fragment-list>
+
+            {# Pager #}
+            <form class="layout__item u-1-of-1 u-mt-0_5" action="{{ path("DemosPlan_statement_fragment_list_fragment_reviewer", {}) }}" method="post">
+                {{ macros.pager( templateVars|default() ) }}
+            </form>
+
+            <div id="exportCheckboxDescription" hidden>
+                {{ "explanation.export.checkbox"|trans }}
+            </div>
+        </section>
+
+    {% endapply -%}
+{% endblock demosplanbundlecontent %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-listStatementFragments.js']) }}
+{% endblock javascripts %}

@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use RuntimeException;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -45,7 +45,7 @@ class UserCreateCommand extends CoreCommand
      */
     private $userRepository;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers
+     * @var Helpers
      */
     private $helpers;
 

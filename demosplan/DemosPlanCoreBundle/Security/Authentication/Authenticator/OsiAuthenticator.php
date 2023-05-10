@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +51,10 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
     protected function getPassport(Credentials $credentials): Passport
     {
         $user = $this->userMapper->getValidUser($credentials);
+
+        if (!$user) {
+            throw new AuthenticationException('User not found');
+        }
 
         return new SelfValidatingPassport(new UserBadge($user->getLogin()));
     }

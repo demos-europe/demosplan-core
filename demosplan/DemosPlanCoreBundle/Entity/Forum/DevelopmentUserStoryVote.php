@@ -39,7 +39,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     protected $ident;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\Orga
+     * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
@@ -53,7 +53,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     protected $orgaId;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *

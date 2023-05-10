@@ -22,7 +22,8 @@ use UnexpectedValueException;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
  *
  * @ORM\Table(name="survey_vote")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository")
  */
 class SurveyVote extends CoreEntity implements UuidEntityInterface
 {
@@ -34,8 +35,11 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -81,6 +85,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\Survey",
      *     cascade={"persist"}, inversedBy="votes")
+     *
      * @ORM\JoinColumn(name="survey_id", referencedColumnName="id", nullable=false,
      *     onDelete="CASCADE")
      */
@@ -91,6 +96,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User",
      *     cascade={"persist"}, inversedBy="surveyVotes")
+     *
      * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false,
      *     onDelete="CASCADE")
      */

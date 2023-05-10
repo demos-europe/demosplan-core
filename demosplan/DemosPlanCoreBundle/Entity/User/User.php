@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaCon
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -39,11 +39,11 @@ use function in_array;
  *
  *     @ORM\UniqueConstraint(name="_u_login", columns={"_u_login"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRepository")
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, \DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface
 {
     /**
      * Set hard coded anonymous user Values until refactored.
@@ -1347,7 +1347,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getDplanRolesArray(Customer $customer = null): array
     {
-        if (null === $this->rolesArrayCache) {
+        if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
             $customer = $customer ?? $this->getCurrentCustomer();
             /** @var Role $role */
@@ -1762,5 +1762,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function setProvidedByIdentityProvider(bool $providedByIdentityProvider): void
     {
         $this->providedByIdentityProvider = $providedByIdentityProvider;
+    }
+
+    private function hasInvalidRoleCache(): bool
+    {
+        return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
     }
 }

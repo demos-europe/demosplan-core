@@ -18,13 +18,12 @@ use EFrane\ConsoleAdditions\Batch\Action;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\ShellAction;
 use Exception;
-
-use function register_shutdown_function;
-
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
+use function register_shutdown_function;
 
 /**
  * dplan:update.
@@ -140,7 +139,7 @@ EOT
         $this->removeCacheData($output, $fs, 'dev');
         $this->removeCacheData($output, $fs, 'prod');
 
-        $fs->remove(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/config_dev_container.yml'));
+        $fs->remove(DemosPlanPath::getConfigPath('config_dev_container'));
 
         if ($isDeployment) {
             // delete files not suitable for deployment

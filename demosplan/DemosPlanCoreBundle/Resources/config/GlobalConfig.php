@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
@@ -414,15 +414,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
 
@@ -774,9 +765,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
@@ -972,21 +960,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int

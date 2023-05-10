@@ -27,6 +27,7 @@ class DemosPlanElementsBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_admin_element_edit")
      *
      * @throws Exception
@@ -34,7 +35,7 @@ class DemosPlanElementsBulkEditController extends BaseController
     public function showFormAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
             [
                 'title'       => 'elements.bulk.edit',
             ]

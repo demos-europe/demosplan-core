@@ -15,17 +15,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -34,10 +31,6 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class XlsxSegmentImport
 {
-    /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
     /**
      * @var StatementRepository
      */
@@ -85,7 +78,6 @@ class XlsxSegmentImport
         EventDispatcherPostInterface $eventDispatcher,
         ExcelImporter $xlsxSegmentImporter,
         LoggerInterface $logger,
-        SearchIndexTaskService $searchIndexTaskService,
         SegmentRepository $segmentRepository,
         StatementRepository $statementRepository,
         StatementService $statementService
@@ -94,7 +86,6 @@ class XlsxSegmentImport
         $this->entityManager = $entityManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->segmentRepository = $segmentRepository;
         $this->statementRepository = $statementRepository;
         $this->statementService = $statementService;
@@ -150,10 +141,6 @@ class XlsxSegmentImport
             }
 
             $this->entityManager->flush();
-
-            foreach ($importResult->getStatements() as $statement) {
-                $this->searchIndexTaskService->addIndexTask(Statement::class, $statement->getId());
-            }
 
             $doctrineConnection->commit();
 

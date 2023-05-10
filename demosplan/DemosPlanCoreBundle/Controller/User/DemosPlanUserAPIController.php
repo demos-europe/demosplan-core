@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -28,13 +29,12 @@ use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdministratableUserResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
@@ -90,6 +90,7 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_user_get",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
@@ -124,6 +125,7 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_users_get",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
@@ -186,6 +188,7 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_user_create",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
@@ -245,6 +248,7 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"DELETE"},
      *        name="dplan_api_user_delete",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
@@ -261,6 +265,7 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_api_user_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_user_edit")
      */
     public function updateAction(string $id, UserHandler $userHandler): APIResponse

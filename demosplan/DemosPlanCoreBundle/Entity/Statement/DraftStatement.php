@@ -29,7 +29,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository")
+ *
  * @FormDefinitionConstraint()
  */
 class DraftStatement extends CoreEntity implements UuidEntityInterface
@@ -41,8 +43,11 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_ds_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -51,6 +56,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -85,6 +91,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var ParagraphVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"all"})
+     *
      * @ORM\JoinColumn(name="_ds_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -100,6 +107,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -133,6 +141,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -169,6 +178,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
     protected $organisation;
@@ -205,6 +215,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=false, onDelete="RESTRICT")
      **/
     protected $department;
@@ -220,6 +231,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")},
      */
     protected $user;
@@ -386,6 +398,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -401,6 +414,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $lastModifiedDate;
@@ -1695,7 +1709,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Add StatementAttribute to DraftStatement.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
+     * @param StatementAttribute $statementAttribute
      */
     public function addStatementAttribute(StatementAttribute $statementAttribute)
     {
@@ -1707,7 +1721,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Remove StatementAttribute from DraftStatement.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
+     * @param StatementAttribute $statementAttribute
      */
     public function removeStatementAttribute(StatementAttribute $statementAttribute)
     {

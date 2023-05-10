@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use EDT\Querying\Contracts\PathException;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
@@ -17,7 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
@@ -30,8 +33,6 @@ use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureTypeRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -480,7 +481,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     /**
      * @return array<int, TwigableWrapperObject>
      *
-     * @throws \EDT\Querying\Contracts\PathException
+     * @throws PathException
      */
     public function getAllProcedureTypeResources(): array
     {

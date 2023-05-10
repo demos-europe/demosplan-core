@@ -42,22 +42,22 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
-use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanMapBundle\Repository\MapRepository;
-use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
-use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -109,7 +109,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return string[]|null
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getNames($procedureId)
     {
@@ -124,7 +124,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery();
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -1066,7 +1066,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return Procedure the given procedure
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      * @throws InvalidArgumentException
      */
     public function copyAgencyExtraEmailAddresses($sourceProcedureId, $newProcedure): Procedure
