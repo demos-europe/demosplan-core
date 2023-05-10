@@ -11,14 +11,18 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class XlsResponseGenerator extends FileResponseGeneratorAbstract
 {
-    public function __construct(array $supportedTypes)
+    private PdfNameService $pdfNameService;
+
+    public function __construct(array $supportedTypes, PdfNameService $pdfNameService)
     {
         $this->supportedTypes = $supportedTypes;
+        $this->pdfNameService = $pdfNameService;
     }
 
     /**
@@ -47,7 +51,7 @@ class XlsResponseGenerator extends FileResponseGeneratorAbstract
         );
         $response->headers->set(
             'Content-Disposition',
-            $this->generateDownloadFilename($file['filename'])
+            $this->pdfNameService->generateDownloadFilename($file['filename'])
         );
 
         return $response;

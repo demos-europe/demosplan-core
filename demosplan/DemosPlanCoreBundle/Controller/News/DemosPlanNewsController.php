@@ -11,6 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\News;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -24,15 +30,10 @@ use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use Exception;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Ausgabe Newseiten.
@@ -839,8 +840,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * @throws Exception
      */
-    protected function handleNewsExport(string $pdfContent, string $pdfName): Response
-    {
+    protected function handleNewsExport(
+        string $pdfContent,
+        string $pdfName,
+        PdfNameService $pdfNameService
+    ): Response {
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 
         if ('' === $pdfContent) {
@@ -850,7 +854,7 @@ class DemosPlanNewsController extends BaseController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($pdfName));
 
         return $response;
     }

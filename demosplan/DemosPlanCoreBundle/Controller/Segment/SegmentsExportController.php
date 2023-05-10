@@ -11,6 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use Cocur\Slugify\Slugify;
+use Exception;
+use PhpOffice\PhpWord\IOFactory;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use ZipStream\ZipStream;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -21,16 +27,18 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use Exception;
-use PhpOffice\PhpWord\IOFactory;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use ZipStream\ZipStream;
 
 class SegmentsExportController extends BaseController
 {
+    private PdfNameService $pdfNameService;
+
+    public function __construct(PdfNameService $pdfNameService)
+    {
+        $this->pdfNameService = $pdfNameService;
+    }
+
     /**
      * @Route(
      *     name="dplan_segments_export",
@@ -139,7 +147,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename(
+        $response->headers->set('Content-Disposition', $this->pdfNameService->generateDownloadFilename(
             $exporter->getSynopseFileName($procedure, 'xlsx'))
         );
 
@@ -201,6 +209,6 @@ class SegmentsExportController extends BaseController
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->pdfNameService->generateDownloadFilename($filename));
     }
 }

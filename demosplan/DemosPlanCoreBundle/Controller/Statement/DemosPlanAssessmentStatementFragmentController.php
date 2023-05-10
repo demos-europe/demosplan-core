@@ -10,8 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -33,16 +42,8 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function array_key_exists;
 use function array_merge;
 use function collect;
@@ -836,8 +837,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @throws MessageBagException
      */
-    public function exportFragmentListAction(CurrentUserService $currentUser, Request $request, TranslatorInterface $translator)
-    {
+    public function exportFragmentListAction(
+        CurrentUserService  $currentUser,
+        PdfNameService      $pdfNameService,
+        Request             $request,
+        TranslatorInterface $translator
+    ){
         $vars = $request->request->all();
         $fragmentIds = [];
         if (array_key_exists('fragmentIds', $vars)) {
@@ -857,7 +862,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $response = new Response($pdf->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($translator->trans('fragments.export.pdf.file.name')));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($translator->trans('fragments.export.pdf.file.name')));
 
         return $response;
     }

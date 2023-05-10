@@ -22,6 +22,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 
 /**
  * Stellt Adminfunktionen zur Verfügung.
@@ -52,14 +53,15 @@ class DemosPlanAdminController extends BaseController
      * @throws Exception
      */
     public function generateStatisticsAction(
-        Environment $twig,
-        OrgaService $orgaService,
-        CustomerService $customerProvider,
+        Environment      $twig,
+        OrgaService      $orgaService,
+        PdfNameService   $pdfNameService,
+        CustomerService  $customerProvider,
         ProcedureService $procedureService,
         StatementService $statementService,
-        UserService $userService,
-        $part,
-        $format
+        UserService      $userService,
+                         $part,
+                         $format
     ): ?Response {
         $templateVars = [];
 
@@ -129,7 +131,7 @@ class DemosPlanAdminController extends BaseController
         $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
         $response->setCharset('UTF-8');
 
         return $response;

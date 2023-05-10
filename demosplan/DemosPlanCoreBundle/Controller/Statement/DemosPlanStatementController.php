@@ -61,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -126,14 +127,20 @@ class DemosPlanStatementController extends BaseController
      */
     private $permissions;
 
+    /**
+     * @var PdfNameService
+     */
+    private $pdfNameService;
+
     public function __construct(
         CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUser,
-        DraftStatementHandler $draftStatementHandler,
-        DraftStatementService $draftStatementService,
-        Environment $twig,
-        MailService $mailService,
-        PermissionsInterface $permissions
+        CurrentUserService      $currentUser,
+        DraftStatementHandler   $draftStatementHandler,
+        DraftStatementService   $draftStatementService,
+        Environment             $twig,
+        MailService             $mailService,
+        PdfNameService          $pdfNameService,
+        PermissionsInterface    $permissions
     ) {
         $this->currentUser = $currentUser;
         $this->draftStatementHandler = $draftStatementHandler;
@@ -142,6 +149,7 @@ class DemosPlanStatementController extends BaseController
         $this->twig = $twig;
         $this->currentProcedureService = $currentProcedureService;
         $this->permissions = $permissions;
+        $this->pdfNameService = $pdfNameService;
     }
 
     /**
@@ -214,7 +222,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->pdfNameService->generateDownloadFilename($filename));
 
         return $response;
     }
@@ -1857,7 +1865,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->pdfNameService->generateDownloadFilename($filename));
 
         return $response;
     }

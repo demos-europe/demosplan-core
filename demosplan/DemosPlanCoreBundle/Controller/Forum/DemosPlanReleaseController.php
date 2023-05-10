@@ -12,11 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +19,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\PdfNameService;
 
 class DemosPlanReleaseController extends DemosPlanForumBaseController
 {
@@ -848,8 +849,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *
      * @return RedirectResponse|Response
      */
-    public function exportReleaseAction(Environment $twig, string $releaseId)
-    {
+    public function exportReleaseAction(
+        Environment $twig,
+        string $releaseId,
+        PdfNameService $pdfNameService
+    ){
         $storageResult = $this->forumHandler->getUserStoriesForRelease($releaseId);
 
         // Namen für ReleasePhasen
@@ -897,7 +901,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
         $response->setCharset('UTF-8');
 
         return $response;
