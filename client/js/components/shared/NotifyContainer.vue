@@ -1,19 +1,10 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
 
   All rights reserved
-</license>
-
-<license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
-
-This file is part of the package demosplan,
-for more information see the license file.
-
-All rights reserved
 </license>
 
 <!-- @improve check for a11y issues, see https://inclusive-components.design/notifications/ -->
@@ -37,12 +28,16 @@ All rights reserved
 <script>
 import { DpNotifyMessage, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
+
 export default {
   name: 'NotifyContainer',
+
   components: {
     DpNotifyMessage
   },
+
   mixins: [prefixClassMixin],
+
   props: {
     notifications: {
       type: [Object, Array],
@@ -50,20 +45,25 @@ export default {
       default: () => ([])
     }
   },
+
   data () {
     return {
       isVisible: false
     }
   },
+
   computed: {
     ...mapState('notify', ['messages']),
+
     liveState () {
       return (this.isVisible) ? 'polite' : 'off'
     },
+
     messageRole () {
       return (this.isVisible) ? 'message' : 'none'
     }
   },
+
   methods: {
     ...mapMutations('notify', ['add', 'remove']),
 
@@ -91,10 +91,12 @@ export default {
       }
       document.addEventListener('visibilitychange', () => { this.isVisible = !document.hidden })
     },
+
     removeMessage (message) {
       this.remove(message)
     }
   },
+
   created () {
     this.init()
   }
