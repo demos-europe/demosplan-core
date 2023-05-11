@@ -4114,18 +4114,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param array<int, ProcedurePerson> $similarStatementSubmitters
-     *
-     * @return void
-     */
-    public function addSimilarStatementSubmitters(array $similarStatementSubmitters): void
-    {
-        foreach ($similarStatementSubmitters as $submitter) {
-            $this->addSimilarStatementSubmitter($submitter);
-        }
-    }
-
-    /**
      * @param Collection<int, ProcedurePerson> $similarStatementSubmitters
      */
     public function setSimilarStatementSubmitters(Collection $similarStatementSubmitters): Statement
