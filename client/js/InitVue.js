@@ -7,12 +7,13 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpNotifyContainer, dpValidateMultiselectDirective, Tooltip } from '@demos-europe/demosplan-ui'
+import { DpAccordion, dpValidateMultiselectDirective, Tooltip } from '@demos-europe/demosplan-ui'
 import { initGlobalEventListener, ToggleSideMenu, touchFriendlyUserbox } from '@DpJs/lib/core/libs'
 import { bootstrap } from '@DpJs/bootstrap'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
+import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -32,7 +33,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
        * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
        * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
        */
-      components: { ...components, DpAccordion, DpNotifyContainer },
+      components: { ...components, DpAccordion, NotifyContainer },
       store: store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
