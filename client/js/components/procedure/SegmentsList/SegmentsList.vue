@@ -406,6 +406,10 @@ export default {
 
     selectableColumns () {
       return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}-paginationSegmentsList`
     }
   },
 
@@ -424,7 +428,7 @@ export default {
 
     ...mapMutations('segmentfilter', ['updateFilterQuery']),
 
-    applyQuery (page) {
+    applyQuery (page, isOnMountedRequest = false) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
@@ -498,6 +502,20 @@ export default {
         })
         .then(data => {
           this.isLoading = false
+          /**
+           * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+           * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
+           * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
+           */
+          const paginationData = { currentPage: data.meta.pagination.current_page, perPage: data.meta.pagination.per_page }
+          if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage[this.storageKeyPagination] === false) {
+            window.sessionStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
+            data.meta.pagination.current_page = window.sessionStorage.getItem(this.storageKeyPagination)
+          }
+          if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage[this.storageKeyPagination] === true) {
+            window.sessionStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
+          }
+
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
           this.initPagination(data)
@@ -557,11 +575,13 @@ export default {
 
     initPagination (data) {
       const dataPag = data.meta.pagination
+      const currentPage = Number(JSON.parse(window.sessionStorage.getItem([this.storageKeyPagination])).currentPage)
+      const perPage = Number(JSON.parse(window.sessionStorage.getItem([this.storageKeyPagination])).perPage)
       this.pagination = {
         count: dataPag.count,
-        currentPage: dataPag.current_page,
+        currentPage: currentPage,
         limits: [10, 25, 50, 100],
-        perPage: dataPag.per_page,
+        perPage: perPage,
         total: dataPag.total,
         totalPages: dataPag.total_pages
       }
@@ -670,7 +690,7 @@ export default {
         this.updateFilterQuery(query)
       })
     }
-    this.applyQuery(1)
+    this.applyQuery(1, true)
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
