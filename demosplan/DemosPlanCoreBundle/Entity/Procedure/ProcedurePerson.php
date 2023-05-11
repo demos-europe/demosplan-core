@@ -211,6 +211,9 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->emailAddress;
     }
 
+    /**
+     * @return Collection<int, Statement>
+     */
     public function getSimilarForeignStatements(): Collection
     {
         return $this->similarForeignStatements;
