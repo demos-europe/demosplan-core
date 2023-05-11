@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
+use Elasticsearch\Endpoints\Cluster\State;
 use Tests\Base\FunctionalTestCase;
 
 class SimiliarStatementSubmitterTest extends FunctionalTestCase
@@ -71,7 +72,7 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
     /**
      * Cover deletion of related ProcedurePerson on deletion of a Statement.
      */
-    public function testDeleteRelatedSubmitterOnDeleteStatement()
+    public function testCascadeDeleteRelatedSubmitterOnDeleteStatement()
     {
         $testStatement = $this->getStatementReference('testFixtureStatement');
         $testStatementId = $testStatement->getId();
@@ -123,20 +124,16 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
     {
         $testProcedurePerson1= $this->getProcedurePersonReference('testProcedurePerson1');
         $testStatement = $this->getStatementReference('testFixtureStatement');
-        $similarSubmitters = $testStatement->getSimilarStatementSubmitters();
-        $countSubmittersBefore = $similarSubmitters->count();
+        $testProcedurePerson1Id = $testProcedurePerson1->getId();
+        $countSubmittersBefore = $testStatement->getSimilarStatementSubmitters()->count();
         static::assertContains($testProcedurePerson1, $testStatement->getSimilarStatementSubmitters());
         static::assertGreaterThan(0, $countSubmittersBefore);
-        $relatedSubmittersIds =
-            collect($similarSubmitters)->map(fn(ProcedurePerson $procedurePerson) => $procedurePerson->getId());
 
         $testStatement->removeSimilarStatementSubmitter($testProcedurePerson1);
         $this->sut->updateStatementObject($testStatement);
 
         //Caused by orphanRemoval = true, the related ProcedurePerson will be deleted.
-        foreach ($relatedSubmittersIds as $similarSubmitterId) {
-            static::assertNull($this->find(ProcedurePerson::class, $similarSubmitterId));
-        }
+        static::assertNull($this->find(ProcedurePerson::class, $testProcedurePerson1Id));
 
         $testStatement = $this->find(Statement::class, $testStatement->getId());
         static::assertNotNull($testStatement);
@@ -161,61 +158,67 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
             static::assertNull($this->find(ProcedurePerson::class, $similarSubmitterId));
         }
 
-        $statementToAdd = $this->find(Statement::class, $testStatement->getId());
-        static::assertNotNull($statementToAdd);
-        static::assertCount($countSubmittersBefore - 1, $statementToAdd->getSimilarStatementSubmitters());
+        $testStatement = $this->find(Statement::class, $testStatement->getId());
+        static::assertNotNull($testStatement);
+        static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
     }
 
-    public function testSetSimilarStatementSubmitters(): void
+    public function testSetOneSimilarStatementSubmitter(): void
     {
-        $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
+        $testProcedurePersonToSet = $this->getProcedurePersonReference('testProcedurePerson1');
         $testStatement = $this->getStatementReference('testFixtureStatement');
 
-        static::assertGreaterThan(1, $testStatement->getSimilarStatementSubmitters());
-        static::assertGreaterThan(1, $testProcedurePerson->getSimilarForeignStatements());
+        $numberOfForeignStatementsBefore = $testProcedurePersonToSet->getSimilarForeignStatements()->count();
+        $similarStatementSubmittersToSet = new ArrayCollection([$testProcedurePersonToSet]);
+        $numberSimilarStatementSubmittersToSet = $similarStatementSubmittersToSet->count();
+        $submitterDifference = $numberSimilarStatementSubmittersToSet - $testStatement->getSimilarStatementSubmitters()->count();
+        $totalNumberOfProcedurePersonsBefore = $this->countEntries(ProcedurePerson::class);
 
-        $testStatement->setSimilarStatementSubmitters(new ArrayCollection([$testProcedurePerson]));
+        static::assertContains($testStatement, $testProcedurePersonToSet->getSimilarForeignStatements());
+        //submitter to set is already set?
+        static::assertContains($testProcedurePersonToSet, $testStatement->getSimilarStatementSubmitters());
+        //greater than 1 to ensure the other should be deleted at the end.
+        static::assertGreaterThan(1, $testStatement->getSimilarStatementSubmitters()->count());
+        static::assertGreaterThan(1, $testProcedurePersonToSet->getSimilarForeignStatements()->count());
+
+        $testStatement->setSimilarStatementSubmitters($similarStatementSubmittersToSet);
         $this->sut->updateStatementObject($testStatement);
         $testStatement = $this->sut->getStatement($testStatement->getId());
 
-        static::assertCount(1, $testStatement->getSimilarStatementSubmitters());
-        static::assertCount(1, $testProcedurePerson->getSimilarForeignStatements());
-        static::assertContains($testStatement, $testProcedurePerson->getSimilarForeignStatements());
-        static::assertContains($testProcedurePerson, $testStatement->getSimilarStatementSubmitters());
+        static::assertCount($numberSimilarStatementSubmittersToSet, $testStatement->getSimilarStatementSubmitters());
+        static::assertCount($numberOfForeignStatementsBefore, $testProcedurePersonToSet->getSimilarForeignStatements());
+        static::assertContains($testStatement, $testProcedurePersonToSet->getSimilarForeignStatements());
+        static::assertContains($testProcedurePersonToSet, $testStatement->getSimilarStatementSubmitters());
+
+        //$submitterDifference should be -1 here
+        static::assertSame($totalNumberOfProcedurePersonsBefore + $submitterDifference, $this->countEntries(ProcedurePerson::class));
     }
 
-    public function testRemoveSimilarStatementSubmitters(): void
+    public function testRemoveForeignStatement(): void
     {
         //setup:
         $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
-        static::assertCount(1, $testProcedurePerson->getSimilarForeignStatements());
-
-
-
-
-
-
-        $testStatement = $this->getStatementReference('testStatement1');
+        $testProcedurePersonId = $testProcedurePerson->getId();
+        static::assertGreaterThan(0, $testProcedurePerson->getSimilarForeignStatements());
+        /** @var Statement $testStatement */
+        $testStatement = $testProcedurePerson->getSimilarForeignStatements()->first();
+        $testStatementId = $testStatement->getId();
+        $totalNumberOfProcedurePersonsBefore = $this->countEntries(ProcedurePerson::class);
+        $totalNumberOfStatementsBefore = $this->countEntries(Statement::class);
+        $numberOfRelatedProcedurePersonsBefore = $testStatement->getSimilarStatementSubmitters()->count();
         static::assertNotNull($testStatement);
         static::assertNotNull($testProcedurePerson);
 
-        $testStatement->setSimilarStatementSubmitters(new ArrayCollection([$testProcedurePerson]));
-
-        $this->sut->updateStatementObject($testStatement);
-        $testStatement = $this->sut->getStatement($testStatement->getId());
-
-        static::assertCount(2, $testProcedurePerson->getSimilarForeignStatements());
-
-        //actual test
         $testProcedurePerson->removeSimilarForeignStatement($testStatement);
-        $testStatement = $this->sut->updateStatementObject($testStatement);
-        static::assertInstanceOf(Statement::class, $testStatement);
+        $this->sut->updateStatementObject($testStatement);
+        $testStatement = $this->find(Statement::class, $testStatementId);
 
-        $testStatement = $this->find(Statement::class, $testStatement->getId());
-        $testProcedurePerson = $this->find(ProcedurePerson::class, $testProcedurePerson->getId());
+        static::assertNotNull($testStatement);
+        static::assertNull($this->find(ProcedurePerson::class, $testProcedurePersonId));
 
-        static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
-        static::assertCount(0, $testProcedurePerson->getSimilarForeignStatements());
+        static::assertCount($numberOfRelatedProcedurePersonsBefore - 1, $testStatement->getSimilarStatementSubmitters());
+        static::assertSame($totalNumberOfProcedurePersonsBefore - 1, $this->countEntries(ProcedurePerson::class));
+        static::assertSame($totalNumberOfStatementsBefore, $this->countEntries(Statement::class));
     }
 
     public function testOrphanRemovalProcedurePerson(): void
