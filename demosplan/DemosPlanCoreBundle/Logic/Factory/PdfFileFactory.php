@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use DemosEurope\DemosplanAddon\Contracts\Factory\PdfFileFactoryInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\PdfFileInterface;
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\PdfFileInterface;
 
 class PdfFileFactory implements PdfFileFactoryInterface
 {

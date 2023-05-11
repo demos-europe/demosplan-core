@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "293b89653c407f66e4a0fde4e577fe01",
+    "content-hash": "4540b5ed696a2b7fc0b6cb9ed3b0c7f5",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1289,16 +1289,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-main",
+            "version": "dev-F_T32243_add_necessary_interfaces",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "d930d390ebd7b7d2028e7b8b450e224f98836560"
+                "reference": "226eae6595bd754223b7ec997976f1278f646963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/d930d390ebd7b7d2028e7b8b450e224f98836560",
-                "reference": "d930d390ebd7b7d2028e7b8b450e224f98836560",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/226eae6595bd754223b7ec997976f1278f646963",
+                "reference": "226eae6595bd754223b7ec997976f1278f646963",
                 "shasum": ""
             },
             "require": {
@@ -1307,7 +1307,7 @@
                 "demos-europe/edt-jsonapi": "^0.16.0",
                 "demos-europe/edt-paths": "^0.16.0",
                 "league/fractal": "^0.19",
-                "php": "^7.4 || ^8.0",
+                "php": "8.1.*",
                 "ramsey/uuid": "^4",
                 "sensio/framework-extra-bundle": "^6.1",
                 "symfony/dependency-injection": "5.*.*",
@@ -1322,7 +1322,6 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
-            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1335,9 +1334,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/F_T32243_add_necessary_interfaces"
             },
-            "time": "2023-05-05T10:21:06+00:00"
+            "time": "2023-05-11T06:45:48+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

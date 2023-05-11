@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\PdfFileInterface;
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\PdfFileInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
