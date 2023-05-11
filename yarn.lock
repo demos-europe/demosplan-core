@@ -1485,10 +1485,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.1.1.tgz#c9c61d9fe5ca5ac664e1153bb0aa0eba1c6d6308"
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
-"@demos-europe/demosplan-ui@0.0.19":
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.19.tgz#ff7292d31a98b19eb5675cb45f5c09e8feb82a2d"
-  integrity sha512-vXutjpKGl0nIJh8ug+5SRvgrl2BYm0CudI6h0nvMNzpE/esYmAi3+Tei42O6j5i43vGe0W5AUsd3/CsLjfFb5g==
+"@demos-europe/demosplan-ui@^0":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.21.tgz#0cec9162d7ac0d70fc49f5182f1eff30184b2409"
+  integrity sha512-P+fjW3PXxkDhqjhoFR5wCS/4qhdoSD6gwhrTwbd7po/VdFlyzEsnb1peJG2k12Vk4gfMFFQ9EIbu7VxE9eUZwg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@uppy/core" "^3.0.1"
@@ -8850,10 +8850,10 @@ svgo@^2.7.0:
     picocolors "^1.0.0"
     stable "^0.1.8"
 
-swagger-ui-dist@^4.18.2:
-  version "4.18.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.18.2.tgz#323308f1c1d87a7c22ce3e273c31835eb680a71b"
-  integrity sha512-oVBoBl9Dg+VJw8uRWDxlyUyHoNEDC0c1ysT6+Boy6CTgr2rUcLcfPon4RvxgS2/taNW6O0+US+Z/dlAsWFjOAQ==
+swagger-ui-dist@^4.18.3:
+  version "4.18.3"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.18.3.tgz#5529b7ca19d442c1adf0aea0802fff45c1ea29b5"
+  integrity sha512-QW280Uvt234+TLo9NMPRa2Sj17RoorbQlR2eEY4R6Cs0LbdXhiO14YWX9OPBkBdiN64GQYz4zU8wlHLVi81lBg==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
