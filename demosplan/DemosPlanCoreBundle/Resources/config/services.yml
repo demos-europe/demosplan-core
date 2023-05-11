@@ -135,6 +135,9 @@ services:
 #    DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface:
 #        class:
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType
+
 #    DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface:
 #        class:
 
