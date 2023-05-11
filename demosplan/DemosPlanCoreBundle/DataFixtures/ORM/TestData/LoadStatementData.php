@@ -330,7 +330,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement2->setText('Ich bin der Text für das Statement, gleiche Orga, anderer User');
         $statement2->setTitle('Statement Orga');
         $statement2->setUser($this->getReference('testUserPlanningOffice'));
-        $statement2->setSimilarStatementSubmitters(new ArrayCollection([$this->getReference('testProcedurePerson1'),]));
+        $statement2->setSimilarStatementSubmitters(new ArrayCollection([$this->getReference('testProcedurePerson1')]));
 
         /** @var User $submitter */
         $submitter = $this->getReference('testUserDataInput1');
