@@ -504,7 +504,7 @@ export default {
           this.isLoading = false
           /**
            * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
-           * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
+           * Since the `applyQuery()`-function gets called on every mount which passes the value `1` as `current_page` by default,
            * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
            */
           const paginationData = { currentPage: data.meta.pagination.current_page, perPage: data.meta.pagination.per_page }
