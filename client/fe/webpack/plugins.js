@@ -98,7 +98,7 @@ const webpackDefaultPlugins = [
   }),
   new VueLoader.VueLoaderPlugin(),
 
-  // Provide configured Vue and Bus instances to all modules
+  // Provide Vue instance to all modules (is configured in InitVue.js before initialization).
   new webpack.ProvidePlugin({
     Vue: 'vue'
   })
