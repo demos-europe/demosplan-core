@@ -47,16 +47,27 @@ use UnexpectedValueException;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
+ *
  * @ORM\InheritanceType("SINGLE_TABLE")
+ *
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
+ *
  * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
+ *
  * @ClaimConstraint()
+ *
  * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
  * @FormDefinitionConstraint()
+ *
  * @MatchingSubmitTypesConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
  * @OriginalReferenceConstraint()
+ *
  * @PrePersistUniqueInternIdConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
  * @SimilarStatementSubmittersSameProcedureConstraint(groups={"Default", "manual_create"})
  */
 class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterface, StatementInterface
@@ -117,8 +128,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *                  to be able to be used as xs:ID type in XML messages
      *
      * @ORM\Column(name="_st_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
     protected $id;
@@ -129,6 +143,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_st_p_id", referencedColumnName="_st_id", onDelete="SET NULL")
      */
     protected $parent;
@@ -160,6 +175,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * On update this one, the associated originalSTN will be also persisted. Needed in StatementCopier::copyStatementToProcedure()
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"persist"}, inversedBy="statementsCreatedFromOriginal")
+     *
      * @ORM\JoinColumn(name="_st_o_id", referencedColumnName="_st_id")
      */
     protected $original;
@@ -209,6 +225,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string|null
      *
      * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
+     *
      * @Assert\Length(max=35)
      */
     protected $internId;
@@ -217,6 +234,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=true, onDelete="RESTRICT")
      */
     protected $user;
@@ -239,7 +257,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Orga|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=true, onDelete="RESTRICT")
+     *
      * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
     protected $organisation;
@@ -269,6 +289,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"}, inversedBy="statements")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -316,6 +337,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -324,6 +346,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */
     protected $modified;
@@ -346,7 +369,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime *
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
+     *
      * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateBlank")
+     *
      * @Assert\Type("DateTime", groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateType")
      */
     protected $submit;
@@ -541,6 +566,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var ParagraphVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -590,6 +616,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -631,6 +658,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -646,6 +674,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DraftStatement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement")
+     *
      * @ORM\JoinColumn(name="_ds_id", referencedColumnName="_ds_id", onDelete="SET NULL")
      */
     protected $draftStatement;
@@ -661,6 +690,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var StatementMeta
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta", mappedBy="statement", cascade={"persist", "remove"})
+     *
      * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
     protected $meta;
@@ -669,6 +699,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var StatementVersionField
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField", mappedBy="statement")
+     *
      * @ORM\OrderBy({"created" = "DESC"})
      */
     protected $version;
@@ -705,6 +736,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", inversedBy="statements", cascade={"persist", "refresh"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_tag",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="CASCADE")},
@@ -717,6 +749,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, County>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_county",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -729,6 +762,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, PriorityArea>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -741,6 +775,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, Municipality>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_municipality",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -753,6 +788,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, StatementFragment>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="statement", cascade={"remove"})
+     *
      * @ORM\OrderBy({"sortIndex" = "ASC"})
      */
     protected $fragments;
@@ -806,6 +842,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string
      *
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
+     *
      * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitTypeBlank")
      */
     protected $submitType = 'system';
@@ -834,6 +871,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      *
      * This is the user that is currently assigned to this statement. Assigned users are
@@ -853,6 +891,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * This is the owning side
      *
      * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
+     *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
     protected $headStatement = null;
@@ -864,6 +903,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * Doctrine-sited persists, would bypass this check!
      *
      * @ORM\OneToMany(targetEntity="Statement", mappedBy="headStatement", cascade={"merge"})
+     *
      * @ORM\OrderBy({"externId" = "ASC"})
      */
     protected $cluster;
@@ -891,6 +931,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true, onDelete="RESTRICT")
      */
     protected $placeholderStatement;
@@ -904,6 +945,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
      */
     protected $movedStatement;
@@ -997,6 +1039,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *     cascade={"persist", "remove"},
      *     orphanRemoval = true
      * )
+     *
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
@@ -4118,13 +4161,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function setSimilarStatementSubmitters(Collection $similarStatementSubmitters): Statement
     {
-        //clear currently set submitters first because this is setting, not adding
+        // clear currently set submitters first because this is setting, not adding
         foreach ($this->similarStatementSubmitters as $submitter) {
             $submitter->removeSimilarForeignStatement($this);
         }
 
         foreach ($similarStatementSubmitters as $submitter) {
-            $submitter->addSimilarForeignStatement($this); //handle both sites
+            $submitter->addSimilarForeignStatement($this); // handle both sites
 //            $this->similarStatementSubmitters->add($submitter);
         }
 
@@ -4152,6 +4195,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
         return $this;
     }
+
     public function setSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
     {
         $this->similarStatementSubmitters = new ArrayCollection([$similarStatementSubmitter]);

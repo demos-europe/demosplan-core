@@ -28,8 +28,11 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null `null` if this instance was created but not persisted yet
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -38,6 +41,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     private $procedure;
@@ -46,6 +50,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     private $fullName;
@@ -54,6 +59,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetName;
@@ -62,6 +68,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetNumber;
@@ -70,6 +77,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $city;
@@ -78,6 +86,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $postalCode;
@@ -86,7 +95,9 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
+     *
      * @Assert\Email()
      */
     private $emailAddress;
@@ -102,6 +113,7 @@ class ProcedurePerson implements UuidEntityInterface
      *     mappedBy="similarStatementSubmitters",
      *     cascade={"persist"},
      * )
+     *
      * @ORM\JoinTable(
      *     name="similar_statement_submitter",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="statement_id")},

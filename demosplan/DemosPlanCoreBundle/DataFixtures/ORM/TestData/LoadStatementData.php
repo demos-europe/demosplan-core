@@ -332,7 +332,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement2->setUser($this->getReference('testUserPlanningOffice'));
         $statement2->setSimilarStatementSubmitter($this->getReference('testProcedurePerson1'));
 
-
         /** @var User $submitter */
         $submitter = $this->getReference('testUserDataInput1');
 
