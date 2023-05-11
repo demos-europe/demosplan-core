@@ -1956,16 +1956,6 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
   integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
 
-"@sentry-internal/tracing@7.51.0":
-  version "7.51.0"
-  resolved "https://registry.yarnpkg.com/@sentry-internal/tracing/-/tracing-7.51.0.tgz#574bd62128aa98656a847332c627663975413fda"
-  integrity sha512-mhXl4B02OQq6/vevjX04OchmQbxPRaLci9vTTPcPcIz/n+wkum29ze35gHcJsPJUesScjd0m19Xou3C8fNnZRA==
-  dependencies:
-    "@sentry/core" "7.51.0"
-    "@sentry/types" "7.51.0"
-    "@sentry/utils" "7.51.0"
-    tslib "^1.9.3"
-
 "@sentry-internal/tracing@7.51.2":
   version "7.51.2"
   resolved "https://registry.yarnpkg.com/@sentry-internal/tracing/-/tracing-7.51.2.tgz#17833047646426ca71445327018ffcb33506a699"
@@ -1986,15 +1976,6 @@
     "@sentry/replay" "7.51.2"
     "@sentry/types" "7.51.2"
     "@sentry/utils" "7.51.2"
-    tslib "^1.9.3"
-
-"@sentry/core@7.51.0":
-  version "7.51.0"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-7.51.0.tgz#f9949d129ea2683bf70edccacdfeafb7f492260c"
-  integrity sha512-GgYwlXU8Y1kDEHsJO1Bmr2CNan5BzoNRR0TDBmxRgI/DgTNNSYrXeFDELgPi9/p/0XENeuttzDZ3iYd1nF7meA==
-  dependencies:
-    "@sentry/types" "7.51.0"
-    "@sentry/utils" "7.51.0"
     tslib "^1.9.3"
 
 "@sentry/core@7.51.2":
@@ -2025,12 +2006,12 @@
     "@sentry/types" "7.51.2"
     "@sentry/utils" "7.51.2"
 
-"@sentry/tracing@^7.49.0":
-  version "7.51.0"
-  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-7.51.0.tgz#bc41e8b15ac9d75041cff66ca2055deee2983b61"
-  integrity sha512-NXBW0ucxb2MJJbkzPfwpaLGEs8DrSTp6FwqG6ejRdVydViyoWKFaRl0dedw1u2ACGDITEYnTfLO6YWTc3ruUNA==
+"@sentry/tracing@^7.51.2":
+  version "7.51.2"
+  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-7.51.2.tgz#3f1cce990f48a5b96e885a42463da484e29e5007"
+  integrity sha512-qYl8TtwdEAtLBFSSTtHX6OpSGI73sgoPZhc3ZtF7+cLe29FRM5M6uyV7HhgIrxCstAx/5lZRlCWJabkIewGfFA==
   dependencies:
-    "@sentry-internal/tracing" "7.51.0"
+    "@sentry-internal/tracing" "7.51.2"
 
 "@sentry/types@7.51.0":
   version "7.51.0"
