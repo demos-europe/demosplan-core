@@ -34,7 +34,7 @@
         "demos-europe/edt-dql": "^0.16.0",
         "demos-europe/edt-extra": "^0.16.0",
         "demos-europe/edt-paths": "^0.16.0",
-        "demos-europe/demosplan-addon": "dev-main",
+        "demos-europe/demosplan-addon": "0.0.3",
         "doctrine/annotations": "^1.13",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
@@ -188,7 +188,8 @@
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "demos-europe/demosplan-addon-installer": true,
-            "bamarni/composer-bin-plugin": true
+            "bamarni/composer-bin-plugin": true,
+            "php-http/discovery": false
         }
     },
     "conflict": {
