@@ -500,7 +500,7 @@ class OzgKeycloakUserDataMapper
             $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getDplanroles()->toArray(), $requestedRoles)) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getRolesCollection()->toArray(), $requestedRoles)) {
             $customer = $this->customerService->getCurrentCustomer();
             $customerId = $customer->getId();
             $userId = $dplanUser->getId();
@@ -510,7 +510,7 @@ class OzgKeycloakUserDataMapper
             // refresh $user manually after tampering with relations
             $this->entityManager->refresh($dplanUser);
 
-            $dplanUser->setDplanroles($requestedRoles, $customer);
+            $dplanUser->setRoles($requestedRoles, $customer);
         }
 
         if ($this->hasUserAttributeToUpdate(

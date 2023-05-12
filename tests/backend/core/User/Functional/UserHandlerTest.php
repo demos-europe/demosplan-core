@@ -145,7 +145,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertEquals($orgaId, $wipedUser->getOrga()->getId());
 
         static::assertEmpty($wipedUser->getAddresses());
-        static::assertEquals('', $wipedUser->getDplanRolesString());
+        static::assertEquals('', $wipedUser->getRolesString());
 
         $settings = $this->contentService->getSettingsOfUser($wipedUser->getId());
         static::assertEmpty($settings);

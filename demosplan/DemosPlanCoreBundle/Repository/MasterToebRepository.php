@@ -383,7 +383,7 @@ class MasterToebRepository extends CoreRepository implements ArrayInterface
             $users = $orga->getUsers();
             /** @var User $user */
             foreach ($users as $user) {
-                $userRoles = $user->getDplanRolesArray();
+                $userRoles = $user->getRoleCodes();
                 if ([] !== array_intersect($fpRoles, $userRoles)) {
                     continue 2;
                 }

@@ -170,7 +170,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
         // get real User from SecurityUser that was saved in token
         $user = $this->userFromSecurityUserProvider->fromToken($token);
-        $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
+        $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getRolesString()]);
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)

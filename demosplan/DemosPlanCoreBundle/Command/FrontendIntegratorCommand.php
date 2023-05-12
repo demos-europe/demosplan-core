@@ -152,7 +152,7 @@ class FrontendIntegratorCommand extends CoreCommand
     private function getOpenApiSpec(): OpenApi
     {
         $user = new FunctionalUser();
-        $user->setDplanroles([Role::CITIZEN]);
+        $user->setRoles([Role::CITIZEN]);
 
         $this->currentUser->setUser($user);
         $this->currentUser->getPermissions()->initPermissions($user);

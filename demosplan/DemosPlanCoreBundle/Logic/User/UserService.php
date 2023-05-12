@@ -1022,7 +1022,7 @@ class UserService extends CoreService implements UserServiceInterface
      */
     protected function getRoleNames(User $user): array
     {
-        $userRoles = $user->getDplanroles();
+        $userRoles = $user->getRolesCollection();
         $userRoleNames = $userRoles->map(static function (Role $role): string {
             return $role->getName();
         })->toArray();
@@ -1575,7 +1575,7 @@ class UserService extends CoreService implements UserServiceInterface
             })
             ->map(
                 static function (User $user) {
-                    $roles = collect($user->getDplanroles())->map(
+                    $roles = collect($user->getRolesCollection())->map(
                         static function (Role $role) {
                             return $role->getName();
                         }

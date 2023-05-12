@@ -291,10 +291,10 @@ class UserServiceTest extends FunctionalTestCase
 
         $user = $this->sut->getSingleUser($this->testUser->getId());
         static::assertEquals($this->testUser->getId(), $user->getId());
-        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getDplanRolesString());
-        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getDplanRolesString());
-        static::assertContains(Role::GPSORG, $user->getDplanRolesGroupString());
-        static::assertContains(Role::GLAUTH, $user->getDplanRolesGroupString());
+        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getRolesString());
+        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getRolesString());
+        static::assertContains(Role::GPSORG, $user->getRolesGroupString());
+        static::assertContains(Role::GLAUTH, $user->getRolesGroupString());
     }
 
     public function testGetUserMissingFlag()
@@ -302,10 +302,10 @@ class UserServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $user = $this->sut->getSingleUser($this->fixtures->getReference('testUserMissingFlag'));
-        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getDplanRolesString());
-        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getDplanRolesString());
-        static::assertContains(Role::GPSORG, $user->getDplanRolesGroupString());
-        static::assertContains(Role::GLAUTH, $user->getDplanRolesGroupString());
+        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getRolesString());
+        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getRolesString());
+        static::assertContains(Role::GPSORG, $user->getRolesGroupString());
+        static::assertContains(Role::GLAUTH, $user->getRolesGroupString());
         // Flag noPiwik is missing and should be false
         static::assertFalse($user->getNoPiwik());
     }
@@ -313,23 +313,23 @@ class UserServiceTest extends FunctionalTestCase
     public function testUpdateRoles()
     {
         $user = $this->sut->getSingleUser($this->testUser->getId());
-        static::assertCount(2, $user->getDplanroles());
+        static::assertCount(2, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => []]);
-        static::assertCount(0, $user->getDplanroles());
+        static::assertCount(0, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => [Role::PUBLIC_AGENCY_COORDINATION]]);
-        static::assertCount(1, $user->getDplanroles());
+        static::assertCount(1, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => []]);
-        static::assertCount(0, $user->getDplanroles());
+        static::assertCount(0, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => [Role::PUBLIC_AGENCY_COORDINATION, Role::PLANNING_AGENCY_ADMIN]]);
-        static::assertCount(2, $user->getDplanroles());
+        static::assertCount(2, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => [Role::PLATFORM_SUPPORT]]);
-        static::assertCount(1, $user->getDplanroles());
+        static::assertCount(1, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => []]);
-        static::assertCount(0, $user->getDplanroles());
+        static::assertCount(0, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => [$this->fixtures->getReference('testRolePublicAgencyCoordination')]]);
-        static::assertCount(1, $user->getDplanroles());
+        static::assertCount(1, $user->getRolesCollection());
         $user = $this->sut->updateUser($this->testUser->getId(), ['roles' => [Role::PUBLIC_AGENCY_COORDINATION], 'customer' => $this->fixtures->getReference('testCustomer')]);
-        static::assertCount(1, $user->getDplanroles());
+        static::assertCount(1, $user->getRolesCollection());
     }
 
     public function testGetUserStatistics()
@@ -678,7 +678,7 @@ class UserServiceTest extends FunctionalTestCase
         $newUser->setNewUser(false);
         $newUser->setAccessConfirmed(true);
         $newUser->setForumNotification(true);
-        $newUser->setDplanroles([$this->fixtures->getReference('testRoleFP')]);
+        $newUser->setRoles([$this->fixtures->getReference('testRoleFP')]);
 
         $departmentUserAdded = $this->sut->departmentAddUser($this->testDepartment->getId(), $newUser);
         static::assertEquals($this->testDepartment->getId(), $departmentUserAdded->getId());

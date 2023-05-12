@@ -2202,7 +2202,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $doctrineUser = null;
             }
             $orga = $user->getOrga()->getNameLegal();
-            $role = $doctrineUser->getDplanroles()[0]->getName();
+            $role = $doctrineUser->getRolesCollection()[0]->getName();
             $recommendation = $data['recommendation'];
             $this->createRecommendationVersion($currentStatement, $recommendation, $user, $orga, $role);
         }

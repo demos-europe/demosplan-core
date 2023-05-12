@@ -136,7 +136,7 @@ class FunctionalTestCase extends WebTestCase
         $token->method('getUser')
             ->willReturn($user);
         $token->method('getRoleNames')
-            ->willReturn($user->getDplanRolesArray());
+            ->willReturn($user->getRoleCodes());
         $this->tokenStorage->setToken($token);
     }
 

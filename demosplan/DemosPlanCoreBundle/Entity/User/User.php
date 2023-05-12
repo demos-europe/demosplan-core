@@ -1315,7 +1315,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @return Collection<int, Role>
      */
-    public function getDplanroles(Customer $customer = null): Collection
+    public function getRolesCollection(Customer $customer = null): Collection
     {
         $roles = new ArrayCollection();
         $relations = $this->roleInCustomers->toArray();
@@ -1345,13 +1345,13 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @return string[]
      */
-    public function getDplanRolesArray(Customer $customer = null): array
+    public function getRoleCodes(Customer $customer = null): array
     {
         if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
             $customer = $customer ?? $this->getCurrentCustomer();
             /** @var Role $role */
-            foreach ($this->getDplanroles($customer) as $role) {
+            foreach ($this->getRolesCollection($customer) as $role) {
                 $this->rolesArrayCache[] = $role->getCode();
             }
         }
@@ -1371,11 +1371,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @return string[]
      */
-    public function getDplanRoleGroupsArray()
+    public function getRoleGroupsArray()
     {
         $rolesArray = [];
         /** @var Role $role */
-        foreach ($this->getDplanroles() as $role) {
+        foreach ($this->getRolesCollection() as $role) {
             $rolesArray[] = $role->getGroupCode();
         }
 
@@ -1383,25 +1383,25 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Alias for getDplanRoleGroupsArray, used e.g. in twig.
+     * Alias for getRoleGroupsArray, used e.g. in twig.
      *
      * @return string[]
      */
     public function getRoleGroups()
     {
-        return $this->getDplanRoleGroupsArray();
+        return $this->getRoleGroupsArray();
     }
 
     /**
      * @return string|null
      */
-    public function getDplanRolesString()
+    public function getRolesString()
     {
-        if (!$this->getDplanroles() instanceof Collection) {
+        if (!$this->getRolesCollection() instanceof Collection) {
             return null;
         }
         $rolesArray = [];
-        foreach ($this->getDplanroles() as $role) {
+        foreach ($this->getRolesCollection() as $role) {
             /* @var Role $role */
             $rolesArray[] = $role->getCode();
         }
@@ -1412,13 +1412,13 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @return string|null
      */
-    public function getDplanRolesGroupString()
+    public function getRolesGroupString()
     {
-        if (!$this->getDplanroles() instanceof Collection) {
+        if (!$this->getRolesCollection() instanceof Collection) {
             return null;
         }
         $rolesArray = [];
-        foreach ($this->getDplanroles() as $role) {
+        foreach ($this->getRolesCollection() as $role) {
             /* @var Role $role */
             $rolesArray[] = $role->getGroupCode();
         }
@@ -1436,10 +1436,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @param Role[]        $roles
      * @param Customer|null $customer
      */
-    public function setDplanroles(array $roles, $customer = null): void
+    public function setRoles(array $roles, $customer = null): void
     {
         foreach ($roles as $role) {
-            $this->addDplanrole($role, $customer);
+            $this->addRole($role, $customer);
         }
     }
 
@@ -1454,7 +1454,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @param Customer|null $customer
      */
-    public function addDplanrole(Role $role, $customer = null)
+    public function addRole(Role $role, $customer = null)
     {
         // prevents the same role being set multiple times (if they have been set previously)
         if ($this->hasRole($role->getCode(), $customer)) {
@@ -1480,7 +1480,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     {
         $customer = $customer ?? $this->getCurrentCustomer();
 
-        return in_array($role, $this->getDplanRolesArray($customer));
+        return in_array($role, $this->getRoleCodes($customer));
     }
 
     public function hasAnyOfRoles(array $roles): bool
@@ -1512,17 +1512,17 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getRoles(): array
     {
-        return $this->getDplanRolesArray();
+        return $this->getRoleCodes();
     }
 
     /**
-     * Alias for getDplanRolesString.
+     * Alias for getRolesString.
      *
      * @return string
      */
     public function getRole()
     {
-        return $this->getDplanRolesString();
+        return $this->getRolesString();
     }
 
     /**

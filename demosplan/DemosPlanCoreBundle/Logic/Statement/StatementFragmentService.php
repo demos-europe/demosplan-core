@@ -628,7 +628,7 @@ class StatementFragmentService extends CoreService
 
         // case 1 - claiming:
         // case 1a - anyone except Fachplaner becomes lastClaimed when claiming
-        if (null !== $assignee && Role::PLANNING_SUPPORTING_DEPARTMENT !== $assignee->getDplanRolesString()) {
+        if (null !== $assignee && Role::PLANNING_SUPPORTING_DEPARTMENT !== $assignee->getRolesString()) {
             $fragmentObject->setLastClaimed($assignee);
 
             return $fragmentObject;

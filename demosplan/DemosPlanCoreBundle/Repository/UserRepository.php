@@ -355,7 +355,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         // verarbeite RollenEntities und Strings
         foreach ($data['roles'] as $role) {
             if ($role instanceof Role) {
-                $user->addDplanrole($role, $customer);
+                $user->addRole($role, $customer);
             }
 
             // role code variant
@@ -364,7 +364,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 try {
                     $roleEntity = $roleRepository->findOneBy(['code' => $role]);
                     if ($roleEntity instanceof Role) {
-                        $user->addDplanrole($roleEntity, $customer);
+                        $user->addRole($roleEntity, $customer);
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Could not add Role to User', ['exception' => $e, 'role' => $role, 'user' => $user->getLogin()]);
@@ -377,7 +377,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                     $roleEntity = $roleRepository->find($role);
 
                     if ($roleEntity instanceof Role) {
-                        $user->addDplanrole($roleEntity, $customer);
+                        $user->addRole($roleEntity, $customer);
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Could not add Role to User', ['exception' => $e, 'role' => $role, 'user' => $user->getLogin()]);

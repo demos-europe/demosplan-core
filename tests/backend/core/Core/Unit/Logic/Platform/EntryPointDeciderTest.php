@@ -59,7 +59,7 @@ class EntryPointDeciderTest extends FunctionalTestCase
     protected function formatUserInfo(User $user): string
     {
         try {
-            return sprintf("User %s\nRoles: %s", $user->getName(), implode(',', $user->getDplanRolesArray()));
+            return sprintf("User %s\nRoles: %s", $user->getName(), implode(',', $user->getRoleCodes()));
         } catch (CustomerNotFoundException $e) {
             return "User: {$user->getName()}";
         }

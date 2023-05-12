@@ -82,7 +82,7 @@ class FunctionalUser extends User
     /**
      * Has to be overridden to ignore the customer.
      */
-    public function getDplanroles(Customer $customer = null): Collection
+    public function getRolesCollection(Customer $customer = null): Collection
     {
         return $this->dplanRoles;
     }
@@ -93,7 +93,7 @@ class FunctionalUser extends User
      *
      * @param null $customer
      */
-    public function setDplanroles(
+    public function setRoles(
         array $roles,
         $customer = null
     ): void {

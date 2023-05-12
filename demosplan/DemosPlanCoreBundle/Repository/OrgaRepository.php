@@ -638,7 +638,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         }
         /** @var User $user */
         foreach ($orga->getAllUsers() as $user) {
-            $userRoles = $user->getDplanRolesArray();
+            $userRoles = $user->getRoleCodes();
             foreach ($userRoles as $userRole) {
                 if (in_array($userRole, $orgaTypeMapping[$orgaType], true)) {
                     return true;
@@ -703,7 +703,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         $user->setLastname($userLastName);
         $user->setEmail($email);
         $user->setLogin($email);
-        $user->addDplanrole($masterUserRole, $customer);
+        $user->addRole($masterUserRole, $customer);
 
         $em->persist($user);
 

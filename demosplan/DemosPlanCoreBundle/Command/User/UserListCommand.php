@@ -54,7 +54,7 @@ class UserListCommand extends CoreCommand
         $data = collect($userList)
             ->map(
                 function (User $user) {
-                    $roles = collect($user->getDplanroles())->map(
+                    $roles = collect($user->getRolesCollection())->map(
                         function (Role $role) {
                             return $role->getName();
                         }

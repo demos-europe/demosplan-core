@@ -241,7 +241,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $roles = $this->roleHandler->getUserRolesByCodes($roleCodes);
         $role = $roles[0];
         $customer = $this->customerService->getCurrentCustomer();
-        $user->setDplanroles([$role], $customer);
+        $user->setRoles([$role], $customer);
         $user->setCurrentCustomer($customer);
 
         return $user;

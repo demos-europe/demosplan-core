@@ -96,7 +96,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $functionalUser = new FunctionalUser();
-        $functionalUser->setDplanroles([Role::PLANNING_AGENCY_ADMIN]);
+        $functionalUser->setRoles([Role::PLANNING_AGENCY_ADMIN]);
 
         $this->currentUser->setUser($functionalUser);
     }

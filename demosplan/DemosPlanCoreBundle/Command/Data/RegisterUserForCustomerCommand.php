@@ -89,7 +89,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
 
         try {
             // add user to customer
-            $userToRegister->setDplanroles($roles, $customer);
+            $userToRegister->setRoles($roles, $customer);
             $this->userRepository->updateObject($userToRegister);
 
             // add OrgaType to customer

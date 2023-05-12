@@ -30,7 +30,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         $this->email = $user->getEmail();
         $this->password = $user->getPassword();
         $this->login = $user->getLogin();
-        $this->roles = $user->getDplanRolesArray();
+        $this->roles = $user->getRoleCodes();
     }
 
     public function getRoles(): array

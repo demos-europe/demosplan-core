@@ -602,7 +602,7 @@ class DemosPlanStatementController extends BaseController
         StatementHandler $statementHandler
     ) {
         $this->saveDraftListFiltersInSession($request, $procedure, $templateName);
-        $userRole = $this->currentUser->getUser()->getDplanRolesString();
+        $userRole = $this->currentUser->getUser()->getRolesString();
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $currentProcedure = $currentProcedureService->getProcedureWithCertainty();
         $fscope = 'group';
@@ -1462,7 +1462,7 @@ class DemosPlanStatementController extends BaseController
         $procedure,
         $statementID
     ): RedirectResponse {
-        $userRole = $this->currentUser->getUser()->getDplanRolesString();
+        $userRole = $this->currentUser->getUser()->getRolesString();
 
         if (Role::CITIZEN !== $userRole) {
             $this->permissions->checkPermission(
@@ -1513,7 +1513,7 @@ class DemosPlanStatementController extends BaseController
         $procedure,
         $statementID
     ) {
-        $userRole = $this->currentUser->getUser()->getDplanRolesString();
+        $userRole = $this->currentUser->getUser()->getRolesString();
 
         if (Role::CITIZEN !== $userRole) {
             $this->permissions->checkPermission(
@@ -1589,7 +1589,7 @@ class DemosPlanStatementController extends BaseController
      */
     public function getStatementCountInternalAction(Request $request, StatementHandler $statementHandler, string $procedure)
     {
-        $userRole = $this->currentUser->getUser()->getDplanRolesString();
+        $userRole = $this->currentUser->getUser()->getRolesString();
         $statementCounts = $statementHandler->getStatementCounts(
             $procedure,
             $userRole,

@@ -835,7 +835,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         /** @var User $user */
         foreach ($usersOfOrganisation as $user) {
             if ($user->getId() != $userId) {
-                $roles = $user->getDplanRolesArray();
+                $roles = $user->getRoleCodes();
                 foreach ($rolesOfAreaAdminProcedures as $adminRole) {
                     if (in_array($adminRole, $roles)) {
                         return false;
@@ -2195,7 +2195,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($customers as $customer) {
             // check whether at least one user already has minimal required role
             $usersWithMinimalRole = $orga->getUsers()->filter(static function (User $user) use ($minimumRoles, $orgaTypeName, $customer) {
-                return in_array($minimumRoles[$orgaTypeName], $user->getDplanRolesArray($customer), true);
+                return in_array($minimumRoles[$orgaTypeName], $user->getRoleCodes($customer), true);
             });
             if (0 < $usersWithMinimalRole->count() || 0 === $orga->getUsers()->count()) {
                 continue;
@@ -2205,7 +2205,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
             if (null !== $masterUser) {
                 $roles = $this->roleHandler->getUserRolesByCodes([$minimumRoles[$orgaTypeName]]);
-                $masterUser->addDplanrole($roles[0], $customer);
+                $masterUser->addRole($roles[0], $customer);
                 $this->userService->updateUserObject($masterUser);
                 $this->logger->info('Added minimal role to masterUser',
                     [

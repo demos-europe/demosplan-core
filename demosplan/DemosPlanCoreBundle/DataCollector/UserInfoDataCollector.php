@@ -37,7 +37,7 @@ class UserInfoDataCollector extends DataCollector
         $permissions = [];
         $permissionStats = null;
         try {
-            $roles = $this->currentUser->getUser()->getDplanRolesArray();
+            $roles = $this->currentUser->getUser()->getRoleCodes();
             $permissions = collect($this->currentUser->getPermissions()->getPermissions());
 
             $enabledPermissions = $permissions->filter->isEnabled();

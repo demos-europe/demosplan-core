@@ -3521,7 +3521,7 @@ class PermissionsTest extends FunctionalTestCase
             MockMethodDefinition::withReturnValue(
                 'getRoleInCustomers', $rolesInCustomers, 'roleInCustomers'
             ),
-            MockMethodDefinition::withReturnValue('getDplanroles', $dplanRoles),
+            MockMethodDefinition::withReturnValue('getRolesCollection', $dplanRoles),
             MockMethodDefinition::withReturnValue('getRoles', $testCase['roles']),
             MockMethodDefinition::withReturnValue('getOrganisationId', $orgaIdForStub),
             MockMethodDefinition::withReturnValue('getOrga', $orgaStub, 'orga'),

@@ -126,7 +126,7 @@ class OrgaServiceTest extends FunctionalTestCase
         $newUser->setNewUser(false);
         $newUser->setAccessConfirmed(true);
         $newUser->setForumNotification(true);
-        $newUser->setDplanroles([$this->fixtures->getReference('testRoleFP')]);
+        $newUser->setRoles([$this->fixtures->getReference('testRoleFP')]);
 
         $em = $this->getEntityManager();
         $em->persist($newUser);
@@ -137,7 +137,7 @@ class OrgaServiceTest extends FunctionalTestCase
         static::assertEquals($this->testOrgaFp->getId(), $orgaUserAdded->getId());
         static::assertCount(2, $orgaUserAdded->getUsers());
         static::assertNotNull($newUser->getOrga());
-        static::assertCount(1, $newUser->getDplanroles());
+        static::assertCount(1, $newUser->getRolesCollection());
     }
 
     public function testGetDataInputOrgas()

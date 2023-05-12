@@ -34,7 +34,7 @@ class AnonymousUser extends FunctionalUser
         $role->setCode(Role::GUEST);
         $role->setGroupCode(Role::GGUEST);
 
-        $this->setDplanroles([$role]);
+        $this->setRoles([$role]);
 
         parent::__construct();
     }
@@ -47,12 +47,12 @@ class AnonymousUser extends FunctionalUser
         return false;
     }
 
-    public function setDplanroles(
+    public function setRoles(
         array $roles,
         $customer = null
     ): void {
         if (null === $this->dplanRoles || 0 === $this->dplanRoles->count()) {
-            parent::setDplanroles($roles, $customer);
+            parent::setRoles($roles, $customer);
 
             return;
         }
