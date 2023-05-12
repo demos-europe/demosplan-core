@@ -2522,7 +2522,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
-        if (false !== \stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
+        if (false !== $user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
             $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
             $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);

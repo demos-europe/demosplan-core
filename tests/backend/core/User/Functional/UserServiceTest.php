@@ -291,8 +291,8 @@ class UserServiceTest extends FunctionalTestCase
 
         $user = $this->sut->getSingleUser($this->testUser->getId());
         static::assertEquals($this->testUser->getId(), $user->getId());
-        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getRolesString());
-        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getRolesString());
+        static::assertTrue($user->hasRole(Role::PUBLIC_AGENCY_COORDINATION));
+        static::assertTrue($user->hasRole(Role::PLANNING_AGENCY_ADMIN));
         static::assertContains(Role::GPSORG, $user->getRolesGroupString());
         static::assertContains(Role::GLAUTH, $user->getRolesGroupString());
     }
@@ -302,8 +302,8 @@ class UserServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $user = $this->sut->getSingleUser($this->fixtures->getReference('testUserMissingFlag'));
-        static::assertContains(Role::PUBLIC_AGENCY_COORDINATION, $user->getRolesString());
-        static::assertContains(Role::PLANNING_AGENCY_ADMIN, $user->getRolesString());
+        static::assertTrue($user->hasRole(Role::PUBLIC_AGENCY_COORDINATION));
+        static::assertTrue($user->hasRole(Role::PLANNING_AGENCY_ADMIN));
         static::assertContains(Role::GPSORG, $user->getRolesGroupString());
         static::assertContains(Role::GLAUTH, $user->getRolesGroupString());
         // Flag noPiwik is missing and should be false
@@ -678,7 +678,7 @@ class UserServiceTest extends FunctionalTestCase
         $newUser->setNewUser(false);
         $newUser->setAccessConfirmed(true);
         $newUser->setForumNotification(true);
-        $newUser->setRoles([$this->fixtures->getReference('testRoleFP')]);
+        $newUser->addRoles([$this->fixtures->getReference('testRoleFP')]);
 
         $departmentUserAdded = $this->sut->departmentAddUser($this->testDepartment->getId(), $newUser);
         static::assertEquals($this->testDepartment->getId(), $departmentUserAdded->getId());

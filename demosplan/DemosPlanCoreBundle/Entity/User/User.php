@@ -1395,23 +1395,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @return string|null
      */
-    public function getRolesString()
-    {
-        if (!$this->getRolesCollection() instanceof Collection) {
-            return null;
-        }
-        $rolesArray = [];
-        foreach ($this->getRolesCollection() as $role) {
-            /* @var Role $role */
-            $rolesArray[] = $role->getCode();
-        }
-
-        return implode(',', $rolesArray);
-    }
-
-    /**
-     * @return string|null
-     */
     public function getRolesGroupString()
     {
         if (!$this->getRolesCollection() instanceof Collection) {
@@ -1436,7 +1419,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @param Role[]        $roles
      * @param Customer|null $customer
      */
-    public function setRoles(array $roles, $customer = null): void
+    public function addRoles(array $roles, $customer = null): void
     {
         foreach ($roles as $role) {
             $this->addRole($role, $customer);
@@ -1513,16 +1496,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function getRoles(): array
     {
         return $this->getRoleCodes();
-    }
-
-    /**
-     * Alias for getRolesString.
-     *
-     * @return string
-     */
-    public function getRole()
-    {
-        return $this->getRolesString();
     }
 
     /**

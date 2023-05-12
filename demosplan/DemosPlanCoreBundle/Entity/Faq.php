@@ -206,7 +206,7 @@ class Faq extends CoreEntity implements UuidEntityInterface
      *
      * @param array $roles
      */
-    public function setRoles($roles): self
+    public function addRoles($roles): self
     {
         $this->roles = new ArrayCollection($roles);
 

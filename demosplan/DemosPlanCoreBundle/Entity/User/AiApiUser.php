@@ -36,7 +36,7 @@ class AiApiUser extends FunctionalUser
         $role->setCode(Role::API_AI_COMMUNICATOR);
         $role->setGroupCode(Role::GAICOM);
 
-        $this->setRoles([$role]);
+        $this->addRoles([$role]);
 
         $userRoleInCustomer = new UserRoleInCustomer();
         $userRoleInCustomer->setUser($this);

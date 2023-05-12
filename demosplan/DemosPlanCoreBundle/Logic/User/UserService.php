@@ -1587,7 +1587,7 @@ class UserService extends CoreService implements UserServiceInterface
                     $testUser->setDepartment($user->getDepartment() instanceof Department ? $user->getDepartment()->getName() : '');
                     $testUser->setLogin($user->getLogin());
                     $testUser->setEmail($user->getEmail());
-                    $testUser->setRoles($roles);
+                    $testUser->addRoles($roles);
                     $testUser->lock();
 
                     return $testUser;
@@ -1639,7 +1639,7 @@ class UserService extends CoreService implements UserServiceInterface
                     $testUser->setDepartment($userAttributes['DEPARTMENT'] ?? $userAttributes['COMPANYORGANISATION'] ?? '');
                     $testUser->setLogin($userAttributes['LOGINNAME']);
                     $testUser->setEmail($userAttributes['EMAIL'].', Mode '.$userAttributes['MODEID']);
-                    $testUser->setRoles($roleString);
+                    $testUser->addRoles($roleString);
                     $testUser->lock();
 
                     return $testUser;

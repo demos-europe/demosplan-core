@@ -93,7 +93,7 @@ class FunctionalUser extends User
      *
      * @param null $customer
      */
-    public function setRoles(
+    public function addRoles(
         array $roles,
         $customer = null
     ): void {

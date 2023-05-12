@@ -628,7 +628,7 @@ class StatementFragmentService extends CoreService
 
         // case 1 - claiming:
         // case 1a - anyone except Fachplaner becomes lastClaimed when claiming
-        if (null !== $assignee && Role::PLANNING_SUPPORTING_DEPARTMENT !== $assignee->getRolesString()) {
+        if (null !== $assignee && !$assignee->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT) && count($assignee->getRoles()) === 1) {
             $fragmentObject->setLastClaimed($assignee);
 
             return $fragmentObject;
@@ -643,7 +643,7 @@ class StatementFragmentService extends CoreService
         // case 2 - unclaiming: since assignee is null but only current users can unclaim, we can take that
         if (null === $assignee &&
             null === $fragmentObject->getDepartment() &&
-            Role::PLANNING_SUPPORTING_DEPARTMENT !== $currentUserLayerObject->getRole()
+            !$currentUserLayerObject->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)
         ) {
             // case 2a - the DS is being unclaimed by a reviewer. those are never set as lastClaimedId, so no need to reset
             // case 2b - the current user is not a reviewer, but the DS has a department. then keep the lastClaimedId

@@ -65,7 +65,7 @@ class LoadFaqData extends TestFixture implements DependentFixtureInterface
         $faqGuest->setEnabled(true);
         $faqGuest->setCreateDate(new DateTime());
         $faqGuest->setModifyDate(new DateTime());
-        $faqGuest->setRoles([$this->getReference('testRoleGuest')]);
+        $faqGuest->addRoles([$this->getReference('testRoleGuest')]);
         $faqGuest->setCategory($faqCategory1);
 
         $manager->persist($faqGuest);
@@ -76,7 +76,7 @@ class LoadFaqData extends TestFixture implements DependentFixtureInterface
         $faqPlanner->setEnabled(true);
         $faqPlanner->setCreateDate(new DateTime());
         $faqPlanner->setModifyDate(new DateTime());
-        $faqPlanner->setRoles([$this->getReference('testRoleFP')]);
+        $faqPlanner->addRoles([$this->getReference('testRoleFP')]);
         $faqPlanner->setCategory($faqCategory2);
 
         $manager->persist($faqPlanner);
@@ -87,7 +87,7 @@ class LoadFaqData extends TestFixture implements DependentFixtureInterface
         $faqPlannerBB->setEnabled(true);
         $faqPlannerBB->setCreateDate(new DateTime());
         $faqPlannerBB->setModifyDate(new DateTime());
-        $faqPlannerBB->setRoles([$this->getReference('testRoleFP')]);
+        $faqPlannerBB->addRoles([$this->getReference('testRoleFP')]);
         $faqPlannerBB->setCategory($faqCategory3);
 
         $manager->persist($faqPlannerBB);

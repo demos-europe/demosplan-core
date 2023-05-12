@@ -41,7 +41,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
         $news1->setCreateDate(new DateTime());
         $news1->setModifyDate(new DateTime());
         $news1->setDeleteDate(new DateTime());
-        $news1->setRoles(
+        $news1->addRoles(
             [
                 $this->getReference('testRoleFP'),
                 $this->getReference('testRolePublicAgencyCoordination'),
@@ -64,7 +64,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
         $news2->setCreateDate(new DateTime());
         $news2->setModifyDate(new DateTime());
         $news2->setDeleteDate(new DateTime());
-        $news2->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
+        $news2->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
         $manager->persist($news2);
 
         $news3 = new News();
@@ -83,7 +83,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
         $news3->setDeleteDate(new DateTime());
         $news3->setDesignatedSwitchDate(new DateTime());
         $news3->setDeterminedToSwitch(true);
-        $news3->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
+        $news3->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
         $manager->persist($news3);
 
         $news4 = new News();
@@ -102,7 +102,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
         $news4->setDeleteDate(new DateTime());
         $news4->setDesignatedSwitchDate(Carbon::now()->addWeek()->toDateTime());
         $news4->setDeterminedToSwitch(true);
-        $news4->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
+        $news4->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')]);
         $manager->persist($news4);
 
         $manager->flush();

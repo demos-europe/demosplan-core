@@ -126,7 +126,7 @@ class OrgaServiceTest extends FunctionalTestCase
         $newUser->setNewUser(false);
         $newUser->setAccessConfirmed(true);
         $newUser->setForumNotification(true);
-        $newUser->setRoles([$this->fixtures->getReference('testRoleFP')]);
+        $newUser->addRoles([$this->fixtures->getReference('testRoleFP')]);
 
         $em = $this->getEntityManager();
         $em->persist($newUser);

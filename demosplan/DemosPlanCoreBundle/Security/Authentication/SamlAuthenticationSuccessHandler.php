@@ -24,7 +24,7 @@ class SamlAuthenticationSuccessHandler extends ParentSamlAuthenticationSuccessHa
     {
         /** @var User $user */
         $user = $token->getUser();
-        $this->logger->info('User was logged in from SAML', ['id' => $user->getId(), 'roles' => $user->getRolesString()]);
+        $this->logger->info('User was logged in from SAML', ['id' => $user->getId(), 'roles' => implode(',', $user->getRoleCodes())]);
 
         // propagate user login to session
         $request->getSession()->set('userId', $user->getId());

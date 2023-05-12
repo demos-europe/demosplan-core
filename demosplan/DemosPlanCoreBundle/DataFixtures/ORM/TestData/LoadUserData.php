@@ -300,7 +300,7 @@ class LoadUserData extends TestFixture
         $user->setInvited(false);
         $user->setAccessConfirmed(true);
         $user->setForumNotification(true);
-        $user->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
+        $user->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
         $user->addAddress($this->getReference('testAddress'));
         $user->setCurrentCustomer($customer);
 
@@ -320,7 +320,7 @@ class LoadUserData extends TestFixture
         $user2->setNewUser(false);
         $user2->setAccessConfirmed(true);
         $user2->setForumNotification(false);
-        $user2->setRoles([$this->getReference('testRolePlanningOffice')], $customer);
+        $user2->addRoles([$this->getReference('testRolePlanningOffice')], $customer);
         $user2->setCurrentCustomer($customer);
 
         $manager->persist($user2);
@@ -338,7 +338,7 @@ class LoadUserData extends TestFixture
         $userMissingFlag->setAccessConfirmed(true);
         $userMissingFlag->setForumNotification(true);
         $userMissingFlag->setNewsletter(true);
-        $userMissingFlag->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
+        $userMissingFlag->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
         $userMissingFlag->setCurrentCustomer($customer);
 
         $manager->persist($userMissingFlag);
@@ -357,7 +357,7 @@ class LoadUserData extends TestFixture
         $user3->setNewUser(false);
         $user3->setAccessConfirmed(true);
         $user3->setForumNotification(false);
-        $user3->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
+        $user3->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
         $user3->addAddress($this->getReference('testAddress'));
         $user3->setCurrentCustomer($customer);
 
@@ -377,7 +377,7 @@ class LoadUserData extends TestFixture
         $user4->setNewUser(false);
         $user4->setAccessConfirmed(true);
         $user4->setForumNotification(false);
-        $user4->setRoles([$this->getReference('testRolePlanningOffice')], $customer);
+        $user4->addRoles([$this->getReference('testRolePlanningOffice')], $customer);
         $user4->setCurrentCustomer($customer);
 
         $manager->persist($user4);
@@ -396,7 +396,7 @@ class LoadUserData extends TestFixture
         $user5->setNewUser(false);
         $user5->setAccessConfirmed(true);
         $user5->setForumNotification(false);
-        $user5->setRoles([$this->getReference('testRolePublicAgencyCoordination')], $customer);
+        $user5->addRoles([$this->getReference('testRolePublicAgencyCoordination')], $customer);
         $user5->setCurrentCustomer($customer);
 
         $manager->persist($user5);
@@ -415,7 +415,7 @@ class LoadUserData extends TestFixture
         $citizenUser->setNewUser(false);
         $citizenUser->setAccessConfirmed(true);
         $citizenUser->setForumNotification(false);
-        $citizenUser->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser->addAddress($this->getReference('testAddress'));
         $citizenUser->setCurrentCustomer($customer);
 
@@ -435,7 +435,7 @@ class LoadUserData extends TestFixture
         $citizenUser2->setNewUser(false);
         $citizenUser2->setAccessConfirmed(true);
         $citizenUser2->setForumNotification(false);
-        $citizenUser2->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser2->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser2->addAddress($this->getReference('testAddress'));
         $citizenUser2->setCurrentCustomer($customer);
         $manager->persist($citizenUser2);
@@ -454,7 +454,7 @@ class LoadUserData extends TestFixture
         $citizenUser3->setNewUser(false);
         $citizenUser3->setAccessConfirmed(true);
         $citizenUser3->setForumNotification(false);
-        $citizenUser3->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser3->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser3->addAddress($this->getReference('testAddress'));
         $citizenUser3->setCurrentCustomer($customer);
         $manager->persist($citizenUser3);
@@ -473,7 +473,7 @@ class LoadUserData extends TestFixture
         $citizenUser4->setNewUser(false);
         $citizenUser4->setAccessConfirmed(true);
         $citizenUser4->setForumNotification(false);
-        $citizenUser4->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser4->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser4->addAddress($this->getReference('testAddress'));
         $citizenUser4->setCurrentCustomer($customer);
         $manager->persist($citizenUser4);
@@ -492,7 +492,7 @@ class LoadUserData extends TestFixture
         $citizenUser5->setNewUser(false);
         $citizenUser5->setAccessConfirmed(true);
         $citizenUser5->setForumNotification(false);
-        $citizenUser5->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser5->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser5->addAddress($this->getReference('testAddress'));
         $citizenUser5->setCurrentCustomer($customer);
         $manager->persist($citizenUser5);
@@ -511,7 +511,7 @@ class LoadUserData extends TestFixture
         $citizenUser6->setNewUser(false);
         $citizenUser6->setAccessConfirmed(true);
         $citizenUser6->setForumNotification(false);
-        $citizenUser6->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser6->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser6->addAddress($this->getReference('testAddress'));
         $citizenUser6->setCurrentCustomer($customer);
         $manager->persist($citizenUser6);
@@ -530,7 +530,7 @@ class LoadUserData extends TestFixture
         $citizenUser7->setNewUser(false);
         $citizenUser7->setAccessConfirmed(true);
         $citizenUser7->setForumNotification(false);
-        $citizenUser7->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser7->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser7->addAddress($this->getReference('testAddress'));
         $citizenUser7->setCurrentCustomer($customer);
         $manager->persist($citizenUser7);
@@ -549,7 +549,7 @@ class LoadUserData extends TestFixture
         $citizenUser8->setNewUser(false);
         $citizenUser8->setAccessConfirmed(true);
         $citizenUser8->setForumNotification(false);
-        $citizenUser8->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser8->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser8->addAddress($this->getReference('testAddress'));
         $citizenUser8->setCurrentCustomer($customer);
         $manager->persist($citizenUser8);
@@ -568,7 +568,7 @@ class LoadUserData extends TestFixture
         $citizenUser9->setNewUser(false);
         $citizenUser9->setAccessConfirmed(true);
         $citizenUser9->setForumNotification(false);
-        $citizenUser9->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser9->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser9->addAddress($this->getReference('testAddress'));
         $citizenUser9->setCurrentCustomer($customer);
         $manager->persist($citizenUser9);
@@ -587,7 +587,7 @@ class LoadUserData extends TestFixture
         $citizenUser10->setNewUser(false);
         $citizenUser10->setAccessConfirmed(true);
         $citizenUser10->setForumNotification(false);
-        $citizenUser10->setRoles([$this->getReference('testRoleCitiz')], $customer);
+        $citizenUser10->addRoles([$this->getReference('testRoleCitiz')], $customer);
         $citizenUser10->addAddress($this->getReference('testAddress'));
         $citizenUser10->setCurrentCustomer($customer);
         $manager->persist($citizenUser10);
@@ -608,7 +608,7 @@ class LoadUserData extends TestFixture
         $user7->setNewUser(false);
         $user7->setAccessConfirmed(true);
         $user7->setForumNotification(false);
-        $user7->setRoles([$this->getReference('testRolePlanningOffice')], $customer);
+        $user7->addRoles([$this->getReference('testRolePlanningOffice')], $customer);
         $user7->setCurrentCustomer($customer);
 
         $manager->persist($user7);
@@ -635,7 +635,7 @@ class LoadUserData extends TestFixture
         $userDelete->setNewUser(false);
         $userDelete->setAccessConfirmed(true);
         $userDelete->setForumNotification(false);
-        $userDelete->setRoles([$this->getReference('testRolePlanningOffice')], $customer);
+        $userDelete->addRoles([$this->getReference('testRolePlanningOffice')], $customer);
         $userDelete->addAddress($this->getReference('testAddress'));
         $userDelete->setCurrentCustomer($customer);
 
@@ -657,7 +657,7 @@ class LoadUserData extends TestFixture
         $user8->setNewUser(false);
         $user8->setAccessConfirmed(true);
         $user8->setForumNotification(false);
-        $user8->setRoles([$this->getReference('testRoleDataInput')], $customer);
+        $user8->addRoles([$this->getReference('testRoleDataInput')], $customer);
         $user8->setCurrentCustomer($customer);
 
         $manager->persist($user8);
@@ -678,7 +678,7 @@ class LoadUserData extends TestFixture
         $user9->setNewUser(false);
         $user9->setAccessConfirmed(true);
         $user9->setForumNotification(false);
-        $user9->setRoles([$this->getReference('testRoleDataInput')], $customer);
+        $user9->addRoles([$this->getReference('testRoleDataInput')], $customer);
         $user9->addFlag('splashModalHideVersion1.0', true);
         $user9->setCurrentCustomer($customer);
 
@@ -700,7 +700,7 @@ class LoadUserData extends TestFixture
         $guestUser->setNewUser(false);
         $guestUser->setAccessConfirmed(true);
         $guestUser->setForumNotification(false);
-        $guestUser->setRoles([$this->getReference('testRoleGuest')], $customer);
+        $guestUser->addRoles([$this->getReference('testRoleGuest')], $customer);
         $guestUser->setCurrentCustomer($customer);
 
         $manager->persist($guestUser);
@@ -720,7 +720,7 @@ class LoadUserData extends TestFixture
         $md5user->setInvited(false);
         $md5user->setAccessConfirmed(true);
         $md5user->setForumNotification(true);
-        $md5user->setRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
+        $md5user->addRoles([$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination')], $customer);
         $md5user->addAddress($this->getReference('testAddress'));
         $md5user->setCurrentCustomer($customer);
 
@@ -740,7 +740,7 @@ class LoadUserData extends TestFixture
         $user11->setNewUser(false);
         $user11->setAccessConfirmed(true);
         $user11->setForumNotification(false);
-        $user11->setRoles([$this->getReference('testRoleFP')], $customer);
+        $user11->addRoles([$this->getReference('testRoleFP')], $customer);
         $user11->setCurrentCustomer($customer);
 
         $manager->persist($user11);
@@ -759,7 +759,7 @@ class LoadUserData extends TestFixture
         $user12->setProfileCompleted(false);
         $user12->setAccessConfirmed(false);
         $user12->setForumNotification(false);
-        $user12->setRoles([$this->getReference('testRoleFP')], $customer);
+        $user12->addRoles([$this->getReference('testRoleFP')], $customer);
         $user12->setCurrentCustomer($customer);
 
         $manager->persist($user12);
@@ -777,7 +777,7 @@ class LoadUserData extends TestFixture
         $user13->setProfileCompleted(true);
         $user13->setAccessConfirmed(true);
         $user13->setForumNotification(false);
-        $user13->setRoles([$this->getReference('testRoleFP')], $customer);
+        $user13->addRoles([$this->getReference('testRoleFP')], $customer);
         $user13->setCurrentCustomer($customer);
 
         $manager->persist($user13);
@@ -794,7 +794,7 @@ class LoadUserData extends TestFixture
         $user14->setProfileCompleted(true);
         $user14->setAccessConfirmed(true);
         $user14->setForumNotification(false);
-        $user14->setRoles([$this->getReference('testRoleFP')], $customer);
+        $user14->addRoles([$this->getReference('testRoleFP')], $customer);
         $user14->setCurrentCustomer($customer);
 
         $manager->persist($user14);
@@ -811,7 +811,7 @@ class LoadUserData extends TestFixture
         $userContentEditor->setProfileCompleted(true);
         $userContentEditor->setAccessConfirmed(true);
         $userContentEditor->setForumNotification(false);
-        $userContentEditor->setRoles([$role10], $customer);
+        $userContentEditor->addRoles([$role10], $customer);
         $userContentEditor->setCurrentCustomer($customer);
 
         $manager->persist($userContentEditor);
@@ -1180,7 +1180,7 @@ class LoadUserData extends TestFixture
         $anonymousUser->setNewUser(false);
         $anonymousUser->setAccessConfirmed(true);
         $anonymousUser->setForumNotification(false);
-        $anonymousUser->setRoles([$this->getReference('testRolePlanningOffice')], $customer);
+        $anonymousUser->addRoles([$this->getReference('testRolePlanningOffice')], $customer);
         $anonymousUser->setCurrentCustomer($customer);
 
         $manager->persist($anonymousUser);

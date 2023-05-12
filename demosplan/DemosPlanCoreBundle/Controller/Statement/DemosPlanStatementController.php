@@ -602,12 +602,12 @@ class DemosPlanStatementController extends BaseController
         StatementHandler $statementHandler
     ) {
         $this->saveDraftListFiltersInSession($request, $procedure, $templateName);
-        $userRole = $this->currentUser->getUser()->getRolesString();
+        $user = $this->currentUser->getUser();
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $currentProcedure = $currentProcedureService->getProcedureWithCertainty();
         $fscope = 'group';
 
-        if (Role::CITIZEN === $userRole) {
+        if ($user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1) {
             $template = '@DemosPlanCore/DemosPlanStatement/'.$templateName.'_citizen.html.twig';
             // Ändere den Templatename für den pdf-export
             $templateName = 'list_final_group_citizen';
@@ -635,7 +635,7 @@ class DemosPlanStatementController extends BaseController
                 $scope = 'own';
                 $fscope = 'own';
             }
-            if (Role::CITIZEN === $userRole) {
+            if ($user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1) {
                 $filters->setUserId($this->currentUser->getUser()->getId());
                 $scope = 'ownCitizen';
             }
@@ -729,10 +729,10 @@ class DemosPlanStatementController extends BaseController
         $templateVars['list']['votedStatements'] = $votedStatements;
 
         // Setze ein Flag für den Bürger, damit die richtige Druckversion benutzt wird
-        $templateVars['isCitizen'] = Role::CITIZEN === $userRole;
+        $templateVars['isCitizen'] === $user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1;
 
         // kontextuelle Hilfe
-        if (Role::CITIZEN === $userRole) {
+        if ($user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1) {
             $contextualHelpTitle = $title.'.citizen';
         } else {
             $contextualHelpTitle = $title;
@@ -1454,6 +1454,7 @@ class DemosPlanStatementController extends BaseController
      * @param string $statementID
      *
      * @throws MessageBagException
+     * @throws UserNotFoundException
      */
     public function publishStatementAction(
         DraftStatementHandler $draftStatementHandler,
@@ -1462,9 +1463,9 @@ class DemosPlanStatementController extends BaseController
         $procedure,
         $statementID
     ): RedirectResponse {
-        $userRole = $this->currentUser->getUser()->getRolesString();
+        $user = $this->currentUser->getUser();
 
-        if (Role::CITIZEN !== $userRole) {
+        if ($user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1) {
             $this->permissions->checkPermission(
                 'feature_statements_released_group_submit'
             );
@@ -1505,6 +1506,7 @@ class DemosPlanStatementController extends BaseController
      * @return RedirectResponse
      *
      * @throws MessageBagException
+     * @throws UserNotFoundException
      */
     public function unpublishStatementAction(
         DraftStatementHandler $draftStatementHandler,
@@ -1513,9 +1515,9 @@ class DemosPlanStatementController extends BaseController
         $procedure,
         $statementID
     ) {
-        $userRole = $this->currentUser->getUser()->getRolesString();
+        $user = $this->currentUser->getUser();
 
-        if (Role::CITIZEN !== $userRole) {
+        if ($user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1) {
             $this->permissions->checkPermission(
                 'feature_statements_released_group_submit'
             );
@@ -1589,10 +1591,11 @@ class DemosPlanStatementController extends BaseController
      */
     public function getStatementCountInternalAction(Request $request, StatementHandler $statementHandler, string $procedure)
     {
-        $userRole = $this->currentUser->getUser()->getRolesString();
+        $user = $this->currentUser->getUser();
+        $isOnlyCitizen = $user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1;
         $statementCounts = $statementHandler->getStatementCounts(
             $procedure,
-            $userRole,
+            $isOnlyCitizen,
             $this->currentUser->getUser()
         );
 

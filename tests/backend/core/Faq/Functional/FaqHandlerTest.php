@@ -151,7 +151,7 @@ class FaqHandlerTest extends FunctionalTestCase
         $singleFaq1->setTitle($newTitle);
         $singleFaq1->setText('Ich bin der Text der Faq4');
         $singleFaq1->setEnabled(true);
-        $singleFaq1->setRoles([$this->getReference('testRoleGuest')]);
+        $singleFaq1->addRoles([$this->getReference('testRoleGuest')]);
         $singleFaq1->setCategory($this->fixtures->getReference('testCategoryFaq5'));
 
         $numberOfEntriesBefore = $this->countEntries(Faq::class);

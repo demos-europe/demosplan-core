@@ -104,7 +104,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $superUser->setPassword(md5('Advanced_12345'));
         $superUser->setAlternativeLoginPassword(md5('Advanced_12345'));
         $superUser->setLanguage('de_DE');
-        $superUser->setRoles([
+        $superUser->addRoles([
             $this->getReference('role_RTSUPP'),
             $this->getReference('role_RMOPSM'),
             $this->getReference('role_RMOPSA'),
@@ -201,7 +201,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         // reload procedure as doctrine could not know that id changed
         $citizenUser = $this->userHandler->getSingleUser(User::ANONYMOUS_USER_ID);
 
-        $citizenUser->setRoles([
+        $citizenUser->addRoles([
             $this->getReference('role_RGUEST'),
         ], $customer);
 

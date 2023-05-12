@@ -514,7 +514,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      *
      * @return GlobalContent
      */
-    public function setRoles($roles)
+    public function addRoles($roles)
     {
         $this->roles = new ArrayCollection($roles);
 

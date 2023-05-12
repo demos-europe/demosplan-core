@@ -1946,16 +1946,15 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * releases by the orga e.t.c).
      *
      * @param string $procedureId
-     * @param string $role
      * @param User   $user
      *
      * @throws Exception
      */
-    public function getStatementCounts($procedureId, $role, $user): array
+    public function getStatementCounts($procedureId, bool $isOnlyCitizen, $user): array
     {
         $this->profilerStart('StatementCounts');
 
-        $ownScope = Role::CITIZEN === $role ? 'ownCitizen' : 'own';
+        $ownScope = $isOnlyCitizen ? 'ownCitizen' : 'own';
 
         $userFilter = new StatementListUserFilter();
         $userFilter->setReleased(false)->setSubmitted(false);
@@ -2017,7 +2016,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             null,
             false);
 
-        if (Role::CITIZEN === $role) {
+        if ($isOnlyCitizen) {
             $public = $this->statementService->getStatementsByProcedureId(
                 $procedureId,
                 ['publicVerified' => true],

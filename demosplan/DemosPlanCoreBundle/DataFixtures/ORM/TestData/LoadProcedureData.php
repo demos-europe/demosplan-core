@@ -355,7 +355,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $news3->setCreateDate(new DateTime());
         $news3->setModifyDate(new DateTime());
         $news3->setDeleteDate(new DateTime());
-        $news3->setRoles(
+        $news3->addRoles(
             [$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleCitiz')]
         );
 
@@ -376,7 +376,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $news2->setCreateDate(new DateTime());
         $news2->setModifyDate(new DateTime());
         $news2->setDeleteDate(new DateTime());
-        $news2->setRoles(
+        $news2->addRoles(
             [$this->getReference('testRoleFP'), $this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleCitiz')]
         );
 
@@ -498,7 +498,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $news1->setCreateDate(new DateTime());
         $news1->setModifyDate(new DateTime());
         $news1->setDeleteDate(new DateTime());
-        $news1->setRoles(
+        $news1->addRoles(
             [
                 $this->getReference('testRoleFP'),
                 $this->getReference('testRolePublicAgencyCoordination'),

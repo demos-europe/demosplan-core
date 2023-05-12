@@ -130,7 +130,7 @@ class ProjectPermissionsDocumentationCommand extends CoreCommand
             }
         )->toArray();
 
-        $user->setRoles($roles);
+        $user->addRoles($roles);
 
         return $user;
     }

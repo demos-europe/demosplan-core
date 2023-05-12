@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
@@ -170,7 +171,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
         // get real User from SecurityUser that was saved in token
         $user = $this->userFromSecurityUserProvider->fromToken($token);
-        $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getRolesString()]);
+        $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => implode(',', $user->getRoleCodes())]);
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)

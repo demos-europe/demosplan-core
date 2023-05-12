@@ -32,7 +32,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent1->setCreateDate(new DateTime());
         $globalContent1->setModifyDate(new DateTime());
         $globalContent1->setDeleteDate(new DateTime());
-        $globalContent1->setRoles([$this->getReference('testRoleGuest')]);
+        $globalContent1->addRoles([$this->getReference('testRoleGuest')]);
         $globalContent1->setCategories([$this->getReference('testCategoryFaq')]);
 
         $manager->persist($globalContent1);
@@ -50,7 +50,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent2->setCreateDate(new DateTime());
         $globalContent2->setModifyDate(new DateTime());
         $globalContent2->setDeleteDate(new DateTime());
-        $globalContent2->setRoles([$this->getReference('testRoleGuest')]);
+        $globalContent2->addRoles([$this->getReference('testRoleGuest')]);
         $globalContent2->setCategories([$this->getReference('testCategoryFaq2')]);
 
         $manager->persist($globalContent2);
@@ -69,7 +69,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent3->setCreateDate(new DateTime());
         $globalContent3->setModifyDate(new DateTime());
         $globalContent3->setDeleteDate(new DateTime());
-        $globalContent3->setRoles([$this->getReference('testRoleGuest'), $this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
+        $globalContent3->addRoles([$this->getReference('testRoleGuest'), $this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
         $globalContent3->setCategories([$this->getReference('testCategoryNews')]);
 
         $manager->persist($globalContent3);
@@ -88,7 +88,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent4->setCreateDate(new DateTime());
         $globalContent4->setModifyDate(new DateTime());
         $globalContent4->setDeleteDate(new DateTime());
-        $globalContent4->setRoles([$this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
+        $globalContent4->addRoles([$this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
         $globalContent4->setCategories([$this->getReference('testCategoryNews')]);
 
         $manager->persist($globalContent4);
@@ -106,7 +106,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent5->setCreateDate(new DateTime());
         $globalContent5->setModifyDate(new DateTime());
         $globalContent5->setDeleteDate(new DateTime());
-        $globalContent5->setRoles([$this->getReference('testRoleFP')]);
+        $globalContent5->addRoles([$this->getReference('testRoleFP')]);
         $globalContent5->setCategories([$this->getReference('testCategoryFaq')]);
 
         $manager->persist($globalContent5);

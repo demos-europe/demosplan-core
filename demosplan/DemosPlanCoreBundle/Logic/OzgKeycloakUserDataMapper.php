@@ -510,7 +510,7 @@ class OzgKeycloakUserDataMapper
             // refresh $user manually after tampering with relations
             $this->entityManager->refresh($dplanUser);
 
-            $dplanUser->setRoles($requestedRoles, $customer);
+            $dplanUser->addRoles($requestedRoles, $customer);
         }
 
         if ($this->hasUserAttributeToUpdate(

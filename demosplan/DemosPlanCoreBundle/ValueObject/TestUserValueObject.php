@@ -24,7 +24,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
  * @method string getEmail()
  * @method string setEmail($email)
  * @method string getRoles()
- * @method string setRoles($roles)
+ * @method string addRoles($roles)
  */
 class TestUserValueObject extends ValueObject
 {
