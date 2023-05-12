@@ -49,8 +49,8 @@ $tooltip-width: 400px;
 
 //  Tooltip styles used by the Js and Vue implementation
 //  Templates:
-//  * DemosPlanCoreBundle/Resources/client/js/lib/Tooltips.js
-//  * DemosPlanCoreBundle/Resources/client/js/VueConfigCore.js
+//  * client/js/lib/core/libs/Tooltips.js
+//  * @demos-europe/demosplan-ui/src/directives/Tooltip/Tooltip.js
 .tooltip {
     z-index: $z-tooltip-super;
 
