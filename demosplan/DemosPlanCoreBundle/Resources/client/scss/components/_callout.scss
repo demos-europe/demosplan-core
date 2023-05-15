@@ -26,7 +26,7 @@
             }
 
             @include media-query('desk-up') {
-                @include inuit-font-size($dp-token-font-size-brand-hero);
+                @include inuit-font-size($dp-font-size-hero);
             }
 
             color: $dp-color-main;
@@ -38,7 +38,7 @@
             }
 
             @include media-query('lap-up') {
-                @include inuit-font-size($dp-token-font-size-h3, none);
+                @include inuit-font-size($dp-font-size-h3, none);
             }
 
             color: $dp-color-highlight;

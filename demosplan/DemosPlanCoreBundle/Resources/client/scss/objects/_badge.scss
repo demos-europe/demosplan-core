@@ -33,13 +33,13 @@
 
     // Size variant: default
     &:not(.o-badge--small) {
-        @include inuit-font-size($dp-token-font-size-small, $dp-token-font-size-small);
+        @include inuit-font-size($dp-font-size-small, $dp-font-size-small);
         padding: 5px 9px;
     }
 
     // Size variant: small
     &--small {
-        @include inuit-font-size($dp-token-font-size-smaller, $dp-token-font-size-smaller);
+        @include inuit-font-size($dp-font-size-smaller, $dp-font-size-smaller);
         padding: 3px 7px;
     }
 }

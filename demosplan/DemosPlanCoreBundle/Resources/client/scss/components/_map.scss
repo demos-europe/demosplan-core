@@ -100,7 +100,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         width: 100%;
 
-        font-size: $dp-token-font-size-small;
+        font-size: $dp-font-size-small;
 
         //  progress bar for loaded map tiles
         &--progress {
@@ -248,7 +248,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
                 background-color: $dp-color-white;
                 border-radius: 0 2px 2px 0;
-                // $dp-token-box-shadow-1 is not used here since it does not cut the left shadow
+                // $dp-box-shadow-1 is not used here since it does not cut the left shadow
                 box-shadow: 2px 3px 5px -2px #aaa;
             }
 
@@ -490,7 +490,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             color: $dp-color-interactive-default;
             cursor: pointer !important;
 
-            font-size: $dp-token-font-size-medium;
+            font-size: $dp-font-size-medium;
 
             &:hover,
             &.is-active {
@@ -716,7 +716,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 margin-right: $inuit-base-spacing-unit--small;
 
                 white-space: nowrap;
-                font-size: $dp-token-font-size-smaller;
+                font-size: $dp-font-size-smaller;
             }
 
             &__content {
@@ -786,7 +786,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__measure-hint {
             display: block;
 
-            font-size: $dp-token-font-size-smaller;
+            font-size: $dp-font-size-smaller;
 
             .is-hidden {
                 display: none;

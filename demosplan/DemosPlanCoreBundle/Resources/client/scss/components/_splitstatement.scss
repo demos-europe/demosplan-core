@@ -167,7 +167,7 @@
         // Handle for setting the text selection range
         .range-handle {
             position: relative;
-            font-size: $dp-token-font-size-large;
+            font-size: $dp-font-size-large;
             color: $dp-color-interactive-default;
 
             &::before {

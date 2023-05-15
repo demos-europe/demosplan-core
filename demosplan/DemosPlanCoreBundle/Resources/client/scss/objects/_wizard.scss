@@ -14,7 +14,7 @@
     padding-bottom: $inuit-base-spacing-unit--small;
 
     &__trigger {
-        @include inuit-font-size($dp-token-font-size-large);
+        @include inuit-font-size($dp-font-size-large);
         bottom: $inuit-base-spacing-unit--small;
         position: absolute;
         right: 0;
@@ -27,7 +27,7 @@
     }
 
     &__trigger-icon {
-        @include inuit-font-size($dp-token-font-size-large);
+        @include inuit-font-size($dp-font-size-large);
         vertical-align: middle;
 
         line-height: 0;

@@ -22,7 +22,7 @@
     $pageheader-color:          $dp-token-color-brand-header-alt-contrast;
 
     // The title size in "robob-like" layouts is bigger than the default size.
-    $pageheader-title-size:     $dp-token-font-size-brand-header;
+    $pageheader-title-size:     $dp-font-size-header;
 
 
     background-color: $pageheader-bg-color;
@@ -48,7 +48,7 @@
 
     &__title {
         @include media-query('palm') {
-            @include inuit-font-size($dp-token-font-size-h2, 1.2);
+            @include inuit-font-size($dp-font-size-h2, 1.2);
         }
         @include media-query('lap-up') {
             @include inuit-font-size($pageheader-title-size, 1.3);
