@@ -44,29 +44,14 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     use TargetPathTrait;
 
     /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
-
-    /**
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * @var RequestStack
-     */
-    protected $requestStack;
-
-    /**
      * @var UrlGeneratorInterface
      */
     protected $urlGenerator;
-
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    protected $passwordHasher;
 
     /**
      * @var UserMapperInterface
@@ -91,39 +76,20 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
      */
     protected $messageBag;
 
-    /**
-     * @var ValidatorInterface
-     */
-    protected $passwordValidator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
 
     public function __construct(
         private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         UserMapperInterface $authenticator,
-        GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MessageBagInterface $messageBag,
-        PasswordValidator $passwordValidator,
-        RequestStack $requestStack,
         TraceableEventDispatcher $eventDispatcher,
-        TranslatorInterface $translator,
         UrlGeneratorInterface $urlGenerator,
-        UserPasswordHasherInterface $passwordHasher
     ) {
         $this->userMapper = $authenticator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->globalConfig = $globalConfig;
         $this->logger = $logger;
-        $this->passwordHasher = $passwordHasher;
-        $this->passwordValidator = $passwordValidator;
-        $this->requestStack = $requestStack;
         $this->urlGenerator = $urlGenerator;
         $this->messageBag = $messageBag;
-        $this->translator = $translator;
     }
 
     abstract protected function getCredentials(Request $request): Credentials;
@@ -149,8 +115,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
     /**
      * This Hook might be used to validate Requirements to the credentials
-     * that are specific to a distinct authentication like rules for
-     * password strength.
+     * that are specific to a distinct authentication method.
      */
     public function validateCredentials(Credentials $credentials): void
     {
