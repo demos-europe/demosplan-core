@@ -450,7 +450,7 @@ export default {
     },
 
     storageKeyPagination () {
-      return `${this.currentUserId}-paginationStatementList`
+      return `${this.currentUserId}:paginationStatementList`
     }
   },
 

@@ -409,7 +409,7 @@ export default {
     },
 
     storageKeyPagination () {
-      return `${this.currentUserId}-paginationSegmentsList`
+      return `${this.currentUserId}:paginationSegmentsList`
     }
   },
 
