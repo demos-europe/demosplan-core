@@ -428,7 +428,7 @@ export default {
 
     ...mapMutations('segmentfilter', ['updateFilterQuery']),
 
-    applyQuery (page, isOnMountedRequest = false) {
+    applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
