@@ -135,7 +135,6 @@
             <div
               v-tooltip="internId"
               class="o-hellip--nowrap text--right"
-              dir="rtl"
               v-text="internId" />
           </div>
         </template>
