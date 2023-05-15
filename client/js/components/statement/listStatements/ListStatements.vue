@@ -641,7 +641,7 @@ export default {
       return formatDate(d)
     },
 
-    getItemsByPage (page, isOnMountedRequest = false) {
+    getItemsByPage (page) {
       this.fetchStatements({
         page: {
           number: page,
@@ -704,21 +704,13 @@ export default {
         }
       }).then((data) => {
         /**
-         * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
-         * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
-         * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
+         * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
          */
         const paginationData = { currentPage: data.meta.pagination.current_page, perPage: data.meta.pagination.per_page }
-        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage[this.storageKeyPagination] === false) {
-          window.sessionStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
-          data.meta.pagination.current_page = window.sessionStorage.getItem(this.storageKeyPagination)
-        }
-        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage[this.storageKeyPagination] === true) {
-          window.sessionStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
-        }
+        window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
 
         this.setNumSelectableItems(data)
-        this.initPagination(data)
+        this.updatePagination(data)
       })
     },
 
@@ -847,17 +839,19 @@ export default {
       }
     },
 
-    initPagination (data) {
-      const dataPag = data.meta.pagination
-      const currentPage = Number(JSON.parse(window.sessionStorage.getItem([this.storageKeyPagination])).currentPage)
-      const perPage = Number(JSON.parse(window.sessionStorage.getItem([this.storageKeyPagination])).perPage)
+    /**
+     * Set pagination for current page and items per page to default or stored values
+     */
+    initPagination () {
+      let currentPage = 1
+      let perPage = 10
+      if (window.localStorage.getItem(this.storageKeyPagination)) {
+        currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
+        perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
+      }
       this.pagination = {
-        count: dataPag.count,
         currentPage: currentPage,
-        limits: [10, 25, 50, 100],
-        perPage: perPage,
-        total: dataPag.total,
-        totalPages: dataPag.total_pages
+        perPage: perPage
       }
     },
 
@@ -901,6 +895,20 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    updatePagination (data) {
+      const dataPag = data.meta.pagination
+      const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
+      const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
+      this.pagination = {
+        count: dataPag.count,
+        currentPage: currentPage,
+        limits: [10, 25, 50, 100],
+        perPage: perPage,
+        total: dataPag.total,
+        totalPages: dataPag.total_pages
+      }
     }
   },
 
@@ -911,7 +919,8 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1, true)
+    this.initPagination()
+    this.getItemsByPage(this.pagination.currentPage)
   }
 }
 </script>
