@@ -327,10 +327,10 @@ class NewsRepository extends CoreRepository implements ArrayInterface
                         );
                     }
                 }
-                $news->addRoles($allRolesForSelectedGroups);
+                $news->setRoles($allRolesForSelectedGroups);
             }
         } else {
-            $news->addRoles([]);
+            $news->setRoles([]);
         }
 
         return $news;

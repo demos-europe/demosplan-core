@@ -535,7 +535,7 @@ class News extends CoreEntity implements UuidEntityInterface
      *
      * @return News
      */
-    public function addRoles($roles)
+    public function setRoles($roles)
     {
         $this->roles = new ArrayCollection($roles);
 

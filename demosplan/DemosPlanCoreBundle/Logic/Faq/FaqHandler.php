@@ -279,7 +279,7 @@ class FaqHandler extends CoreHandler
             $faq->setEnabled(false);
         }
         $roles = $this->roleHandler->getUserRolesByGroupCodes($data['r_group_code']);
-        $faq->addRoles($roles);
+        $faq->setRoles($roles);
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $category = $this->faqService->getFaqCategory($data['r_category_id'], $currentCustomer);
         if ($category instanceof FaqCategory) {
@@ -553,7 +553,7 @@ class FaqHandler extends CoreHandler
                     });
                 }
             }
-            $faqEntity->addRoles($currentRoles->getValues());
+            $faqEntity->setRoles($currentRoles->getValues());
         };
     }
 }

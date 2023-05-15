@@ -212,7 +212,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
      */
     protected function generateObjectValuesForRoles($globalContent, array $data)
     {
-        $globalContent->addRoles([]);
+        $globalContent->setRoles([]);
 
         if (array_key_exists('group_code', $data)) {
             if (is_array($data['group_code'])) {
@@ -226,7 +226,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                         $allRolesForSelectedGroups[] = $role;
                     }
                 }
-                $globalContent->addRoles($allRolesForSelectedGroups);
+                $globalContent->setRoles($allRolesForSelectedGroups);
             }
         }
     }

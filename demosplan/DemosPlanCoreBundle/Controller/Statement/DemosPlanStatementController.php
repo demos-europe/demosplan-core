@@ -729,7 +729,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['list']['votedStatements'] = $votedStatements;
 
         // Setze ein Flag für den Bürger, damit die richtige Druckversion benutzt wird
-        $templateVars['isCitizen'] === $user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1;
+        $templateVars['isCitizen'] = $user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1;
 
         // kontextuelle Hilfe
         if ($user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1) {
@@ -1465,7 +1465,7 @@ class DemosPlanStatementController extends BaseController
     ): RedirectResponse {
         $user = $this->currentUser->getUser();
 
-        if ($user->hasRole(Role::CITIZEN)&& count($user->getRoles()) === 1) {
+        if (!$user->hasRole(Role::CITIZEN) || count($user->getRoles()) > 1) {
             $this->permissions->checkPermission(
                 'feature_statements_released_group_submit'
             );
@@ -1517,7 +1517,7 @@ class DemosPlanStatementController extends BaseController
     ) {
         $user = $this->currentUser->getUser();
 
-        if ($user->hasRole(Role::CITIZEN) && count($user->getRoles()) === 1) {
+        if (!$user->hasRole(Role::CITIZEN) || count($user->getRoles()) > 1) {
             $this->permissions->checkPermission(
                 'feature_statements_released_group_submit'
             );
