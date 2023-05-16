@@ -236,6 +236,9 @@ export default {
 
   mounted () {
     this.getInitialData()
+      .then(response => {
+        this.submittedDate = response.included[0].attributes.created ? response.included[0].attributes.created : ''
+      })
   }
 }
 </script>
