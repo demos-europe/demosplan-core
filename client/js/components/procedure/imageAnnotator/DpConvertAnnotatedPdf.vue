@@ -197,8 +197,6 @@ export default {
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = { ...this.formValues, text: this.document.attributes.text }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
-      const file = documentResponse.data.included.filter(el => el.type === 'File')[0]
-      this.formValues.submittedDate = dayjs(file.attributes.created).format('DD.MM.YYYY')
       this.isLoading = false
     },
 
