@@ -492,7 +492,7 @@ export default {
       isLoading: false,
       isSaving: false,
       values: {
-        authoredDate: this.initialAuthoredDate,
+        authoredDate: this.values.submitter.date ? this.values.submitter.date : '',
         memo: '',
         submittedDate: '',
         tags: [],
@@ -506,10 +506,6 @@ export default {
     escapedUsedInternIds () {
       const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
       return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
-    },
-
-    initialAuthoredDate () {
-      return this.values.submitter.date ? this.values.submitter.date : ''
     },
 
     internIdsPattern () {
@@ -568,7 +564,7 @@ export default {
      */
     setInstitutionValue (val) {
       this.$nextTick(() => {
-        this.$set(this.values.submitter, 'institution',  val)
+        this.$set(this.values.submitter, 'institution', val)
       })
     },
 
