@@ -492,7 +492,7 @@ export default {
       isLoading: false,
       isSaving: false,
       values: {
-        authoredDate: '',
+        authoredDate: this.initialAuthoredDate,
         memo: '',
         submittedDate: '',
         tags: [],
@@ -503,6 +503,15 @@ export default {
   },
 
   computed: {
+    escapedUsedInternIds () {
+      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
+      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
+    },
+
+    initialAuthoredDate () {
+      return this.values.submitter.date ? this.values.submitter.date : ''
+    },
+
     internIdsPattern () {
       let pattern = ''
       if (this.escapedUsedInternIds.length > 0) {
@@ -510,11 +519,6 @@ export default {
       }
       pattern = pattern + '[0-9a-zA-Z-_ /().?!,+*#äüöß]{1,}$'
       return pattern
-    },
-
-    escapedUsedInternIds () {
-      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
-      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
     },
 
     nowDate () {
