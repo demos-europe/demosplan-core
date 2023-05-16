@@ -500,7 +500,7 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then(data => {
+        .finally(() => {
           this.isLoading = false
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
