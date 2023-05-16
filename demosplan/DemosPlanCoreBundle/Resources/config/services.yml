@@ -34,8 +34,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface: '@demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -67,10 +66,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
         class: demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator
 
-    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
-        class: demosplan\DemosPlanCoreBundle\Logic\FileService
-        arguments:
-            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
+    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\FileService'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
@@ -682,8 +678,8 @@ services:
 
 
     demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
-        calls:
-            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
