@@ -66,6 +66,7 @@ services:
     demosplan\DemosPlanCoreBundle\ResourceTypes\:
         resource: '../../../../demosplan/DemosPlanCoreBundle/ResourceTypes'
         autowire: true
+        public: true
         tags: ['dplan.resourceType']
 
 ############### Event Subscriber
