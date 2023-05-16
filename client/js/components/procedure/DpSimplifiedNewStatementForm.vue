@@ -492,7 +492,7 @@ export default {
       isLoading: false,
       isSaving: false,
       values: {
-        authoredDate: this.values.submitter.date ? this.values.submitter.date : '',
+        authoredDate: '',
         memo: '',
         submittedDate: '',
         tags: [],
@@ -554,6 +554,9 @@ export default {
         this.$set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
           this.$set(this.values.submitter, key, value)
+            if(key === 'date' && value !== '') {
+              this.values.authoredDate = this.values.submitter.date
+            }
         }
       }
     },
