@@ -4982,16 +4982,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.5.1",
+            "version": "7.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "b964ca597e86b752cd994f27293e9fa6b6a95ed9"
+                "reference": "733dd89533dd371a0987172727df15f500dab0ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b964ca597e86b752cd994f27293e9fa6b6a95ed9",
-                "reference": "b964ca597e86b752cd994f27293e9fa6b6a95ed9",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/733dd89533dd371a0987172727df15f500dab0ef",
+                "reference": "733dd89533dd371a0987172727df15f500dab0ef",
                 "shasum": ""
             },
             "require": {
@@ -5022,9 +5022,6 @@
                 "bamarni-bin": {
                     "bin-links": true,
                     "forward-command": false
-                },
-                "branch-alias": {
-                    "dev-master": "7.5-dev"
                 }
             },
             "autoload": {
@@ -5090,7 +5087,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.5.1"
+                "source": "https://github.com/guzzle/guzzle/tree/7.6.0"
             },
             "funding": [
                 {
@@ -5106,7 +5103,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-17T16:30:08+00:00"
+            "time": "2023-05-14T11:23:39+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -9584,16 +9581,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.20.2",
+            "version": "1.20.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "90490bd8fd8530a272043c4950c180b6d0cf5f81"
+                "reference": "7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/90490bd8fd8530a272043c4950c180b6d0cf5f81",
-                "reference": "90490bd8fd8530a272043c4950c180b6d0cf5f81",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd",
+                "reference": "7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd",
                 "shasum": ""
             },
             "require": {
@@ -9623,9 +9620,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.20.2"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.20.4"
             },
-            "time": "2023-04-22T12:59:35+00:00"
+            "time": "2023-05-02T09:19:37+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -19225,21 +19222,21 @@
         },
         {
             "name": "liip/functional-test-bundle",
-            "version": "4.9.0",
+            "version": "4.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipFunctionalTestBundle.git",
-                "reference": "782586afa58080c27b5557fbff7239f87a747b1d"
+                "reference": "5658b8a2781e12c2d195a83111e171d659f1fdf9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/782586afa58080c27b5557fbff7239f87a747b1d",
-                "reference": "782586afa58080c27b5557fbff7239f87a747b1d",
+                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/5658b8a2781e12c2d195a83111e171d659f1fdf9",
+                "reference": "5658b8a2781e12c2d195a83111e171d659f1fdf9",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2 || ^8.0",
-                "phpunit/phpunit": "^7.5.0 || ^8.0 || ^9.0 || ^10.0",
+                "php": "^7.4 || ^8.0",
+                "phpunit/phpunit": "^9.6 || ^10.0",
                 "symfony/browser-kit": "^4.4 || ^5.1 || ^6.0",
                 "symfony/framework-bundle": "^4.4 || ^5.1 || ^6.0"
             },
@@ -19299,9 +19296,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipFunctionalTestBundle/issues",
-                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.9.0"
+                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.10.0"
             },
-            "time": "2023-04-11T18:57:22+00:00"
+            "time": "2023-05-14T22:03:34+00:00"
         },
         {
             "name": "liip/test-fixtures-bundle",
@@ -20236,16 +20233,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.7",
+            "version": "9.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c993f0d3b0489ffc42ee2fe0bd645af1538a63b2"
+                "reference": "17d621b3aff84d0c8b62539e269e87d8d5baa76e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c993f0d3b0489ffc42ee2fe0bd645af1538a63b2",
-                "reference": "c993f0d3b0489ffc42ee2fe0bd645af1538a63b2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/17d621b3aff84d0c8b62539e269e87d8d5baa76e",
+                "reference": "17d621b3aff84d0c8b62539e269e87d8d5baa76e",
                 "shasum": ""
             },
             "require": {
@@ -20319,7 +20316,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.7"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.8"
             },
             "funding": [
                 {
@@ -20335,7 +20332,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-14T08:58:40+00:00"
+            "time": "2023-05-11T05:14:45+00:00"
         },
         {
             "name": "psalm/plugin-symfony",
@@ -20763,16 +20760,16 @@
         },
         {
             "name": "sebastian/diff",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/diff.git",
-                "reference": "3461e3fccc7cfdfc2720be910d3bd73c69be590d"
+                "reference": "74be17022044ebaaecfdf0c5cd504fc9cd5a7131"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/3461e3fccc7cfdfc2720be910d3bd73c69be590d",
-                "reference": "3461e3fccc7cfdfc2720be910d3bd73c69be590d",
+                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/74be17022044ebaaecfdf0c5cd504fc9cd5a7131",
+                "reference": "74be17022044ebaaecfdf0c5cd504fc9cd5a7131",
                 "shasum": ""
             },
             "require": {
@@ -20817,7 +20814,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/diff/issues",
-                "source": "https://github.com/sebastianbergmann/diff/tree/4.0.4"
+                "source": "https://github.com/sebastianbergmann/diff/tree/4.0.5"
             },
             "funding": [
                 {
@@ -20825,7 +20822,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T13:10:38+00:00"
+            "time": "2023-05-07T05:35:17+00:00"
         },
         {
             "name": "sebastian/environment",
