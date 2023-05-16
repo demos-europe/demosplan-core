@@ -65,7 +65,6 @@
 
 <script>
 import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
-import dayjs from 'dayjs'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
