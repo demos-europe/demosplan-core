@@ -65,6 +65,7 @@
 
 <script>
 import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import dayjs from 'dayjs'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
@@ -196,6 +197,8 @@ export default {
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = { ...this.formValues, text: this.document.attributes.text }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
+      const file = documentResponse.data.included.filter(el => el.type === 'File')[0]
+      this.formValues.submittedDate = dayjs(file.attributes.created).format('DD.MM.YYYY')
       this.isLoading = false
     },
 
@@ -236,9 +239,6 @@ export default {
 
   mounted () {
     this.getInitialData()
-      .then(response => {
-        this.submittedDate = response.included[0].attributes.created ? response.included[0].attributes.created : ''
-      })
   }
 }
 </script>
