@@ -500,8 +500,7 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .finally(() => {
-          this.isLoading = false
+        .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
@@ -520,6 +519,9 @@ export default {
               StatementSegment: ['id'].join()
             }
           })
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
