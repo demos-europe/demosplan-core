@@ -78,9 +78,9 @@
                         <a
                             href="#"
                             @click.stop.prevent="$refs.filterModal.toggle()"
-                            class="{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length > 0 %}color--highlight{% endif %}"
+                            class="{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length > 0 %}color-highlight{% endif %}"
                         >
-                            <i class="fa fa-lg fa-filter{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length %} color--highlight{% endif %}"></i>
+                            <i class="fa fa-lg fa-filter{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length %} color-highlight{% endif %}"></i>
                             {{ 'filter.verb'|trans }}
                         </a>
 

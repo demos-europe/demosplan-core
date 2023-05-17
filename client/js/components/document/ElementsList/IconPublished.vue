@@ -12,8 +12,8 @@
     <i
       class="fa cursor--help"
       :class="{
-        'fa-check color--system-confirm': published,
-        'fa-times-circle color--system-error': published === false
+        'fa-check color-message-success-fill': published,
+        'fa-times-circle color-message-severe-fill': published === false
       }"
       aria-hidden="true"
       v-tooltip="text"

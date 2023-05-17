@@ -60,7 +60,7 @@
                             {{ "explanation.voting.online"|trans|wysiwyg }}
                         </p>
                         <p class="layout__item u-1-of-2 u-pl-0 u-nojs-show--block">
-                            Sie können insgesamt <span class="color--system-confirm">{{ templateVars.limitForVotes|default(3) }} Punkte</span> verteilen.
+                            Sie können insgesamt <span class="color-message-success-text">{{ templateVars.limitForVotes|default(3) }} Punkte</span> verteilen.
                         </p>
                         <input class="btn btn--primary float--right" type="submit" name="resetVotes" value="Punkte zurücksetzen">
                         <p class="layout__item u-1-of-2 u-pl-0 u-mb" id="js__statusVotesLeft"></p>
@@ -142,15 +142,15 @@
                     votesLeft -= $(this).rateit('value');
                 });
                 if (votesLeft >= 0) {
-                    votesText = "Sie können noch <span class='color--system-confirm'>" + votesLeft + " Punkte</span> vergeben ";
+                    votesText = "Sie können noch <span class='color-message-success-text'>" + votesLeft + " Punkte</span> vergeben ";
                 } else {
-                    votesText = "Sie haben <span class='color--system-error'>" + (votesLeft * -1) + " Punkte</span> zu viel verteilt ";
+                    votesText = "Sie haben <span class='color-message-severe-text'>" + (votesLeft * -1) + " Punkte</span> zu viel verteilt ";
                 }
 
                 //display voteicons
                 for (var i = 0; i < maxVotes; i++) {
                     if (i < votesLeft) {
-                        votesText += '<i class="fa fa-circle color-brand-highlight"></i>\n';
+                        votesText += '<i class="fa fa-circle color-highlight"></i>\n';
                     }
                 }
                 $('#js__statusVotesLeft').html(votesText);

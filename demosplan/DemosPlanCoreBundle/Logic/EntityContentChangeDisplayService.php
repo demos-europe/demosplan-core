@@ -207,8 +207,8 @@ class EntityContentChangeDisplayService extends CoreService
                 '<del>',
             ],
             [
-                '<ins class=\"bg-color--system-info-light-1\">',
-                '<del class=\"bg-color--system-warning-light\">',
+                '<ins class=\"bg-color-text-inserted\">',
+                '<del class=\"bg-color-text-deleted\">',
             ],
             $jsonString
         );

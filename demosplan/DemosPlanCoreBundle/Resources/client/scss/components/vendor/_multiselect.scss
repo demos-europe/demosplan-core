@@ -21,8 +21,8 @@
 
 //  variables
 $dp-multiselect-color-highlight:                    $dp-color-highlight !default;
-$dp-multiselect-color-dark:                         $dp-color-main--dark !default;
-$dp-multiselect-color-dark-disabled:                $dp-color-neutral-dark-2 !default;
+$dp-multiselect-color-dark:                         $dp-color-text-default !default;
+$dp-multiselect-color-dark-disabled:                $dp-color-text-muted !default;
 
 $dp-multiselect-color-border:                       $dp-color-neutral-light-1 !default;
 $dp-multiselect-color-border-hover:                 $dp-color-neutral-light-2 !default;
@@ -40,8 +40,8 @@ $dp-multiselect-color-option-disabled-highlight:    #dedede !default;
 
 $dp-multiselect-font-size:                          $base-font-size !default;
 $dp-multiselect-line-height:                        $base-line-height !default;
-$dp-multiselect-border-radius-outer:                $dp-token-rounded-small;
-$dp-multiselect-border-radius-inner:                $dp-token-rounded-smallest;
+$dp-multiselect-border-radius-outer:                $dp-rounded-small;
+$dp-multiselect-border-radius-inner:                $dp-rounded-smallest;
 $dp-multiselect-arrow-area-width:                   40px;
 
 fieldset[disabled] .multiselect {
@@ -127,7 +127,7 @@ fieldset[disabled] .multiselect {
 
 .multiselect.is-invalid {
     outline: none;
-    box-shadow: 0 0 0 2px $dp-color-system-error;
+    box-shadow: 0 0 0 2px $dp-color-status-failed-border;
     border-radius: $dp-multiselect-border-radius-outer;
 }
 
@@ -287,7 +287,7 @@ fieldset[disabled] .multiselect {
 
 .multiselect__tag-icon:focus,
 .multiselect__tag-icon:hover {
-    background: $dp-token-color-brand-highlight;
+    background: $dp-color-highlight;
 }
 
 .multiselect__tag-icon:focus::after,
