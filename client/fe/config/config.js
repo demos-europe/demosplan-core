@@ -78,6 +78,9 @@ class Config {
           /color-ui-.+/,
           /tabs-component.*/
         ],
+        deep: [
+          /split-statement/
+        ],
         greedy: [
           /tooltip/
         ]
