@@ -27,19 +27,28 @@ export default {
 
     /**
      * Update pagination with data from the DB and local Storage.
-     * @param {object} pagination - Pagination data from the DB via API.
+     * @param {object} data - Pagination data from the DB via API.
      */
-    updatePagination (pagination) {
+    updatePagination (data) {
       const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
       const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
       this.pagination = {
-        count: pagination.count,
+        count: data.count,
         currentPage: currentPage,
         limits: this.defaultPagination.limits,
         perPage: perPage,
-        total: pagination.total,
-        totalPages: pagination.total_pages
+        total: data.total,
+        totalPages: data.total_pages
       }
+    },
+
+    /**
+     * Set local storage for pagination.
+     * @param {object} data - Pagination data from the DB via API.
+     */
+    setLocalStorage (data) {
+      const paginationData = { currentPage: data.current_page, perPage: data.per_page }
+      window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
     }
   }
 }

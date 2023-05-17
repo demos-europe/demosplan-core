@@ -415,7 +415,7 @@ export default {
     },
 
     storageKeyPagination () {
-      return `${this.currentUserId}:paginationSegmentsList`
+      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
     }
   },
 
@@ -510,8 +510,7 @@ export default {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          const paginationData = { currentPage: data.meta.pagination.current_page, perPage: data.meta.pagination.per_page }
-          window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
+          this.setLocalStorage(data.meta.pagination)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
