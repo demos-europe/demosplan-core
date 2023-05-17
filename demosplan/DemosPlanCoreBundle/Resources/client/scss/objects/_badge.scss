@@ -33,13 +33,13 @@
 
     // Size variant: default
     &:not(.o-badge--small) {
-        @include inuit-font-size($dp-token-font-size-small, $dp-token-font-size-small);
+        @include inuit-font-size($dp-font-size-small, $dp-font-size-small);
         padding: 5px 9px;
     }
 
     // Size variant: small
     &--small {
-        @include inuit-font-size($dp-token-font-size-smaller, $dp-token-font-size-smaller);
+        @include inuit-font-size($dp-font-size-smaller, $dp-font-size-smaller);
         padding: 3px 7px;
     }
 }
@@ -72,7 +72,7 @@
 
 .o-badge--light {
     background-color: $dp-color-neutral-light-3;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 }
 
 .o-badge--dark {
@@ -85,7 +85,7 @@
 }
 
 .o-badge--alert {
-    background-color: $dp-color-system-error;
+    background-color: $dp-color-message-severe-fill;
     color: $dp-color-white;
 }
 

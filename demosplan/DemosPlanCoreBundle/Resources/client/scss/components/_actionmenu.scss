@@ -102,7 +102,7 @@
         @extend %btn-base;
 
         background-color: transparent;
-        color: $dp-token-color-brand-link;
+        color: $dp-color-interactive-default;
         outline: 0;
 
         text-align: left;
@@ -145,7 +145,7 @@
         padding-top: 10px;
 
         background-color: $dp-color-white;
-        box-shadow: $dp-token-box-shadow-1;
+        box-shadow: $dp-box-shadow-1;
 
         // Keep long words like "Planfeststellungsverfahren" on one line
         hyphens: none;
@@ -167,11 +167,11 @@
 
         &:hover,
         &.is-active {
-            color: $dp-token-color-brand-link-hover;
+            color: $dp-color-interactive-hover;
         }
 
         &[data-actionmenu-current] {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         // The active menu item shall not be interactive

@@ -14,9 +14,9 @@
 //  @improve T13061
 
 .c-flyout {
-    $flyout-trigger-color: $dp-token-color-brand-link;
-    $flyout-trigger-color-hover: $dp-token-color-brand-link-hover;
-    $flyout-trigger-color-focus: $dp-token-color-brand-highlight;
+    $flyout-trigger-color: $dp-color-interactive-default;
+    $flyout-trigger-color-hover: $dp-color-interactive-hover;
+    $flyout-trigger-color-focus: $dp-color-highlight;
 
 
     position: relative;
@@ -115,7 +115,7 @@
         display: none;
 
         background-color: $dp-color-neutral-dark-2;
-        color: $alternate-font-color;
+        color: $dp-color-text-on-dark;
 
         // Show tooltip content on :hover of parent element, set z-index to trump other tooltips.
         // The flyout is activated on :hover and via data-touch-flyout javascript hook.
