@@ -75,7 +75,7 @@ class Config {
           /ol-.+/,
           /plyr-.+/,
           /uppy-.+/,
-          /color-ui-.+/,
+          /color-.+/,
           /tabs-component.*/
         ],
         deep: [

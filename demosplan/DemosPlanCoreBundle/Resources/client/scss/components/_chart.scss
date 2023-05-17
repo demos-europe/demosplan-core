@@ -57,14 +57,14 @@
         padding-left: 7px;
 
         background-color: transparent;
-        color: $default-font-color;
+        color: $dp-color-text-default;
 
         text-align: left;
     }
 
     &__legend-content {
         background-color: transparent;
-        border-top: $dp-border-thickness solid $default-border-color;
+        border-top: $dp-border-thickness solid $dp-color-border-default;
         transition: background-color #{$transition-speed-style-delay};
 
         & .is-hidden {
@@ -74,7 +74,7 @@
 
         &.highlight-row,
         &:hover {
-            background-color: $dp-token-color-ui-bg-neutral-medium;
+            background-color: $dp-color-background-medium;
 
             .is-hidden {
                 opacity: 1;
@@ -82,37 +82,37 @@
         }
     }
 
-    &__color-11-1 { color: $dp-color-data-11-1; }
-    &__color-11-2 { color: $dp-color-data-11-2; }
-    &__color-11-3 { color: $dp-color-data-11-3; }
-    &__color-11-4 { color: $dp-color-data-11-4; }
-    &__color-11-5 { color: $dp-color-data-11-5; }
-    &__color-11-6 { color: $dp-color-data-11-6; }
-    &__color-11-7 { color: $dp-color-data-11-7; }
-    &__color-11-8 { color: $dp-color-data-11-8; }
-    &__color-11-9 { color: $dp-color-data-11-9; }
-    &__color-11-10 { color: $dp-color-data-11-10; }
-    &__color-11-11 { color: $dp-color-data-11-11; }
+    &__color-11-1 { color: $dp-color-11-1; }
+    &__color-11-2 { color: $dp-color-11-2; }
+    &__color-11-3 { color: $dp-color-11-3; }
+    &__color-11-4 { color: $dp-color-11-4; }
+    &__color-11-5 { color: $dp-color-11-5; }
+    &__color-11-6 { color: $dp-color-11-6; }
+    &__color-11-7 { color: $dp-color-11-7; }
+    &__color-11-8 { color: $dp-color-11-8; }
+    &__color-11-9 { color: $dp-color-11-9; }
+    &__color-11-10 { color: $dp-color-11-10; }
+    &__color-11-11 { color: $dp-color-11-11; }
 
-    &__color-8-1 { color: $dp-color-data-8-1; }
-    &__color-8-2 { color: $dp-color-data-8-2; }
-    &__color-8-3 { color: $dp-color-data-8-3; }
-    &__color-8-4 { color: $dp-color-data-8-4; }
-    &__color-8-5 { color: $dp-color-data-8-5; }
-    &__color-8-6 { color: $dp-color-data-8-6; }
-    &__color-8-7 { color: $dp-color-data-8-7; }
-    &__color-8-8 { color: $dp-color-data-8-8; }
+    &__color-8-1 { color: $dp-color-8-1; }
+    &__color-8-2 { color: $dp-color-8-2; }
+    &__color-8-3 { color: $dp-color-8-3; }
+    &__color-8-4 { color: $dp-color-8-4; }
+    &__color-8-5 { color: $dp-color-8-5; }
+    &__color-8-6 { color: $dp-color-8-6; }
+    &__color-8-7 { color: $dp-color-8-7; }
+    &__color-8-8 { color: $dp-color-8-8; }
 
-    &__color-6-1 { color: $dp-color-data-6-1; }
-    &__color-6-2 { color: $dp-color-data-6-2; }
-    &__color-6-3 { color: $dp-color-data-6-3; }
-    &__color-6-4 { color: $dp-color-data-6-4; }
-    &__color-6-5 { color: $dp-color-data-6-5; }
-    &__color-6-6 { color: $dp-color-data-6-6; }
+    &__color-6-1 { color: $dp-color-6-1; }
+    &__color-6-2 { color: $dp-color-6-2; }
+    &__color-6-3 { color: $dp-color-6-3; }
+    &__color-6-4 { color: $dp-color-6-4; }
+    &__color-6-5 { color: $dp-color-6-5; }
+    &__color-6-6 { color: $dp-color-6-6; }
 
-    &__color-3-1 { color: $dp-color-data-3-1; }
-    &__color-3-2 { color: $dp-color-data-3-2; }
-    &__color-3-3 { color: $dp-color-data-3-3; }
+    &__color-3-1 { color: $dp-color-3-1; }
+    &__color-3-2 { color: $dp-color-3-2; }
+    &__color-3-3 { color: $dp-color-3-3; }
 
-    &__color-active { color: $dp-chart-color-active; }
+    &__color-active { color: $dp-color-highlight; }
 }

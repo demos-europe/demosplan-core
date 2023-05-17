@@ -15,8 +15,7 @@
 // Settings: Global variables, site-wide settings, config switches, etc.
 // Tools: Site-wide mixins and functions.
 // Generic: Low-specificity, far-reaching rulesets (e.g. resets).
-// Base: Unclassed HTML elements (e.g. a {}, blockquote {}, address {}).
-// Token: Like utility, but more abstract. These are the smallest units of the "demosplan style".
+// Base: HTML elements (e.g. a {}, blockquote {}, address {}).
 // Objects: Objects, abstractions, and design patterns (e.g. .media {}).
 // Components: Discrete, complete chunks of UI (e.g. .carousel {}).
 // Utility: High-specificity, very explicit selectors. Overrides and helper classes (e.g. .hidden {}).
@@ -24,13 +23,10 @@
 // Read more about inuit: https://github.com/inuitcss/inuitcss
 
 
-// This file is imported from <project>/src/demosplanProject/DemosPlanProjectCoreBundle/Resources/client/scss/style.scss
+// This file is imported from projects/<project>/app/Resources/DemosPlanCoreBundle/client/scss/style.scss
 // after importing the following files, which declare all variables needed for project specific style compilation:
-//
-// - settings-color-palette.project.dplan
-// - <core>/settings-color-palette.dplan
-// - settings-color-assignment.project.dplan
-// - <core>/settings-color-assignment.dplan
+// - settings-color.project.dplan
+// - <core>/settings-color.dplan
 // - settings-fonts.project.dplan
 // - <core>/settings-fonts.dplan
 // - settings.project.dplan
@@ -39,10 +35,15 @@
 // @TODO make purgeCss work for tailwind styles. After that, we can start adopting tailwind in demosPlan.
 // @import url('~demosplan-ui/style/style.css');
 
-// Design tokens - the visual atoms of the design system.
+// Design tokens - the visual atoms of the demosplan-ui design system.
 // The files are included here to make tokens available to objects and components.
-@import 'token/index';
+// Color tokens are imported within _settings-color.dplan.sss.
+// Color tokens may be overridden from within <project-scss-path>/settings-color.project.dplan
+@import '@demos-europe/demosplan-ui/tokens/scss/boxShadow';
+@import '@demos-europe/demosplan-ui/tokens/scss/fontSize';
+@import '@demos-europe/demosplan-ui/tokens/scss/rounded';
 
+// Base settings, sync inuit with demosplan settings
 @import 'settings.dplan';
 @import 'inuit-5/settings.defaults';
 
