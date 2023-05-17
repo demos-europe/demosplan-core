@@ -370,13 +370,14 @@ import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/Simila
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  orga: '',
-  department: '',
-  name: '',
-  email: '',
-  plz: '',
   city: '',
-  institution: false
+  date: '',
+  department: '',
+  email: '',
+  institution: false,
+  name: '',
+  orga: '',
+  plz: ''
 }
 
 export default {
@@ -554,8 +555,10 @@ export default {
         this.$set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
           this.$set(this.values.submitter, key, value)
+
+          // Synchronize values.authoredDate with the date value provided by data if date exists.
           if (key === 'date' && value) {
-            this.values.authoredDate = this.values.submitter.date
+            this.$set(this.values, 'authoredDate', value)
           }
         }
       }
