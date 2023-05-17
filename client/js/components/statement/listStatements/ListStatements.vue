@@ -297,6 +297,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
@@ -322,7 +323,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -355,6 +356,11 @@ export default {
   data () {
     return {
       claimLoadingIds: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -709,7 +715,7 @@ export default {
         window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
 
         this.setNumSelectableItems(data)
-        this.updatePagination(data)
+        this.updatePagination(data.meta.pagination)
       })
     },
 
@@ -838,22 +844,6 @@ export default {
       }
     },
 
-    /**
-     * Set pagination for current page and items per page to default or stored values
-     */
-    initPagination () {
-      let currentPage = 1
-      let perPage = 10
-      if (window.localStorage.getItem(this.storageKeyPagination)) {
-        currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
-        perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
-      }
-      this.pagination = {
-        currentPage: currentPage,
-        perPage: perPage
-      }
-    },
-
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
@@ -894,20 +884,6 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
-    },
-
-    updatePagination (data) {
-      const dataPag = data.meta.pagination
-      const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
-      const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
-      this.pagination = {
-        count: dataPag.count,
-        currentPage: currentPage,
-        limits: [10, 25, 50, 100],
-        perPage: perPage,
-        total: dataPag.total,
-        totalPages: dataPag.total_pages
-      }
     }
   },
 

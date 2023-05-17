@@ -252,6 +252,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 
 export default {
@@ -276,7 +277,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -312,6 +313,11 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -509,7 +515,7 @@ export default {
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
-          this.updatePagination(data)
+          this.updatePagination(data.meta.pagination)
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
@@ -567,22 +573,6 @@ export default {
       this.applyQuery(page)
     },
 
-    /**
-     * Set pagination for current page and items per page to default or stored values
-     */
-    initPagination () {
-      let currentPage = 1
-      let perPage = 10
-      if (window.localStorage.getItem(this.storageKeyPagination)) {
-        currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
-        perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
-      }
-      this.pagination = {
-        currentPage: currentPage,
-        perPage: perPage
-      }
-    },
-
     resetQuery () {
       this.searchTerm = ''
       this.$refs.customSearch.reset()
@@ -633,20 +623,6 @@ export default {
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
       this.$root.$emit('show-slidebar')
-    },
-
-    updatePagination (data) {
-      const dataPag = data.meta.pagination
-      const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
-      const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
-      this.pagination = {
-        count: dataPag.count,
-        currentPage: currentPage,
-        limits: [10, 25, 50, 100],
-        perPage: perPage,
-        total: dataPag.total,
-        totalPages: dataPag.total_pages
-      }
     },
 
     updateQueryHash () {
