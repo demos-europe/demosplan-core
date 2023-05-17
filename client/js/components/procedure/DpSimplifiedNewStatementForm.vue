@@ -373,8 +373,8 @@ const submitterProperties = {
   city: '',
   date: '',
   department: '',
-  institution: false,
   email: '',
+  institution: false,
   name: '',
   orga: '',
   plz: ''
