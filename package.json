@@ -127,7 +127,7 @@
     "babel-loader": "^9.1.2",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
-    "caniuse-lite": "^1.0.30001486",
+    "caniuse-lite": "^1.0.30001488",
     "chalk": "4.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cli-progress": "^3.12.0",
