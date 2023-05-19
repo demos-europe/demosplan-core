@@ -11,7 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,16 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_statement_meta")
  * @ORM\Entity
  */
-class StatementMeta extends CoreEntity implements UuidEntityInterface
+class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
 {
-    public const USER_GROUP = 'userGroup';
-    public const USER_ORGANISATION = 'userOrganisation';
-    public const USER_POSITION = 'userPosition';
-    public const USER_STATE = 'userState';
-    public const SUBMITTER_ROLE = 'submitterRole';
-    public const USER_PHONE = 'userPhone';
-    public const SUBMITTER_ROLE_CITIZEN = 'citizen';
-    public const SUBMITTER_ROLE_PUBLIC_AGENCY = 'publicagency';
     /**
      * @var string|null
      *
@@ -42,7 +36,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="meta", cascade={"persist"})
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
@@ -169,12 +163,12 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
 
     /**
      * Will be stored as JSON in DB with keys defined as constants:
-     * {@link StatementMeta::USER_GROUP},
-     * {@link StatementMeta::USER_ORGANISATION},
-     * {@link StatementMeta::USER_POSITION},
-     * {@link StatementMeta::USER_STATE},
-     * {@link StatementMeta::SUBMITTER_ROLE},
-     * {@link StatementMeta::USER_PHONE}.
+     * {@link StatementMetaInterface::USER_GROUP},
+     * {@link StatementMetaInterface::USER_ORGANISATION},
+     * {@link StatementMetaInterface::USER_POSITION},
+     * {@link StatementMetaInterface::USER_STATE},
+     * {@link StatementMetaInterface::SUBMITTER_ROLE},
+     * {@link StatementMetaInterface::USER_PHONE}.
      *
      * @var array|null
      *
@@ -203,9 +197,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     /**
      * Set author.
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
-    public function setStatement(Statement $statement)
+    public function setStatement(StatementInterface $statement)
     {
         $this->statement = $statement;
 
@@ -215,7 +209,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     /**
      * Get Statement.
      *
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -227,7 +221,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      */
     public function getStatementId()
     {
-        if (is_null($this->statementId) && $this->statement instanceof Statement) {
+        if (is_null($this->statementId) && $this->statement instanceof StatementInterface) {
             $this->statementId = $this->statement->getIdent();
         }
 
@@ -359,7 +353,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $caseWorkerName
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setCaseWorkerName($caseWorkerName)
     {
@@ -399,7 +393,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaStreet
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaStreet($orgaStreet)
     {
@@ -421,7 +415,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaPostalCode
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaPostalCode($orgaPostalCode)
     {
@@ -443,7 +437,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaCity
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaCity($orgaCity)
     {
@@ -465,7 +459,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaEmail
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaEmail($orgaEmail)
     {
@@ -551,7 +545,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @param string $key
      * @param mixed  $value
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setMiscDataValue($key, $value)
     {
