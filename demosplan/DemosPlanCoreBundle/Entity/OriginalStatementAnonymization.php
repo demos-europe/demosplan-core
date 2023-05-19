@@ -11,16 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository")
  */
-class OriginalStatementAnonymization
+class OriginalStatementAnonymization implements OriginalStatementAnonymizationInterface
 {
     /**
      * @var string
@@ -41,7 +42,7 @@ class OriginalStatementAnonymization
     protected $created;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="anonymizations")
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
@@ -50,7 +51,7 @@ class OriginalStatementAnonymization
     protected $statement;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false)
@@ -125,22 +126,22 @@ class OriginalStatementAnonymization
         $this->textPassagesAnonymized = $textPassagesAnonymized;
     }
 
-    public function getStatement(): Statement
+    public function getStatement(): StatementInterface
     {
         return $this->statement;
     }
 
-    public function setStatement(Statement $statement): void
+    public function setStatement(StatementInterface $statement): void
     {
         $this->statement = $statement;
     }
 
-    public function getCreatedBy(): User
+    public function getCreatedBy(): UserInterface
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(User $createdBy): void
+    public function setCreatedBy(UserInterface $createdBy): void
     {
         $this->createdBy = $createdBy;
     }
