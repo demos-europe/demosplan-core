@@ -11,7 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
@@ -32,23 +36,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
-class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
+class StatementFormDefinition extends CoreEntity implements UuidEntityInterface, StatementFormDefinitionInterface
 {
-    public const MAP_AND_COUNTY_REFERENCE = 'mapAndCountyReference';
-    public const COUNTY_REFERENCE = 'countyReference';
-    public const NAME = 'name';
-    public const POSTAL_AND_CITY = 'postalAndCity';
-    public const GET_EVALUATION_MAIL_VIA_EMAIL = 'getEvaluationMailViaEmail';
-    public const GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL = 'getEvaluationMailViaSnailMailOrEmail';
-
-    public const CITIZEN_XOR_ORGA_AND_ORGA_NAME = 'citizenXorOrgaAndOrgaName';
-    public const STREET = 'street';
-    public const STREET_AND_HOUSE_NUMBER = 'streetAndHouseNumber';
-    public const PHONE = 'phoneNumber';
-    public const EMAIL = 'emailAddress';
-    public const PHONE_OR_EMAIL = 'phoneOrEmail';
-    public const STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION = 'stateAndGroupAndOrgaNameAndPosition';
-
     /**
      * @var string|null
      *
@@ -81,7 +70,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     private $modificationDate;
 
     /**
-     * @var Collection<int, StatementFieldDefinition>
+     * @var Collection<int, StatementFieldDefinitionInterface>
      *
      * @ORM\OneToMany(
      *      targetEntity="StatementFieldDefinition",
@@ -100,7 +89,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * A StatementFormDefinition with a direct relation to a Procedure
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
-     * @var Procedure|null
+     * @var ProcedureInterface|null
      *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
      *
@@ -113,7 +102,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * it is copied from a StatementFormDefinition related to a ProcedureType and was attached to a Procedure.
      * Therefore a StatementFormDefinition without a ProcedureType will have a related Procedure.
      *
-     * @var ProcedureType|null
+     * @var ProcedureTypeInterface|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
      *
@@ -124,19 +113,19 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     public function __construct()
     {
         $fieldDefinitionsNames = [
-            self::MAP_AND_COUNTY_REFERENCE                    => ['enabled' => false,   'required' => false],
-            self::COUNTY_REFERENCE                            => ['enabled' => false,   'required' => false],
-            self::NAME                                        => ['enabled' => true,    'required' => true],
-            self::POSTAL_AND_CITY                             => ['enabled' => true,    'required' => false],
-            self::GET_EVALUATION_MAIL_VIA_EMAIL               => ['enabled' => true,    'required' => false],
-            self::GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL => ['enabled' => false,   'required' => false],
-            self::CITIZEN_XOR_ORGA_AND_ORGA_NAME              => ['enabled' => true,    'required' => true],
-            self::STREET                                      => ['enabled' => false,   'required' => false],
-            self::STREET_AND_HOUSE_NUMBER                     => ['enabled' => false,   'required' => false],
-            self::PHONE                                       => ['enabled' => false,   'required' => false],
-            self::EMAIL                                       => ['enabled' => true,    'required' => false],
-            self::PHONE_OR_EMAIL                              => ['enabled' => false,   'required' => false],
-            self::STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION  => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::MAP_AND_COUNTY_REFERENCE                    => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::COUNTY_REFERENCE                            => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::NAME                                        => ['enabled' => true,    'required' => true],
+            StatementFormDefinitionInterface::POSTAL_AND_CITY                             => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::GET_EVALUATION_MAIL_VIA_EMAIL               => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::CITIZEN_XOR_ORGA_AND_ORGA_NAME              => ['enabled' => true,    'required' => true],
+            StatementFormDefinitionInterface::STREET                                      => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::STREET_AND_HOUSE_NUMBER                     => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::PHONE                                       => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::EMAIL                                       => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::PHONE_OR_EMAIL                              => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION  => ['enabled' => false,   'required' => false],
         ];
 
         $this->fieldDefinitions = new ArrayCollection();
@@ -144,7 +133,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
 
         foreach ($fieldDefinitionsNames as $fieldDefinitionsName => $values) {
             $this->fieldDefinitions->add(
-                new StatementFieldDefinition($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required'])
+                new StatementFieldDefinitionInterface($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required'])
             );
             ++$orderNumber;
         }
@@ -159,20 +148,20 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int, StatementFieldDefinition>
+     * @return Collection<int, StatementFieldDefinitionInterface>
      */
     public function getEnabledFieldDefinitions(): Collection
     {
         return $this->fieldDefinitions->filter(
-            function (StatementFieldDefinition $fieldDefinition) {
+            function (StatementFieldDefinitionInterface $fieldDefinition) {
                 return $fieldDefinition->isEnabled();
             }
         );
     }
 
-    public function getFieldDefinitionByName(string $name): ?StatementFieldDefinition
+    public function getFieldDefinitionByName(string $name): ?StatementFieldDefinitionInterface
     {
-        /** @var StatementFieldDefinition $fieldDefinition */
+        /** @var StatementFieldDefinitionInterface $fieldDefinition */
         foreach ($this->getFieldDefinitions() as $fieldDefinition) {
             if ($fieldDefinition->getName() === $name) {
                 return $fieldDefinition;
@@ -201,7 +190,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getProcedure(): ?Procedure
+    public function getProcedure(): ?ProcedureInterface
     {
         return $this->procedure;
     }
@@ -211,14 +200,14 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      */
     public function setProcedure(Procedure $procedure): void
     {
-        if ($this->procedureType instanceof ProcedureType) {
+        if ($this->procedureType instanceof ProcedureTypeInterface) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This StatementFormDefinition is already related to a ProcedureType.
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedure = $procedure;
     }
 
-    public function getProcedureType(): ?ProcedureType
+    public function getProcedureType(): ?ProcedureTypeInterface
     {
         return $this->procedureType;
     }
@@ -226,9 +215,9 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedureType(ProcedureType $procedureType): void
+    public function setProcedureType(ProcedureTypeInterface $procedureType): void
     {
-        if ($this->procedure instanceof Procedure) {
+        if ($this->procedure instanceof ProcedureInterface) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This StatementFormDefinition is already related to a Procedure.
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
