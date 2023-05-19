@@ -13,9 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity
  */
-class SegmentComment implements UuidEntityInterface
+class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 {
     /**
      * @var string|null
@@ -36,7 +38,7 @@ class SegmentComment implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Segment
+     * @var SegmentInterface
      *
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
@@ -48,9 +50,9 @@ class SegmentComment implements UuidEntityInterface
     protected $segment;
 
     /**
-     * May be `null` if the {@link User} was deleted after this instance was created.
+     * May be `null` if the {@link UserInterface} was deleted after this instance was created.
      *
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
@@ -58,9 +60,9 @@ class SegmentComment implements UuidEntityInterface
     protected $submitter;
 
     /**
-     * May be `null` if the {@link Place} was deleted after this instance was created.
+     * May be `null` if the {@link PlaceInterface} was deleted after this instance was created.
      *
-     * @var Place|null
+     * @var PlaceInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true, onDelete="SET NULL")
@@ -87,7 +89,7 @@ class SegmentComment implements UuidEntityInterface
      */
     protected $text;
 
-    public function __construct(Segment $segment, User $submitter, Place $place, string $text)
+    public function __construct(SegmentInterface $segment, UserInterface $submitter, PlaceInterface $place, string $text)
     {
         $this->segment = $segment;
         $this->submitter = $submitter;
@@ -100,12 +102,12 @@ class SegmentComment implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getSubmitter(): ?User
+    public function getSubmitter(): ?UserInterface
     {
         return $this->submitter;
     }
 
-    public function getPlace(): ?Place
+    public function getPlace(): ?PlaceInterface
     {
         return $this->place;
     }
