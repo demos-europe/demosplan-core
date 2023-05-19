@@ -11,13 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -30,7 +32,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository")
  */
-class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
+class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface, StatementFragmentVersionInterface
 {
     /**
      * @var string|null
@@ -46,7 +48,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var StatementFragment
+     * @var StatementFragmentInterface
      *
      * todo: should be nullable = false? will not working with onDelete="SET NULL"
      *
@@ -78,7 +80,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $tagAndTopicNames;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -182,7 +184,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * User who triggered this Version.
      *
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
@@ -193,7 +195,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Department which triggered this Version.
      *
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
@@ -216,7 +218,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $elementCategory;
 
     /**
-     * @var ParagraphVersion
+     * @var ParagraphVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
      *
@@ -225,7 +227,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $paragraph;
 
     /**
-     * @var SingleDocumentVersion
+     * @var SingleDocumentVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
      *
@@ -233,7 +235,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     protected $document;
 
-    public function __construct(StatementFragment $fragmentToCreateVersionFrom)
+    public function __construct(StatementFragmentInterface $fragmentToCreateVersionFrom)
     {
         $this->archivedDepartmentName = $fragmentToCreateVersionFrom->getArchivedDepartmentName();
         $this->archivedOrgaName = $fragmentToCreateVersionFrom->getArchivedOrgaName();
@@ -276,7 +278,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function getStatementFragment()
     {
@@ -286,7 +288,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function setStatementFragment(StatementFragment $relatedFragment)
+    public function setStatementFragment(StatementFragmentInterface $relatedFragment)
     {
         $this->statementFragment = $relatedFragment;
         $relatedFragment->addVersion($this);
@@ -319,7 +321,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -513,7 +515,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {
@@ -585,7 +587,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return User
+     * @return UserInterface
      */
     public function getModifiedByUser()
     {
@@ -597,7 +599,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByUserId()
     {
-        if ($this->modifiedByUser instanceof User) {
+        if ($this->modifiedByUser instanceof UserInterface) {
             return $this->modifiedByUser->getId();
         }
 
@@ -605,17 +607,17 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User $modifiedByUser
+     * @param UserInterface $modifiedByUser
      */
     public function setModifiedByUser($modifiedByUser)
     {
-        if ($modifiedByUser instanceof User) {
+        if ($modifiedByUser instanceof UserInterface) {
             $this->modifiedByUser = $modifiedByUser;
         }
     }
 
     /**
-     * @return Department
+     * @return DepartmentInterface
      */
     public function getModifiedByDepartment()
     {
@@ -627,7 +629,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByDepartmentId()
     {
-        if ($this->modifiedByDepartment instanceof Department) {
+        if ($this->modifiedByDepartment instanceof DepartmentInterface) {
             return $this->modifiedByDepartment->getId();
         }
 
@@ -635,7 +637,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Department $modifiedByDepartment
+     * @param DepartmentInterface $modifiedByDepartment
      */
     public function setModifiedByDepartment($modifiedByDepartment)
     {
@@ -661,7 +663,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return ParagraphVersion|null
+     * @return ParagraphVersionInterface|null
      */
     public function getParagraph()
     {
@@ -675,7 +677,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphTitle()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             return trim($this->paragraph->getTitle());
         }
 
@@ -683,7 +685,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return SingleDocumentVersion
+     * @return SingleDocumentVersionInterface
      */
     public function getDocument()
     {
@@ -691,7 +693,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param SingleDocumentVersion $document
+     * @param SingleDocumentVersionInterface $document
      */
     public function setDocument($document)
     {
@@ -706,7 +708,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     public function getDocumentParentId()
     {
         $documentId = null;
-        if ($this->document instanceof SingleDocumentVersion) {
+        if ($this->document instanceof SingleDocumentVersionInterface) {
             $documentId = $this->document->getSingleDocument()->getId();
         }
 
