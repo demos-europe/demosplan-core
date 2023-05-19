@@ -16,13 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Rector\Symfony\Contract\Tag\TagInterface;
 
 /**
  * @ORM\Table(name="_predefined_texts")
@@ -279,7 +278,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @param BoilerplateCategoryInterface $boilerplateCategory
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function addBoilerplateCategory($boilerplateCategory)
     {
