@@ -1026,16 +1026,27 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     private $piSegmentsProposalResourceUrl;
 
     /**
+     * This is modelled as ManyToMany, because intentionally it should be possible, that one ProcedurePersons is
+     * related to many Statements, as well as many Statements are related to one ProcedurePerson.
+     * Actually this is used as OneToMany, because one Statement can be related to many ProcedurePersons, but a
+     * ProcedurePerson will only have one related Statement. That means, we can use cascade remove on this site,
+     * to ensure related ProcedurePersons will be deleted in case of this Statement will be deleted.
+     *
      * @var Collection<int, ProcedurePerson>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
+     *     inversedBy="similarForeignStatements",
+     *     cascade={"persist", "remove"},
+     *     orphanRemoval = true
+     * )
      *
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
      * )
      */
-    private $similarStatementSubmitters;
+    private Collection $similarStatementSubmitters;
 
     /**
      * True in case of the statement was given anonymously.
@@ -4134,14 +4145,44 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         return $this->similarStatementSubmitters;
     }
 
+    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    {
+        if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
+            $this->similarStatementSubmitters->add($similarStatementSubmitter);
+        }
+
+        if (!$similarStatementSubmitter->getSimilarForeignStatements()->contains($this)) {
+            $similarStatementSubmitter->addSimilarForeignStatement($this);
+        }
+    }
+
     /**
      * @param Collection<int, ProcedurePerson> $similarStatementSubmitters
      */
     public function setSimilarStatementSubmitters(Collection $similarStatementSubmitters): Statement
     {
+        // clear currently set submitters first because this is setting, not adding
+        foreach ($this->similarStatementSubmitters as $submitter) {
+            $submitter->removeSimilarForeignStatement($this); // handles both sites
+            $this->removeSimilarStatementSubmitter($submitter);
+        }
+
+        foreach ($similarStatementSubmitters as $submitter) {
+            $submitter->addSimilarForeignStatement($this); // handles both sites
+            $this->addSimilarStatementSubmitter($submitter);
+        }
+
         $this->similarStatementSubmitters = $similarStatementSubmitters;
 
         return $this;
+    }
+
+    public function removeSimilarStatementSubmitter(ProcedurePerson $procedurePerson): void
+    {
+        if ($this->similarStatementSubmitters->contains($procedurePerson)) {
+            $this->similarStatementSubmitters->removeElement($procedurePerson);
+        }
+        $procedurePerson->removeSimilarForeignStatement($this);
     }
 
     public function isAnonymous(): bool
