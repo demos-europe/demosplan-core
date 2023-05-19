@@ -307,7 +307,7 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-ui-neutral-light cf"
+          class="bg-color-light cf"
           v-show="tab === 'statement'">
           <!--  status / priorities  -->
           <dp-item-row
@@ -639,7 +639,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-ui-neutral-light cf"
+          class="bg-color-light cf"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -850,7 +850,7 @@ export default {
       if (this.statement.publicVerified !== 'no_check_since_not_allowed' && this.statement.publicVerified !== 'no_check_permission_disabled') {
         switch (this.statement.publicVerified) {
           case 'publication_pending':
-            icon = 'fa-exclamation-circle color-ui-highlight'
+            icon = 'fa-exclamation-circle color-message-severe-fill'
             break
           case 'publication_approved':
             icon = 'fa-eye'

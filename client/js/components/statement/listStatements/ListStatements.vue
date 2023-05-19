@@ -135,7 +135,6 @@
             <div
               v-tooltip="internId"
               class="o-hellip--nowrap text--right"
-              dir="rtl"
               v-text="internId" />
           </div>
         </template>
@@ -298,6 +297,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
@@ -323,7 +323,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -356,6 +356,11 @@ export default {
   data () {
     return {
       claimLoadingIds: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -448,8 +453,9 @@ export default {
           }
         })
     },
-    storageKey () {
-      return `${currentUserId}-${pagination}`
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
     }
   },
 
@@ -640,7 +646,7 @@ export default {
       return formatDate(d)
     },
 
-    getItemsByPage (page, isOnMountedRequest=false) {
+    getItemsByPage (page) {
       this.fetchStatements({
         page: {
           number: page,
@@ -703,20 +709,12 @@ export default {
         }
       }).then((data) => {
         /**
-         * We need to set the sessionStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
-         * Since the `getItemsByPage()`-function gets called on every mount which passes the value `1` as `current_page` by default,
-         * we also have to make sure the first page is only set in the `sessionStorage` if intended by the user.
+         * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
          */
-        if (data.meta.pagination.current_page !== 1 || !!window.sessionStorage[this.storageKey] === false) {
-          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
-          data.meta.pagination.current_page = window.sessionStorage.getItem(this.storageKey)
-        }
-        if (data.meta.pagination.current_page === 1 && !isOnMountedRequest && !!window.sessionStorage[this.storageKey] === true) {
-          window.sessionStorage.setItem(this.storageKey, data.meta.pagination.current_page)
-        }
+        this.setLocalStorage(data.meta.pagination)
 
         this.setNumSelectableItems(data)
-        this.initPagination(data)
+        this.updatePagination(data.meta.pagination)
       })
     },
 
@@ -845,18 +843,6 @@ export default {
       }
     },
 
-    initPagination (data) {
-      const dataPag = data.meta.pagination
-      this.pagination = {
-        count: dataPag.count,
-        currentPage: Number(window.sessionStorage[this.storageKey]),
-        limits: [10, 25, 50, 100],
-        perPage: dataPag.per_page,
-        total: dataPag.total,
-        totalPages: dataPag.total_pages
-      }
-    },
-
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
@@ -907,7 +893,8 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1, true)
-  },
+    this.initPagination()
+    this.getItemsByPage(this.pagination.currentPage)
+  }
 }
 </script>

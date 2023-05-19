@@ -8,8 +8,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 .c-progress-bar {
-    $color-confirm: $dp-color-system-confirm--lightish;
-    $color-info: $dp-color-system-info--lightish;
+    $color-confirm: $dp-color-green-light-1;
+    $color-info: $dp-color-blue-light-1;
 
     margin: auto;
     padding: $inuit-base-spacing-unit--small;
@@ -28,7 +28,7 @@
         }
 
         &.is-animated {
-            background: $dp-token-color-ui-bg-neutral-medium;
+            background-color: $dp-color-background-medium;
             display: flex;
         }
 

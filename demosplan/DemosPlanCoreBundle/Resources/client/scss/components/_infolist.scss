@@ -26,7 +26,7 @@
 
         &--bordered {
             @include media-query('lap-down') {
-                border-bottom: $dp-border-thickness solid $default-border-color;
+                border-bottom: $dp-border-thickness solid $dp-color-border-default;
             }
         }
     }
@@ -42,7 +42,7 @@
         display: inline-block;
         font-weight: $normal-font-weight;
 
-        color: $dp-token-color-brand-highlight;
+        color: $dp-color-highlight;
     }
 
     //  contextual help icon
@@ -59,10 +59,10 @@
     &__toggle {
         @include keyboard-focus;
 
-        color: $default-font-color;
+        color: $dp-color-text-default;
 
         &:hover {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
     }
 }

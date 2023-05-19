@@ -37,7 +37,7 @@
 
     .current {
         & > a {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
     }
 
@@ -76,7 +76,7 @@
         }
 
         .knp-sub-heading {
-            font-size: $dp-token-font-size-small;
+            font-size: $dp-font-size-small;
             max-width: 95%;
             color: $dp-color-neutral-base;
             margin: {
@@ -97,7 +97,7 @@
             }
 
             a {
-                font-size: $dp-token-font-size-medium;
+                font-size: $dp-font-size-medium;
             }
             &.o-toggle {
                 ul {
