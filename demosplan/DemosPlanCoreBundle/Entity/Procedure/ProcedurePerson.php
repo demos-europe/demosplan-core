@@ -12,14 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
  */
-class ProcedurePerson implements UuidEntityInterface
+class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet
@@ -32,7 +34,7 @@ class ProcedurePerson implements UuidEntityInterface
     private $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
@@ -88,7 +90,7 @@ class ProcedurePerson implements UuidEntityInterface
      */
     private $emailAddress;
 
-    public function __construct(string $fullName, Procedure $procedure)
+    public function __construct(string $fullName, ProcedureInterface $procedure)
     {
         $this->fullName = $fullName;
         $this->procedure = $procedure;
@@ -99,7 +101,7 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
@@ -109,7 +111,7 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->fullName;
     }
 
-    public function setFullName(?string $fullName): ProcedurePerson
+    public function setFullName(?string $fullName): ProcedurePersonInterface
     {
         $this->fullName = $fullName;
 
@@ -121,7 +123,7 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->streetName;
     }
 
-    public function setStreetName(?string $streetName): ProcedurePerson
+    public function setStreetName(?string $streetName): ProcedurePersonInterface
     {
         $this->streetName = $streetName;
 
@@ -133,7 +135,7 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->streetNumber;
     }
 
-    public function setStreetNumber(?string $streetNumber): ProcedurePerson
+    public function setStreetNumber(?string $streetNumber): ProcedurePersonInterface
     {
         $this->streetNumber = $streetNumber;
 
@@ -145,7 +147,7 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->city;
     }
 
-    public function setCity(?string $city): ProcedurePerson
+    public function setCity(?string $city): ProcedurePersonInterface
     {
         $this->city = $city;
 
@@ -157,14 +159,14 @@ class ProcedurePerson implements UuidEntityInterface
         return $this->postalCode;
     }
 
-    public function setPostalCode(?string $postalCode): ProcedurePerson
+    public function setPostalCode(?string $postalCode): ProcedurePersonInterface
     {
         $this->postalCode = $postalCode;
 
         return $this;
     }
 
-    public function setEmailAddress(?string $emailAddress): ProcedurePerson
+    public function setEmailAddress(?string $emailAddress): ProcedurePersonInterface
     {
         $this->emailAddress = $emailAddress;
 
