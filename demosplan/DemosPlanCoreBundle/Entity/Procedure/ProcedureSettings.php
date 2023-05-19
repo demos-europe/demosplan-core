@@ -11,10 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="_procedure_settings", indexes={@ORM\Index(name="_procedure_settings_ibfk_1", columns={"_p_id"})})
  * @ORM\Entity
  */
-class ProcedureSettings extends CoreEntity implements UuidEntityInterface
+class ProcedureSettings extends CoreEntity implements UuidEntityInterface, ProcedureSettingsInterface
 {
     /**
      * Max length of the {@see mapHint} field.
@@ -188,7 +190,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $links = '';
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="settings")
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
@@ -231,7 +233,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPublicSwitchDate = null;
 
     /**
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
@@ -239,7 +241,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPhaseChangeUser = null;
 
     /**
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
@@ -309,10 +311,10 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * The text must be at least a couple of characters long to motivate the user to write
      * something meaningful. The length is defined in
-     * {@link ProcedureSettings::MAP_HINT_MIN_LENGTH}.
+     * {@link ProcedureSettingsInterface::MAP_HINT_MIN_LENGTH}.
      *
      * The maximum number of characters allowed is defined in
-     * {@link ProcedureSettings::MAP_HINT_MAX_LENGTH}. The number should be kept relatively small
+     * {@link ProcedureSettingsInterface::MAP_HINT_MAX_LENGTH}. The number should be kept relatively small
      * to limit the writer to meaningful content, as the text is intended to be read by screen
      * readers.
      *
@@ -323,11 +325,11 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $mapHint = '';
 
     /**
-     * By adding {@link Procedure}s to this relationship and activating the corresponding
-     * `feature_segment_access_expansion` permission the {@link Segment}s in these procedures will
-     * be returned too *if* the user owns the {@link Procedure} or has at least been invited.
+     * By adding {@link ProcedureInterface}s to this relationship and activating the corresponding
+     * `feature_segment_access_expansion` permission the {@link SegmentInterface}s in these procedures will
+     * be returned too *if* the user owns the {@link ProcedureInterface} or has at least been invited.
      *
-     * @var Collection<int,Procedure>
+     * @var Collection<int,ProcedureInterface>
      *
      * @ORM\ManyToMany(targetEntity=Procedure::class)
      * @ORM\JoinTable(
@@ -378,7 +380,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $mapExtent
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setMapExtent($mapExtent)
     {
@@ -402,7 +404,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $startScale
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setStartScale($startScale)
     {
@@ -426,7 +428,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $availableScale
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setAvailableScale($availableScale)
     {
@@ -450,7 +452,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $boundingBox
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setBoundingBox($boundingBox)
     {
@@ -474,7 +476,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $informationUrl
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setInformationUrl($informationUrl)
     {
@@ -498,7 +500,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $defaultLayer
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setDefaultLayer($defaultLayer)
     {
@@ -522,7 +524,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $territory
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setTerritory($territory)
     {
@@ -546,7 +548,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $coordinate
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setCoordinate($coordinate)
     {
@@ -570,7 +572,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $planEnable
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanEnable($planEnable)
     {
@@ -594,7 +596,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planText
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanText($planText)
     {
@@ -618,7 +620,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planPDF
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanPDF($planPDF)
     {
@@ -642,7 +644,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planPara1PDF
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanPara1PDF($planPara1PDF)
     {
@@ -666,7 +668,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planPara2PDF
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanPara2PDF($planPara2PDF)
     {
@@ -690,7 +692,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planDrawText
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanDrawText($planDrawText)
     {
@@ -714,7 +716,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $planDrawPDF
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanDrawPDF($planDrawPDF)
     {
@@ -738,7 +740,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $emailTitle
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setEmailTitle($emailTitle)
     {
@@ -762,7 +764,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $emailText
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setEmailText($emailText)
     {
@@ -786,7 +788,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $emailCc
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setEmailCc($emailCc)
     {
@@ -810,7 +812,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @param string $links
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function setLinks($links)
     {
@@ -832,9 +834,9 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Set p.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      *
-     * @return ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setProcedure(Procedure $procedure = null)
     {
@@ -846,7 +848,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Get p.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -1018,7 +1020,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * @param string $planningArea
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings
+     * @return ProcedureSettingsInterface
      */
     public function setPlanningArea($planningArea)
     {
@@ -1090,7 +1092,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int,Procedure>
+     * @return Collection<int,ProcedureInterface>
      */
     public function getAllowedSegmentAccessProcedures(): Collection
     {
@@ -1098,7 +1100,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Collection<int,Procedure> $allowedSegmentAccessProcedures
+     * @param Collection<int,ProcedureInterface> $allowedSegmentAccessProcedures
      */
     public function setAllowedSegmentAccessProcedures(Collection $allowedSegmentAccessProcedures): self
     {
@@ -1107,24 +1109,24 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
-    public function getDesignatedPhaseChangeUser(): ?User
+    public function getDesignatedPhaseChangeUser(): ?UserInterface
     {
         return $this->designatedPhaseChangeUser;
     }
 
-    public function getDesignatedPublicPhaseChangeUser(): ?User
+    public function getDesignatedPublicPhaseChangeUser(): ?UserInterface
     {
         return $this->designatedPublicPhaseChangeUser;
     }
 
-    public function setDesignatedPhaseChangeUser(?User $designatedPhaseChangeUser): self
+    public function setDesignatedPhaseChangeUser(?UserInterface $designatedPhaseChangeUser): self
     {
         $this->designatedPhaseChangeUser = $designatedPhaseChangeUser;
 
         return $this;
     }
 
-    public function setDesignatedPublicPhaseChangeUser(?User $designatedPublicPhaseChangeUser): self
+    public function setDesignatedPublicPhaseChangeUser(?UserInterface $designatedPublicPhaseChangeUser): self
     {
         $this->designatedPublicPhaseChangeUser = $designatedPublicPhaseChangeUser;
 
