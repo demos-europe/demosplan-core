@@ -11,7 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
@@ -30,14 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
-class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
+class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, ProcedureUiDefinitionInterface
 {
-    /**
-     * The placeholder that may be used in {@link ProcedureUiDefinition::$statementPublicSubmitConfirmationText}.
-     * Do not simply change the value of this constant without migrating the data in the database too.
-     */
-    public const STATEMENT_PUBLIC_SUBMIT_CONFIRMATION_TEXT_PLACEHOLDER = 'statementPublicSubmitConfirmationTextPlaceholder';
-
     /**
      * @var string|null
      *
@@ -76,7 +73,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      * A ProcedureUiDefinition with a direct relation to a Procedure
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
-     * @var Procedure|null
+     * @var ProcedureInterface|null
      *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureUiDefinition")
      *
@@ -89,7 +86,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      * it is copied from a ProcedureUiDefinition related to a ProcedureType and was attached to a Procedure.
      * Therefore a ProcedureUiDefinition without a ProcedureType will have a related Procedure.
      *
-     * @var ProcedureType|null
+     * @var ProcedureTypeInterface|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureUiDefinition")
      *
@@ -145,7 +142,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getProcedure(): ?Procedure
+    public function getProcedure(): ?ProcedureInterface
     {
         return $this->procedure;
     }
@@ -153,16 +150,16 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
-        if ($this->procedureType instanceof ProcedureType) {
+        if ($this->procedureType instanceof ProcedureTypeInterface) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This ProcedureUiDefinition is already related to a ProcedureType.
                 A ProcedureUiDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedure = $procedure;
     }
 
-    public function getProcedureType(): ?ProcedureType
+    public function getProcedureType(): ?ProcedureTypeInterface
     {
         return $this->procedureType;
     }
@@ -170,9 +167,9 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedureType(ProcedureType $procedureType): void
+    public function setProcedureType(ProcedureTypeInterface $procedureType): void
     {
-        if ($this->procedure instanceof Procedure) {
+        if ($this->procedure instanceof ProcedureInterface) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This ProcedureUiDefinition is already related to a Procedure.
                 A ProcedureUiDefinition can not be set to a Procedure and to a ProcedureType');
         }
