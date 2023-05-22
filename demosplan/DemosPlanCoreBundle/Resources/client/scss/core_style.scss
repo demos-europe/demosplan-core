@@ -31,9 +31,6 @@
 // - <core>/settings-fonts.dplan
 // - settings.project.dplan
 
-// Styles from demosplan-ui (Tailwindcss)
-// @TODO make purgeCss work for tailwind styles. After that, we can start adopting tailwind in demosPlan.
-// @import url('~demosplan-ui/style/style.css');
 
 // Design tokens - the visual atoms of the demosplan-ui design system.
 // The files are included here to make tokens available to objects and components.
@@ -61,15 +58,18 @@
 @import 'inuit-5/tools.responsive';
 @import 'inuit-5/tools.widths';
 
+// Tailwindcss
+// - Preflight, an opinionated set of base styles.
+//   See https://tailwindcss.com/docs/preflight
+// - Customized Utility Classes from demosplan-ui.
+// As Tailwind is configured to use !important everywhere, utility classes
+// should win, at least if not outpaced by even higher specificity.
+@import '~@demos-europe/demosplan-ui/style/style';
+
 // Generic
-@import 'inuit-5/generic.box-sizing';
-@import '~normalize.css/normalize.css';
-@import 'inuit-5/generic.reset';
 @import 'inuit-5/generic.shared';
 
 // Base (Elements)
-@import 'inuit-5/base.images';
-@import 'inuit-5/base.lists';
 @import 'inuit-5/base.page';
 @import 'base.dplan';
 
