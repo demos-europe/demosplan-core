@@ -96,13 +96,6 @@ if (config.cssPurge.enabled) {
 const moduleRules =
   [
     {
-      test: /\.css$/,
-      use: [
-        MiniCssExtractPlugin.loader,
-        'vue-loader'
-      ]
-    },
-    {
       test: /\.vue$/,
       loader: 'vue-loader'
     },
@@ -127,21 +120,7 @@ const moduleRules =
     {
       test: /\.s?css$/,
       use: [
-        {
-          loader: 'vue-style-loader'
-        },
-        {
-          loader: MiniCssExtractPlugin.loader,
-          // Output path is declared in the plugin due to weird webpack path declarations
-          options: {
-            /*
-             * You can specify a publicPath here
-             * by default it uses publicPath in webpackOptions.output
-             */
-            esModule: false,
-            publicPath: '../../css/'
-          }
-        },
+        MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
