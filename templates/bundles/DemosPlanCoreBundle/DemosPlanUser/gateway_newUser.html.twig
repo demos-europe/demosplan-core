@@ -100,7 +100,7 @@
                                 </label>
 
                                 {% if validation.errors is defined %}
-                                    <p class="color--system-error">
+                                    <p class="color-status-failed-text">
                                         {% for error in validation.errors %}
                                             {% if error.propertyPath == "email" %}
                                                 {{ error.message }}<br>
@@ -113,7 +113,7 @@
                                 {% if isInvitableInstitution == true %}
 
                                     {% if validation.errors is defined %}
-                                        <p class="color--system-error">
+                                        <p class="color-status-failed-text">
                                             {% for error in validation.errors %}
                                                 {% if error.propertyPath == "email2" %}
                                                     {{ error.message }}<br>

@@ -106,6 +106,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService
 
