@@ -404,7 +404,7 @@
             class="u-pb-0">
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_county')"
-              class="position--relative"
+              class="relative"
               label="counties"
               :entity-id="statement.id"
               field-key="counties"
@@ -417,7 +417,7 @@
 
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_municipality') && statementFormDefinitions.mapAndCountyReference.enabled"
-              class="position--relative"
+              class="relative"
               label="municipalities"
               :entity-id="statement.id"
               field-key="municipalities"
@@ -430,7 +430,7 @@
 
             <dp-edit-field-multi-select
               v-if="dplan.procedureStatementPriorityArea && statementFormDefinitions.mapAndCountyReference.enabled"
-              class="position--relative"
+              class="relative"
               label="priorityAreas.all"
               :entity-id="statement.id"
               field-key="priorityAreas"
@@ -447,7 +447,7 @@
               </dt><!--
                 --><dd class="layout__item u-1-of-6 u-pt-0_25">
                   <a
-                    class="u-5-of-6 position--relative"
+                    class="u-5-of-6 relative"
                     @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))"
                     href="#"
                     rel="noopener">
@@ -463,7 +463,7 @@
             v-if="hasPermission('field_procedure_elements')"
             class="u-pb-0">
             <dp-edit-field-single-select
-              class="position--relative"
+              class="relative"
               label="document"
               :entity-id="statement.id"
               field-key="elements"
@@ -476,7 +476,7 @@
             <!-- paragraphParent, i.e. original version of the paragraph -->
             <dp-edit-field-single-select
               v-if="elementHasParagraphs"
-              class="position--relative"
+              class="relative"
               label="paragraph"
               :entity-id="statement.id"
               field-key="paragraph"
@@ -489,7 +489,7 @@
             <!-- documentParent -->
             <dp-edit-field-single-select
               v-if="elementHasDocuments"
-              class="position--relative"
+              class="relative"
               label="file"
               :entity-id="statement.id"
               field-key="document"
@@ -524,7 +524,7 @@
             v-if="hasPermission('feature_statements_tag')"
             class="u-pb-0">
             <dp-edit-field-multi-select
-              class="position--relative"
+              class="relative"
               label="tags"
               :entity-id="statement.id"
               field-key="tags"
@@ -611,7 +611,7 @@
                   aria-hidden="true" />
               </div><!--
 
-           --><div class="layout--flush layout__item c-at-item__row overflow-word-break">
+           --><div class="layout--flush layout__item c-at-item__row break-words">
                 <a
                   v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"

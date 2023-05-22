@@ -67,7 +67,7 @@
         <elements-admin-item :element-id="nodeElement.id" />
       </template>
       <template v-slot:leaf="{ nodeElement }">
-        <div class="flex flex-content-end space-inline-s">
+        <div class="flex justify-end space-inline-s">
           <file-info
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"

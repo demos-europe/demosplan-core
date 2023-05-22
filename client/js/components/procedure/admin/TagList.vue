@@ -23,7 +23,7 @@
         v-if="isLoading"
         overlay />
       <div class="border border-radius-small space-stack-m space-inset-m">
-        <div class="position--relative u-pb-0_5 font-size-large">
+        <div class="relative u-pb-0_5 font-size-large">
           {{ Translator.trans('tag.new') }}
           <button
             class="btn--blank o-link--default float--right"

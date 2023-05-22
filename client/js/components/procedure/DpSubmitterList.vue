@@ -13,7 +13,7 @@
       {{ Translator.trans('explanation.list.of.submitters') }}
     </p>
 
-    <div class="flex flex-items-center u-pv-0_5">
+    <div class="flex items-center u-pv-0_5">
       <a
         :href="exportSubmitterList">
         <i
@@ -23,7 +23,7 @@
       </a>
 
       <dp-column-selector
-        class="flex-item-end"
+        class="ml-auto"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
         @selection-changed="setCurrentSelection"

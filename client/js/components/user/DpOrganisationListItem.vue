@@ -28,7 +28,7 @@
           @change="$emit('item:selected', organisation.id)">
         <div
           @click="isOpen = false === isOpen"
-          class="weight--bold cursor--pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 flex-grow"
+          class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>

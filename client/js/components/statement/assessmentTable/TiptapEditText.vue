@@ -17,7 +17,7 @@
 
 <template>
   <div class="c-edit-field">
-    <p class="position--relative cf">
+    <p class="relative cf">
       <span class="weight--bold">
         {{ Translator.trans(title) }}
       </span>
@@ -75,7 +75,7 @@
     </div>
 
     <div
-      class="position--relative u-pr"
+      class="relative u-pr"
       v-else>
       <template v-if="shortText !== ''">
         <dp-height-limit

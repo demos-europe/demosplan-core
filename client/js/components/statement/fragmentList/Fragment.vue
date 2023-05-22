@@ -305,7 +305,7 @@
         <!-- edit fragment: toggle -->
         <div class="layout--flush u-pv-0_25 u-ph-0_5 u-pl-0_25">
           <a
-            class="display--inline-block cursor--pointer"
+            class="display--inline-block cursor-pointer"
             :class="{ 'is-active-toggle': editing }"
             @click="toggleEditing"
             rel="noopener"

@@ -85,7 +85,7 @@
     </ul>
 
     <a
-      class="weight--bold text-decoration-none display--block"
+      class="weight--bold no-underline display--block"
       data-cy="toProcedureDetail"
       :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedure.id })">
       {{ Translator.trans('procedure.view') }}

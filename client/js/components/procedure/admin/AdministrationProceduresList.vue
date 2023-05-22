@@ -9,7 +9,7 @@
 
 <template>
   <div class="space-stack-s">
-    <div class="flex flex-content-between">
+    <div class="flex justify-between">
       <p
         v-text="Translator.trans('text.procedures.list')" />
 
@@ -35,7 +35,7 @@
         @reset="resetAdministrationProceduresList" />
 
       <dp-select
-        class="width-250 flex-item-end"
+        class="width-250 ml-auto"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"

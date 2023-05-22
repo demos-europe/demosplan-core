@@ -11,7 +11,7 @@
   <li class="c-publicindex__list-item list-style-none">
     <a
       @click.prevent="showDetailView(procedure.id)"
-      class="display--block o-link--default cursor--pointer o-hellip"
+      class="display--block o-link--default cursor-pointer o-hellip"
       data-cy="zoomIn"
       href="#">
       {{ procedureName() }}

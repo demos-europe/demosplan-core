@@ -10,7 +10,7 @@
 <template>
   <div>
     <i
-      class="fa cursor--help"
+      class="fa cursor-help"
       :class="{
         'fa-check color-message-success-fill': published,
         'fa-times-circle color-message-severe-fill': published === false

@@ -44,7 +44,7 @@
                 @items-selected="setSelection"
                 track-by="id">
                 <template #file="rowData">
-                    <span class="overflow-word-break" v-text="rowData.file" />
+                    <span class="break-words" v-text="rowData.file" />
                 </template>
                 <template #actions="rowData">
                     <a

@@ -45,7 +45,7 @@
             {% endif %}
         {% endblock procedurelist_header %}
 
-        <div id="scMap" class="{{ 'o-page__padded position--relative'|prefixClass }}">
+        <div id="scMap" class="{{ 'o-page__padded relative'|prefixClass }}">
             {% if hasPermission('feature_public_index_map') %}
                 {% block map %}
                     <div class="{{ 'c-proceduresearch__map layout__item u-1-of-2 u-pl-0 show-lap-up-ib'|prefixClass }}">

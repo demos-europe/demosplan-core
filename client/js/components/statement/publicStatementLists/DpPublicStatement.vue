@@ -216,7 +216,7 @@
           {{ Translator.trans('attachments') }}
         </div><!--
      --><div
-          class="display--inline-block u-2-of-3 u-1-of-1-palm overflow-word-break"
+          class="display--inline-block u-2-of-3 u-1-of-1-palm break-words"
           v-cleanhtml="renderAttachments(attachments)" />
         </div>
       </div>
@@ -232,7 +232,7 @@
           {{ Translator.trans('statementtext') }}
         </div>
         <div
-          class="overflow-word-break"
+          class="break-words"
           v-cleanhtml="text" />
       </div>
     </template>

@@ -32,7 +32,7 @@
                                     :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
                                 </dp-editor>
                             {% else %}
-                                <span class="c-styled-html overflow-word-break">
+                                <span class="c-styled-html break-words">
                                     {{- statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? ['dp-obscure'] : []) -}}
                                 </span>
                             {% endif %}
@@ -128,7 +128,7 @@
                                 </template>
                             </dp-editor>
                         {% else %}
-                            <span class="overflow-word-break">
+                            <span class="break-words">
                                 {{- statement.recommendation|default('<p>n/a</p>')|wysiwyg -}}
                             </span>
                         {% endif %}
@@ -150,7 +150,7 @@
                         <dp-accordion
                           title="{{ "recommendation.versions"|trans }} {{ versionsCountString }}"
                           button-class="text--left">
-                            <div class="overflow-word-break">
+                            <div class="break-words">
                                 {% if templateVars.table.version.total == 0 %}
                                     <p>{{ "recommendation.versions.none"|trans }}</p>
                                 {% else %}
@@ -160,17 +160,17 @@
                                             <div class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
                                                 <div class="border--bottom u-mb-0_25">
 
-                                                    <div class="o-hellip--nowrap u-1-of-5 u-pr display--inline-block weight--bold cursor--help" title="{{ "date"|trans }}: {{ version.created|default()|dplanDate('d.m.Y H:i') }}">
+                                                    <div class="o-hellip--nowrap u-1-of-5 u-pr display--inline-block weight--bold cursor-help" title="{{ "date"|trans }}: {{ version.created|default()|dplanDate('d.m.Y H:i') }}">
                                                         {{ version.created|default()|dplanDate('d.m.Y H:i') }}
                                                     </div><!--
 
-                                                 --><div class="o-hellip--nowrap u-4-of-5 display--inline-block cursor--help" title="{{ "official"|trans }}: {{ version.userName|default('') }}">
+                                                 --><div class="o-hellip--nowrap u-4-of-5 display--inline-block cursor-help" title="{{ "official"|trans }}: {{ version.userName|default('') }}">
                                                         {{ version.userName|default('') }}
                                                     </div>
 
                                                 </div>
 
-                                                <div class="cursor--help" title="{{ "recommendation"|trans }}">
+                                                <div class="cursor-help" title="{{ "recommendation"|trans }}">
                                                     {{ version.value|default|wysiwyg }}
                                                 </div>
                                             </div>

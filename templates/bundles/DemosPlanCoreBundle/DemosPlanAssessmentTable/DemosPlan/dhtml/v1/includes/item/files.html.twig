@@ -8,7 +8,7 @@
                     title="{{ 'statement.files.uploaded'|trans }}">
                 </i>
 
-                <span class="layout__item overflow-word-break display--inline">
+                <span class="layout__item break-words display--inline">
                     {# attached file #}
                     {% for file in statement.files|default([]) %}
                         {% if file|length > 0 %}

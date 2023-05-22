@@ -50,7 +50,7 @@
     @reset="reset"
     @toggleEditing="isEditing => $emit('toggleEditing', isEditing)">
     <template v-slot:display>
-      <div class="overflow-word-break">
+      <div class="break-words">
         {{ selected.title }}
         <span v-if="'' === selected || 'undefined' === typeof selected">-</span>
       </div>

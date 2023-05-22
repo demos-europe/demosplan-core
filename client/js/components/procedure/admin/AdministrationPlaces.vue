@@ -23,7 +23,7 @@
     </div>
     <div
       v-if="addNewPlace"
-      class="position--relative"
+      class="relative"
       data-dp-validate="addNewPlaceForm">
       <dp-loading
         v-if="isLoading"

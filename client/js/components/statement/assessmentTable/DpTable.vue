@@ -60,7 +60,7 @@
     <!-- Top pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
-      :class="{ 'visibility--hidden': isLoading }"
+      :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text--right u-1-of-1"
       :current-page="pagination.current_page"
       :total-pages="pagination.total_pages"
@@ -218,7 +218,7 @@
     <!-- bottom pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
-      :class="{ 'visibility--hidden': isLoading }"
+      :class="{ 'invisible': isLoading }"
       class="u-pb-0_5 text--right"
       :current-page="pagination.current_page"
       :total-pages="pagination.total_pages"

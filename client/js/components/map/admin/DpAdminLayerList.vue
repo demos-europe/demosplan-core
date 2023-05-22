@@ -28,7 +28,7 @@
 
 <template>
   <div
-    class="position--relative"
+    class="relative"
     :class="{'pointer-events-none': false === isEditable}">
     <div class="layout--flush u-mt">
       <h3 class="layout__item u-1-of-3">

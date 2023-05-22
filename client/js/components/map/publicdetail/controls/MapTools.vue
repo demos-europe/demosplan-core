@@ -10,7 +10,7 @@
 <template>
   <div :class="{ 'display--none': isMobile }">
     <div :class="prefixClass('c-map__group')">
-      <div :class="prefixClass('position--relative')">
+      <div :class="prefixClass('relative')">
         <button
           :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item btn--blank o-link--default u-pv-0_25')]"
           @click="toggle">

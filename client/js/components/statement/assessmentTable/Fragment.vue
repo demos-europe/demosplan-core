@@ -278,7 +278,7 @@ useful info about the component:
 <!--
      --><div class="layout__item c-at-item__row u-1-of-1">
           <dp-edit-field-single-select
-            class="position--relative"
+            class="relative"
             label="document"
             :entity-id="fragment.id"
             field-key="elementId"
@@ -291,7 +291,7 @@ useful info about the component:
 
           <!--PARAGRAPH-->
           <dp-edit-field-single-select
-            class="position--relative"
+            class="relative"
             label="paragraph"
             :label-grid-cols="2"
             :entity-id="fragment.id"
@@ -306,7 +306,7 @@ useful info about the component:
           <!--FILE-->
           <dp-edit-field-single-select
             v-if="hasPermission('feature_single_document_fragment') && elementHasFiles"
-            class="position--relative"
+            class="relative"
             label="file"
             :label-grid-cols="2"
             :entity-id="fragment.id"

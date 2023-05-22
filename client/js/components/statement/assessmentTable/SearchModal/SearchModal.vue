@@ -14,7 +14,7 @@
 <template>
   <div class="flex">
     <!-- Search Field -->
-    <label class="position--relative u-m-0">
+    <label class="relative u-m-0">
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
@@ -51,7 +51,7 @@
         <h2>{{ Translator.trans('search.advanced') }}</h2>
 
         <!-- Search Field -->
-        <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 position--relative">
+        <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
           <dp-input
             id="searchterm2"
             name="search_word"

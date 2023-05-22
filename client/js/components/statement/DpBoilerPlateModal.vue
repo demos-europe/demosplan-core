@@ -21,14 +21,14 @@
         group-label="groupName"
         :group-select="false"
         @boilerplate-text-added="addBoilerplateText" />
-      <div class="flex flex-items-center u-mt">
+      <div class="flex items-center u-mt">
         <a
           class="weight--bold font-size-small"
           :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })">
           {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
         </a>
         <dp-button-row
-          class="flex-item-end"
+          class="ml-auto"
           primary
           :primary-text="Translator.trans('insert')"
           secondary

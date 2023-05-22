@@ -30,7 +30,7 @@
         </div>
         <!-- Displaying value in non-edit mode, also toggles edit mode -->
         <div
-          :class="{'cursor--pointer': editable}"
+          :class="{'cursor-pointer': editable}"
           :title="Translator.trans('edit.entity', { entity: translatedLabel })"
           @click="toggleEditing"
           v-if="!editable || !editingEnabled">

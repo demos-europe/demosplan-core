@@ -36,7 +36,7 @@
             @click="() => toggleClaimSegment(segment)" />
         </div><!--
         --><div
-              class="display--inline-block overflow-word-break"
+              class="display--inline-block break-words"
               style="width: 95%">
           <dp-edit-field
             label=""

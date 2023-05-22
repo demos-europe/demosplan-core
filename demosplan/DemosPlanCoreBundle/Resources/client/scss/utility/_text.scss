@@ -11,32 +11,10 @@
 
 //  utility classes affecting text
 //
-//  .caps
-//  .fontstyle--[normal|italic]
 //  .line-height--1_6
-//  .text-decoration-[none|underline]
 //  .[text|align]--[left|center|right|justify]{--[palm|desktop]}
 //  .weight--[normal|bold]
 //  .whitespace--[normal|nowrap]
-//  .line-clamp-3
-
-//  caps
-.caps {
-    text-transform: uppercase !important;
-}
-
-
-//  font-style
-.fontstyle {
-    &--normal {
-        font-style: normal !important;
-    }
-
-    &--italic {
-        font-style: italic !important;
-    }
-}
-
 
 //  line height
 .line-height {
@@ -68,25 +46,6 @@
         line-height: 2 !important;
     }
 }
-
-
-//  text-decoration
-.text-decoration {
-    &-none {
-        text-decoration: none !important;
-    }
-
-    &-underline {
-        text-decoration: underline !important;
-    }
-
-    &-underline--hover {
-        &:hover {
-            text-decoration: underline !important;
-        }
-    }
-}
-
 
 //  alignment
 $text-directions: (
@@ -145,18 +104,5 @@ $text-directions: (
 
     &--preline {
         white-space: pre-line;
-    }
-}
-
-.line-clamp-3 {
-    // Base line-height is derived from $inuit-base-spacing-unit,
-    // so this sets max-height to 3 lines of text.
-    max-height: calc(#{$inuit-base-spacing-unit} * 3);
-    overflow-y: hidden;
-
-    // Remove spacing of child elements to make max-height fit 3 lines of text.
-    & * {
-        margin: 0;
-        padding: 0;
     }
 }

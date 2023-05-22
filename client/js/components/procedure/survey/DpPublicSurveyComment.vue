@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="prefixClass('u-p u-pl-0 overflow-word-break')">
+  <div :class="prefixClass('u-p u-pl-0 break-words')">
     <div :class="prefixClass('font-size-small color--grey u-mb-0_5')">
       <i
         :class="prefixClass('fa fa-calendar-check-o')"

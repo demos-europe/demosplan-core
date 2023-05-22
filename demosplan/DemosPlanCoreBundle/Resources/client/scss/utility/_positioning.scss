@@ -15,32 +15,6 @@
 //
 //  https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning
 
-.position {
-    &--static {
-        position: static;
-    }
-
-    &--relative {
-        position: relative;
-    }
-
-    &--absolute {
-        position: absolute;
-    }
-
-    &--sticky {
-        position: sticky;
-    }
-
-    &--fixed {
-        position: fixed;
-    }
-
-    &--inherit {
-        position: inherit;
-    }
-}
-
 
 $dp-position-directions: (
     'top',

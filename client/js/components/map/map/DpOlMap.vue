@@ -104,7 +104,7 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading
           v-if="!Boolean(map)"

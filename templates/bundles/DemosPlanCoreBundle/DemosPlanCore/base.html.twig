@@ -77,14 +77,14 @@
 
 
             {# Main content #}
-            {# position--relative is needed here for the sticky sidemenu #}
-            <main id="mainContent" class="o-page__main layout bg-color--white position--relative">
+            {# relative is needed here for the sticky sidemenu #}
+            <main id="mainContent" class="o-page__main layout bg-color--white relative">
 
                 {% block maincontent_section %}
-                    <section id="jumpContent" class="o-page__content layout__item position--relative" role="main">
+                    <section id="jumpContent" class="o-page__content layout__item relative" role="main">
 
                         {% block breadcrumb %}
-                            <div class="flex flex-items-center flex-content-between u-pv-0_25">
+                            <div class="flex items-center justify-between u-pv-0_25">
                                 <nav class="o-breadcrumb" aria-label="Breadcrumb">
                                     {# Wenn ein Breadcrumbobjekt explizit übergeben wurde, stelle dieses dar, ansonsten das Standardobjekt #}
                                     {% if (templateVars.breadcrumb is defined) %}

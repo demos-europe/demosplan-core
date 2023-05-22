@@ -9,7 +9,7 @@
 
 <template>
   <div class="c-statement-meta-box u-mb-0_5">
-    <div class="position--relative border--bottom u-pb-0_5">
+    <div class="relative border--bottom u-pb-0_5">
       {{ Translator.trans(editable ? 'statement.info.edit' : 'statement.info') }}
       <button
         class="btn--blank o-link--default float--right"

@@ -30,7 +30,7 @@
 
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 cf">
-        <div class="flex-inline space-inline-m">
+        <div class="inline-flex space-inline-m">
           <h1 :class="['font-size-larger u-valign--middle display--inline-block u-m-0']">
             {{ Translator.trans('statement') }} #{{ statementExternId }}
           </h1>
@@ -90,7 +90,7 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
+                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
                   <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     class="display--block whitespace--normal u-mr-0_75"
