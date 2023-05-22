@@ -11,8 +11,7 @@
  * This is the entrypoint for edit_orga.html.twig
  */
 
-import { DpAccordion, DpEditor } from '@demos-europe/demosplan-ui'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 

@@ -9,8 +9,7 @@
 
 <script>
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import { DpButton, DpModal } from '@demos-europe/demosplan-ui'
-import { dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'

@@ -27,7 +27,7 @@ class CorrectDateOrderConstraint extends Constraint
         return CorrectDateOrderConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

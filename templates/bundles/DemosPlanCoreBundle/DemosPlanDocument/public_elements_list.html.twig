@@ -1,0 +1,216 @@
+{% block demosplanbundlecontent %}
+
+    {% set videoFormats = ['video/mp4','video/webm'] %}
+
+    {% set firstItem = true %}
+
+    {% for element in templateVars.list.elementlist %}
+
+        {% set link = '' %}
+        {% set displayCategory = true %}
+
+        {% if 'paragraph' == element.category %}
+            {% set link = path('DemosPlan_public_plandocument_paragraph',{'procedure': procedure, 'elementId': element.ident }) %}
+            {# Blende die Kategorie aus, wenn kein Text und keine Dokumente hochgeladen wurden #}
+            {% if element.paragraphDocs == false and (element.file is defined and element.file|length == 0) and element.title != 'explanations'|trans %}
+                {% set displayCategory = false %}
+            {% endif %}
+        {% endif %}
+
+        {% if displayCategory == true %}
+            <article class="{{ 'elements' ~ (firstItem == false ? ' border--top')|prefixClass }}">
+
+                <h2 class="{{ 'elements__header elements__grid cf'|prefixClass }}">
+                    <span
+                        class="{{ 'elements__grid-grow display--inline-block' ~ (element.iconTitle|default != '' ? ' cursor--help')|prefixClass }}"
+                        {# In bobhh and bobsh, element.iconTitle contains a category-based help text. #}
+                        {% if element.iconTitle|default != '' %}
+                            title="{{ element.iconTitle|trans({ title: element.title }) }}"
+                        {% endif %}>
+                        {# In bobhh and bobsh, categories may have icons defined in the database. #}
+                        <i
+                            class="{{ 'elements__header-icon position--absolute fa ' ~ (element.icon|default|length > 0 ? element.icon : 'fa-file-text')|prefixClass }}"
+                            aria-hidden="true"></i>
+                        <span class="{{ 'elements__title display--inline-block'|prefixClass }}">
+                            {{ element.title }}
+                        </span>
+                    </span>
+
+                    {# Link to detail view of element, if it contains paragraphs #}
+                    {% if element.paragraphDocs == true and element.hasParagraphs %}
+                        <a
+                            class="{{ 'elements__button btn btn--primary float--right u-mt-0_25-lap-down u-1-of-1-lap-down'|prefixClass }}"
+                            href="{{ link }}"
+                            title="{{ element.title }}"
+                            aria-label="{{ 'document'|trans }}: {{ element.title }}, {{- (hasPermission('feature_documents_new_statement') ? 'document.open.and.assessment' : 'document.open')|trans -}}">
+                            <i class="{{ 'fa fa-plus u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
+                            {{- (hasPermission('feature_documents_new_statement') ? 'document.open.and.assessment' : 'document.open')|trans -}}
+                        </a>
+                    {% endif %}
+                </h2>
+
+                {# Description of category #}
+                <div class="{{ 'elements__description u-1-of-1-desk-up overflow-word-break'|prefixClass }}">
+                    {# display to planners if only specific orgas see this element #}
+                    {% if hasPermission('feature_admin_element_authorisations') %}
+                    {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {
+                            context: 'element',
+                            organisations: element.organisation|default,
+                            element_title: element.title
+                        } %}
+                    {% endif %}
+
+                    <div class="{{ 'c-styled-html'|prefixClass }}">
+                        {{ element.text|default|wysiwyg(['h3', 'h4', 'h5']) }}
+                    </div>
+                </div>
+
+                {# Content of category.
+                   This may be one file/video for categories of type 'paragraph' or many files/videos for categories of type 'file'. #}
+                <ul class="{{ 'elements__content list-style-none hide-empty u-mb-0'|prefixClass }}">
+                    {%- apply spaceless %}
+
+                        {% if element.category == 'paragraph' %}
+
+                            {% if element.file is defined and element.file != '' %}
+                                <li class="{{ 'elements__file elements__grid u-pv-0_25 cf'|prefixClass }}">
+                                    {% if element.file|getFile('mimeType') in videoFormats %}
+                                        <dp-video-player
+                                            class="{{ 'box-shadow-1'|prefixClass }}"
+                                            :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: element.file|getFile('hash') }) }}', type: '{{ element.file|getFile('mimeType') }}' } ]"
+                                            id="{{ 'file' ~ element.file|getFile('hash') }}"
+                                            icon-url="{{ asset('img/plyr.svg') }}">
+                                        </dp-video-player>
+                                    {% else %}
+                                        {# Simple download link that is also read out by screen readers #}
+                                        <div class="{{ 'elements__file-name elements__grid-grow'|prefixClass }}">
+                                            <a
+                                                class="{{ 'o-link--default overflow-word-break'|prefixClass }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}">
+                                                <span class="{{ 'hide-visually'|prefixClass }}">{{ 'download'|trans }}</span>
+                                                <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                                                {{ element.title }}
+                                                {% if (element.file|getFile('size', 'MB')|length > 0) %}
+                                                    <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                        ({{ element.file|getFile('mimeType') }} {{ element.file|getFile('size', 'MB') }})
+                                                    </span>
+                                                {% endif %}
+                                            </a>
+                                        </div>
+
+                                        {# Additional download button to emphasize download action - hidden for screen readers #}
+                                        {% if element.file|getFile('mimeType') not in videoFormats %}
+                                            <a
+                                                class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down'|prefixClass }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}"
+                                                aria-hidden="true"
+                                                tabindex="-1">
+                                                {{ 'download'|trans }}
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+
+                        {% else %}
+
+                            {% for document in element.documents|filter(document => document.visible == true) %}
+
+                                {% set statementEnabled = document.statementEnabled == true and hasPermission('feature_documents_new_statement') %}
+                                {% set mimeType = document.document|getFile('mimeType') %}
+                                {% set isVideo = mimeType in videoFormats %}
+
+                                <li class="{{ 'elements__file cf'|prefixClass }}">
+                                    <div class="{{ (not isVideo ? 'elements__grid')|prefixClass }}">
+                                        {% if isVideo %}
+                                            <dp-video-player
+                                                class="{{ 'box-shadow-1'|prefixClass }}"
+                                                :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: document.document|getFile('hash') }) }}', type: '{{ document.document|getFile('mimeType') }}' } ]"
+                                                id="{{ 'file' ~ document.document|getFile('hash') }}"
+                                                icon-url="{{ asset('img/plyr.svg') }}">
+                                            </dp-video-player>
+                                        {% else %}
+                                            {# Simple download link that is also read out by screen readers #}
+                                            <div class="{{ 'elements__file-name elements__grid-grow'|prefixClass }}">
+                                                <a
+                                                    class="{{ 'o-link--default overflow-word-break u-mr-0_25'|prefixClass }}"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}">
+                                                    <span class="{{ 'hide-visually'|prefixClass }}">{{ 'download'|trans }}</span>
+                                                    <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                                                    {{ document.title }}
+                                                    {% if document.document|getFile('size')|length > 0 %}
+                                                        <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                            ({{ document.document|getFile('mimeType') }} {{ document.document|getFile('size', 'MB') }})
+                                                        </span>
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if statementEnabled %}
+                                            {# "New statement" button #}
+                                            <button
+                                                @click.prevent="updateStatementAndOpenModal({
+                                                        r_document_id: '{{ document.ident|default }}',
+                                                        r_document_title: '{{ document.title|replace({"\n":'',"\r":'',"\t":' '})|default|e('js') }}',
+                                                        r_element_id: '{{ document.elementId|default }}',
+                                                        r_element_title: '{{ element.title|replace({"\n":'',"\r":'',"\t":' '})|default|e('js') }}',
+                                                        r_paragraph_id: '',
+                                                        r_paragraph_title: ''
+                                                    }, { draftStatementId: '{{ templateVars.draftStatementId|default }}' })"
+                                                class="{{ 'elements__button btn btn--primary btn--outline u-mb-0_25-lap-down u-1-of-1-lap-down' ~ (isVideo ? ' u-mt-0_5 float--right')|prefixClass }}"
+                                                type="button"
+                                                aria-label="{{ 'plandocument'|trans }}: {{ document.title }}, {{ 'statement.form.add.relation'|trans }}">
+                                                <i class="{{ 'fa fa-comment u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                                                {{ 'statement.form.add.relation'|trans }}
+                                            </button>
+                                        {% endif %}
+
+                                        {# Additional download button to emphasize download action - hidden for screen readers #}
+                                        {% if not isVideo %}
+                                            <a
+                                                class="{{ 'elements__button btn btn--secondary btn--outline u-1-of-1-lap-down'|prefixClass }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}"
+                                                aria-hidden="true"
+                                                tabindex="-1">
+                                                {{ 'download'|trans }}
+                                            </a>
+                                        {% endif %}
+                                    </div>
+
+                                    {# For users that are able to administrate the current procedure,
+                                       instead of the "New statement" button a message is displayed #}
+                                    {% if not statementEnabled and document.statementEnabled == true %}
+                                        <div class="elements__permission">
+                                            {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {
+                                                context: 'file',
+                                                orga_count: element.organisation|default([])|length > 0,
+                                                element_title: element.title
+                                            } %}
+                                        </div>
+                                    {% endif %}
+
+                                </li>
+                            {% endfor %}
+
+                        {% endif %}
+
+                    {% endapply -%}
+                </ul>
+
+            </article>
+
+            {% set firstItem = false %}
+
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

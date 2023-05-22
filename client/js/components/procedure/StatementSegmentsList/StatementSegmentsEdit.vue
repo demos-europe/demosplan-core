@@ -11,7 +11,7 @@
   <div data-dp-validate="segmentsStatementForm">
     <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments, display segments -->
+    <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
@@ -67,26 +67,42 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <dp-editor
-        hidden-input="statementText"
-        @input="updateStatementText"
-        :value="statement.attributes.fullText || ''"
-        :toolbar-items="{ linkButton: true }"
-        :readonly="!editable"
-        required />
-      <dp-button-row
-        class="u-mv"
-        primary
-        secondary
-        @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-        @secondary-action="resetStatement" />
+      <template v-if="editable">
+        <dp-editor
+          hidden-input="statementText"
+          @input="updateStatementText"
+          :value="statement.attributes.fullText || ''"
+          :toolbar-items="{ linkButton: true }"
+          required />
+        <dp-button-row
+          class="u-mv"
+          primary
+          secondary
+          :secondary-text="Translator.trans('discard.changes')"
+          @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
+          @secondary-action="resetStatement" />
+      </template>
+      <div
+        v-else
+        class="border space-inset-s">
+        <p class="weight--bold">
+          {{ Translator.trans('statement.text.short') }}
+        </p>
+        <div v-cleanhtml="statement.attributes.fullText || ''" />
+      </div>
     </template>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpLoading,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
@@ -167,7 +183,7 @@ export default {
     },
 
     hasSegments () {
-      return Object.keys(this.segments).length > 0
+      return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
     statement () {
@@ -338,7 +354,7 @@ export default {
   },
 
   mounted () {
-    if (Object.keys(this.segments).length === 0) {
+    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
@@ -365,11 +381,14 @@ export default {
             this.scrollToSegment()
           })
         })
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   },
 
   beforeDestroy () {
-    if (this.editingSegmentIds.length > 0) {
+    if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }
     if (this.hasSegments === false && this.segment) {

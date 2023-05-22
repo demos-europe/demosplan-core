@@ -11,11 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Cocur\Slugify\Slugify;
-
-use function collect;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -31,38 +30,56 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoade
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanProcedureBundle\Form\BoilerplateType;
 use demosplan\DemosPlanProcedureBundle\Form\ProcedureFormType;
@@ -78,26 +95,7 @@ use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -205,6 +203,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_procedure_entrypoint",
      *     path="/verfahren/{procedure}/entrypoint",
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param Request                            $request      Unused
@@ -224,6 +223,7 @@ class DemosPlanProcedureController extends BaseController
      * Redirect to a procedure by id.
      *
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(
      *     path="/plan/{slug}",
      *     name="core_procedure_slug"
@@ -266,6 +266,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/uebersicht",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_dashboard")
      *
      * @return RedirectResponse|Response
@@ -729,6 +730,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/neu",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_admin_new_procedure")
      *
      * @return RedirectResponse|Response
@@ -834,6 +836,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/blaupausen/neu",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @return RedirectResponse|Response
@@ -941,6 +944,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @param string $procedure
@@ -1008,6 +1012,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_invite_unregistered_public_agency_email",
      *     path="/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email"
      * )
+     *
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      *
      * @param string $procedureId
@@ -1086,6 +1091,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_invite_unregistered_public_agency_list",
      *     path="/verfahren/{procedureId}/einstellungen/{organisationId}/unregistrierte_toeb_liste"
      * )
+     *
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      *
      * @throws Exception
@@ -1138,6 +1144,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedureId}/einstellungen/mitglieder_email",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_main_procedures","area_admin_invitable_institution")
      *
      * @throws LoaderError
@@ -1189,9 +1196,9 @@ class DemosPlanProcedureController extends BaseController
      * Helper method to creates an defined text to attach to an Email.
      *
      * @throws Throwable
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private function generateAdditionalEmailText(Procedure $procedure, array $selectedOrganisations): string
     {
@@ -1245,6 +1252,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/blaupause/{procedure}/einstellungen",
      *     defaults={"isMaster": true}
      * )
+     *
      * @DplanPermissions({"area_main_procedures", "area_admin_preferences"})
      *
      * @param bool $isMaster Ist es eine Blaupause?
@@ -1329,9 +1337,9 @@ class DemosPlanProcedureController extends BaseController
                 if ($form->isValid()) {
                     /** @var ProcedureFormData $procedureFormData */
                     $procedureFormData = $form->getData();
-                    $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-                    $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-                    $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+                    $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+                    $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+                    $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
                 }
 
                 $this->validateAdministrationEditInput($inData);
@@ -1511,6 +1519,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/einstellungen/update",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_main_procedures","area_admin_preferences"})
      *
      * @param string $procedure
@@ -1554,6 +1563,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedureId}/import",
      *     options={"expose":true}
      * )
+     *
      * @DplanPermissions({"area_main_procedures", "area_admin_import"})
      *
      * @throws Exception
@@ -1656,6 +1666,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/public/detail",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_public_participation")
      *
      * @return RedirectResponse|Response
@@ -2026,6 +2037,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_procedure_list_data_input_orga_procedures",
      *     path="/verfahren/datainput/list"
      * )
+     *
      * @DplanPermissions("area_statement_data_input_orga")
      *
      * @throws Exception
@@ -2052,6 +2064,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/abonnieren",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_subscriptions")
      *
      * @return RedirectResponse|Response
@@ -2126,6 +2139,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/einstellungen/benutzer",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_invitable_institution")
      *
      * @param string $procedure
@@ -2336,6 +2350,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_procedure_member_add",
      *     path="/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen"
      * )
+     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @return RedirectResponse|Response
@@ -2411,6 +2426,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/textbausteine",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2493,6 +2509,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_procedure_template_places_list",
      *     path="/verfahren/blaupause/{procedureId}/schritte",
      * )
+     *
      * @DplanPermissions("area_manage_segment_places")
      */
     public function showProcedurePlacesAction(string $procedureId)
@@ -2510,6 +2527,7 @@ class DemosPlanProcedureController extends BaseController
      *     path="/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}",
      *     defaults={"boilerplateId": "new", "selectedGroupId": ""},
      * )
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2622,6 +2640,7 @@ class DemosPlanProcedureController extends BaseController
      *     name="DemosPlan_procedure_boilerplate_group_delete",
      *     path="/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete",
      * )
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2659,6 +2678,7 @@ class DemosPlanProcedureController extends BaseController
      *     defaults={"boilerplateGroupId": "new"},
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2758,7 +2778,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @param string $boilerplateId - Identifies the Boilerplate to delete
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplate(string $boilerplateId)
     {
@@ -2779,13 +2799,26 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroup and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
-    protected function handleDeleteBoilerplateGroup(string $boilerplateGroupId)
-    {
+    protected function handleDeleteBoilerplateGroup(
+        string $boilerplateGroupId
+    ) {
+        $boilerplatesOfGroupToDelete = new ArrayCollection();
         $boilerplateGroupToDelete = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
-        $title = null === $boilerplateGroupToDelete ? '' : $boilerplateGroupToDelete->getTitle();
+        $title = '';
+        if (null !== $boilerplateGroupToDelete) {
+            foreach ($boilerplateGroupToDelete->getBoilerplates() as $boilerplate) {
+                $boilerplatesOfGroupToDelete->add($boilerplate);
+            }
+            $title = $boilerplateGroupToDelete->getTitle();
+        }
+
         $successfully = $this->procedureService->deleteBoilerplateGroup($boilerplateGroupToDelete);
+        /** @var Boilerplate $boilerplate */
+        foreach ($boilerplatesOfGroupToDelete as $boilerplate) {
+            $successfully = $successfully && $this->procedureService->deleteBoilerplate($boilerplate->getId());
+        }
         if ($successfully) {
             $this->getMessageBag()->add(
                 'confirm',
@@ -2817,11 +2850,27 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroups and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
-    protected function handleDeleteBoilerplateGroups(array $boilerplateGroupIds)
-    {
+    protected function handleDeleteBoilerplateGroups(
+        array $boilerplateGroupIds
+    ) {
+        $boilerplatesOfGroupsToDelete = new ArrayCollection();
+        foreach ($boilerplateGroupIds as $boilerplateGroupId) {
+            $boilerplateGroup = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
+            /* @var Boilerplate $boilerplate */
+            if (null === $boilerplateGroup) {
+                continue;
+            }
+            foreach ($boilerplateGroup->getBoilerplates() as $boilerplate) {
+                $boilerplatesOfGroupsToDelete->add($boilerplate);
+            }
+        }
         $allDeleted = $this->procedureService->deleteBoilerplateGroupsByIds($boilerplateGroupIds);
+        /** @var Boilerplate $boilerplate */
+        foreach ($boilerplatesOfGroupsToDelete as $boilerplate) {
+            $allDeleted = $allDeleted && $this->procedureService->deleteBoilerplate($boilerplate->getId());
+        }
         if ($allDeleted) {
             $this->getMessageBag()->add('confirm', 'confirm.selected.boilerplateGroups.deleted');
         } else {

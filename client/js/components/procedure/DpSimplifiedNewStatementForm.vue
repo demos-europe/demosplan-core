@@ -41,7 +41,7 @@
                 text: Translator.trans('citizen')
               }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
-              @change="values.submitter.institution = false" />
+              @change="setInstitutionValue(false)" />
             <dp-radio
               name="r_role"
               value="1"
@@ -50,7 +50,7 @@
                 text: Translator.trans('institution')
               }"
               :checked="values.submitter.institution === true"
-              @change="values.submitter.institution = true" />
+              @change="setInstitutionValue(true)" />
           </div>
 
           <div class="space-stack-s">
@@ -71,7 +71,7 @@
                 v-model="values.submitter.department"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
-                  text: Translator.trans('department'),
+                  text: Translator.trans('department')
                 }"
                 name="r_orga_department_name" />
             </div>
@@ -144,8 +144,7 @@
                     name="r_orga_city"
                     :label="{
                       text: Translator.trans('city')
-                    }"
-                    pattern="^[A-Za-zÄäÜüÖöß -]+$" />
+                    }" />
                 </div>
               </div><!--
 
@@ -312,6 +311,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
+          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -328,6 +328,7 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
@@ -352,20 +353,31 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from '@demos-europe/demosplan-ui'
-import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
+import {
+  DpAccordion,
+  DpButtonRow,
+  DpDatepicker,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpRadio,
+  DpSelect,
+  DpTextArea,
+  DpUploadFiles,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  orga: '',
-  department: '',
-  name: '',
-  email: '',
-  plz: '',
   city: '',
-  institution: false
+  date: '',
+  department: '',
+  email: '',
+  institution: false,
+  name: '',
+  orga: '',
+  plz: ''
 }
 
 export default {
@@ -492,6 +504,11 @@ export default {
   },
 
   computed: {
+    escapedUsedInternIds () {
+      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
+      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
+    },
+
     internIdsPattern () {
       let pattern = ''
       if (this.escapedUsedInternIds.length > 0) {
@@ -499,11 +516,6 @@ export default {
       }
       pattern = pattern + '[0-9a-zA-Z-_ /().?!,+*#äüöß]{1,}$'
       return pattern
-    },
-
-    escapedUsedInternIds () {
-      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
-      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
     },
 
     nowDate () {
@@ -533,12 +545,33 @@ export default {
     setInitialValues () {
       this.values = { ...this.initValues }
       // Set default values to ensure reactivity.
-      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
-        Vue.set(this.values, 'submitter', {})
+      if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
+        // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
+        this.$set(this.values.submitter, 'institution',  this.values.submitter.toeb)
+        this.$delete(this.values.submitter, 'toeb')
+      }
+
+      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {
+        this.$set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
-          Vue.set(this.values.submitter, key, value)
+          this.$set(this.values.submitter, key, value)
+
+          // Synchronize values.authoredDate with the date value provided by data if date exists.
+          if (key === 'date' && value) {
+            this.$set(this.values, 'authoredDate', value)
+          }
         }
       }
+    },
+
+    /**
+     * @param { Boolean } val
+     * To ensure the reactivity the state of 'values.submitter.institution'.
+     */
+    setInstitutionValue (val) {
+      this.$nextTick(() => {
+        this.$set(this.values.submitter, 'institution', val)
+      })
     },
 
     sortSelected (property) {

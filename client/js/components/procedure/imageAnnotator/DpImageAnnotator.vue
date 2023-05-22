@@ -149,8 +149,7 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style'
 import { containsExtent, getCenter } from 'ol/extent'
 import { defaults as defaultInteractions, Draw, Modify, Select, Snap } from 'ol/interaction'
-import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { createBox } from 'ol/interaction/Draw'
 import DpLabelModal from './DpLabelModal'
 import DpSendBeacon from './DpSendBeacon'
@@ -485,7 +484,25 @@ export default {
           size: 1
         },
         sort: 'pageSortIndex',
-        include: ['annotatedStatementPdf', 'annotatedStatementPdf.annotatedStatementPdfPages'].join()
+        fields: {
+          AnnotatedStatementPdfPage:[
+            'id',
+            'url',
+            'width',
+            'height',
+            'geoJson',
+            'annotatedStatementPdf'
+          ].join(),
+          AnnotatedStatementPdf:[
+            'status',
+            'text',
+            'file',
+            'procedure',
+            'statement',
+            'annotatedStatementPdfPages',
+          ].join()
+        },
+        include: ['annotatedStatementPdf'].join()
       }
       const pageResponse = await dpApi.get(url, params, { serialize: true })
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {

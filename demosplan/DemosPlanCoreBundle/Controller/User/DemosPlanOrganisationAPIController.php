@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -22,17 +23,16 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
@@ -57,6 +57,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("feature_orga_get")
      */
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
@@ -95,6 +96,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
@@ -274,6 +276,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"DELETE"},
      *     name="organisation_delete"
      * )
+     *
      * @DplanPermissions("feature_orga_delete")
      */
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
@@ -308,6 +311,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"POST"},
      *     name="organisation_create"
      * )
+     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
@@ -332,7 +336,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $newOrga = $userHandler->addOrga($orgaDataArray);
 
             // Fehlermeldung, Pflichtfelder
-            if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
+            if (is_array($newOrga) && array_key_exists('mandatoryfieldwarning', $newOrga)) {
                 $this->messageBag->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
@@ -356,6 +360,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"PATCH"},
      *     name="organisation_update"
      * )
+     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse

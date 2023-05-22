@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
@@ -37,14 +39,18 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
@@ -54,20 +60,24 @@ use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
@@ -80,15 +90,6 @@ use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateCategoryVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -115,8 +116,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
-
-use function array_key_exists;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -497,7 +496,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $changeUserExternal = $procedure->getSettings()->getDesignatedPublicPhaseChangeUser();
             $changeUserInternalId = $this->getUserIdOrNull($changeUserInternal);
             $changeUserExternalId = $this->getUserIdOrNull($changeUserExternal);
-            $equalUser = null !== $changeUserExternalId
+            $equalNonNullUser = null !== $changeUserExternalId
                 && null !== $changeUserInternalId
                 && $changeUserInternalId === $changeUserExternalId;
 
@@ -507,10 +506,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedureAfterExternalChange = $this->cloneProcedure($procedure);
             $internalPhaseSwitched = $this->switchToDesignatedPhase($procedure);
             $procedureAfterExternalAndInternalChange = $this->cloneProcedure($procedure);
+            $fallbackReportUserName = $this->translator->trans('user.deleted');
 
             // create either a single report entry if the same user did both changes or two separate
             // changes for separate users
-            if ($equalUser) {
+            if ($equalNonNullUser) {
                 if ($internalPhaseSwitched || $externalPhaseSwitched) {
                     // at this point $changeUserExternal is equal to $changeUserInternal and never null
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
@@ -528,7 +528,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $originalProcedure,
                         $procedureAfterExternalChange,
-                        $changeUserExternal,
+                        $changeUserExternal ?? $fallbackReportUserName,
                         true
                     );
                 }
@@ -540,7 +540,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $procedureAfterExternalChange,
                         $procedureAfterExternalAndInternalChange,
-                        $changeUserInternal,
+                        $changeUserInternal ?? $fallbackReportUserName,
                         true
                     );
                 }
@@ -601,9 +601,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureFormData = $form->getData();
         // will be an empty string and an empty array in case of a non-blueprint submit for agencyExtraEmailAddresses
         // agencyMainEmailAddress will be an empty string in case of blueprint submits
-        $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-        $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-        $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+        $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
         // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
         if (\array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
@@ -807,8 +807,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param array  $filters
      * @param string $search
-     * @param array  $sort
      * @param User   $user            will be used to get the organisation ID, the user ID and the role name
+     * @param array  $sort
+     * @param bool   $template        should procedure templates be included in results
      * @param bool   $toLegacy        determines if return value will be array[] or Procedure[]
      * @param bool   $excludeArchived exclude internal and external phase closed
      *
@@ -818,8 +819,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @deprecated do not spread usage of this; see T21768
      */
-    public function getProcedureAdminList($filters, $search, $sort = null, User $user, bool $template, $toLegacy = true, $excludeArchived = true)
-    {
+    public function getProcedureAdminList(
+        $filters,
+        $search,
+        User $user,
+        $sort = null,
+        bool $template = false,
+        $toLegacy = true,
+        $excludeArchived = true
+    ) {
         try {
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
@@ -1102,9 +1110,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
-                PostNewProcedureCreatedEventInterface::class
-            );
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']), PostNewProcedureCreatedEventInterface::class);
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
@@ -1265,7 +1271,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // delete Procedure
             $repository->delete($procedureId);
 
-            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData));
+            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData), PostProcedureDeletedEventInterface::class);
 
             $this->logger->info('Procedure deleted: '.$procedureId);
         } finally {
@@ -2013,7 +2019,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
-        $masterTemplateId = $this->masterTemplateService->getMasterTemplateId();
+        $masterTemplateId = $this->getMasterTemplateId();
         $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
 
         // T15664: in case of globalMasterBlueprint is set,
@@ -2371,7 +2377,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         // ensure that we have at least our base Categories & Groups from Master blueprint
         $this->boilerplateCategoryRepository
-            ->ensureBaseCategories($this->masterTemplateService->getMasterTemplateId(), $newProcedure);
+            ->ensureBaseCategories($this->getMasterTemplateId(), $newProcedure);
     }
 
     /**
@@ -2601,7 +2607,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
         $filters = null === $procedureIdToExclude ? [] : ['procedureIdToExclude' => $procedureIdToExclude];
-        $accessibleProcedures = $this->getProcedureAdminList($filters, null, ['name' => 'ASC'], $user, false, false);
+        $accessibleProcedures = $this->getProcedureAdminList(
+            $filters,
+            null,
+            $user,
+            ['name' => 'ASC'],
+            false,
+            false
+        );
 
         $accessibleProcedures =
             \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
@@ -2865,10 +2878,16 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     private function copyProcedureRelatedFilesFromBlueprint(string $blueprintId, Procedure $newProcedure): void
     {
+        /** @var Procedure $blueprint */
         $blueprint = $this->procedureRepository->findOneBy(['id' => $blueprintId]);
         $newFiles = [];
 
         foreach ($blueprint->getFiles() as $procedureFile) {
+            if ($procedureFile->getDeleted()) {
+                // skip deleted files; only relevant if the maintenance service did not (yet)
+                // automatically removed them fully
+                continue;
+            }
             $newFile = $this->fileService->createCopyOfFile($procedureFile->getFileString(), $newProcedure->getId());
             if (null !== $newFile) {
                 $newFiles[] = $newFile;
@@ -2957,5 +2976,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }, $sourcePlaces);
 
         $this->placeRepository->persistEntities($newPlaces);
+    }
+
+    public function getMasterTemplateId()
+    {
+        return $this->masterTemplateService->getMasterTemplateId();
     }
 }

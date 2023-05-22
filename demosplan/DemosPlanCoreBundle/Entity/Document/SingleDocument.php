@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,9 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * paragraphs. Those can't hold files.
  *
  * @ORM\Table(name="_single_doc")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository")
  */
-class SingleDocument extends CoreEntity implements UuidEntityInterface
+class SingleDocument extends CoreEntity implements SingleDocumentInterface
 {
     public const IMPORT_CREATION = 'importCreation';
 
@@ -39,8 +40,11 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_sd_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -49,6 +53,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -67,6 +72,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/
     protected $element;
@@ -89,6 +95,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_sd_title", type="string", length=256, nullable=false)
+     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.heading", groups={SingleDocument::IMPORT_CREATION})
      */
     protected $title = '';
@@ -113,6 +120,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_sd_document", type="string", nullable=false, length=256)
+     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.file", groups={SingleDocument::IMPORT_CREATION})
      */
     protected $document = '';
@@ -144,6 +152,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_sd_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -152,6 +161,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -160,6 +170,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -168,6 +179,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", mappedBy="singleDocument")
+     *
      * @ORM\JoinColumn(name="_sd_id", referencedColumnName="_sd_id")
      */
     protected $versions;

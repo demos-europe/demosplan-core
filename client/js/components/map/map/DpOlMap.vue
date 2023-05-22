@@ -71,8 +71,12 @@
               :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="_options.autoSuggest.serviceUrlPath"
-              :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent) }"
+              :route-generator="(searchString) => {
+                return Routing.generate(_options.autoSuggest.serviceUrlPath, {
+                  filterByExtent: JSON.stringify(maxExtent),
+                  query: searchString
+                })
+              }"
               label="value"
               :placeholder="Translator.trans('autocomplete.label')"
               track-by="value"
@@ -121,8 +125,14 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, deepMerge, dpApi, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  deepMerge,
+  dpApi,
+  DpAutocomplete,
+  DpLoading,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
 import DpOlMapLayer from './DpOlMapLayer'
@@ -208,7 +218,8 @@ export default {
       },
       baselayer: '',
       baselayerLayers: '',
-      baseLayerProjection: ''
+      baseLayerProjection: '',
+      maxExtent: []
     }
   },
 
@@ -228,10 +239,12 @@ export default {
     /**
      * Transform function to only return results from inside current maxExtent to AutoComplete
      * @todo make it work - somehow there seem to be different projections ?:/
+     *
      * @return {function(*=): *}
      */
     transformAutoCompleteResult () {
       const maxExtent = this.maxExtent
+
       return function (response) {
         const parsedResponse = JSON.parse(response)
         const projection = this._options.projection.code
@@ -278,13 +291,15 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureDefaultMaxExtent
-      } else {
-        this.maxExtent = mapOptions.defaultMapExtent
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent?.length > 0) {
+        return mapOptions.procedureMaxExtent
       }
+
+      if (mapOptions.procedureDefaultMaxExtent?.length > 0) {
+        return mapOptions.procedureDefaultMaxExtent
+      }
+
+      return mapOptions.defaultMapExtent
     },
 
     /**
@@ -420,7 +435,7 @@ export default {
     this.publicSearchAutozoom = mapOptions.publicSearchAutoZoom || 8
 
     //  Define extent & center
-    this.defineExtent(mapOptions)
+    this.maxExtent = this.defineExtent(mapOptions)
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2

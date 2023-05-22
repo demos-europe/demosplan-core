@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
@@ -31,9 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -49,6 +48,7 @@ use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -133,7 +133,12 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function logIn(UserInterface $user)
     {
-        $this->tokenStorage->setToken(new DemosToken($user));
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')
+            ->willReturn($user);
+        $token->method('getRoleNames')
+            ->willReturn($user->getDplanRolesArray());
+        $this->tokenStorage->setToken($token);
     }
 
     /**
@@ -263,7 +268,7 @@ class FunctionalTestCase extends WebTestCase
      *
      * @return int - The number of entries of the table
      */
-    public function countEntries($entityName, array $criteria = []): int
+    public function countEntries(string $entityName, array $criteria = []): int
     {
         return count($this->getEntries($entityName, $criteria));
     }
@@ -604,6 +609,11 @@ class FunctionalTestCase extends WebTestCase
     }
 
     protected function getProcedureBehaviorDefinitionReference(string $name): ProcedureBehaviorDefinition
+    {
+        return $this->getReference($name);
+    }
+
+    protected function getProcedurePersonReference(string $name): ProcedurePerson
     {
         return $this->getReference($name);
     }

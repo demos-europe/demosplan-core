@@ -51,7 +51,7 @@
         :key="user.id"
         :all-organisations="organisations"
         :user="user"
-        @delete="deleteUsers([user.id])"
+        @delete="deleteSingelUser(user.id)"
         :is-open="expandedCardId === id"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
@@ -69,8 +69,14 @@
 </template>
 
 <script>
-import { debounce, dpApi, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpLoading, DpTableCardListHeader } from '@demos-europe/demosplan-ui'
+import {
+  debounce,
+  dpApi, DpButton,
+  DpLoading,
+  dpSelectAllMixin,
+  DpTableCardListHeader,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
@@ -140,6 +146,17 @@ export default {
       deleteUser: 'delete'
     }),
 
+    deleteSingelUser (id) {
+      if (dpconfirm(Translator.trans('check.user.delete', { count: 1 })) === false) {
+        return
+      }
+
+      return this.deleteUser(id)
+        .then(() => {
+          this.deleteUserFromSelection(id)
+        })
+    },
+
     deleteUsers (ids) {
       if (!this.selectedItems.length || dpconfirm(Translator.trans('check.entries.marked.delete')) === false) {
         return
@@ -148,11 +165,17 @@ export default {
       ids.map(id => {
         return this.deleteUser(id)
           .then(() => {
-            // Remove deleted item from itemSelections
-            Vue.delete(this.itemSelections, id)
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+            this.deleteUserFromSelection(id)
           })
       })
+    },
+
+    /**
+     * Remove deleted item from itemSelections
+     */
+    deleteUserFromSelection (id) {
+      Vue.delete(this.itemSelections, id)
+      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 
     /**

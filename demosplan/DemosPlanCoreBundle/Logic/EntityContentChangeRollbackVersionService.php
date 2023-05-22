@@ -110,7 +110,7 @@ class EntityContentChangeRollbackVersionService extends CoreService
             $string = $service->removeLineBreaksAtHtmlDelimitersFromTipTapString($string);
         }
 
-        return $string ?? '';
+        return $string;
     }
 
     /**

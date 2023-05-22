@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use Doctrine\ORM\TransactionRequiredException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -35,7 +36,7 @@ class ProcedureCategoryService extends CoreService
     /**
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws TransactionRequiredException
      */
     public function transformProcedureCategoryIdsToObjects(array $procedureCategoriesIds): array
     {

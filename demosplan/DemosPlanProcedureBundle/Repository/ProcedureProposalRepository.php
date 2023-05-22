@@ -54,7 +54,7 @@ class ProcedureProposalRepository extends CoreRepository
             $em->flush();
         } catch (Exception $e) {
             $this->getLogger()->error('Add ProcedureProposal failed: ', [$e]);
-            throw new RuntimeException('Could not add ProcedureProposal.');
+            throw new RuntimeException('Could not add ProcedureProposal.', 0, $e);
         }
 
         return $procedureProposal;

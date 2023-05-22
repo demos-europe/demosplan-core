@@ -68,8 +68,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {

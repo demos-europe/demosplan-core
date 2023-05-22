@@ -23,7 +23,7 @@
     <button
       type="button"
       @click.prevent="openModal"
-      :class="{'color--highlight': noFilterApplied === false }"
+      :class="{'color-highlight': noFilterApplied === false }"
       class="btn--blank o-link--default display--inline-block u-mb-0 u-p-0 u-mt-0_125"
       data-cy="openFilterModal">
       <i
@@ -214,10 +214,9 @@
 </template>
 
 <script>
-import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpFilterModal',

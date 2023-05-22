@@ -10,39 +10,37 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
-
-use function is_array;
-
 use Psr\Log\LoggerInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
+use function array_key_exists;
+use function is_array;
 
 /**
  * Ausgabe von Planverfahrenslisten und Editformularen dazu.
@@ -170,7 +168,7 @@ class ServiceOutput
      * Verarbeitet alle Anfragen aus der Listenansicht.
      * Liefert eine Liste von Verfahren.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure $esQuery
+     * @param QueryProcedure $esQuery
      *
      * @throws Exception
      */
@@ -239,7 +237,15 @@ class ServiceOutput
         }
 
         $user = $this->currentUser->getUser();
-        $sResult = $this->service->getProcedureAdminList($filter, $search, null, $user, true, true, false);
+        $sResult = $this->service->getProcedureAdminList(
+            $filter,
+            $search,
+            $user,
+            null,
+            true,
+            true,
+            false
+        );
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];

@@ -15,12 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanStatementBundle\Exception\DuplicateInternIdException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -41,14 +40,18 @@ class StatementResourceTypeService extends ResourceTypeService
      */
     private $statementService;
 
+    private StatementDeleter $statementDeleter;
+
     public function __construct(
         ValidatorInterface $validator,
         CurrentUserInterface $currentUser,
         ResourceTypeService $resourceTypeService,
-        StatementService $statementService
+        StatementService $statementService,
+        StatementDeleter $statementDeleter
     ) {
         $this->currentUser = $currentUser;
         $this->statementService = $statementService;
+        $this->statementDeleter = $statementDeleter;
         $this->resourceTypeService = $resourceTypeService;
         parent::__construct($validator);
     }
@@ -111,13 +114,12 @@ class StatementResourceTypeService extends ResourceTypeService
 
         $this->resourceTypeService->validateObject($object);
         $this->resourceTypeService->validateObject($meta);
-        $resourceChange->addEntityToUpdateInIndex(Statement::class, $object->getId());
 
         return $resourceChange;
     }
 
     public function deleteStatement(Statement $statement): bool
     {
-        return $this->statementService->deleteStatementObject($statement);
+        return $this->statementDeleter->deleteStatementObject($statement);
     }
 }

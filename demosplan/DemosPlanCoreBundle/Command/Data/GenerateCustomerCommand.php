@@ -13,53 +13,94 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
-use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+use function in_array;
+use function is_string;
+
 class GenerateCustomerCommand extends CoreCommand
 {
+    private const OPTION_NAME = 'name';
+    private const OPTION_SUBDOMAIN = 'subdomain';
+
     protected static $defaultName = 'dplan:data:generate-customer';
     protected static $defaultDescription = 'Creates a new customer';
+
+    protected QuestionHelper $helper;
+
     /**
-     * @var QuestionHelper
+     * @var list<string>
      */
-    protected $helper;
+    private array $reservedNames;
+
     /**
-     * @var CustomerRepository
+     * @var list<string>
      */
-    private $customerRepository;
+    private array $reservedSubdomains;
 
     public function __construct(
-        CustomerRepository $customerRepository,
+        private readonly CustomerService $customerService,
+        private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-        $this->customerRepository = $customerRepository;
         $this->helper = new QuestionHelper();
+        $reservedCustomers = $this->customerService->getReservedCustomerNamesAndSubdomains();
+        $this->reservedNames = array_column($reservedCustomers, 0);
+        $this->reservedSubdomains = array_column($reservedCustomers, 1);
     }
 
+    protected function configure(): void
+    {
+        parent::configure();
+        $this->addOption(
+            self::OPTION_NAME,
+            'i',
+            InputOption::VALUE_REQUIRED,
+            'The name of the customer to be created. If omitted it will be asked interactively.'
+        );
+        $this->addOption(
+            self::OPTION_SUBDOMAIN,
+            's',
+            InputOption::VALUE_REQUIRED,
+            'The subdomain of the customer to be created. If omitted it will be asked interactively.'
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
-        $name = $this->askCustomerName($input, $output);
-        $subdomain = $this->askSubdomain($input, $output);
+        $name = $input->getOption(self::OPTION_NAME);
+        if (null === $name) {
+            $name = $this->askCustomerName($input, $output);
+        }
 
-        $customer = new Customer($name, $subdomain);
+        $subdomain = $input->getOption(self::OPTION_SUBDOMAIN);
+        if (null === $subdomain) {
+            $subdomain = $this->askSubdomain($input, $output);
+        }
 
         try {
             // create customer
-            $this->customerRepository->updateObject($customer);
+            $this->customerService->createCustomer($name, $subdomain);
+            $this->entityManager->flush();
 
             $output->writeln(
-                'Customer successfully created!',
+                "Customer '$name' was successfully created.",
                 OutputInterface::VERBOSITY_NORMAL
             );
 
@@ -77,16 +118,8 @@ class GenerateCustomerCommand extends CoreCommand
 
     private function askCustomerName(InputInterface $input, OutputInterface $output): string
     {
-        $questionName = new Question('Please enter the Full Name of the customer:', 'default');
-
-        $questionName->setValidator(function ($answer) {
-            $existingCustomer = $this->customerRepository->findOneBy(['name' => $answer]);
-            if (null !== $existingCustomer) {
-                throw new EntryAlreadyExistsException('This name is already used as a customer, please choose another one.');
-            }
-
-            return $answer;
-        });
+        $questionName = new Question('Please enter the full name of the customer:', 'default');
+        $questionName->setValidator([$this, 'assertFreeName']);
 
         return $this->helper->ask($input, $output, $questionName);
     }
@@ -94,16 +127,34 @@ class GenerateCustomerCommand extends CoreCommand
     private function askSubdomain(InputInterface $input, OutputInterface $output): string
     {
         $questionSubdomain = new Question('Please enter the Subdomain of the customer:', 'default');
-
-        $questionSubdomain->setValidator(function ($answer) {
-            $existingCustomer = $this->customerRepository->findOneBy(['subdomain' => $answer]);
-            if (null !== $existingCustomer) {
-                throw new EntryAlreadyExistsException('This subdomain is already used as a customer, please choose another one.');
-            }
-
-            return $answer;
-        });
+        $questionSubdomain->setValidator([$this, 'assertFreeSubdomain']);
 
         return $this->helper->ask($input, $output, $questionSubdomain);
+    }
+
+    public function assertFreeName(mixed $name): string
+    {
+        if (!is_string($name)) {
+            throw new InvalidArgumentException('Customer name must be a string.');
+        }
+
+        if (in_array($name, $this->reservedNames, true)) {
+            throw new EntryAlreadyExistsException('This name is already used as a customer, please choose another one.');
+        }
+
+        return $name;
+    }
+
+    public function assertFreeSubdomain(mixed $subdomain): string
+    {
+        if (!is_string($subdomain)) {
+            throw new InvalidArgumentException('Customer subdomain must be a string.');
+        }
+
+        if (in_array($subdomain, $this->reservedSubdomains, true)) {
+            throw new EntryAlreadyExistsException('This subdomain is already used as a customer, please choose another one.');
+        }
+
+        return $subdomain;
     }
 }

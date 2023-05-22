@@ -44,6 +44,11 @@ class DemosPlanPath
         return dirname(__FILE__, 4).DIRECTORY_SEPARATOR.$path;
     }
 
+    public static function getConfigPath(string $path = ''): string
+    {
+        return self::getRootPath('config'.('' !== $path ? "/{$path}" : ''));
+    }
+
     /**
      * Returns a path to the system temp directory.
      *

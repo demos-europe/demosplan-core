@@ -10,13 +10,14 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Tests\Base\FunctionalTestCase;
@@ -435,8 +436,8 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         $data = [
             'enabled'       => true,
-            'title'         => Elements::FILE_TYPE_PLANZEICHNUNG,
-            'category'      => Elements::ELEMENTS_CATEGORY_MAP,
+            'title'         => ElementsInterface::FILE_TYPE_PLANZEICHNUNG,
+            'category'      => ElementsInterface::ELEMENTS_CATEGORY_MAP,
         ];
 
         $this->testElement->setEnabled($data['enabled']);
@@ -456,8 +457,8 @@ class ElementsServiceTest extends FunctionalTestCase
 
         $data = [
             'enabled'       => true,
-            'title'         => Elements::STATEMENT_TYPE_FEHLANZEIGE,
-            'category'      => Elements::ELEMENTS_CATEGORY_STATEMENT,
+            'title'         => ElementsInterface::STATEMENT_TYPE_FEHLANZEIGE,
+            'category'      => ElementsInterface::ELEMENTS_CATEGORY_STATEMENT,
         ];
 
         $this->testElement->setEnabled($data['enabled']);
@@ -649,9 +650,9 @@ class ElementsServiceTest extends FunctionalTestCase
                 $foundFileElement = true;
             }
 
-            self::assertNotEquals(Elements::ELEMENTS_CATEGORY_CATEGORY, $element['category']);
-            self::assertNotEquals(Elements::ELEMENTS_CATEGORY_MAP, $element['category']);
-            self::assertNotEquals(Elements::ELEMENTS_CATEGORY_STATEMENT, $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_CATEGORY, $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_MAP, $element['category']);
+            self::assertNotEquals(ElementsInterface::ELEMENTS_CATEGORY_STATEMENT, $element['category']);
             self::assertEquals(1, $element['enabled']);
         }
 

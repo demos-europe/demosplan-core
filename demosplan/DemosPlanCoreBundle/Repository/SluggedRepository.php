@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
-use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
 
 abstract class SluggedRepository extends FluentRepository
 {

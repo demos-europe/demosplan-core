@@ -110,9 +110,9 @@
         class="u-mb display--inline-block"
         v-if="false === validations.selection && 'consolidateStatements' === consolidationMethod">
         <i
-          class="fa fa-exclamation-circle color--system-error"
+          class="fa fa-exclamation-circle color-message-severe-fill"
           aria-hidden="true" />
-        <span class="u-ml-0_25 color--system-error">
+        <span class="u-ml-0_25 color-message-severe-text">
           {{ Translator.trans('confirm.consolidation.not.enough.statements') }}
         </span>
       </div>
@@ -166,9 +166,9 @@
           class="display--inline-block"
           v-if="false === validations.headStatement && 'consolidateStatements' === consolidationMethod">
           <i
-            class="fa fa-exclamation-circle color--system-error"
+            class="fa fa-exclamation-circle color-message-severe-fill"
             aria-hidden="true" />
-          <span class="u-ml-0_25 color--system-error">
+          <span class="u-ml-0_25 color-message-severe-text">
             {{ Translator.trans('field.required') }}
           </span>
         </div>
@@ -182,9 +182,9 @@
           class="u-ml display--inline-block"
           v-if="false === validations.cluster && 'mergeIntoCluster' === consolidationMethod">
           <i
-            class="fa fa-exclamation-circle color--system-error"
+            class="fa fa-exclamation-circle color-message-severe-fill"
             aria-hidden="true" />
-          <span class="u-ml-0_25 color--system-error">
+          <span class="u-ml-0_25 color-message-severe-text">
             {{ Translator.trans('field.required') }}
           </span>
         </div>
@@ -206,8 +206,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpModal,
+  DpMultiselect,
+  handleResponseMessages,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 

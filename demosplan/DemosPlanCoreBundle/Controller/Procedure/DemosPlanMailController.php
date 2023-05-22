@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanProcedureBundle\Form\PreparationMailType;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
-use demosplan\DemosPlanStatementBundle\Logic\SubmitterService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,7 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mail",
      *     methods={"POST"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -154,11 +156,12 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mailconfirm",
      *     methods={"HEAD", "GET"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -201,11 +204,12 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mailconfirm",
      *     methods={"POST"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */

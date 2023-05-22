@@ -1,0 +1,262 @@
+<fieldset>
+    <dp-accordion
+        data-cy="statementText"
+        is-open
+        title="{{ "statement.consideration"|trans }}">
+        {# Bereich ist gleich ausgeklappt, damit der Verweis auf #statementText funktioniert #}
+        <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 u-pb">
+            <div class="layout">
+
+                <div class="layout__item u-1-of-2">
+
+                    {% block statementText %}
+                        {# Anker für Verlinkung aus dem Datenübersichtsteil #}
+                        {% if hasPermission('field_statement_public_allowed') %}
+                            <a name="statementText" id="statementTextId"></a>
+                        {% endif %}
+                        {% if hasPermission('field_statement_text') %}
+                            <label class="o-form__label" for="r_text">
+                                {{ "statement"|trans }}
+                            </label>
+                            {% if not readonly %}
+                                <dp-editor
+                                    :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
+                                    editor-id="statementText"
+                                    hidden-input="r_text"
+                                    procedure-id="{{ templateVars.table.procedure.ident }}"
+                                    :toolbar-items="{
+                                        mark: true,
+                                        obscure: hasPermission('feature_obscure_text'),
+                                        strikethrough: true
+                                    }"
+                                    :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
+                                </dp-editor>
+                            {% else %}
+                                <span class="c-styled-html overflow-word-break">
+                                    {{- statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? ['dp-obscure'] : []) -}}
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    {% endblock statementText %}
+
+                    {% if hasPermission('feature_statements_tag') %}
+                        <div class="{% if not readonly %}u-mt-2{% endif %}">
+                            <label class="o-form__label">
+                                {{ "tags"|trans }}
+                            </label>
+                            <dp-multiselect
+                                class="o-form__control-wrapper"
+                                multiple
+                                :options="tags"
+                                v-model="selectedTags"
+                                @input="sortSelected('Tags')"
+                                @select="addTagBoilerplate"
+                                track-by="id"
+                                label="name"
+                                :disabled="Boolean({{ readonly }})"
+                                :group-select="false"
+                                group-values="tags"
+                                group-label="title"
+                            >
+                                <template v-slot:option="props">
+                                    <span {% verbatim %}v-if="props.option.$isLabel"{% endverbatim %}>
+                                        {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
+                                    </span>
+                                    <span v-else>
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </span>
+                                </template>
+                                <template v-slot:tag="props">
+                                    <span class="multiselect__tag">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                        <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                        <input type="hidden" :value="props.option.id" name="r_tags[]"/>
+                                    </span>
+                                </template>
+                            </dp-multiselect>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="layout__item u-1-of-2">
+                    {% if hasPermission('field_statement_recommendation') %}
+                        <label class="o-form__label cf" for="r_recommendation">
+                            {{ "recommendation"|trans }}
+
+                            {% if (
+                                statement.publicVerified == 'publication_approved' and
+                                hasPermission('feature_statements_public_statement_recommendation_visible')
+                                ) %}
+                                <span class="weight--normal">
+                                    {{ 'recommendation.publicly.visible.short'|trans }}
+                                </span>
+
+                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                    cssClasses: 'float--right',
+                                    helpText: 'recommendation.publicly.visible'|trans
+                                } %}
+                            {% endif %}
+                        </label>
+
+                        {% if not readonly %}
+                            <dp-editor
+                                class="u-mb-0_5"
+                                editor-id="recommendationText"
+                                :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
+                                hidden-input="r_recommendation"
+                                :toolbar-items="{
+                                    linkButton: true
+                                }"
+                                v-model="currentRecommendation">
+                                <template v-slot:modal="modalProps">
+                                    <dp-boiler-plate-modal
+                                        ref="boilerPlateModal"
+                                        boiler-plate-type="consideration"
+                                        editor-id="recommendationText"
+                                        procedure-id="{{ templateVars.table.procedure.ident }}"
+                                        @insert="text => modalProps.handleInsertText(text)">
+                                    </dp-boiler-plate-modal>
+                                </template>
+                                <template v-slot:button>
+                                    <button
+                                        class="{{ 'menubar__button'|prefixClass }}"
+                                        type="button"
+                                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                                        @click.stop="$refs.boilerPlateModal.toggleModal()">
+                                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                                    </button>
+                                </template>
+                            </dp-editor>
+                        {% else %}
+                            <span class="overflow-word-break">
+                                {{- statement.recommendation|default('<p>n/a</p>')|wysiwyg -}}
+                            </span>
+                        {% endif %}
+
+                        {% if hasPermission('feature_statements_fragment_consideration') and not readonly  %}
+                            <div class="text--right">
+                                <dp-button
+                                    :busy="busyCopyFromFragments"
+                                    class="u-mb-0_5"
+                                    :text="Translator.trans('recommendation.copyFromFragments')"
+                                    @click="copyRecommendationFromFragments"
+                                    {{ statement.fragmentConsiderations == false ? 'disabled' : '' }} ></dp-button>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if hasPermission('field_procedure_recommendation_version') %}
+                        {% set versionsCountString = (templateVars.table.version.total) ? '(' ~ templateVars.table.version.total ~ ')' : '' %}
+                        <dp-accordion
+                          title="{{ "recommendation.versions"|trans }} {{ versionsCountString }}"
+                          button-class="text--left">
+                            <div class="overflow-word-break">
+                                {% if templateVars.table.version.total == 0 %}
+                                    <p>{{ "recommendation.versions.none"|trans }}</p>
+                                {% else %}
+                                    {% if templateVars.table.version.version is defined %}
+                                        {% for version in templateVars.table.version.version %}
+
+                                            <div class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
+                                                <div class="border--bottom u-mb-0_25">
+
+                                                    <div class="o-hellip--nowrap u-1-of-5 u-pr display--inline-block weight--bold cursor--help" title="{{ "date"|trans }}: {{ version.created|default()|dplanDate('d.m.Y H:i') }}">
+                                                        {{ version.created|default()|dplanDate('d.m.Y H:i') }}
+                                                    </div><!--
+
+                                                 --><div class="o-hellip--nowrap u-4-of-5 display--inline-block cursor--help" title="{{ "official"|trans }}: {{ version.userName|default('') }}">
+                                                        {{ version.userName|default('') }}
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="cursor--help" title="{{ "recommendation"|trans }}">
+                                                    {{ version.value|default|wysiwyg }}
+                                                </div>
+                                            </div>
+
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </dp-accordion>
+                    {% endif %}
+
+                </div>
+
+                {% set advice_values = templateVars.adviceValues|default([]) %}
+                {% set voteElementSize = 'full' %}
+                {% if (hasPermission('field_statement_vote_stk') and hasPermission('field_statement_vote_pla') ) %}
+                    {% set voteElementSize = 'large' %}
+                {% endif %}
+
+                {% if hasPermission('field_statement_vote_stk') %}
+                    {% if hasPermission('feature_statements_fragment_advice') or hasPermission('feature_statements_fragment_vote') %}
+                        {% if readonly or hasPermission('feature_statements_fragment_vote') %}
+                            {% set voteStkDisabled = true %}
+                        {% endif %}
+                        {% set voteStkOptions = {} %}
+                        {% if statement.voteStk is not defined or statement.voteStk is null or statement.voteStk == "" %}
+                            {% set voteStkOptions =  voteStkOptions|merge([{ label: '-', value: '', selected: true }]) %}
+                        {% else %}
+                            {% set voteStkOptions =  voteStkOptions|merge([{ label: '-', value: '' }]) %}
+                        {% endif %}
+                        {% for advice_value, advice_transkey in advice_values %}
+                            {% if statement.voteStk is defined and statement.voteStk == advice_value %}
+                                {% set voteStkOptions =  voteStkOptions|merge([{ label: advice_transkey, value: advice_value, selected: true }]) %}
+                            {% else %}
+                                {% set voteStkOptions =  voteStkOptions|merge([{ label: advice_transkey, value: advice_value }]) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {{ uiComponent('form.element', {
+                            label: { text: 'statement.voteStk'|trans },
+                            control: { name: 'r_voteStk', options: voteStkOptions },
+                            type: 'select',
+                            id: 'r_voteStk',
+                            elementClass: 'u-mb-0_5 u-pl u-mt-0_5 ',
+                            elementStyle: 'inline-block',
+                            elementSize: voteElementSize,
+                            disabledPlainText: true,
+                            disabled: voteStkDisabled|default(false)
+                        }) }}
+                    {% endif %}
+                {% endif %}
+
+                {% if hasPermission('field_statement_vote_pla') %}
+                    {% if hasPermission('feature_statements_fragment_vote') %}
+
+                        {% set votePlaOptions = {} %}
+                        {% if statement.votePla is not defined or statement.votePla is null or statement.votePla == "" %}
+                            {% set votePlaOptions = votePlaOptions|merge([{ label: '-', value: '', selected: true }]) %}
+                        {% else %}
+                            {% set votePlaOptions = votePlaOptions|merge([{ label: '', value: '' }]) %}
+                        {% endif %}
+                        {% for advice_value, advice_transkey in advice_values %}
+                            {% if statement.votePla is defined and statement.votePla == advice_value %}
+                                {% set votePlaOptions = votePlaOptions|merge([{ label: advice_transkey, value: advice_value, selected: true }]) %}
+                            {% else %}
+                                {% set votePlaOptions = votePlaOptions|merge([{ label: advice_transkey, value: advice_value }]) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {{ uiComponent('form.element', {
+                            label: { text: 'statement.votePla'|trans },
+                            control: { name: 'r_votePla', options: votePlaOptions },
+                            type: 'select',
+                            id: 'r_votePla',
+                            elementClass: 'u-mb-0_5 u-pl u-mt-0_5 ',
+                            elementStyle: 'inline-block',
+                            elementSize: voteElementSize,
+                            disabledPlainText: true,
+                            disabled: readonly
+                        }) }}
+
+                    {% endif %}
+                {% endif %}
+
+            </div>
+
+        </div>
+    </dp-accordion>
+</fieldset>

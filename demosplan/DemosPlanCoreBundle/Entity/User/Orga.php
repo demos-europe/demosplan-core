@@ -13,6 +13,19 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressBookEntryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MasterToebInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -28,14 +41,18 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @ORM\Table(
  *     name="_orga",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(
  *             name="_o_gw_id",
  *             columns={"_o_gw_id"}
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaRepository")
+ *
  * @ORM\AssociationOverrides({
+ *
  *      @ORM\AssociationOverride(name="slugs",
  *          joinTable=@ORM\JoinTable(
  *              joinColumns=@ORM\JoinColumn(name="o_id", referencedColumnName="_o_id"),
@@ -44,24 +61,17 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  *      )
  * })
  */
-class Orga extends SluggedEntity
+class Orga extends SluggedEntity implements OrgaInterface
 {
-    /**
-     * Key for default statement submission type with coordinator.
-     */
-    public const STATEMENT_SUBMISSION_TYPE_DEFAULT = 'standard';
-
-    /**
-     * Key for short statement submission type without coordinator.
-     */
-    public const STATEMENT_SUBMISSION_TYPE_SHORT = 'short';
-
     /**
      * @var string|null
      *
      * @ORM\Column(name="_o_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -91,6 +101,7 @@ class Orga extends SluggedEntity
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_o_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -99,15 +110,17 @@ class Orga extends SluggedEntity
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_o_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
 
     /**
+     * Comma separated list of cc-Email addresses.
+     *
      * @var string|null
      *
      * @ORM\Column(name="_o_cc_email2", type="string", length=4096, nullable=true)
-     * @Assert\Email(message="email.address.invalid")
      */
     protected $ccEmail2;
 
@@ -117,6 +130,7 @@ class Orga extends SluggedEntity
      * @var string|null
      *
      * @ORM\Column(name="_o_email_reviewer_admin", type="string", length=4096, nullable=true)
+     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $emailReviewerAdmin;
@@ -165,6 +179,7 @@ class Orga extends SluggedEntity
      * @var string|null
      *
      * @ORM\Column(name="_o_email2", type="string", length=364, nullable=true)
+     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $email2;
@@ -194,15 +209,18 @@ class Orga extends SluggedEntity
     protected $paperCopySpec;
 
     /**
-     * @var Collection<int, Address>
+     * @var Collection<int, AddressInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"all"})
+     *
      * @ORM\JoinTable(
      *     name="_orga_addresses_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
      * )
+     *
      * @Assert\All({
+     *
      *     @Assert\Type(type="demosplan\DemosPlanCoreBundle\Entity\User\Address")
      * })
      */
@@ -274,10 +292,11 @@ class Orga extends SluggedEntity
      * Aus Legacygründen wird dies als Many-to-Many-Association modelliert, damit das DB-Schema erhalten bleibt
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
-     * @var Collection<int, User>
+     * @var Collection<int, UserInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="orga",
      *                 cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_orga_users_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
@@ -290,10 +309,11 @@ class Orga extends SluggedEntity
      * Aus Legacygründen wird dies als Many-to-Many-Association modelliert, damit das DB-Schema erhalten bleibt
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
-     * @var Collection<int, Department>
+     * @var Collection<int, DepartmentInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", inversedBy="orgas",
      *                 cascade={"persist", "all"})
+     *
      * @ORM\JoinTable(
      *     name="_orga_departments_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
@@ -324,29 +344,29 @@ class Orga extends SluggedEntity
     protected $submissionType = self::STATEMENT_SUBMISSION_TYPE_DEFAULT;
 
     /**
-     * @var Collection<int, AddressBookEntry>
-     *                                        One organisation has many address book entries. This is the inverse side.
+     * @var Collection<int, AddressBookEntryInterface>
+     *                                                 One organisation has many address book entries. This is the inverse side.
      *
      * @ORM\OneToMany(targetEntity="AddressBookEntry", mappedBy="organisation")
      */
     protected $addressBookEntries;
 
     /**
-     * @var Collection<int, OrgaStatusInCustomer>
+     * @var Collection<int, OrgaStatusInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="orga", cascade={"persist"})
      */
     protected $statusInCustomers;
 
     /**
-     * @var MasterToeb|null
+     * @var MasterToebInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb", mappedBy="orga")
      */
     protected $masterToeb;
 
     /**
-     * @var Branding|null
+     * @var BrandingInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
      */
@@ -355,16 +375,17 @@ class Orga extends SluggedEntity
     /**
      * The {@link Procedure} entities this organisation (if a planning agency) is allowed to administrate.
      *
-     * @var Collection<int, Procedure>
+     * @var Collection<int, ProcedureInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="planningOffices")
      */
     protected $administratableProcedures;
 
     /**
-     * @var Collection<int,InstitutionTag>
+     * @var Collection<int,InstitutionTagInterface>
      *
      * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
+     *
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
@@ -376,7 +397,9 @@ class Orga extends SluggedEntity
      * @var Collection<int,InstitutionTag>
      *
      * @ORM\OneToMany(targetEntity="InstitutionTag", mappedBy="owningOrganisation")
+     *
      * @ORM\JoinColumn(referencedColumnName="id")
+     *
      * @ORM\OrderBy({"label" = "ASC"})
      */
     protected $ownInstitutionTags;
@@ -429,9 +452,6 @@ class Orga extends SluggedEntity
         return $this->name;
     }
 
-    /**
-     * Alias for getName().
-     */
     public function getNameLegal(): ?string
     {
         return $this->getName();
@@ -661,11 +681,6 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * Get OrgaType.
-     *
-     * Needs to be callable without subdomain as getters are dynamically built
-     * in convertToLegacy functions where no parameter is given
-     *
      * @param string $subdomain
      *
      * @return OrgaType[]
@@ -688,10 +703,6 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * Shortcut get OrgaType name.
-     * Needs to be callable without subdomain as getters are dynamically built
-     * in convertToLegacy functions where no parameter is given.
-     *
      * @param string $subdomain
      *
      * @return string[]
@@ -718,9 +729,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param Address[] $addresses
-     *
-     * @return $this
+     * @param AddressInterface[] $addresses
      */
     public function setAddresses(array $addresses): self
     {
@@ -731,8 +740,6 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * Returns the address of the orga. It should only be one.
-     *
      * @return Address|false note that the return types of first() are the object or false
      */
     public function getAddress()
@@ -740,7 +747,7 @@ class Orga extends SluggedEntity
         return $this->addresses->first();
     }
 
-    public function addAddress(Address $address): self
+    public function addAddress(AddressInterface $address): self
     {
         $this->addresses->add($address);
 
@@ -748,8 +755,6 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * Get Street from associated (first) Address.
-     *
      * @return string can be street (string) or empty string
      */
     public function getStreet(): string
@@ -768,9 +773,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get Street from associated (first) Address.
-     */
     public function getHouseNumber(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -787,9 +789,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get State from associated (first) Address.
-     */
     public function getState(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -806,9 +805,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get Fax from associated (first) Address.
-     */
     public function getFax()
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -820,8 +816,6 @@ class Orga extends SluggedEntity
 
     /**
      * @param string $fax
-     *
-     * @return $this
      */
     public function setFax($fax): self
     {
@@ -830,9 +824,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get Postalcode from associated (first) Address.
-     */
     public function getPostalcode(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -844,8 +835,6 @@ class Orga extends SluggedEntity
 
     /**
      * @param string $postalcode
-     *
-     * @return $this
      */
     public function setPostalcode($postalcode): self
     {
@@ -854,9 +843,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get City from associated (first) Address.
-     */
     public function getCity()
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -868,8 +854,6 @@ class Orga extends SluggedEntity
 
     /**
      * @param string $city
-     *
-     * @return $this
      */
     public function setCity($city): self
     {
@@ -878,9 +862,6 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Get Phone from associated (first) Address.
-     */
     public function getPhone(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -892,8 +873,6 @@ class Orga extends SluggedEntity
 
     /**
      * @param string $phone
-     *
-     * @return $this
      */
     public function setPhone($phone): self
     {
@@ -926,7 +905,7 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    public function addAdministratableProcedure(Procedure $procedure): bool
+    public function addAdministratableProcedure(ProcedureInterface $procedure): bool
     {
         $alreadyPresent = $this->administratableProcedures->contains($procedure);
         if (!$alreadyPresent) {
@@ -973,8 +952,6 @@ class Orga extends SluggedEntity
 
     /**
      * @param array $notifications
-     *
-     * @return $this
      */
     public function setNotifications($notifications): self
     {
@@ -998,9 +975,6 @@ class Orga extends SluggedEntity
         return $this->users;
     }
 
-    /**
-     * Returns all users of this organisation, which are not deleted === true.
-     */
     public function getUsers(): TightencoCollection
     {
         /** @var User[] $allUser */
@@ -1017,9 +991,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param array $users
-     *
-     * @return $this
+     * @param array<int,UserInterface> $users
      */
     public function setUsers($users): self
     {
@@ -1028,10 +1000,7 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Add user to this Organisation, if not already exists in the collection.
-     */
-    public function addUser(User $user): self
+    public function addUser(UserInterface $user): self
     {
         if ($this->users instanceof Collection) {
             if (!$this->users->contains($user)) {
@@ -1045,10 +1014,7 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Remove user from this Organisation.
-     */
-    public function removeUser(User $user): self
+    public function removeUser(UserInterface $user): self
     {
         if ($this->users instanceof Collection) {
             $this->users->removeElement($user);
@@ -1075,9 +1041,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param array $departments
-     *
-     * @return $this
+     * @param array<int,DepartmentInterface> $departments
      */
     public function setDepartments($departments): self
     {
@@ -1089,7 +1053,7 @@ class Orga extends SluggedEntity
     /**
      * Add department to this Organisation.
      */
-    public function addDepartment(Department $department): self
+    public function addDepartment(DepartmentInterface $department): self
     {
         if ($this->departments instanceof Collection) {
             if (!$this->departments->contains($department)) {
@@ -1131,8 +1095,6 @@ class Orga extends SluggedEntity
     // @improve T12377
 
     /**
-     * Returns all user (of all departments) of this organisation.
-     *
      * @return TightencoCollection[User]
      */
     public function getAllUsersOfDepartments()
@@ -1157,7 +1119,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param AddressBookEntry[] $addressBookEntries
+     * @param AddressBookEntryInterface[] $addressBookEntries
      */
     public function setAddressBookEntries(array $addressBookEntries): self
     {
@@ -1166,13 +1128,7 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Add a single AddressBookEntry, if not already contains in $this->addressBook.
-     *
-     * @return bool "true" if the given AddressBookEntry was successfully added to this organisation
-     *              and this organisation was successfully added to the given AddressBookEntry, otherwise "false"
-     */
-    public function addAddressBookEntry(AddressBookEntry $addressBookEntry): bool
+    public function addAddressBookEntry(AddressBookEntryInterface $addressBookEntry): bool
     {
         if (!$this->addressBookEntries->contains($addressBookEntry)) {
             $addedAddressBookEntrySuccessful = $this->addressBookEntries->add($addressBookEntry);
@@ -1184,10 +1140,7 @@ class Orga extends SluggedEntity
         return false;
     }
 
-    /**
-     * Removes a AddressBookEntry from this Organisation and also removes the other side of the relation.
-     */
-    public function removeAddressBookEntry(AddressBookEntry $addressBookEntry): self
+    public function removeAddressBookEntry(AddressBookEntryInterface $addressBookEntry): self
     {
         if ($this->addressBookEntries->contains($addressBookEntry)) {
             $addressBookEntry->setOrganisation(null);
@@ -1207,7 +1160,7 @@ class Orga extends SluggedEntity
         return null;
     }
 
-    public function setLogo(?File $logo): self
+    public function setLogo(?FileInterface $logo): self
     {
         $branding = $this->getBranding();
         // If a branding relationship exists, just use it
@@ -1244,8 +1197,8 @@ class Orga extends SluggedEntity
     }
 
     public function addCustomerAndOrgaType(
-        Customer $customer,
-        OrgaType $orgaType,
+        CustomerInterface $customer,
+        OrgaTypeInterface $orgaType,
         string $status = OrgaStatusInCustomer::STATUS_ACCEPTED
     ): self {
         // create new
@@ -1286,7 +1239,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param Collection<int, OrgaStatusInCustomer> $statusInCustomers
+     * @param Collection<int, OrgaStatusInCustomerInterface> $statusInCustomers
      */
     public function setStatusInCustomers(Collection $statusInCustomers): self
     {
@@ -1295,14 +1248,14 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    public function addStatusInCustomer(OrgaStatusInCustomer $orgaStatusInCustomer): self
+    public function addStatusInCustomer(OrgaStatusInCustomerInterface $orgaStatusInCustomer): self
     {
         $this->statusInCustomers->add($orgaStatusInCustomer);
 
         return $this;
     }
 
-    public function addCustomer(Customer $customer): bool
+    public function addCustomer(CustomerInterface $customer): bool
     {
         if (null === $this->customers) {
             $this->customers = new ArrayCollection();
@@ -1317,7 +1270,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param Customer[] $customers
+     * @param CustomerInterface[] $customers
      */
     public function addCustomers(array $customers): self
     {
@@ -1328,11 +1281,7 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    /**
-     * Removes the customer from the list. If this is no Public Affairs Agency throws an InvalidArgumentException.
-     * If it doesn't exists then does nothing.
-     */
-    public function removeCustomer(Customer $customer): self
+    public function removeCustomer(CustomerInterface $customer): self
     {
         $this->customers->removeElement($customer);
 
@@ -1344,9 +1293,6 @@ class Orga extends SluggedEntity
         return $this->getId();
     }
 
-    /**
-     * Is current Orga registered in given customer/subdomain?
-     */
     public function isRegisteredInSubdomain($subdomain): bool
     {
         $customers = $this->getCustomers();
@@ -1375,11 +1321,6 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * Given an orga type name and a status ('pending', 'accepted', 'rejected') returns
-     * the subdomains where the orga meets the two conditions.
-     *
-     * @see OrgaType::PLANNING_AGENCY, OrgaType::MUNICIPALITY, etc.
-     *
      * @return Customer[]
      */
     public function getCustomersByActivationStatus(string $orgaTypeName, string $status): array
@@ -1417,7 +1358,7 @@ class Orga extends SluggedEntity
         return $this->masterToeb;
     }
 
-    public function setMasterToeb(?MasterToeb $masterToeb): self
+    public function setMasterToeb(?MasterToebInterface $masterToeb): self
     {
         $this->masterToeb = $masterToeb;
 
@@ -1439,7 +1380,7 @@ class Orga extends SluggedEntity
         return $this->branding;
     }
 
-    public function setBranding(?Branding $branding): self
+    public function setBranding(?BrandingInterface $branding): self
     {
         $this->branding = $branding;
 
@@ -1454,7 +1395,7 @@ class Orga extends SluggedEntity
         return $this->assignedTags;
     }
 
-    public function addAssignedTag(InstitutionTag $tag): void
+    public function addAssignedTag(InstitutionTagInterface $tag): void
     {
         if (!$this->assignedTags->contains($tag)) {
             $this->assignedTags->add($tag);
@@ -1462,7 +1403,7 @@ class Orga extends SluggedEntity
         }
     }
 
-    public function removeAssignedTag(InstitutionTag $tag): void
+    public function removeAssignedTag(InstitutionTagInterface $tag): void
     {
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
@@ -1470,7 +1411,7 @@ class Orga extends SluggedEntity
         }
     }
 
-    public function addOwnInstitutionTag(InstitutionTag $tag): void
+    public function addOwnInstitutionTag(InstitutionTagInterface $tag): void
     {
         $this->ownInstitutionTags->add($tag);
     }
@@ -1483,7 +1424,7 @@ class Orga extends SluggedEntity
         return $this->ownInstitutionTags;
     }
 
-    public function removeOwnInstitutionTag(InstitutionTag $tag): void
+    public function removeOwnInstitutionTag(InstitutionTagInterface $tag): void
     {
         if ($this->ownInstitutionTags->contains($tag)) {
             $this->ownInstitutionTags->removeElement($tag);

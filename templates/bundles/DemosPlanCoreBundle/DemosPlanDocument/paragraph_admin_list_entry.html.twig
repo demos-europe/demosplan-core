@@ -1,0 +1,73 @@
+{% if documents %}
+
+    {% for document in documents %}
+
+        <tr>
+            <td>
+                <input type="checkbox" value="{{ document.id }}" name="document_delete[]" data-checkable-item>
+            </td>
+            <td class="o-hellip--td" style="padding-left: {{ level * 12 + 12 }}px;">
+                <a
+                    data-cy="documentParagraphTitle"
+                    href="{{ path('DemosPlan_plandocument_administration_' ~ category ~ '_edit',{'documentID':document.id,'procedure':procedure}) }}"
+                    title="{{ document.title|wysiwyg }}">
+                    {{ document.title|wysiwyg }}
+                </a>
+            </td>
+            <td data-cy="paragraphStatusIcon" class="text--center">
+                {% if document.visible == 1 %}
+                    <i class="fa fa-check color-message-success-fill" aria-hidden="true" title="{{ "released"|trans }}"></i>
+                    <span class="hide-visually">
+                        {{ "released"|trans }}
+                    </span>
+                {% elseif document.visible == 0 %}
+                    <i class="fa fa-ban color-message-severe-fill" aria-hidden="true" title="{{ "blocked"|trans }}"></i>
+                    <span class="hide-visually">
+                        {{ "blocked"|trans }}
+                    </span>
+                {% elseif document.visible == 2 %}
+                    <i class="fa fa-lock color-message-info-fill" aria-hidden="true" title="{{ "paragraph.locked"|trans }}"></i>
+                    <span class="hide-visually">
+                        {{ "paragraph.locked"|trans }}
+                    </span>
+                {% endif %}
+            </td>
+            <td class="text--center">
+                <button
+                    class="btn-icns btn-icns--small u-mh-auto"
+                    type="submit"
+                    name="r_moveUp"
+                    data-cy="paragraphMoveUp"
+                    value="{{ document.id }}"
+                    title="{% if loop.first %}{{ "move.upwards.disabled.firstitem"|trans }}{% else %}{{ "move.upwards"|trans }}{% endif %}"
+                    {% if loop.first %} disabled{% endif %}>
+                    <i class="fa fa-caret-up" aria-hidden="true"></i>
+                    <span class="hide-visually">
+                        {{ "move.upwards"|trans }}
+                    </span>
+                </button>
+                <button
+                    class="btn-icns btn-icns--small u-mb-0_5 u-mh-auto"
+                    type="submit"
+                    name="r_moveDown"
+                    data-cy="paragraphMoveDown"
+                    value="{{ document.id }}"
+                    title="{% if loop.last %}{{ "move.downwards.disabled.lastitem"|trans }}{% else %}{{ "move.downwards"|trans }}{% endif %}"
+                    {# disable button if this is last item #}
+                    {% if loop.last %} disabled{% endif %}>
+                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                    <span class="hide-visually">
+                        {{ "move.downwards"|trans }}
+                    </span>
+                </button>
+            </td>
+        </tr>
+
+        {# if there are children, include self recursive #}
+        {% if document.children %}
+            {% include '@DemosPlanCore/DemosPlanDocument/paragraph_admin_list_entry.html.twig' with {'documents': document.children, 'level': level + 1} %}
+        {% endif %}
+
+    {% endfor %}
+
+{% endif %}

@@ -10,15 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 
-class ResourceNotFoundException extends Exception
+class ResourceNotFoundException extends AddonResourceNotFoundException
 {
-    /**
-     * @return static
-     */
-    public static function createResourceNotFoundException(string $typeName, string $id): self
-    {
-        return new self("No resource available for the type {$typeName} and ID {$id}");
-    }
 }

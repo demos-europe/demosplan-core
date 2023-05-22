@@ -27,7 +27,7 @@ class FormDefinitionConstraint extends Constraint
         return FormDefinitionConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

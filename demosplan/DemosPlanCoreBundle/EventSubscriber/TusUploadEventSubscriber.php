@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use TusPhp\File;
 use demosplan\DemosPlanCoreBundle\Application\Header;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -66,7 +67,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
     public function onUploadComplete(UploadComplete $completedEvent): void
     {
         /**
-         * @var \TusPhp\File
+         * @var File
          */
         $file = $completedEvent->getFile();
         $request = $completedEvent->getRequest();

@@ -17,15 +17,18 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Command\VendorlistUpdateCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Exception\ContentEmailMismatchException;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MiscContent\ServiceStorage;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -200,7 +203,7 @@ class DemosPlanMiscContentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     public function contactAction(
         MessageBagInterface $messageBag,
@@ -429,14 +432,13 @@ class DemosPlanMiscContentController extends BaseController
      *
      * @DplanPermissions("area_demosplan")
      *
-     * @return RedirectResponse|Response
-     *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
-    public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator)
+    public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator): Response
     {
         $templateVars = [];
-        // Generiere breadcrumb items
+
+        // generate breadcrumb items
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('misc.information', [], 'page-title'),
@@ -444,7 +446,6 @@ class DemosPlanMiscContentController extends BaseController
             ]
         );
 
-        // Ausgabe
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatic/documents.html.twig',
             [
@@ -466,11 +467,13 @@ class DemosPlanMiscContentController extends BaseController
      *
      * @throws Exception
      */
-    public function informationAction()
+    public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $templateVars = [];
+        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $templateVars = [
+            'list' => $faqHandler->convertIntoTwigFormat($categories, $userProvider->getUser()),
+        ];
 
-        // Ausgabe
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatic/information.html.twig',
             [

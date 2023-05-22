@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

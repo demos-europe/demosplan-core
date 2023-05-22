@@ -30,7 +30,7 @@ class SimilarStatementSubmittersSameProcedureConstraint extends Constraint
         return SimilarStatementSubmittersSameProcedureConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

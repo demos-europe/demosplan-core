@@ -21,11 +21,13 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="relation_role_user_customer",
  *    uniqueConstraints={
+ *
  *        @ORM\UniqueConstraint(name="role_customer_user_unique_constraint",
  *            columns={"role", "customer", "user"})
  *    }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository")
  */
 class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
 {
@@ -33,8 +35,11 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -48,6 +53,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User",
      *     inversedBy="roleInCustomers",
      * )
+     *
      * @ORM\JoinColumn(name="user", referencedColumnName="_u_id", nullable=false)
      */
     protected $user;
@@ -61,6 +67,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role",
      *     inversedBy="userRoleInCustomers"
      * )
+     *
      * @ORM\JoinColumn(name="role", referencedColumnName="_r_id", nullable=false)
      */
     protected $role;
@@ -76,6 +83,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer",
      *     inversedBy="userRoles"
      * )
+     *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
     protected $customer;
@@ -121,14 +129,12 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
         return $this->role;
     }
 
-    /**
-     * Set Customer.
-     *
-     * @param Customer|null $customer
-     */
-    public function setCustomer($customer): self
+    public function setCustomer(?Customer $customer): self
     {
         $this->customer = $customer;
+        if (null !== $customer && !$customer->getUserRoles()->contains($this)) {
+            $customer->getUserRoles()->add($this);
+        }
 
         return $this;
     }

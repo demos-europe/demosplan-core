@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="u-mt-0_5" >
+  <div class="u-mt-0_5">
     <div
       v-if="!addNewTag"
       class="text--right">
@@ -36,7 +36,7 @@
           v-model="newTag.label"
           :label="{
             text: Translator.trans('name')
-          }"/>
+          }" />
         <dp-button-row
           :busy="isLoading"
           align="left"
@@ -109,9 +109,16 @@
 </template>
 
 <script>
-import { DpButton, DpButtonRow, DpDataTable, DpIcon, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  DpButton,
+  DpButtonRow,
+  DpDataTable,
+  DpIcon,
+  DpInput,
+  DpLoading,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'TagList',
@@ -193,7 +200,7 @@ export default {
       this.deleteInstitutionTag(id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.deleted'))
-          this.$emit("tagIsRemoved")
+          this.$emit('tagIsRemoved')
         })
         .catch(err => {
           console.error(err)

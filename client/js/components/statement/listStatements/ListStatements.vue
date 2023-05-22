@@ -92,11 +92,12 @@
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId }">
+        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />
           <dp-claim
+            v-if="!synchronized"
             entity-type="statement"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
@@ -134,7 +135,6 @@
             <div
               v-tooltip="internId"
               class="o-hellip--nowrap text--right"
-              dir="rtl"
               v-text="internId" />
           </div>
         </template>
@@ -145,16 +145,16 @@
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
-            <a
-              class="is-disabled"
+            <button
               v-if="hasPermission('area_statement_segmentation')"
-              :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
+              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              :disabled="segmentsCount > 0 && segmentsCount !== '-'"
+              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
               rel="noopener">
               {{ Translator.trans('split') }}
-            </a>
+            </button>
             <a
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
-              :class="{'is-disabled': synchronized }"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
@@ -256,12 +256,18 @@
         </template>
       </dp-data-table>
 
-      <dp-sliding-pagination
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'visibility--hidden': isLoading }"
+        class="u-pt-0_5 text--right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="getItemsByPage"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
 
     <dp-inline-notification
@@ -272,21 +278,26 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc, formatDate, tableSelectAllItems } from '@demos-europe/demosplan-utils'
 import {
+  checkResponse,
   CleanHtml,
+  dpApi,
   DpBulkEditHeader,
   DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  DpPager,
+  dpRpc,
   DpSelect,
-  DpSlidingPagination,
-  DpStickyElement
+  DpStickyElement,
+  formatDate,
+  tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
@@ -301,8 +312,8 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpPager,
     DpSelect,
-    DpSlidingPagination,
     DpStickyElement,
     SearchModal,
     StatementMetaData
@@ -312,7 +323,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -345,6 +356,11 @@ export default {
   data () {
     return {
       claimLoadingIds: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -352,6 +368,7 @@ export default {
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
       ],
+      pagination: {},
       searchFields: [
         'authorName',
         'department',
@@ -389,7 +406,6 @@ export default {
     ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages',
       totalFiles: 'totalFiles',
       isLoading: 'loading'
     }),
@@ -436,6 +452,10 @@ export default {
             originalPdf: originalPdf
           }
         })
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
     }
   },
 
@@ -486,6 +506,47 @@ export default {
       }
     },
 
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.getItemsByPage(page)
+    },
+
+    /**
+     * If statement already has segments, do nothing
+     * If statement is not claimed, silently assign it to the current user and go to split statement view
+     * If statement is claimed by current user, go to split statement view
+     * If statement is claimed by another user, ask the current user to claim it and, after they confirm, assign it to
+     * the current user, then go to split statement view. If the user doesn't confirm, do nothing.
+     * @param statementId {string}
+     * @param assignee {object} { data: { id: string, type: string }}
+     * @param segmentsCount {number || string} can be a number or '-'
+     */
+    handleStatementSegmentation (statementId, assignee, segmentsCount) {
+      const isStatementSegmented = segmentsCount > 0 && segmentsCount !== '-'
+      const isStatementClaimedByCurrentUser = assignee.id === this.currentUserId
+      const isStatementClaimed = assignee.id !== ''
+      const isStatementClaimedByOtherUser = isStatementClaimed && !isStatementClaimedByCurrentUser
+
+      if (isStatementSegmented) {
+        return
+      }
+
+      if (isStatementClaimedByCurrentUser) {
+        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+      }
+
+      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+        this.claimStatement(statementId)
+          .then(() => {
+            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
+    },
+
     applySearch (term, selectedFields) {
       this.searchValue = term
       this.searchFieldsSelected = selectedFields
@@ -524,9 +585,12 @@ export default {
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)
+            return response
           })
-          .then(() => {
+          .then(response => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
+
+            return response
           })
           .catch((err) => {
             console.error(err)
@@ -585,7 +649,8 @@ export default {
     getItemsByPage (page) {
       this.fetchStatements({
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         search: {
           value: this.searchValue,
@@ -643,7 +708,13 @@ export default {
           ].join()
         }
       }).then((data) => {
+        /**
+         * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+         */
+        this.setLocalStorage(data.meta.pagination)
+
         this.setNumSelectableItems(data)
+        this.updatePagination(data.meta.pagination)
       })
     },
 
@@ -785,7 +856,7 @@ export default {
     setNumSelectableItems (data) {
       if (this.isSourceAndCoupledProcedure) {
         // Call without actually changing anything in the backend.
-        dpRpc('statement.procedure.sync', this.getParamsForBulkShare(true))
+        dpRpc('statement.procedure.sync', this.getParamsForBulkShare(true), 'rpc_generic_post')
           .then((response) => {
             // ActuallySynchronizedStatementCount is the num of items that are not synchronized yet, but can be
             this.allItemsCount = response.data[0].result.actuallySynchronizedStatementCount
@@ -822,7 +893,8 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1)
+    this.initPagination()
+    this.getItemsByPage(this.pagination.currentPage)
   }
 }
 </script>

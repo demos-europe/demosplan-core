@@ -10,18 +10,24 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use function array_key_exists;
-use function array_map;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
+use function array_map;
 use function explode;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -29,18 +35,12 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
-
-use RuntimeException;
-
 use function strncasecmp;
 use function strpos;
 use function substr;
-
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface
 {
@@ -296,6 +296,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @var bool
      */
     protected $honeypotDisabled;
+    protected int $honeypotTimeout;
     /**
      * @var array
      */
@@ -413,15 +414,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
 
@@ -489,6 +481,13 @@ class GlobalConfig implements GlobalConfigInterface
      * @var array<int, string>
      */
     protected $rolesAllowed;
+
+    /**
+     * List of Role Group codes that may be set as allowed to view Faq articles.
+     *
+     * @var array<int, string>
+     */
+    protected $roleGroupsFaqVisibility;
 
     /**
      * Defines whether access to procedure is granted by owning organisation (false)
@@ -579,12 +578,20 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private $advancedSupport;
 
-    public function __construct(ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    /**
+     * @var array<non-empty-string, non-empty-string>
+     */
+    private array $externalLinks;
+
+    public function __construct(
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
+    ) {
         $this->setParams($params, $translator);
     }
 
-    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator)
+    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator): void
     {
         /*
          * Project configurations
@@ -714,6 +721,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
+        $this->honeypotTimeout = $parameterBag->get('honeypot_timeout');
 
         // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
@@ -757,9 +765,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
@@ -784,6 +789,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->entityContentChangeFieldMapping = $parameterBag->get('entity_content_change_fields_mapping');
 
         $this->rolesAllowed = $parameterBag->get('roles_allowed');
+
+        $this->roleGroupsFaqVisibility = $parameterBag->get('role_groups_faq_visibility');
 
         // project specific params
 
@@ -835,6 +842,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->procedureUserRestrictedAccess = $parameterBag->get('procedure_user_restricted_access');
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
+
+        $this->externalLinks = $this->getValidatedExternalLinks($parameterBag);
     }
 
     /**
@@ -951,21 +960,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int
@@ -1156,6 +1150,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function isHoneypotDisabled(): bool
     {
         return filter_var($this->honeypotDisabled, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function getHoneypotTimeout(): int
+    {
+        return $this->honeypotTimeout;
     }
 
     public function getMaintenanceKey(): string
@@ -1781,6 +1780,11 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->rolesAllowed;
     }
 
+    public function getRoleGroupsFaqVisibility(): array
+    {
+        return $this->roleGroupsFaqVisibility;
+    }
+
     public function isSharedFolder(): bool
     {
         return $this->sharedFolder;
@@ -1817,5 +1821,42 @@ class GlobalConfig implements GlobalConfigInterface
     public function isAdvancedSupport(): bool
     {
         return $this->advancedSupport;
+    }
+
+    public function getExternalLinks(): array
+    {
+        return $this->externalLinks;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function getValidatedExternalLinks(ParameterBagInterface $parameterBag): array
+    {
+        $externalLinks = $parameterBag->get('external_links');
+        $violations = $this->validator->validate($externalLinks, [
+            new Type('array'),
+            new NotNull(),
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+                new Url(),
+            ]),
+        ]);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        $violations->addAll($this->validator->validate(array_keys($externalLinks), [
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+            ]),
+        ]));
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        return $externalLinks;
     }
 }

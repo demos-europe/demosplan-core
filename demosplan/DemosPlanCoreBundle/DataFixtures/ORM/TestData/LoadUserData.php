@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
@@ -248,6 +248,14 @@ class LoadUserData extends TestFixture
             ->setGroupName('Kommune');
 
         $manager->persist($role13);
+
+        $role14 = new Role();
+        $role14->setName(Role::CUSTOMER_MASTER_USER)
+            ->setCode(Role::CUSTOMER_MASTER_USER)
+            ->setGroupCode(Role::CUSTOMERMASTERUSERGROUP)
+            ->setGroupName(Role::CUSTOMERMASTERUSERGROUP);
+
+        $manager->persist($role14);
 
         $this->setReference('testRolePublicAgencyCoordination', $role1);
         $this->setReference('testRoleCitiz', $role2);

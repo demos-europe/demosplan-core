@@ -6,8 +6,10 @@
     }%}
 
         {% block content %}
-
-            <div class="layout__item u-1-of-1-palm{% if hidePressAnnouncements is not defined %} u-1-of-2-lap-up{% endif %} u-pl-0_5 u-pl-0-lap-up u-pr-lap-up">
+            <div class="layout__item u-1-of-1-palm  u-pl-0_5 u-pl-0-lap-up u-pr-lap-up
+                {% if templateVars.pressList is not empty %}
+                    u-1-of-2-lap-up
+                {% endif %}">
                 <h2>
                     {{ "news.announcements"|trans }}
                 </h2>
@@ -18,7 +20,7 @@
                 {% endif %}
             </div>
 
-            {% if hidePressAnnouncements is not defined %}
+            {% if templateVars.pressList is not empty %}
                 <div class="layout__item u-1-of-1-palm u-1-of-2-lap-up u-pl-0_5 u-pl-0-lap-up">
                     <h2>
                         {{ "press.announcements"|trans }}
@@ -30,9 +32,6 @@
                     {% endif %}
                 </div>
             {% endif %}
-
         {% endblock content %}
-
     {% endembed %}
-
 {% endblock %}

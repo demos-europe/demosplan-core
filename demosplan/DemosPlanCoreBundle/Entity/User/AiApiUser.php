@@ -10,13 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 class AiApiUser extends FunctionalUser
 {
     public const AI_API_USER_LOGIN = 'aiapi+internal-users@demosplan';
     public const AI_API_USER_ID = '00000000-0000-0000-0000-000000000001';
 
-    public function __construct()
+    public function __construct(Customer $customer)
     {
+        parent::__construct();
+
         $this->id = self::AI_API_USER_ID;
         $this->login = self::AI_API_USER_LOGIN;
 
@@ -34,6 +38,10 @@ class AiApiUser extends FunctionalUser
 
         $this->setDplanroles([$role]);
 
-        parent::__construct();
+        $userRoleInCustomer = new UserRoleInCustomer();
+        $userRoleInCustomer->setUser($this);
+        $userRoleInCustomer->setRole($role);
+        $userRoleInCustomer->setCustomer($customer);
+        $this->roleInCustomers = new ArrayCollection([$userRoleInCustomer]);
     }
 }

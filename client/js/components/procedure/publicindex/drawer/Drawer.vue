@@ -45,14 +45,13 @@
 </template>
 
 <script>
+import { DpLoading, MatchMedia } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpContentToggle from './ContentToggle'
 import DpDetailView from './DetailView'
 import DpHandle from './Handle'
 import DpList from './List'
-import { DpLoading } from '@demos-europe/demosplan-ui'
 import DpSearch from './Search'
-import { MatchMedia } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpDrawer',

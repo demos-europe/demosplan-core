@@ -10,21 +10,43 @@
 <template>
   <dp-editor
     hidden-input="r_send_body"
-    :procedure-id="procedureId"
     :toolbar-items="toolbarItems"
-    v-model="text" />
+    v-model="text">
+    <template v-slot:modal="modalProps">
+      <dp-boiler-plate-modal
+        ref="boilerPlateModal"
+        boiler-plate-type="email"
+        :procedure-id="procedureId"
+        @insert="text => modalProps.handleInsertText(text)" />
+    </template>
+    <template v-slot:button>
+      <button
+        :class="prefixClass('menubar__button')"
+        type="button"
+        v-tooltip="Translator.trans('boilerplate.insert')"
+        @click.stop="openBoilerPlate">
+        <i :class="prefixClass('fa fa-puzzle-piece')" />
+      </button>
+    </template>
+  </dp-editor>
 </template>
 
 <script>
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'AssessmentStatementDetailFinalEmail',
 
   components: {
+    DpBoilerPlateModal,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     initText: {
@@ -42,10 +64,15 @@ export default {
     return {
       text: this.initText,
       toolbarItems: {
-        boilerPlate: 'email',
         headings: [1, 2, 3],
         linkButton: true
       }
+    }
+  },
+
+  methods: {
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     }
   }
 }

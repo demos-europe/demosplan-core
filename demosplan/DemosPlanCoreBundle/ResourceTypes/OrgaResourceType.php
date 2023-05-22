@@ -17,9 +17,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\RoleService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
@@ -58,6 +59,9 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $submissionType
  * @property-read End                              $types @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
+ * @property-read End                              $dataProtection
+ * @property-read End                              $imprint
+ * @property-read End                              $isPlanningOrganisation Indicates an organisation as organisation which can administrate procedures
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
@@ -147,6 +151,7 @@ final class OrgaResourceType extends DplanResourceType
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
                 $this->statusInCustomers->customer->id
             ),
+            $this->conditionFactory->propertyHasNotValue(User::ANONYMOUS_USER_ORGA_ID, $this->id),
         ];
     }
 
@@ -175,6 +180,8 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->city)->readable(true, static function (Orga $orga): string {
                 return $orga->getCity();
             }),
+            $this->createAttribute($this->imprint)->readable(true),
+            $this->createAttribute($this->dataProtection)->readable(true),
             $this->createAttribute($this->competence)->readable(true),
             $this->createAttribute($this->contactPerson)->readable(true),
             $this->createAttribute($this->copy)->aliasedPath($this->paperCopy)->readable(true),
@@ -215,6 +222,13 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
                 return $orga->getDepartments();
             }),
+            $this->createAttribute($this->isPlanningOrganisation)->readable(true,
+                function (Orga $orga): bool {
+                    return $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
+                        || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
+                        || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $this->globalConfig->getSubdomain());
+                }
+            ),
             $statusInCustomers,
         ];
 

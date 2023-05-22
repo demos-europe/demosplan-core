@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -23,11 +24,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\RoleHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -374,6 +374,34 @@ class FaqHandler extends CoreHandler
                 return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
             }
         );
+    }
+
+    /**
+     * Get all faqs and sort by category into array.
+     *
+     * @param Collection $categories a collection of {@link Category categories}
+     *
+     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     */
+    public function convertIntoTwigFormat(Collection $categories, User $user): array
+    {
+        // get all faqs and sort by category into array:
+        $convertedResult = [];
+        foreach ($categories as $category) {
+            $faqList = $this->getEnabledFaqList($category, $user);
+
+            $faqList = $this->orderFaqsByManualSortList($faqList, $category);
+            foreach ($faqList as $faq) {
+                $categoryId = $faq->getCategory()->getId();
+                $categoryTitle = $faq->getCategory()->getTitle();
+
+                $convertedResult[$categoryId]['id'] = $categoryId;
+                $convertedResult[$categoryId]['label'] = $categoryTitle;
+                $convertedResult[$categoryId]['faqlist'][] = $faq;
+            }
+        }
+
+        return $convertedResult;
     }
 
     /**

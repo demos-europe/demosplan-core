@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -25,8 +28,11 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null `null` if this instance was created but not persisted yet
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -35,6 +41,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     private $procedure;
@@ -43,6 +50,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     private $fullName;
@@ -51,6 +59,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetName;
@@ -59,6 +68,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetNumber;
@@ -67,6 +77,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $city;
@@ -75,6 +86,7 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $postalCode;
@@ -83,15 +95,38 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
+     *
      * @Assert\Email()
      */
     private $emailAddress;
+
+    /**
+     * Each item in this collection references a statement for which this person has submitted a similar statement.
+     * However, the latter one is unknown and may or may not have been entered into the application.
+     *
+     * @var Collection<int, Statement>
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
+     *     mappedBy="similarStatementSubmitters",
+     *     cascade={"persist"},
+     * )
+     *
+     * @ORM\JoinTable(
+     *     name="similar_statement_submitter",
+     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="statement_id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="id", referencedColumnName="submitter_id")}
+     * )
+     */
+    private Collection $similarForeignStatements;
 
     public function __construct(string $fullName, Procedure $procedure)
     {
         $this->fullName = $fullName;
         $this->procedure = $procedure;
+        $this->similarForeignStatements = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -174,5 +209,35 @@ class ProcedurePerson implements UuidEntityInterface
     public function getEmailAddress(): ?string
     {
         return $this->emailAddress;
+    }
+
+    /**
+     * @return Collection<int, Statement>
+     */
+    public function getSimilarForeignStatements(): Collection
+    {
+        return $this->similarForeignStatements;
+    }
+
+    /**
+     * Adds the given statement to the similarForeignStatements if not already containing.
+     */
+    public function addSimilarForeignStatement(Statement $similarForeignStatement): void
+    {
+        if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
+            $this->similarForeignStatements->add($similarForeignStatement);
+        }
+
+        if (!$similarForeignStatement->getSimilarStatementSubmitters()->contains($this)) {
+            $similarForeignStatement->addSimilarStatementSubmitter($this);
+        }
+    }
+
+    public function removeSimilarForeignStatement(Statement $similarForeignStatement): void
+    {
+        if ($this->similarForeignStatements->contains($similarForeignStatement)) {
+            $this->similarForeignStatements->removeElement($similarForeignStatement);
+            $similarForeignStatement->removeSimilarStatementSubmitter($this);
+        }
     }
 }

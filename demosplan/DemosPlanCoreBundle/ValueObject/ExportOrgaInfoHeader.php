@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 use ArrayIterator;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**

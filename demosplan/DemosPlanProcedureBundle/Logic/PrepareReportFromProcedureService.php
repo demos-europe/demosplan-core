@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -20,22 +22,23 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
@@ -92,7 +95,8 @@ class PrepareReportFromProcedureService extends CoreService
         PermissionsInterface $permissions,
         ReportService $reportService,
         ProcedureReportEntryFactory $procedureReportEntryFactory,
-        StatementReportEntryFactory $statementReportEntryFactory
+        StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -151,7 +155,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Add a report about a sent invitation by means of the DemosPlanReportBundle.
+     * Add a report about a sent invitation.
      */
     public function addReportInvite(array $recipientsWithEmail, string $procedureId, string $phase, string $mailSubject): void
     {
@@ -196,7 +200,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Create a Report by means of the DemosPlanReportBundle.
+     * Create a Report.
      *
      * @throws Exception
      */
@@ -281,16 +285,10 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
         }
 
-        $user = null;
-        try {
-            $user = $this->currentUser->getUser();
-        } catch (UserNotFoundException $e) {
-            $this->logger->info('No user found for log creation');
-        }
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
             $sourceProcedure,
             $destinationProcedure,
-            $user,
+            $this->getUserForReportEntry(),
             false
         );
         if (null !== $phaseChangeEntry) {
@@ -307,12 +305,33 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * @param User|null $user avoid passing `null`, as we want to show a user when the report is listed in the UI
+     * @return User|non-empty-string
+     */
+    private function getUserForReportEntry(): User|string
+    {
+        $user = null;
+        try {
+            $user = $this->currentUser->getUser();
+        } catch (UserNotFoundException $e) {
+            $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
+        }
+        if (null !== $user && '' !== $user->getFullname()) {
+            return $user;
+        }
+
+        $systemUserName = $this->translator->trans('user.system.name');
+        Assert::stringNotEmpty($systemUserName);
+
+        return $systemUserName;
+    }
+
+    /**
+     * @param User|non-empty-string $user if no user instance is available, the username must be passed
      */
     public function createPhaseChangeReportEntryIfChangesOccurred(
         Procedure $sourceProcedure,
         Procedure $destinationProcedure,
-        ?User $user,
+        User|string $user,
         bool $createdBySystem
     ): ?ReportEntry {
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
@@ -427,10 +446,10 @@ class PrepareReportFromProcedureService extends CoreService
 
         foreach ($elementsList as $element) {
             switch ($element->getCategory()) {
-                case Elements::ELEMENTS_CATEGORY_PARAGRAPH:
+                case ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH:
                     $paragraphs = $this->addParagraphReportToMessage($element, $paragraphs);
                     break;
-                case Elements::ELEMENTS_CATEGORY_FILE:
+                case ElementsInterface::ELEMENTS_CATEGORY_FILE:
                     $elements = $this->addFileReportToMessage($element, $elements);
                     break;
                 default:

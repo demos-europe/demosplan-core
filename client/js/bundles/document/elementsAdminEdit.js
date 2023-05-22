@@ -11,9 +11,8 @@
  * This is the entry point for elements_admin_edit.html.twig
  */
 
+import { DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import DpElementAdminEdit from '@DpJs/components/document/DpElementAdminEdit'
-import { DpUploadFiles } from '@demos-europe/demosplan-ui'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

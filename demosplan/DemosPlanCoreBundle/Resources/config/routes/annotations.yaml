@@ -1,4 +1,0 @@
-DemosPlanCore_annotations:
-    resource: "../../../../DemosPlanCoreBundle/Controller/"
-    type: "annotation"
-

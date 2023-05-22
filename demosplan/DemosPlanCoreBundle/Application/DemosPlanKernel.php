@@ -107,7 +107,7 @@ class DemosPlanKernel extends Kernel
 
     protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
-        $coreConfigPath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config');
+        $coreConfigPath = DemosPlanPath::getConfigPath();
 
         $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, '/', 'glob');
         $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
@@ -123,9 +123,7 @@ class DemosPlanKernel extends Kernel
 
     protected function configureContainer(ContainerBuilder $containerBuilder, LoaderInterface $loader): void
     {
-        $coreConfigPath = DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config'
-        );
+        $coreConfigPath = DemosPlanPath::getConfigPath();
         $projectConfigPath = DemosPlanPath::getProjectPath('app/config');
 
         // load bundles
@@ -247,9 +245,7 @@ class DemosPlanKernel extends Kernel
 
     private function getBundlesConfigPath(): string
     {
-        return DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config/bundles.php'
-        );
+        return DemosPlanPath::getConfigPath('bundles.php');
     }
 
     /**
@@ -257,9 +253,7 @@ class DemosPlanKernel extends Kernel
      */
     private function getLocalContainerConfigGlob(): string
     {
-        return DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config/config_dev_container'
-        );
+        return DemosPlanPath::getConfigPath('config_dev_container');
     }
 
     protected function build(ContainerBuilder $container): void

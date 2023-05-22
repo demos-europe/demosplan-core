@@ -269,8 +269,8 @@
                     <td class="o-hellip--td">
                         {{- item.name -}}
                         <br>
-                        {{- 'from.date'|trans -}}
-                        {{- item.createdDate|default()|dplanDate -}}
+                        {{- 'from.date'|trans }}
+                        {{ item.createdDate|default()|dplanDate -}}
                     </td>
                     <td class="o-hellip--td">
                         {{- item.phaseName|default() -}}

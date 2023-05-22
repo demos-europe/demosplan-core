@@ -15,11 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 
 class UserLoginSubscriber extends BaseEventSubscriber
 {
@@ -28,20 +27,14 @@ class UserLoginSubscriber extends BaseEventSubscriber
      */
     private $userService;
 
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    public function __construct(TokenStorageInterface $tokenStorage, UserService $userService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->tokenStorage = $tokenStorage;
     }
 
-    public function onLogin(): void
+    public function onLogin(AuthenticationSuccessEvent $event): void
     {
-        $token = $this->tokenStorage->getToken();
+        $token = $event->getAuthenticationToken();
         if ($token instanceof TokenInterface && !$token instanceof JWTUserToken) {
             $user = $token->getUser();
             if ($user instanceof User && !$user instanceof FunctionalUser) {
@@ -54,7 +47,7 @@ class UserLoginSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            InteractiveLoginEvent::class => 'onLogin',
+            AuthenticationSuccessEvent::class => 'onLogin',
         ];
     }
 }

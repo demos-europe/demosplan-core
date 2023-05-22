@@ -27,7 +27,7 @@ class UrlFileReader
     private $logger;
 
     /**
-     * @var \Symfony\Contracts\HttpClient\HttpClientInterface
+     * @var HttpClientInterface
      */
     private $httpClient;
 

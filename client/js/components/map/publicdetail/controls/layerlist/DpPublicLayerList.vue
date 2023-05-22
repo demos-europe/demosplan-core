@@ -35,7 +35,7 @@
 import { mapGetters, mapState } from 'vuex'
 import DpPublicLayerListCategory from './DpPublicLayerListCategory'
 import DpPublicLayerListLayer from './DpPublicLayerListLayer'
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerList',

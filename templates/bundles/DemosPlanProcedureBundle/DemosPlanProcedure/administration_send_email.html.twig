@@ -37,25 +37,40 @@
             ]
         }) }}
 
-        {{ uiComponent('form.row', {
-            elements: [
-                {
-                    label: { text: 'email.body'|trans },
-                    control: {
-                        name: 'r_email_body',
-                        boilerPlate: 'email',
-                        toolbarItems: { headings: [1,2,3] },
-                        hiddenInput: 'r_email_body',
-                        linkButton: true,
-                        procedureId: templateVars.procedureId
-                    },
-                    id: 'r_email_body',
-                    type: 'editor',
-                    required: true,
-                    value: templateVars.preparationMail.mailBody
-                }
-            ]
-        }) }}
+        <div class="{{ 'u-mb-0_75'|prefixClass }}">
+            <dp-label
+                for="r_email_body"
+                text="{{ 'email.body'|trans }}">
+            </dp-label>
+            <dp-editor
+                id="r_email_body"
+                ref="r_email_body"
+                hidden-input="r_email_body"
+                :toolbar-items="{
+                    headings: [1, 2, 3],
+                    linkButton: true
+                }"
+                required
+                value="{{ templateVars.preparationMail.mailBody }}">
+                <template v-slot:modal="modalProps">
+                    <dp-boiler-plate-modal
+                        ref="boilerPlateModal"
+                        boiler-plate-type="email"
+                        procedure-id="{{ templateVars.procedureId }}"
+                        @insert="text => modalProps.handleInsertText(text)">
+                    </dp-boiler-plate-modal>
+                </template>
+                <template v-slot:button>
+                    <button
+                        class="{{ 'menubar__button'|prefixClass }}"
+                        type="button"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        @click.stop="$refs.boilerPlateModal.toggleModal()">
+                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                    </button>
+                </template>
+            </dp-editor>
+        </div>
 
         <dp-checkbox
             id="r_email_address"

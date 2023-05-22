@@ -22,7 +22,7 @@
         :padded="false">
         <template v-slot:trigger>
           <dp-icon
-            :class="{ 'color-ui-highlight': selectedFields.length > 0 }"
+            :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->
@@ -74,8 +74,17 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpCheckbox, DpDetails, DpFlyout, DpIcon, DpInput  } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  DpButton,
+  DpCheckbox,
+  DpDetails,
+  DpFlyout,
+  DpIcon,
+  DpInput,
+  dpRpc,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
 export default {

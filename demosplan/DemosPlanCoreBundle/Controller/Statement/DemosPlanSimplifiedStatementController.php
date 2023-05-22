@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -48,7 +49,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         string $procedureId
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
-        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);
         $eventStatementCreator = $event->getStatementFromEmailCreator();
         if (null !== $eventStatementCreator && is_callable($eventStatementCreator)) {
             return $eventStatementCreator($request, $procedureId);

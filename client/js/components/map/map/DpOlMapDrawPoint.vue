@@ -11,7 +11,7 @@
   <button
     type="button"
     @click="activate"
-    :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color--highlight') : '']">
+    :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color-highlight') : '']">
     <i
       :class="prefixClass('fa fa-map-marker')"
       aria-hidden="true" />
@@ -22,7 +22,7 @@
 <script>
 import { Draw } from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Vector } from 'ol/layer'
 
 export default {

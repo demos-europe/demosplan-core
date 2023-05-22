@@ -10,13 +10,10 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
-use function array_key_exists;
-use function array_merge;
-use function array_unique;
-
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -45,23 +42,22 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
-use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanMapBundle\Repository\MapRepository;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
-use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
-use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -73,6 +69,10 @@ use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
+
+use function array_key_exists;
+use function array_merge;
+use function array_unique;
 
 class ProcedureRepository extends SluggedRepository implements ArrayInterface, ObjectInterface
 {
@@ -109,7 +109,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return string[]|null
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function getNames($procedureId)
     {
@@ -124,7 +124,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery();
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -695,16 +695,16 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setNotificationReceivers($data['notificationReceivers']);
         }
 
-        if (array_key_exists(AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
-            $procedure->setAgencyMainEmailAddress($data[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS]);
+        if (array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
+            $procedure->setAgencyMainEmailAddress($data[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS]);
         }
 
         if (array_key_exists('procedure_categories', $data)) {
             $procedure->setProcedureCategories($data['procedure_categories']);
         }
 
-        if (array_key_exists(AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, $data)) {
-            $inputEmailAddressStrings = $data[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES];
+        if (array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, $data)) {
+            $inputEmailAddressStrings = $data[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES];
             /** @var EmailAddressRepository $emailAddressRepository */
             $emailAddressRepository = $this->getEntityManager()->getRepository(EmailAddress::class);
             $newEmailAddressEntities = $emailAddressRepository->getOrCreateEmailAddresses($inputEmailAddressStrings);
@@ -1066,7 +1066,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return Procedure the given procedure
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      * @throws InvalidArgumentException
      */
     public function copyAgencyExtraEmailAddresses($sourceProcedureId, $newProcedure): Procedure

@@ -34,9 +34,9 @@
 }
 
 %c-pager-current {
-    background-color: $pager-color-active-bg;
+    background-color: $dp-color-neutral-light-1;
     border-radius: $inuit-base-spacing-unit--small;
-    color: $pager-color-active;
+    color: $dp-color-white;
 }
 
 .c-pager {

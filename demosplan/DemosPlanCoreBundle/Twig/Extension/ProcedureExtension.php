@@ -13,13 +13,13 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
@@ -234,7 +234,7 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedureObject = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
-            throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true));
+            throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true), 0, $exception);
         }
 
         return $this->getEndDateFromProcedureObject($procedureObject, $type);

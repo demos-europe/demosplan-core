@@ -19,13 +19,17 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        :additional-route-params="{ maxResults: 50 }"
         class="u-nojs-hide display--inline-block width-250 bg-color--white"
         height="32px"
         label="value"
         :options="postalCodeOptions"
         :placeholder="Translator.trans('autocomplete.label')"
-        route="core_suggest_location_json"
+        :route-generator="(searchString) => {
+          return Routing.generate('core_suggest_location_json', {
+            maxResults: 50,
+            query: searchString
+          })
+        }"
         track-by="value"
         @search-changed="handleSearchChanged"
         @selected="handleSelected" />
@@ -95,8 +99,7 @@
 </template>
 
 <script>
-import { DpAutocomplete, DpButton, DpSelect } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { DpAutocomplete, DpButton, DpSelect, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ListSubscriptions',

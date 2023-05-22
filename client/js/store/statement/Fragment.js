@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,

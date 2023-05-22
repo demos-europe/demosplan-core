@@ -32,18 +32,17 @@
       </template>
       <template v-slot:tags="rowData">
         <div v-if="!rowData.edit">
-           <span>
-             {{ separateByCommas(rowData.tags) }}
-           </span>
-          </div>
+          <span>
+            {{ separateByCommas(rowData.tags) }}
+          </span>
+        </div>
         <dp-multiselect
           v-else
           v-model="editingInstitutionTags"
           :options="tagList"
           label="label"
           track-by="id"
-          multiple>
-        </dp-multiselect>
+          multiple />
       </template>
       <template v-slot:action="rowData">
         <div class="float--right">
@@ -89,10 +88,15 @@
 </template>
 
 <script>
-import { DpDataTable, DpIcon, DpInlineNotification, DpMultiselect, DpSlidingPagination } from '@demos-europe/demosplan-ui'
+import {
+  DpDataTable,
+  DpIcon,
+  DpInlineNotification,
+  DpMultiselect,
+  DpSlidingPagination,
+  formatDate
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { formatDate } from '@demos-europe/demosplan-utils'
-
 
 export default {
   name: 'InstitutionList',
@@ -114,12 +118,12 @@ export default {
         {
           field: 'institution',
           label: Translator.trans('institution'),
-          colClass: 'u-2-of-12',
+          colClass: 'u-2-of-12'
         },
         {
           field: 'tags',
           label: Translator.trans('tags'),
-          colClass: 'u-9-of-12',
+          colClass: 'u-9-of-12'
         },
         {
           field: 'action',
@@ -213,11 +217,11 @@ export default {
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
-          type: 'InstitutionTag',
+          type: 'InstitutionTag'
         }
       })
 
-      this.updateInvitableInstitution ({
+      this.updateInvitableInstitution({
         id: id,
         type: 'InvitableInstitution',
         attributes: { ...this.invitableInstitutionList[id].attributes },
@@ -228,24 +232,24 @@ export default {
         }
       })
 
-      this.saveInvitableInstitution (id)
+      this.saveInvitableInstitution(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
           // Restore statement in store in case request failed
-          this.restoreInstitutionFromInitial (id)
+          this.restoreInstitutionFromInitial(id)
           console.error(err)
         })
         .finally(() => {
-        this.editingInstitutionId = null
-      })
+          this.editingInstitutionId = null
+        })
     },
 
     date (d) {
-      return formatDate (d)
+      return formatDate(d)
     },
 
     separateByCommas (institutionTags) {
-      let tagsLabels = []
+      const tagsLabels = []
 
       institutionTags.map(el => {
         const label = this.getTagLabelById(el.id)

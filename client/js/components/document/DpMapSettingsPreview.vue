@@ -73,10 +73,10 @@
             :data-cy="Translator.trans(link.label)"
             :href="href(link)"
             class="o-link"
-            :class="{'color--system-confirm':link.done()}">
+            :class="{'color-status-complete-text': link.done()}">
             <i
               class="width-20"
-              :class="{'fa fa-check':link.done(), 'fa fa-plus':!link.done()}"
+              :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
               aria-hidden="true" />{{ link.done() ? Translator.trans(link.labelDone) : Translator.trans(link.label) }}
           </a>
         </li>
@@ -232,8 +232,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpDatepicker, DpToggle } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'

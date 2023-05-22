@@ -14,8 +14,13 @@
       v-if="hasPermission('feature_map_search_location')"
       :options="autocompleteOptions"
       :value="selectedValue"
-      route="DemosPlan_procedure_public_suggest_procedure_location_json"
-      :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent), maxResults: 9999 }"
+      :route-generator="(searchString) => {
+        return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
+          filterByExtent: JSON.stringify(maxExtent),
+          maxResults: 9999,
+          query: searchString
+        })
+      }"
       label="value"
       track-by="value"
       @search-changed="(response) => sortResults(response.data.data || [])"
@@ -31,13 +36,12 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-utils'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
 import { TileWMS, WMTS } from 'ol/source'
-import { DpAutocomplete } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -386,7 +390,6 @@ export default {
           }
         })
       })
-
     },
 
     addTerritoryLayer () {
@@ -571,7 +574,6 @@ export default {
       const name = layer.id.replaceAll('-', '')
       const visible = layer.attributes.hasDefaultVisibility && visibility
       const source = visibility ? this.createLayerSource(layer) : null
-      // Const source = this.createLayerSource(layer, serviceType)
 
       return new TileLayer({
         name: name,
@@ -938,7 +940,8 @@ export default {
             return
           }
           this.handleButtonInteraction('criteria', '#criteriaButton', () => {
-            this.mapSingleClickListener = this.map.on('singleclick', queryCriteria) })
+            this.mapSingleClickListener = this.map.on('singleclick', queryCriteria)
+          })
         })
       }
 
@@ -1162,6 +1165,9 @@ export default {
           }
 
           allPrintLayers.forEach(printLayer => {
+            if (!printLayer.getSource()) {
+              this.setLayerSource(printLayer)
+            }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
             const tileUrlFunction = source.getTileUrlFunction()
@@ -1385,7 +1391,6 @@ export default {
        * #########################################################
        * Kartenwerkzeuge: DragZoom control
        */
-
 
       //  Add DragZoom control
       $('#dragZoomButton').on('click', el => {

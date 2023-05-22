@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -29,7 +31,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  */
-final class OriginalStatementResourceType extends DplanResourceType
+final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public static function getName(): string
     {
@@ -44,7 +46,7 @@ final class OriginalStatementResourceType extends DplanResourceType
     public function isAvailable(): bool
     {
         /** @var IsOriginalStatementAvailableEvent $event * */
-        $event = $this->eventDispatcher->dispatch(new IsOriginalStatementAvailableEvent());
+        $event = $this->eventDispatcher->dispatch(new IsOriginalStatementAvailableEvent(), IsOriginalStatementAvailableEventInterface::class);
 
         return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
     }

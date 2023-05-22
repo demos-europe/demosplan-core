@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsValidStatementAttachmentType;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository")
  */
-class StatementAttachment implements UuidEntityInterface
+class StatementAttachment implements UuidEntityInterface, StatementAttachmentInterface
 {
     /**
      * A file that originally resulted in the original statement being created. E.g. a PDF file
@@ -42,8 +43,11 @@ class StatementAttachment implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -52,6 +56,7 @@ class StatementAttachment implements UuidEntityInterface
      * @var File
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
+     *
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
      */
     protected $file;
@@ -60,6 +65,7 @@ class StatementAttachment implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", nullable=false)
+     *
      * @IsValidStatementAttachmentType()
      */
     protected $type;
@@ -68,6 +74,7 @@ class StatementAttachment implements UuidEntityInterface
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="attachments")
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      */
     protected $statement;

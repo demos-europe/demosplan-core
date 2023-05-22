@@ -1,7 +1,6 @@
 {#
     This is a ui component used via the Twig function call uiComponent('form.editor')
 
-    boilerPlate {String}
     customAttrs {Array}:        Set custom attributes on the outer element container,
                                 that are not a part of the api of DpTiptap.vue.
     fullscreenButton {Boolean}
@@ -13,13 +12,13 @@
     mark {Boolean}              set to true to add a mark-option in editor, default false
     obscure {boolean}           set to true to enable dp-obscure for the editor
     omitCssPrefix {Boolean}:    Set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
-    procedureId {String}        pass the procedureId
     readonly {Boolean}          set to true to lock the text and display a read only view, default false
     ref {String}                set a ref to interact with the editor from the outer vue component
     required {Boolean}          set to true to mark the editor as required field. Validation may be handled manually. default false
     strikethrough {Boolean}      set to true to enable a line through option in editor. default false
 #}
 {% set omitPrefix  = omitCssPrefix ?? true %}
+{% set routes = routes|default({}) %}
 {% set toolbarItems = toolbarItems|default({}) %}
 {% if headings|default is iterable and headings|length > 0 %}
     {% set toolbarItems = toolbarItems|merge({ 'headings': headings }) %}
@@ -33,39 +32,27 @@
 {% if linkButton|default is same as true %}
     {% set toolbarItems = toolbarItems|merge({ 'linkButton': true }) %}
 {% endif %}
+{% if mark|default is same as true %}
+    {% set toolbarItems = toolbarItems|merge({ 'mark': true }) %}
+{% endif %}
 {% if insertAndDelete|default is same as true %}
     {% set toolbarItems = toolbarItems|merge({ 'insertAndDelete': true }) %}
 {% endif %}
 {% if obscure|default is same as true %}
     {% set toolbarItems = toolbarItems|merge({ 'obscure': true }) %}
 {% endif %}
+{% if strikethrough|default is same as true %}
+    {% set toolbarItems = toolbarItems|merge({ 'strikethrough': true }) %}
+{% endif %}
 
 <dp-editor
     value="{{ value }}"
     class="{{ 'u-mb'|prefixClass(omitPrefix) }}"
-    {% if boilerPlate|default != '' %}
-        boiler-plate="{{ boilerPlate }}"
-    {% endif %}
     {% if dataCy is defined %}
         data-cy="{{ dataCy }}"
     {% endif %}
-    {% if procedureId|default != '' %}
-        procedure-id="{{ procedureId }}"
-    {% endif %}
     {% if hiddenInput|default != '' %}
         hidden-input="{{ hiddenInput }}"
-    {% endif %}
-    {% if fullscreenButton is defined and fullscreenButton is same as false %}
-        :fullscreen-button="false"
-    {% endif %}
-    {% if listButtons is defined and listButtons is same as false %}
-        :list-buttons="false"
-    {% endif %}
-    {% if linkButton|default is same as true %}
-        link-button
-    {% endif %}
-    {% if mark|default is same as true %}
-        mark
     {% endif %}
     {# Could editor-id be generated entirely inside DpTiptap.vue? #}
     editor-id="{{ editorId|default }}"
@@ -75,15 +62,16 @@
     {% if readonly|default is same as true %}
         readonly
     {% endif %}
+    {# Needed to get the Route, when any of Props in routes prop are enabled in the DpEditor #}
+    {% if routes != {} %}
+        :routes="JSON.parse('{{ routes|json_encode|e('js', 'utf-8') }}')"
+    {% endif %}
     {# This can be moved into `attributes` since it is not part of the DpTiptap.vue api. #}
     {% if ref|default != '' %}
         ref="{{ ref }}"
     {% endif %}
     {% if required|default is same as true %}
-        :required="true"
-    {% endif %}
-    {% if strikethrough|default is same as true %}
-        :strikethrough="true"
+        required
     {% endif %}
     {% if customAttrs|default is iterable and customAttrs|length > 0 %}
         {% for attr in customAttrs %}

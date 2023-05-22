@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Help;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -19,16 +19,20 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Contextual Help.
  *
  * @ORM\Table(name="_platform_context_sensitive_help")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository")
  */
-class ContextualHelp implements UuidEntityInterface
+class ContextualHelp implements ContextualHelpInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_pcsh_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -51,6 +55,7 @@ class ContextualHelp implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -59,6 +64,7 @@ class ContextualHelp implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")     *
+     *
      * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -66,7 +72,7 @@ class ContextualHelp implements UuidEntityInterface
     /**
      * Set ident.
      *
-     * @param string $ident
+     * @param string|null $ident
      *
      * @return ContextualHelp
      */

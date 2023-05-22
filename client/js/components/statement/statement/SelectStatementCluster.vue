@@ -77,8 +77,7 @@
 
 <script>
 import DpClaim from '../DpClaim'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
 
 export default {

@@ -10,25 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
-use Throwable;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonContentMandatoryFieldsException;
 
-class ContentMandatoryFieldsException extends Exception
+class ContentMandatoryFieldsException extends AddonContentMandatoryFieldsException
 {
-    /** @var array<int, string> */
-    private $mandatoryFieldMessages;
-
-    public function __construct(array $mandatoryFieldMessages, $message = '', $code = 0, Throwable $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->mandatoryFieldMessages = $mandatoryFieldMessages;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function getMandatoryFieldMessages(): array
-    {
-        return $this->mandatoryFieldMessages;
-    }
 }

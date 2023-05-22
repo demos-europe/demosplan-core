@@ -17,12 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository;
 use Exception;
 use geoPHP;
 use LineString;
@@ -444,7 +440,7 @@ class StatementGeoService extends CoreService
         }
 
         // schreibe das Polygon per wfst in die GeoDB
-        $postBodyInsert = $this->twig->render('@DemosPlanStatement/Geo/insertPolygon.xml.twig',
+        $postBodyInsert = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/insertPolygon.xml.twig',
             [
                 'templateVars' => [
                     'id'       => $tempStatementId,
@@ -456,7 +452,7 @@ class StatementGeoService extends CoreService
         $this->getLogger()->info('Insert Response', [$responseInsert]);
 
         // Frage die Verschneidungen ab
-        $postBodyGet = $this->twig->render('@DemosPlanStatement/Geo/getFeature.xml.twig',
+        $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => $type],
             ]);
@@ -466,7 +462,7 @@ class StatementGeoService extends CoreService
         $geoResults = $this->parseGeoResponse($geoResults, $responseGet, $type);
 
         // Lösche den Eintrag in der GeoDB
-        $postBodyDelete = $this->twig->render('@DemosPlanStatement/Geo/delete.xml.twig',
+        $postBodyDelete = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/delete.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_polygone'],
             ]);
@@ -502,7 +498,7 @@ class StatementGeoService extends CoreService
         }
 
         // schreibe das Polygon per wfst in die GeoDB
-        $postBodyInsert = $this->twig->render('@DemosPlanStatement/Geo/insertLinestring.xml.twig',
+        $postBodyInsert = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/insertLinestring.xml.twig',
             [
                 'templateVars' => [
                     'id'          => $tempStatementId,
@@ -514,7 +510,7 @@ class StatementGeoService extends CoreService
         $this->getLogger()->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
 
         // Frage die Verschneidungen ab
-        $postBodyGet = $this->twig->render('@DemosPlanStatement/Geo/getFeature.xml.twig',
+        $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => $type],
             ]);
@@ -526,7 +522,7 @@ class StatementGeoService extends CoreService
         $geoResults = $this->parseGeoResponse($geoResults, $responseGet, $type);
 
         // Lösche den Eintrag in der GeoDB
-        $postBodyDelete = $this->twig->render('@DemosPlanStatement/Geo/delete.xml.twig',
+        $postBodyDelete = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/delete.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_linien'],
             ]);
@@ -564,7 +560,7 @@ class StatementGeoService extends CoreService
         }
 
         // schreibe das Polygon per wfst in die GeoDB
-        $postBodyInsert = $this->twig->render('@DemosPlanStatement/Geo/insertPoint.xml.twig',
+        $postBodyInsert = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/insertPoint.xml.twig',
             [
                 'templateVars' => [
                     'id'     => $tempStatementId,
@@ -576,7 +572,7 @@ class StatementGeoService extends CoreService
         $this->getLogger()->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
 
         // Frage die Verschneidungen ab
-        $postBodyGet = $this->twig->render('@DemosPlanStatement/Geo/getFeature.xml.twig',
+        $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => $type],
             ]);
@@ -588,7 +584,7 @@ class StatementGeoService extends CoreService
         $geoResults = $this->parseGeoResponse($geoResults, $responseGet, $type);
 
         // Lösche den Eintrag in der GeoDB
-        $postBodyDelete = $this->twig->render('@DemosPlanStatement/Geo/delete.xml.twig',
+        $postBodyDelete = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/delete.xml.twig',
             [
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_punkte'],
             ]);

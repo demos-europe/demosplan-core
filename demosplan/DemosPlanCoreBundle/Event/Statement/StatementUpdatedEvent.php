@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 
-class StatementUpdatedEvent extends StatementActionEvent
+class StatementUpdatedEvent extends StatementActionEvent implements StatementUpdatedEventInterface
 {
     /** @var Statement */
     protected $preUpdateStatement;

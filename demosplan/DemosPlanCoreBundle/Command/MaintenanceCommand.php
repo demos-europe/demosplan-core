@@ -12,23 +12,23 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Geocoder\Query\ReverseQuery;
@@ -42,7 +42,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\NativeHttpClient;
-use Symfony\Component\Process\Process;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Wrep\Daemonizable\Command\EndlessContainerAwareCommand;
 use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
@@ -105,16 +104,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
 
     /** @var LocationService */
     protected $locationService;
-
-    /**
-     * Starts at index 1, not 0.
-     *
-     * @var Process[]
-     */
-    protected $searchIndexTaskServiceProcess = [];
-
-    /** @var int */
-    protected $searchIndexTaskServiceProcessPoolSize;
 
     /** @var Logger */
     protected $logger;
@@ -207,15 +196,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             ];
         }
         $this->httpClient = HttpClient::create($httpOptions);
-        $this->searchIndexTaskServiceProcessPoolSize = $this->globalConfig->getElasticsearchAsyncIndexingPoolSize();
-
-        // start Search index task as an async process to be automatically started
-        // and stopped with Maintenanceservice when async indexing is enabled
-        if ($this->globalConfig->isElasticsearchAsyncIndexing()) {
-            for ($i = 1; $i <= $this->searchIndexTaskServiceProcessPoolSize; ++$i) {
-                $this->createSearchIndexProcess($i, $output);
-            }
-        }
     }
 
     /**
@@ -241,7 +221,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             // async localization not needed any more, will be deleted
             // after merging into main, to avoid merge problems
             // $this->getProcedureLocations($output);
-            $this->checkSearchIndexStatus($output);
             // Switch planning categories before procedures, because in case both happen
             // at the same time, we want to show the new categories in the report entry of
             // the procedure switch instead of the ones before the category change.
@@ -271,23 +250,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $output->writeln('done');
 
         return 0;
-    }
-
-    // Called once on shutdown after the last iteration finished
-    protected function finalize(InputInterface $input, OutputInterface $output): void
-    {
-        // stop Search index Task
-        for ($i = 1; $i <= $this->searchIndexTaskServiceProcessPoolSize; ++$i) {
-            if (array_key_exists($i, $this->searchIndexTaskServiceProcess)
-                && $this->searchIndexTaskServiceProcess[$i] instanceof Process) {
-                $this->searchIndexTaskServiceProcess[$i]->stop();
-                $output->writeln('Stopped search index task nr '.$i);
-            }
-        }
-
-        parent::finalize($input, $output);
-        // Keep it short! We may need to exit because the OS wants to shutdown
-        // and we can get killed if it takes to long!
     }
 
     /**
@@ -377,38 +339,14 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function addonMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new AddonMaintenanceEvent());
+            $this->eventDispatcher->dispatch(
+                new AddonMaintenanceEvent(),
+                AddonMaintenanceEventInterface::class
+            );
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }
         $output->writeln('Finished Addon Maintenance.');
-    }
-
-    /**
-     * Check whether Search index task is running and restart if not.
-     *
-     * @param OutputInterface $output
-     */
-    protected function checkSearchIndexStatus($output)
-    {
-        try {
-            if ($this->globalConfig->isElasticsearchAsyncIndexing()) {
-                $this->writeDelayedLog('checkSearchIndexStatus');
-                for ($i = 1; $i <= $this->searchIndexTaskServiceProcessPoolSize; ++$i) {
-                    $itemExists = array_key_exists($i, $this->searchIndexTaskServiceProcess);
-                    if (!$itemExists || !$this->searchIndexTaskServiceProcess[$i] instanceof Process) {
-                        $this->createSearchIndexProcess($i, $output);
-                        continue;
-                    }
-
-                    if (!$this->searchIndexTaskServiceProcess[$i]->isRunning()) {
-                        $output->writeln('Search index task is not running, restarting '.$i);
-                        $this->searchIndexTaskServiceProcess[$i] = $this->searchIndexTaskServiceProcess[$i]->restart();
-                    }
-                }
-            }
-        } catch (Exception $e) {
-        }
     }
 
     /**
@@ -553,25 +491,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function isInRange($value, $min, $max): bool
     {
         return $min <= $value && $value <= $max;
-    }
-
-    /**
-     * @param int $i Address in Pool
-     */
-    protected function createSearchIndexProcess(int $i, OutputInterface $output)
-    {
-        $this->searchIndexTaskServiceProcess[$i] = new Process(
-            [
-                \PHP_BINARY,
-                'app/console',
-                'dplan:search:index',
-                '--no-debug',
-                '--env=prod',
-            ],
-            DemosPlanPath::getProjectPath()
-        );
-        $this->searchIndexTaskServiceProcess[$i]->start();
-        $output->writeln('Started search index task nr '.$i);
     }
 
     /**

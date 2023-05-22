@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 

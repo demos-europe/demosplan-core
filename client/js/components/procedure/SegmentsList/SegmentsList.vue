@@ -216,24 +216,43 @@
         </p>
       </div>
 
-      <dp-sliding-pagination
-        class="u-mt-0_5"
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="applyQuery" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'visibility--hidden': isLoading }"
+        class="u-pt-0_5 text--right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="applyQuery"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi, tableSelectAllItems } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpBulkEditHeader, DpButton, DpColumnSelector, DpLoading, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement, VPopover } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpBulkEditHeader,
+  DpButton,
+  DpColumnSelector,
+  DpDataTable,
+  DpFlyout,
+  DpLoading,
+  DpPager,
+  DpStickyElement,
+  tableSelectAllItems,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 
 export default {
@@ -247,7 +266,7 @@ export default {
     DpDataTable,
     DpFlyout,
     DpLoading,
-    DpSlidingPagination,
+    DpPager,
     DpStickyElement,
     FilterFlyout,
     StatementMetaTooltip,
@@ -258,7 +277,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -294,6 +313,11 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -311,6 +335,7 @@ export default {
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
         toggledSegments: `${this.procedureId}:toggledSegments`
       },
+      pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: []
     }
@@ -326,9 +351,7 @@ export default {
     }),
 
     ...mapState('statementSegment', {
-      currentPage: 'currentPage',
-      segmentsObject: 'items',
-      totalPages: 'totalPages'
+      segmentsObject: 'items'
     }),
 
     ...mapState('statement', {
@@ -389,6 +412,10 @@ export default {
 
     selectableColumns () {
       return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
     }
   },
 
@@ -424,7 +451,8 @@ export default {
       const payload = {
         include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter: filter,
@@ -478,10 +506,15 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then(data => {
-          this.isLoading = false
+        .then((data) => {
+          /**
+           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+           */
+          this.setLocalStorage(data.meta.pagination)
+
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
+          this.updatePagination(data.meta.pagination)
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
@@ -491,6 +524,9 @@ export default {
               StatementSegment: ['id'].join()
             }
           })
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -527,6 +563,13 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    handleSizeChange (newSize) {
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.applyQuery(page)
     },
 
     resetQuery () {
@@ -632,7 +675,8 @@ export default {
         this.updateFilterQuery(query)
       })
     }
-    this.applyQuery(1)
+    this.initPagination()
+    this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
     this.fetchAssignableUsers()

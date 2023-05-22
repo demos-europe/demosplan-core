@@ -33,17 +33,17 @@
     margin-bottom: $inuit-base-spacing-unit;
     padding: $inuit-base-spacing-unit--small;
 
-    border: 1px solid $default-border-color;
+    border: 1px solid $dp-color-border-default;
     border-radius: $dp-box-radius;
 }
 
 .js .card__item:hover {
-    background-color: color.adjust($dp-color-main, $lightness: 35%);
+    background-color: $dp-color-interactive-hover-subtle;
 
     animation: background-default-brand 1s;
 }
 
 @keyframes background-default-brand {
     0% { background-color: $dp-color-white; }
-    100% { background-color: color.adjust($dp-color-main, $lightness: 35%); }
+    100% { background-color: $dp-color-interactive-hover-subtle; }
 }

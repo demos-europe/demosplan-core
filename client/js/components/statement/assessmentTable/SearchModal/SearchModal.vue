@@ -18,7 +18,7 @@
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
-        :class="{'color--highlight': true === highlighted}"
+        :class="{'color-highlight': true === highlighted}"
         @click="submit" />
       <dp-input
         has-icon
@@ -37,7 +37,7 @@
       type="button"
       data-cy="searchAdvanced"
       @click.prevent="toggleModal"
-      :class="{'color--highlight':true === highlighted}"
+      :class="{'color-highlight':true === highlighted}"
       class="btn--blank o-link--default display--inline-block u-m-0 u-p-0 u-ml-0_5">
       {{ Translator.trans('search.advanced') }}
     </button>
@@ -199,9 +199,8 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
-import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import { mapMutations } from 'vuex'
 
 export default {

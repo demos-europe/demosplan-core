@@ -18,9 +18,13 @@
         :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
-        route="DemosPlan_procedure_public_suggest_procedure_location_json"
+        :route-generator="(searchString) => {
+          return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
+            maxResults: 12,
+            query: searchString
+          })
+        }"
         :height="'34px'"
-        :additional-route-params="{ maxResults: 12 }"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"
@@ -214,8 +218,7 @@
   </div>
 </template>
 <script>
-import { dpApi, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, DpInput, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 import qs from 'qs'
 

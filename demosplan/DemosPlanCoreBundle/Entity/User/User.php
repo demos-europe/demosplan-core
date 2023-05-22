@@ -19,29 +19,31 @@ use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaCon
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
-
-use function in_array;
-
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
+use function in_array;
+
 /**
  * @ORM\Table(
  *     name="_user",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="_u_gw_id", columns={"_u_gw_id"}),
+ *
  *     @ORM\UniqueConstraint(name="_u_login", columns={"_u_login"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRepository")
+ *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, \DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface
 {
     /**
      * Set hard coded anonymous user Values until refactored.
@@ -60,8 +62,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var string|null
      *
      * @ORM\Column(name="_u_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -150,6 +155,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var DateTime
      *
      * @ORM\Column(name="_u_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -158,6 +164,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var DateTime
      *
      * @ORM\Column(name="_u_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -276,9 +283,12 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var Collection<int, UserRoleInCustomer>
      *
      * @Assert\All({
+     *
      *     @Assert\NotNull(),
+     *
      *     @RoleAllowedConstraint()
      * })
+     *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     protected $roleInCustomers;
@@ -287,6 +297,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var Collection<int,Address>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_user_address_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")},
@@ -323,6 +334,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @var User|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true)
      */
     protected $twinUser;
@@ -1335,7 +1347,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getDplanRolesArray(Customer $customer = null): array
     {
-        if (null === $this->rolesArrayCache) {
+        if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
             $customer = $customer ?? $this->getCurrentCustomer();
             /** @var Role $role */
@@ -1546,6 +1558,8 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     /**
      * Retrieve all customers that the user is associated with in any way.
+     *
+     * @return array<int, Customer>
      */
     public function getCustomers(): array
     {
@@ -1748,5 +1762,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function setProvidedByIdentityProvider(bool $providedByIdentityProvider): void
     {
         $this->providedByIdentityProvider = $providedByIdentityProvider;
+    }
+
+    private function hasInvalidRoleCache(): bool
+    {
+        return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
     }
 }

@@ -150,7 +150,7 @@
         <dp-label
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :text="Translator.trans('period')" />
 
         <dp-date-range-picker
@@ -159,10 +159,9 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
-          enforce-plausible-dates>
-        </dp-date-range-picker>
+          enforce-plausible-dates />
 
         <p
           v-if="hasPermission('feature_use_plis')"
@@ -170,19 +169,21 @@
           id="js__statusBox" />
       </div>
 
-      <template v-if="hasPermission('feature_procedure_couple_by_token')">
+      <div
+        v-if="hasPermission('feature_procedure_couple_by_token')"
+        class="u-mb-0_75">
         <h3
           class="weight--normal color--grey u-mt-1_5"
           v-text="Translator.trans('procedure.couple_token.vht.title')" />
+
         <div v-text="Translator.trans('procedure.couple_token.vht.info')" />
 
         <dp-inline-notification
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 
-        <couple-token-input
-          :token-length="tokenLength" />
-      </template>
+        <couple-token-input :token-length="tokenLength" />
+      </div>
 
       <div class="space-inline-s text--right">
         <dp-button
@@ -201,8 +202,8 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
 import {
+  dpApi,
   DpButton,
   DpDateRangePicker,
   DpFormRow,
@@ -211,7 +212,8 @@ import {
   DpLabel,
   DpMultiselect,
   DpSelect,
-  DpTextArea
+  DpTextArea,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'

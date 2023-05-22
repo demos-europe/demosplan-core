@@ -46,6 +46,10 @@
               :prevent-default-on-enter="false"
               required
               type="password" />
+            <input
+              type="hidden"
+              name="_csrf_token"
+              :value="csrfToken">
 
             <dp-button
               :class="prefixClass('u-mt')"
@@ -101,8 +105,7 @@
 </template>
 
 <script>
-import { DpButton, DpFormRow, DpInput } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SamlLoginForm',
@@ -126,6 +129,11 @@ export default {
       type: String,
       required: true,
       default: ''
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     }
   }
 }

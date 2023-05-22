@@ -89,15 +89,13 @@
                     {{ "text"|trans }}*
                 </label><!--
          --><div class="layout__item u-3-of-4 u-pl-0">
-                    {{ uiComponent('form.editor', {
-                        type: 'editor',
-                        id: 'r_text',
-                        value: form.vars.value.text,
-                        hiddenInput: 'r_text',
-                        linkButton: true,
-                        editorId: "boilerplateText",
-                        required: true
-                    }) }}
+                    <dp-editor
+                        editor-id="boilerplateText"
+                        hidden-input="r_text"
+                        required
+                        :toolbar-items="{ linkButton: true }"
+                        value="{{ form.vars.value.text }}">
+                    </dp-editor>
                 </div>
 
                 <div class="text--right u-mt-0_5 space-inline-s">

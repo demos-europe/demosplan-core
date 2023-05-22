@@ -37,7 +37,7 @@ class AddonBuildFrontendCommand extends CoreCommand
         $this->addArgument('addon-name', InputArgument::REQUIRED, 'Addon name, du\'h.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln("Building frontend assets for {$input->getArgument('addon-name')}");
 
@@ -46,7 +46,7 @@ class AddonBuildFrontendCommand extends CoreCommand
         $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
         $consoleReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonPath)
-            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonPath)
+            ->addShell(['yarn', 'prod'], $addonPath)
             ->run();
 
         return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;

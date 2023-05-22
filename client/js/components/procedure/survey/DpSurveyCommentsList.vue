@@ -42,7 +42,7 @@
             <i
               :aria-label="Translator.trans('survey.comment.publish.check')"
               v-tooltip="Translator.trans('survey.comment.publish.check')"
-              class="fa fa-exclamation-circle color--highlight u-ml u-mt-0_25" />
+              class="fa fa-exclamation-circle color-highlight u-ml u-mt-0_25" />
           </div>
         </template>
         <template
@@ -85,8 +85,13 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpDataTable,
+  DpLoading,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSurveyCommentsList',

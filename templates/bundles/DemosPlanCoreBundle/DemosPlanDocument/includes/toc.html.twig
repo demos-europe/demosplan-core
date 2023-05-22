@@ -1,0 +1,48 @@
+{# if there is a menu structure to be rendererd whose level is below 5 #}
+{% if tree is not empty and level <= 4 %}
+
+    {# if this include is the top menu hierarchy, do not output toggle classes for toggle targets, instead output parent class .o-toggle #}
+    <div class="{{ (level > 0 ? 'overflow-hidden' : 'o-toggle')|prefixClass }}" tabindex="-1">
+
+        <ul
+            class="{{ ('c-toc c-toc--level-' ~ level ~ (level > 0 ? ' o-toggle__target' : ''))|prefixClass }}"
+            data-toggle-id="{{ parent_id|default }}"
+            {% if level > 0 %}aria-hidden="true"{% else %}data-element-id="{{ templateVars.elementId }}"{% endif %}
+        >
+            {% for node in tree %}
+
+                {# Save displayOrder to be able to use it in recursive loop #}
+                {{ setStaticVariable('displayOrder', getStaticVariable('displayOrder') + 1) }}
+
+                <li
+                    id="toc{{ node.id }}"
+                    aria-level="{{ level + 1 }}"
+                >
+                    {# Bei einer paginierten Liste muss der Verweis auf die Seite springen, auf der sich das Kapitel befindet.
+                       node order starts with 0, we have to add 1 for calculation reasons
+                    #}
+                    <a href="?page={{ (getStaticVariable('displayOrder')|default(0)/templateVars.pager.getMaxPerPage|default(1))|round(0, 'ceil') }}&r_limit={{ templateVars.limitResults|default(3) }}&draftStatementId={{ templateVars.draftStatementId|default() }}#{{ node.id }}">
+                        {{ node.title|wysiwyg }}
+                    </a>
+                    {# if there is a submenu, output toggler + include self with data of submenu structure #}
+                    {% if node.children is not empty %}
+                        <button
+                            type="button"
+                            class="{{ 'o-toggle__trigger js__toggleAnything'|prefixClass }}"
+                            data-toggle="#toc{{ node.id }}"
+                            aria-controls="toc{{ node.id }}"
+                            aria-expanded="false"
+                            aria-label="{{ node.title|wysiwyg }} {{ 'submenu.toggle'|trans }}"
+                        >
+                            <i class="{{ 'o-toggle__icon c-toc__toggle-icon'|prefixClass }}" aria-hidden="true"></i>
+                        </button>
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/toc.html.twig' with {'tree': node.children, 'level': level + 1, 'parent_id': 'toc' ~ node.id} %}
+                    {% endif %}
+
+                </li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+{% endif %}

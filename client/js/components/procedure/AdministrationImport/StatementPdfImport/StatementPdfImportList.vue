@@ -59,7 +59,7 @@
               aria-hidden="true" />
             <i
               v-if="rowData.status.name === 'converted'"
-              class="fa fa-check color--system-confirm"
+              class="fa fa-check color-message-success-fill"
               aria-hidden="true" />
             <i
               v-if="rowData.status.name === 'boxes_review' || rowData.status.name === 'text_review'"
@@ -84,8 +84,13 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpDataTable,
+  DpLoading,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementPdfImportList',

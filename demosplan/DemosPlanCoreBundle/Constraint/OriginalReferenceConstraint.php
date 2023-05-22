@@ -25,7 +25,7 @@ class OriginalReferenceConstraint extends Constraint
         return OriginalReferenceConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

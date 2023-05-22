@@ -31,10 +31,12 @@
     }
 
     &.is-expanded {
+        position: relative; // Force the element above other elements to show the box shadow
         border-left: 2px solid $dp-color-neutral-base;
         width: 100%;
-        margin: 8px 0;
-        box-shadow: $dp-token-box-shadow-1;
+        margin: 0 0 0 -2px;
+        padding-right: 11px;
+        box-shadow: $dp-box-shadow-1;
 
         + li {
             border-top: none;

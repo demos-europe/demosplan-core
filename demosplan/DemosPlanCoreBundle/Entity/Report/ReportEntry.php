@@ -26,12 +26,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_report_entries",indexes={
+ *
  *     @ORM\Index(columns={"_re_category"}),
  *     @ORM\Index(columns={"_re_group"}),
  *     @ORM\Index(columns={"_re_identifier_type"}),
  *     @ORM\Index(columns={"_re_identifier"}),
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanReportBundle\Repository\ReportRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
  */
 class ReportEntry extends CoreEntity implements UuidEntityInterface
 {
@@ -71,8 +73,11 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_re_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -81,6 +86,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_category", type="string", length=100, nullable=false, options={"fixed":true})
+     *
      * @Assert\NotBlank()
      */
     protected $category;
@@ -89,6 +95,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_group", type="string", length=100, nullable=false, options={"fixed":true})
+     *
      * @Assert\NotBlank()
      */
     protected $group;
@@ -111,6 +118,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_u_name", type="string", length=255, nullable=false, options={"fixed":true})
+     *
      * @Assert\NotBlank()
      */
     protected $userName;
@@ -128,6 +136,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier_type", type="string", length=50, nullable=false)
+     *
      * @Assert\NotBlank()
      */
     protected $identifierType;
@@ -136,6 +145,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier", type="string", length=36, options={"fixed":true}, nullable=false)
+     *
      * @Assert\NotBlank()
      */
     protected $identifier;
@@ -153,6 +163,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string always in JSON format (a simple string is considered valid JSON)
      *
      * @ORM\Column(name="_re_message", type="text", nullable=false, length=15000000)
+     *
      * @Assert\NotBlank()
      */
     protected $message;
@@ -168,6 +179,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create"), updateable = true
+     *
      * @ORM\Column(name="_re_created_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -176,7 +188,9 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     *
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
+     *
      * @Assert\NotBlank()
      */
     protected $customer;
@@ -479,9 +493,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      */
     public function getMessageDecoded(bool $fixOrigMessage): array
     {
-        $return = $this->getDecoded($this->message, $fixOrigMessage);
-
-        return $return ?? [];
+        return $this->getDecoded($this->message, $fixOrigMessage);
     }
 
     /**

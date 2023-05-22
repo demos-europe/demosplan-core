@@ -45,9 +45,8 @@
 </template>
 
 <script>
+import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { DpAccordion, DpButtonRow } from '@demos-europe/demosplan-ui'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpCreateItem',
@@ -210,6 +209,39 @@ export default {
       createUser: 'create'
     }),
 
+    changeTypeToPascalCase (payload) {
+      const newPayload = {
+        ...payload,
+        attributes: {
+          ...payload.attributes
+        },
+        relationships: {
+          customers: {
+            data: payload.customers?.data[0].id
+              ? payload.customers.data.map(el => {
+                return {
+                  ...el,
+                  type: 'Customer'
+                }
+              })
+              : null
+          },
+          departments: {
+            data: payload.departments?.data[0].id
+              ? payload.departments.data.map(el => {
+                return {
+                  ...el,
+                  type: 'Department'
+                }
+              })
+              : null
+          }
+        }
+      }
+
+      return newPayload
+    },
+
     reset () {
       this.isOpen = false
       this.item = {}
@@ -242,7 +274,9 @@ export default {
           if (this.item.attributes.registrationStatuses.length === 0) {
             this.$refs.formFields.saveNewRegistrationStatus()
           }
-          this.createOrganisation(this.itemResource)
+          // The Types for relationships should be sent as PascalCase
+          const payload = this.changeTypeToPascalCase(this.itemResource)
+          this.createOrganisation(payload)
             .then(() => {
               if (this.itemResource.attributes.registrationStatuses.find(el => el.status === 'pending')) {
                 this.$root.$emit('get-items')

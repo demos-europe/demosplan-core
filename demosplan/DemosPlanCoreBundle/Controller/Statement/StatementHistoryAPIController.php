@@ -14,11 +14,11 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -30,6 +30,7 @@ class StatementHistoryAPIController extends APIController
      *     name="dplan_api_statement_history_get",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statement_content_changes_view")
      */
     public function getAction(

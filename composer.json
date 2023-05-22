@@ -84,14 +84,16 @@
         "rollerworks/password-strength-bundle": "^2.2",
         "sensio/framework-extra-bundle": "^6.1",
         "sentry/sentry-symfony": "^4.0",
-        "stevenmaguire/oauth2-keycloak": "^3.1",
+        "stevenmaguire/oauth2-keycloak": "^4.0",
         "stof/doctrine-extensions-bundle": "^1.2",
         "symfony/asset": "5.*.*",
+        "symfony/browser-kit": "5.*.*",
         "symfony/cache": "5.*.*",
         "symfony/css-selector": "5.*.*",
         "symfony/dependency-injection": "5.*.*",
         "symfony/dom-crawler": "5.*.*",
         "symfony/dotenv": "5.*.*",
+        "symfony/error-handler": "5.*.*",
         "symfony/expression-language": "5.*.*",
         "symfony/filesystem": "5.*.*",
         "symfony/finder": "5.*.*",
@@ -104,6 +106,8 @@
         "symfony/mailer": "5.*.*",
         "symfony/mime": "5.*.*",
         "symfony/monolog-bundle": "^3",
+        "symfony/options-resolver": "5.*.*",
+        "symfony/password-hasher": "5.*.*",
         "symfony/polyfill-apcu": "^1.23",
         "symfony/polyfill-intl-messageformatter": "^1.23",
         "symfony/polyfill-php80": "^1.15",
@@ -115,7 +119,10 @@
         "symfony/security-csrf": "5.*.*",
         "symfony/serializer": "5.*.*",
         "symfony/stopwatch": "5.*.*",
+        "symfony/string": "5.*.*",
         "symfony/templating": "5.*.*",
+        "symfony/translation": "5.*.*",
+        "symfony/twig-bridge": "5.*.*",
         "symfony/twig-bundle": "5.*.*",
         "symfony/validator": "5.*.*",
         "symfony/var-dumper": "5.*.*",
@@ -126,7 +133,7 @@
         "willdurand/geocoder-bundle": "^5.16",
         "willdurand/js-translation-bundle": "~5.0",
         "wrep/daemonizable-command": "^3.0",
-        "wsdltophp/packagegenerator": "^3.0",
+        "wsdltophp/packagegenerator": "^4.1",
         "yectep/phpspreadsheet-bundle": "^1.0.0"
     },
     "require-dev": {
@@ -136,12 +143,13 @@
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
         "php-parallel-lint/php-console-highlighter": "^0.5",
+        "phpcompatibility/php-compatibility": "^9.3",
         "phpspec/prophecy": "^1.15",
         "phpstan/phpstan": "^1.9",
         "phpstan/phpstan-symfony": "^1.2",
         "phpunit/phpunit": "^9",
         "psalm/plugin-symfony": "^v4.0.1",
-        "rector/rector": "^0.15.0",
+        "rector/rector": "^0.16.0",
         "squizlabs/php_codesniffer": "^3.5",
         "symfony/debug-bundle": "5.*.*",
         "symfony/maker-bundle": "^1.30",
@@ -174,7 +182,7 @@
         "bin-links": false,
         "target-directory": "."
       },
-      "config-dir": "demosplan/DemosPlanCoreBundle/Resources/config",
+      "config-dir": "config",
       "src-dir": "demosplan",
       "symfony": {
             "allow-contrib": true,
@@ -188,10 +196,15 @@
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "demos-europe/demosplan-addon-installer": true,
-            "bamarni/composer-bin-plugin": true
+            "bamarni/composer-bin-plugin": true,
+            "php-http/discovery": false
         }
     },
     "conflict": {
       "twig/twig": "<2.10"
+    },
+    "scripts": {
+      "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
+      "post-update-cmd" : "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
     }
 }

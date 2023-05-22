@@ -240,7 +240,6 @@ branding.styling.details.description: |
     link: "#123456"<br />
     link-hover: "#123456"<br />
     link-active: "#123456"<br />
-    link-alt: "#123456"<br />
     Aktive und sichtbar fokussierte Elemente:<br />
     highlight: "#123456"<br />
     "Reden Sie mit!"-Box, Suchfeld auf Startseite:<br />
@@ -361,7 +360,11 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, daß Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
 check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
-check.user.delete: "Sind Sie sicher, dass Sie diese Nutzenden löschen möchten?"
+check.user.delete: |
+    {count, plural,
+        =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
+        other { Sind Sie sicher, dass Sie diese Nutzenden löschen möchten? }
+    }
 check.user.department.changed: "Bitte bestätigen Sie, dass Sie in eine neue Abteilung gewechselt sind."
 check.user.department.renamed: "Bitte bestätigen Sie, dass Ihre Abteilung umbenannt wurde."
 check.user.organisation.changed: "Bitte bestätigen Sie, dass Sie in eine neue Organisation gewechselt sind."
@@ -649,6 +652,8 @@ consideration.versions: "Ältere Versionen der Abwägung / Empfehlung"
 considerationadvice.fpf: "Empfehlung der Fachbehörde oder des Planungsbüros"
 # this should only be used when referring to the field on fragments. statements use 'recommendation'
 considerationadvice: "Abwägung / Empfehlung"
+considerationadvice.text.add: "Abwägung / Empfehlung ergänzen"
+considerationadvice.text.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
@@ -1244,7 +1249,7 @@ explanation.agreement.pdf: "Laden Sie zusätzlich das PDF der textlichen Festset
 explanation.before.vote.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.before.vote.data.user.change.portal: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.bplan: "Sie können über dieses Formular eine Stellungnahme zum B-Plan Entwurf abgeben."
-explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mit gelöscht."
+explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mitgelöscht."
 explanation.claim.possibility: "Mit Ihrem echten Namen können Sie später nachweisen, dass Sie Ihre Bedenken mitgeteilt haben. Sie haben so die Möglichkeit, Klage einzureichen."
 explanation.considerationtable.empty.filtered: "Zu Ihrer Suche/Filterung konnten keine Einträge in der Abwägungstabelle gefunden werden."
 explanation.coordinate.desc: "Per Klick in die Karte können Sie Ihrem Verfahren eine Position geben, an der es in der Karte im öffentlichen Bereich angezeigt wird."
@@ -2438,6 +2443,7 @@ pro: "Dafür"
 procedure.accessible: "Verfahren mit Zugriff"
 procedure.administer: "Verfahren verwalten"
 procedure.agency: "Verfahrensträger"
+procedure.agency.imprint: "Impressum der Verfahrensträger"
 procedure.all: "Alle Planverfahren"
 procedure.by.phase.invitable_institutions: |
     {count, plural,
@@ -3207,6 +3213,7 @@ statement.representation.creation: "Die Stellungnahme im Namen folgender Institu
 statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
+statement.save.text: "Sie haben Änderungen am Text der Stellungnahme vorgenommen. Wenn Sie fortfahren, werden diese ebenfalls gespeichert."
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
 statement.send: "Stellungnahme versenden"
@@ -3333,8 +3340,8 @@ statements.selected: |
     }
 statements.splittable.now: |
     {count, plural,
-        =1 { <span class="weight--bold color--system-info">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
-        other { <span class="weight--bold color--system-info">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
+        =1 { <span class="weight--bold color-message-info-text">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
+        other { <span class="weight--bold color-message-info-text">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
     }
 statements.submitted: "eingereichte Stellungnahmen"
 statements.submitted.heading: "Eingereichte Stellungnahmen"
@@ -3503,7 +3510,7 @@ text.master.new: "Im folgenden Formular können Sie eine neue Blaupause anlegen.
 text.masters.list: "In der Listenansicht sehen Sie alle Blaupausen Ihrer Organisation."
 text.mydata.citizen: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind. Möchten Sie Ihre Daten ändern, tun Sie dies bitte unter \"Meine Daten\"."
 text.mydata: "Hier können Sie Ihre Daten einsehen, mit denen Sie bei der Bauleitplanung registriert sind. Möchten Sie Ihre Daten editieren, tun Sie dies bitte unter \"Meine Daten\". Hier können Sie sich für den Newsletter an- bzw. abmelden."
-text.notifications.new.procedures: "Möchten Sie über neue Verfahren (frühzeitige Beteiligungen und öffentliche Auslegungen) informiert werden? Erstellen Sie hier Ihre Benachrichtigungen. Sobald Verfahren mit einer Ihrer Postleitzahlen (+Umkreis) in die Beteiligung gehen, werden Sie per E-Mail darüber informiert. Ihre E-Mail-Adresse finden Sie unter <a class=\"text-decoration-underline color-brand-alt-contrast\" href=\"{link}\">Meine Daten</a>."
+text.notifications.new.procedures: "Möchten Sie über neue Verfahren (frühzeitige Beteiligungen und öffentliche Auslegungen) informiert werden? Erstellen Sie hier Ihre Benachrichtigungen. Sobald Verfahren mit einer Ihrer Postleitzahlen (+Umkreis) in die Beteiligung gehen, werden Sie per E-Mail darüber informiert. Ihre E-Mail-Adresse finden Sie unter <a class=\"text-decoration-underline color-alt-contrast\" href=\"{link}\">Meine Daten</a>."
 text.organisation.edit.self.portal: "Hier können Sie die Daten einsehen und bearbeiten, mit denen Ihre Organisation bei <strong>{projectName}</strong> registriert ist."
 text.organisation.edit.self.gateway: "Hier können Sie die Daten einsehen, mit denen Ihre Organisation bei <strong>{projectName}</strong> registriert ist. Möchten Sie diese Daten editieren, tun Sie dies bitte im Gateway. Hier können Sie lediglich einige wenige Zusatzinformationen bearbeiten."
 text.organisation.edit: "Hier können Sie die Daten einer Organisation bearbeiten. Über \"Abteilungen verwalten\" können Sie eine oder mehrere Abteilungen bzw. Organisationseinheiten anlegen. Die Zuordnung einzelner Nutzenden zu einer Abteilung kann auf der Seite \"Nutzerverwaltung\" vorgenommen werden."
@@ -3694,6 +3701,7 @@ user.password.recovery_vague: "Falls die eingegebene E-Mail-Adresse {email} eine
 user.password.set: "Ihr Passwort wurde erfolgreich gesetzt."
 user.registration.completed: "Registrierung abgeschlossen"
 user.registration.fail: "Registrierung fehlgeschlagen."
+user.registration.invalid.csrf: "Das Formular war ungültig. Bitte versuchen Sie es erneut."
 user.registration.confirmed: "Zugangsdaten gesendet"
 user.registration.invitation.outstanding: "Nutzer*in wurde noch nicht per E-Mail eingeladen!"
 user.registration.invitation.sent: "Nutzer*in per E-Mail eingeladen"
@@ -3701,6 +3709,7 @@ user.roles: "Anwender*innen nach Rollen"
 user.story: "Userstory"
 user.nobody: "Niemand"
 user.system: "Not Available"
+user.system.name: "System"
 username: "Nutzername"
 users: "Nutzende"
 validation.error.city: "Bitte verwenden Sie ausschließlich Buchstaben und Leerzeichen."
@@ -3796,6 +3805,7 @@ warning.faq.title.tooLong: "Der eingegebene Titel ist länger als 255 Zeichen un
 warning.featureinfo.empty: "Es sind keine Sachdaten hinterlegt."
 warning.file.missing: "Das Dokument existiert nicht mehr."
 warning.filetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt."
+warning.floodcontrol.timeout: 'Das Formular wurde zu schnell abgeschickt. Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
 warning.fragment.assignment.information: "Die Informations-E-Mail an die Fachbehörden-Koordination zur Zuweisung dieser Stellungnahme konnte nicht versandt werden."
 warning.fragment.locked.By: "Dieser Datensatz ist zur Zeit {name} der Organisation {organisation} zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
 warning.fragment.needLock.generic: "Dieser Datensatz ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie diesen zunächst für sich beanspruchen."

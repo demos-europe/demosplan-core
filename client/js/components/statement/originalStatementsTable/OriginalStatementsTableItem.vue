@@ -185,8 +185,14 @@
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpHeightLimit } from '@demos-europe/demosplan-ui'
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import {
+  CleanHtml,
+  dpApi,
+  DpFlyout,
+  DpHeightLimit,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {

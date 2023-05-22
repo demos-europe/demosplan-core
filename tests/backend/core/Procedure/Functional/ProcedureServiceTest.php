@@ -48,10 +48,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
@@ -105,7 +105,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminList(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], null, null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
         static::assertEquals($this->countEntries(Procedure::class, ['master' => false]), $procedureList['total']);
@@ -131,7 +139,17 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Is there even one with both closed?
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([], null, null, $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY), false, false, false);
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
+                null,
+                $this->getUserReference(
+                    LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+                ),
+                null,
+                false,
+                false,
+                false
+            );
         } catch (Exception $e) {
             $this->fail('Unable to test excludeArchived param on getProcedureAdminList(): '.$e);
         }
@@ -154,7 +172,16 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Also test default exclude :)
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([], null, null, $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY), false, false);
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
+                null,
+                $this->getUserReference(
+                    LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+                ),
+                null,
+                false,
+                false
+            );
         } catch (Exception $e) {
             $this->fail('Unable to test excludeArchived param on getProcedureAdminList() - Exception: '.$e);
         }
@@ -176,7 +203,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     {
         $blaupause = $this->fixtures->getReference('masterBlaupause');
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], null, ['name' => 'desc'], $user, true, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            ['name' => 'desc'],
+            true,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
 
@@ -196,7 +231,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListPlanningOffice(): void
     {
         $user = $this->getUserReference('testUserPlanningOffice');
-        $procedureList = $this->sut->getProcedureAdminList([], null, null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            null,
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
 
@@ -218,7 +261,15 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListSearch(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([], 'two', null, $user, false, true, false);
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
+            'two',
+            $user,
+            null,
+            false,
+            true,
+            false
+        );
         $this->checkListResultStructure($procedureList);
         static::assertArrayHasKey('total', $procedureList);
         static::assertEquals(1, $procedureList['total']);

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Services;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\Transformer\BaseTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -100,6 +101,16 @@ class ApiResourceService implements ApiResourceServiceInterface
     }
 
     /**
+     * @param BaseTransformer $baseTransformer
+     */
+    public function makeAddonCollection($data, BaseTransformerInterface $baseTransformer, $type = ''): Collection
+    {
+        $transformerName = get_class($baseTransformer);
+
+        return $this->makeCollection($data, $transformerName, $type);
+    }
+
+    /**
      * @param iterable|CoreEntity[]|ValueObject[] $data
      * @param string                              $resourceTypeName The value returned by {@link ResourceTypeInterface::getName()}
      */
@@ -123,7 +134,7 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeItem($data, string $transformerName, $type = ''): Item
     {
-        /** @var \demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer $transformer */
+        /** @var BaseTransformer $transformer */
         $transformer = $this->getTransformer($transformerName);
 
         if ('' === $type) {

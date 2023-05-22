@@ -27,7 +27,7 @@ class ProcedureMasterTemplateConstraint extends Constraint
         return ProcedureMasterTemplateConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

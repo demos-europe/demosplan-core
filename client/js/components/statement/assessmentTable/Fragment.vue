@@ -384,7 +384,7 @@ useful info about the component:
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -392,7 +392,6 @@ import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import TableCardFlyoutMenu from './TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpAssessmentFragment',
@@ -443,7 +442,7 @@ export default {
       notifyOrga: false,
       reviewerEditing: false,
       tagsEditing: false,
-      updatingClaimState: false,
+      updatingClaimState: false
     }
   },
 
@@ -457,14 +456,14 @@ export default {
 
     isClaimed () {
       /*
-      * The fragment is only editable if
-      * a) in case the permission for the claim feature is active:
-      * - the fragment has an assignee
-      * - the assignee is the currently logged-in user
-      * b) in case the permission for the claim feature is not active:
-      * always
-      */
-      if(hasPermission('feature_statement_assignment')) {
+       * The fragment is only editable if
+       * a) in case the permission for the claim feature is active:
+       * - the fragment has an assignee
+       * - the assignee is the currently logged-in user
+       * b) in case the permission for the claim feature is not active:
+       * always
+       */
+      if (hasPermission('feature_statement_assignment')) {
         return this.fragment.assignee && this.fragment.assignee?.id === this.currentUserId
       } else {
         return true
