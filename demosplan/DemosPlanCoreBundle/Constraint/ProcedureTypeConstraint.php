@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Constraint;
+namespace demosplan\DemosPlanCoreBundle\Constraint;
 
 use demosplan\DemosPlanProcedureBundle\Validator\ProcedureTypeConstraintValidator;
 use Symfony\Component\Validator\Constraint;
