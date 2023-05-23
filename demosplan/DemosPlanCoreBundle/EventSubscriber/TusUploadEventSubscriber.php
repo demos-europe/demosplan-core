@@ -82,7 +82,8 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
             $filePathParts[] = $filename;
             $sanitizedPath = implode('/', $filePathParts);
             // rename uploaded file and update reference in uploaded file
-            $fs->rename($file->getFilePath(), $sanitizedPath);
+            // in order to avoid dangling file data is prevented renaming, simply allow overwriting.
+            $fs->rename($file->getFilePath(), $sanitizedPath, true);
             $file->setFilePath($sanitizedPath);
         }
 
