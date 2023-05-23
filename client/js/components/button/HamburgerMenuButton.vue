@@ -5,11 +5,12 @@
     class="btn btn--blank font-size-medium"
     aria-haspopup="true"
     aria-expanded="false"
+    :aria-label="Translator.trans('menu.nav.toggle')"
     data-responsive-menu-helper>
     <a class="nav-toggle">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
+      <span class="bar" />
+      <span class="bar" />
+      <span class="bar" />
     </a>
   </button>
 </template>
@@ -17,7 +18,7 @@
 <script>
 
 export default {
-  name: 'NavButton'
+  name: 'HamburgerMenuButton'
 }
 
 </script>

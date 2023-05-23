@@ -9,10 +9,10 @@
 
 import {
   DpAccordion,
+  DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
-  Tooltip,
-  DpFlyout
+  Tooltip
 } from '@demos-europe/demosplan-ui'
 import {
   initGlobalEventListener,
@@ -25,7 +25,7 @@ import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
-import NavButton from './components/button/NavButton'
+import HamburgerMenuButton from './components/button/HamburgerMenuButton'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import PortalVue from 'portal-vue'
 import Vue from 'vue'
@@ -58,7 +58,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
        * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
        * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
        */
-      components: { ...components, DpAccordion, NotifyContainer, NavButton, DpFlyout },
+      components: { ...components, DpAccordion, DpFlyout, HamburgerMenuButton ,NotifyContainer },
       store: store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)

@@ -27,7 +27,7 @@ export default function initGlobalEventListener () {
   if (responsiveMenuHelper) {
     responsiveMenuHelper.addEventListener('click', function (event) {
       event.preventDefault()
-      let body = document.querySelector('body')
+      const body = document.querySelector('body')
       body.classList.toggle('menu-open')
       document.getElementById('responsive-menu-helper-checkbox').toggleAttribute('checked')
       responsiveMenuHelper.setAttribute('aria-expanded', document.getElementById('responsive-menu-helper-checkbox').checked)
