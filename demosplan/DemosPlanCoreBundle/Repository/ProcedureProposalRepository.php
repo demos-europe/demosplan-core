@@ -8,11 +8,10 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use InvalidArgumentException;

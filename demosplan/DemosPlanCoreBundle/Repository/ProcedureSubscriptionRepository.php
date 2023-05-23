@@ -8,14 +8,13 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
+use Doctrine\ORM\NoResultException;
 use Exception;
 
 class ProcedureSubscriptionRepository extends CoreRepository implements ImmutableArrayInterface

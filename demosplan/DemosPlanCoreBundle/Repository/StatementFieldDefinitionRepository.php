@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Repository;
-
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 class StatementFieldDefinitionRepository extends CoreRepository
 {

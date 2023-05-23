@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;

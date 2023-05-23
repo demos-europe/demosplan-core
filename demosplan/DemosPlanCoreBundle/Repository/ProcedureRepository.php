@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
@@ -42,22 +42,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
-use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
-use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
-use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
-use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
-use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
-use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
-use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -69,7 +55,6 @@ use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
-
 use function array_key_exists;
 use function array_merge;
 use function array_unique;

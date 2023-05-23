@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository;
 use Exception;
 
 class ProcedureProposalService extends CoreService

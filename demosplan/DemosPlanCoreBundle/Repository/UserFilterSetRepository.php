@@ -8,12 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
+use Doctrine\ORM\NoResultException;
 use Exception;
 
 class UserFilterSetRepository extends CoreRepository
