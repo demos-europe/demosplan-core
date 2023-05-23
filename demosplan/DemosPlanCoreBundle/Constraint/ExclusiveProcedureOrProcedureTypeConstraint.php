@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Constraint;
 
-use demosplan\DemosPlanProcedureBundle\Validator\ExclusiveProcedureOrProcedureTypeConstraintValidator;
+use demosplan\DemosPlanCoreBundle\Validator\ExclusiveProcedureOrProcedureTypeConstraintValidator;
 use Symfony\Component\Validator\Constraint;
 
 /**
