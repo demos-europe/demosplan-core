@@ -7,11 +7,11 @@
     aria-expanded="false"
     :aria-label="Translator.trans('menu.nav.toggle')"
     data-responsive-menu-helper>
-    <a class="nav-toggle">
+    <div class="nav-toggle">
       <span class="bar" />
       <span class="bar" />
       <span class="bar" />
-    </a>
+    </div>
   </button>
 </template>
 
