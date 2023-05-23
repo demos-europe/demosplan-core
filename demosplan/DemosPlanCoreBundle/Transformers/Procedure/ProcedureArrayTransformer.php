@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Transformers;
+namespace demosplan\DemosPlanCoreBundle\Transformers\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
