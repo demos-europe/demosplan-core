@@ -62,7 +62,7 @@
             v-model="options.newAssignee.value"
             :allow-empty="false"
             class="u-mb width-450"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
+            :custom-label="props => `${props.option.name} ${props.option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
             @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
