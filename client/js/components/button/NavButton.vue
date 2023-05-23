@@ -1,3 +1,12 @@
+<license>
+  (c) 2010-present DEMOS plan GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
 <template>
   <!--The attribute data-responsive-menu-helper is used as a hook to append an EventListener in GlobalEventlisteners.js-->
   <button
