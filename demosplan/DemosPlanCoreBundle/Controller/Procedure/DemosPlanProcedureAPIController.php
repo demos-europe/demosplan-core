@@ -33,7 +33,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer;
-use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;

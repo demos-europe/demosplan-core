@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanProcedureBundle\ValueObject\EmailAddressVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\EmailAddressVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;

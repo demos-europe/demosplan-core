@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Form\PreparationMailType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;

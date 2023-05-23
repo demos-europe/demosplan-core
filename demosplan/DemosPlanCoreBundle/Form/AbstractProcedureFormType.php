@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedureFormData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;

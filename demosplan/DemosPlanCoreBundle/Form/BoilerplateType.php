@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;

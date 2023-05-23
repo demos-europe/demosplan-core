@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;

@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Procedure;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Symfony\Component\Validator\Constraints as Assert;

@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Doctrine\ORM\NoResultException;
 use Exception;
 

@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory

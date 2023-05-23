@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;

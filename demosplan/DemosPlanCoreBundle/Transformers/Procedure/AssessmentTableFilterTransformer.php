@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Transformers\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
-use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
 
 class AssessmentTableFilterTransformer extends BaseTransformer
 {

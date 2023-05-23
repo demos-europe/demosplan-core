@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateGroupVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
