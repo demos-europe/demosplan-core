@@ -23,22 +23,22 @@
 
      --><div class="layout__item u-2-of-3">
           <dp-multiselect
-            :value="selected"
             :id="filterItem.id"
+            :close-on-select="false"
+            label="label"
             :loading="isLoading"
+            multiple
             :name="filterItem.attributes.name + '_multiselect'"
             :options="availableOptions"
             :searchable="true"
-            :close-on-select="false"
-            multiple
             track-by="label"
-            label="label"
-            @select="selectFilterOption"
+            :value="selected"
             @close="updateFilterOptions"
             @open="loadFilterOptions"
-            @remove="removeFilterOption">
+            @remove="removeFilterOption"
+            @select="selectFilterOption">
             <!-- selected options -->
-            <template v-slot:tag="props">
+            <template v-slot:tag="{ props }">
               <span class="multiselect__tag">
                 <span>
                   {{ props.option.label }}
@@ -48,9 +48,9 @@
                 </span>
                 <i
                   aria-hidden="true"
-                  @click="props.remove(props.option)"
+                  class="multiselect__tag-icon"
                   tabindex="1"
-                  class="multiselect__tag-icon" />
+                  @click="props.remove(props.option)" />
               </span>
             </template>
 
@@ -70,7 +70,7 @@
 
             <!-- selectable options -->
             <template
-              v-slot:option="props">
+              v-slot:option="{ props }">
               {{ props.option.label }}
               <template v-if="'fragment' !== filterGroup.type">
                 ({{ props.option.count }})

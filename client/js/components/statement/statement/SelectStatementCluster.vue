@@ -30,17 +30,18 @@
 
     <!-- select statement cluster -->
     <dp-multiselect
-      :options="clusterList"
-      track-by="id"
-      ref="multiselect"
       id="clusters-single-select"
-      :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
-      class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
-      :allow-empty="false"
       v-model="selected"
+      :allow-empty="false"
+      class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
+      :custom-label="props =>`${props.option.externId ? props.option.externId : ''} ${props.option.name ? option.name : ''}`"
+      :options="clusterList"
+      ref="multiselect"
+      track-by="id"
       @input="closeMultiselect">
-      <template v-slot:option="{ option }">
-        <strong>{{ option.externId ? option.externId : '' }}</strong><span class="weight--normal">{{ option.name ? ` ${option.name}` : '' }}</span>
+      <template v-slot:option="{ props }">
+        <strong>{{ props.option.externId ? props.option.externId : '' }}</strong>
+        <span class="weight--normal">{{ props.option.name ? ` ${props.option.name}` : '' }}</span>
       </template>
     </dp-multiselect>
     <input

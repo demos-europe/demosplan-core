@@ -47,12 +47,12 @@
           {{ Translator.trans('fragment.voteAdvice') }}
         </label>
         <dp-multiselect
-          :options="computedAdviceValues"
-          track-by="value"
-          label="name"
+          v-model="voteAdvice"
           :allow-empty="false"
-          v-model="voteAdvice">
-          <template v-slot:option="props">
+          label="name"
+          :options="computedAdviceValues"
+          track-by="value">
+          <template v-slot:option="{ props }">
             {{ props.option.name }}
           </template>
         </dp-multiselect>
