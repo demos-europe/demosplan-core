@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

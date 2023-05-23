@@ -27,13 +27,13 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureCoupleTokenAlreadyUsedExcep
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use Exception;

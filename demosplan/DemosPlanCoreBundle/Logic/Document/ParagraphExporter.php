@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;

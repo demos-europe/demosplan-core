@@ -13,7 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

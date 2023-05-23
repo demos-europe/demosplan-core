@@ -8,9 +8,8 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use Monolog\Logger;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -30,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
@@ -42,10 +42,10 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Faker\Provider\Uuid;
+use Monolog\Logger;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;

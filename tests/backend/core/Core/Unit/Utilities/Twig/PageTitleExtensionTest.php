@@ -12,9 +12,9 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\MockMethodDefinition;
 use Tests\Base\UnitTestCase;

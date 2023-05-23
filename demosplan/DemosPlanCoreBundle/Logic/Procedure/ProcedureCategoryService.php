@@ -8,13 +8,13 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use Doctrine\ORM\TransactionRequiredException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
 
 class ProcedureCategoryService extends CoreService
 {

@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;

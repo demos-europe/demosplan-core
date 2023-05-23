@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
 use Tests\Base\FunctionalTestCase;
 
 class ServiceStorageTest extends FunctionalTestCase

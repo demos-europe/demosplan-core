@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 
 class DoctrineProcedureListener
 {

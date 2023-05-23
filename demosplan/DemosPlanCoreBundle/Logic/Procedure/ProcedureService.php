@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use DateTime;
@@ -57,8 +57,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;

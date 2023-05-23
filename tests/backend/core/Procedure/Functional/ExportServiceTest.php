@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Procedure\Functional;
 
-use demosplan\DemosPlanProcedureBundle\Logic\ExportService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use Tests\Base\FunctionalTestCase;
 
 class ExportServiceTest extends FunctionalTestCase

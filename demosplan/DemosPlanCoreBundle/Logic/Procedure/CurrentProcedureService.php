@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;

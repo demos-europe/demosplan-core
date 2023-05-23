@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
-
-use function collect;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -24,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\LegacyResult;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use function collect;
 
 /**
  * @deprecated Use Procedure Object instead

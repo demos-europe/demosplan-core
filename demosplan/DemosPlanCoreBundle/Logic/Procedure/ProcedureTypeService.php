@@ -8,9 +8,8 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use EDT\Querying\Contracts\PathException;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
@@ -38,6 +37,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;

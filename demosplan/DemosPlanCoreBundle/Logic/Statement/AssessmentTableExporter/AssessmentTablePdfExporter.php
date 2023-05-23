@@ -24,12 +24,12 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use LogicException;
 use Psr\Log\InvalidArgumentException;

@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -40,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -84,6 +83,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
@@ -113,10 +113,10 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -143,7 +143,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
-
 use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface

@@ -25,10 +25,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -50,7 +50,6 @@ use IteratorAggregate;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function collect;
 use function in_array;
 use function is_array;

@@ -8,12 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Logic;
-
-use function array_key_exists;
+namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use function array_key_exists;
 
 class PhasePermissionsetLoader
 {
