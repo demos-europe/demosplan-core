@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\EventListener;
+namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
