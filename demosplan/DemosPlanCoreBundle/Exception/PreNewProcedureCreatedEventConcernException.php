@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonPreNewProcedureCreatedEventConcernException;
 

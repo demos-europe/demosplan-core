@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class ProcedureProposalNotFound extends ResourceNotFoundException
 {

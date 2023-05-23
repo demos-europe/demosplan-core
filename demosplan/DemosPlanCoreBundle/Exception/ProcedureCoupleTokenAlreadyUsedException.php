@@ -10,9 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class ProcedureCoupleTokenAlreadyUsedException extends DemosException
 {

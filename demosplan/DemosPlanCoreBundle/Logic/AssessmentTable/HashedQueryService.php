@@ -12,10 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\FilterHashException;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Exception\FilterHashException;
 use demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;

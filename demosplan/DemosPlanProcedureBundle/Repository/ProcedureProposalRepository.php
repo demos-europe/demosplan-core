@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
-use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use InvalidArgumentException;
