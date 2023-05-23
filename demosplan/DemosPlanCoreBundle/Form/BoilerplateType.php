@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Form;
+namespace demosplan\DemosPlanCoreBundle\Form;
 
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use Symfony\Component\Form\AbstractType;

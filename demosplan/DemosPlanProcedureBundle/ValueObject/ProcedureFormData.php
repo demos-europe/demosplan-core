@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanProcedureBundle\ValueObject;
 
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;

@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Form;
+namespace demosplan\DemosPlanCoreBundle\Form;
 
 class ProcedureFormType extends AbstractProcedureFormType
 {

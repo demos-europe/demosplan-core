@@ -8,15 +8,15 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanProcedureBundle\Form;
+namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
+use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateCategoryVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BoilerplateGroupType extends AbstractType
+class BoilerplateCategoryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -25,17 +25,8 @@ class BoilerplateGroupType extends AbstractType
                 'id',
                 TextType::class,
                 [
-                    'label'         => 'group',
-                    'property_path' => 'id',
-                ]
-            )
-            ->add(
-                'r_title',
-                TextType::class,
-                [
-                    'required'      => true,
-                    'label'         => 'title',
-                    'property_path' => 'title',
+                    'required' => true,
+                    'label'    => 'category',
                 ]
             )
             ->setDataLocked(true);
@@ -43,6 +34,6 @@ class BoilerplateGroupType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => BoilerplateGroupVO::class]);
+        $resolver->setDefaults(['data_class' => BoilerplateCategoryVO::class]);
     }
 }

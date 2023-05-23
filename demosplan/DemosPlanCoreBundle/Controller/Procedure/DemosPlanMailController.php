@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Form\PreparationMailType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanProcedureBundle\Form\PreparationMailType;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
