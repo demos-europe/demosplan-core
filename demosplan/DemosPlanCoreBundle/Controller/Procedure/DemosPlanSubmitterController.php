@@ -40,7 +40,7 @@ class DemosPlanSubmitterController extends BaseController
     public function listAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_submitters.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_submitters.html.twig',
             [
                 'procedure' => $procedureId,
                 'title'     => 'submitters',

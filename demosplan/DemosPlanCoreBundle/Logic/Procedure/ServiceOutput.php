@@ -484,7 +484,7 @@ class ServiceOutput
         }
 
         $content = $this->twig->render(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_export.tex.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_export.tex.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -514,7 +514,7 @@ class ServiceOutput
             $procedureId
         );
         $content = $this->twig->render(
-            '@DemosPlanProcedure/DemosPlanProcedure/title_page_export.tex.twig',
+            '@DemosPlanCore/DemosPlanProcedure/title_page_export.tex.twig',
             [
                 'procedure'    => $templateVars['procedure'],
                 'templateVars' => $templateVars,

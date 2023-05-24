@@ -597,7 +597,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
                     // fetch the EmailTemplate
                     $emailText = $this->twig->load(
-                        '@DemosPlanProcedure/DemosPlanProcedure/administration_send_notification_email_ending_phase.html.twig'
+                        '@DemosPlanCore/DemosPlanProcedure/administration_send_notification_email_ending_phase.html.twig'
                     )->renderBlock(
                         'body_plain',
                         [

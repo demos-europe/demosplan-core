@@ -1041,7 +1041,7 @@ class DemosPlanStatementController extends BaseController
 
                 $draftStatementId = $draftStatement['id'];
                 $draftStatementNumber = $draftStatement['number'];
-                $template = '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_confirmation_loggedin.html.twig';
+                $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation_loggedin.html.twig';
             } else {
                 $event = new RequestValidationWeakEvent(
                     $request,
@@ -1089,7 +1089,7 @@ class DemosPlanStatementController extends BaseController
 
                     return $this->renderJson($errorResponse);
                 }
-                $template = '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
+                $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
             }
 
             $responseHtml = $this->renderTemplate(
@@ -2550,7 +2550,7 @@ class DemosPlanStatementController extends BaseController
 
                 if ($importer->hasErrors()) {
                     return $this->renderTemplate(
-                        '@DemosPlanProcedure/DemosPlanProcedure/administration_excel_import_errors.html.twig',
+                        '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
                         [
                             'procedure'  => $procedureId,
                             'context'    => 'statements',

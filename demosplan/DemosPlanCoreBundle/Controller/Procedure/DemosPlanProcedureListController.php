@@ -121,7 +121,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             );
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => 'procedure.list',
@@ -197,7 +197,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             );
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => 'procedure.public.participation',
@@ -227,7 +227,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $procedures = $procedureHandler->convertProceduresForTwigAdminList($procedures);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_search_procedures.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_search_procedures.html.twig',
             [
                 'templateVars' => ['procedures' => $procedures],
                 'title'        => 'procedures.search.statements',
@@ -324,7 +324,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars([], $title);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -366,7 +366,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars($templateVars, $title);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_masters.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_masters.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -444,7 +444,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $htmlContent = $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/public_index_list.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/public_index_list.html.twig',
                 [
                     'templateVars' => $serviceOutput,
                 ]

@@ -65,7 +65,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'surveyStatuses'     => $surveyStatuses,
                     'procedure'          => $procedureId,
@@ -151,7 +151,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'survey'             => $survey,
                     'surveyStatuses'     => $surveyStatuses,
@@ -230,7 +230,7 @@ class SurveyController extends BaseController
             $survey = $surveyHandler->getProcedureSurvey($procedureId, $surveyId);
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_list_survey_comments.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_list_survey_comments.html.twig',
                 [
                     'survey'    => $survey,
                     'procedure' => $procedureId,

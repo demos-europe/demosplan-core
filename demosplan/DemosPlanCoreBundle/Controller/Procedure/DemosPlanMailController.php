@@ -109,7 +109,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_send_email.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send',
@@ -189,7 +189,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email_confirm.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_send_email_confirm.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send.confirm',
