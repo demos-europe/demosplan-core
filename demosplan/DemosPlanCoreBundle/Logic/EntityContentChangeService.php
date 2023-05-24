@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
@@ -90,6 +91,7 @@ class EntityContentChangeService extends CoreService
     private $globalConfig;
 
     public function __construct(
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         EntityContentChangeRepository $entityContentChangeRepository,
         EntityHelper $entityHelper,
         Environment $twig,
@@ -864,10 +866,12 @@ class EntityContentChangeService extends CoreService
     protected function determineChanger(bool $isReviewer): ?object
     {
         $token = $this->getTokenStorage()->getToken();
-        if ($token instanceof TokenInterface && $token->getUser() instanceof User) {
-            $user = $token->getUser();
 
-            return $isReviewer ? $user->getDepartment() : $user;
+        if ($token instanceof TokenInterface){
+            $user = $this->userFromSecurityUserProvider->fromToken($token);
+            if ($user instanceof User) {
+                return $isReviewer ? $user->getDepartment() : $user;
+            }
         }
 
         return null;
