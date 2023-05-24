@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -867,7 +867,7 @@ class EntityContentChangeService extends CoreService
     {
         $token = $this->getTokenStorage()->getToken();
 
-        if ($token instanceof TokenInterface){
+        if ($token instanceof TokenInterface) {
             $user = $this->userFromSecurityUserProvider->fromToken($token);
             if ($user instanceof User) {
                 return $isReviewer ? $user->getDepartment() : $user;
