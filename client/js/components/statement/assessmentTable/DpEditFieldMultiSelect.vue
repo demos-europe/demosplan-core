@@ -31,30 +31,30 @@
     </template>
     <template v-slot:edit>
       <dp-multiselect
-        multiple
-        :options="options"
-        :name="`${entityId}:${fieldKey}`"
         :id="`${entityId}:${fieldKey}`"
-        track-by="id"
-        class="u-n-ml-0_25"
         v-model="selected"
-        label="name"
-        @input="val => handleInput(val)"
-        :group-values="groupValues"
+        class="u-n-ml-0_25"
         :group-label="groupLabel"
-        :group-select="groupSelect">
-        <template v-slot:option="{ option }">
-          <strong v-if="option.$isLabel">{{ option.$groupLabel }}</strong>
-          <span v-else>{{ option.name }}</span>
+        :group-select="groupSelect"
+        :group-values="groupValues"
+        label="name"
+        multiple
+        :name="`${entityId}:${fieldKey}`"
+        :options="options"
+        track-by="id"
+        @input="val => handleInput(val)">
+        <template v-slot:option="{ props }">
+          <strong v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</strong>
+          <span v-else>{{ props.option.name }}</span>
         </template>
-        <template v-slot:tag="props">
+        <template v-slot:tag="{ props }">
           <span class="multiselect__tag">
             {{ props.option.name }}
             <i
               aria-hidden="true"
-              @click="props.remove(props.option)"
+              class="multiselect__tag-icon"
               tabindex="1"
-              class="multiselect__tag-icon" />
+              @click="props.remove(props.option)" />
           </span>
         </template>
       </dp-multiselect>

@@ -68,22 +68,22 @@
 
        <!--Multiselect component-->
       <dp-multiselect
-        v-model="submitter"
-        @input="emitSubmitterData"
         id="submitterSelect"
+        v-model="submitter"
+        :custom-label="customOption"
+        :disabled="currentListIsEmpty"
+        label="submitter"
         :options="submitterOptions"
         :placeholder="Translator.trans('choose.search')"
         track-by="entityId"
-        label="submitter"
-        :custom-label="customOption"
-        :disabled="currentListIsEmpty">
+        @input="emitSubmitterData">
         <!-- Template for select options -->
-          <template v-slot:option="props">
+          <template v-slot:option="{ props }">
             <div v-cleanhtml="customOption(props.option, true)" />
           </template>
 
           <!-- Template for element that is visible when Multiselect is closed -->
-          <template v-slot:singleLabel="props">
+          <template v-slot:singleLabel="{ props }">
             {{ customSingleLabel(props.option) }}
           </template>
       </dp-multiselect>
