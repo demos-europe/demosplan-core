@@ -34,7 +34,7 @@ class OptionsLoaderPass implements CompilerPassInterface
             DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
             DemosPlanPath::getConfigPath('procedure'),
-            DemosPlanPath::getProjectPath('app/Resources/DemosPlanProcedureBundle/config'),
+            DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config/procedure'),
         ]);
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {
