@@ -8,16 +8,16 @@
         {# onboarding / welcome panel #}
         {% block panel %}
             {% if currentUser.loggedIn == false %}
-                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_index_panel.html.twig' %}
+                {% include '@DemosPlanCore/DemosPlanProcedure/public_index_panel.html.twig' %}
             {% elseif currentUser.loggedIn == true %}
-                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_index_panel_loggedin.html.twig' %}
+                {% include '@DemosPlanCore/DemosPlanProcedure/public_index_panel_loggedin.html.twig' %}
             {% endif %}
         {% endblock panel %}
 
         {# latest global news for loggedin users #}
         {% block newsList %}
             {% if currentUser.loggedIn == true and hasPermission('area_globalnews') %}
-                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_index_globalnewslist.html.twig' %}
+                {% include '@DemosPlanCore/DemosPlanProcedure/public_index_globalnewslist.html.twig' %}
             {% endif %}
         {% endblock %}
 
@@ -64,14 +64,14 @@
             <div class="{{ 'c-proceduresearch__filter-procedures o-page__padded-right layout__item'|prefixClass }} {% block list_width %}{{ 'u-1-of-1 u-1-of-2-lap-up u-pl-0'|prefixClass }}{% endblock list_width %}">
 
                     {% block filter %}
-                        {% include '@DemosPlanProcedure/DemosPlanProcedure/public_index_filter.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanProcedure/public_index_filter.html.twig' %}
                     {% endblock filter %}
 
                     {% block list %}
                         {# wrapper outside of include because it is included also via publicProcedureListJsonAction #}
                         <ul data-procedurelist-content class="{{ 'c-procedurelist list-style-none'|prefixClass }}">
                             {% if templateVars.list.procedurelist|length > 0 %}
-                                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_index_list.html.twig' %}
+                                {% include '@DemosPlanCore/DemosPlanProcedure/public_index_list.html.twig' %}
                             {% endif %}
                         </ul>
                         <div class="{{ 'display--none u-pl border--top u-pt'|prefixClass }}" aria-hidden="true" id="noProcedureNotification">

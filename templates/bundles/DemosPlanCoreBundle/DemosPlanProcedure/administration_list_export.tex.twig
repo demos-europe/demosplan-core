@@ -12,7 +12,7 @@
 \textbf{{ '{' }}{{ "invitable_institution"|trans|latex|raw }}{{ '}' }}{% if hasPermission('field_organisation_paper_copy_spec')%}& \textbf{{ '{' }}{{ "copies.kind"|trans|latex|raw }}{{ '}' }}{% endif %}{% if hasPermission('field_organisation_paper_copy')%} & \textbf{{ '{' }}{{ "copies"|trans|latex|raw }}{{ '}' }}{% endif %} & \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }}& \textbf{{ '{' }}Einladung gesendet{{ '}' }}\\\endhead
 \hline
 {% for orga in templateVars.orgas %}
- {% include '@DemosPlanProcedure/DemosPlanProcedure/administration_list_export_entry.tex.twig' %}
+ {% include '@DemosPlanCore/DemosPlanProcedure/administration_list_export_entry.tex.twig' %}
 {% endfor %}
 \end{{ '{' }}longtable{{ '}' }}
 {% endblock  %}

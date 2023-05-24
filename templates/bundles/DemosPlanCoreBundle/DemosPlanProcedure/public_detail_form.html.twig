@@ -59,12 +59,12 @@
     </header>
 
     {# Stellungnahme #}
-    {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_statement.html.twig' %}
+    {% include '@DemosPlanCore/DemosPlanProcedure/public_detail_form_statement.html.twig' %}
 
     {# Persönliche Daten, Überprüfen #}
     {% if not loggedin %}
-        {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_personal_data.html.twig' %}
-        {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_recheck.html.twig'  %}
+        {% include '@DemosPlanCore/DemosPlanProcedure/public_detail_form_personal_data.html.twig' %}
+        {% include '@DemosPlanCore/DemosPlanProcedure/public_detail_form_recheck.html.twig'  %}
     {% endif %}
 
     {# should be used with |raw Filter in this special case as html-tags are returned #}

@@ -46,7 +46,7 @@
                 <div class="{{ 'layout'|prefixClass }}">
                     {% for formGroup in personalDataFields|default([]) %}
                         <div class="{{ 'layout__item u-1-of-2 u-mb'|prefixClass }}">
-                            {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/formGroups/form_group_' ~ formGroup.name ~ '.html.twig' with {
+                            {% include '@DemosPlanCore/DemosPlanProcedure/includes/formGroups/form_group_' ~ formGroup.name ~ '.html.twig' with {
                                 'required': formGroup.required|default(false)
                             } %}
                         </div>
@@ -94,7 +94,7 @@
                 <div class="{{ 'layout'|prefixClass }}">
                     {% for formGroup in feedbackFields|default([]) %}
                         <div class="{{ 'layout__item u-1-of-2 u-mb'|prefixClass }}">
-                            {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/formGroups/form_group_' ~ formGroup.name ~ '.html.twig' with {
+                            {% include '@DemosPlanCore/DemosPlanProcedure/includes/formGroups/form_group_' ~ formGroup.name ~ '.html.twig' with {
                                 'required': formGroup.required|default(false)
                             } %}
                         </div>

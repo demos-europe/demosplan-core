@@ -148,7 +148,7 @@
                             <i class="{{ 'fa fa-calendar u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'period'|trans }}
                         </h3>
                         <span id="helpPublicDetailTimelimit">
-                            {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/procedure_date.html.twig' with { 'procedure' : proceduresettings } %}
+                            {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_date.html.twig' with { 'procedure' : proceduresettings } %}
                             {{ contextualHelp('help.public.detail.timelimit', ['o-tooltip--question-circle', 'c-infolist__help u-ml-0_25']) }}
                         </span>
                     </div><!--
@@ -290,7 +290,7 @@
                             class="{{ 'c-infolist__content o-toggle__target overflow-word-break u-pb-0_5'|prefixClass }}"
                             data-toggle-id="news"
                             id="infolistContentNews">
-                            {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/procedure_newslist.html.twig' %}
+                            {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_newslist.html.twig' %}
                         </div>
                     </div>
                 {% endif %}
@@ -478,7 +478,7 @@
                             {% endif %}
                             {# loop published statements #}
                             {% for statement in templateVars.publicStatements.statements %}
-                                {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/public_statement.html.twig' %}
+                                {% include '@DemosPlanCore/DemosPlanProcedure/includes/public_statement.html.twig' %}
                             {% endfor %}
                             {# bottom pager #}
                             {% if templateVars.publicStatements.pager is defined %}
@@ -587,10 +587,10 @@
                     {% set hiddenAction = 'statementedit' %}
                     {% set displayEditSubmit = true %}
                 {% endif %}
-                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form.html.twig' %}
+                {% include '@DemosPlanCore/DemosPlanProcedure/public_detail_form.html.twig' %}
             {% else %}
                 {# no-js output when form is submitted #}
-                {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_confirmation.html.twig' %}
+                {% include '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig' %}
             {% endif %}
         </div>
     {% endif %}

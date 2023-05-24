@@ -3,7 +3,7 @@
 {% block component_part %}
 
     {# Header #}
-    {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
         heading: 'invitable_institution.administer'|trans,
         highlighted: 'publicagency_registered'
     } %}
@@ -120,7 +120,7 @@
             </thead>
             <tbody>
                     {% for orga in templateVars.orgas %}
-                        {% include '@DemosPlanProcedure/DemosPlanProcedure/administration_member_list_entry.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanProcedure/administration_member_list_entry.html.twig' %}
                     {% endfor %}
             </tbody>
         </table>
