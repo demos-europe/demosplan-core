@@ -68,16 +68,15 @@
                     {% set boilerplatesGroups = [{ id: '', title: '-'}] %}
                     {% set boilerplatesGroups = boilerplatesGroups|merge(boilerplateGroupsOfProcedure|map(group => { id: group.id, title: group.title })) %}
                     <dp-multiselect
-                        :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
                         v-model="boilerplateGroup"
-                        track-by="id"
-                        data-cy="selectBoilerplateGroup"
-                        label="title"
-                        @input="val => setBoilerplateGroup(val)"
                         :allow-empty="false"
                         class="display--inline-block u-valign--middle u-mb"
-                    >
-                        <template v-slot:option="props">
+                        data-cy="selectBoilerplateGroup"
+                        label="title"
+                        :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id"
+                        @input="val => setBoilerplateGroup(val)">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>
                     </dp-multiselect>

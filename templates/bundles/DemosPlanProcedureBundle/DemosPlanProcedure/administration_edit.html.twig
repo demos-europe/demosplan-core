@@ -164,18 +164,17 @@
                                     } %}
 
                                     <dp-multiselect
-                                        multiple
                                         id="r_agency"
-                                        :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
                                         v-model="selectedAgencies"
                                         data-cy="selectedAgencies"
                                         label="name"
-                                        track-by="id"
-                                    >
-                                        <template v-slot:option="props">
+                                        multiple
+                                        :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
+                                        track-by="id">
+                                        <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
-                                        <template v-slot:tag="props">
+                                        <template v-slot:tag="{ props }">
                                         <span class="multiselect__tag">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -241,17 +240,16 @@
                                     } %}
 
                                     <dp-multiselect
-                                        multiple
-                                        id="r_dataInputOrga"
-                                        :options="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
+                                        id="r_dataInputOrgaTest"
                                         v-model="selectedDataInputOrgas"
                                         label="name"
-                                        track-by="id"
-                                    >
-                                        <template v-slot:option="props">
+                                        multiple
+                                        :options="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
+                                        track-by="id">
+                                        <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
-                                        <template v-slot:tag="props">
+                                        <template v-slot:tag="{ props }">
                                             <span class="multiselect__tag">
                                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                                 <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -274,20 +272,20 @@
                                     } %}
 
                                     <dp-multiselect
-                                        multiple
                                         id="r_authorizedUsers"
-                                        data-cy="selectedAuthUsers"
-                                        :options="authUsersOptions"
                                         v-model="selectedAuthUsers"
-                                        selection-controls
-                                        @select-all="selectAllAuthUsers"
-                                        @unselect-all="unselectAllAuthUsers"
+                                        data-cy="selectedAuthUsers"
                                         label="name"
-                                        track-by="id">
-                                        <template v-slot:option="props">
+                                        multiple
+                                        :options="authUsersOptions"
+                                        selection-controls
+                                        track-by="id"
+                                        @select-all="selectAllAuthUsers"
+                                        @unselect-all="unselectAllAuthUsers">
+                                        <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
-                                        <template v-slot:tag="props">
+                                        <template v-slot:tag="{ props }">
                                             <span class="multiselect__tag">
                                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                                 <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -885,16 +883,16 @@
                                             {{ 'categories'|trans }}
                                         </label>
                                         <dp-multiselect
-                                            multiple
                                             id="r_procedure_categories"
-                                            :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
                                             v-model="selectedProcedureCategories"
-                                            track-by="id"
-                                            label="name">
-                                            <template v-slot:option="props">
+                                            label="name"
+                                            multiple
+                                            :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
+                                            track-by="id">
+                                            <template v-slot:option="{ props }">
                                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                             </template>
-                                            <template v-slot:tag="props">
+                                            <template v-slot:tag="{ props }">
                                                     <span class="multiselect__tag">
                                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                                         <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

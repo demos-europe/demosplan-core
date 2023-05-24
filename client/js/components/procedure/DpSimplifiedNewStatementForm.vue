@@ -251,17 +251,17 @@
               :text="Translator.trans('tags')"
               for="r_tags[]" />
             <dp-multiselect
-              class="u-mb"
-              multiple
-              :options="tags"
               v-model="values.tags"
-              @input="sortSelected('tags')"
-              track-by="id"
-              label="name"
+              class="u-mb"
+              group-label="title"
               :group-select="false"
               group-values="tags"
-              group-label="title">
-              <template v-slot:option="props">
+              label="name"
+              multiple
+              :options="tags"
+              track-by="id"
+              @input="sortSelected('tags')">
+              <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}
                 </span>
@@ -269,18 +269,18 @@
                   {{ props.option.title }}
                 </span>
               </template>
-              <template v-slot:tag="props">
+              <template v-slot:tag="{ props }">
                 <span class="multiselect__tag">
                   {{ props.option.title }}
                   <i
                     aria-hidden="true"
-                    @click="props.remove(props.option)"
+                    class="multiselect__tag-icon"
                     tabindex="1"
-                    class="multiselect__tag-icon" />
+                    @click="props.remove(props.option)" />
                   <input
+                    name="r_tags[]"
                     type="hidden"
-                    :value="props.option.id"
-                    name="r_tags[]">
+                    :value="props.option.id">
                 </span>
               </template>
             </dp-multiselect>
