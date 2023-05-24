@@ -33,7 +33,7 @@ class OptionsLoaderPass implements CompilerPassInterface
         $fileLocator = new FileLocator([
             DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
-            DemosPlanPath::getConfigPath('procedure/procedurephases.yml'),
+            DemosPlanPath::getConfigPath('procedure'),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanProcedureBundle/config'),
         ]);
 
