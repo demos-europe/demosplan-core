@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository")
  */
 class NotificationReceiver extends CoreEntity implements UuidEntityInterface
 {

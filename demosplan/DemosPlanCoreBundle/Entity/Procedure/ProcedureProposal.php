@@ -24,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Procedure proposal.
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository")
  */
 class ProcedureProposal extends CoreEntity implements UuidEntityInterface
 {

@@ -28,7 +28,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository")
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */

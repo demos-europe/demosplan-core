@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Procedure category.
  *
  * @ORM\Table(name="procedure_category")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository")
  */
 class ProcedureCategory extends CoreEntity implements UuidEntityInterface
 {

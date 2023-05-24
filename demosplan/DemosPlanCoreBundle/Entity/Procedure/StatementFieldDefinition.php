@@ -26,7 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
  *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
  */
 class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 {

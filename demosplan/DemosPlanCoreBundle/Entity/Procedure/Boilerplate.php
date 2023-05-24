@@ -21,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_predefined_texts")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository")
  */
 class Boilerplate extends CoreEntity implements UuidEntityInterface
 {

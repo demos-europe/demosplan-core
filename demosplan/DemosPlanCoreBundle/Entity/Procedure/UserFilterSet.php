@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Class UserFilterSet.
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="\demosplan\DemosPlanProcedureBundle\Repository\UserFilterSetRepository")
+ * @ORM\Entity(repositoryClass="\demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository")
  */
 class UserFilterSet extends CoreEntity implements UuidEntityInterface
 {

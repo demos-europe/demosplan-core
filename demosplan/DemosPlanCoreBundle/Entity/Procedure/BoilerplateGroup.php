@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository")
  */
 class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
 {

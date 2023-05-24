@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="institution_mail")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\InstitutionMailRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository")
  */
 class InstitutionMail extends CoreEntity implements UuidEntityInterface
 {

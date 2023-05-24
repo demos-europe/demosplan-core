@@ -21,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/filterhash/ Wiki: Filterhash
  *
  * @ORM\Table(indexes={@ORM\Index(name="hash_idx", columns={"hash"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository")
  */
 class HashedQuery extends CoreEntity implements UuidEntityInterface
 {

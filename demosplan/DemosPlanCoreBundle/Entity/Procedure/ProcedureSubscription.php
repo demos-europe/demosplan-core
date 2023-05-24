@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure_subscriptions", uniqueConstraints={@ORM\UniqueConstraint(name="_psu_id", columns={"_psu_id"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureSubscriptionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository")
  */
 class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
 {

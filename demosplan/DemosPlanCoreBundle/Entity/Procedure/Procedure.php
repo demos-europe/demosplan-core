@@ -41,7 +41,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository")
  * @ORM\AssociationOverrides({
  *      @ORM\AssociationOverride(name="slugs",
  *          joinTable=@ORM\JoinTable(
