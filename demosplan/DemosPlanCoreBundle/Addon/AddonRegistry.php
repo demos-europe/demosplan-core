@@ -47,7 +47,6 @@ class AddonRegistry implements ArrayAccess
         return $this->addonInfos;
     }
 
-
     public function offsetExists(mixed $offset): bool
     {
         return array_key_exists($offset, $this->addonInfos);

@@ -14,17 +14,18 @@ use Doctrine\Common\Annotations\Annotation\Attribute;
 use Doctrine\Common\Annotations\Annotation\Attributes;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\Common\Annotations\Annotation\Target;
+use RuntimeException;
 
 use function is_array;
 use function is_string;
-
-use RuntimeException;
 
 /**
  * @Annotation
  *
  * @Target("METHOD")
+ *
  * @Attributes(
+ *
  *  @Attribute("permissions", type="mixed")
  * )
  */

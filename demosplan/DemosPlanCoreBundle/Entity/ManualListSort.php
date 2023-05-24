@@ -18,6 +18,7 @@ use function is_string;
 
 /**
  * @ORM\Table(name="_manual_list_sort")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository")
  */
 class ManualListSort extends CoreEntity implements UuidEntityInterface
@@ -26,8 +27,11 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_mls_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

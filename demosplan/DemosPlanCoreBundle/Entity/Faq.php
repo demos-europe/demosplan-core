@@ -29,8 +29,11 @@ class Faq extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -60,6 +63,7 @@ class Faq extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $createDate;
@@ -68,6 +72,7 @@ class Faq extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -76,6 +81,7 @@ class Faq extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Role>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
+     *
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(name="faq_id", referencedColumnName="id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="_r_id", onDelete="CASCADE")}
@@ -87,6 +93,7 @@ class Faq extends CoreEntity implements UuidEntityInterface
      * @var FaqCategory
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\FaqCategory")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     protected $faqCategory;

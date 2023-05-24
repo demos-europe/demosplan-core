@@ -17,6 +17,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_mail_send")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MailRepository")
  */
 class MailSend implements IntegerIdEntityInterface
@@ -27,7 +28,9 @@ class MailSend implements IntegerIdEntityInterface
      * @var int|null
      *
      * @ORM\Column(name="_ms_id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
@@ -105,6 +108,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_ms_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -113,6 +117,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_ms_send_date", type="datetime", nullable=false)
      */
     protected $sendDate;
@@ -156,6 +161,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_ms_last_status_date", type="datetime", nullable=false)
      */
     protected $lastStatusDate;

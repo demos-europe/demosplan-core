@@ -25,6 +25,7 @@ class GenericApiController extends APIController
      *        name="api_resource_list",
      *        options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_json_api_list")
      */
     public function listAction(
@@ -42,6 +43,7 @@ class GenericApiController extends APIController
      *        name="api_resource_update",
      *        options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_json_api_update")
      */
     public function updateAction(
@@ -65,6 +67,7 @@ class GenericApiController extends APIController
      *        name="api_resource_create",
      *        options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_json_api_create")
      */
     public function createAction(string $resourceType, JsonApiActionService $resourceService): Response
@@ -85,6 +88,7 @@ class GenericApiController extends APIController
      *        name="api_resource_delete",
      *        options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_json_api_delete")
      *
      * @return APIResponse
@@ -106,6 +110,7 @@ class GenericApiController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("feature_json_api_get")
      */
     public function getAction(

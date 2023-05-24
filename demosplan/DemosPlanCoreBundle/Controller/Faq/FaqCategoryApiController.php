@@ -26,6 +26,7 @@ class FaqCategoryApiController extends APIController
      *        methods={"GET"},
      *        name="dp_api_faq_category_list",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function listAction(FaqHandler $faqHandler): APIResponse

@@ -11,12 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Cookie;
 
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
 
 use function str_replace;
 use function strpos;
-
-use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class PreviousRouteCookie.

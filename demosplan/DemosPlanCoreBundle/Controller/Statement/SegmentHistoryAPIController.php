@@ -30,6 +30,7 @@ class SegmentHistoryAPIController extends APIController
      *     name="dplan_api_segment_history_get",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     public function getAction(

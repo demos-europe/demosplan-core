@@ -31,6 +31,7 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedure/{uuid}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid
@@ -71,6 +72,7 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedureName/{uuid}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier

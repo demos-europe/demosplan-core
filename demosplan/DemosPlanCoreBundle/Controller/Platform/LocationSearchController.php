@@ -25,6 +25,7 @@ class LocationSearchController extends BaseController
      * Suggest locations.
      *
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(
      *     path="/suggest/location/json",
      *     name="core_suggest_location_json",

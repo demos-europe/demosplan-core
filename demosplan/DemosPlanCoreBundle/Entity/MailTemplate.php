@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_mail_templates")
+ *
  * @ORM\Entity
  */
 class MailTemplate implements IntegerIdEntityInterface
@@ -22,7 +23,9 @@ class MailTemplate implements IntegerIdEntityInterface
      * @var int|null
      *
      * @ORM\Column(name="_mt_id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;

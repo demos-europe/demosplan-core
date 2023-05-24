@@ -16,13 +16,12 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
-
-use function set_time_limit;
-
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
+
+use function set_time_limit;
 
 /**
  * Centralized front controller entrypoints.

@@ -28,6 +28,7 @@ class DemosPlanBoilerplateAPIController extends APIController
      *
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded

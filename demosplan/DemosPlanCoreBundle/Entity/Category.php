@@ -19,6 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_category")
+ *
  * @ORM\Entity
  */
 class Category extends CoreEntity implements UuidEntityInterface
@@ -27,8 +28,11 @@ class Category extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -86,6 +90,7 @@ class Category extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_c_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -94,6 +99,7 @@ class Category extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_c_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -102,6 +108,7 @@ class Category extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_c_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;

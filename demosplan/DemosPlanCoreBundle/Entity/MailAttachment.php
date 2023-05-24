@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_mail_attachment")
+ *
  * @ORM\Entity
  */
 class MailAttachment implements UuidEntityInterface
@@ -23,8 +24,11 @@ class MailAttachment implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_ma_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -33,6 +37,7 @@ class MailAttachment implements UuidEntityInterface
      * @var MailSend
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailSend", inversedBy="attachments")
+     *
      * @ORM\JoinColumn(name="_ma_ms_id", referencedColumnName="_ms_id", nullable=false, onDelete="CASCADE")
      */
     protected $mailSend;

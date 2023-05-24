@@ -28,6 +28,7 @@ class HttpErrorController extends BaseController
      *     methods={"GET"},
      *     name="core_404"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function custom404Action(Request $request): Response
@@ -65,6 +66,7 @@ class HttpErrorController extends BaseController
      *     methods={"GET"},
      *     name="core_500"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function custom500Action(TranslatorInterface $translator): Response

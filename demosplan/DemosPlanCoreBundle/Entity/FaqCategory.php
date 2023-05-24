@@ -42,8 +42,11 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -68,6 +71,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $createDate;
@@ -76,6 +80,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -84,6 +89,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     *
      * @ORM\JoinColumn(referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
      */
     protected $customer;

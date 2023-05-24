@@ -31,6 +31,7 @@ class DemosPlanXplanboxController extends BaseController
      *     requirements={"procedureName"=".+"},
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_use_xplanbox")
      *
      * @param string $procedureName

@@ -38,6 +38,7 @@ class SlugDraftApiController extends APIController
      * However, that changes if the route starts to support an
      * "is-slug-already-taken"-functionality, in this case adjust the permissions
      * accordingly.
+     *
      * @DplanPermissions("feature_short_url")
      *
      * @return APIResponse|JsonResponse

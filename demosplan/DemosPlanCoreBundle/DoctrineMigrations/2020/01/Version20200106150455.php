@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 

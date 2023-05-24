@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**

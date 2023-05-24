@@ -45,6 +45,7 @@ class DemosPlanReportAPIController extends APIController
      *        name="dplan_api_report_procedure_list",
      *        defaults={"group": null},
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $group

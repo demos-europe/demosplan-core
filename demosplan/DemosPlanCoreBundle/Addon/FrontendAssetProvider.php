@@ -40,7 +40,7 @@ final class FrontendAssetProvider
             }
 
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath =  DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+            $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
             try {
                 $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);

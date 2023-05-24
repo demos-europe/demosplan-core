@@ -25,6 +25,7 @@ class SegmentBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/bulk-edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_segments_bulk_edit")
      *
      * @throws Exception
