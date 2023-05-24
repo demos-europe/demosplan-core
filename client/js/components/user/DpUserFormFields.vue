@@ -72,7 +72,6 @@
       <dp-multiselect
         v-if="hasPermission('area_organisations')"
         :id="userId + ':organisationId'"
-        :close-on-select="true"
         data-cy="organisation"
         label="name"
         :loading="isLoading"
