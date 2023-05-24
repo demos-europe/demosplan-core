@@ -30,7 +30,6 @@
             multiple
             :name="filterItem.attributes.name + '_multiselect'"
             :options="availableOptions"
-            :searchable="true"
             track-by="label"
             :value="selected"
             @close="updateFilterOptions"

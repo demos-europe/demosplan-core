@@ -80,7 +80,6 @@
         :placeholder="Translator.trans('search.three.signs')"
         ref="orgasDropdown"
         required
-        :searchable="true"
         track-by="id"
         :value="currentUserOrga"
         @select="changeUserOrga">
