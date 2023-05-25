@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -68,6 +68,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+
 use function array_key_exists;
 use function array_merge;
 use function compact;

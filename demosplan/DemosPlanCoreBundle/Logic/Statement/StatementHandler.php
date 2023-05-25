@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -119,6 +119,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
 use function array_key_exists;
 use function is_string;
 
@@ -798,7 +799,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Statement Fragment.
      *
      * @param StatementFragment $fragment
-     * @param bool                                                              $isReviewer
+     * @param bool              $isReviewer
      *
      * @throws Exception
      */

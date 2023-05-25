@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,6 +25,7 @@ class SegmentBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/bulk-edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_segments_bulk_edit")
      *
      * @throws Exception
