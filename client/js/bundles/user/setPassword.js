@@ -11,12 +11,13 @@
  * This is the entrypoint for user_set_password.html.twig
  */
 
-import { DpRegisterFlyout, dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SetPassword from '@DpJs/components/user/portalUser/SetPassword'
 
 const components = {
-  DpRegisterFlyout,
+  RegisterFlyout,
   SetPassword
 }
 
