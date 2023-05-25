@@ -52,6 +52,7 @@
                 :init-priority-areas="JSON.parse('{{ selectedPriorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
                 init-fragment-text="{{ fragment.text|default|wysiwyg }}"
                 procedure-id="{{ procedure }}"
+                statement-text="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
                 inline-template>
                 <div>
                     <p class="u-mt-0_5">{{ "text.statement.fragment"|trans|wysiwyg }}</p>
@@ -59,16 +60,20 @@
                     {# statement text #}
                     <p class="weight--bold">
                         {{ "statement"|trans }}
-                        <dp-copy-paste-button
-                            button-label="statement.copy"
-                            class="float--right"
-                            copy-content="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
+                        <dp-button
+                            class="float--right btn--blank color-main u-pr-0 font-size-medium"
+                            color="tertiary"
                             title="{{ 'statement.copy.to.fragment'|trans }}"
-                            @set-text="setFragmentText">
-                        </dp-copy-paste-button>
+                            @click="setFragmentText">
+                            <i
+                                aria-hidden="true"
+                                class="fa fa-files-o">
+                            </i>
+                            {{ 'statement.copy'|trans }}
+                        </dp-button>
                     </p>
                     <div
-                        class="c-styled-html u-mb u-p-0_5 bg-color-light"
+                        class="c-styled-html u-mv u-p-0_5 bg-color-light"
                         style="max-height: 400px; overflow:scroll"
                     >
                         {{ templateVars.statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}
