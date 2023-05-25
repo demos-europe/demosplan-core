@@ -1039,7 +1039,7 @@ class DocxExporter
         $frontPageSection->addTextBreak(3);
 
         // Verfahrensname
-        $frontPageSection->addText(htmlspecialchars($procedure->getName()), $coverHeadingStyle, $coverParagraphStyle);
+        $frontPageSection->addText(htmlspecialchars($procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
         $phaseName = $procedure->getPhaseName();
@@ -1823,7 +1823,8 @@ class DocxExporter
             $cell->addText(
                 htmlspecialchars(
                     $this->getTranslator()->trans($transKey)
-                    .$delimiter.$concatValue
+                    .$delimiter.$concatValue,
+                    ENT_NOQUOTES
                 ),
                 $fStyle,
                 $pStyle);
