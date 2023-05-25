@@ -45,7 +45,7 @@
       <header
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
-        <multistep-nav
+        <dp-multistep-nav
           v-if="loggedIn === false && showHeader"
           @change-step="val => step = val"
           :active-step="step"
