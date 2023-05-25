@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,6 +29,7 @@ class FileController extends BaseController
      * Serve file.
      *
      * @DplanPermissions("area_main_file")
+     *
      * @Route(path="/file/{hash}",
      *        name="core_file",
      *        options={"expose": true})
@@ -49,6 +50,7 @@ class FileController extends BaseController
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
      *
      * @DplanPermissions("area_main_file")
+     *
      * @Route(path="/file/{procedureId}/{hash}",
      *        name="core_file_procedure",
      *        options={"expose": true})
@@ -120,6 +122,7 @@ class FileController extends BaseController
      * TODO: This should probably be renamed to `core_image`, `core_logo` is misleading
      *
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/image/{hash}",
      *        name="core_logo",
      *        options={"expose": true})

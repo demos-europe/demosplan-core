@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,6 +22,7 @@ class APIDocumentationController extends BaseController
 {
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/api/", methods={"GET", "HEAD"})
      */
     public function indexAction(): Response
@@ -35,6 +36,7 @@ class APIDocumentationController extends BaseController
 
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/api/openapi.json", methods={"GET", "HEAD"}, options={"expose": true},
      *                                  name="dplan_api_openapi_json")
      */

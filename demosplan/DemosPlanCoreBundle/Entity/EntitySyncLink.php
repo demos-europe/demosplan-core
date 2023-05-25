@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,16 +16,17 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use function get_class;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 /**
  * @ORM\Table (uniqueConstraints={
+ *
  *     @UniqueConstraint(name="unique_source", columns={"class", "source_id"}),
  *     @UniqueConstraint(name="unique_target", columns={"class", "target_id"})
  * })
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository")
  *
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
@@ -36,8 +37,11 @@ class EntitySyncLink implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -46,6 +50,7 @@ class EntitySyncLink implements UuidEntityInterface
      * @var class-string<T>
      *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
+     *
      * @ORM\Column(type="string")
      */
     private $class;
@@ -54,6 +59,7 @@ class EntitySyncLink implements UuidEntityInterface
      * @var string
      *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     private $sourceId;
@@ -62,6 +68,7 @@ class EntitySyncLink implements UuidEntityInterface
      * @var string
      *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     private $targetId;
