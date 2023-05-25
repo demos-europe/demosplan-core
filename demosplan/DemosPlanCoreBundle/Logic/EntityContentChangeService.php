@@ -865,13 +865,19 @@ class EntityContentChangeService extends CoreService
      */
     protected function determineChanger(bool $isReviewer): ?object
     {
+        $user = null;
         $token = $this->getTokenStorage()->getToken();
 
+        // If possible, get the User via the SecurityUser
         if ($token instanceof TokenInterface) {
             $user = $this->userFromSecurityUserProvider->fromToken($token);
-            if ($user instanceof User) {
-                return $isReviewer ? $user->getDepartment() : $user;
-            }
+
+            // If not found yet, use fallback to get user directly
+            $user = $user instanceof User ? $user : $token->getUser();
+        }
+
+        if ($user instanceof User) {
+            return $isReviewer ? $user->getDepartment() : $user;
         }
 
         return null;
