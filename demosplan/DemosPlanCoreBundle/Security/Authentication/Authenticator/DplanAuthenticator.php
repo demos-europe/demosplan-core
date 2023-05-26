@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -110,7 +111,8 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         TraceableEventDispatcher $eventDispatcher,
         TranslatorInterface $translator,
         UrlGeneratorInterface $urlGenerator,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        private UserService $userService,
     ) {
         $this->userMapper = $authenticator;
         $this->eventDispatcher = $eventDispatcher;
@@ -172,7 +174,13 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)
-        $publicAgencyUser = $request->getSession()->get('session2User');
+        $publicAgencyUserId = $request->getSession()->get('session2UserId');
+        $publicAgencyUser = null;
+        try {
+            $publicAgencyUser = $this->userService->getSingleUser($publicAgencyUserId);
+        } catch (Exception) {
+            // no public agency user found
+        }
         if ($publicAgencyUser instanceof User) {
             $this->logger->info('User has multiple users');
 

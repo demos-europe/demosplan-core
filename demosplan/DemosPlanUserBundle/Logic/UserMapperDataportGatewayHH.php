@@ -476,7 +476,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $publicAgencyUser->setTwinUser($user);
                     $this->userService->updateUserObject($publicAgencyUser);
 
-                    $request->getSession()->set('session2User', $publicAgencyUser);
+                    $request->getSession()->set('session2UserId', $publicAgencyUser->getId());
                 }
             }
 
