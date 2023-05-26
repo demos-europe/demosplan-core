@@ -390,7 +390,6 @@ export default {
       const extent = view.getProjection().getExtent()
       const center = view.getCenter()
 
-      // Force a recalculation of the map viewport size. This should be called when third-party code changes the size of the map viewport.
       this.map.updateSize()
 
       view.fit(extent, {
