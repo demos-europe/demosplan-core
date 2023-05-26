@@ -353,7 +353,6 @@ export default {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
           html.classList.toggle(this.prefixClass('fullscreen-mode'))
-          this.updateMapInstance()
         }, false)
       })
     },
