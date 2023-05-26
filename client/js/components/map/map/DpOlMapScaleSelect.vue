@@ -46,16 +46,6 @@ export default {
     }
   },
 
-  /*
-   * Refactor watcher
-   * should not be necessary
-   */
-  watch: {
-    olMapState () {
-      this.init()
-    }
-  },
-
   methods: {
     init () {
       const map = this.olMapState.map
