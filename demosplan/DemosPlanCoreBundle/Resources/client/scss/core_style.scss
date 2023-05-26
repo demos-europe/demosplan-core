@@ -58,13 +58,12 @@
 @import 'inuit-5/tools.responsive';
 @import 'inuit-5/tools.widths';
 
-// Tailwindcss
-// - Preflight, an opinionated set of base styles.
-//   See https://tailwindcss.com/docs/preflight
-// - Customized Utility Classes from demosplan-ui.
-// As Tailwind is configured to use !important everywhere, utility classes
+// A custom Tailwind build is included in the 'demosplan-ui' entrypoint. It contains...
+//- Tailwind Preflight, an opinionated set of base styles (see https://tailwindcss.com/docs/preflight)
+//- Tailwind Utility Classes configured by demosplan-ui design tokens.
+//  As Tailwind is configured to use !important everywhere, utility classes
 // should win, at least if not outpaced by even higher specificity.
-@import '~@demos-europe/demosplan-ui/style/style';
+// @import '~@demos-europe/demosplan-ui/style/style';
 
 // Generic
 @import 'inuit-5/generic.shared';
