@@ -83,7 +83,7 @@ class GetCapabilitesRpcMethodSolver implements RpcMethodSolverInterface
 
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest, JSON_THROW_ON_ERROR),
-            DemosPlanPath::getConfigPath('config/json-schema/rpc-map-get-capbilities-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-map-get-capbilities-schema.json')
         );
     }
 
