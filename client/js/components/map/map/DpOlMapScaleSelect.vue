@@ -61,28 +61,14 @@ export default {
       const map = this.olMapState.map
       const view = this.view = map.getView()
       const resolutions = view.getResolutions()
-      const currentResolution = this.view.getResolution()
       const units = this.units = view.getProjection().getUnits()
 
       //  Translate map resolutions to scales to display in select
       this.scales = getScalesAndResolutions(resolutions, units)
 
-      //  Get initial scale
-      this.currentScale = getScaleFromResolution(currentResolution, this.units)
-
-      //  Attach event listeners to OpenLayers events to determine if resolution has changed and update selected option
-      map.on('movestart', () => {
-        let newResolution
-        const resolution = newResolution = this.view.getResolution()
-
-        map.once('moveend', () => {
-          newResolution = this.view.getResolution()
-
-          //  Fire only if resolution changed (movestart & moveend is triggered by several other interactions as well)
-          if (resolution !== newResolution) {
-            this.currentScale = getScaleFromResolution(newResolution, this.units)
-          }
-        })
+      // Set current scale after map data has loaded completely. This also triggers when changing the scale.
+      map.on('loadend', () => {
+        this.currentScale = getScaleFromResolution(this.view.getResolution(), this.units)
       })
     },
 
