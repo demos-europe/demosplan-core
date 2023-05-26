@@ -299,7 +299,7 @@
                     <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                     <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
 
-                    {% if hasPermission('feature_admin_element_edit')%}
+                    {% if hasPermission('feature_admin_element_delete')%}
                         <fieldset class="u-pb-0">
                             <legend>{{ "category.delete"|trans }}</legend>
                             <p>{{ "explanation.category.delete"|trans }}</p>
