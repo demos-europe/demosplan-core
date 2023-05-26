@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UserFromSecurityUserProvider
 {
@@ -39,7 +40,7 @@ final class UserFromSecurityUserProvider
 
     public function fromToken(TokenInterface $token): ?User
     {
-        if (!$token->getUser() instanceof SecurityUser) {
+        if (!$token->getUser() instanceof UserInterface) {
             return null;
         }
 
