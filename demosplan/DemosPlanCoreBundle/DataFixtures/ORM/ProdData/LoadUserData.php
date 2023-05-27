@@ -44,7 +44,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $this->orgaService = $orgaService;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         // create defaultcustomer
         $customer = new Customer('demos', 'demos');

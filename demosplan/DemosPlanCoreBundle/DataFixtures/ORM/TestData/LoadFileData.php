@@ -23,7 +23,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
 {
     public const PDF_TEST_FILE = 'testFile';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $file1 = new File();
         $file1->setHash('df055eb7-5405-425b-9e21-7faa63f69a70');

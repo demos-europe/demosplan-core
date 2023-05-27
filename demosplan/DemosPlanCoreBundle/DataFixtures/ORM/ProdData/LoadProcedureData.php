@@ -51,7 +51,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $this->procedureHandler = $procedureHandler;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $masterProcedurePhase = 'configuration';
         $anonymousUser = new AnonymousUser();

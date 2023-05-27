@@ -22,7 +22,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadForumData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $forumThread1 = new ForumThread();
         $forumThread1->setClosed(false);

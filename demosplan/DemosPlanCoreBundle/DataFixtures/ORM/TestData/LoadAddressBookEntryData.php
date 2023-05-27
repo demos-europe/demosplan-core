@@ -16,7 +16,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadAddressBookEntryData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $testOrganisation = $this->getReference('testOrgaFP');
 

@@ -28,7 +28,7 @@ class LoadSurveyData extends TestFixture implements DependentFixtureInterface
     /**
      * @throws Exception
      */
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Procedure $procedure */
         $procedure = $this->getReference(LoadProcedureData::TESTPROCEDURE);

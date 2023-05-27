@@ -30,7 +30,7 @@ class LoadLocationData extends TestFixture
     public const MUNICIPALTIY_5 = 'Municipality5';
     public const MUNICIPALTIY_6 = 'Municipality6';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $entity = new County();
         $entity->setName('Kreis 1');

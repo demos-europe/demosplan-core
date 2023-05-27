@@ -123,7 +123,7 @@ class LoadUserData extends TestFixture
         parent::__construct($entityManager);
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $address = new Address();
         $address->setStreet('Departmentstraße');

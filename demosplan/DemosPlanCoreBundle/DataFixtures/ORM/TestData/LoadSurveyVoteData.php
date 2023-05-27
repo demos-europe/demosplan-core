@@ -32,7 +32,7 @@ class LoadSurveyVoteData extends TestFixture implements DependentFixtureInterfac
     /**
      * @throws Exception
      */
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Survey $parkSurvey */
         $parkSurvey = $this->getReference(LoadSurveyData::PARK_SURVEY);
