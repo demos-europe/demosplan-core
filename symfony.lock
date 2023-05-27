@@ -207,12 +207,12 @@
         ]
     },
     "enqueue/fs": {
-        "version": "0.4",
+        "version": "0.10",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
+            "branch": "main",
             "version": "0.4",
-            "ref": "4d45d1e6b113832ad13f6d321506c004ed12fe2e"
+            "ref": "822505a7de797bd869c5757bb9bae85f647d870d"
         }
     },
     "enqueue/null": {
