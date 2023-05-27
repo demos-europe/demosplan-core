@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -1039,7 +1039,7 @@ class DocxExporter
         $frontPageSection->addTextBreak(3);
 
         // Verfahrensname
-        $frontPageSection->addText(htmlspecialchars($procedure->getName()), $coverHeadingStyle, $coverParagraphStyle);
+        $frontPageSection->addText(htmlspecialchars($procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
         $phaseName = $procedure->getPhaseName();
@@ -1823,7 +1823,8 @@ class DocxExporter
             $cell->addText(
                 htmlspecialchars(
                     $this->getTranslator()->trans($transKey)
-                    .$delimiter.$concatValue
+                    .$delimiter.$concatValue,
+                    ENT_NOQUOTES
                 ),
                 $fStyle,
                 $pStyle);

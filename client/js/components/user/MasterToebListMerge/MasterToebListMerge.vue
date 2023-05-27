@@ -17,15 +17,15 @@
           for="r_orga" />
 
         <dp-multiselect
-          :allow-empty="false"
           id="r_orga"
+          v-model="selectedOrganisation"
+          :allow-empty="false"
           label="name"
           :options="organisations"
-          track-by="ident"
-          v-model="selectedOrganisation">
-          <template v-slot:option="{ option }">
-            <span class="weight--bold display--block">{{ option.name }}</span>
-            <span class="font-size-small">{{ list(option.departmentNames) }}</span>
+          track-by="ident">
+          <template v-slot:option="{ props }">
+            <span class="weight--bold display--block">{{ props.option.name }}</span>
+            <span class="font-size-small">{{ list(props.option.departmentNames) }}</span>
           </template>
         </dp-multiselect>
 
@@ -54,15 +54,15 @@
           for="r_orga_mastertoeb" />
 
         <dp-multiselect
-          :allow-empty="false"
           id="r_orga_mastertoeb"
+          v-model="selectedOrganisationMasterToeb"
+          :allow-empty="false"
           label="orgaName"
           :options="organisationsMasterToeb"
-          track-by="ident"
-          v-model="selectedOrganisationMasterToeb">
-          <template v-slot:option="{ option }">
-            <span class="weight--bold display--block">{{ option.orgaName }}</span>
-            <span class="font-size-small">{{ option.departmentName }}</span>
+          track-by="ident">
+          <template v-slot:option="{ props }">
+            <span class="weight--bold display--block">{{ props.option.orgaName }}</span>
+            <span class="font-size-small">{{ props.option.departmentName }}</span>
           </template>
         </dp-multiselect>
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,6 +28,7 @@ class DemosPlanBoilerplateAPIController extends APIController
      *
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded

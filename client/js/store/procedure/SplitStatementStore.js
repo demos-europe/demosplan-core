@@ -10,6 +10,7 @@
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
+import Vue from 'vue'
 
 const SplitStatementStore = {
   namespaced: true,

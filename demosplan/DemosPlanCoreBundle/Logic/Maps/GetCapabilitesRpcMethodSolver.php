@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -83,7 +83,7 @@ class GetCapabilitesRpcMethodSolver implements RpcMethodSolverInterface
 
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest, JSON_THROW_ON_ERROR),
-            DemosPlanPath::getConfigPath('config/json-schema/rpc-map-get-capbilities-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-map-get-capbilities-schema.json')
         );
     }
 

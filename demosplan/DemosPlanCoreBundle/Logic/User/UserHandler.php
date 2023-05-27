@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -63,7 +63,6 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use LogicException;
 use RuntimeException;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -1354,7 +1353,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($data as $ident => $department) {
             try {
                 $result = $this->updateDepartment($ident, $department);
-                if (array_key_exists('mandatoryfieldwarning', $result)) {
+                if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
                     return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
                 }
             } catch (Exception $e) {

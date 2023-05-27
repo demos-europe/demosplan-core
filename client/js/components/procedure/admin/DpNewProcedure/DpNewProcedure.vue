@@ -107,7 +107,7 @@
           :options="procedureTypes"
           required
           track-by="id">
-          <template v-slot:option="props">
+          <template v-slot:option="{ props }">
             {{ props.option.name }}<br>
             <span class="font-size-small">{{ props.option.description }}</span>
           </template>

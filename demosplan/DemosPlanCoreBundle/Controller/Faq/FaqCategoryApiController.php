@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,6 +26,7 @@ class FaqCategoryApiController extends APIController
      *        methods={"GET"},
      *        name="dp_api_faq_category_list",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function listAction(FaqHandler $faqHandler): APIResponse
