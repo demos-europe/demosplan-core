@@ -105,19 +105,17 @@
         "version": "v0.5.3"
     },
     "doctrine/doctrine-bundle": {
-        "version": "2.3",
+        "version": "2.9",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.3",
-            "ref": "c9e656a395646ea4fad2bd3e2b3816028baf9026"
+            "branch": "main",
+            "version": "2.4",
+            "ref": "013b823e7fee65890b23e40f31e6667a1ac519ac"
         },
         "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/doctrine.yaml",
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/prod/doctrine.yaml",
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/test/doctrine.yaml",
-            "demosplan/Entity/.gitignore",
-            "demosplan/Repository/.gitignore"
+            "config/packages/doctrine.yaml",
+            "src/Entity/.gitignore",
+            "src/Repository/.gitignore"
         ]
     },
     "doctrine/doctrine-fixtures-bundle": {
