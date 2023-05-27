@@ -42,10 +42,10 @@ class Place extends CoreEntity implements SortableInterface
      *
      * @var string
      *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false)
-     * @Assert\Length(min=1, max=255, normalizer="trim")
      * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
     private $name;
 
     /**
@@ -53,27 +53,27 @@ class Place extends CoreEntity implements SortableInterface
      *
      * @var string
      *
-     * @Assert\NotNull()
-     * @Assert\Length(min=0, max=255, normalizer="trim")
      * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
+    #[Assert\NotNull]
+    #[Assert\Length(min: 0, max: 255, normalizer: 'trim')]
     private $description = '';
 
     /**
      * @var int
      *
-     * @Assert\NotNull
      * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
      */
+    #[Assert\NotNull]
     private $sortIndex;
 
     /**
      * @var Procedure
      *
-     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
+    #[Assert\NotNull]
     private $procedure;
 
     public function __construct(Procedure $procedure, string $name = '', int $sortIndex = 0, string $id = null)

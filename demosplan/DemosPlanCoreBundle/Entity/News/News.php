@@ -47,35 +47,35 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
-     * @Assert\NotBlank(allowNull=false)
      */
+    #[Assert\NotBlank(allowNull: false)]
     protected $pId;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_title", type="string", length=255, nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
     protected $title = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_description", type="text", length=65535, nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
-     * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $description = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_text", type="text", length=65535, nullable=false)
-     * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $text = '';
 
     /**
@@ -110,8 +110,8 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_n_enabled", type="boolean", nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
     protected $enabled = false;
 
     /**

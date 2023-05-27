@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
@@ -76,7 +77,7 @@ EOT
             && $this->getApplication()->getKernel()->isLocalContainer()) {
             $output->writeln('Will not run in your container to prevent damage.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         // setup log filename
@@ -173,7 +174,7 @@ EOT
 
         $this->clearUpdateLock($fs, $updateLockFile);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

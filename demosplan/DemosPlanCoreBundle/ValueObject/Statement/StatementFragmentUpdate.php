@@ -44,23 +44,21 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class StatementFragmentUpdate extends ValidatableValueObject
 {
     /**
-     * @Assert\All({
-     *     @Assert\Uuid()
-     * })
-     * @Assert\Count(min=1)
-     * @Assert\Valid()
-     * @Assert\NotNull()
      *
      * @var string[]
      */
+    #[Assert\All([new Assert\Uuid()])]
+    #[Assert\Count(min: 1)]
+    #[Assert\Valid]
+    #[Assert\NotNull]
     protected $statementFragmentIds;
 
     /**
-     * @Assert\Uuid()
-     * @Assert\NotNull()
      *
      * @var string
      */
+    #[Assert\Uuid]
+    #[Assert\NotNull]
     protected $procedureId;
 
     /**
@@ -71,11 +69,11 @@ final class StatementFragmentUpdate extends ValidatableValueObject
      * are added the validation needs to differentiate between "is null meaning not set" (valid) and "is null because
      * of the request" (invalid).
      *
-     * @Assert\Length(min=1)
-     * @Assert\Type(type="string")
      *
      * @var string
      */
+    #[Assert\Length(min: 1)]
+    #[Assert\Type(type: 'string')]
     protected $considerationAddition;
 
     /**

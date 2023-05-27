@@ -36,10 +36,6 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
     /**
      * Accepts a new statement-fragment-update resource.
      *
-     * @Route(path="/api/1.0/statement-fragment-update/",
-     *        methods={"POST"},
-     *        name="dplan_api_assessment_table_statement_fragment_update_create",
-     *        options={"expose": true})
      *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"})
      *
@@ -47,9 +43,9 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      * Will create a StatementFragmentUpdate which data is given in $request.
      *
      * @return EmptyResponse|APIResponse
-     *
      * @throws Exception
      */
+    #[Route(path: '/api/1.0/statement-fragment-update/', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
     public function createAction(
         CurrentProcedureService $currentProcedureService,
         StatementFragmentService $statementFragmentService,

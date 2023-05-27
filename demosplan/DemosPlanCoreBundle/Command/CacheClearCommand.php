@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -62,7 +63,7 @@ class CacheClearCommand extends CoreCommand
         } catch (Exception $e) {
             $output->error('Failed to clear CLI APCu and OpCache, aborting');
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         if ('test' !== $this->getApplication()->getKernel()->getEnvironment()) {
@@ -73,7 +74,7 @@ class CacheClearCommand extends CoreCommand
             $this->handleAppCacheClear($input, $output);
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     private function scheduleWebApcuClear(SymfonyStyle $output): void

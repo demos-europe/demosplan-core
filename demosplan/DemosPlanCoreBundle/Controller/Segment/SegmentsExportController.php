@@ -32,17 +32,12 @@ use ZipStream\ZipStream;
 class SegmentsExportController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_segments_export",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/{statementId}/abschnitte/export",
-     *     options={"expose": true})
      *
      * @throws StatementNotFoundException
      * @throws Exception
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
+    #[Route(name: 'dplan_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte/export', options: ['expose' => true])]
     public function exportAction(
         ProcedureHandler $procedureHandler,
         SegmentsExporter $exporter,
@@ -70,15 +65,9 @@ class SegmentsExportController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_statement_segments_export",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/abschnitte/export/gruppiert",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
+    #[Route(name: 'dplan_statement_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/gruppiert', options: ['expose' => true])]
     public function exportByStatementsFilterAction(
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
@@ -104,15 +93,9 @@ class SegmentsExportController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_statement_xls_export",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/abschnitte/export/xlsx",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_admin_assessmenttable_export_statement_generic_xlsx")
      */
+    #[Route(name: 'dplan_statement_xls_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/xlsx', options: ['expose' => true])]
     public function exportByStatementsFilterXlsAction(
         JsonApiActionService $jsonApiActionService,
         ProcedureHandler $procedureHandler,
@@ -147,15 +130,9 @@ class SegmentsExportController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_statement_segments_export_packaged",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/abschnitte/export/gepackt",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
+    #[Route(name: 'dplan_statement_segments_export_packaged', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/gepackt', options: ['expose' => true])]
     public function exportPackagedStatementsAction(
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,

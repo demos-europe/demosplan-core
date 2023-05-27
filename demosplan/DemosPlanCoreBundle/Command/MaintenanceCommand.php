@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
@@ -205,7 +206,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      *
      * @throws ShutdownEndlessCommandException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Tell the user what we're going to do.
         // This will be silenced by Symfony if the user doesn't want any output at all,
@@ -249,7 +250,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         // Tell the user we're done
         $output->writeln('done');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

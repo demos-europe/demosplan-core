@@ -49,28 +49,28 @@ class EntitySyncLink implements UuidEntityInterface
     /**
      * @var class-string<T>
      *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      *
      * @ORM\Column(type="string")
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     private $class;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     private $sourceId;
 
     /**
      * @var string
      *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     private $targetId;
 
     /**

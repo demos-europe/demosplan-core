@@ -58,8 +58,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidAuthorNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidAuthorNull')]
     protected $authorName = '';
 
     /**
@@ -82,24 +82,24 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_submit_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidSubmitNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidSubmitNull')]
     protected $submitName = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_stm_orga_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaNameNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaNameNull')]
     protected $orgaName = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_stm_orga_department_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaDepartmentNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaDepartmentNull')]
     protected $orgaDepartmentName = '';
 
     /**
@@ -129,9 +129,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaPostalNull")
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaPostalNull')]
     protected $orgaPostalCode = '';
 
     /**
@@ -139,8 +139,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the city of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_city", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaCityNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaCityNull')]
     protected $orgaCity = '';
 
     /**
@@ -148,9 +148,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the email address of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_email", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaMailNull")
-     * @Assert\Email(groups={Statement::IMPORT_VALIDATION}, message = "email.address.invalid")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaMailNull')]
+    #[Assert\Email(groups: [Statement::IMPORT_VALIDATION], message: 'email.address.invalid')]
     protected $orgaEmail = '';
 
     /**

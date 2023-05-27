@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -61,7 +62,7 @@ class VendorlistUpdateCommand extends CoreCommand
         $this->fetchPHPDependencyLicenses();
         $this->fetchNodeDependencyLicenses();
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function fetchPHPDependencyLicenses(): void

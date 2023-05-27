@@ -282,15 +282,17 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @var Collection<int, UserRoleInCustomer>
      *
-     * @Assert\All({
      *
-     *     @Assert\NotNull(),
+     * 
      *
      *     @RoleAllowedConstraint()
      * })
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
+    #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
+    #[Assert\NotNull]
     protected $roleInCustomers;
 
     /**

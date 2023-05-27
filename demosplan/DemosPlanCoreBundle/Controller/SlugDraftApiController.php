@@ -25,13 +25,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class SlugDraftApiController.
- *
- * @Route(path="/api/1.0/slug-draft", name="dp_api_slug_draft_", options={"expose": true})
  */
+#[Route(path: '/api/1.0/slug-draft', name: 'dp_api_slug_draft_', options: ['expose' => true])]
 class SlugDraftApiController extends APIController
 {
     /**
-     * @Route(methods={"POST"}, name="create")
      *
      * Currently this route is only needed when editing procedure or orga settings
      * but can be used by anyone as it has no security implications.
@@ -40,9 +38,9 @@ class SlugDraftApiController extends APIController
      * accordingly.
      *
      * @DplanPermissions("feature_short_url")
-     *
      * @return APIResponse|JsonResponse
      */
+    #[Route(methods: ['POST'], name: 'create')]
     public function createAction(SlugDraftTransformer $slugDraftTransformer)
     {
         $slugDraftType = $slugDraftTransformer->getType();

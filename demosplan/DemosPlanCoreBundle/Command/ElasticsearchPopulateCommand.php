@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use RuntimeException;
@@ -94,7 +95,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
         $this->stopWorkers($output);
         $output->writeln('Elasticsearch populate finished');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function startIndexWorker(): void

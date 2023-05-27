@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\User;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -63,7 +64,7 @@ class UserCreateCommand extends CoreCommand
         $this->helpers = $helpers;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $firstName = $this->askFirstname($input, $output);
         $lastName = $this->askLastname($input, $output);
@@ -94,7 +95,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 0;
+            return Command::SUCCESS;
         } catch (Exception $e) {
             // Print Exception
             $output->writeln(
@@ -102,7 +103,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 1;
+            return Command::FAILURE;
         }
     }
 

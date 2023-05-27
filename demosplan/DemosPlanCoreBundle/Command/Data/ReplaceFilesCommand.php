@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
@@ -104,7 +105,7 @@ class ReplaceFilesCommand extends CoreCommand
             $this->generateDummyForFile($file, $slot, $output, $dryRun, $directory);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

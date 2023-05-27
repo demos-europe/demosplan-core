@@ -226,9 +226,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string|null
      *
      * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
-     *
-     * @Assert\Length(max=35)
      */
+    #[Assert\Length(max: 35)]
     protected $internId;
 
     /**
@@ -260,9 +259,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=true, onDelete="RESTRICT")
-     *
-     * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
     protected $organisation;
 
     /**
@@ -371,10 +369,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      *
-     * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateBlank")
      *
-     * @Assert\Type("DateTime", groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateType")
      */
+    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
+    #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
     protected $submit;
 
     /**
@@ -691,9 +689,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var StatementMeta
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta", mappedBy="statement", cascade={"persist", "remove"})
-     *
-     * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
     protected $meta;
 
     /**
@@ -843,9 +840,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string
      *
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
-     *
-     * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitTypeBlank")
      */
+    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
     protected $submitType = 'system';
 
     /**

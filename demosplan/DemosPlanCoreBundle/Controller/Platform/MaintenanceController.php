@@ -109,14 +109,13 @@ class MaintenanceController extends BaseController
     /**
      * User facing page for active service mode.
      *
-     * @Route(path="/servicemode", name="core_service_mode")
      *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
+    #[Route(path: '/servicemode', name: 'core_service_mode')]
     public function serviceModeAction(GlobalConfigInterface $globalConfig)
     {
         /** @var GlobalConfig $globalConfig */
@@ -138,10 +137,10 @@ class MaintenanceController extends BaseController
     /**
      * Simple Action to evaluate response code for heartbeat monitoring.
      *
-     * @Route(path="/_heartbeat", name="core_server_heartbeat")
      *
      * @DplanPermissions("area_demosplan")
      */
+    #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
     public function heartbeatAction(): Response
     {
         return new Response('OK');
@@ -153,14 +152,13 @@ class MaintenanceController extends BaseController
      * These tasks are run regularily *and* require a session which is
      * why they are currently managed in this action
      *
-     * @Route(path="/maintenance/{key}", name="core_maintenance")
      *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key
-     *
      * @throws Throwable
      */
+    #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]
     public function maintenanceTasksAction(
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,

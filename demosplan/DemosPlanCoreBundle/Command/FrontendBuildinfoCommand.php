@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -38,7 +39,7 @@ class FrontendBuildinfoCommand extends CoreCommand
             $output->writeln('Error: Additional data load failed');
             $output->writeln($e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         try {
@@ -46,10 +47,10 @@ class FrontendBuildinfoCommand extends CoreCommand
         } catch (JsonException $e) {
             $output->writeln('Error: Parameter dump failed');
 
-            return 1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getParameters(): array

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Command\Command;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -158,7 +159,7 @@ class RemoveUserDataCommand extends CoreCommand
             // in case of this command should be workable for HH too.
             // _master_toeb
             // _master_toeb_versions
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         // #1: independent::
@@ -196,7 +197,7 @@ class RemoveUserDataCommand extends CoreCommand
         // depended on draftstatements:
         $this->removeUserDataFromDraftStatementVersions();
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function removeUserDataFromUsers(): void

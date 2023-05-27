@@ -66,15 +66,11 @@ class DemosPlanAssessmentController extends BaseController
      *
      * NOTE: Only used by Statement Detail View
      *
-     * @Route(
-     *     name="DemosPlan_assessment_set_statement_assignment",
-     *     path="/assignment/statement/{entityId}/{assignOrUnassign}",
-     * )
      *
      * @DplanPermissions("feature_statement_assignment")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
     public function setStatementAssigneeAction(
         CurrentUserService $currentUser,
         Request $request,
@@ -120,15 +116,11 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_statement_orga_list",
-     *     path="/statement/manual/list/{procedureId}",
-     * )
      *
      * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
     public function getOrgaStatementListAction(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
         $organisationId = $currentUser->getUser()->getOrganisationId();
@@ -157,16 +149,11 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Create new Statement.
      *
-     * @Route(
-     *     name="DemosPlan_statement_new_submitted",
-     *     path="/statement/new/manual/{procedureId}",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
     public function newManualStatementAction(
         CurrentUserService $currentUser,
         FileUploadService $fileUploadService,
@@ -235,15 +222,11 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_statement_single_view",
-     *     path="procedure/{procedureId}/statement/{statementId}/dataInput"
-     * )
      *
      * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
     public function viewSingleStatementAction(
         Breadcrumb $breadcrumb,
         ProcedureService $procedureService,
@@ -284,15 +267,11 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Display single Statement cluster.
      *
-     * @Route(
-     *     name="DemosPlan_cluster_single_statement_view",
-     *     path="/verfahren/{procedure}/cluster/statement/{statementId}"
-     * )
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
     public function viewStatementClusterSingleStatementAction(StatementHandler $statementHandler, string $statementId): Response
     {
         $statement = $statementHandler->getStatement($statementId);
@@ -312,15 +291,11 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Detaches a single Statement from his cluster.
      *
-     * @Route(
-     *     name="DemosPlan_cluster_detach_statement",
-     *     path="/verfahren/{procedure}/cluster/statement/{statementId}/detach",
-     * )
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
     public function detachStatementFromClusterAction(StatementHandler $statementHandler, string $statementId): Response
     {
         try {
@@ -342,15 +317,11 @@ class DemosPlanAssessmentController extends BaseController
      * Resolves a single statementCluster.
      * All statements in the cluster will be detached.
      *
-     * @Route(
-     *     name="DemosPlan_cluster_resolve",
-     *     path="/verfahren/{procedure}/cluster/resolve/{headStatementId}",
-     * )
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
     public function resolveClusterAction(StatementHandler $statementHandler, string $headStatementId): Response
     {
         try {
@@ -371,14 +342,10 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Returns the base data for Vue components on the assessment table.
      *
-     * @Route(
-     *     name="DemosPlan_assessment_base_ajax",
-     *     path="/_ajax/assessment/{procedureId}",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("feature_procedure_get_base_data")
      */
+    #[Route(name: 'DemosPlan_assessment_base_ajax', path: '/_ajax/assessment/{procedureId}', options: ['expose' => true])]
     public function assessmentBaseAjaxAction(
         CurrentUserService $currentUser,
         CountyService $countyService,

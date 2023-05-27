@@ -21,28 +21,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class DemosPlanProcedureLayerCategoryAPIController.
- *
- * @Route(
- *     "/api/1.0/GisLayerCategory",
- *     options={"expose": true}
- * )
  */
+#[Route(path: '/api/1.0/GisLayerCategory', options: ['expose' => true])]
 class DemosPlanProcedureLayerCategoryAPIController extends APIController
 {
     /**
      * Delete a specific GisLayerCategory.
      *
-     * @Route(
-     *     path="/{layerCategoryId}",
-     *     methods={"DELETE"},
-     *     name="dplan_api_procedure_layer_category_delete")
      *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @return $this|JsonResponse
-     *
      * @throws MessageBagException
      */
+    #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
     public function layerCategoryDeleteAction(string $layerCategoryId, MapService $mapService)
     {
         try {

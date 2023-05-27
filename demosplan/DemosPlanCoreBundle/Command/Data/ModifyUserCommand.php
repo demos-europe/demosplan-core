@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -46,7 +47,7 @@ class ModifyUserCommand extends CoreCommand
         if ('' === trim($this->standardPassword)) {
             $output->writeln('Standard-password needs to be defined configuration');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         /** @var array<int, string> $organisationsIds */
@@ -57,19 +58,19 @@ class ModifyUserCommand extends CoreCommand
         } catch (Exception $e) {
             $output->writeln('Reset password for users of specific organisations failed.');
 
-            return 1;
+            return Command::FAILURE;
         }
         try {
             $this->resetPasswordOfUsersPerRole(3, $users);
         } catch (Exception $e) {
             $output->writeln('Reset password for users of each role failed.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $output->writeln('Updated users to login with');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

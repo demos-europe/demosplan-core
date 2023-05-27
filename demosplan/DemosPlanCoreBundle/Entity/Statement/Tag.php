@@ -58,19 +58,18 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
      *
-     * @Assert\NotNull(groups={"Default", "segments_import"})
      *
-     * @Assert\Type(groups={"segments_import"}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic")
      */
+    #[Assert\NotNull(groups: ['Default', 'segments_import'])]
+    #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
     protected $topic;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
-     *
-     * @Assert\NotBlank(groups={"Default", "segments_import"}, message="Tag title may not be empty.");
      */
+    #[Assert\NotBlank(groups: ['Default', 'segments_import'], message: 'Tag title may not be empty.')]
     protected $title = '';
 
     /**

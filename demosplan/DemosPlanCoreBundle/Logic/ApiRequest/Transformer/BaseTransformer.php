@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
@@ -70,9 +71,8 @@ abstract class BaseTransformer extends TransformerAbstract implements BaseTransf
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setPermissions(PermissionsInterface $permissions): void
     {
         $this->permissions = $permissions;
@@ -92,9 +92,8 @@ abstract class BaseTransformer extends TransformerAbstract implements BaseTransf
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setResourceService(ApiResourceServiceInterface $resourceService): void
     {
         $this->resourceService = $resourceService;
@@ -107,9 +106,8 @@ abstract class BaseTransformer extends TransformerAbstract implements BaseTransf
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
     {
         $this->globalConfig = $globalConfig;

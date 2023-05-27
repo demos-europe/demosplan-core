@@ -82,26 +82,18 @@ class DemosPlanClaimAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/statement/{statementId}/relationships/assignee",
-     *        methods={"PATCH"},
-     *        name="dplan_claim_statements_api",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
+    #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
     public function updateStatementAssignmentAction(string $statementId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($statementId, Statement::class);
     }
 
     /**
-     * @Route(path="/api/1.0/fragment/{entityId}/relationships/assignee",
-     *        methods={"PATCH"},
-     *        name="dplan_claim_fragments_api",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
+    #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
     public function updateFragmentAssignmentAction(string $entityId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($entityId, StatementFragment::class);

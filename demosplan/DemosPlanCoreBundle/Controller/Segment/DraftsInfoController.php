@@ -31,14 +31,8 @@ class DraftsInfoController extends BaseController
      * Assigns the Statement to the user in session (to avoid concurrency problems) and
      * redirects to dplan_drafts_list_edit.
      *
-     * @Route(
-     *     name="dplan_drafts_list_claim",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/statements/{statementId}/drafts-list",
-     *     options={"expose": true})
      *
      * @throws StatementNotFoundException
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
     // TODO: receiving the statement ID here may result in concurrency problems
@@ -46,6 +40,7 @@ class DraftsInfoController extends BaseController
     // it is unknown what happens if they both use it but it will be nothing good.
     // Instead of receiving the statement ID the BE should chose a statement by
     // itself in this route.
+    #[Route(name: 'dplan_drafts_list_claim', methods: 'POST', path: '/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
     public function startSegmentationAction(
         CurrentUserService $currentUser,
         StatementService $statementService,
@@ -72,17 +67,11 @@ class DraftsInfoController extends BaseController
      * Gets the Twig Template to call the endpoint loading the Statement's Text with
      * the segmentation.
      *
-     * @Route(
-     *     name="dplan_drafts_list_edit",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/statement/{statementId}/drafts-list",
-     *     options={"expose": true}
-     * )
      *
      * @throws Exception
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_edit', methods: 'GET', path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', options: ['expose' => true])]
     public function editAction(
         string $procedureId,
         string $statementId,

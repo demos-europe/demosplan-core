@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
@@ -176,9 +177,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
@@ -196,9 +196,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setStopwatch(Stopwatch $stopwatch)
     {
         $this->stopwatch = $stopwatch;
@@ -206,9 +205,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setDemosplanConfig(GlobalConfigInterface $demosplanConfig)
     {
         $this->demosplanConfig = $demosplanConfig;
@@ -248,9 +246,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;

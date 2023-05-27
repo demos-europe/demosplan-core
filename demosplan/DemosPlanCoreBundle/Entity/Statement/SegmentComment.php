@@ -43,8 +43,8 @@ class SegmentComment implements UuidEntityInterface
      *     inversedBy="comments"
      * )
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
-     * @Assert\NotNull
      */
+    #[Assert\NotNull]
     protected $segment;
 
     /**
@@ -82,9 +82,9 @@ class SegmentComment implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     * @Assert\NotBlank
-     * @Assert\Length(min=1, max=65536)
      */
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 1, max: 65536)]
     protected $text;
 
     public function __construct(Segment $segment, User $submitter, Place $place, string $text)

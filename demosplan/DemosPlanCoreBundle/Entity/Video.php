@@ -150,8 +150,8 @@ class Video implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
-     * @Assert\NotNull();
      */
+    #[Assert\NotNull]
     private $customerContext;
 
     /**
@@ -161,9 +161,9 @@ class Video implements UuidEntityInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
-     * @Assert\NotNull();
      * @VideoFileConstraint()
      */
+    #[Assert\NotNull]
     private $file;
 
     /**
@@ -172,9 +172,9 @@ class Video implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
-     * @Assert\Length(min=1, max=255, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
     private $title = '';
 
     /**
@@ -183,9 +183,9 @@ class Video implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     * @Assert\NotNull()
-     * @Assert\Length(max=65535, normalizer="trim")
      */
+    #[Assert\NotNull]
+    #[Assert\Length(max: 65535, normalizer: 'trim')]
     private $description = '';
 
     /**

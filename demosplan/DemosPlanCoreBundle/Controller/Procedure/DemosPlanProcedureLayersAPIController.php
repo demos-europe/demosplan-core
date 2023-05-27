@@ -23,22 +23,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class DemosPlanProcedureLayersAPIController.
- *
- * @Route(
- *     path="/api/1.0/procedure/{procedureId}/layers",
- *     name="dplan_api_procedure_layer_",
- *     options={"expose": true}
- * )
  */
+#[Route(path: '/api/1.0/procedure/{procedureId}/layers', name: 'dplan_api_procedure_layer_', options: ['expose' => true])]
 class DemosPlanProcedureLayersAPIController extends APIController
 {
     /**
      * get params: type.
      *
-     * @Route(methods={"GET"}, name="list")
      *
      * @DplanPermissions("area_map_participation_area")
      */
+    #[Route(methods: ['GET'], name: 'list')]
     public function layersListAction(MapHandler $mapHandler, string $procedureId): APIResponse
     {
         $rootLayerCategory = $mapHandler->getRootLayerCategoryForProcedure($procedureId);
@@ -48,12 +43,11 @@ class DemosPlanProcedureLayersAPIController extends APIController
     }
 
     /**
-     * @Route(methods={"POST", "PATCH"}, name="update")
      *
      * @DplanPermissions("area_admin_map")
-     *
      * @throws MessageBagException
      */
+    #[Route(methods: ['POST', 'PATCH'], name: 'update')]
     public function layersUpdateAction(MapHandler $mapHandler): APIResponse
     {
         $rootCategory = $this->getRequestJson('data');
@@ -81,14 +75,13 @@ class DemosPlanProcedureLayersAPIController extends APIController
     /**
      * Delete a specific GisLayer.
      *
-     * @Route(path="{layerId}", methods={"DELETE"}, name="delete")
      *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse
-     *
      * @throws MessageBagException
      */
+    #[Route(path: '{layerId}', methods: ['DELETE'], name: 'delete')]
     public function layerDeleteAction(MapHandler $mapHandler, string $layerId)
     {
         try {

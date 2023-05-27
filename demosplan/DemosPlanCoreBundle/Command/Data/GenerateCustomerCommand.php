@@ -82,7 +82,7 @@ class GenerateCustomerCommand extends CoreCommand
     /**
      * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getOption(self::OPTION_NAME);
         if (null === $name) {

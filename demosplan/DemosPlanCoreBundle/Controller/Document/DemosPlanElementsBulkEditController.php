@@ -21,17 +21,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemosPlanElementsBulkEditController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_elements_bulk_edit",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("feature_admin_element_edit")
-     *
      * @throws Exception
      */
+    #[Route(name: 'dplan_elements_bulk_edit', methods: 'GET', path: '/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten', options: ['expose' => true])]
     public function showFormAction(string $procedureId): Response
     {
         return $this->renderTemplate(

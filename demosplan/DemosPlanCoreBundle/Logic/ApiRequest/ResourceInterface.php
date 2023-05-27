@@ -25,10 +25,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 interface ResourceInterface
 {
     /**
-     * @Assert\Length(min=36, max=36)
-     *
      * @return string|null
      */
+    #[Assert\Length(min: 36, max: 36)]
     public function getId();
 
     /**

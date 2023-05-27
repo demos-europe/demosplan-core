@@ -81,9 +81,9 @@ class ConsultationToken
      *
      * @var string
      *
-     * @Assert\NotNull
      * @ORM\Column(type="string", length=1024, nullable=false)
      */
+    #[Assert\NotNull]
     private $note = '';
 
     /**
@@ -94,10 +94,10 @@ class ConsultationToken
      *
      * @var string
      *
-     * @Assert\NotBlank()
-     * @Assert\Regex("/^\w{8}$/")
      * @ORM\Column(type="string", length=8, nullable=false)
      */
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^\w{8}$/')]
     private $token = '';
 
     /**
@@ -130,13 +130,13 @@ class ConsultationToken
      * @var Statement the original statement of the {@link ConsultationToken::$statement}, as
      *                original statements can not be deleted this property will never become `null`
      *
-     * @Assert\NotBlank
      *
      * @IsOriginalStatementConstraint
      *
      * @ORM\OneToOne(targetEntity=Statement::class)
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      */
+    #[Assert\NotBlank]
     private $originalStatement;
 
     /**

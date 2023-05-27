@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -135,9 +136,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setCurrentProcedureService(CurrentProcedureService $currentProcedureService): void
     {
         $this->currentProcedureService = $currentProcedureService;
@@ -145,9 +145,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setCustomerService(CustomerService $customerService): void
     {
         $this->currentCustomerService = $customerService;
@@ -155,9 +154,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setCurrentUserService(CurrentUserInterface $currentUserService): void
     {
         $this->currentUser = $currentUserService;
@@ -165,9 +163,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
     {
         $this->globalConfig = $globalConfig;
@@ -175,9 +172,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
@@ -185,9 +181,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setMessageBag(MessageBagInterface $messageBag): void
     {
         $this->messageBag = $messageBag;
@@ -195,9 +190,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setResourceTypeService(ResourceTypeService $resourceTypeService): void
     {
         $this->resourceTypeService = $resourceTypeService;
@@ -205,9 +199,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setTransformerLoader(TransformerLoader $transformerLoader): void
     {
         $this->transformerLoader = $transformerLoader;
@@ -215,9 +208,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setTranslator(TranslatorInterface $translator): void
     {
         $this->translator = $translator;
@@ -225,9 +217,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setConditionFactory(DqlConditionFactory $conditionFactory): void
     {
         $this->conditionFactory = $conditionFactory;
@@ -235,9 +226,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setTypeProvider(PrefilledResourceTypeProvider $typeProvider): void
     {
         $this->typeProvider = $typeProvider;
@@ -245,9 +235,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setWrapperFactory(EntityWrapperFactory $wrapperFactory): void
     {
         $this->wrapperFactory = $wrapperFactory;
@@ -255,9 +244,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setSortMethodFactory(SortMethodFactory $sortMethodFactory): void
     {
         $this->sortMethodFactory = $sortMethodFactory;
@@ -265,9 +253,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setApiLogger(ApiLogger $apiLogger): void
     {
         $this->apiLogger = $apiLogger;
@@ -275,9 +262,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setEventDispatcher(TraceableEventDispatcher $eventDispatcher): void
     {
         $this->eventDispatcher = $eventDispatcher;

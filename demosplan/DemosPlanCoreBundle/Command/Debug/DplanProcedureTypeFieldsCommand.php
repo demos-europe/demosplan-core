@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Debug;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
@@ -85,7 +86,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
             return -1;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

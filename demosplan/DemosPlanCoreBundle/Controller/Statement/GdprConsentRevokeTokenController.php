@@ -30,14 +30,11 @@ class GdprConsentRevokeTokenController extends BaseController
     private const POST_PARAM_KEY_GDPR_CONSENT_REVOKE_TOKEN = 'gdprConsentRevokeToken';
 
     /**
-     * @Route(path="/einwilligung-widerrufen",
-     *        methods={"POST"},
-     *        name="DemosPlan_statement_revoke_gdpr_consent_post")
      *
      * @DplanPermissions("area_gdpr_consent_revoke_page")
-     *
      * @throws MessageBagException
      */
+    #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
     public function revokeGdprConsentPostAction(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
         try {
@@ -65,13 +62,10 @@ class GdprConsentRevokeTokenController extends BaseController
     /**
      * @DplanPermissions("area_demosplan")
      *
-     * @Route(path="/einwilligung-widerrufen",
-     *        methods={"GET"},
-     *        name="DemosPlan_statement_revoke_gdpr_consent_get"
-     * )
      *
      * @throws Exception
      */
+    #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
     public function revokeGdprConsentGetAction(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {

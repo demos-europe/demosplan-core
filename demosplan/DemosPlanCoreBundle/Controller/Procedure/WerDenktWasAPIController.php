@@ -25,13 +25,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class WerDenktWasAPIController extends BaseController
 {
     /**
-     * @Route(
-     *      path="/api/werdenktwas/procedures",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      */
+    #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
     public function procedureListGeoJSONAction(TranslatorInterface $translator): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(

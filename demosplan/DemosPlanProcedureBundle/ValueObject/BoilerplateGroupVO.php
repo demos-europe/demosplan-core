@@ -23,9 +23,8 @@ class BoilerplateGroupVO extends ValueObject
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank(message = "Der Titel der Gruppe darf nicht leer sein")
      */
+    #[Assert\NotBlank(message: 'Der Titel der Gruppe darf nicht leer sein')]
     protected $title;
 
     /** @var Boilerplate[] */

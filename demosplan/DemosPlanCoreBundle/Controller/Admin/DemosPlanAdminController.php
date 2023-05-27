@@ -31,16 +31,6 @@ class DemosPlanAdminController extends BaseController
     /**
      * Generiert die HTML Seite für die Statistik.
      *
-     * @Route(
-     *     name="DemosPlan_statistics",
-     *     path="/statistik",
-     *     defaults={"format": "html", "part": "all"},
-     * )
-     * @Route(
-     *     name="DemosPlan_statistics_csv",
-     *     path="/statistik/{part}/csv",
-     *     defaults={"format": "csv"},
-     * )
      *
      * @DplanPermissions("area_statistics")
      *
@@ -51,6 +41,8 @@ class DemosPlanAdminController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]
+    #[Route(name: 'DemosPlan_statistics_csv', path: '/statistik/{part}/csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
         Environment $twig,
         OrgaService $orgaService,

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Form;
 
+use Traversable;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
@@ -87,7 +88,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
      *
      * @param BoilerplateVO $data
      */
-    public function mapDataToForms($data, $forms)
+    public function mapDataToForms($data, Traversable $forms)
     {
         $forms = \iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -103,7 +104,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
      *
      * @param BoilerplateVO $boilerplateVO
      */
-    public function mapFormsToData($forms, &$boilerplateVO)
+    public function mapFormsToData(Traversable $forms, &$boilerplateVO)
     {
         $forms = \iterator_to_array($forms);
         /** @var FormInterface[] $forms */

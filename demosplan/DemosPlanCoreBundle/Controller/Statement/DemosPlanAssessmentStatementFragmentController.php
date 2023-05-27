@@ -78,18 +78,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Fragment Statement into multiple slices.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment",
-     *     path="/verfahren/{procedure}/fragment/{statementId}",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
      * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_fragment', path: '/verfahren/{procedure}/fragment/{statementId}', options: ['expose' => true])]
     public function fragmentStatementAction(
         CountyService $countyService,
         MunicipalityService $municipalityService,
@@ -176,17 +171,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragment versions related to a department.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_list_fragment_archived_reviewer",
-     *     path="/datensatz/liste/archive"
-     * )
      *
      *  @DplanPermissions({"area_statement_fragments_department_archive","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_statement_fragment_list_fragment_archived_reviewer', path: '/datensatz/liste/archive')]
     public function getStatementFragmentListArchiveAction(CurrentUserService $currentUser, Request $request, RouterInterface $router, TranslatorInterface $translator)
     {
         $templateVars = [];
@@ -262,20 +253,15 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragments related to a department.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_list_fragment_reviewer",
-     *     path="/datensatz/liste",
-     *     options={"expose": true}
-     * )
      *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
      * @internal param string $type
      */
+    #[Route(name: 'DemosPlan_statement_fragment_list_fragment_reviewer', path: '/datensatz/liste', options: ['expose' => true])]
     public function getStatementFragmentListAction(
         CountyService $countyService,
         CurrentUserService $currentUser,
@@ -367,22 +353,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Edit a single fragment.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_edit_ajax",
-     *     path="/_ajax/procedure/{procedure}/fragment/{fragmentId}/edit",
-     *     options={"expose": true}
-     * )
-     * @Route(
-     *     name="DemosPlan_statement_fragment_edit_reviewer_ajax",
-     *     path="/_ajax/fragment/{fragmentId}/reviewer/edit",
-     *     defaults={"isReviewer": true},
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return RedirectResponse|Response
      */
+    #[Route(name: 'DemosPlan_statement_fragment_edit_ajax', path: '/_ajax/procedure/{procedure}/fragment/{fragmentId}/edit', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_statement_fragment_edit_reviewer_ajax', path: '/_ajax/fragment/{fragmentId}/reviewer/edit', defaults: ['isReviewer' => true], options: ['expose' => true])]
     public function editStatementFragmentAjaxAction(
         CurrentUserService $currentUser,
         Request $request,
@@ -440,19 +417,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Delete a single fragment.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_delete_ajax",
-     *     path="/_ajax/procedure/{procedureId}/statement/{statementId}/fragment/{fragmentId}/delete",
-     *     methods={"POST"},
-     *     options={"expose": true}
-     * )
      *
      *  @DplanPermissions({"area_admin_assessmenttable","feature_statements_fragment_edit"})
      *
      * @param string $fragmentId
-     *
      * @return RedirectResponse|Response
      */
+    #[Route(name: 'DemosPlan_statement_fragment_delete_ajax', path: '/_ajax/procedure/{procedureId}/statement/{statementId}/fragment/{fragmentId}/delete', methods: ['POST'], options: ['expose' => true])]
     public function deleteFragmentStatementAjaxAction(Request $request, $fragmentId)
     {
         try {
@@ -494,20 +465,15 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return fragment data as json.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_get_ajax",
-     *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param string $procedure
      * @param string $statementId
      * @param string $fragmentId
-     *
      * @return JsonResponse
      */
+    #[Route(name: 'DemosPlan_statement_fragment_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}', options: ['expose' => true])]
     public function getFragmentAjaxAction(Request $request, $procedure, $statementId, $fragmentId)
     {
         try {
@@ -522,18 +488,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return all considerations of all fragments of a statement.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_considerations_get_ajax",
-     *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations",
-     *     options={"expose": true}
-     * )
      *
      *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
      *
      * @param string $statementId
-     *
      * @return JsonResponse
      */
+    #[Route(name: 'DemosPlan_statement_fragment_considerations_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations', options: ['expose' => true])]
     public function getFragmentConsiderationsAjaxAction($statementId)
     {
         try {
@@ -567,15 +528,11 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions({"area_statements_fragment", "feature_statements_fragment_add"})
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_add",
-     *     path="/verfahren/{procedure}/fragment/{statementId}/add"
-     * )
      *
      * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_fragment_add', path: '/verfahren/{procedure}/fragment/{statementId}/add')]
     public function addFragmentStatementAction(
         CurrentUserInterface $currentUser,
         Request $request,
@@ -652,15 +609,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Set a vote or advice to a fragment statement.
      *
-     * @Route(
-     *     name="DemosPlan_statement_fragment_update_redirect_fragment_reviewer",
-     *     path="/datensatz/update/reviewer",
-     *     defaults={"isReviewer": true}
-     * )
-     * @Route(
-     *     name="DemosPlan_statement_fragment_update_redirect",
-     *     path="/datensatz/update",
-     * )
      *
      *  @DplanPermissions({"area_statements_fragment","feature_statements_fragment_edit"})
      *
@@ -670,6 +618,8 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_fragment_update_redirect_fragment_reviewer', path: '/datensatz/update/reviewer', defaults: ['isReviewer' => true])]
+    #[Route(name: 'DemosPlan_statement_fragment_update_redirect', path: '/datensatz/update')]
     public function updateStatementFragmentAction(
         CurrentUserService $currentUser,
         StatementFragmentService $statementFragmentService,
@@ -744,18 +694,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     }
 
     // @improve T14122
-
     /**
      * Returns fragment data for a statement on the assessment table.
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     *
-     * @Route(
-     *     name="DemosPlan_assessment_statement_fragments_ajax",
-     *     path="/_ajax/assessment/{procedureId}/{statementId}",
-     *     options={"expose": true}
-     * )
      */
+    #[Route(name: 'DemosPlan_assessment_statement_fragments_ajax', path: '/_ajax/assessment/{procedureId}/{statementId}', options: ['expose' => true])]
     public function assessmentStatementFragmentsAjaxAction(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
@@ -822,20 +766,15 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Exports a subset of fragments from the fragmentList to PDF.
      *
-     * @Route(
-     *     name="DemosPlan_fragment_list_export",
-     *     path="/datensatz/liste/export",
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param Request $request ;
      *
      * @return Response
-     *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_fragment_list_export', path: '/datensatz/liste/export', options: ['expose' => true])]
     public function exportFragmentListAction(CurrentUserService $currentUser, Request $request, TranslatorInterface $translator)
     {
         $vars = $request->request->all();

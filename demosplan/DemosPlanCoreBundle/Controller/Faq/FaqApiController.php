@@ -22,15 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class FaqApiController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/faq/{faqId}",
-     *        methods={"PATCH"},
-     *        name="dp_api_admin_faq_update",
-     *        options={"expose": true})
      *
      * @DplanPermissions("area_admin_faq")
-     *
      * @deprecated use `api_resource_update` route instead
      */
+    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['PATCH'], name: 'dp_api_admin_faq_update', options: ['expose' => true])]
     public function updateAction(ApiLogger $apiLogger, string $faqId): Response
     {
         try {
@@ -49,13 +45,9 @@ class FaqApiController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/faq/{faqId}",
-     *        methods={"DELETE"},
-     *        name="dp_api_admin_faq_delete",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_faq")
      */
+    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['DELETE'], name: 'dp_api_admin_faq_delete', options: ['expose' => true])]
     public function deleteAction(string $faqId, FaqHandler $faqHandler): APIResponse
     {
         try {

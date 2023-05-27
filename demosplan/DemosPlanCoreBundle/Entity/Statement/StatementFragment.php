@@ -264,9 +264,8 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var int
      *
      * @ORM\Column(type="integer", nullable=false, options={"default":-1})
-     *
-     * @Assert\PositiveOrZero(groups={"mandatory"})
      */
+    #[Assert\PositiveOrZero(groups: ['mandatory'])]
     protected $sortIndex = -1;
 
     /**

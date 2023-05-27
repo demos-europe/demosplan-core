@@ -35,14 +35,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class SegmentController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_segments_list",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/abschnitte",
-     *     options={"expose": true})
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
     public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
         $segmentListQuery = new SegmentListQuery();
@@ -57,10 +52,6 @@ class SegmentController extends BaseController
     }
 
     /**
-     * @Route(name="dplan_statement_segments_list",
-     *        methods="GET",
-     *        path="/verfahren/{procedureId}/{statementId}/abschnitte",
-     *        options={"expose": true})
      *
      * @DplanPermissions("feature_segments_of_statement_list")
      *
@@ -68,6 +59,7 @@ class SegmentController extends BaseController
      * @throws StatementNotFoundException
      * @throws Exception
      */
+    #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
     public function statementSpecificListAction(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
@@ -109,17 +101,13 @@ class SegmentController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_segments_process_import",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/abschnitte/speichern",
-     *     options={"expose": true})
      *
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
+    #[Route(name: 'dplan_segments_process_import', methods: 'POST', path: '/verfahren/{procedureId}/abschnitte/speichern', options: ['expose' => true])]
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
         FileService $fileService,
@@ -195,14 +183,9 @@ class SegmentController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_segments_list_by_query_hash",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/abschnitte/{queryHash}",
-     *     options={"expose": true})
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
     public function listFilteredAction(
         string $procedureId,
         string $queryHash,

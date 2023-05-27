@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
@@ -45,7 +46,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
      * @throws ReflectionException
      * @throws UserNotFoundException
      */
-    public function mapDataToForms($viewData, $forms): void
+    public function mapDataToForms($viewData, Traversable $forms): void
     {
         if (null === $viewData) {
             return;
@@ -72,7 +73,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
      * @throws ReflectionException
      * @throws UserNotFoundException
      */
-    public function mapFormsToData($forms, &$viewData): void
+    public function mapFormsToData(Traversable $forms, &$viewData): void
     {
         /** @var FormInterface[] $forms */
         $forms = iterator_to_array($forms);
@@ -93,9 +94,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
         $resolver->setDefault('empty_data', null);
     }
 
-    /**
-     * @required Because the constructor parameters are passed by the FormReqistry (which are none) we need to use setter injection
-     */
+    #[Required]
     public function setTranslator(TranslatorInterface $translator): void
     {
         $this->translator = $translator;

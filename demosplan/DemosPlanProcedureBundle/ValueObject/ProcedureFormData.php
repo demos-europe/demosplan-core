@@ -28,22 +28,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProcedureFormData extends ValueObject
 {
     /**
-     * @Assert\Type(type=EmailAddressVO::class)
-     *
      * @var EmailAddressVO
      */
+    #[Assert\Type(type: EmailAddressVO::class)]
     protected $agencyMainEmailAddress;
 
     /**
-     * @Assert\Type(type=Collection::class)
-     * @Assert\Count(max=100)
-     * @Assert\NotNull()
-     * @Assert\All({
-     *     @Assert\Type(type=EmailAddressVO::class)
-     * })
      *
      * @var Collection<int, EmailAddressVO>
      */
+    #[Assert\Type(type: Collection::class)]
+    #[Assert\Count(max: 100)]
+    #[Assert\NotNull]
+    #[Assert\All([new Assert\Type(type: EmailAddressVO::class)])]
     protected $agencyExtraEmailAddresses;
 
     /**

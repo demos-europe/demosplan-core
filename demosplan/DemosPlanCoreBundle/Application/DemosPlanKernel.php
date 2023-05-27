@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
@@ -105,7 +106,7 @@ class DemosPlanKernel extends Kernel
         yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $coreConfigPath = DemosPlanPath::getConfigPath();
 
@@ -274,11 +275,11 @@ class DemosPlanKernel extends Kernel
             );
         }
 
-        $container->addCompilerPass(new DeploymentStrategyLoaderPass());
-        $container->addCompilerPass(new RpcMethodSolverPass());
-        $container->addCompilerPass(new MenusLoaderPass());
-        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
+        $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 
     public function getActiveProject(): string

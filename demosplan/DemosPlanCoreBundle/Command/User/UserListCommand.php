@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\User;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -86,7 +87,7 @@ class UserListCommand extends CoreCommand
             $this->outputDataAsTextTable($output, $headers, $data);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     public function outputDataAsHTMLTable(OutputInterface $output, array $headers, Collection $data)

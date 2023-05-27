@@ -40,20 +40,14 @@ class DraftsInfoApiController extends APIController
     /**
      * Gets the Statement's text with the segmented info.
      *
-     * @Route(
-     *     name="dplan_drafts_list_edit_ajax",
-     *     methods="GET",
-     *     path="/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list",
-     *     options={"expose": true}
-     * )
      *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
     public function editAction(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
@@ -80,20 +74,14 @@ class DraftsInfoApiController extends APIController
     /**
      * Saves a Statement's draft segment (text + tags).
      *
-     * @Route(
-     *      name="dplan_drafts_list_save",
-     *      methods="PATCH",
-     *      path="/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}",
-     *      options={"expose": true}
-     * )
      *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
     public function saveAction(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
@@ -120,12 +108,6 @@ class DraftsInfoApiController extends APIController
     /**
      * Confirms the Statement's drafts info so they are converted to Segment entities.
      *
-     * @Route(
-     *     name="dplan_drafts_list_confirm",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/drafts-list/confirm",
-     *     options={"expose": true}
-     * )
      *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
@@ -133,9 +115,9 @@ class DraftsInfoApiController extends APIController
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
      * @throws Exception
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
     public function confirmDraftsAction(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,

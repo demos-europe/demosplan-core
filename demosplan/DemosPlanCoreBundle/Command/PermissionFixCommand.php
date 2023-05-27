@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Input\InputInterface;
@@ -121,6 +122,6 @@ class PermissionFixCommand extends CoreCommand
             $output->warning('You need to run `composer update` because you chose to force me to delete things');
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

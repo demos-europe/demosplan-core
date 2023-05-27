@@ -25,10 +25,10 @@ class ValidatableValueObject extends ValueObject
      * These assertions are not really needed but an example how to annotate
      * properties with validation assertions.
      *
-     * @Assert\NotNull()
      *
      * @var ValidatorInterface
      */
+    #[Assert\NotNull]
     private $validator;
 
     /** @var bool */

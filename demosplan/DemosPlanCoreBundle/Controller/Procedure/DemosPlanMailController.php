@@ -27,16 +27,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanMailController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_view",
-     *     path="/verfahren/{procedureId}/mail",
-     *     methods={"HEAD", "GET"},
-     * )
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_send",
-     *     path="/verfahren/{procedureId}/mail",
-     *     methods={"POST"},
-     * )
      *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
@@ -46,6 +36,8 @@ class DemosPlanMailController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_view', path: '/verfahren/{procedureId}/mail', methods: ['HEAD', 'GET'])]
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_send', path: '/verfahren/{procedureId}/mail', methods: ['POST'])]
     public function sendAllSubmittersAction(
         CurrentUserService $currentUser,
         FormFactoryInterface $formFactory,
@@ -151,20 +143,15 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_confirm_view",
-     *     path="/verfahren/{procedureId}/mailconfirm",
-     *     methods={"HEAD", "GET"},
-     * )
      *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_view', path: '/verfahren/{procedureId}/mailconfirm', methods: ['HEAD', 'GET'])]
     public function sendAllSubmittersConfirmViewAction(Request $request, SubmitterService $submitterService, $procedureId)
     {
         // @improve T14122
@@ -199,20 +186,15 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_confirm_send",
-     *     path="/verfahren/{procedureId}/mailconfirm",
-     *     methods={"POST"},
-     * )
      *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_send', path: '/verfahren/{procedureId}/mailconfirm', methods: ['POST'])]
     public function sendAllSubmittersConfirmSendAction(
         CurrentUserService $currentUser,
         Request $request,

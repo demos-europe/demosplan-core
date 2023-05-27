@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use Closure;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -51,10 +52,10 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
      *
      * @return $this
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -65,10 +66,10 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
      *
      * @return $this
      */
+    #[Required]
     public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;

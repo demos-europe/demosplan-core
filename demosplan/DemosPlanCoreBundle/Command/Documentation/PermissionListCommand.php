@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
+use Symfony\Component\Console\Command\Command;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -49,10 +50,10 @@ class PermissionListCommand extends CoreCommand
         } catch (JsonException $e) {
             $output->writeln('{"error": "Permission export failed."}');
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function loadGlobalPermissions(): Collection

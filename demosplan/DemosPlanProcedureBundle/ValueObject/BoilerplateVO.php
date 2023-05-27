@@ -26,15 +26,9 @@ class BoilerplateVO extends ValueObject
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank(message = "boilerplate.title.not.blank")
-     * @Assert\Length(
-     *      min = 1,
-     *      max = 250,
-     *      minMessage = "boilerplate.title.min.length",
-     *      maxMessage = "boilerplate.title.max.length"
-     * )
      */
+    #[Assert\NotBlank(message: 'boilerplate.title.not.blank')]
+    #[Assert\Length(min: 1, max: 250, minMessage: 'boilerplate.title.min.length', maxMessage: 'boilerplate.title.max.length')]
     protected $title;
 
     /**
@@ -47,9 +41,8 @@ class BoilerplateVO extends ValueObject
 
     /**
      * @var string
-     *
-     * @Assert\NotBlank(message = "Der Text darf nicht leer sein")
      */
+    #[Assert\NotBlank(message: 'Der Text darf nicht leer sein')]
     protected $text;
 
     /** @var Procedure */

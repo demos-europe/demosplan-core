@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Symfony\Component\HttpFoundation\Cookie;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Event\PreRenderEvent;
@@ -236,7 +237,7 @@ class ViewRenderer
 
         if ($setRedirectLoggedInRouteCookie) {
             // save current route in cookie for later redirecting
-            $redirect->headers->setCookie(new PreviousRouteCookie($request));
+            $redirect->headers->setCookie(PreviousRouteCookie::create($request));
         }
 
         return $redirect;
