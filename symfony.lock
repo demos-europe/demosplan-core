@@ -958,12 +958,12 @@
         "version": "v5.4.2"
     },
     "symfony/phpunit-bridge": {
-        "version": "5.3",
+        "version": "6.2",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
+            "branch": "main",
             "version": "5.3",
-            "ref": "905679249e7b10f06c572917a9022a72cbfedc04"
+            "ref": "819d3d2ffa4590eba0b8f4f3e5e89415ee4e45c3"
         },
         "files": [
             ".env.test",
