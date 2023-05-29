@@ -1713,16 +1713,17 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.16.0":
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.16.0.tgz#1b902a897ca943e05296c6ea3259fe23e49e825f"
-  integrity sha512-djQKSGTowIpO/36Oc62GX6wVWyhRJB/gvTjCYLu0v9NM9N6KVZUlHetXjme7Ykm71CSQkqARLoqwaCCzT3If2w==
+"@masterportal/masterportalapi@^2.19.0":
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.0.tgz#8fae151d76e3fdd018861e3e89d919bac260c8be"
+  integrity sha512-Kl8j2neoxN3zxlunzoeBk3Qu/ZhRDcCxjoLOmUwJu7eRzaUc8S0LOsUGPjm8cXh/AX4MOK2TMbb3mh3UOUBWtg==
   dependencies:
-    core-js "^3.29.1"
+    core-js "^3.30.2"
+    dayjs "^1.11.7"
     ol "7.3.0"
-    olcs "^2.13.1"
+    olcs "^2.14.0"
     proj4 "^2.9.0"
-    xml2js "^0.4.23"
+    xml2js "^0.5.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
@@ -3215,7 +3216,7 @@ core-js-compat@^3.25.1:
   dependencies:
     browserslist "^4.21.4"
 
-core-js@3, core-js@^3.26.1, core-js@^3.29.1, core-js@^3.30.2, core-js@^3.6.5:
+core-js@3, core-js@^3.26.1, core-js@^3.30.2, core-js@^3.6.5:
   version "3.30.2"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.30.2.tgz#6528abfda65e5ad728143ea23f7a14f0dcf503fc"
   integrity sha512-uBJiDmwqsbJCWHAwjrx3cvjbMXP7xD72Dmsn5LOJpiRmE3WbBbN5rCqQ2Qh6Ek6/eOrjlWngEynBWo4VxerQhg==
@@ -6755,10 +6756,10 @@ ol@7.3.0, ol@~7.3.0:
     pbf "3.2.1"
     rbush "^3.0.1"
 
-olcs@^2.13.1:
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/olcs/-/olcs-2.13.1.tgz#1203806ecad11e98f18fd58b555b8568dd6c1b08"
-  integrity sha512-/h1ldzUGQG05k9KR3M56m7qVRDruXfrHiaLujMKk+EiNvpGuxlwtsj2Kkcm2wVx9t+DQvDXemf2SeV8K/ME9qw==
+olcs@^2.14.0:
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/olcs/-/olcs-2.14.0.tgz#a1398c490c4e2736ac96f484104eff07a470b394"
+  integrity sha512-NedMIA5bHAi6b21r4ODxzTe6zUIjZfY0qTUmiSvAPjn6A8J94wfFZHJXGqBQstXhEZr3/A0qhXwOe/mQwfzogA==
 
 once@^1.3.0:
   version "1.4.0"
@@ -9558,10 +9559,10 @@ xml-utils@^1.0.2:
   resolved "https://registry.yarnpkg.com/xml-utils/-/xml-utils-1.3.0.tgz#f1043534e3ac3deda12ddab39f8442e16da98ebb"
   integrity sha512-i4PIrX33Wd66dvwo4syicwlwmnr6wuvvn4f2ku9hA67C2Uk62Xubczuhct+Evnd12/DV71qKNeDdJwES8HX1RA==
 
-xml2js@^0.4.23:
-  version "0.4.23"
-  resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.4.23.tgz#a0c69516752421eb2ac758ee4d4ccf58843eac66"
-  integrity sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==
+xml2js@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.5.0.tgz#d9440631fbb2ed800203fad106f2724f62c493b7"
+  integrity sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==
   dependencies:
     sax ">=0.6.0"
     xmlbuilder "~11.0.0"
