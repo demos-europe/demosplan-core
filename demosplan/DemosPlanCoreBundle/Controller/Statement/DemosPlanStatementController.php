@@ -1152,7 +1152,6 @@ class DemosPlanStatementController extends BaseController
      *
      * @param string $procedure
      * @param string $statementID
-     * @param string $target
      *
      * @return RedirectResponse|Response
      * @throws Throwable

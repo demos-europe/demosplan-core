@@ -66,7 +66,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *
      * @DplanPermissions("area_public_participation")
      *
-     * @param string $title Must be empty instead of null to allow
+     * @param string $orgaSlug Must be empty instead of null to allow
      *                      URL generation without $orgaSlug somewhere
      *                      else in the application
      *
@@ -136,7 +136,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *
      * @DplanPermissions("area_public_participation")
      *
-     * @param string $title Must be empty instead of null to allow
+     * @param string $orgaSlug Must be empty instead of null to allow
      *                      URL generation without $orgaSlug somewhere
      *                      else in the application
      *
