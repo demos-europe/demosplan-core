@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -90,8 +90,10 @@ class ServiceImporter implements ServiceImporterInterface
         MessageBagInterface $messageBag,
         ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
-        RouterInterface $router
+        RouterInterface $router,
+        RpcClient $client
     ) {
+        $this->client = $client;
         $this->router = $router;
         $this->messageBag = $messageBag;
         $this->fileService = $fileService;

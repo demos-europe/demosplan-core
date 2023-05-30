@@ -45,20 +45,19 @@
                                 {{ "tags"|trans }}
                             </label>
                             <dp-multiselect
-                                class="o-form__control-wrapper"
-                                multiple
-                                :options="tags"
                                 v-model="selectedTags"
-                                @input="sortSelected('Tags')"
-                                @select="addTagBoilerplate"
-                                track-by="id"
-                                label="name"
+                                class="o-form__control-wrapper"
                                 :disabled="Boolean({{ readonly }})"
                                 :group-select="false"
                                 group-values="tags"
                                 group-label="title"
-                            >
-                                <template v-slot:option="props">
+                                label="name"
+                                multiple
+                                :options="tags"
+                                track-by="id"
+                                @input="sortSelected('Tags')"
+                                @select="addTagBoilerplate">
+                                <template v-slot:option="{ props }">
                                     <span {% verbatim %}v-if="props.option.$isLabel"{% endverbatim %}>
                                         {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
                                     </span>
@@ -66,7 +65,7 @@
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </span>
                                 </template>
-                                <template v-slot:tag="props">
+                                <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

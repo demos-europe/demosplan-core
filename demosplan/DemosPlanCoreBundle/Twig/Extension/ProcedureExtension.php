@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
@@ -55,10 +56,16 @@ class ProcedureExtension extends ExtensionBase
      */
     private $currentUser;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         ContainerInterface $container,
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
+        LoggerInterface       $logger,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         TranslatorInterface $translator)
@@ -69,6 +76,7 @@ class ProcedureExtension extends ExtensionBase
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->currentUser = $currentUser;
+        $this->logger       = $logger;
     }
 
     public function getFunctions(): array
@@ -303,6 +311,8 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedure = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
+            $this->logger->error('Could not get procedure object', [$exception]);
+
             return '';
         }
 

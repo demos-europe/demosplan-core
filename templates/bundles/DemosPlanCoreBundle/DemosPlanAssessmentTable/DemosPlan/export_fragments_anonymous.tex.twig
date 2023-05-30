@@ -2,7 +2,7 @@
 
 {% import '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/statement_macros.tex.twig' as statement_macros %}
 {% block demosplanbundlecontent %}
-    \section*{{ '{' }}{{title}}{{ '}' }}
+    \section*{{ '{' }}{{title|latex|raw}}{{ '}' }}
     {% if templateVars.table.entries is defined and templateVars.table.entries.total is defined and templateVars.table.entries.total > 0 and templateVars.table.entries.statements is defined %}
         {% for statement in templateVars.table.entries.statements %}
             {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/snipped_statement_head.tex.twig' %}
