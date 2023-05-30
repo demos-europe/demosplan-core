@@ -286,20 +286,21 @@
             {# document based category: single_document_admin_list.twig is rendered by controller #}
             {% block elements_documentlist %}{% endblock %}
 
-            {% if deleteEnable and element is not empty %}
-                {# delete category #}
-                <form
-                    class="bg-color-ui-neutral-light border-radius-medium space-inset-m u-mt-2"
-                    name="xsubmititem"
-                    enctype="multipart/form-data"
-                    method="post"
-                    action="{{ pathFormGeneral }}">
+            {% if hasPermission('feature_admin_element_delete')%}
 
-                    <input name="r_action" type="hidden" value="elementedit">
-                    <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
-                    <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                {% if deleteEnable and element is not empty %}
+                    {# delete category #}
+                    <form
+                        class="bg-color-ui-neutral-light border-radius-medium space-inset-m u-mt-2"
+                        name="xsubmititem"
+                        enctype="multipart/form-data"
+                        method="post"
+                        action="{{ pathFormGeneral }}">
 
-                    {% if hasPermission('feature_admin_element_edit')%}
+                        <input name="r_action" type="hidden" value="elementedit">
+                        <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
+                        <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+
                         <fieldset class="u-pb-0">
                             <legend>{{ "category.delete"|trans }}</legend>
                             <p>{{ "explanation.category.delete"|trans }}</p>
@@ -311,9 +312,8 @@
                                 value="{{ "category.delete"|trans }}"
                                 data-form-actions-confirm="{{ "check.category.delete"|trans({ categoryTitle: element.title|default('n/a') }) }}">
                         </fieldset>
-                    {% endif %}
-
-                </form>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
     </dp-element-admin-edit>
