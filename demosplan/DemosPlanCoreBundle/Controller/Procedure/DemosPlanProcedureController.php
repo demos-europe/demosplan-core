@@ -1137,8 +1137,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Administrate the E-Mail to send to invited and registered toeb/public agencies/members.
      *
-     * This route is redirected to in demosplan/DemosPlanProcedureBundle/Controller/DemosPlanProcedureController.php:2373
-     *
      * @Route(
      *     name="DemosPlan_admin_member_email",
      *     path="/verfahren/{procedureId}/einstellungen/mitglieder_email",
