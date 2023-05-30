@@ -155,7 +155,7 @@ class FloodControlService extends CoreService
 
         // add new identifier to Cookie
         $event->getResponse()->headers->setCookie(
-            Cookie::create(self::COOKIE_KEY, Json::encode($cookieValue->push($identifier)->toArray()), 0, '/', null, false, false, false, 'strict')
+            Cookie::create(self::COOKIE_KEY, Json::encode($cookieValue->push($identifier)->toArray()), 0, '/', null, false, true, false, 'strict')
         );
 
         $this->getLogger()->debug('FloodControl: Cookie successfully checked');
