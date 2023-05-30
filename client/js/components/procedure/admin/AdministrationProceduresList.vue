@@ -19,6 +19,7 @@
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
+          variant="subtle"
           :href="Routing.generate('DemosPlan_procedure_new')"
           :text="Translator.trans('procedure.create')" />
         <p
@@ -46,31 +47,25 @@
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
       name="procedureForm"
       ref="procedureForm">
-      <button
+      <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
-        class="btn--blank o-link--default u-ml-0_25 u-mr-0_75"
         data-cy="deleteProcedure"
-        @click="deleteProcedures"
+        icon="delete"
         name="deleteProcedure"
-        type="submit">
-        <i
-          aria-hidden="true"
-          class="fa fa-times-circle u-mr-0_25" />
-        {{ Translator.trans('delete') }}
-      </button>
+        :text="Translator.trans('delete')"
+        type="submit"
+        variant="subtle"
+        @click="deleteProcedures" />
 
-      <button
+      <dp-button
         v-if="hasPermission('feature_admin_export_procedure')"
-        class="btn--blank o-link--default u-ml-0_25"
         data-cy="ExportProcedure"
-        @click="exportProcedures"
+        icon="download"
         name="exportProcedure"
-        type="submit">
-        <i
-          class="fa fa-download u-mr-0_25"
-          aria-hidden="true" />
-        {{ Translator.trans('print.and.export') }}
-      </button>
+        :text="Translator.trans('print.and.export')"
+        type="submit"
+        variant="subtle"
+        @click="exportProcedures" />
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input
