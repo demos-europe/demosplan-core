@@ -49,7 +49,7 @@ $dp-button-bg-color-warning:            $dp-color-red-base !default;
 $dp-button-bg-color-warning-hover:      $dp-color-red-dark-1 !default;
 $dp-button-bg-color-warning-active:     $dp-color-red-dark-2 !default;
 // Spacing
-$dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small * 1.2;
+$dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small;
 
 // These variable is shared between _button.scss and _form.scss.
 // It is defined here because currently the include order of settings and inuit core leads to not having
@@ -87,8 +87,10 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     $bg-color-hover,
     $bg-color-active
 ) {
-    // Variant with colored background
-    &:not(.btn--outline) {
+    // Variant with colored background.
+    // The `:not()` expression targets all .btn instances that are not adapted to use the `btn--solid` specifier.
+    &.btn--solid,
+    &:not(.btn--outline, .btn--subtle) {
         &,
         &:link,
         &:visited {
@@ -164,6 +166,29 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
         }
     }
 
+    // Subtle button variant.
+    &.btn--subtle {
+        &,
+        &:link,
+        &:visited {
+            color: $bg-color;
+            background-color: transparent;
+            border-color: transparent;
+        }
+
+        &:not(:disabled, :active, .is-disabled):hover {
+            color: $bg-color-hover;
+            background-color: $dp-color-interactive-subtle-hover;
+            border-color: $dp-color-interactive-subtle-hover;
+        }
+
+        &:active {
+            color: $bg-color-active;
+            background-color: $dp-color-interactive-subtle-active;
+            border-color: $dp-color-interactive-subtle-active;
+        }
+    }
+
     // All disabled button variants have this same beautiful cursor & opacity appearance for the time being
     &:disabled,
     &.is-disabled {
@@ -218,17 +243,21 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
 
     outline: 0 transparent !important;
 
-    @if ($dp-use-system-ui == true) {
-        // To fix the visual effect of having button texts appear a little bit below visual center
-        // (which is caused by a flaw with half leading distribution in Segoe UI typeface) the upper padding
-        // is reduced a little bit. Also see https://yaits.demos-deutschland.de/T19691
-        padding:
-            $dp-form-element-spacing-vertical - 1px
-            $dp-button-spacing-horizontal
-            $dp-form-element-spacing-vertical + 1px;
-    } @else {
+    &:not(.icon-only) {
+        @if ($dp-use-system-ui == true) {
+            // To fix the visual effect of having button texts appear a little bit below visual center
+            // (which is caused by a flaw with half leading distribution in Segoe UI typeface) the upper padding
+            // is reduced a little bit. Also see https://yaits.demos-deutschland.de/T19691
+            padding: $dp-form-element-spacing-vertical - 1px $dp-button-spacing-horizontal $dp-form-element-spacing-vertical + 1px;
+        } @else {
+            // Assume that half leading is distributed well on non-system fonts...
+            padding: $dp-form-element-spacing-vertical $dp-button-spacing-horizontal;
+        }
+    }
+
+    &.icon-only {
         // Assume that half leading is distributed well on non-system fonts...
-        padding: $dp-form-element-spacing-vertical $dp-button-spacing-horizontal;
+        padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
     }
 
     border: 1px solid transparent;
