@@ -1059,16 +1059,14 @@ class DemosPlanProcedureController extends BaseController
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/{organisationId}/unregistrierte_toeb_liste')]
+    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_liste')]
     public function administrationUnregisteredPublicAgencyListAction(
         AddressBookEntryService $addressBookEntryService,
         CurrentUserService $currentUserService,
         Request $request,
-        string $procedureId,
-        string $organisationId
+        string $procedureId
     ): Response {
-        // overwrite $organisationId to ensure user will always see his own address book list
-        $organisationId = $currentUserService->getUser()->getOrganisationId() ?? '';
+        $orgaId = $currentUserService->getUser()->getOrganisationId() ?? '';
 
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
@@ -1082,7 +1080,7 @@ class DemosPlanProcedureController extends BaseController
             // todo: avoid reload resend request
         }
 
-        $addressBookEntriesOfOrganisation = $addressBookEntryService->getAddressBookEntriesOfOrganisation($organisationId);
+        $addressBookEntriesOfOrganisation = $addressBookEntryService->getAddressBookEntriesOfOrganisation($orgaId);
 
         $templateVars = [
             'procedure'          => $procedure,
