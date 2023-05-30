@@ -1062,12 +1062,13 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/{organisationId}/unregistrierte_toeb_liste')]
     public function administrationUnregisteredPublicAgencyListAction(
         AddressBookEntryService $addressBookEntryService,
+        CurrentUserService $currentUserService,
         Request $request,
         string $procedureId,
         string $organisationId
     ): Response {
         // overwrite $organisationId to ensure user will always see his own address book list
-        $organisationId = $this->getUser()->getOrganisationId();
+        $organisationId = $currentUserService->getUser()->getOrganisationId() ?? '';
 
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
