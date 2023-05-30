@@ -12,15 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
@@ -32,6 +30,8 @@ use EDT\Querying\Utilities\ConditionEvaluator;
 use InvalidArgumentException;
 use Ramsey\Uuid\Type\TypeInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
 
 /**
  * @phpstan-import-type DrupalFilterGroup from DrupalFilterParser
@@ -150,13 +150,14 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         }
 
         $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
+
         return [] !== $this->entityFetcher->listEntitiesUnrestricted(
-                $evaluationTarget::class,
-                $conditions,
-                [],
-                0,
-                1
-            );
+            $evaluationTarget::class,
+            $conditions,
+            [],
+            0,
+            1
+        );
     }
 
     /**
