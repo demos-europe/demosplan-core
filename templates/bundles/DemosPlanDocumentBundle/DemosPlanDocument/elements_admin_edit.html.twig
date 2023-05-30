@@ -301,18 +301,17 @@
                         <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
                         <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
 
-                            <fieldset class="u-pb-0">
-                                <legend>{{ "category.delete"|trans }}</legend>
-                                <p>{{ "explanation.category.delete"|trans }}</p>
-                                <input
-                                    class="btn btn--warning"
-                                    type="submit"
-                                    name="deleteCategory"
-                                    data-cy="deletePlanDocumentCategory"
-                                    value="{{ "category.delete"|trans }}"
-                                    data-form-actions-confirm="{{ "check.category.delete"|trans({ categoryTitle: element.title|default('n/a') }) }}">
-                            </fieldset>
-
+                        <fieldset class="u-pb-0">
+                            <legend>{{ "category.delete"|trans }}</legend>
+                            <p>{{ "explanation.category.delete"|trans }}</p>
+                            <input
+                                class="btn btn--warning"
+                                type="submit"
+                                name="deleteCategory"
+                                data-cy="deletePlanDocumentCategory"
+                                value="{{ "category.delete"|trans }}"
+                                data-form-actions-confirm="{{ "check.category.delete"|trans({ categoryTitle: element.title|default('n/a') }) }}">
+                        </fieldset>
                     </form>
                 {% endif %}
             {% endif %}
