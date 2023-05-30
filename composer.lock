@@ -21737,16 +21737,16 @@
         },
         {
             "name": "symfony/web-profiler-bundle",
-            "version": "v5.4.21",
+            "version": "v5.4.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/web-profiler-bundle.git",
-                "reference": "a83337a813d1398789bf4190a56dc3c4d8cc4d93"
+                "reference": "42dbb751c0363d75a3697775e662d6f21f3d8b83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/a83337a813d1398789bf4190a56dc3c4d8cc4d93",
-                "reference": "a83337a813d1398789bf4190a56dc3c4d8cc4d93",
+                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/42dbb751c0363d75a3697775e662d6f21f3d8b83",
+                "reference": "42dbb751c0363d75a3697775e662d6f21f3d8b83",
                 "shasum": ""
             },
             "require": {
@@ -21797,7 +21797,7 @@
             "description": "Provides a development tool that gives detailed information about the execution of any request",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/web-profiler-bundle/tree/v5.4.21"
+                "source": "https://github.com/symfony/web-profiler-bundle/tree/v5.4.24"
             },
             "funding": [
                 {
@@ -21813,7 +21813,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-17T16:59:45+00:00"
+            "time": "2023-05-02T16:38:36+00:00"
         },
         {
             "name": "theseer/tokenizer",
