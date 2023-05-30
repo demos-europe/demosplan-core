@@ -65,7 +65,7 @@ class ProcedureExtension extends ExtensionBase
         ContainerInterface $container,
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface       $logger,
+        LoggerInterface $logger,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         TranslatorInterface $translator)
@@ -76,7 +76,7 @@ class ProcedureExtension extends ExtensionBase
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->currentUser = $currentUser;
-        $this->logger       = $logger;
+        $this->logger = $logger;
     }
 
     public function getFunctions(): array
