@@ -777,17 +777,16 @@ class DemosPlanDocumentController extends BaseController
     #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedure}/verwalten/planunterlagen/import')]
     public function elementAdminImportAction(
         CurrentUserInterface $currentUser,
-        CurrentProcedureService $currentProcedureService,
         Request $request,
         FileUploadService $fileUploadService,
-        FileService $fileService
+        FileService $fileService,
+        string $procedureId
     ) {
         $session = $request->getSession();
         $session->remove('element_import_list');
         $fs = new DemosFilesystem();
 
         $path = DemosPlanPath::getProjectPath('web/uploads/files');
-        $procedureId = $currentProcedureService->getProcedure()->getId();
 
         // Lösche das alte Statusfile zum Importstatus
         $statusHash = md5($session->getId().$procedureId);
