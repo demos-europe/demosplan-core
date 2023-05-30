@@ -21,7 +21,7 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
@@ -29,7 +29,7 @@ services:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
-        class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
@@ -754,7 +754,7 @@ services:
         lazy: true
 
     dplan.procedure:
-        alias: 'demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler'
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler'
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler:
         lazy: true
