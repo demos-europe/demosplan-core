@@ -19,7 +19,6 @@
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
-          variant="subtle"
           :href="Routing.generate('DemosPlan_procedure_new')"
           :text="Translator.trans('procedure.create')" />
         <p
