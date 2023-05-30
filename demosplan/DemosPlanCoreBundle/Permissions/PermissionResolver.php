@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use function array_key_exists;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -67,7 +68,8 @@ class PermissionResolver implements PermissionFilterValidatorInterface
 
     public function __construct(
         ConditionEvaluator $conditionEvaluator,
-        DqlConditionFactory $conditionFactory,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
         ValidatorInterface $validator
     ) {
         $this->conditionEvaluator = $conditionEvaluator;
@@ -147,13 +149,14 @@ class PermissionResolver implements PermissionFilterValidatorInterface
             return [] === $conditions;
         }
 
-        foreach ($conditions as $condition) {
-            if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
-                return false;
-            }
-        }
-
-        return true;
+        $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
+        return [] !== $this->entityFetcher->listEntitiesUnrestricted(
+                $evaluationTarget::class,
+                $conditions,
+                [],
+                0,
+                1
+            );
     }
 
     /**
