@@ -144,7 +144,7 @@ class DemosPlanProcedureAPIController extends APIController
      *
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
+     * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
     public function getStatementEmptyFilterAction(StatementFilterHandler $statementFilterHandler)
@@ -157,7 +157,7 @@ class DemosPlanProcedureAPIController extends APIController
      *
      *
      * @DplanPermissions("area_admin_assessmenttable")
-     * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
+     * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/originalstatementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_original_statement_empty_filters', options: ['expose' => true])]
     public function getOriginalStatementEmptyFilterAction(StatementFilterHandler $statementFilterHandler)
