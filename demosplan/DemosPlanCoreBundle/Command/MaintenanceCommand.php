@@ -202,8 +202,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /**
      * Execute will be called in a endless loop.
      *
-     * @return int|void|null
-     *
      * @throws ShutdownEndlessCommandException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int

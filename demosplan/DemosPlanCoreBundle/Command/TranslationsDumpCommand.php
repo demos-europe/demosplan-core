@@ -33,8 +33,6 @@ class TranslationsDumpCommand extends CoreCommand
     }
 
     /**
-     * @return int|void|null
-     *
      * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
