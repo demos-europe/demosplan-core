@@ -547,19 +547,14 @@ export default {
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
-        this.$set(this.values.submitter, 'institution',  this.values.submitter.toeb)
+        this.$set(this.values.submitter, 'institution', this.values.submitter.toeb)
         this.$delete(this.values.submitter, 'toeb')
       }
 
-      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {
+      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
         this.$set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
           this.$set(this.values.submitter, key, value)
-
-          // Synchronize values.authoredDate with the date value provided by data if date exists.
-          if (key === 'date' && value) {
-            this.$set(this.values, 'authoredDate', value)
-          }
         }
       }
     },
@@ -592,6 +587,8 @@ export default {
 
   mounted () {
     this.setInitialValues()
+    // Synchronize values.authoredDate with the date value provided by data.
+    this.$set(this.values, 'authoredDate', this.values.submitter.date)
   }
 }
 </script>
