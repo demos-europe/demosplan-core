@@ -70,6 +70,9 @@ export default {
       map.on('loadend', () => {
         this.currentScale = getScaleFromResolution(this.view.getResolution(), this.units)
       })
+      map.on('moveend', () => {
+        this.currentScale = getScaleFromResolution(this.view.getResolution(), this.units)
+      })
     },
 
     setScale (evt) {
