@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use SimpleXMLElement;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\VarDumper\Cloner\Data;
 
 class GetFeatureInfo
 {

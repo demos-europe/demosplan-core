@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use BadMethodCallException;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;

@@ -16,9 +16,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DatasheetService
 {
-    public function getDatasheetVersion(EventDispatcherInterface $eventDispatcher, String $procedureId)
+    public function getDatasheetVersion(EventDispatcherInterface $eventDispatcher, string $procedureId)
     {
-        /** @var GetDatasheetVersionEvent $event **/
+        /** @var GetDatasheetVersionEvent $event * */
         $event = $eventDispatcher->dispatch(
             new GetDatasheetVersionEvent($procedureId),
             GetDatasheetVersionEventInterface::class
