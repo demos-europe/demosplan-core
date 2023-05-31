@@ -41,6 +41,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\ResourceTypes\:
         resource: '../demosplan/DemosPlanCoreBundle/ResourceTypes'
+        public: true
         autowire: true
         tags: ['dplan.resourceType']
 

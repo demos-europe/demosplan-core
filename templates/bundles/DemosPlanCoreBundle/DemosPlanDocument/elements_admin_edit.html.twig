@@ -245,19 +245,18 @@
                         </p>
                     </label>
                     <dp-multiselect
+                        v-model="selectedOrgas"
                         class="layout__item u-1-of-1 u-pl-0 u-mb-0_75"
                         :close-on-select="closeOnSelect"
+                        label="name"
                         multiple
                         :options="orgasOfProcedure"
-                        v-model="selectedOrgas"
-                        @input="sortSelected('Orgas')"
                         track-by="id"
-                        label="name"
-                    >
-                        <template v-slot:option="props">
+                        @input="sortSelected('Orgas')">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -289,7 +288,7 @@
             {% if deleteEnable and element is not empty %}
                 {# delete category #}
                 <form
-                    class="bg-color-ui-neutral-light border-radius-medium space-inset-m u-mt-2"
+                    class="bg-color-light border-radius-medium space-inset-m u-mt-2"
                     name="xsubmititem"
                     enctype="multipart/form-data"
                     method="post"

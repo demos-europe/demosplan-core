@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -57,18 +57,18 @@
     </template>
     <template v-slot:edit>
       <dp-multiselect
-        :allow-empty="false"
-        :options="options"
-        :name="`${entityId}:${fieldKey}`"
         :id="`${entityId}:${fieldKey}`"
-        track-by="id"
-        class="u-n-ml-0_25"
         v-model="selected"
+        :allow-empty="false"
+        class="u-n-ml-0_25"
+        data-cy="multiSelectElement"
         label="title"
-        @input="val => $emit('field:input', val)"
-        data-cy="multiSelectElement">
-        <template v-slot:option="{ option }">
-          {{ option.title }}
+        :name="`${entityId}:${fieldKey}`"
+        :options="options"
+        track-by="id"
+        @input="val => $emit('field:input', val)">
+        <template v-slot:option="{ props }">
+          {{ props.option.title }}
         </template>
       </dp-multiselect>
     </template>

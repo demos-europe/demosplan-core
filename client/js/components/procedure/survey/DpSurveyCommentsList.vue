@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -42,7 +42,7 @@
             <i
               :aria-label="Translator.trans('survey.comment.publish.check')"
               v-tooltip="Translator.trans('survey.comment.publish.check')"
-              class="fa fa-exclamation-circle color--highlight u-ml u-mt-0_25" />
+              class="fa fa-exclamation-circle color-highlight u-ml u-mt-0_25" />
           </div>
         </template>
         <template

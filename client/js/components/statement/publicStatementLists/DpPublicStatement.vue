@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -40,7 +40,7 @@
               @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
               v-bind="unsavedChangesItem.attrs">
               <i
-                class="fa fa-exclamation-circle color-ui-highlight u-mr-0_5"
+                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
                 v-tooltip="Translator.trans('unsaved.changes')" />
             </button>
           </div>

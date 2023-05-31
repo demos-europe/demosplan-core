@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -15,16 +15,16 @@
 
         // First bar
         &:nth-child(2n + 1) {
-            background-color: $dp-token-color-ui-info;
+            background-color: $dp-color-status-progress-fill;
 
             .survey-chart--branded & {
-                background-color: $dp-token-color-brand-main;
+                background-color: $dp-color-main;
             }
         }
 
         // Second bar
         &:nth-child(2n) {
-            background-color: $dp-token-color-ui-bg-neutral-light;
+            background-color: $dp-color-background-light;
 
             .survey-chart--branded & {
                 background-color: $dp-token-color-brand-cta;

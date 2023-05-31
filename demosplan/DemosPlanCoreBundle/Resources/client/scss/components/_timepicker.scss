@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -15,26 +15,28 @@
         position: absolute;
         z-index: $z-content-above;
         background-color: $dp-color-white;
-        border: $dp-border-thickness solid $default-border-color;
+        border: $dp-border-thickness solid $dp-color-border-default;
 
         &-item {
             list-style-type: none;
             border: $item-border-thickness solid transparent;
             text-align: center;
-            color: $dp-color-main--dark;
+            color: $dp-color-text-default; // May be adapted to a11y-datepicker theming, or vice versa.
 
             &:hover {
-                color: $dp-color-highlight;
                 border: $item-border-thickness solid $dp-color-main;
                 cursor: pointer;
             }
 
             &.is-selected {
-                color: $dp-color-white;
-                background: $dp-color-highlight;
-                border-radius: $dp-token-rounded-small;
+                background-color: $dp-color-highlight;
+                border-radius: $dp-rounded-small;
                 font-weight: $bold-font-weight;
                 font-family: $bold-font-family;
+
+                & button {
+                    color: $dp-color-white;
+                }
             }
         }
     }

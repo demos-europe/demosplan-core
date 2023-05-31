@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -73,10 +73,10 @@
             :data-cy="Translator.trans(link.label)"
             :href="href(link)"
             class="o-link"
-            :class="{'color--system-confirm':link.done()}">
+            :class="{'color-status-complete-text': link.done()}">
             <i
               class="width-20"
-              :class="{'fa fa-check':link.done(), 'fa fa-plus':!link.done()}"
+              :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
               aria-hidden="true" />{{ link.done() ? Translator.trans(link.labelDone) : Translator.trans(link.label) }}
           </a>
         </li>

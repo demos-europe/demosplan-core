@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -86,8 +86,8 @@ const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
-      css: config.stylesEntryPoint,
-      publiccss: config.publicStylesEntryPoint,
+      style: config.stylesEntryPoint,
+      'style-public': config.publicStylesEntryPoint,
       ...bundleEntryPoints(config.clientBundleGlob)
     }
   },

@@ -1,7 +1,7 @@
 {% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
 
 {% block demosplanbundlecontent %}
-	\section*{{ '{' }}{{title}}{{ '}' }}
+	\section*{{ '{' }}{{title|latex|raw}}{{ '}' }}
     {% if templateVars.table.entries is defined
        and templateVars.table.entries.total is defined and templateVars.table.entries.total > 0 %}
         {% for statement in templateVars.table.entries.statements %}

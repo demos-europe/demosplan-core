@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -14,9 +14,9 @@
 /// @name .split-statement
 .split-statement {
     // Segment
-    $segment-bg-color: $dp-color-system-info--light-1;
+    $segment-bg-color: $dp-color-selection-bg;
     $segment-confirmed-bg-color: $dp-color-neutral-light-3;
-    $segment-highlight-bg-color: $dp-color-system-warning--light;
+    $segment-highlight-bg-color: $dp-color-message-warning-bg;
 
     // Sidebar
     $sidebar-width: 300px;
@@ -28,7 +28,7 @@
         width: 80px;
         height: 80px;
         border-radius: 45px;
-        background: $dp-token-color-ui-bg-neutral-medium;
+        background-color: $dp-color-background-medium;
         margin: auto;
 
         .fa-hourglass-half {
@@ -72,7 +72,7 @@
 
             &:hover {
                 background: $dp-color-neutral-light-3;
-                color: $default-font-color;
+                color: $dp-color-text-default;
             }
 
             &__remove {
@@ -86,7 +86,7 @@
             }
 
             &__remove:hover {
-                background: $dp-token-color-ui-interactive;
+                background: $dp-color-interactive-default;
                 color: $dp-color-white;
             }
         }
@@ -128,11 +128,11 @@
         margin-left: calc(#{$segmentation-editor-width} / 2);
 
         border-radius: 50%;
-        background-color: $dp-color-system-warning;
+        background-color: $dp-color-yellow-base;
         font-size: 20px;
 
         &:hover {
-            background: $dp-color-system-warning--light !important;
+            background: $dp-color-yellow-light-1 !important;
         }
     }
 
@@ -167,8 +167,8 @@
         // Handle for setting the text selection range
         .range-handle {
             position: relative;
-            font-size: $dp-token-font-size-large;
-            color: $dp-token-color-ui-interactive;
+            font-size: $dp-font-size-large;
+            color: $dp-color-interactive-default;
 
             &::before {
                 content: '|';
@@ -185,11 +185,11 @@
                 z-index: 10000;
 
                 border-radius: 50%;
-                background-color: $dp-token-color-ui-interactive;
+                background-color: $dp-color-interactive-default;
                 cursor: pointer;
 
                 &:hover {
-                    background-color: $dp-token-color-ui-interactive-hover;
+                    background-color: $dp-color-interactive-hover;
                 }
 
                 &:active {
@@ -197,7 +197,7 @@
                 }
 
                 &.is-active {
-                    border: 2px solid $dp-token-color-ui-interactive;
+                    border: 2px solid $dp-color-interactive-default;
                     background-color: $dp-color-white;
                 }
             }
@@ -228,7 +228,7 @@
 
         &.highlighted {
             z-index: 1;
-            border-color: $dp-color-system-warning;
+            border-color: $dp-color-message-warning-border;
         }
     }
 
@@ -267,7 +267,7 @@
         $multiselect-checkbox-border-color: #cacece;
         $multiselect-checkbox-bg-color: #fafafa;
 
-        $multiselect-color-selected: $dp-color-main--dark;
+        $multiselect-color-selected: $dp-color-selection-text;
         $multiselect-color-hover: $dp-color-main;
 
         // Checkbox styles for options
@@ -306,7 +306,7 @@
 
                     font-size: 14px;
 
-                    transform: rotate(-45deg) scale(1);
+                    transform: rotate(45deg) scale(1);
                 }
             }
         }
@@ -341,7 +341,7 @@
             // Default trigger
             .multiselect__placeholder {
                 display: block;
-                color: $default-font-color;
+                color: $dp-color-text-default;
             }
 
             // Trigger indicating at least one selected option

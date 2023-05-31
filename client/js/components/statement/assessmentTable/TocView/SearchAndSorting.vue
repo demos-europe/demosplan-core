@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -42,6 +42,7 @@
           <dp-button
             :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId })"
             :text="Translator.trans('reset')"
+            data-cy="reset"
             variant="outline" />
         </div>
       </div>

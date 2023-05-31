@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -15,7 +15,7 @@
       content-header-classes="border--none">
       <template v-slot:header>
         <span
-          :class="prefixClass('color--highlight')"
+          :class="prefixClass('color-highlight')"
           v-if="showHeader">
           <i
             aria-hidden="true"
@@ -578,7 +578,7 @@
           v-cleanhtml="responseHtml" />
         <template v-else>
           <h2
-            :class="prefixClass('color--highlight')"
+            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
             tabindex="0"

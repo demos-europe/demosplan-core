@@ -37,8 +37,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
@@ -61,8 +60,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator
 
-    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
-        class: demosplan\DemosPlanCoreBundle\Logic\FileService
+    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\FileService'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
@@ -99,12 +97,23 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
+        public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
+        public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType
+        public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService
@@ -646,8 +655,8 @@ services:
 
 
     demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
-        calls:
-            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+        arguments:
+            $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
@@ -1201,6 +1210,7 @@ services:
 
     EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
 
     EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
 

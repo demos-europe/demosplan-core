@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -34,9 +34,9 @@
 }
 
 %c-pager-current {
-    background-color: $pager-color-active-bg;
+    background-color: $dp-color-neutral-light-1;
     border-radius: $inuit-base-spacing-unit--small;
-    color: $pager-color-active;
+    color: $dp-color-white;
 }
 
 .c-pager {

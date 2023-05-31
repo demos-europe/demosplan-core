@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,19 +19,19 @@
         {{ title }}
       </label>
       <dp-multiselect
-        class="display--inline-block"
-        :options="boilerPlates"
-        @input="addToTextArea"
         v-model="selectedBoilerPlate"
-        label="title"
-        track-by="id"
-        :group-values="groupValues"
+        class="display--inline-block"
         :group-label="groupLabel"
-        :group-select="groupSelect">
-        <template v-slot:option="{ option }">
-          {{ option.title }}
-          <span v-if="option.$isLabel">
-            {{ option.$groupLabel }}
+        :group-select="groupSelect"
+        :group-values="groupValues"
+        label="title"
+        :options="boilerPlates"
+        track-by="id"
+        @input="addToTextArea">
+        <template v-slot:option="{ props }">
+          {{ props.option.title }}
+          <span v-if="props.option.$isLabel">
+            {{ props.option.$groupLabel }}
           </span>
         </template>
       </dp-multiselect>
