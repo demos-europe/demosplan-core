@@ -55,23 +55,4 @@ describe('FilterModal', () => {
       }
     })
   })
-
-  /*
-   * It('should get data from store', () => {
-   *
-   *     let instance = shallowMount(FilterModal, {
-   *         propsData: {
-   *             procedureId: '5eb3b05f-8c5f-11e6-81dd-005056ae0004'
-   *         },
-   *         localVue: localVue,
-   *         store: store,
-   *     });
-   *
-   *     const modal = instance.vm;
-   *     //
-   *     // expect(modal.filterList).toBe(modal.$store.state.filter.filterList);
-   *     // expect(modal.filterGroups).toBe(modal.$store.state.filter.filterGroups);
-   *
-   * });
-   */
 })
