@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use geoPHP;
@@ -602,9 +603,9 @@ class StatementGeoService extends CoreService
      * This is in StatementService, since it's only used there. It's not really about the procedure, it's actually
      * about the statement.
      */
-    private function isStatementOfProcedurePartOfWind(int $windNumber, string $procedureId): bool
+    private function isStatementOfProcedurePartOfWind(int $windNumber, string $procedureId, DatasheetService $datasheetService): bool
     {
-        return $windNumber === $this->globalConfig->getDatasheetVersion($procedureId);
+        return $windNumber === $datasheetService->getDatasheetVersion($procedureId);
     }
 
     /**

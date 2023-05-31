@@ -64,6 +64,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -583,8 +584,8 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         CountyService $countyService,
         CurrentProcedureService $currentProcedureService,
+        DatasheetService $datasheetService,
         ElementsService $elementsService,
-        GlobalConfigInterface $globalConfig,
         NotificationReceiverRepository $notificationReceiverRepository,
         OrgaHandler $orgaHandler,
         PermissionsInterface $permissions,
@@ -804,7 +805,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['orgaBranding'] = $orgaBranding;
         }
 
-        $datasheetVersion = $globalConfig->getDatasheetVersion($procedure);
+        $datasheetVersion = $datasheetService->getDatasheetVersion($procedure);
 
         $templateVars['htmlAvailable'] = 1 === $datasheetVersion || 2 === $datasheetVersion;
         $templateVars['procedureUiDefinition'] = $currentProcedure->getProcedureUiDefinition();

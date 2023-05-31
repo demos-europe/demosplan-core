@@ -88,6 +88,7 @@ use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateGroupVO;
@@ -1677,6 +1678,7 @@ class DemosPlanProcedureController extends BaseController
         CountyService $countyService,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
+        DatasheetService $datasheetService,
         DocumentHandler $documentHandler,
         DraftStatementHandler $draftStatementHandler,
         DraftStatementService $draftStatementService,
@@ -1685,7 +1687,6 @@ class DemosPlanProcedureController extends BaseController
         FileUploadService $fileUploadService,
         GdprConsentRevokeTokenService $gdprConsentRevokeTokenService,
         GetFeatureInfo $getFeatureInfo,
-        GlobalConfigInterface $globalConfig,
         MapService $mapService,
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
@@ -1985,7 +1986,7 @@ class DemosPlanProcedureController extends BaseController
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2
-        $templateVars['htmlAvailable'] = \in_array($globalConfig->getDatasheetVersion($procedureId), [1, 2], true);
+        $templateVars['htmlAvailable'] = \in_array($datasheetService->getDatasheetVersion($procedureId), [1, 2], true);
 
         // orga Branding
         if ($this->permissions->hasPermission('area_orga_display')) {
