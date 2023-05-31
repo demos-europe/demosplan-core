@@ -11,15 +11,21 @@ class LoadPlatformFaqData
     public function load(ObjectManager $manager)
     {
         $faqs = [];
-        $roles = [];
         $firstFaqCategory = new PlatformFaqCategory();
-        $firstFaqCategory->setTitle('Technische Voraussetzungen');
-        $firstFaqCategory->setType('technische_voraussetzung');
+        $firstFaqCategory->setTitle('Allgemeines');
+        $firstFaqCategory->setType(PlatformFaqCategory::FAQ_CATEGORY_TYPES_MANDATORY[0]);
+        $firstFaqCategory->setCreateDate(new \DateTime());
+        $firstFaqCategory->setModifyDate(new \DateTime());
+
+        $manager->persist($firstFaqCategory);
+
 
         $firstFaq = new PlatformFaq();
         $firstFaq->setTitle('Was ist DiPlanBeteiligung?');
         $firstFaq->setCategory($firstFaqCategory);
         $firstFaq->setEnabled(true);
+
+        $role[] =
         $firstFaq->setRoles($roles);
         $firstFaq->setText('DiPlanBeteiligung ist ein Service, der Ihnen die digitale Beteiligung an Planungen, Unternehmen oder als Mitarbeiter*in einer Behörde bzw. Abhängig von Ihrer Rolle stehen Ihnen unterschiedliche Möglichkeiten zur Verfügung, um Ihre Stellungnahmen einzubringen.');
 
