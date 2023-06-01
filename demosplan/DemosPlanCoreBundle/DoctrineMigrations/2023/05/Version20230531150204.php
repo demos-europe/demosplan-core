@@ -623,7 +623,7 @@ Hinweis: DiPlanBeteiligung dient lediglich zur Durchführung der Beteiligung, ni
                                         Uuid(),
                                         ?,
                                         "Ihr Handbuch für die Bedienung von DiPlanBeteiligung",
-                                        "Für viele Fragen zur Bedienung von DiPlanBeteiligung, hilft ein Blick in das folgende Handbuch, das wir für Sie zum Download bereitstellen:Datei (Handbuch für Institutionen als PDF)",
+                                        "Für viele Fragen zur Bedienung von DiPlanBeteiligung, hilft ein Blick in das folgende Handbuch, das wir für Sie zum Download bereitstellen Datei (Handbuch für Institutionen als PDF)",
                                         1,
                                         Now(),
                                         Now()
