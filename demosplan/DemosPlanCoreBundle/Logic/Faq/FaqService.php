@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -120,6 +122,17 @@ class FaqService extends CoreService
     }
 
     /**
+     * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @return PlatformFaqCategory[]
+     *
+     */
+    public function getPlatformFaqCategories(): array
+    {
+        return $this->faqCategoryRepository->getCustomerIndependentPlatformFaqCategories();
+    }
+
+    /**
      * Return specific category of customer.
      *
      * @throws NoResultException
@@ -157,6 +170,24 @@ class FaqService extends CoreService
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, $conditions, [$sortMethod]);
+    }
+
+    /**
+     * Get enabled platform-FAQs of a given platform-category.
+     *
+     * @return array<int, PlatformFaq>
+     */
+    public function getEnabledPlatformFaqListOfCategory(PlatformFaqCategory $platformFaqCategory, User $user): array
+    {
+        $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(1, ['enabled']),
+            $this->conditionFactory->propertyHasValue($platformFaqCategory, ['platformFaqCategory']),
+            $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
+        ];
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
+
+        return $this->entityFetcher->listEntitiesUnrestricted(PlatformFaq::class, $conditions, [$sortMethod]);
     }
 
     /**
@@ -204,6 +235,38 @@ class FaqService extends CoreService
             'faq:category:'.$faqCategory->getId(),
             'global',
             'faq',
+            $input,
+            'id'
+        );
+
+        $output = [];
+        foreach ($sorted['list'] as $item) {
+            $output[] = $item['faq'];
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param array<int, PlatformFaq> $faqs
+     *
+     * @return array<int, PlatformFaq>
+     */
+    public function orderPlatformFaqsByManualSortList(array $faqs, PlatformFaqCategory $platformFaqCategory): array
+    {
+        // required for legacy reasons, since the method used can only operate with arrays
+        $input = [];
+        foreach ($faqs as $faq) {
+            $input[] = [
+                'faq' => $faq,
+                'id'  => $faq->getId(),
+            ];
+        }
+
+        $sorted = $this->manualListSorter->orderByManualListSort(
+            'platformFaq:category:'.$platformFaqCategory->getId(),
+            'global',
+            'platformFaq',
             $input,
             'id'
         );

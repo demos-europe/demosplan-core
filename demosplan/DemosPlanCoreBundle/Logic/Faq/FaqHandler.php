@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -124,6 +126,16 @@ class FaqHandler extends CoreHandler
     public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
+    }
+
+    /**
+     * Get all (enabled and disabled) faqs of a category.
+     *
+     * @return array<int, PlatformFaq>
+     */
+    public function getEnabledPlatformFaqList(PlatformFaqCategory $platformFaqCategory, User $user): array
+    {
+        return $this->faqService->getEnabledPlatformFaqListOfCategory($platformFaqCategory, $user);
     }
 
     /**
@@ -377,6 +389,17 @@ class FaqHandler extends CoreHandler
     }
 
     /**
+     * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @return Collection<PlatformFaqCategory>
+     *
+     */
+    public function getPlatformFaqCategories(): Collection
+    {
+        return collect($this->faqService->getPlatformFaqCategories());
+    }
+
+    /**
      * Get all faqs and sort by category into array.
      *
      * @param Collection $categories a collection of {@link Category categories}
@@ -391,6 +414,26 @@ class FaqHandler extends CoreHandler
             $faqList = $this->getEnabledFaqList($category, $user);
 
             $faqList = $this->orderFaqsByManualSortList($faqList, $category);
+            foreach ($faqList as $faq) {
+                $categoryId = $faq->getCategory()->getId();
+                $categoryTitle = $faq->getCategory()->getTitle();
+
+                $convertedResult[$categoryId]['id'] = $categoryId;
+                $convertedResult[$categoryId]['label'] = $categoryTitle;
+                $convertedResult[$categoryId]['faqlist'][] = $faq;
+            }
+        }
+
+        return $convertedResult;
+    }
+
+    public function convertPlatformFaqsIntoTwigFormat(Collection $platformFaqCategoryCollection, User $user): array
+    {
+        $convertedResult = [];
+        foreach ($platformFaqCategoryCollection as $category) {
+            $faqList = $this->getEnabledPlatformFaqList($category, $user);
+
+            $faqList = $this->orderPlatformFaqsByManualSortList($faqList, $category);
             foreach ($faqList as $faq) {
                 $categoryId = $faq->getCategory()->getId();
                 $categoryTitle = $faq->getCategory()->getTitle();
@@ -519,6 +562,16 @@ class FaqHandler extends CoreHandler
     public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
+    }
+
+    /**
+     * @param array<int, PlatformFaq> $faqs
+     *
+     * @return array<int, Faq>
+     */
+    public function orderPlatformFaqsByManualSortList(array $faqs, PlatformFaqCategory $faqCategory): array
+    {
+        return $this->faqService->orderPlatformFaqsByManualSortList($faqs, $faqCategory);
     }
 
     /**

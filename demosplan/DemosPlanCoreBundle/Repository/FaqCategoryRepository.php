@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -60,6 +60,28 @@ class FaqCategoryRepository extends CoreRepository
             return $query->getQuery()->getResult();
         } catch (NoResultException $e) {
             $this->logger->error('Get FaqCategories failed.', [$e]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Get all static platformFaqCategories - same for all customers.
+     *
+     * @return PlatformFaqCategory[]
+     */
+    public function getCustomerIndependentPlatformFaqCategories(): array
+    {
+        try {
+            $query = $this->getEntityManager()
+                ->createQueryBuilder()
+                ->select('platformFaqCategory')
+                ->from(PlatformFaqCategory::class, 'platformFaqCategory')
+                ->orderBy('platformFaqCategory.title');
+
+            return $query->getQuery()->getResult();
+        } catch (NoResultException $e) {
+            $this->logger->error('Get platformFaqCategories failed.', [$e]);
 
             return [];
         }
