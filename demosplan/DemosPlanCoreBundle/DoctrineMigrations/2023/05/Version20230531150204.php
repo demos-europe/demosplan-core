@@ -36,6 +36,23 @@ class Version20230531150204 extends AbstractMigration
             'Technische Voraussetzungen' => Uuid::uuid()
         ];
 
+            $roleIds = [
+                'FP' => [
+                    'RMOPSD' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RMOPSD";'),
+                    'RMOPSA' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RMOPSA";'),
+                    'RMOPFB' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RMOPFB";'),
+                    'RMOPPO' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RMOPPO";')
+                ],
+                'Institutions' => [
+                    'RPSOCO' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RPSOCO";'),
+                    'RPSODE' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RPSODE";')
+                ],
+                'public' => [
+                    'RGUEST' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RGUEST";'),
+                    'RCITIZ' => $this->connection->fetchOne('SELECT _r_id FROM _role WHERE _r_code = "RCITIZ";')
+                ]
+            ];
+
         /**
          * FAQ ID
          */
