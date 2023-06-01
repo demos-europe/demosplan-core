@@ -154,7 +154,7 @@
     "glob-all": "^3.3.1",
     "jest": "^27.3.1",
     "jest-junit": "^16.0.0",
-    "jsdom": "^21.1.1",
+    "jsdom": "^22.1.0",
     "mini-css-extract-plugin": "^2.7.5",
     "node-notifier": "^10.0.1",
     "postcss": "^8.4.23",
