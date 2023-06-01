@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use Exception;
@@ -138,16 +139,16 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     public function sendMailToAllCustomersAction(
+        CustomerHandler $customerHandler,
+        HTMLSanitizer $HTMLSanitizer,
+        MailService $mailService,
         Request $request,
         TranslatorInterface $translator,
-        MailService $mailService,
-        CustomerHandler $customerHandler,
-        HTMLSanitizer $HTMLSanitizer
+        UserService $userService
     ): Response {
         try {
             $currentCustomer = $customerHandler->getCurrentCustomer();
-            $emailAddresses = $currentCustomer->getEmailsOfUsersOfOrgas();
-
+            $emailAddresses = $userService->getEmailsOfUsersOfOrgas($currentCustomer);
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
                 return $this->renderTemplate(

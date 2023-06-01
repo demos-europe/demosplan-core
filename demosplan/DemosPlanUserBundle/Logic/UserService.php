@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -1702,5 +1703,28 @@ class UserService extends CoreService
     protected function isNotDefaultDepartment(Department $department): bool
     {
         return 'Keine Abteilung' !== $department->getName();
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getEmailsOfUsersOfOrgas(Customer $customer): array
+    {
+        $mailAddresses = [];
+        /** @var Orga $orga */
+        foreach ($customer->getOrgas([OrgaStatusInCustomer::STATUS_ACCEPTED]) as $orga) {
+            /** @var User $user */
+            foreach ($orga->getUsers() as $user) {
+                // ensure that user is registered in current customer
+                // avoids that citizens of other customers are notified
+                if ($user->isDeleted() || !in_array($customer->getId(), $user->getCustomersIds(), true)) {
+                    continue;
+                }
+
+                $mailAddresses[] = $user->getEmail();
+            }
+        }
+
+        return $mailAddresses;
     }
 }
