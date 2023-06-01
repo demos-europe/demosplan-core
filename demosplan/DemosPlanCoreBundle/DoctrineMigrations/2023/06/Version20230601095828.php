@@ -43,8 +43,10 @@ class Version20230601095828 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('SET foreign_key_checks = 0');
         $this->addSql('ALTER TABLE _statement DROP FOREIGN KEY FK_8D47F06B84040EA6');
         $this->addSql('DROP INDEX IDX_8D47F06B84040EA6 ON _statement');
+        $this->addSql('SET foreign_key_checks = 1');
     }
 
     /**
