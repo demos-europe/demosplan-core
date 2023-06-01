@@ -45,7 +45,7 @@
       <header
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
-        <multistep-nav
+        <dp-multistep-nav
           v-if="loggedIn === false && showHeader"
           @change-step="val => step = val"
           :active-step="step"
@@ -639,13 +639,13 @@ import {
   DpLabel,
   DpLoading,
   DpModal,
+  DpMultistepNav,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
   hasOwnProp,
   isActiveFullScreen,
   makeFormPost,
-  MultistepNav,
   prefixClassMixin,
   toggleFullscreen
 } from '@demos-europe/demosplan-ui'
@@ -684,6 +684,7 @@ export default {
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultistepNav,
     DpRadio,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -703,7 +704,6 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
     FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
     FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
-    MultistepNav,
     StatementModalRecheck
   },
 
