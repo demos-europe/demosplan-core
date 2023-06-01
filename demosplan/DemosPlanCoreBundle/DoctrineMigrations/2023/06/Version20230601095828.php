@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -22,7 +32,6 @@ class Version20230601095828 extends AbstractMigration
 
         $this->addSql('ALTER TABLE _statement ADD CONSTRAINT FK_8D47F06B84040EA6 FOREIGN KEY (segment_statement_fk) REFERENCES _statement (_st_id)');
         $this->addSql('CREATE INDEX IDX_8D47F06B84040EA6 ON _statement (segment_statement_fk)');
-
     }
 
     /**
