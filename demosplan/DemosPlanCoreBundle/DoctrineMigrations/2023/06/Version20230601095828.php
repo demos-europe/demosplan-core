@@ -30,8 +30,10 @@ class Version20230601095828 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('SET foreign_key_checks = 0');
         $this->addSql('ALTER TABLE _statement ADD CONSTRAINT FK_8D47F06B84040EA6 FOREIGN KEY (segment_statement_fk) REFERENCES _statement (_st_id)');
         $this->addSql('CREATE INDEX IDX_8D47F06B84040EA6 ON _statement (segment_statement_fk)');
+        $this->addSql('SET foreign_key_checks = 1');
     }
 
     /**
