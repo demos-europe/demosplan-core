@@ -7495,17 +7495,10 @@ prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.1.2, prosemirror-keymap@^1.1.4:
     prosemirror-state "^1.0.0"
     w3c-keyname "^2.2.0"
 
-prosemirror-model@^1.0.0, prosemirror-model@^1.13.1, prosemirror-model@^1.16.0, prosemirror-model@^1.8.1:
+prosemirror-model@^1.0.0, prosemirror-model@^1.13.1, prosemirror-model@^1.16.0, prosemirror-model@^1.18.1, prosemirror-model@^1.19.0, prosemirror-model@^1.8.1:
   version "1.19.2"
   resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.19.2.tgz#297c9ecfb103154e605f0dbaf3cc72ee32ca0ad5"
   integrity sha512-RXl0Waiss4YtJAUY3NzKH0xkJmsZupCIccqcIFoLTIKFlKNbIvFDRl27/kQy1FP8iUAxrjRRfIVvOebnnXJgqQ==
-  dependencies:
-    orderedmap "^2.0.0"
-
-prosemirror-model@^1.18.1, prosemirror-model@^1.19.0:
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.19.0.tgz#d7ad9a65ada0bb12196f64fe0dd4fc392c841c29"
-  integrity sha512-/CvFGJnwc41EJSfDkQLly1cAJJJmBpZwwUJtwZPTjY2RqZJfM8HVbCreOY/jti8wTRbVyjagcylyGoeJH/g/3w==
   dependencies:
     orderedmap "^2.0.0"
 
@@ -7516,19 +7509,10 @@ prosemirror-schema-basic@^1.2.1:
   dependencies:
     prosemirror-model "^1.19.0"
 
-prosemirror-schema-list@^1.1.4:
+prosemirror-schema-list@^1.1.4, prosemirror-schema-list@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/prosemirror-schema-list/-/prosemirror-schema-list-1.2.3.tgz#12e3d70cb17780980a3c28588ed7c888121d5e8d"
   integrity sha512-HD8yjDOusz7JB3oBFCaMOpEN9Z9DZttLr6tcASjnvKMc0qTyX5xgAN8YiMFFEcwyhF7WZrZ2YQkAwzsn8ICVbQ==
-  dependencies:
-    prosemirror-model "^1.0.0"
-    prosemirror-state "^1.0.0"
-    prosemirror-transform "^1.0.0"
-
-prosemirror-schema-list@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/prosemirror-schema-list/-/prosemirror-schema-list-1.2.2.tgz#bafda37b72367d39accdcaf6ddf8fb654a16e8e5"
-  integrity sha512-rd0pqSDp86p0MUMKG903g3I9VmElFkQpkZ2iOd3EOVg1vo5Cst51rAsoE+5IPy0LPXq64eGcCYlW1+JPNxOj2w==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-state "^1.0.0"
