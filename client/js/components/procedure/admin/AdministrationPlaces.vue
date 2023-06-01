@@ -84,17 +84,16 @@
       </template>
       <template v-slot:flyout="rowData">
         <div class="float--right">
-          <template v-if="!rowData.edit">
-            <button
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              @click="editPlace(rowData)">
-              <i
-                class="fa fa-pencil"
-                aria-hidden="true" />
-            </button>
-          </template>
-          <template v-if="rowData.edit">
+          <button
+            v-if="!rowData.edit"
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            @click="editPlace(rowData)">
+            <i
+              class="fa fa-pencil"
+              aria-hidden="true" />
+          </button>
+          <template v-else>
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
@@ -202,7 +201,8 @@ export default {
     abort (rowData) {
       rowData.name = this.initialRowData.name
       rowData.description = this.initialRowData.description
-      rowData.edit = false
+
+      this.setEditMode(rowData, false)
     },
 
     changeManualsort (val) {
@@ -222,7 +222,8 @@ export default {
       // Save initial state of currently edited row
       this.initialRowData.name = rowData.name
       this.initialRowData.description = rowData.description
-      rowData.edit = true
+
+      this.setEditMode(rowData)
     },
 
     fetchPlaces () {
@@ -309,6 +310,12 @@ export default {
         })
     },
 
+    setEditMode (rowData, state = true) {
+      const idx = this.places.findIndex(el => el.id === rowData.id)
+
+      this.places[idx].edit = state
+    },
+
     updatePlace (rowData) {
       if (!this.isUniquePlaceName(rowData.name)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
@@ -328,7 +335,7 @@ export default {
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
-          rowData.edit = false
+          this.setEditMode(rowData, false)
         })
     },
 
