@@ -117,7 +117,7 @@ class Version20230531150204 extends AbstractMigration
     ',[$categories['Technische Voraussetzungen']]);
 
 
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was ist DiPlanBeteiligung?",
@@ -127,7 +127,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welcher Vorgang wird in DiPlanBeteiligung abgebildet?",
@@ -137,7 +137,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Vorteile bietet DiPlanBeteiligung?",
@@ -147,7 +147,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was sind Behörden und sonstige Träger öffentlicher Belange (TöB)?",
@@ -157,7 +157,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Vorteile bietet DiPlanBeteiligung für Träger öffentlicher Belange (TöB)?",
@@ -167,7 +167,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Vorteile bietet DiPlanBeteiligung für Verfahrensträger?",
@@ -177,7 +177,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was ist DiPlanBeteiligung?Was ist DiPlanBeteiligung?",
@@ -187,7 +187,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wo erhalte ich Unterstützung bei der Benutzung von DiPlanBeteiligung?",
@@ -197,7 +197,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wo erhalte ich Unterstützung bei der Benutzung von DiPlanBeteiligung?",
@@ -207,7 +207,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Allgemeines']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Planungsdokumente gibt es normalerweise?",
@@ -217,7 +217,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Die Planungsdokumente']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was ist ein Flächennutzungsplan?",
@@ -227,7 +227,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Die Planungsdokumente']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was ist ein Bebauungsplan?",
@@ -237,7 +237,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Die Planungsdokumente']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann die Öffentlichkeitsbeteiligung über DiPlanBeteiligung erfolgen?",
@@ -247,7 +247,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie nutze ich DiPlanBeteiligung?",
@@ -257,7 +257,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Woran liegt es, dass ein Planungsverfahren in meiner Region bei DiPlanBeteiligung nicht zu finden ist?",
@@ -267,7 +267,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie kann ich meine Stellungnahme abgeben?",
@@ -277,7 +277,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann ich meine Stellungnahme auch anonym abgeben?",
@@ -287,7 +287,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wieso soll ich meinen Namen und meine Anschrift bei der Stellungnahme angeben?",
@@ -297,7 +297,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was geschieht mit meiner Stellungnahme?",
@@ -307,7 +307,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Für wen sind eingehende Stellungnahmen einsehbar?",
@@ -317,7 +317,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie lange bleiben die Verfahren in DiPlanBeteiligung erreichbar? Können Verfahren gelöscht werden? ",
@@ -327,7 +327,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie lange bleiben die Verfahren in DiPlanBeteiligung erreichbar? Können Verfahren gelöscht werden? ",
@@ -337,7 +337,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie dokumentiere ich als TöB die Beteiligung?",
@@ -347,7 +347,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wird eine beteiligte Institution automatisch informiert, wenn ein neues Verfahren ansteht?",
@@ -357,7 +357,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Beteiligung']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wo finde ich ergänzende Datenschutzhinweise zur Abgabe von Stellungnahmen?",
@@ -367,7 +367,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Datenschutz']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Darf ich in meiner Stellungnahme andere Personen benennen?",
@@ -377,7 +377,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Datenschutz']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wird meine Stellungnahme durch unterstützende Planungsbüros bearbeitet?",
@@ -387,7 +387,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Datenschutz']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Rollen gibt es?",
@@ -397,7 +397,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welchen Funktionsumfang erhält der Verfahrensträger?",
@@ -407,7 +407,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie kann ein Planungsbüro mit dem Fachverfahren arbeiten?",
@@ -417,7 +417,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wozu gibt es Blaupausen?",
@@ -427,7 +427,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie erfolgt die Einbindung von Karten in DiPlanBeteiligung?",
@@ -437,7 +437,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann ich DiPlanBeteiligung nutzen, wenn ich selbst keine WMS erstellen kann?",
@@ -447,7 +447,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was steckt hinter dem Bereich \\"Originalstellungnahmen\\“, der von der Abwägungstabelle aus zugänglich ist?",
@@ -457,7 +457,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie und an wen wird die Information über das Abwägungsergebnis einer Stellungnahme versendet?",
@@ -467,7 +467,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was ist das Verfahrensprotokoll?",
@@ -477,7 +477,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie wird über DiPlanBeteiligung die rechtssichere Dokumentation der Online-Beteiligung in der Verfahrensakte zu einem Beteilungsverfahren gewährleistet?",
@@ -487,7 +487,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie funktionieren Doppel-Rollen?",
@@ -497,7 +497,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Verfahrensträger']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann ich als Planungsbüro für verschiedene Verfahrensträger tätig werden?",
@@ -507,7 +507,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Planungsbüros']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Aufgaben kann ein Planungsbüro in einem Beteiligungsverfahren übernehmen?",
@@ -517,7 +517,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Planungsbüros']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Rollen gibt es?",
@@ -527,7 +527,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Träger öffentlicher Belange']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was muss ich beachten, wenn es in meiner Organisation keine TöB-Sachbearbeitung gibt?",
@@ -537,7 +537,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Träger öffentlicher Belange']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie dokumentiere ich als TöB die Beteiligung?",
@@ -547,7 +547,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Träger öffentlicher Belange']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Ihr Handbuch für die Bedienung von DiPlanBeteiligung",
@@ -557,7 +557,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Informationen für Träger öffentlicher Belange']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Vorteile habe ich, wenn ich mich als Bürger registriere?",
@@ -567,7 +567,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Registrierung / Login']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie registriere ich mich als Bürger*in?",
@@ -577,7 +577,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Registrierung / Login']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie registriere ich mich als TöB?",
@@ -587,7 +587,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Registrierung / Login']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie ändere ich meine Daten?",
@@ -597,7 +597,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Registrierung / Login']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was unternehme ich, wenn ich meinen Zugang vergessen habe?",
@@ -607,7 +607,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Registrierung / Login']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Wie lade ich die Planungsdokumente herunter?",
@@ -617,7 +617,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Fragen']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Was kann ich tun, wenn die Grundkarte nicht angezeigt wird?",
@@ -627,7 +627,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Fragen']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Benötigt DiPlanBeteiligung eine bestimmte Infrastruktur?",
@@ -637,7 +637,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Voraussetzungen']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Welche Browser kann ich bei der Anwendung von DiPlanBeteiligung einsetzen?",
@@ -647,7 +647,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Voraussetzungen']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann ich DiPlanBeteiligung nutzen, wenn kein GIS-System zur Verfügung steht?",
@@ -657,7 +657,7 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Voraussetzungen']]);
-        $this->addSql('INSERT INTO platform_faq(id, faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
+        $this->addSql('INSERT INTO platform_faq(id, platform_faq_category_id, title, text, enabled, create_date, modify_date) VALUES (
                                         Uuid(),
                                         ?,
                                         "Kann das regionale GIS-System eingesetzt werden?",
@@ -667,6 +667,8 @@ class Version20230531150204 extends AbstractMigration
                                         Now()
                             )
 ',[$categories['Technische Voraussetzungen']]);
+
+
     }
 
     /**
