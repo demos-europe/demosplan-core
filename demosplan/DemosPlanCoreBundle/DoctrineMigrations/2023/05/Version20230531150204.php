@@ -797,6 +797,520 @@ class Version20230531150204 extends AbstractMigration
 ',[$faqs['Kann das regionale GIS-System eingesetzt werden']] ,[$categories['Technische Voraussetzungen']]);
 
 
+        foreach ($roleIds as $roleCategories) {
+            foreach ($roleCategories as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                [$roleId, $faqs['Was ist DiPlanBeteiligung']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories) {
+            foreach ($roleCategories as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Welcher Vorgang wird in DiPlanBeteiligung abgebildet']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Vorteile bietet DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was sind Behörden und sonstige Träger öffentlicher Belange (TöB)']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was sind Behörden und sonstige Träger öffentlicher Belange (TöB)']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Vorteile bietet DiPlanBeteiligung für Verfahrensträger']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was kostet DiPlanBeteiligung für BürgerInnen und TöB']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wo erhalte ich Unterstützung bei der Benutzung von DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wo erhalte ich Unterstützung bei der Benutzung von DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Planungsdokumente gibt es normalerweise']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was ist ein Flächennutzungsplan']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was ist ein Bebauungsplan']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann die Öffentlichkeitsbeteiligung über DiPlanBeteiligung erfolgen']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie nutze ich DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Woran liegt es, dass ein Planungsverfahren in meiner Region bei DiPlanBeteiligung nicht zu finden ist']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie kann ich meine Stellungnahme abgeben']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann ich meine Stellungnahme auch anonym abgeben']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wieso soll ich meinen Namen und meine Anschrift bei der Stellungnahme angeben']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was geschieht mit meiner Stellungnahme']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Für wen sind eingehende Stellungnahmen einsehbar']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie lange bleiben die Verfahren in DiPlanBeteiligung erreichbar - Können Verfahren gelöscht werden']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie lange bleiben die Verfahren in DiPlanBeteiligung erreichbar? Können Verfahren gelöscht werden']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie dokumentiere ich als TöB die Beteiligung1']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wird eine beteiligte Institution automatisch informiert, wenn ein neues Verfahren ansteht']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Wo finde ich ergänzende Datenschutzhinweise zur Abgabe von Stellungnahmen']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Darf ich in meiner Stellungnahme andere Personen benennen']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Wird meine Stellungnahme durch unterstützende Planungsbüros bearbeitet']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Rollen gibt es1']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welchen Funktionsumfang erhält der Verfahrensträger']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie kann ein Planungsbüro mit dem Fachverfahren arbeiten']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wozu gibt es Blaupausen']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie erfolgt die Einbindung von Karten in DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann ich DiPlanBeteiligung nutzen, wenn ich selbst keine WMS erstellen kann']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was steckt hinter dem Bereich "Originalstellungnahmen“, der von der Abwägungstabelle aus zugänglich ist']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie und an wen wird die Information über das Abwägungsergebnis einer Stellungnahme versendet']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was ist das Verfahrensprotokoll']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie wird über DiPlanBeteiligung die rechtssichere Dokumentation der Online-Beteiligung in der Verfahrensakte zu einem Beteilungsverfahren gewährleistet']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie funktionieren Doppel-Rollen']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann ich als Planungsbüro für verschiedene Verfahrensträger tätig werden']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'Institutions') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Rollen gibt es2']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'Institutions') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Was muss ich beachten, wenn es in meiner Organisation keine TöB-Sachbearbeitung gibt']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'Institutions') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie dokumentiere ich als TöB die Beteiligung2']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'Institutions') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Ihr Handbuch für die Bedienung von DiPlanBeteiligung']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Welche Vorteile habe ich, wenn ich mich als Bürger registriere']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'public') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie registriere ich mich als Bürger*in']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories !== 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Wie registriere ich mich als TöB']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Wie ändere ich meine Daten']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Was unternehme ich, wenn ich meinen Zugang vergessen habe']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Wie lade ich die Planungsdokumente herunter']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Was kann ich tun, wenn die Grundkarte nicht angezeigt wird']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Benötigt DiPlanBeteiligung eine bestimmte Infrastruktur']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            foreach ($roleIds as $roleCode => $roleId) {
+                $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                    [$roleId, $faqs['Welche Browser kann ich bei der Anwendung von DiPlanBeteiligung einsetzen']]
+                );
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann ich DiPlanBeteiligung nutzen, wenn kein GIS-System zur Verfügung steht']]
+                    );
+                }
+            }
+        }
+
+        foreach ($roleIds as $roleCategories => $roleIds) {
+            if ($roleCategories === 'FP') {
+                foreach ($roleIds as $roleCode => $roleId) {
+                    $this->addSql('INSERT INTO platform_faq_role (role_id, platformFaq_id) VALUES (?, ?)',
+                        [$roleId, $faqs['Kann das regionale GIS-System eingesetzt werden']]
+                    );
+                }
+            }
+        }
+
     }
 
     /**
@@ -806,6 +1320,9 @@ class Version20230531150204 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('TRUNCATE TABLE platform_faq_role;');
+        $this->addSql('TRUNCATE TABLE platform_faq_category;');
+        $this->addSql('TRUNCATE TABLE platform_faq;');
 
     }
 
