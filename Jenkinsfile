@@ -65,7 +65,6 @@ pipeline {
 
                 }
                 echo "$containerName"
-                sh "$build"
              }
         }
 
