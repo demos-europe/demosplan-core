@@ -22,8 +22,7 @@ def cancelPreviousBuilds() {
 
 
 def _dockerExecAsUser(String command) {
-    command = String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
-    return _exec(command)
+    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
 }
 
 def containerName = ""
@@ -50,30 +49,15 @@ pipeline {
                 }
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    build = String dockerRunCommand = [
-                            'docker run -d --name ' + containerName,
+                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)',
+                    commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile')
+                    commandExecComposer = _dockerExecAsUser('composer install --no-interaction')
+                    sh "mkdir -p .cache"
+                    sh "$commandDockerRun"
+                    sh "sleep 10"
+                    sh "$commandExecYarn"
+                    sh "$commandExecComposer"
 
-                            // link the code directory
-                            '-v ${PWD}:/srv/www',
-                            // all caches mounted
-                            '-v /var/cache/demosplanCI/:/srv/www/.cache/',
-
-                            // container username is host username
-                            '--env CURRENT_HOST_USERNAME=$(whoami)',
-                            '--env CURRENT_HOST_USERID=$(id -u $(whoami))',
-
-                            // todo: probably not optimal to get tagname from file
-                            'demosdeutschland/demosplan-development:$(cat dockertag)'
-                        ].join(' ')
-
-                        return [
-                            'mkdir -p .cache',
-                            dockerRunCommand,
-                            'sleep 10',
-                            _dockerExecAsUser('yarn add file:client/ui'),
-                            _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile'),
-                            _dockerExecAsUser('composer install --no-interaction')
-                        ].join(' && ')
                     env.CONTAINER_NAME = containerName
                 }
                 echo "$CONTAINER_NAME"
