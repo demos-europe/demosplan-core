@@ -343,7 +343,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         $string = Utf8::filter($string);
         $string = html_entity_decode($string, ENT_QUOTES);
 
-        return trim($string);
+        return trim($string ?? '');
     }
 
     /**
