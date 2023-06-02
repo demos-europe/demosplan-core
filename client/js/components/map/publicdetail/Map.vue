@@ -1760,6 +1760,7 @@ export default {
           currentYear
         })
       }
+
       controls.push(new Attribution({
         collapsed: false,
         collapsible: false,
