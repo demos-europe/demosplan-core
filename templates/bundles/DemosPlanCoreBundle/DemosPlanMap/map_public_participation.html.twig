@@ -69,7 +69,8 @@
                 prefix: '{{ map.mapAttribution|default|replace({'{year}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
                     linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
                     currentYear: {{ 'now' | date('Y') }}
-                })}).addTo(map);
+                })
+            }).addTo(map);
 
             (function() {
                 var control = new L.Control({position:'topleft'})
