@@ -52,7 +52,8 @@
         text-decoration: underline;
 
         &:hover {
-            color: $dp-color-alt--light-1;
+            color: $dp-color-white;
+            opacity: .8;
         }
     }
 
