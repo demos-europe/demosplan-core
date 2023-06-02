@@ -100,7 +100,7 @@ class SessionHandler extends PdoSessionHandler
             // Session values are not used to persist data between requests (apart from userId)
             // so concurrent requests could not overwrite data.
             // This bloats the amount of session files but these could well be garbage collected
-            $this->request->getSession()->migrate();
+            // $this->request->getSession()->migrate();
 
             $user = $this->currentUser->getUser();
 
