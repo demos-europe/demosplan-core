@@ -7657,19 +7657,10 @@ prosemirror-schema-basic@^1.2.1:
   dependencies:
     prosemirror-model "^1.19.0"
 
-prosemirror-schema-list@^1.1.4:
+prosemirror-schema-list@^1.1.4, prosemirror-schema-list@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/prosemirror-schema-list/-/prosemirror-schema-list-1.2.3.tgz#12e3d70cb17780980a3c28588ed7c888121d5e8d"
   integrity sha512-HD8yjDOusz7JB3oBFCaMOpEN9Z9DZttLr6tcASjnvKMc0qTyX5xgAN8YiMFFEcwyhF7WZrZ2YQkAwzsn8ICVbQ==
-  dependencies:
-    prosemirror-model "^1.0.0"
-    prosemirror-state "^1.0.0"
-    prosemirror-transform "^1.0.0"
-
-prosemirror-schema-list@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/prosemirror-schema-list/-/prosemirror-schema-list-1.2.2.tgz#bafda37b72367d39accdcaf6ddf8fb654a16e8e5"
-  integrity sha512-rd0pqSDp86p0MUMKG903g3I9VmElFkQpkZ2iOd3EOVg1vo5Cst51rAsoE+5IPy0LPXq64eGcCYlW1+JPNxOj2w==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-state "^1.0.0"
