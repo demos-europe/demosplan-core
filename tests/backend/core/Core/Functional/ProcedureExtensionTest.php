@@ -455,6 +455,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
             self::$container,
             $currentUser,
             $this->globalConfig,
+            new NullLogger(),
             $this->permissionsStub,
             $this->procedureService,
             $this->translator

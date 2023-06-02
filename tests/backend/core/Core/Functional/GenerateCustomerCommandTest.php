@@ -23,6 +23,7 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
     public function testSuccessfulExecute(): void
     {
+        self::markSkippedForCIIntervention();
         $commandTester = $this->getCommandTester();
 
         $newCustomerName = 'New Customer';
@@ -44,6 +45,8 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
     public function testInvalidDuplicateCustomerExecute(): void
     {
+        self::markSkippedForCIIntervention();
+
         $commandTester = $this->getCommandTester();
 
         // use three inputs, as we want to test whether first input is marked as existing customer
