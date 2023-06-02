@@ -11,15 +11,15 @@
 
     {% if hasPermission('area_admin_map') and (templateVars.procedure.master == true or templateVars.procedure.procedureBehaviorDefinition.isAllowedToEnableMap) %}
         <dp-map-settings-preview
-            procedure-id="{{ procedure }}"
-            procedure-coordinate="{{ procedureSettings.coordinate }}"
-            init-extent="{{ procedureSettings.mapExtent }}"
-            :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-            territory="{{ procedureSettings.territory }}"
-            map-attribution="{{ procedureSettings.copyright }}"
             drawing="{{ procedureSettings.planDrawPDF}}"
             drawing-explanation="{{ procedureSettings.planPDF}}"
+            init-extent="{{ procedureSettings.mapExtent }}"
             :is-blueprint="Boolean({{ templateVars.procedure.master }})"
+            map-attribution="{{ procedureSettings.copyright }}"
+            procedure-coordinate="{{ procedureSettings.coordinate }}"
+            :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
+            procedure-id="{{ procedure }}"
+            territory="{{ procedureSettings.territory }}"
         >
         </dp-map-settings-preview>
     {% endif %}
