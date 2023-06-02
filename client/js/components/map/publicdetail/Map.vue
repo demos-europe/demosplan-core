@@ -1751,6 +1751,7 @@ export default {
       // Add either the attribution from procedureSettings or the attribution defined globally via translation key
       const currentYear = formatDate(new Date(), 'YYYY')
       let label = ''
+
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
         label = this.procedureSettings.copyright.replace('{year}', currentYear)
       } else {
