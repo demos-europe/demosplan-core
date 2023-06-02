@@ -65,7 +65,12 @@
                 attributionControl: false
             });
 
-            L.control.attribution({prefix: '{{ map.mapAttribution|default|trans|wysiwyg }}' || Translator.trans('map.attribution.default', { a: function (msg) { return '<a href="/impressum">' + msg + '</a>' }}) }).addTo(map);
+            L.control.attribution({
+                prefix: '{{ map.mapAttribution|default|replace({'{year}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
+                    linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+                    currentYear: {{ 'now' | date('Y') }}
+                })
+            }).addTo(map);
 
             (function() {
                 var control = new L.Control({position:'topleft'})
