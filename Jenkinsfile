@@ -27,6 +27,11 @@ def _dockerExecAsUser(String command, String containerName) {
     return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
 }
 
+def _dockerExecAsRoot(String command, String containerName) {
+    sh "echo $containerName"
+    return String.format('docker exec %s /bin/zsh -c "%s"', containerName, command)
+}
+
 pipeline {
     agent {label 'docker && metal'}
     options {
@@ -50,10 +55,9 @@ pipeline {
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
                     commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
-                    commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile', containerName)
-                    commandExecComposer = _dockerExecAsUser('composer install --no-interaction', containerName)
+                    commandExecYarn =  _dockerExecAsRoot('yarn install --prefer-offline --frozen-lockfile', containerName)
+                    commandExecComposer = _dockerExecAsRoot('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
-                    sh '''docker exec containerName /bin/zsh -c "chown $(whoami):$(whoami) -R /srv/www"'''
                     sh "$commandDockerRun"
                     sh "sleep 10"
                     sh "$commandExecYarn"
