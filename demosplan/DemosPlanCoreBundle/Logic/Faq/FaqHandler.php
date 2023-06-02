@@ -121,21 +121,11 @@ class FaqHandler extends CoreHandler
     /**
      * Get all (enabled and disabled) faqs of a category.
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
-    }
-
-    /**
-     * Get all (enabled and disabled) faqs of a category.
-     *
-     * @return array<int, PlatformFaq>
-     */
-    public function getEnabledPlatformFaqList(PlatformFaqCategory $platformFaqCategory, User $user): array
-    {
-        return $this->faqService->getEnabledPlatformFaqListOfCategory($platformFaqCategory, $user);
     }
 
     /**
@@ -404,7 +394,7 @@ class FaqHandler extends CoreHandler
      *
      * @param Collection $categories a collection of {@link Category categories}
      *
-     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     * @return array<string, array{id: string, label: string, faqlist: list<FaqInterface>}>
      */
     public function convertIntoTwigFormat(Collection $categories, User $user): array
     {
@@ -414,26 +404,6 @@ class FaqHandler extends CoreHandler
             $faqList = $this->getEnabledFaqList($category, $user);
 
             $faqList = $this->orderFaqsByManualSortList($faqList, $category);
-            foreach ($faqList as $faq) {
-                $categoryId = $faq->getCategory()->getId();
-                $categoryTitle = $faq->getCategory()->getTitle();
-
-                $convertedResult[$categoryId]['id'] = $categoryId;
-                $convertedResult[$categoryId]['label'] = $categoryTitle;
-                $convertedResult[$categoryId]['faqlist'][] = $faq;
-            }
-        }
-
-        return $convertedResult;
-    }
-
-    public function convertPlatformFaqsIntoTwigFormat(Collection $platformFaqCategoryCollection, User $user): array
-    {
-        $convertedResult = [];
-        foreach ($platformFaqCategoryCollection as $category) {
-            $faqList = $this->getEnabledPlatformFaqList($category, $user);
-
-            $faqList = $this->orderPlatformFaqsByManualSortList($faqList, $category);
             foreach ($faqList as $faq) {
                 $categoryId = $faq->getCategory()->getId();
                 $categoryTitle = $faq->getCategory()->getTitle();
@@ -555,23 +525,13 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * @param array<int, Faq> $faqs
+     * @param array<int, FaqInterface> $faqs
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
-    }
-
-    /**
-     * @param array<int, PlatformFaq> $faqs
-     *
-     * @return array<int, Faq>
-     */
-    public function orderPlatformFaqsByManualSortList(array $faqs, PlatformFaqCategory $faqCategory): array
-    {
-        return $this->faqService->orderPlatformFaqsByManualSortList($faqs, $faqCategory);
     }
 
     /**

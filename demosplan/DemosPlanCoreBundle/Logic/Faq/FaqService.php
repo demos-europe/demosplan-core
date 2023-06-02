@@ -157,37 +157,30 @@ class FaqService extends CoreService
     /**
      * Get enabled FAQs of a given category.
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
+        $categoryName = '';
+        $className = '';
+        if($faqCategory instanceof FaqCategory){
+            $categoryName = 'faqCategory';
+            $className = Faq::class;
+        }
+        if ($faqCategory instanceof PlatformFaqCategory){
+            $categoryName = 'platformFaqCategory';
+            $className = PlatformFaq::class;
+        }
+
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
-            $this->conditionFactory->propertyHasValue($faqCategory, ['faqCategory']),
+            $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
             $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, $conditions, [$sortMethod]);
-    }
-
-    /**
-     * Get enabled platform-FAQs of a given platform-category.
-     *
-     * @return array<int, PlatformFaq>
-     */
-    public function getEnabledPlatformFaqListOfCategory(PlatformFaqCategory $platformFaqCategory, User $user): array
-    {
-        $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
-        $conditions = [
-            $this->conditionFactory->propertyHasValue(1, ['enabled']),
-            $this->conditionFactory->propertyHasValue($platformFaqCategory, ['platformFaqCategory']),
-            $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
-        ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(PlatformFaq::class, $conditions, [$sortMethod]);
+        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
     }
 
     /**
@@ -216,11 +209,11 @@ class FaqService extends CoreService
     }
 
     /**
-     * @param array<int, Faq> $faqs
+     * @param array<int, FaqInterface> $faqs
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         // required for legacy reasons, since the method used can only operate with arrays
         $input = [];
@@ -230,43 +223,20 @@ class FaqService extends CoreService
                 'id'  => $faq->getId(),
             ];
         }
-
-        $sorted = $this->manualListSorter->orderByManualListSort(
-            'faq:category:'.$faqCategory->getId(),
-            'global',
-            'faq',
-            $input,
-            'id'
-        );
-
-        $output = [];
-        foreach ($sorted['list'] as $item) {
-            $output[] = $item['faq'];
+        $manualSortScope = '';
+        $nameSpace = '';
+        if ($faqs instanceof Faq) {
+            $manualSortScope = 'faq:category:'.$faqCategory->getId();
+            $nameSpace = 'faq';
         }
-
-        return $output;
-    }
-
-    /**
-     * @param array<int, PlatformFaq> $faqs
-     *
-     * @return array<int, PlatformFaq>
-     */
-    public function orderPlatformFaqsByManualSortList(array $faqs, PlatformFaqCategory $platformFaqCategory): array
-    {
-        // required for legacy reasons, since the method used can only operate with arrays
-        $input = [];
-        foreach ($faqs as $faq) {
-            $input[] = [
-                'faq' => $faq,
-                'id'  => $faq->getId(),
-            ];
+        if ($faqs instanceof PlatformFaq) {
+            $manualSortScope = 'platformFaq:category:'.$faqCategory->getId();
+            $nameSpace = 'faq';
         }
-
         $sorted = $this->manualListSorter->orderByManualListSort(
-            'platformFaq:category:'.$platformFaqCategory->getId(),
+            $manualSortScope,
             'global',
-            'platformFaq',
+            $nameSpace,
             $input,
             'id'
         );
