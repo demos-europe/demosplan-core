@@ -517,7 +517,7 @@ class Version20230531150204 extends AbstractMigration
                                         ?,
                                         ?,
                                         "Welche Rollen gibt es?",
-                                        "<p>Fachplaner-Admin<ul><li>-pflegt die „Daten der Organisation“</li><li>-konfiguriert die Blaupause</li><li>-erstellt und betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li><li>Fachplaner-Sachbearbeiter</li><li>-betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li><li>Planungsbüro-Sachbearbeiter</li><li>-pflegt die „Daten der Organisation“</li><li>-betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li></ul></p>",
+                                        "<p>Fachplanung-Administration<ul><li>-pflegt die „Daten der Organisation“</li><li>-konfiguriert die Blaupause</li><li>-erstellt und betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li><li>Fachplanung-Sachbearbeitung</li><li>-betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li><li>Fachplanung-Planungsbüro</li><li>-pflegt die „Daten der Organisation“</li><li>-betreut Beteiligungsverfahren</li><li>-erstellt und dokumentiert die Abwägungstabelle</li></ul></p>",
                                         1,
                                         Now(),
                                         Now()
