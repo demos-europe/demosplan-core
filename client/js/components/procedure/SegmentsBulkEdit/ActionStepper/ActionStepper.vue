@@ -24,10 +24,9 @@
         <dp-button
           class="float--right"
           :disabled="!valid"
-          @click="$emit('confirm')">
-          {{ Translator.trans('continue.confirm') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('continue.confirm')"
+          @click="$emit('confirm')" />
       </div>
     </template>
 
@@ -37,17 +36,15 @@
       <div class="u-mt cf">
         <dp-button
           color="secondary"
-          @click="$emit('edit')">
-          <i class="fa fa-angle-left u-pr-0_25" />
-          {{ Translator.trans('bulk.edit.actions.edit') }}
-        </dp-button>
+          icon="chevron-left"
+          :text="Translator.trans('bulk.edit.actions.edit')"
+          @click="$emit('edit')" />
         <dp-button
           class="float--right"
           :busy="busy"
-          @click="$emit('apply')">
-          {{ Translator.trans('bulk.edit.actions.apply') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('bulk.edit.actions.apply')"
+          @click="$emit('apply')" />
       </div>
     </template>
 
