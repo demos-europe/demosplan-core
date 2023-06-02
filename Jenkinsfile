@@ -49,7 +49,7 @@ pipeline {
                 sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-development:$(cat dockertag) '''
                 }
                 script{
-                    containerName = testContainer + env.BRANCH_NAME + env.BUILD_NUMBER
+                    containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
                     build = String dockerRunCommand = [
                             'docker run -d --name ' + containerName,
 
