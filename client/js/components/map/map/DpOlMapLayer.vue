@@ -92,8 +92,8 @@ export default {
         return
       }
 
-      const source = this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
-      const layer = createTileLayer(this.title, this.name, source)
+      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
+      const layer = createTileLayer(this.title, this.name, this.source)
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(0, layer)
