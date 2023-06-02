@@ -20,8 +20,12 @@ def cancelPreviousBuilds() {
     }
 }
 
-@Library('DemosTester')
-def demosTester = new main.testing.DemosTester()
+
+def _dockerExecAsUser(String command) {
+    command = String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
+    return _exec(command)
+}
+
 def containerName = ""
 
 pipeline {
@@ -45,9 +49,32 @@ pipeline {
                 sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-development:$(cat dockertag) '''
                 }
                 script{
-                    demosTester.construct("testContainer", env.BRANCH_NAME + env.BUILD_NUMBER)
-                    build = demosTester.buildContainer()
-                    env.CONTAINER_NAME = demosTester.containerName
+                    containerName = testContainer + env.BRANCH_NAME + env.BUILD_NUMBER
+                    build = String dockerRunCommand = [
+                            'docker run -d --name ' + containerName,
+
+                            // link the code directory
+                            '-v ${PWD}:/srv/www',
+                            // all caches mounted
+                            '-v /var/cache/demosplanCI/:/srv/www/.cache/',
+
+                            // container username is host username
+                            '--env CURRENT_HOST_USERNAME=$(whoami)',
+                            '--env CURRENT_HOST_USERID=$(id -u $(whoami))',
+
+                            // todo: probably not optimal to get tagname from file
+                            'demosdeutschland/demosplan-development:$(cat dockertag)'
+                        ].join(' ')
+
+                        return [
+                            'mkdir -p .cache',
+                            dockerRunCommand,
+                            'sleep 10',
+                            _dockerExecAsUser('yarn add file:client/ui'),
+                            _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile'),
+                            _dockerExecAsUser('composer install --no-interaction')
+                        ].join(' && ')
+                    env.CONTAINER_NAME = containerName
                 }
                 echo "$CONTAINER_NAME"
                 sh "$build"
@@ -60,8 +87,8 @@ pipeline {
                     steps{
                         script {
                             try {
-                               test = demosTester.coreTest()
-                               sh "$test"
+                                commandExec = _dockerExecAsUser(APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml)
+                                sh "commandExec"
                             } catch (err) {
                                 echo "PHPUnit Failed: ${err}"
                             }
@@ -76,8 +103,7 @@ pipeline {
                         stage("Jest Tests") {
                             steps {
                                  script {
-                                    npmTest = demosTester.npmTest()
-
+                                    npmTest = _dockerExecAsUser('yarn test --ci')
                                     sh "$npmTest"
                                     junit checksName: "Jest Tests", healthScaleFactor: 10.0, testResults: 'var/build/jest.junit.xml'
                                 }
@@ -87,10 +113,7 @@ pipeline {
                         stage("Webpack: Dev Build") {
                             steps {
                                 script {
-                                    init_project = demosTester._setParameter('diplanbau')
-                                    sh "$init_project"
-
-                                    script = demosTester._dockerExecAsUser("yarn run dev:diplanbau")
+                                    script = _dockerExecAsUser("yarn run dev:diplanbau")
                                     sh "$script"
                                 }
                             }
@@ -99,12 +122,9 @@ pipeline {
                         stage("Webpack: Prod Build") {
                             steps {
                                 script {
-                                    init_project = demosTester._setParameter('diplanbau')
-                                    sh "$init_project"
-
                                     // The project we build the frontend for does not matter as it
                                     // is the same process for all projects.
-                                    script = demosTester._dockerExecAsUser("yarn run prod:diplanbau")
+                                    script = _dockerExecAsUser("yarn run prod:diplanbau")
 
                                     sh "$script"
                                 }
