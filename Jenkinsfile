@@ -123,9 +123,9 @@ pipeline {
         }
     }
 
-    post {
-        always{
-            sh 'docker rm -f $containerName'
-        }
+//    post {
+//        always{
+//            sh 'docker rm -f $containerName'
+//        }
     }
 }
