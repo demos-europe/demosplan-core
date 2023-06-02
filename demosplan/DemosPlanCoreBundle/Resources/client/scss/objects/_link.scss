@@ -52,6 +52,7 @@
         text-decoration: underline;
 
         &:hover {
+            color: $dp-color-alt-contrast;
             opacity: .8;
         }
     }
