@@ -74,7 +74,7 @@ pipeline {
                     steps{
                         script {
                             try {
-                                commandExec = _dockerExecAsUser(APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml, containerName)
+                                commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml", containerName)
                                 sh "commandExec"
                             } catch (err) {
                                 echo "PHPUnit Failed: ${err}"
