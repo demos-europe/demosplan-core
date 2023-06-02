@@ -20,11 +20,11 @@ def cancelPreviousBuilds() {
     }
 }
 
-def containerName = ""
+//containerName = ""
 
-def _dockerExecAsUser(String command) {
-    sh 'echo $CONTAINER_NAME'
-    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', $CONTAINER_NAME, command)
+def _dockerExecAsUser(String command, String containerName) {
+    sh "echo $containerName"
+    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
 }
 
 pipeline {
@@ -48,10 +48,10 @@ pipeline {
                 sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-development:$(cat dockertag) '''
                 }
                 script{
-                    env.CONTAINER_NAME = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    commandDockerRun = 'docker run -d --name ' + $CONTAINER_NAME + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
-                    commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile')
-                    commandExecComposer = _dockerExecAsUser('composer install --no-interaction')
+                    containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
+                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
+                    commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile', containerName)
+                    commandExecComposer = _dockerExecAsUser('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
                     sh "$commandDockerRun"
                     sh "sleep 10"
@@ -59,7 +59,7 @@ pipeline {
                     sh "$commandExecComposer"
 
                 }
-                echo "$CONTAINER_NAME"
+                echo "$containerName"
                 sh "$build"
              }
         }
