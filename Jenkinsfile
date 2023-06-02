@@ -20,12 +20,11 @@ def cancelPreviousBuilds() {
     }
 }
 
+def containerName = ""
 
 def _dockerExecAsUser(String command) {
     return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
 }
-
-def containerName = ""
 
 pipeline {
     agent {label 'docker && metal'}
