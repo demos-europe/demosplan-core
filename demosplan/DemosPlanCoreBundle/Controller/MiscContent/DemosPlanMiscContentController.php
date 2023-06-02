@@ -472,8 +472,8 @@ class DemosPlanMiscContentController extends BaseController
         $platformCategories = $faqHandler->getPlatformFaqCategories();
         $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
         $templateVars = [
-            'list' => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
-            'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser())
+            'list'         => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
+            'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),
         ];
 
         return $this->renderTemplate(

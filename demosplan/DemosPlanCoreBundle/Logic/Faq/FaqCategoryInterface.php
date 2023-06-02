@@ -1,9 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 
 interface FaqCategoryInterface extends UuidEntityInterface
 {

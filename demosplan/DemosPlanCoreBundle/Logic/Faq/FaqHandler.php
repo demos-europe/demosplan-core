@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
-use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -382,7 +381,6 @@ class FaqHandler extends CoreHandler
      * Get all platform-faq-categories sorted alphabetically by title.
      *
      * @return Collection<PlatformFaqCategory>
-     *
      */
     public function getPlatformFaqCategories(): Collection
     {

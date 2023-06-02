@@ -1,16 +1,22 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqCategoryInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use UnexpectedValueException;
 
 /**
- *
  * @ORM\Entity()
  */
 class PlatformFaqCategory extends CoreEntity implements UuidEntityInterface, FaqCategoryInterface
@@ -52,7 +58,6 @@ class PlatformFaqCategory extends CoreEntity implements UuidEntityInterface, Faq
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $modifyDate;
-
 
     public function getId(): ?string
     {

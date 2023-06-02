@@ -125,7 +125,6 @@ class FaqService extends CoreService
      * Get all platform-faq-categories sorted alphabetically by title.
      *
      * @return PlatformFaqCategory[]
-     *
      */
     public function getPlatformFaqCategories(): array
     {
@@ -164,11 +163,11 @@ class FaqService extends CoreService
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
         $categoryName = '';
         $className = '';
-        if($faqCategory instanceof FaqCategory){
+        if ($faqCategory instanceof FaqCategory) {
             $categoryName = 'faqCategory';
             $className = Faq::class;
         }
-        if ($faqCategory instanceof PlatformFaqCategory){
+        if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
             $className = PlatformFaq::class;
         }
