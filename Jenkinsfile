@@ -53,7 +53,7 @@ pipeline {
                     commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile', containerName)
                     commandExecComposer = _dockerExecAsUser('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
-                    sh '''docker exec $containerName /bin/zsh -c "chown $(whoami):$(whoami) -R /srv/www"'''
+                    sh '''docker exec containerName /bin/zsh -c "chown $(whoami):$(whoami) -R /srv/www"'''
                     sh "$commandDockerRun"
                     sh "sleep 10"
                     sh "$commandExecYarn"
