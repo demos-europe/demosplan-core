@@ -470,9 +470,9 @@ class DemosPlanMiscContentController extends BaseController
     public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
         $platformCategories = $faqHandler->getPlatformFaqCategories();
-        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
         $templateVars = [
-            'list' => $faqHandler->convertIntoTwigFormat($categories, $userProvider->getUser()),
+            'list' => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
             'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser())
         ];
 
