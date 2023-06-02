@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UserFromSecurityUserProvider
 {
@@ -39,7 +40,7 @@ final class UserFromSecurityUserProvider
 
     public function fromToken(TokenInterface $token): ?User
     {
-        if (!$token->getUser() instanceof SecurityUser) {
+        if (!$token->getUser() instanceof UserInterface) {
             return null;
         }
 

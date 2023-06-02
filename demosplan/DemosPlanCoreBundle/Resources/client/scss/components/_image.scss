@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -11,8 +11,8 @@
 .c-image {
     margin: 8px $inuit-base-spacing-unit 0 0;
     padding: 10px;
-    background: $dp-token-color-ui-bg-neutral-medium;
-    border: 2px solid $default-border-color;
+    background-color: $dp-color-background-medium;
+    border: 2px solid $dp-color-border-default;
     border-radius: 3px;
 
     &--thumb {

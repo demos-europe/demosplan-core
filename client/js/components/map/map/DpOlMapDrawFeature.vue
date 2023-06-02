@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -52,7 +52,7 @@
   <button
     v-if="renderControl"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
-    :class="{'color--highlight':currentlyActive}"
+    :class="{'color-highlight': currentlyActive}"
     type="button"
     :title="title"
     @click="toggle">

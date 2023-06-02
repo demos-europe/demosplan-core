@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -71,25 +71,23 @@
       </label>
       <dp-multiselect
         v-if="hasPermission('area_organisations')"
-        :placeholder="Translator.trans('search.three.signs')"
-        :value="currentUserOrga"
-        :searchable="true"
+        :id="userId + ':organisationId'"
+        data-cy="organisation"
         label="name"
         :loading="isLoading"
-        :close-on-select="true"
-        @select="changeUserOrga"
-        required
         :options="initialOrgaSuggestions"
-        :id="userId + ':organisationId'"
+        :placeholder="Translator.trans('search.three.signs')"
+        ref="orgasDropdown"
+        required
         track-by="id"
-        data-cy="organisation"
-        ref="orgasDropdown">
-        <template v-slot:option="{ option }">
-          <span>{{ option.name }}</span>
+        :value="currentUserOrga"
+        @select="changeUserOrga">
+        <template v-slot:option="{ props }">
+          <span>{{ props.option.name }}</span>
         </template>
-        <template v-slot:tag="{ option }">
+        <template v-slot:tag="{ props }">
           <span class="multiselect__tag">
-            {{ option.name }}
+            {{ props.option.name }}
           </span>
         </template>
       </dp-multiselect>
@@ -127,29 +125,43 @@
     </div>
 
     <!-- Role -->
-    <div class=" u-1-of-2 u-pr-0_5">
+    <div
+      v-if="organisations[this.currentUserOrga.id]"
+      class=" u-1-of-2 u-pr-0_5">
       <label
         class="push--bottom u-mt-0_75 u-mb-0_25"
         :for="userId + ':userRoles'">
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
-        v-if="organisations[this.currentUserOrga.id]"
+        :id="userId + ':userRoles'"
         class="u-mb-0_5"
+        :custom-label="props =>`${ roles[props.option.id].attributes.name }`"
+        data-cy="role"
+        label="name"
         multiple
         :options="allowedRolesForOrga"
-        :id="userId + ':userRoles'"
+        ref="rolesDropdown"
+        required
+        track-by="id"
         :value="localUser.relationships.roles.data"
         @select="addRole"
-        @remove="removeRole"
-        track-by="id"
-        required
-        label="name"
-        :custom-label="option =>`${ roles[option.id].attributes.name }`"
-        data-cy="role"
-        ref="rolesDropdown">
-        <template v-slot:option="{ option }">
-          <span>{{ roles[option.id].attributes.name }}</span>
+        @remove="removeRole">
+        <template v-slot:option="{ props }">
+          <span>{{ roles[props.option.id].attributes.name }}</span>
+        </template>
+        <template v-slot:tag="{ props }">
+          <span class="multiselect__tag">
+            {{ roles[props.option.id].attributes.name }}
+            <i
+              aria-hidden="true"
+              tabindex="1" class="multiselect__tag-icon"
+              @click="props.remove(props.option)" />
+            <input
+              :name="userId + ':userRoles[]'"
+              type="hidden"
+              :value="props.option.id">
+          </span>
         </template>
       </dp-multiselect>
     </div>

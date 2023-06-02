@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -207,8 +207,8 @@ class EntityContentChangeDisplayService extends CoreService
                 '<del>',
             ],
             [
-                '<ins class=\"bg-color--system-info-light-1\">',
-                '<del class=\"bg-color--system-warning-light\">',
+                '<ins class=\"bg-color-text-inserted\">',
+                '<del class=\"bg-color-text-deleted\">',
             ],
             $jsonString
         );

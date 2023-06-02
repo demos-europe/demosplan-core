@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -15,25 +15,25 @@
  --><div class="layout__item u-4-of-12  u-pt-0_125">
       <dp-multiselect
         v-if="availableGroupOptions.length > 1"
-        track-by="id"
+        :allow-empty="false"
+        :custom-label="props =>`${props.option.title}`"
+        data-cy="selectedGroups"
         multiple
         :options="availableGroupOptions"
-        :allow-empty="false"
-        :custom-label="option =>`${option.title}`"
-        data-cy="selectedGroups"
+        track-by="id"
         :value="selectedGroups"
         @input="selectGroups">
-        <template v-slot:option="{ option }">
-          <span>{{ option.title }}</span>
+        <template v-slot:option="{ props }">
+          <span>{{ props.option.title }}</span>
         </template>
-        <template v-slot:tag="props">
+        <template v-slot:tag="{ props }">
           <span class="multiselect__tag">
             {{ props.option.title }}
             <i
               aria-hidden="true"
-              @click="props.remove(props.option)"
+              class="multiselect__tag-icon"
               tabindex="1"
-              class="multiselect__tag-icon" />
+              @click="props.remove(props.option)" />
           </span>
         </template>
       </dp-multiselect>

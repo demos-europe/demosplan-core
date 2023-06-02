@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -36,7 +36,7 @@
 ///         :overlay="true"/>
 
 .c-loading {
-    $loading-color: $dp-token-color-brand-main !default;
+    $loading-color: $dp-color-main !default;
     $loading-color-bg: $dp-color-white !default;
     $loading-size: $inuit-base-spacing-unit * .75 !default;
     $loading-stroke: 2px !default;

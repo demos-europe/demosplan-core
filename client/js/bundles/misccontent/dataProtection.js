@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -8,10 +8,10 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
-  DpRegisterFlyout
+  RegisterFlyout
 }
 
 initialize(components).then(() => {

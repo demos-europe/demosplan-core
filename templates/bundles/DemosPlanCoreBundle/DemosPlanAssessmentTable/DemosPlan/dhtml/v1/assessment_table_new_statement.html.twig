@@ -262,13 +262,13 @@
                                 </label>
                                 <dp-multiselect
                                     class="o-form__control-wrapper"
-                                    :options="phases"
-                                    :value="values.phase"
-                                    @input="setPhaseValue"
-                                    track-by="key"
                                     label="name"
-                                    required>
-                                    <template v-slot:option="props">
+                                    :options="phases"
+                                    required
+                                    track-by="key"
+                                    :value="values.phase"
+                                    @input="setPhaseValue">
+                                    <template v-slot:option="{ props }">
                                         <span class="weight--normal">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </span>
@@ -310,14 +310,13 @@
                             {{ "plandocument"|trans }}
                         </label>
                         <dp-multiselect
-                            class="o-form__control-wrapper u-mb-0_75"
-                            :options="elements"
                             v-model="values.element"
-                            track-by="id"
+                            class="o-form__control-wrapper u-mb-0_75"
                             label="title"
-                            @input="checkForParagraphsAndFiles()"
-                        >
-                            <template v-slot:option="props">
+                            :options="elements"
+                            track-by="id"
+                            @input="checkForParagraphsAndFiles()">
+                            <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             </template>
                         </dp-multiselect>
@@ -330,14 +329,13 @@
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="paragraph[values.element.id]"
                                 v-model="values.paragraph"
-                                track-by="id"
+                                class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
-                            >
-                                <template v-slot:option="props">
+                                :options="paragraph[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
                                     {% verbatim %}{{ props.option.title }}{% endverbatim %}
                                 </template>
                             </dp-multiselect>
@@ -351,14 +349,13 @@
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="documents[values.element.id]"
                                 v-model="values.document"
-                                track-by="id"
+                                class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
-                            >
-                                <template v-slot:option="props">
+                                :options="documents[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
                                     {% verbatim %}{{ props.option.title }}{% endverbatim %}
                                 </template>
                             </dp-multiselect>
@@ -383,18 +380,17 @@
                                     {{ 'data.autocompleted.recheck'|trans }}
                                 </p>
                                 <dp-multiselect
+                                    v-model="values.counties"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="counties"
-                                    v-model="values.counties"
-                                    @input="sortSelected('counties')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('counties')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -417,18 +413,17 @@
                                     {{ 'data.autocompleted.recheck'|trans }}
                                 </p>
                                 <dp-multiselect
+                                    v-model="values.municipalities"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="municipalities"
-                                    v-model="values.municipalities"
-                                    @input="sortSelected('municipalities')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('municipalities')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                                         <span class="multiselect__tag">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                             <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -447,18 +442,17 @@
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
+                                    v-model="values.priorityAreas"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="priorityAreas"
-                                    v-model="values.priorityAreas"
-                                    @input="sortSelected('priorityAreas')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('priorityAreas')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -475,17 +469,17 @@
                             {{ "tags"|trans }}
                         </label>
                         <dp-multiselect
-                            class="o-form__control-wrapper u-mb-0_75"
-                            multiple
-                            :options="tags"
                             v-model="values.tags"
-                            @input="sortSelected('tags')"
-                            track-by="id"
-                            label="name"
+                            class="o-form__control-wrapper u-mb-0_75"
+                            group-label="title"
                             :group-select="false"
                             group-values="tags"
-                            group-label="title" >
-                            <template v-slot:option="props">
+                            label="name"
+                            multiple
+                            :options="tags"
+                            track-by="id"
+                            @input="sortSelected('tags')">
+                            <template v-slot:option="{ props }">
                                 <span v-if="props.option.$isLabel">
                                 {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
                                 </span>
@@ -493,7 +487,7 @@
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 </span>
                             </template>
-                            <template v-slot:tag="props">
+                            <template v-slot:tag="{ props }">
                                 <span class="multiselect__tag">
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,7 +22,7 @@
         :padded="false">
         <template #trigger>
           <dp-icon
-            :class="{ 'color-ui-highlight': selectedFields.length > 0 }"
+            :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->

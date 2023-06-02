@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,8 +27,11 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -39,6 +42,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="exportFieldsConfigurations", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     private $procedure;
@@ -47,6 +51,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -55,6 +60,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;

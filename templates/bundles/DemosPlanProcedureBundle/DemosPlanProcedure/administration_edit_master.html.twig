@@ -47,18 +47,17 @@
                         {{ "planningagency"|trans }}
                     </label>
                         <dp-multiselect
+                            v-model="selectedAgencies"
                             class="layout__item u-1-of-1 u-pl-0 u-mb"
+                            label="name"
                             multiple
                             :options="agencies"
-                            v-model="selectedAgencies"
-                            @input="sortSelected('Agencies')"
                             track-by="id"
-                            label="name"
-                        >
-                            <template v-slot:option="props">
+                            @input="sortSelected('Agencies')">
+                            <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             </template>
-                            <template v-slot:tag="props">
+                            <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -79,20 +78,20 @@
                         cssClasses:'o-tooltip--question-circle float--right u-mt-0_125'
                     } %}
                     <dp-multiselect
+                        v-model="selectedAuthUsers"
                         class="layout__item u-1-of-1 u-pl-0"
+                        label="name"
                         multiple
                         :options="authUsers"
-                        v-model="selectedAuthUsers"
                         selection-controls
-                        @select-all="selectAllAuthUsers"
-                        @unselect-all="unselectAllAuthUsers"
-                        @input="sortSelected('AuthUsers')"
                         track-by="id"
-                        label="name">
-                        <template v-slot:option="props">
+                        @input="sortSelected('AuthUsers')"
+                        @select-all="selectAllAuthUsers"
+                        @unselect-all="unselectAllAuthUsers">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                 <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

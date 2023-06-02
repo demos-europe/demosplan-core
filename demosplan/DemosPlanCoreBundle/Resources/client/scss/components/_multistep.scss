@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -26,8 +26,8 @@
     .c-multistep {
         $multistep-bg-color: $dp-color-neutral-light-3;
         $multistep-bg-color-active: $dp-color-neutral-light-2;
-        $multistep-color: $dp-token-color-brand-link;
-        $multistep-color-active: $dp-token-color-brand-highlight;
+        $multistep-color: $dp-color-interactive-default;
+        $multistep-color-active: $dp-color-highlight;
         $multistep-color-disabled: $dp-color-neutral-base;
 
         clear: both;

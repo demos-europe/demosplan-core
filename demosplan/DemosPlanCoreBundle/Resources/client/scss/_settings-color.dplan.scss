@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  DPLAN CORE
+//  Color Palette
+//
+//  As demosplan uses the design tokens defined in demosplan-ui, those are imported here.
+//  Additional color variables (needed only in the public area) are defined in addition.
+//  For an overview on available colors, clone demosplan-ui and run storybook locally.
+//  All colors can be found in @demos-europe/demosplan-ui/tokens/color/*.json.
+
+
+// Color tokens from demosplan-ui.
+
+@import '@demos-europe/demosplan-ui/tokens/scss/color.palette';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.data';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.brand';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.ui';
+
+
+// Variables that are not defined in demosplan-ui but used globally within demosplan.
+
+// Headings in public area
+$h1-color:                                      $dp-color-text-default !default;
+$h2-color:                                      $dp-color-text-default !default;
+$h3-color:                                      $dp-color-text-default !default;
+
+// The [cta] tokens are used for coloring interactive elements of high importance (eg. actionbox).
+// The value of [cta] should pass AAA contrast check with the value of [cta-contrast].
+// They are defined here to complement the color tokens defined in demosplan-ui.
+$dp-token-color-brand-cta-dark:                 $dp-color-red-dark-2 !default;
+$dp-token-color-brand-cta:                      $dp-color-red-dark-1 !default;
+$dp-token-color-brand-cta-light:                $dp-color-red-light-1 !default;
+$dp-token-color-brand-cta-contrast:             $dp-color-white !default;
+
+// The [header] tokens style both the page header & main navigation.
+// The value of [header(-<variant>)] should pass AAA contrast check with the value of [header(-<variant>)-contrast].
+// - Default main nav item colors, match fullscreen nav bar background + mobile current item
+$dp-token-color-brand-header:                   $dp-color-main !default;
+$dp-token-color-brand-header-contrast:          $dp-color-white !default;
+// - Highlighted state for main nav items, matches page header colors
+$dp-token-color-brand-header-alt:               $dp-color-alt !default;
+$dp-token-color-brand-header-alt-contrast:      $dp-color-white !default;
+// - Hover state for main nav items, matches :active state for mobile item
+$dp-token-color-brand-header-active:            $dp-color-neutral-light-3 !default;
+$dp-token-color-brand-header-active-contrast:   $dp-color-main !default;
+
+// The [nav-alt] tokens control the appearance of branded secondary navigation (project switcher, footer).
+$dp-token-color-brand-nav-alt-link:             $dp-color-main !default;
+$dp-token-color-brand-nav-alt-link-hover:       $dp-color-highlight !default;
+$dp-token-color-brand-nav-alt-alt:              $dp-color-neutral-dark-1 !default;
+$dp-token-color-brand-nav-alt-bg:               $dp-color-neutral-light-3 !default;
+
+// Fill + Stroke colors to be used for vectors in maps - chosen for maximum visibility on all kinds of maps.
+$dp-token-color-map-draw-fill:                  rgb(212 0 75 / 20%) !default;
+$dp-token-color-map-draw-stroke:                rgb(212 0 75) !default;
