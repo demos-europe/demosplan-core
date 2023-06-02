@@ -48,8 +48,8 @@ pipeline {
                 sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-development:$(cat dockertag) '''
                 }
                 script{
-                    containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
+                    env.CONTAINER_NAME = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
+                    commandDockerRun = 'docker run -d --name ' + $CONTAINER_NAME + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
                     commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile')
                     commandExecComposer = _dockerExecAsUser('composer install --no-interaction')
                     sh "mkdir -p .cache"
@@ -58,7 +58,6 @@ pipeline {
                     sh "$commandExecYarn"
                     sh "$commandExecComposer"
 
-                    env.CONTAINER_NAME = containerName
                 }
                 echo "$CONTAINER_NAME"
                 sh "$build"
