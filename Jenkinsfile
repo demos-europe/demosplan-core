@@ -58,6 +58,7 @@ pipeline {
                     commandExecYarn =  _dockerExecAsRoot('yarn install --prefer-offline --frozen-lockfile', containerName)
                     commandExecComposer = _dockerExecAsRoot('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
+                    sh "echo ${PWD}"
                     sh "$commandDockerRun"
                     sh "sleep 10"
                     sh "$commandExecYarn"
@@ -74,13 +75,11 @@ pipeline {
                     steps{
                         script {
                             try {
-                                commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit var/build/jenkins-build-phpunit-core.junit.xml", containerName)
+                                commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
                                 sh "$commandExec"
                             } catch (err) {
                                 echo "PHPUnit Failed: ${err}"
                             }
-
-                            junit checksName: "Core Tests", healthScaleFactor: 5.0, testResults: "var/build/phpunit-core.junit.xml"
                         }
                     }
                 }
