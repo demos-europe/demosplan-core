@@ -23,7 +23,8 @@ def cancelPreviousBuilds() {
 def containerName = ""
 
 def _dockerExecAsUser(String command) {
-    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
+    sh 'echo $CONTAINER_NAME'
+    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', $CONTAINER_NAME, command)
 }
 
 pipeline {
