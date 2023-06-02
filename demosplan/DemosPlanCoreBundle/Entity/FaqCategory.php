@@ -24,6 +24,22 @@ use UnexpectedValueException;
 class FaqCategory extends CoreEntity implements UuidEntityInterface, FaqCategoryInterface
 {
     /**
+     * These are allowed types, independent of the role.
+     */
+    public const FAQ_CATEGORY_TYPES_MANDATORY = [
+        'system',
+        'technische_voraussetzung',
+        'bedienung',
+        'oeb_bauleitplanung',
+        'oeb_bob',
+    ];
+
+    /**
+     * These are role-dependent types.
+     */
+    public const FAQ_CATEGORY_TYPES_OPTIONAL = 'custom_category';
+
+    /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
