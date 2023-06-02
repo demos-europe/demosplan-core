@@ -16,6 +16,7 @@
             init-extent="{{ procedureSettings.mapExtent }}"
             :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
             territory="{{ procedureSettings.territory }}"
+            map-attribution="{{ procedureSettings.copyright }}"
             drawing="{{ procedureSettings.planDrawPDF}}"
             drawing-explanation="{{ procedureSettings.planPDF}}"
             :is-blueprint="Boolean({{ templateVars.procedure.master }})"
