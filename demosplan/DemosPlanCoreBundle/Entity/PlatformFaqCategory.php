@@ -4,6 +4,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DateTime;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqCategoryInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
@@ -12,7 +13,7 @@ use UnexpectedValueException;
  *
  * @ORM\Entity()
  */
-class PlatformFaqCategory extends CoreEntity implements UuidEntityInterface
+class PlatformFaqCategory extends CoreEntity implements UuidEntityInterface, FaqCategoryInterface
 {
     /**
      * These are allowed types, independent of the role.
