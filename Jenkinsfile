@@ -90,7 +90,7 @@ pipeline {
                         stage("Jest Tests") {
                             steps {
                                  script {
-                                    npmTest = _dockerExecAsUser('yarn test --ci')
+                                    npmTest = _dockerExecAsUser('yarn test --ci', containerName)
                                     sh "$npmTest"
                                     junit checksName: "Jest Tests", healthScaleFactor: 10.0, testResults: 'var/build/jest.junit.xml'
                                 }
@@ -100,7 +100,7 @@ pipeline {
                         stage("Webpack: Dev Build") {
                             steps {
                                 script {
-                                    script = _dockerExecAsUser("yarn run dev:diplanbau")
+                                    script = _dockerExecAsUser("yarn run dev:diplanbau", containerName)
                                     sh "$script"
                                 }
                             }
@@ -111,7 +111,7 @@ pipeline {
                                 script {
                                     // The project we build the frontend for does not matter as it
                                     // is the same process for all projects.
-                                    script = _dockerExecAsUser("yarn run prod:diplanbau")
+                                    script = _dockerExecAsUser("yarn run prod:diplanbau", containerName)
 
                                     sh "$script"
                                 }
