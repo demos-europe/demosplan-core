@@ -49,7 +49,7 @@ pipeline {
                 }
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)',
+                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
                     commandExecYarn =  _dockerExecAsUser('yarn install --prefer-offline --frozen-lockfile')
                     commandExecComposer = _dockerExecAsUser('composer install --no-interaction')
                     sh "mkdir -p .cache"
