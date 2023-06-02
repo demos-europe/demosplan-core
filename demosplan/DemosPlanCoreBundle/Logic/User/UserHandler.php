@@ -1617,7 +1617,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             );
 
             // check PW before send mail
-            if (!$hasherFactory->getPasswordHasher($user)->verify($user->getPassword() ?? '', $password, $user->getSalt())) {
+            if (!$hasherFactory->getPasswordHasher($user)->verify($user->getPassword() ?? '', $password)) {
                 $this->getLogger()->info(
                     'Wrong password on request of email change.',
                     ['userId' => $userId]
