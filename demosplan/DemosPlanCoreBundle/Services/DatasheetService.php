@@ -16,10 +16,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DatasheetService
 {
-    public function getDatasheetVersion(EventDispatcherInterface $eventDispatcher, string $procedureId)
+    private EventDispatcherInterface $eventDispatcher;
+    public function __construct(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDatasheetVersion(string $procedureId)
     {
         /** @var GetDatasheetVersionEvent $event * */
-        $event = $eventDispatcher->dispatch(
+        $event = $this->eventDispatcher->dispatch(
             new GetDatasheetVersionEvent($procedureId),
             GetDatasheetVersionEventInterface::class
         );
