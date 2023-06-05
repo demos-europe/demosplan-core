@@ -37,7 +37,7 @@ class TransformMessageBagService
         RouterInterface $router
     ) {
         $this->messageBag = $messageBag;
-        $this->flashBag = $requestStack->getCurrentRequest()?->getSession()->getFlashBag();
+        $this->flashBag = $requestStack->getSession()->getFlashBag();
         $this->router = $router;
     }
 
