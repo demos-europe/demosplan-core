@@ -161,7 +161,7 @@ class MasterToebServiceTest extends FunctionalTestCase
     public function testUpdateOrgaOnMasterToebUpdate()
     {
         $masterToebBeforeUpdate = clone $this->fixtures->getReference('testMasterToeb');
-        $ident = $masterToebBeforeUpdate->getIdent();
+        $ident = $masterToebBeforeUpdate->getId();
         $data = [
             'departmentName' => 'newAbteilung',
             'orgaName'       => 'newOrganame',
