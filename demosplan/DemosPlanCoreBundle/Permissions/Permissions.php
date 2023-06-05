@@ -245,7 +245,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_statements_released_group_email',
             'feature_statements_vote',
             'field_county_list',
-            'field_fragment_status',
             'field_municipality_list',
             'field_news_pdf',
             'field_organisation_phone',
@@ -362,10 +361,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_admin_new_procedure',  // Neues Verfahren anlegen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-                'feature_statements_fragment_edit',  // Edit StatementFragment
-                'feature_statements_fragment_list',  // List StatementFragments
-                'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben
                 'field_statement_public_allowed',  // Publish statements
                 'feature_json_api_get', // allow get requests to generic api
             ]);
@@ -377,19 +372,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
-                'area_statements_fragment',  // //Area StatementFragments
                 'feature_admin_element_paragraph_import_docx',  // Import paragraphs from docx
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_procedure_export_include_public_interest_bodies_member_list',
                 'field_statement_public_allowed',  // Publish statements
-
-                // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
-                'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-
-                'feature_statements_fragment_edit',  // Edit StatementFragments
-                'feature_statements_fragment_list',  // List StatementFragments
                 'field_statement_recommendation',
             ]);
 
@@ -429,16 +416,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_mydata_organisation',  // Organisation sehen
                 'area_preferences',  // Einstellungen
-                'area_statements_fragment',  // Area Statement Fragments (tab in A-table)
                 'feature_admin_element_paragraph_import_docx',  // Import paragraphs from docx
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_json_api_get', // allow get requests to generic api
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-                'feature_statements_fragment_edit',  // Edit StatementFragments
-                'feature_statements_fragment_list',  // List StatementFragments
-                'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben
                 'field_statement_public_allowed',  // Publish statements
             ]);
         }
