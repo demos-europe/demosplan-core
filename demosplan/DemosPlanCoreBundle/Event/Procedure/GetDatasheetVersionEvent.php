@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetVersionEventInterfac
 class GetDatasheetVersionEvent implements GetDatasheetVersionEventInterface
 {
     private string $procedureId;
+    private int $datasheetVersion;
 
     public function __construct(string $procedureId)
     {
@@ -25,7 +26,7 @@ class GetDatasheetVersionEvent implements GetDatasheetVersionEventInterface
 
     public function getProcedureId(): string
     {
-        return $this->procedure;
+        return $this->procedureId;
     }
 
     public function setDatasheetVersion(int $datasheetVersion)
