@@ -271,7 +271,7 @@ class MapScreenshotter
     ): ?string {
         try {
             $copyrightText = $copyrightText
-                ?? $this->translator->trans('map.attribution.exports', ['year' => date('Y')]);
+                ?? $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
 
             $features = $this
                 ->geoJsonToFeaturesConverter
