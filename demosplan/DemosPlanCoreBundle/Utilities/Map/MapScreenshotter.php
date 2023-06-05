@@ -204,7 +204,7 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = $this->translator->trans('map.attribution.exports', ['year' => date('Y')]);
+                    $copyrightText = $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
