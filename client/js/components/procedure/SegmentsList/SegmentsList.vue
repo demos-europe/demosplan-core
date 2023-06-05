@@ -30,11 +30,11 @@
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
-            v-for="filter in filters"
+            v-for="(filter, idx) in filters"
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
-            ref="filterFlyout"
+            :ref="`filterFlyout${idx}`"
             :label="Translator.trans(filter.labelTranslationKey)"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
@@ -577,7 +577,7 @@ export default {
       this.$refs.customSearch.reset()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+        this.$refs[`filterFlyout${idx}`].reset()
       })
       this.updateQueryHash()
       this.resetSelection()
