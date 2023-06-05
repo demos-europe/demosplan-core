@@ -485,8 +485,11 @@ class DemosPlanProcedureController extends BaseController
             ];
         }
 
-        $statementQueryResult = $this->getStatements($statementService, $procedureId);
-        if (null === $statementQueryResult) {
+        try {
+            $statementQueryResult = $this->getStatements($statementService, $procedureId);
+        } catch (Exception $exception) {
+            $this->logger->warning('Could not get Statements by Status ', [$exception]);
+
             return [
                 'statementStatusData' => array_values($statementStatusData),
                 'total'               => 0,
@@ -2977,31 +2980,25 @@ class DemosPlanProcedureController extends BaseController
         return str_contains(strtolower($eMailTitle), strtolower($oldProcedureName));
     }
 
-    protected function getStatements(StatementService $statementService, string $procedureId): ?ElasticsearchResultSet
+    protected function getStatements(StatementService $statementService, string $procedureId): ElasticsearchResultSet
     {
-        try {
-            $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
-            $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_STATUS);
-            $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_PRIORITY);
+        $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_STATUS);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_PRIORITY);
 
-            return $statementService->getStatementsByProcedureId(
-                $procedureId,
-                ['isPlaceholder' => false],
-                null,
-                null,
-                0,
-                1,
-                [],
-                true,
-                1,
-                true,
-                true,
-                [$statusPriorityAggregation]
-            );
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-
-            return null;
-        }
+        return $statementService->getStatementsByProcedureId(
+            $procedureId,
+            ['isPlaceholder' => false],
+            null,
+            null,
+            0,
+            1,
+            [],
+            true,
+            0,
+            true,
+            true,
+            [$statusPriorityAggregation]
+        );
     }
 }

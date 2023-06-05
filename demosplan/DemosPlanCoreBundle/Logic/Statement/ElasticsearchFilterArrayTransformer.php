@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanStatementBundle\Logic\ElasticSearchService;
 use Psr\Log\LoggerInterface;
+use function is_array;
 
 class ElasticsearchFilterArrayTransformer
 {
@@ -41,14 +42,24 @@ class ElasticsearchFilterArrayTransformer
     public function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!\is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
+        if ((!is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
             return $filter;
         }
 
         foreach ($bucket as $entry) {
+            $key = $entry[$labelKey];
+            if (is_array($key)) {
+                // In case of a multi term aggregation there are multiple values that
+                // need to be concatenated to be usable by the following logic. Please
+                // note that as of now multi term aggregations are not intended to be
+                // used in UI filters anyway. Thus, this line primarily attempts to
+                // circumvent errors, instead of providing actual thought through support
+                // for multi term aggregations in UI filters.
+                $key = implode('+', $key);
+            }
             $filterEntry = [
                 'count' => $entry[$countKey],
-                'label' => \array_key_exists($entry[$labelKey], $labelMap) ? $labelMap[$entry[$labelKey]] : $entry[$labelKey],
+                'label' => $labelMap[$key] ?? $key,
                 'value' => $entry[$valueKey],
             ];
             // Setze einen Stadardwert, wenn kein Label angegeben ist

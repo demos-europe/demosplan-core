@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use Elastica\Aggregation\GlobalAggregation;
+use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Aggregation\Traits\MissingTrait;
 use Elastica\Aggregation\Traits\ShardSizeTrait;
 
@@ -23,7 +23,7 @@ use Elastica\Aggregation\Traits\ShardSizeTrait;
  *
  * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/search-aggregations-bucket-multi-terms-aggregation.html
  */
-class MultiTermsAggregation extends GlobalAggregation
+class MultiTermsAggregation extends AbstractAggregation
 {
     use MissingTrait;
     use ShardSizeTrait;
