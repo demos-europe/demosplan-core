@@ -68,7 +68,13 @@ class StatementGeoService extends CoreService
      */
     private $globalConfig;
 
+    /**
+     * @var DatasheetService
+     */
+    private $datasheetService;
+
     public function __construct(
+        DatasheetService $datasheetService,
         CountyService $countyService,
         Environment $twig,
         GlobalConfigInterface $globalConfig,
@@ -86,6 +92,7 @@ class StatementGeoService extends CoreService
         $this->statementService = $statementService;
         $this->twig = $twig;
         $this->globalConfig = $globalConfig;
+        $this->datasheetService = $datasheetService;
     }
 
     /**
@@ -603,9 +610,9 @@ class StatementGeoService extends CoreService
      * This is in StatementService, since it's only used there. It's not really about the procedure, it's actually
      * about the statement.
      */
-    private function isStatementOfProcedurePartOfWind(int $windNumber, string $procedureId, DatasheetService $datasheetService): bool
+    private function isStatementOfProcedurePartOfWind(int $windNumber, string $procedureId): bool
     {
-        return $windNumber === $datasheetService->getDatasheetVersion($procedureId);
+        return $windNumber === $this->datasheetService->getDatasheetVersion($procedureId);
     }
 
     /**
