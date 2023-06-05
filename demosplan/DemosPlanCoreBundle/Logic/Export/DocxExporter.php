@@ -43,9 +43,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\Style\Language;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -197,7 +195,7 @@ class DocxExporter
          * Therefore this workaround with similar but project specific creation of
          * documents.
          */
-        $phpWord = $this->initializePhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         $incomingStatements = $outputResult->getStatements();
         $procedure = $this->getProcedureHandler()->getProcedureWithCertainty($outputResult->getProcedure()['id']);
@@ -522,21 +520,6 @@ class DocxExporter
             ->pluck('id')
             ->unique()
             ->all();
-    }
-
-    protected function initializePhpWord(): PhpWord
-    {
-        $phpWord = new PhpWord();
-        // avoid problems with < in statementTexts T3921
-        Settings::setOutputEscapingEnabled(true);
-        // https://stackoverflow.com/questions/33267654/
-        $phpWord->getSettings()->setUpdateFields(true);
-        $phpWord->getSettings()->setThemeFontLang(new Language(Language::DE_DE));
-
-        // http://phpword.readthedocs.org/en/latest/index.html
-        // https://github.com/PHPOffice/PHPWord
-
-        return $phpWord;
     }
 
     /**
