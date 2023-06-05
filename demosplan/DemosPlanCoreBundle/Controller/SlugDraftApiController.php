@@ -30,7 +30,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class SlugDraftApiController extends APIController
 {
     /**
-     *
      * Currently this route is only needed when editing procedure or orga settings
      * but can be used by anyone as it has no security implications.
      * However, that changes if the route starts to support an
@@ -38,6 +37,7 @@ class SlugDraftApiController extends APIController
      * accordingly.
      *
      * @DplanPermissions("feature_short_url")
+     *
      * @return APIResponse|JsonResponse
      */
     #[Route(methods: ['POST'], name: 'create')]

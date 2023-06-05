@@ -32,9 +32,9 @@ use ZipStream\ZipStream;
 class SegmentsExportController extends BaseController
 {
     /**
-     *
      * @throws StatementNotFoundException
      * @throws Exception
+     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
     #[Route(name: 'dplan_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte/export', options: ['expose' => true])]

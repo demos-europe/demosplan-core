@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
@@ -23,6 +22,7 @@ use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * Enthält die Handlerfunktionalitäten, die alle Handler nutzen können

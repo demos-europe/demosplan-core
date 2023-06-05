@@ -30,7 +30,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SurveyController extends BaseController
 {
     /**
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -79,7 +78,6 @@ class SurveyController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -121,7 +119,6 @@ class SurveyController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -160,7 +157,6 @@ class SurveyController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -199,7 +195,6 @@ class SurveyController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_survey")
      *
      * @throws MessageBagException

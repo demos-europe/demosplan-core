@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_news")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NewsRepository")
  */
 class News extends CoreEntity implements UuidEntityInterface
@@ -37,8 +38,11 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_n_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -125,6 +129,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_n_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -133,6 +138,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_n_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -141,6 +147,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_n_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -149,11 +156,13 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Role>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
+     *
      * @ORM\JoinTable(
      *     name="_news_roles",
      *     joinColumns={@ORM\JoinColumn(name="_n_id", referencedColumnName="_n_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
+     *
      * @AllRolesInGroupPresentConstraint(groupCodes={Role::GLAUTH}, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $roles;
@@ -162,6 +171,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime|null
      *
      * @ORM\Column(type = "datetime", nullable = true)
+     *
      * @DateInFutureConstraint(groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $designatedSwitchDate;

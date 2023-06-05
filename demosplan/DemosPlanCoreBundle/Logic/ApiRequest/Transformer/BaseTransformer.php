@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
@@ -20,6 +19,7 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\Transformer\BaseTransformerInter
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\TransformerAbstract;
 use LogicException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class BaseTransformer extends TransformerAbstract implements BaseTransformerInterface
 {

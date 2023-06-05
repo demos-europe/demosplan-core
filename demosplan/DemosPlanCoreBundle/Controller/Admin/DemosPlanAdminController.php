@@ -31,7 +31,6 @@ class DemosPlanAdminController extends BaseController
     /**
      * Generiert die HTML Seite für die Statistik.
      *
-     *
      * @DplanPermissions("area_statistics")
      *
      * @param string $part

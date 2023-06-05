@@ -21,8 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemosPlanDepartmentAPIController extends APIController
 {
     /**
-     *
      * @DplanPermissions("area_manage_users")
+     *
      * @param string $organisationId
      */
     #[Route(path: '/api/1.0/{organisationId}/department/', methods: ['GET'], name: 'dplan_api_department_list', options: ['expose' => true])]

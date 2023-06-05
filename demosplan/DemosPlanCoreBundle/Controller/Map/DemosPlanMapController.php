@@ -54,12 +54,12 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Karte zum Verwalten der Karteneigenschaften wie BoundingBox & Startkartenausschnitt.
      *
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
@@ -141,12 +141,12 @@ class DemosPlanMapController extends BaseController
      * Warning: This action needs to be situated in front of DemosPlan_map_administration_gislayer_edit
      * otherwise "/neu" would be interpreted as "/{gislayerID}"
      *
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
      *
      * @return Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
@@ -219,13 +219,13 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Editformulars.
      *
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
      * @param string $gislayerID
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_map_administration_gislayer_edit', path: '/verfahren/{procedure}/verwalten/gislayer/{gislayerID}', options: ['expose' => true])]
@@ -303,7 +303,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des LayerCategory-Newformulars.
      *
-     *
      *  @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -371,7 +370,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Kagetorie-Editformulars.
      *
-     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -437,12 +435,12 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Planzeichnung verwalten.
      *
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_map_administration_gislayer', path: '/verfahren/{procedureId}/verwalten/gislayer', options: ['expose' => true])]
@@ -560,10 +558,10 @@ class DemosPlanMapController extends BaseController
     /**
      * Globale GIS-Layer vwewalten.
      *
-     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_map_administration_gislayer_global', path: '/gislayer')]
@@ -619,7 +617,6 @@ class DemosPlanMapController extends BaseController
 
     /**
      * Globale GIS-Layer bearbeiten.
-     *
      *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
@@ -710,8 +707,8 @@ class DemosPlanMapController extends BaseController
      * Rufe die Sachdateninformationen ab.
      * Via Controller, weil per JavaScript nicht auf andere Domains zugegriffen werden darf.
      *
-     *
      * @DplanPermissions("area_map_participation_area")
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_map_get_feature_info', path: '/getFeatureInfo/{procedure}', options: ['expose' => true])]
@@ -757,10 +754,10 @@ class DemosPlanMapController extends BaseController
      * Get procedure by procedureType and clicked coordinate
      * proxy request through controller to avoid cors issues.
      *
-     *
      * @DplanPermissions("feature_procedure_planning_area_match")
      *
      * @param string $procedure
+     *
      * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_map_get_planning_area', path: '/getPlanningArea/{procedure}', options: ['expose' => true])]
@@ -856,10 +853,10 @@ class DemosPlanMapController extends BaseController
     /**
      * Rufe die getCapabilities eines lokal gespeicherten Layers ab.
      *
-     *
      * @deprecated Is this route used any more?
      *
      * @param string $layerId
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_map_get_capabilities_local', path: '/getCapabilitiesLocal/{layerId}', options: ['expose' => true])]

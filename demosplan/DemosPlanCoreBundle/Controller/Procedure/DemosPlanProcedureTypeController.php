@@ -44,7 +44,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureTypeController extends BaseController
 {
     /**
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws QueryException
@@ -68,7 +67,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -120,8 +118,8 @@ class DemosPlanProcedureTypeController extends BaseController
      * For the moment, this method looks very much like the editAction, because it is basically the preparation step for a duplication.
      * This will be different when we have the case of actually creating new procedureTypes from scratch.
      *
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
+     *
      * @throws ResourceNotFoundException
      */
     #[Route(name: 'DemosPlan_procedureType_duplicate', path: 'verfahrenstypen/{procedureTypeId}/duplicate', methods: ['GET'], options: ['expose' => true])]
@@ -179,7 +177,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -235,7 +232,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response
@@ -361,7 +357,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response

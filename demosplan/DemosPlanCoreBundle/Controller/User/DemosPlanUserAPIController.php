@@ -86,8 +86,8 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_user_get")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/user/{userId}/get', methods: ['GET'], name: 'dplan_api_user_get', options: ['expose' => true])]
@@ -117,8 +117,8 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_user_list")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/user/', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
@@ -176,10 +176,10 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
+     *
      * @deprecated Use `/api/2.0/User` instead ({@link GenericApiController::createAction()})
      */
     #[Route(path: '/api/1.0/user/', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
@@ -232,8 +232,8 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_user_delete")
+     *
      * @return APIResponse|EmptyResponse
      */
     #[Route(path: '/api/1.0/user/{id}', methods: ['DELETE'], name: 'dplan_api_user_delete', options: ['expose' => true])]

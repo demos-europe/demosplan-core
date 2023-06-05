@@ -51,7 +51,6 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Get organisation by ID.
      *
-     *
      * @DplanPermissions("feature_orga_get")
      */
     #[Route(path: '/api/1.0/Orga/{id}', name: 'dplan_api_orga_get', options: ['expose' => true], methods: ['GET'])]
@@ -85,8 +84,8 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * List organizations, depending on permissions.
      *
-     *
      * @DplanPermissions("area_organisations")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
@@ -258,7 +257,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/deletion_of_entity_objects/ delete entity objects
      *
-     *
      * @DplanPermissions("feature_orga_delete")
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_delete', options: ['expose' => true], methods: ['DELETE'])]
@@ -288,10 +286,10 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Creates a new Organisation.
      *
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
@@ -330,8 +328,8 @@ class DemosPlanOrganisationAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_orga_edit")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]

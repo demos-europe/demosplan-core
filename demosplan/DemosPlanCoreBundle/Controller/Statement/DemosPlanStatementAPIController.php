@@ -93,14 +93,15 @@ class DemosPlanStatementAPIController extends APIController
         );
         $this->permissions = $permissions;
     }
+
     // @improve T12984
     /**
-     *
      * Copy Statement into (another) procedure.
      *
      * @DplanPermissions("feature_statement_copy_to_procedure")
      *
      * @return APIResponse|JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
@@ -188,10 +189,10 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * @DplanPermissions("feature_statement_move_to_procedure")
      *
      * @return APIResponse|JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
@@ -284,10 +285,10 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * @param string $statementId
      *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @return JsonResponse
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
@@ -473,11 +474,11 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
      *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
@@ -517,11 +518,11 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
      *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
@@ -554,7 +555,6 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * Do nothing cases (error response), not all cases implemented yet:
      * <ul>
      * <li>User sent no actions (claim/edit/...) at all
@@ -573,6 +573,7 @@ class DemosPlanStatementAPIController extends APIController
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
      *
      * @return JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]

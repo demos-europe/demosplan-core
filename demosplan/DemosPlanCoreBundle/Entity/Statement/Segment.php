@@ -32,6 +32,7 @@ class Segment extends Statement implements SegmentInterface
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
      */
     #[Assert\NotNull(groups: [Segment::VALIDATION_GROUP_IMPORT])]
@@ -72,6 +73,7 @@ class Segment extends Statement implements SegmentInterface
      * @var Place
      *
      * @ORM\ManyToOne(targetEntity=Place::class)
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     #[Assert\NotBlank(groups: ['Default', Segment::VALIDATION_GROUP_IMPORT])]

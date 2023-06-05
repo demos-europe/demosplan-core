@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use Closure;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -28,6 +27,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -52,7 +52,6 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     *
      * @return $this
      */
     #[Required]
@@ -65,7 +64,6 @@ abstract class CoreRepository extends ServiceEntityRepository
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
      *
      * @return $this
      */

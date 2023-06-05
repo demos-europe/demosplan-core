@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_statement_meta")
+ *
  * @ORM\Entity
  */
 class StatementMeta extends CoreEntity implements UuidEntityInterface
@@ -35,8 +36,11 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_stm_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -45,6 +49,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var Statement
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="meta", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     protected $statement;
@@ -129,6 +134,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
+     *
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaPostalNull')]

@@ -33,10 +33,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Renders the admin view of a single tag.
      *
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false])]
@@ -103,10 +103,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * List of Tags that are being used in this procedures.
      *
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
@@ -135,10 +135,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Edit Tags and topics that are being used in this procedures.
      *
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false])]

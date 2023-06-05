@@ -47,7 +47,6 @@ class DemosPlanAssessmentExportController extends BaseController
      * An Assessment table export Action that can handle all types of exports
      * specified in the export options yml.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return Response

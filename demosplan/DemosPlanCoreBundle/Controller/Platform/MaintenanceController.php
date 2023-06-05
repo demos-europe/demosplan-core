@@ -109,10 +109,10 @@ class MaintenanceController extends BaseController
     /**
      * User facing page for active service mode.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(path: '/servicemode', name: 'core_service_mode')]
@@ -137,7 +137,6 @@ class MaintenanceController extends BaseController
     /**
      * Simple Action to evaluate response code for heartbeat monitoring.
      *
-     *
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
@@ -152,10 +151,10 @@ class MaintenanceController extends BaseController
      * These tasks are run regularily *and* require a session which is
      * why they are currently managed in this action
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key
+     *
      * @throws Throwable
      */
     #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]

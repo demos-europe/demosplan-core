@@ -26,21 +26,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 class PreparationMailVO extends ValueObject
 {
     /**
-     *
      * @var string
      */
     #[Assert\NotBlank(message: 'mail.subject.notblank')]
     #[Assert\Length(max: 78, maxMessage: 'mail.subject.max.length', min: 2, minMessage: 'mail.subject.min.length')]
     protected $mailSubject;
     /**
-     *
      * @var string
      */
     #[Assert\NotBlank(message: 'mail.body.notblank')]
     #[Assert\Length(min: 2, max: 25000, maxMessage: 'mail.body.max.length')]
     protected $mailBody;
     /**
-     *
      * @var bool
      */
     #[Assert\NotNull]

@@ -42,7 +42,6 @@ class FaqController extends BaseController
      *
      * @throws Exception
      *
-     *
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/faq', name: 'DemosPlan_faq', options: ['expose' => true])]
@@ -78,7 +77,6 @@ class FaqController extends BaseController
 
     /**
      * Displays a list of Faq Articles visible to the current user (only one category, based on route).
-     *
      *
      * @DplanPermissions("area_demosplan")
      *
@@ -127,7 +125,6 @@ class FaqController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
      *
      * @DplanPermissions("area_admin_faq")
      */
@@ -182,7 +179,6 @@ class FaqController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
      *
      * @DplanPermissions("area_admin_faq")
      */
@@ -253,7 +249,6 @@ class FaqController extends BaseController
      *
      * @throws MessageBagException
      * @throws CustomerNotFoundException
-     *
      *
      * @DplanPermissions("area_admin_faq")
      */
@@ -371,7 +366,6 @@ class FaqController extends BaseController
     /**
      * @DplanPermissions("area_admin_faq")
      *
-     *
      * @param string $categoryId
      * @param string $action
      *
@@ -456,8 +450,8 @@ class FaqController extends BaseController
     /**
      * @DplanPermissions("area_admin_faq")
      *
-     *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(path: '/category/{categoryId}/delete', name: 'DemosPlan_faq_administration_category_delete', options: ['expose' => true, 'action' => 'delete'])]

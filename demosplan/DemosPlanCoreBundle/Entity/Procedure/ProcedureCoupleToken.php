@@ -68,8 +68,6 @@ class ProcedureCoupleToken implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=12, nullable=false, unique=true, options={"fixed":true})
-     *
-     *
      */
     #[Assert\Length(max: ProcedureCoupleToken::TOKEN_LENGTH, min: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
     #[Assert\NotBlank(message: 'procedureCoupleToken.token.invalid', allowNull: false, normalizer: 'trim')]

@@ -30,7 +30,6 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * Teilnehmerliste anzeigen.
      *
-     *
      * @DplanPermissions("area_main_view_participants")
      *
      * @return Response
@@ -56,10 +55,10 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List users of a specific organisation.
      *
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_list', path: '/user/list')]
@@ -76,10 +75,10 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List all AddressBookEntries of specific Organisation.
      *
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_get_address_book_entries', path: '/organisation/adressen/liste/{organisationId}', methods: ['GET'])]
@@ -104,10 +103,10 @@ class DemosPlanUserListController extends DemosPlanUserController
      * Administrate users.
      * In this case administrate means, save or delete users.
      *
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_admin', path: '/user/admin')]

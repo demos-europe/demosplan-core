@@ -368,8 +368,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime *
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
-     *
-     *
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
     #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]

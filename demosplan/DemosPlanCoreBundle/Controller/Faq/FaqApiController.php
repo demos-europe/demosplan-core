@@ -22,8 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class FaqApiController extends APIController
 {
     /**
-     *
      * @DplanPermissions("area_admin_faq")
+     *
      * @deprecated use `api_resource_update` route instead
      */
     #[Route(path: '/api/1.0/faq/{faqId}', methods: ['PATCH'], name: 'dp_api_admin_faq_update', options: ['expose' => true])]

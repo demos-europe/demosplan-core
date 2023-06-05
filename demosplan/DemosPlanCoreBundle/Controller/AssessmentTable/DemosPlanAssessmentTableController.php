@@ -149,11 +149,11 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
-     *
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_assessmenttable_view_table', path: '/verfahren/abwaegung/view/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => false], options: ['expose' => true])]
@@ -350,11 +350,11 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
-     *
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_assessmenttable_view_original_table', path: '/verfahren/original/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => true], options: ['expose' => true])]
@@ -632,7 +632,6 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Abwaegungstabelle - Detailseite.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param bool $isCluster Determines if the given Statement is a cluster
@@ -802,8 +801,8 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Kopieren einer einzelnen Stellungnahme.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_single_copy', path: '/verfahren/{procedure}/abwaegung/copy/{statement}')]
@@ -833,12 +832,12 @@ class DemosPlanAssessmentTableController extends BaseController
      * This action is used to fill out the votum-form when assigning
      * tags to them.
      *
-     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $tag
      *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_boilerplates_ajax', path: '/boilerplatetext/{procedure}/{tag}', options: ['expose' => true])]
@@ -878,7 +877,6 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Get complete text of a statement to be displayed in a <dp-height-limit> component.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * Optionally pass `includeShortened=true` as get parameter to include
@@ -887,6 +885,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @param string $statementId
      *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_statement_ajax', path: '/_ajax/statement/{statementId}', options: ['expose' => true])]
@@ -919,12 +918,12 @@ class DemosPlanAssessmentTableController extends BaseController
      * Optionally pass `includeShortened=true` as get parameter to include
      * shortened fragment.
      *
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "field_statement_recommendation"})
      *
      * @param string $statementId
      *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_recommendation_ajax', path: '/_ajax/recommendation/{statementId}', options: ['expose' => true])]
@@ -954,7 +953,6 @@ class DemosPlanAssessmentTableController extends BaseController
 
     /**
      * Return all versions of considerations of a fragment.
-     *
      *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
@@ -991,7 +989,6 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     *
      * @param string      $procedureId
      * @param array       $rParams
      * @param string|null $filterHash
@@ -1032,10 +1029,10 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_bulk_edit"})
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_action', path: '/verfahren/{procedureId}/bulk-edit', methods: ['GET'], options: ['expose' => true])]
@@ -1066,12 +1063,12 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_fragment_bulk_edit"})
      *
      * @param string $procedureId
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_fragment_bulk_edit', path: '/verfahren/{procedureId}/fragment-bulk-edit', methods: ['GET'], options: ['expose' => true])]

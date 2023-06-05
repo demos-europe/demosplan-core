@@ -90,8 +90,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     *
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     #[Assert\Email]

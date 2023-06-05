@@ -27,10 +27,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanHelpController extends BaseController
 {
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
@@ -61,10 +61,10 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
@@ -90,11 +90,11 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
@@ -115,12 +115,12 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     *
      * @param string|null $contextualHelpId
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
+     *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
@@ -155,11 +155,11 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]

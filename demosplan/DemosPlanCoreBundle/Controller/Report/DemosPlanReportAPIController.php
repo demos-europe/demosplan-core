@@ -40,8 +40,8 @@ class DemosPlanReportAPIController extends APIController
      * - int page: Set the requested page (default: 1)
      * - array|string[] category: Set the categories from the requested group (default: [])
      *
-     *
      * @DplanPermissions("area_admin_protocol")
+     *
      * @param string $group
      */
     #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]

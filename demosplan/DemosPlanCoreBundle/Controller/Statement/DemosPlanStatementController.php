@@ -147,7 +147,6 @@ class DemosPlanStatementController extends BaseController
     /**
      * PDF-Export der Statements.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $procedure
@@ -202,10 +201,10 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_statements_public")
      *
      * @return RedirectResponse|Response|null
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_list_public', path: '/verfahren/{procedure}/stellungnahmen/toeb', defaults: ['templateName' => 'list_public'])]
@@ -278,7 +277,6 @@ class DemosPlanStatementController extends BaseController
 
     /**
      * Einreichen einer Stellungnahme aus der öffentlichen Beteiligung.
-     *
      *
      * @DplanPermissions({"feature_new_statement", "area_statements_draft"})
      *
@@ -493,7 +491,6 @@ class DemosPlanStatementController extends BaseController
 
     /**
      * The GET parameter reset resets the filters in session.
-     *
      *
      * @DplanPermissions("area_statements")
      *
@@ -757,12 +754,12 @@ class DemosPlanStatementController extends BaseController
     /**
      * Stellungahme mitzeichnen.
      *
-     *
      * @DplanPermissions("feature_statements_vote_may_vote")
      *
      * @param string $procedure Procedure Id
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_public_vote', path: '/verfahren/{procedure}/stellungnahmen/public/{statementID}/vote')]
@@ -841,13 +838,13 @@ class DemosPlanStatementController extends BaseController
     /**
      * Stellungahme mitzeichnen.
      *
-     *
      * @DplanPermissions("feature_statements_like_may_like")
      *
      * @param string $procedure
      * @param string $statementId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_public_like', path: '/verfahren/{procedure}/stellungnahmen/public/{statementId}/vote/anonymous')]
@@ -885,7 +882,6 @@ class DemosPlanStatementController extends BaseController
     /**
      * Speichere eine Stellungnahme via Ajax-Aufruf.
      *
-     *
      * @param string $procedure Procedure Id
      *
      * @return Response
@@ -893,6 +889,7 @@ class DemosPlanStatementController extends BaseController
      * initially use area_demosplan, specific permissions are checked below
      *
      * @throws Throwable
+     *
      * @DplanPermissions("area_demosplan")
      */
     #[Route(name: 'DemosPlan_statement_public_participation_new_ajax', methods: 'POST', path: '/verfahren/{procedure}/stellungnahmen/public/neu/ajax', options: ['expose' => true])]
@@ -1044,10 +1041,10 @@ class DemosPlanStatementController extends BaseController
     /**
      * Detailansicht einer Stellungnahme in der Bürgeransicht.
      *
-     *
      * @DplanPermissions("area_statements_public_published_public")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_public_participation_published', path: '/verfahren/{procedure}/stellungnahme/{statementID}')]
@@ -1078,10 +1075,10 @@ class DemosPlanStatementController extends BaseController
     /**
      * Edit Statement.
      *
-     *
      * @DplanPermissions({"area_statements_draft","feature_statements_draft_edit"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_edit', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/edit', options: ['expose' => true])]
@@ -1149,11 +1146,11 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     *
      * @param string $procedure
      * @param string $statementID
      *
      * @return RedirectResponse|Response
+     *
      * @throws Throwable
      */
     #[Route(name: 'DemosPlan_statement_send', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/send', options: ['expose' => true])]
@@ -1281,13 +1278,13 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_statements_draft_versions")
      *
      * @param string $procedure   ID of the Procedure
      * @param string $statementID ID of the DraftStatement
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException|UserNotFoundException
      * @throws Exception
      */
@@ -1335,11 +1332,11 @@ class DemosPlanStatementController extends BaseController
     /**
      * Veröffentliche die Stellungnahme für andere TöB.
      *
-     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * @param string $procedure
      * @param string $statementID
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_statement_publish', path: '/verfahren/{procedure}/stellungnahme/{statementID}/publish', options: ['expose' => true])]
@@ -1377,7 +1374,6 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * Ziehe die Veröffentlichung der Stellungnahme für andere TöB zurück.
@@ -1386,6 +1382,7 @@ class DemosPlanStatementController extends BaseController
      * @param string $statementID
      *
      * @return RedirectResponse
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_statement_unpublish', path: '/verfahren/{procedure}/stellungnahme/{statementID}/unpublish', options: ['expose' => true])]
@@ -1425,7 +1422,6 @@ class DemosPlanStatementController extends BaseController
     /**
      * Get draftStatement.
      *
-     *
      * @DplanPermissions("area_statements")
      *
      * @param string $procedureId      Needed for initializing
@@ -1457,8 +1453,8 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_statements")
+     *
      * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_statement_get_count_internal', path: '/rest/statement/count/{procedure}')]
@@ -2348,9 +2344,9 @@ class DemosPlanStatementController extends BaseController
      * List all statements per procedure
      * without any possibilities to edit.
      *
-     *
      * @throws ProcedureNotFoundException
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_statement_list")
      */
     #[Route(name: 'dplan_procedure_statement_list', methods: ['GET'], path: '/verfahren/{procedureId}/einwendungen', options: ['expose' => true])]
@@ -2382,9 +2378,9 @@ class DemosPlanStatementController extends BaseController
     /**
      * Imports Statements from a xlsx-file.
      *
-     *
      * @throws ProcedureNotFoundException
      * @throws Exception
+     *
      * @DplanPermissions({"feature_statements_import_excel"})
      */
     #[Route(name: 'DemosPlan_statement_import', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/import', options: ['expose' => true])]

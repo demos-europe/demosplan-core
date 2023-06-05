@@ -27,7 +27,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanMailController extends BaseController
 {
     /**
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -143,12 +142,12 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_view', path: '/verfahren/{procedureId}/mailconfirm', methods: ['HEAD', 'GET'])]
@@ -186,12 +185,12 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_send', path: '/verfahren/{procedureId}/mailconfirm', methods: ['POST'])]

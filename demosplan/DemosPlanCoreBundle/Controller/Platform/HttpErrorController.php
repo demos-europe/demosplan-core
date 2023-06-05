@@ -23,7 +23,6 @@ class HttpErrorController extends BaseController
     /**
      * Create custom 404 Response.
      *
-     *
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: 'notfound', methods: ['GET'], name: 'core_404')]
@@ -56,7 +55,6 @@ class HttpErrorController extends BaseController
 
     /**
      * Create custom 500 page.
-     *
      *
      * @DplanPermissions("area_demosplan")
      */

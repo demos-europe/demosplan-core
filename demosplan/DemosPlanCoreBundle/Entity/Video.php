@@ -123,8 +123,11 @@ class Video implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -139,6 +142,7 @@ class Video implements UuidEntityInterface
      * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     private $uploader;
@@ -149,6 +153,7 @@ class Video implements UuidEntityInterface
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
     #[Assert\NotNull]
@@ -160,7 +165,9 @@ class Video implements UuidEntityInterface
      * @var File
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
+     *
      * @VideoFileConstraint()
      */
     #[Assert\NotNull]
@@ -192,6 +199,7 @@ class Video implements UuidEntityInterface
      * @var DateTimeInterface
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -200,6 +208,7 @@ class Video implements UuidEntityInterface
      * @var DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     private $modificationDate;

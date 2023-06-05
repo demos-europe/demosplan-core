@@ -49,7 +49,6 @@ class EntitySyncLink implements UuidEntityInterface
     /**
      * @var class-string<T>
      *
-     *
      * @ORM\Column(type="string")
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
@@ -58,7 +57,6 @@ class EntitySyncLink implements UuidEntityInterface
     /**
      * @var string
      *
-     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
@@ -66,7 +64,6 @@ class EntitySyncLink implements UuidEntityInterface
 
     /**
      * @var string
-     *
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */

@@ -132,8 +132,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      *
      * @var string
      *
-     *
-     *
      * @ORM\Column(type="string", length=500, nullable=false, options={"default":""})
      */
     #[Assert\Length(min: 0, max: 500, maxMessage: 'procedureUiDefinition.statementPublicSubmitConfirmationText.maxLength', options: ['allowEmptyString' => true])]

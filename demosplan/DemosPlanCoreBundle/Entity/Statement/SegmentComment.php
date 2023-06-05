@@ -29,8 +29,11 @@ class SegmentComment implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -42,6 +45,7 @@ class SegmentComment implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
      *     inversedBy="comments"
      * )
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      */
     #[Assert\NotNull]
@@ -53,6 +57,7 @@ class SegmentComment implements UuidEntityInterface
      * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $submitter;
@@ -63,6 +68,7 @@ class SegmentComment implements UuidEntityInterface
      * @var Place|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     protected $place;
@@ -71,6 +77,7 @@ class SegmentComment implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $creationDate;

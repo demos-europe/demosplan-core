@@ -94,12 +94,12 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
      *
      * @return JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/mark/participated', methods: ['POST'], name: 'dp_api_procedure_mark_participated', options: ['expose' => true])]
@@ -117,12 +117,12 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
      *
      * @return JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/unmark/participated', methods: ['POST'], name: 'dp_api_procedure_unmark_participated', options: ['expose' => true])]
@@ -142,8 +142,8 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the assessment table.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
@@ -155,8 +155,8 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the original statements list.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/originalstatementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_original_statement_empty_filters', options: ['expose' => true])]
@@ -166,11 +166,11 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
      * @param string $filterHash
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/originalfilters/{filterHash}', methods: ['GET'], name: 'dp_api_procedure_get_original_filters', options: ['expose' => true])]
@@ -198,11 +198,11 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
      * @param string $filterHash
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/{filterHash}', methods: ['GET'], name: 'dp_api_procedure_get_statement_filters', options: ['expose' => true])]
@@ -230,8 +230,8 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @param string $procedureId
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash', methods: ['POST'], name: 'dplan_api_procedure_update_filter_hash', options: ['expose' => true])]
@@ -244,8 +244,8 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @param string $procedureId
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash/original', methods: ['POST'], name: 'dplan_api_procedure_update_original_filter_hash', options: ['expose' => true])]
@@ -397,12 +397,12 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $filterSetId
      *
      * @return JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/delete/{filterSetId}', methods: ['DELETE'], name: 'dplan_api_procedure_delete_statement_filter', options: ['expose' => true])]
@@ -491,10 +491,10 @@ class DemosPlanProcedureAPIController extends APIController
      * Search for Procedures and returns a resultlist
      * in json format.
      *
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_search_ajax', path: '/verfahren/suche/ajax', options: ['expose' => true])]

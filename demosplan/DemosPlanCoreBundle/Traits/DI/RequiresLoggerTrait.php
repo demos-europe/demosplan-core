@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Traits\DI;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait RequiresLoggerTrait
 {

@@ -53,10 +53,10 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Anzeige der MasterTöBliste.
      *
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return RedirectResponse|Response
+     *
      * @throws \Exception
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist', path: '/mastertoeblist')]
@@ -78,8 +78,8 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Update einer Orga via ajax.
      *
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_update_ajax', path: '/mastertoeblist/organisation/update', options: ['expose' => true])]
@@ -100,12 +100,12 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gibt es neue Protokolleinträge seit dem letzen Aufruf des Protokolls.
      *
-     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @param string $userId
      *
      * @return Response
+     *
      * @throws \Exception
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_has_new_reportentry_ajax', path: '/mastertoeblist/report/hasNewReportentry/{userId}', options: ['expose' => true])]
@@ -162,10 +162,10 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Anlegen einer Orga via ajax.
      *
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
+     *
      * @throws CustomerNotFoundException
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_add_ajax', path: '/mastertoeblist/organisation/add', options: ['expose' => true])]
@@ -226,8 +226,8 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Löschen einer Orga via ajax.
      *
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_delete_ajax', path: '/mastertoeblist/organisation/delete', options: ['expose' => true])]
@@ -247,10 +247,10 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gebe eine Liste von geänderten Einträgen der Master-Toeb-Liste aus.
      *
-     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException|\Exception
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_report', path: '/mastertoeblist/report', options: ['expose' => true])]
@@ -405,7 +405,6 @@ class DemosPlanMasterToebController extends BaseController
      * https://github.com/PHPOffice/PhpSpreadsheet, MIT
      * https://github.com/yectep/phpspreadsheet-bundle, MIT
      *
-     *
      * @DplanPermissions("area_use_mastertoeblist")
      *
      * @return RedirectResponse|StreamedResponse
@@ -437,10 +436,10 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Zusammenführen von angemeldeten Organisationen mit Organisationen aus der Master-TöB-Liste.
      *
-     *
      * @DplanPermissions("area_merge_mastertoeblist")
      *
      * @return RedirectResponse|Response
+     *
      * @throws \Exception
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_merge', path: '/mastertoeblist/merge')]

@@ -30,7 +30,6 @@ class FileController extends BaseController
      *
      * @DplanPermissions("area_main_file")
      *
-     *
      * @return BinaryFileDownload|Response
      */
     #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
@@ -117,7 +116,6 @@ class FileController extends BaseController
      * TODO: This should probably be renamed to `core_image`, `core_logo` is misleading
      *
      * @DplanPermissions("area_demosplan")
-     *
      *
      * @param string $hash
      */

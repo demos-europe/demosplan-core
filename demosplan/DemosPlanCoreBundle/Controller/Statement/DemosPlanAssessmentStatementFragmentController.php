@@ -78,10 +78,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Fragment Statement into multiple slices.
      *
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_fragment', path: '/verfahren/{procedure}/fragment/{statementId}', options: ['expose' => true])]
@@ -171,10 +171,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragment versions related to a department.
      *
-     *
      *  @DplanPermissions({"area_statement_fragments_department_archive","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_statement_fragment_list_fragment_archived_reviewer', path: '/datensatz/liste/archive')]
@@ -253,12 +253,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragments related to a department.
      *
-     *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
+     *
      * @internal param string $type
      */
     #[Route(name: 'DemosPlan_statement_fragment_list_fragment_reviewer', path: '/datensatz/liste', options: ['expose' => true])]
@@ -353,7 +353,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Edit a single fragment.
      *
-     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return RedirectResponse|Response
@@ -417,10 +416,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Delete a single fragment.
      *
-     *
      *  @DplanPermissions({"area_admin_assessmenttable","feature_statements_fragment_edit"})
      *
      * @param string $fragmentId
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_statement_fragment_delete_ajax', path: '/_ajax/procedure/{procedureId}/statement/{statementId}/fragment/{fragmentId}/delete', methods: ['POST'], options: ['expose' => true])]
@@ -465,12 +464,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return fragment data as json.
      *
-     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param string $procedure
      * @param string $statementId
      * @param string $fragmentId
+     *
      * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_statement_fragment_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}', options: ['expose' => true])]
@@ -488,10 +487,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return all considerations of all fragments of a statement.
      *
-     *
      *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
      *
      * @param string $statementId
+     *
      * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_statement_fragment_considerations_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations', options: ['expose' => true])]
@@ -528,8 +527,8 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions({"area_statements_fragment", "feature_statements_fragment_add"})
      *
-     *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_fragment_add', path: '/verfahren/{procedure}/fragment/{statementId}/add')]
@@ -608,7 +607,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
     /**
      * Set a vote or advice to a fragment statement.
-     *
      *
      *  @DplanPermissions({"area_statements_fragment","feature_statements_fragment_edit"})
      *
@@ -766,12 +764,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Exports a subset of fragments from the fragmentList to PDF.
      *
-     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param Request $request ;
      *
      * @return Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_fragment_list_export', path: '/datensatz/liste/export', options: ['expose' => true])]

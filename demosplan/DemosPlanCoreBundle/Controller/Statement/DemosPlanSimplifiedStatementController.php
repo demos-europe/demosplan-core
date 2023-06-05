@@ -30,9 +30,9 @@ class DemosPlanSimplifiedStatementController extends BaseController
     /**
      * Creates a new Statement from the simplified form.
      *
-     *
      * @throws MessageBagException
      * @throws UserNotFoundException
+     *
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
     #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]

@@ -28,7 +28,6 @@ class ConsultationController extends BaseController
     /**
      * Handle Autorisation via ConsultationTokens.
      *
-     *
      * @DplanPermissions("feature_public_consultation")
      */
     #[Route(name: 'core_auth_procedure_consultation', path: '/consultation/auth/{procedureId}')]

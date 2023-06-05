@@ -30,8 +30,8 @@ class GdprConsentRevokeTokenController extends BaseController
     private const POST_PARAM_KEY_GDPR_CONSENT_REVOKE_TOKEN = 'gdprConsentRevokeToken';
 
     /**
-     *
      * @DplanPermissions("area_gdpr_consent_revoke_page")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
@@ -61,7 +61,6 @@ class GdprConsentRevokeTokenController extends BaseController
 
     /**
      * @DplanPermissions("area_demosplan")
-     *
      *
      * @throws Exception
      */

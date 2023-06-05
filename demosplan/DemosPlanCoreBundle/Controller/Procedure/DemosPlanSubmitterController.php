@@ -28,8 +28,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanSubmitterController extends BaseController
 {
     /**
-     *
      * @throws Exception
+     *
      * @DplanPermissions("area_admin_submitters")
      */
     #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]

@@ -20,7 +20,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository")
+ *
  * @ORM\Table(name="workflow_place", uniqueConstraints={
+ *
  *        @ORM\UniqueConstraint(name="unique_workflow_place_name", columns={"name", "procedure_id"}),
  *        @ORM\UniqueConstraint(name="unique_workflow_place_sort_index", columns={"sort_index", "procedure_id"})
  * })
@@ -31,8 +33,11 @@ class Place extends CoreEntity implements SortableInterface
      * @var string|null `null` if this instance was not persisted yet
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     private $id;
@@ -71,6 +76,7 @@ class Place extends CoreEntity implements SortableInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     #[Assert\NotNull]

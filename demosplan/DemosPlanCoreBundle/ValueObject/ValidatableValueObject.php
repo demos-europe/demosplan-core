@@ -25,7 +25,6 @@ class ValidatableValueObject extends ValueObject
      * These assertions are not really needed but an example how to annotate
      * properties with validation assertions.
      *
-     *
      * @var ValidatorInterface
      */
     #[Assert\NotNull]

@@ -68,8 +68,8 @@ class GenericApiController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_json_api_delete")
+     *
      * @return APIResponse
      */
     #[Route(path: '/api/2.0/{resourceType}/{resourceId}', methods: ['DELETE'], name: 'api_resource_delete', options: ['expose' => true])]

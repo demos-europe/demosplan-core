@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
@@ -20,6 +19,7 @@ use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 

@@ -62,10 +62,10 @@ class DemosPlanOrgaController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_verify_orga_switch_or_update', path: '/organisation/verifychanges')]
@@ -115,10 +115,10 @@ class DemosPlanOrgaController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_edit_view', path: '/organisation/edit/{orgaId}', methods: ['GET'])]
@@ -143,10 +143,10 @@ class DemosPlanOrgaController extends BaseController
     /**
      * Edit Organisation.
      *
-     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'])]
@@ -198,12 +198,12 @@ class DemosPlanOrgaController extends BaseController
     /**
      * Edit Organisation design (logo).
      *
-     *
      *  @DplanPermissions({"area_manage_orgadata","feature_orga_logo_edit"})
      *
      * @param string $orgaId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_branding_edit', path: '/organisation/branding/edit/{orgaId}', options: ['expose' => true])]
@@ -310,8 +310,8 @@ class DemosPlanOrgaController extends BaseController
     /**
      * List of organisations to administrate.
      *
-     *
      * @DplanPermissions("area_organisations")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_list', path: '/organisation/list')]
@@ -337,8 +337,8 @@ class DemosPlanOrgaController extends BaseController
     /**
      * Wechsle die Organisation eines Users.
      *
-     *
      * @DplanPermissions("feature_switchorga")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_switch_orga', path: '/organisation/switch')]
@@ -403,8 +403,8 @@ class DemosPlanOrgaController extends BaseController
     }
 
     /**
-     *
      *  @DplanPermissions("feature_orga_registration")
+     *
      * @throws CustomerNotFoundException
      */
     #[Route(name: 'DemosPlan_orga_register_form', path: '/organisation/register', methods: ['GET'], options: ['expose' => true])]
@@ -425,8 +425,8 @@ class DemosPlanOrgaController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_orga_registration")
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_orga_register', path: '/organisation/register', methods: ['POST'], options: ['expose' => true])]

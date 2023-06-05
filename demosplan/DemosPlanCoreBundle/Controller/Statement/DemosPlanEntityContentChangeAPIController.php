@@ -29,7 +29,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
 {
     // @improve T12984
     /**
-     *
      * @DplanPermissions("feature_statement_content_changes_view")
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
@@ -49,8 +48,8 @@ class DemosPlanEntityContentChangeAPIController extends APIController
 
     // @improve T12984
     /**
-     *
      * @DplanPermissions("feature_statement_fragment_content_changes_view")
+     *
      * @return APIResponse|JsonResponse
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', methods: ['GET'], options: ['expose' => true])]
@@ -76,10 +75,10 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     }
 
     /**
-     *
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
      * Then the combination of ABC is a change instance.
+     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]

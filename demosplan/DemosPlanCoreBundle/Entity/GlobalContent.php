@@ -72,9 +72,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_description", type="text", length=65535, nullable=true)
-     *
-     *
-     *
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
     #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
@@ -85,8 +82,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_text", type="text", length=65535, nullable=true)
-     *
-     *
      */
     #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]

@@ -29,7 +29,6 @@ class StatementAnonymizeController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      *
-     *
      * @DplanPermissions("area_statement_anonymize")
      */
     #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]

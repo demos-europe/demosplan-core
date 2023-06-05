@@ -59,8 +59,8 @@ class SurveyVoteAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_survey_management")
+     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/surveyVote/{surveyVoteId}', methods: ['PATCH'], name: 'dplan_surveyvote_update', options: ['expose' => true])]
@@ -90,8 +90,8 @@ class SurveyVoteAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("feature_surveyvote_may_vote")
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'dplan_surveyvote_create', methods: 'POST', path: '/api/1.0/surveyVote', options: ['expose' => true])]

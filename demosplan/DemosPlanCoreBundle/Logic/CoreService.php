@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Symfony\Contracts\Service\Attribute\Required;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class CoreService
 {

@@ -634,8 +634,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Adds a tag to this statement fragment.
-     *
-     * @param Tag $tag
      */
     public function addTag(Tag $tag)
     {
@@ -646,8 +644,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Removes a tag to this statement fragment.
-     *
-     * @param Tag $tag
      */
     public function removeTag(Tag $tag)
     {

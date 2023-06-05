@@ -71,10 +71,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Passwort ändern.
      *
-     *
      * @DplanPermissions("area_mydata_password")
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_change_password', path: '/password/change', options: ['expose' => true])]
@@ -98,10 +98,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * Request change of email.
      * Send Mail to verify change of E-Mail-Address.
      *
-     *
      * @DplanPermissions("feature_change_own_email")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_change_email_request', path: '/email/change')]
@@ -122,7 +122,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     /**
      * Set email address of user. Called via link which was sent to user via email.
-     *
      *
      * @DplanPermissions("feature_change_own_email")
      */
@@ -152,10 +151,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     *
      *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
@@ -202,10 +201,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Alternatives Loginform auf einer ganzen Seite.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
+     *
      * @throws AccessDeniedException|Exception
      */
     #[Route(name: 'DemosPlan_user_login_alternative', path: '/dplan/login', options: ['expose' => true])]
@@ -283,7 +282,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * Ausloggen bedeutet, dass ein Redirect auf die Homepage durchgeführt wird und bei diesem Response gleich
      * noch der Cookie mit dem ident-Code entwertet wird.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @param bool $toGateway
@@ -326,10 +324,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Dislay logout landing page.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_logout_success', path: '/user/logout/success')]
@@ -347,10 +345,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_doubleoptin_invite_confirmation', path: '/doubleoptin/{uId}/{token}')]
@@ -373,10 +371,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_password_set', path: '/user/{uId}/setpass/{token}', options: ['expose' => true])]

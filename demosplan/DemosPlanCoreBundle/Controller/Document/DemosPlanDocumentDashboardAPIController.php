@@ -71,7 +71,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin")
      * Manages the display of the dashboard on load.
      */
@@ -132,7 +131,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin")
      * Manages some updates performed from the dashboard.
      */

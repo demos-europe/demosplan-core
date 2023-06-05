@@ -66,8 +66,8 @@ class DemosPlanAssessmentController extends BaseController
      *
      * NOTE: Only used by Statement Detail View
      *
-     *
      * @DplanPermissions("feature_statement_assignment")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
@@ -116,8 +116,8 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
@@ -149,8 +149,8 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Create new Statement.
      *
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
@@ -222,8 +222,8 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
@@ -267,8 +267,8 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Display single Statement cluster.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
@@ -291,8 +291,8 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Detaches a single Statement from his cluster.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
@@ -317,8 +317,8 @@ class DemosPlanAssessmentController extends BaseController
      * Resolves a single statementCluster.
      * All statements in the cluster will be detached.
      *
-     *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
@@ -341,7 +341,6 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Returns the base data for Vue components on the assessment table.
-     *
      *
      * @DplanPermissions("feature_procedure_get_base_data")
      */

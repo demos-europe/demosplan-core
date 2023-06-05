@@ -26,10 +26,10 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Planungsanlass zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
@@ -62,10 +62,10 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Namen zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier
+     *
      * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]

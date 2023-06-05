@@ -25,10 +25,10 @@ class DemosPlanXplanboxController extends BaseController
     /**
      * Gib den Startkartenausschnitt zu einem Verfahren aus.
      *
-     *
      * @DplanPermissions("feature_use_xplanbox")
      *
      * @param string $procedureName
+     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_xplanbox_get_bounds', path: '/xplanbox/getBounds/{procedureName}', requirements: ['procedureName' => '.+'], options: ['expose' => true])]

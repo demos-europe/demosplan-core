@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
-use Symfony\Contracts\EventDispatcher\Event;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use Exception;
+use Symfony\Contracts\EventDispatcher\Event;
 
 interface EventDispatcherPostInterface
 {

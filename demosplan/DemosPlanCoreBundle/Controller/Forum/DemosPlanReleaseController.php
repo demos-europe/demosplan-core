@@ -32,10 +32,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Index-Seite für Weiterentwicklungsbereich.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_forum_development', path: '/development')]
@@ -78,8 +78,8 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Ein Release anlegen.
      *
-     *
      * @DplanPermissions("feature_forum_dev_release_edit")
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_release_new', path: '/development/release/new')]
@@ -118,10 +118,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Update of a Release.
      *
-     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @param string $releaseId
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_release_edit', path: '/development/{releaseId}/edit')]
@@ -161,11 +161,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Delete a release.
      *
-     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @param string $releaseId
      * @param string $token
+     *
      * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_release_delete', path: '/development/delete/{releaseId}/{token}')]
@@ -196,8 +196,8 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Get a list oof all releases.
      *
-     *
      * @DplanPermissions("feature_forum_dev_release_edit")
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_release_list', path: '/development/release/list')]
@@ -225,12 +225,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Get all infos and user stories of a release.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $releaseId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_forum_development_release_detail', path: '/development/{releaseId}')]
@@ -281,12 +281,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Save votes for user stories by release.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $releaseId
      *
      * @return RedirectResponse
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_forum_development_release_voting', path: '/development/{releaseId}/voting')]
@@ -366,10 +366,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Save new user story.
      *
-     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_new', path: '/development/{releaseId}/story/new')]
@@ -407,11 +407,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Update of an user story.
      *
-     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
      * @param string $storyId
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_edit', path: '/development/{releaseId}/story/edit/{storyId}')]
@@ -457,12 +457,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Lösche eine User Story.
      *
-     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
      * @param string $storyId
      * @param string $token
+     *
      * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_delete', path: '/development/{releaseId}/story/delete/{storyId}/{token}')]
@@ -488,12 +488,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Gebe die Details zu einer UserStory aus.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_detail', path: '/development/story/{storyId}')]
@@ -565,12 +565,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Save a new threadEntry for an userStory.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_new', path: '/development/{storyId}/entry/new')]
@@ -626,13 +626,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * update a threadEntry of user story thread.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
      * @param string $threadEntryId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_edit', path: '/development/{storyId}/entry/{threadEntryId}/edit')]
@@ -728,12 +728,12 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Delete a threadEntry of an user story thread.
      *
-     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
      * @param string $threadEntryId
      * @param string $token
+     *
      * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_delete', path: '/development/{storyId}/entry/{threadEntryId}/delete/{token}')]
@@ -783,8 +783,8 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     /**
      * Exportiere alle Infos zu einem Release im CSV-Format.
      *
-     *
      * @DplanPermissions("feature_forum_dev_release_edit")
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_forum_development_release_export', path: '/development/{releaseId}/export')]

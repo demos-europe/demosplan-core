@@ -42,7 +42,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanMiscContentController extends BaseController
 {
     /**
-     *
      * @DplanPermissions("area_accessibility_explanation")
      *
      * @throws MessageBagException
@@ -65,8 +64,8 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_sign_language_overview_video")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_sign_language', path: '/gebaerdensprache')]
@@ -84,10 +83,10 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_imprint', path: '/impressum', options: ['expose' => true])]
@@ -121,10 +120,10 @@ class DemosPlanMiscContentController extends BaseController
     /**
      * Display dataprotection page.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_dataprotection', path: '/datenschutz', options: ['expose' => true])]
@@ -156,8 +155,8 @@ class DemosPlanMiscContentController extends BaseController
     /**
      * Infoseite zu Anmeldungsprocedere.
      *
-     *
      * @DplanPermissions("area_demosplan")
+     *
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_misccontent_static_how_to_login', path: '/anmeldung')]
@@ -174,10 +173,10 @@ class DemosPlanMiscContentController extends BaseController
     /**
      * Kontaktformular.
      *
-     *
      * @DplanPermissions("area_main_contact")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_contact', path: '/kontakt')]
@@ -269,6 +268,7 @@ class DemosPlanMiscContentController extends BaseController
      * @DplanPermissions("area_software_licenses")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_softwarecomponents', path: '/software')]
@@ -316,10 +316,10 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_terms_of_use")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_terms', path: '/nutzungsbedingungen', options: ['expose' => true])]
@@ -338,10 +338,10 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_main_xplanning")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_xplanung', path: '/xplanung')]
@@ -361,10 +361,10 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_terms_of_use', path: '/informationen/nutzungsbedingungen', options: ['expose' => true])]
@@ -383,8 +383,8 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_documents', path: '/unterlagen')]
@@ -410,10 +410,10 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_information', path: '/informationen')]
@@ -434,8 +434,8 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_simple_language_overview_description_page")
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_simple_language', path: '/leichte-sprache')]

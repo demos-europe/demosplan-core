@@ -34,7 +34,6 @@ class ProcedureFormData extends ValueObject
     protected $agencyMainEmailAddress;
 
     /**
-     *
      * @var Collection<int, EmailAddressVO>
      */
     #[Assert\Type(type: Collection::class)]

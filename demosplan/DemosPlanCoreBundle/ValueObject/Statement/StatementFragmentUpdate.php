@@ -44,7 +44,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class StatementFragmentUpdate extends ValidatableValueObject
 {
     /**
-     *
      * @var string[]
      */
     #[Assert\All([new Assert\Uuid()])]
@@ -54,7 +53,6 @@ final class StatementFragmentUpdate extends ValidatableValueObject
     protected $statementFragmentIds;
 
     /**
-     *
      * @var string
      */
     #[Assert\Uuid]
@@ -68,7 +66,6 @@ final class StatementFragmentUpdate extends ValidatableValueObject
      * initializing an instance. As a result the NotBlank assertion is valid. However when more optional properties
      * are added the validation needs to differentiate between "is null meaning not set" (valid) and "is null because
      * of the request" (invalid).
-     *
      *
      * @var string
      */

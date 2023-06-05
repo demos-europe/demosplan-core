@@ -47,8 +47,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
-     *
-     *
      */
     #[Assert\NotNull(message: 'institutionTag.label.not.null')]
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]

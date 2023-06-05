@@ -72,7 +72,6 @@ class EntrypointController extends BaseController
      * role combination. Guests that end up here will be redirected to
      * the platform's external start page.
      *
-     *
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/loggedin', name: 'core_home_loggedin')]
@@ -150,10 +149,10 @@ class EntrypointController extends BaseController
      * ends up at this page, they may need to be re-routed to
      * their designated logged-in index page.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(path: '/', name: 'core_home', options: ['expose' => true])]

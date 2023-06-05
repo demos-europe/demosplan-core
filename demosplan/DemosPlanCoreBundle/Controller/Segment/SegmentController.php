@@ -52,7 +52,6 @@ class SegmentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      *
      * @throws ProcedureNotFoundException
@@ -101,7 +100,6 @@ class SegmentController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException

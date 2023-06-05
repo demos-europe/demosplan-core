@@ -34,10 +34,10 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class DemosPlanDepartmentController extends BaseController
 {
     /**
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_verify_department_switch_or_update', path: '/department/verifychanges', methods: ['GET'])]
@@ -65,12 +65,12 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * List departments of specific organisation.
      *
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param null $orgaId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_department_list', path: '/department/list/{orgaId}')]
@@ -126,10 +126,10 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Creates a new department and relate to a existing organisation.
      *
-     *
      * @DplanPermissions("feature_department_add")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_department_add', path: '/department/add')]
@@ -165,10 +165,10 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Edit Departments.
      *
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_department_edit', path: '/department/edit/{departmentId}')]
@@ -187,12 +187,12 @@ class DemosPlanDepartmentController extends BaseController
      * Administrate departments of a specific organisation.
      * In this case administrate means, save or delete departments.
      *
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param string $orgaId
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_departments_admin', path: '/departments/admin/{orgaId}')]

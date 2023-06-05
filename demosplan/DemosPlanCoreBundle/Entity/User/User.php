@@ -282,9 +282,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @var Collection<int, UserRoleInCustomer>
      *
-     *
-     * 
-     *
      *     @RoleAllowedConstraint()
      * })
      *

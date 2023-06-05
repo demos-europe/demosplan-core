@@ -21,8 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemosPlanMapApiController extends APIController
 {
     /**
-     *
      * @DplanPermissions("area_admin")
+     *
      * @throws Exception
      */
     #[Route(path: '/api/1.0/map/options/admin/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_admin', options: ['expose' => true])]
@@ -35,8 +35,8 @@ class DemosPlanMapApiController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_demosplan")
+     *
      * @throws Exception
      */
     #[Route(path: '/api/1.0/map/options/public/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_public', options: ['expose' => true])]

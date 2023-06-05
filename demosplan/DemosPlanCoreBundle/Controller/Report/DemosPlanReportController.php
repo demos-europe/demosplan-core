@@ -33,12 +33,12 @@ class DemosPlanReportController extends BaseController
     /**
      * Show a report.
      *
-     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $procedureId
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
@@ -56,10 +56,10 @@ class DemosPlanReportController extends BaseController
     /**
      * Generates a PDF Report for the given procedure.
      *
-     *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
      * @param string $procedureId
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_export_report', path: '/report/export/{procedureId}', methods: ['GET'], options: ['expose' => true])]

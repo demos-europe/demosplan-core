@@ -77,12 +77,12 @@ class DemosPlanNewsController extends BaseController
     /**
      * Stelle eine Newsdetailansicht für die Beteiligungsebene dar.
      *
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure Procedure Id
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_public_detail', path: '/verfahren/{procedure}/public/aktuelles/{newsID}')]
@@ -122,10 +122,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Exportiere vorhandene News zu einem Verfahren.
      *
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_export', path: '/news/export')]
@@ -144,10 +144,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Exportiere vorhandene News zu einem Verfahren.
      *
-     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_export', path: '/verfahren/{procedure}/aktuelles/export')]
@@ -166,10 +166,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die globalen News je nach Eingeloggt/Ausgeloggt und Übersicht aus.
      *
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news', path: '/news')]
@@ -222,10 +222,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Liste der Verfahrensmitteilungen auf öffentlicher Verfahrensdetail-Seite.
      *
-     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_public', path: '/verfahren/{procedure}/public/aktuelles')]
@@ -269,10 +269,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die Adminliste der News aus.
      *
-     *
      * @DplanPermissions("area_admin_news")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_administration_news', path: '/verfahren/{procedure}/verwalten/aktuelles', options: ['expose' => true])]
@@ -306,10 +306,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die Adminliste der News aus.
      *
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news', path: '/news/verwalten', options: ['expose' => true])]
@@ -401,7 +401,6 @@ class DemosPlanNewsController extends BaseController
      * path /verfahren/{procedure}/verwalten/aktuelles/neu would be interpreted as
      * /verfahren/{procedure}/verwalten/aktuelles/{newsID} with "neu" as {newsId}
      *
-     *
      * @DplanPermissions("area_admin_news")
      *
      * @throws Exception
@@ -437,7 +436,6 @@ class DemosPlanNewsController extends BaseController
 
     /**
      * Gib das Editformular der News aus.
-     *
      *
      * @DplanPermissions("area_admin_news")
      *
@@ -476,7 +474,6 @@ class DemosPlanNewsController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -510,7 +507,6 @@ class DemosPlanNewsController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -548,10 +544,10 @@ class DemosPlanNewsController extends BaseController
     /**
      * News detail. Needs to be situated after all other /news/ routes as otherwise it catches the route.
      *
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_detail', path: '/news/{newsID}')]

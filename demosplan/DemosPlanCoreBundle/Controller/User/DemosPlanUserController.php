@@ -78,10 +78,10 @@ class DemosPlanUserController extends BaseController
     /**
      * Daten vervollständigen.
      *
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_complete_data', path: '/willkommen')]
@@ -276,10 +276,10 @@ class DemosPlanUserController extends BaseController
     /**
      * Liste der Änderungen InvitableInstitution-Liste.
      *
-     *
      * @DplanPermissions("area_report_invitable_institutionlistchanges")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_toeblist_changes', path: '/organisations/visibilitylog')]
@@ -297,8 +297,8 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_plain_language")
+     *
      * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_switch_language', path: '/language')]
@@ -324,10 +324,10 @@ class DemosPlanUserController extends BaseController
     /**
      * Portalseite des Nutzers.
      *
-     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_portal', path: '/portal/user')]
@@ -365,8 +365,8 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("area_manage_users")
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_add', path: '/user/add')]
@@ -394,10 +394,10 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_register', path: '/user/register', methods: ['POST'], options: ['expose' => true])]
@@ -477,10 +477,10 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
@@ -504,10 +504,10 @@ class DemosPlanUserController extends BaseController
     /**
      * Speichere Nutzerdaten.
      *
-     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_edit', path: '/user/edit')]
@@ -555,12 +555,12 @@ class DemosPlanUserController extends BaseController
      * Create a new AddressBookEntry for the given Organisation.
      * Included email-address will be validated.
      *
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_create_addresses_entry', path: '/organisation/adressen/erstellen/{organisationId}', methods: ['POST'])]
@@ -623,12 +623,12 @@ class DemosPlanUserController extends BaseController
      * Deletes a s by IDs.
      * Incoming organisationId is required, to verify action.
      *
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_delete_email_addresses_entry', path: '/organisation/adressen/loeschen/{organisationId}', methods: ['POST'])]
@@ -666,10 +666,10 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_statements', path: '/portal/user/statements', options: ['expose' => true])]
@@ -692,10 +692,10 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent_may_revoke"})
      *
      * @return RedirectResponse|Response
+     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_revoke_statement', path: '/portal/user/statement/{statementId}/revoke')]

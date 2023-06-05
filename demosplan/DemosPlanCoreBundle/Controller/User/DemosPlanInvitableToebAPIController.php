@@ -22,7 +22,6 @@ class DemosPlanInvitableToebAPIController extends APIController
     /**
      * @return JsonResponse
      *
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      */
     #[Route(path: '/api/1.0/procedure/{procedureId}/InvitableToeb', methods: ['GET'], name: 'dplan_api_invitable_toeb_list')]

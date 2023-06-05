@@ -59,7 +59,6 @@ class DemosPlanElementsAPIController extends APIController
     /**
      * @DplanPermissions("area_demosplan")
      *
-     *
      * @return APIResponse|JsonResponse
      */
     #[Route(path: '/api/1.0/element/{elementId}', methods: ['GET'], name: 'dp_api_elements_get', options: ['expose' => true])]

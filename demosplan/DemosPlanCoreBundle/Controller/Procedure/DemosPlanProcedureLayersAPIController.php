@@ -30,7 +30,6 @@ class DemosPlanProcedureLayersAPIController extends APIController
     /**
      * get params: type.
      *
-     *
      * @DplanPermissions("area_map_participation_area")
      */
     #[Route(methods: ['GET'], name: 'list')]
@@ -43,8 +42,8 @@ class DemosPlanProcedureLayersAPIController extends APIController
     }
 
     /**
-     *
      * @DplanPermissions("area_admin_map")
+     *
      * @throws MessageBagException
      */
     #[Route(methods: ['POST', 'PATCH'], name: 'update')]
@@ -75,10 +74,10 @@ class DemosPlanProcedureLayersAPIController extends APIController
     /**
      * Delete a specific GisLayer.
      *
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse
+     *
      * @throws MessageBagException
      */
     #[Route(path: '{layerId}', methods: ['DELETE'], name: 'delete')]
