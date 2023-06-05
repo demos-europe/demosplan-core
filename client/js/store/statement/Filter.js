@@ -8,6 +8,7 @@
  */
 
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import Vue from 'vue'
 
 const Filter = {
 

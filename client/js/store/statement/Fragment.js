@@ -8,6 +8,7 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import Vue from 'vue'
 
 export default {
   namespaced: true,

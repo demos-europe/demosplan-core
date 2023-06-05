@@ -8,6 +8,7 @@
  */
 
 import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-ui'
+import Vue from 'vue'
 
 /**
  * Adds empty title attribute for element/paragraph/document
