@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+import Vue from 'vue'
+
 const SegmentFilterStore = {
   namespaced: true,
   name: 'segmentfilter',
