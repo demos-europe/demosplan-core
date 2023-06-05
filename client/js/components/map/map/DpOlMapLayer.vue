@@ -66,7 +66,7 @@ export default {
       const currentYear = formatDate(new Date(), 'YYYY')
       // If a value is currently given, replace the {year} placeholder within that value
       if (this?.attributions) {
-        return this.attributions.replace('{year}', currentYear)
+        return this.attributions.replaceAll('{year}', currentYear)
       }
       // If not, default to the default message
       return Translator.trans('map.attribution.default', {
