@@ -22,18 +22,18 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
-use demosplan\DemosPlanProcedureBundle\Transformers\AssessmentTableFilterTransformer;
-use demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer;
-use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
+use demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer;
+use demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
@@ -85,7 +85,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function listAction(Request $request): APIResponse
     {
         $rawData = $this->forward(
-            'demosplan\DemosPlanProcedureBundle\Controller\DemosPlanProcedureListController::searchProceduresAjaxAction',
+            'demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',
             $request->query->all()
         );
         $data = Json::decodeToArray($rawData->getContent());

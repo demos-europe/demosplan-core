@@ -16,9 +16,9 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

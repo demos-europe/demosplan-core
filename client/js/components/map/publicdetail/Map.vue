@@ -36,12 +36,12 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
+import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
 import { TileWMS, WMTS } from 'ol/source'
-import { dpApi, DpAutocomplete, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -1717,7 +1717,6 @@ export default {
     },
 
     handleZoom (delta, duration) {
-      const map = this.map
       const view = this.map.getView()
       if (!view) {
         return
@@ -1748,14 +1747,26 @@ export default {
       if (PROJECT && PROJECT !== 'robobsh') {
         controls.push(new MousePosition({ className: this.prefixClass('c-map__mouseposition') }))
       }
+
+      // Add either the attribution from procedureSettings or the attribution defined globally via translation key
+      const currentYear = formatDate(new Date(), 'YYYY')
+      let label = ''
+
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        controls.push(new Attribution({
-          collapsed: false,
-          collapsible: false,
-          label: this.procedureSettings.copyright,
-          tipLabel: this.procedureSettings.copyright
-        }))
+        label = this.procedureSettings.copyright.replace('{year}', currentYear)
+      } else {
+        label = Translator.trans('map.attribution.default', {
+          linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+          currentYear
+        })
       }
+
+      controls.push(new Attribution({
+        collapsed: false,
+        collapsible: false,
+        label: label,
+        tipLabel: label
+      }))
 
       this.map = new Map({
         controls: controls,

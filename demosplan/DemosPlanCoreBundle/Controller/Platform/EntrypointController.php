@@ -246,7 +246,7 @@ class EntrypointController extends BaseController
         $templateVars['publicAgency'] = $user->isPublicAgency();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.public.participation',

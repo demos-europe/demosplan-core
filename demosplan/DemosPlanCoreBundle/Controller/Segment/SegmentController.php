@@ -20,12 +20,12 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,7 +89,7 @@ class SegmentController extends BaseController
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_statement_segments_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => $procedureId,
                 'recommendationProcedureIds' => $recommendationProcedureIds,
@@ -134,7 +134,7 @@ class SegmentController extends BaseController
 
                 if ($result->hasErrors()) {
                     return $this->renderTemplate(
-                        '@DemosPlanProcedure/DemosPlanProcedure/administration_excel_import_errors.html.twig',
+                        '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
                         [
                             'procedure'  => $procedureId,
                             'context'    => 'segments',
@@ -203,7 +203,7 @@ class SegmentController extends BaseController
         $filterNames = $filterUiDataProvider->addSelectedField($filterNames, $filter);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_segments_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_segments_list.html.twig',
             [
                 'filterNames'      => $filterNames,
                 'procedureId'      => $procedureId,

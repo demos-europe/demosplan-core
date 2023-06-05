@@ -34,7 +34,7 @@ class AuthorizedUsersController extends BaseController
     public function listAction(string $procedureId)
     {
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_authorized_users_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_authorized_users_list.html.twig',
             [
                 'procedure'    => $procedureId,
                 'title'        => 'authorized.users',
