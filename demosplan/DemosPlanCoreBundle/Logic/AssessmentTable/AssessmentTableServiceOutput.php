@@ -440,7 +440,9 @@ class AssessmentTableServiceOutput
                 if (null !== $image) {
                     $docxImageTag = $this->getDocxImageTag($image);
                     Html::addHtml($section, $docxImageTag);
-                    $section->addText($this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]));
+                    $section->addText($this->translator->trans('map.attribution.exports', [
+                        'currentYear' => date('Y'),
+                    ]));
                 }
             }
         }
