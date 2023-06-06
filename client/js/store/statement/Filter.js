@@ -6,7 +6,6 @@
  *
  * All rights reserved
  */
-
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const Filter = {
@@ -50,7 +49,7 @@ const Filter = {
 
   mutations: {
     loadAppliedFilterOptions (state, options) {
-      Vue.set(state, 'appliedOptions', options)
+      state.appliedOptions = options
     },
 
     /**
@@ -60,10 +59,10 @@ const Filter = {
     loadAvailableFilterListOptions (state, updatedFilters) {
       if (updatedFilters.length) {
         updatedFilters.forEach(filter => {
-          Vue.set(state.filterListOptions, filter.id, filter.attributes.options)
+          state.filterListOptions[filter.id] = filter.attributes.options
         })
       } else {
-        Vue.set(state, 'filterListOptions', {})
+        state.filterListOptions = {}
       }
     },
 
@@ -73,7 +72,7 @@ const Filter = {
      * @param options
      */
     loadSelectedFilterOptions (state, options) {
-      Vue.set(state, 'selectedOptions', options)
+      state.selectedOptions = options
     },
 
     /**
@@ -98,9 +97,9 @@ const Filter = {
 
     resetSelectedOptions (state, optionsToKeep) {
       if (state.appliedOptions.length) {
-        Vue.set(state, 'selectedOptions', optionsToKeep)
+        state.selectedOptions = optionsToKeep
       } else {
-        Vue.set(state, 'selectedOptions', [])
+        state.selectedOptions = []
       }
     },
 
@@ -188,7 +187,7 @@ const Filter = {
           if (idx < 0) {
             state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
           } else {
-            Vue.delete(state.selectedOptions, idx)
+            state.selectedOptions.splice(idx, 1)
           }
         } else {
           state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
@@ -210,7 +209,7 @@ const Filter = {
               const idx = state.selectedOptions.findIndex(opt => opt.filterId === filter.id && opt.value === option.value)
               if (idx >= 0) {
                 const newCount = filter.attributes.options.find(opt => opt.value === option.value).count
-                Vue.set(state.selectedOptions[idx], 'count', newCount)
+                state.selectedOptions[idx].count = newCount
               }
             }
           })

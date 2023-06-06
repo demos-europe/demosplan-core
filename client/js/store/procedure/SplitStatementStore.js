@@ -10,7 +10,6 @@
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
-import Vue from 'vue'
 
 const SplitStatementStore = {
   namespaced: true,
@@ -49,7 +48,7 @@ const SplitStatementStore = {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        Vue.delete(state.segments, index)
+        state.segments.splice(index, 1)
       }
     },
 
@@ -89,7 +88,7 @@ const SplitStatementStore = {
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
       if (oldSegmentIndex >= 0) {
-        Vue.set(state.segments, oldSegmentIndex, newSegment)
+       state.segments[oldSegmentIndex] = newSegment
       }
     },
 
@@ -98,11 +97,11 @@ const SplitStatementStore = {
     },
 
     setProperty (state, data) {
-      Vue.set(state, data.prop, data.val)
+     state[data.prop] = data.val
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
-      Vue.set(state.statement.attributes, 'segmentDraftList', segmentDraftList || null)
+      state.statement.attributes.segmentDraftList = segmentDraftList || null
     },
 
     /**
@@ -116,13 +115,13 @@ const SplitStatementStore = {
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        Vue.set(state[data.prop], state[data.prop].length, data.obj)
+        state[data.prop][state[data.prop].length] = data.obj
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        Vue.set(state[data.prop], titleIdx, data.obj)
+        state[data.prop][titleIdx] = data.obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        Vue.delete(state[data.prop], idIdx)
+        state[data.prop].splice(idIdx, 1)
       }
     }
   },

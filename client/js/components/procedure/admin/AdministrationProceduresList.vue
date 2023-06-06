@@ -10,8 +10,7 @@
 <template>
   <div class="space-stack-s">
     <div class="flex flex-content-between">
-      <p
-        v-text="Translator.trans('text.procedures.list')" />
+      <p v-text="Translator.trans('text.procedures.list')" />
 
       <div
         v-if="hasPermission('feature_admin_new_procedure')"

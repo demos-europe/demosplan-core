@@ -117,8 +117,8 @@
             data-procedure="{{ proceduresettings.ident }}"
             data-dp-validate="configForm"
             method="post"
-            action="{{ path('DemosPlan_procedure_edit',{'procedure':proceduresettings.ident}) }}"
-        >
+            action="{{ path('DemosPlan_procedure_edit',{'procedure':proceduresettings.ident}) }}">
+
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="edit" name="action">
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
@@ -175,11 +175,11 @@
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
                                         <template v-slot:tag="{ props }">
-                                        <span class="multiselect__tag">
-                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                            <input type="hidden" :value="props.option.id" name="r_agency[]"/>
-                                        </span>
+                                            <span class="multiselect__tag">
+                                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                                <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                                <input type="hidden" :value="props.option.id" name="r_agency[]"/>
+                                            </span>
                                         </template>
                                     </dp-multiselect>
 
@@ -286,6 +286,7 @@
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
                                         <template v-slot:tag="{ props }">
+                                            {% verbatim %}{{ props }}{% endverbatim %}
                                             <span class="multiselect__tag">
                                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                                 <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

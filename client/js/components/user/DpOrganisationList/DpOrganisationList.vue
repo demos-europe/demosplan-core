@@ -321,7 +321,7 @@ export default {
         this.deleteOrganisation(id)
           .then(() => {
             // Remove deleted item from itemSelections
-            Vue.delete(this.itemSelections, id)
+            this.$delete(this.itemSelections, id)
             // Confirm notification for organisations is done in BE
           })
       })

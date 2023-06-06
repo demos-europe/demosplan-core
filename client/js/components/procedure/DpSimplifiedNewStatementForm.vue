@@ -547,8 +547,8 @@ export default {
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
-        this.$set(this.values.submitter, 'institution',  this.values.submitter.toeb)
-        this.$delete(this.values.submitter, 'toeb')
+        this.$set(this.values.submitter, 'institution', this.values.submitter.toeb)
+        delete this.values.submitter.toeb
       }
 
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {

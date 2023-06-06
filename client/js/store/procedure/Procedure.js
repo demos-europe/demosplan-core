@@ -35,7 +35,7 @@ const ProcedureStore = {
     },
 
     setProperty (state, data) {
-      Vue.set(state, data.prop, data.val)
+     state[data.prop] = data.val
     }
   },
 

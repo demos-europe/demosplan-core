@@ -229,7 +229,7 @@ export default {
      * @param {Object} element
      */
     addElementToSelection (state, element) {
-      Vue.set(state.selectedElements, [element.id], element)
+      state.selectedElements[element.id] = element
     },
 
     /**
@@ -259,7 +259,7 @@ export default {
      * @param {String} elementId
      */
     removeElementFromSelection (state, elementId) {
-      Vue.delete(state.selectedElements, elementId)
+      delete state.selectedElements[elementId]
     },
 
     /**
@@ -267,7 +267,7 @@ export default {
      * @param {String} statementId
      */
     removeStatement (state, statementId) {
-      Vue.delete(state.statements, statementId)
+      delete state.statements[statementId]
     },
 
     /**
@@ -275,7 +275,7 @@ export default {
      * @param {Object} elements
      */
     replaceElementSelection (state, elements) {
-      Vue.set(state, 'selectedElements', elements)
+     state['selectedElements'] = elements
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements'))
 
       if (hasOwnProp(selectedEntries, state.procedureId) && state.persistStatementSelection) {
@@ -290,7 +290,7 @@ export default {
      * @param {Object} newStatement
      */
     replaceStatement (state, oldStatementId, newStatement) {
-      Vue.set(state.statements, oldStatementId, newStatement)
+     state.statements[oldStatementId] = newStatement
     },
 
     resetSelection (state) {
@@ -298,28 +298,28 @@ export default {
     },
 
     resetStatements (state) {
-      Vue.set(state, 'statements', {})
+      state.statements = {}
     },
 
     /**
      * @param value
      */
     setFilteredState (state, value) {
-      Vue.set(state, 'isFiltered', value)
+     state['isFiltered'] = value
     },
 
     /**
      * @param {Object} data
      */
     setInitStatements (state, data) {
-      Vue.set(state, 'initStatements', data)
+     state['initStatements'] = data
     },
 
     /**
      * @param {String} value
      */
     setProcedureId (state, value) {
-      Vue.set(state, 'procedureId', value)
+     state['procedureId'] = value
     },
 
     setSelectedElements (state, elements) {
@@ -330,7 +330,7 @@ export default {
      * Set grouping of statements as displayed in the TOC
      */
     setStatementGrouping (state, grouping) {
-      Vue.set(state, 'statementGrouping', grouping)
+     state['statementGrouping'] = grouping
     },
 
     setStatements (state, statements) {
@@ -341,11 +341,11 @@ export default {
      * @param value
      */
     updatePagination (state, value) {
-      Vue.set(state, 'pagination', Object.assign(state.pagination, value))
+      state.pagination = Object.assign(state.pagination, value)
     },
 
     updatePersistStatementSelection (state, value) {
-      Vue.set(state, 'persistStatementSelection', value)
+     state['persistStatementSelection'] = value
     },
 
     /**
@@ -360,7 +360,7 @@ export default {
 
       // If assignee was changed and statement is selected, we have to update selectedElements in store and sessionStorage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedElements, data.id)) {
-        Vue.set(state.selectedElements[data.id], 'assignee', data.assignee)
+        state.selectedElements[data.id].assignee = data.assignee
         state.selectedElements = { ...state.selectedElements }
 
         if (state.persistStatementSelection) {

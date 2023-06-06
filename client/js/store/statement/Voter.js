@@ -6,7 +6,6 @@
  *
  * All rights reserved
  */
-
 const Voter = {
 
   namespaced: true,
@@ -24,14 +23,16 @@ const Voter = {
     setVoters (state, initVoters) {
       state.voters = initVoters
     },
+
     addNewVoter (state, voter) {
       state.voters[Object.keys(state.voters).length] = voter
     },
+
     updateVoter (state, { index, newData }) {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      Vue.delete(state.voters, index)
+      state.voters.splice(index, 1)
     }
 
   }

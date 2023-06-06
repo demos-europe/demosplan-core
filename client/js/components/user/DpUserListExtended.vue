@@ -174,7 +174,7 @@ export default {
      * Remove deleted item from itemSelections
      */
     deleteUserFromSelection (id) {
-      Vue.delete(this.itemSelections, id)
+      this.$delete(this.itemSelections, id)
       dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 

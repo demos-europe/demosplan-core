@@ -336,7 +336,7 @@ export default {
 
     emitUserUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
+      this.$nextTick(() => {
         this.$emit('user-update', this.localUser)
       })
     },

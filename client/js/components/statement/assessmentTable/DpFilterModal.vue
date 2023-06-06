@@ -55,7 +55,8 @@
         <div
           v-if="userFilterSetSaveEnabled">
           <dp-multiselect
-            id="userFilterSets"v-model="selectedUserFilterSet"
+            id="userFilterSets"
+            v-model="selectedUserFilterSet"
             :custom-label="nameFromAttributes"
             :options="userFilterSets"
             track-by="id">
