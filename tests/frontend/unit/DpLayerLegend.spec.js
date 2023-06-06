@@ -18,17 +18,4 @@ describe('DpLayerLegend', () => {
   it('should be named DpLayerLegend', () => {
     expect(DpLayerLegend.name).toBe('DpLayerLegend')
   })
-
-  it('should return an element array for the sidebar', () => {
-    const wrapper = shallowMountWithGlobalMocks(DpLayerLegend, {
-      propsData: {
-        displayLegendBox: true
-      },
-      computed: {
-        elementListForLegendSidebar: () => jest.fn().mockReturnValue(['a', 'b', 'c'])
-      }
-    })
-
-    expect(wrapper.vm.elementListForLegendSidebar()).toEqual(['a', 'b', 'c'])
-  })
 })

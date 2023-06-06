@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
 import DpEditFieldMultiSelect from '@DpJs/components/statement/assessmentTable/DpEditFieldMultiSelect'
 import Vuex from 'vuex'
 

@@ -6,7 +6,11 @@ exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
     <h3 class=\\"layout__item u-1-of-3\\">
       map.overlays
     </h3>
-    <!---->
+    <div class=\\"layout__item u-2-of-3 text--right\\"><button class=\\"btn--blank o-link--default\\">
+        map.set.order.tree
+      </button> <button class=\\"btn--blank o-link--default u-ml\\">
+        map.set.order.map
+      </button></div>
   </div>
   <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
     <div class=\\"c-at-item__row-icon layout__item u-pl-0\\"></div>

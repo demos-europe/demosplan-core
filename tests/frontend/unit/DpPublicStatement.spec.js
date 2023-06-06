@@ -48,5 +48,7 @@ describe('DpPublicStatement', () => {
       },
       localVue
     })
+
+    expect(wrapper).toBeDefined()
   })
 })

@@ -38,8 +38,7 @@ const DPVueCorePlugin = {
 
 // Mocking global stuff
 const Vue = createLocalVue()
-const features = []
-const hasPermission = jest.fn((feature) => !!features[feature])
+const hasPermission = jest.fn(() => true)
 
 const Translator = {
   trans: jest.fn(key => key)

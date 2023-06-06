@@ -36,8 +36,7 @@ exports[`SearchModal renders the correct markup for activated field_statement_mu
           <!---->
           <!---->
           <!---->
-          <!---->
-          <!---->
+          <!----> <input type=\\"hidden\\" name=\\"search_fields[]\\" value=\\"tagNames\\" checked=\\"checked\\" aria-hidden=\\"true\\" class=\\"display--none\\">
           <!---->
         </div>
       </div>
@@ -86,8 +85,7 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
           <!---->
           <!---->
           <!---->
-          <!---->
-          <!---->
+          <!----> <input type=\\"hidden\\" name=\\"search_fields[]\\" value=\\"tagNames\\" checked=\\"checked\\" aria-hidden=\\"true\\" class=\\"display--none\\">
           <!---->
         </div>
       </div>

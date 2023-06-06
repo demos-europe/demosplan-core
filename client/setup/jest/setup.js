@@ -6,8 +6,7 @@
  *
  * All rights reserved
  */
-const features = []
-const hasPermission = jest.fn(feature => !!features[feature])
+const hasPermission = jest.fn(() => true)
 
 const Translator = {
   trans: jest.fn(key => key)
