@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import Vue from 'vue'
+import { del, set } from 'vue'
 
 const SegmentFilterStore = {
   namespaced: true,
@@ -35,12 +35,12 @@ const SegmentFilterStore = {
         const filterQuery = Object.values(filter)[0]
         const queryIdx = Object.values(state.filterQuery).findIndex(el => el.condition.value === filterQuery.condition.value)
         if (queryIdx < 0) {
-          Vue.set(state.filterQuery, [filterQuery.condition.value], filterQuery)
+          set(state.filterQuery, [filterQuery.condition.value], filterQuery)
         } else {
-          Vue.delete(state.filterQuery, [filterQuery.condition.value])
+          del(state.filterQuery, [filterQuery.condition.value])
         }
       } else {
-        Vue.set(state, 'filterQuery', filter)
+        set(state, 'filterQuery', filter)
       }
     }
   },

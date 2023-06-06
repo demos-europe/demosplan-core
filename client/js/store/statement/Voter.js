@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import Vue from 'vue'
+import { del } from 'vue'
 
 const Voter = {
 
@@ -33,7 +33,7 @@ const Voter = {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      Vue.delete(state.voters, index)
+      del(state.voters, index)
     }
 
   }
