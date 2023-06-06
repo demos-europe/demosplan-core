@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_statement_meta")
  * @ORM\Entity
  */
-class StatementMeta extends CoreEntity implements UuidEntityInterface
+class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
 {
     public const USER_GROUP = 'userGroup';
     public const USER_ORGANISATION = 'userOrganisation';

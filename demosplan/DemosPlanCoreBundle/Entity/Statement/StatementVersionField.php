@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -19,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_statement_version_fields", indexes={@ORM\Index(name="_st_id", columns={"_st_id"})})
  * @ORM\Entity
  */
-class StatementVersionField implements UuidEntityInterface
+class StatementVersionField implements UuidEntityInterface, StatementVersionFieldInterface
 {
     /**
      * @var string|null

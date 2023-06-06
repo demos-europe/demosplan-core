@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity()
  */
-class ProcedurePerson implements UuidEntityInterface
+class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet

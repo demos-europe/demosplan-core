@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository")
  */
-class ParagraphVersion extends CoreEntity implements UuidEntityInterface
+class ParagraphVersion extends CoreEntity implements UuidEntityInterface, ParagraphVersionInterface
 {
     /**
      * @var string|null

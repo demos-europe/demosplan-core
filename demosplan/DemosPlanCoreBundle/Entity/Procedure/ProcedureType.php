@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository")
  */
-class ProcedureType extends CoreEntity implements UuidEntityInterface
+class ProcedureType extends CoreEntity implements UuidEntityInterface, ProcedureTypeInterface
 {
     public const BAULEITPLANUNG = 'Bauleitplanung';
 

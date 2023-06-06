@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository")
  */
-class StatementVote implements UuidEntityInterface
+class StatementVote implements UuidEntityInterface, StatementVoteInterface
 {
     /**
      * @var string|null

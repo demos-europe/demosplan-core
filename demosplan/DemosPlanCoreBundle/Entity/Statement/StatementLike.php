@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementLikeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -20,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="statement_likes")
  * @ORM\Entity
  */
-class StatementLike implements UuidEntityInterface
+class StatementLike implements UuidEntityInterface, StatementLikeInterface
 {
     /**
      * @var string|null

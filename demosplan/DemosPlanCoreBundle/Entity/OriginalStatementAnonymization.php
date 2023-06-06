@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -20,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository")
  */
-class OriginalStatementAnonymization
+class OriginalStatementAnonymization implements OriginalStatementAnonymizationInterface
 {
     /**
      * @var string

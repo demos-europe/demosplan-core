@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -34,7 +35,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @FormDefinitionConstraint()
  */
-class DraftStatement extends CoreEntity implements UuidEntityInterface
+class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftStatementInterface
 {
     public const INTERNAL = 'internal';
     public const EXTERNAL = 'external';
