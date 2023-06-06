@@ -542,7 +542,7 @@ class DocxExporter
     /**
      * Get default Docx Page Styles.
      */
-    protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
+    public function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
         // Benutze das ausgewählte Format
         $styles['orientation'] = [];

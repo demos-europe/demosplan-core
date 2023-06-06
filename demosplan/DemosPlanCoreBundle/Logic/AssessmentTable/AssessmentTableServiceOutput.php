@@ -605,39 +605,6 @@ class AssessmentTableServiceOutput
         );
     }
 
-    /**
-     * Get default Docx Page Styles.
-     */
-    protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
-    {
-        // Benutze das ausgewählte Format
-        $styles['orientation'] = [];
-        // im Hochformat werden für LibreOffice anderen Breiten benötigt
-        $styles['cellWidthTotal'] = 10000;
-        $styles['firstCellWidth'] = 1500;
-        $styles['cellWidth'] = 3850;
-        $styles['cellWidthSecondThird'] = 7500;
-
-        $tableStyle = $this->getDefaultDocxTableStyle();
-        $styles['tableStyle'] = $tableStyle;
-        $styles['cellStyleStatementDetails'] = ['gridSpan' => 2, 'bgColor' => 'f0f0f5', 'valign' => 'top'];
-        $styles['textStyleStatementDetails'] = ['bold' => true];
-        $styles['textStyleStatementDetailsParagraphStyles'] = ['spaceAfter' => 0];
-        $styles['cellHeading'] = ['align' => 'center', 'valign' => 'center'];
-        $styles['cellHeadingText'] = ['bold' => true, 'valign' => 'center', 'align' => 'center', 'name' => 'Arial', 'size' => 9];
-        $styles['cellTop'] = ['valign' => 'top'];
-
-        if ($orientation->isLandscape()) {
-            $styles['cellWidthTotal'] = 14000;
-            $styles['orientation'] = ['orientation' => 'landscape'];
-            $styles['firstCellWidth'] = 2000;
-            $styles['cellWidth'] = 6000;
-            $styles['cellWidthSecondThird'] = 12000;
-        }
-
-        return $styles;
-    }
-
     protected function getDefaultDocxTableStyle(): \PhpOffice\PhpWord\Style\Table
     {
         $tableStyle = new \PhpOffice\PhpWord\Style\Table();
@@ -1254,7 +1221,7 @@ class AssessmentTableServiceOutput
 
     private function addRow(Table $table, ValuedLabel $valuedLabel, array $valueFontStyle = [], int $endnoteRef = null): void
     {
-        $styles = $this->getDefaultDocxPageStyles(ViewOrientation::createPortrait());
+        $styles = $this->docxExporter->getDefaultDocxPageStyles(ViewOrientation::createPortrait());
         $secondCellWidth = $styles['cellWidthSecondThird'];
         $firstCellWidth = $styles['cellWidthTotal'] - $secondCellWidth;
         $row = $table->addRow(null, ['space' => ['before' => 0, 'after' => 0]]);
