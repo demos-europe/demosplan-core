@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -35,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingR
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
