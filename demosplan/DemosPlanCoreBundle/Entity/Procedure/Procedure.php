@@ -13,11 +13,26 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EmailAddressInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\NotificationReceiverInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
-use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -53,59 +68,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *          )
  *      )
  * })
- *
- * @ProcedureTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
- *
- * @ProcedureTypeConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
- *
- * @ProcedureMasterTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
- *
- * @ProcedureAllowedSegmentsConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
+ * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
+ * @ProcedureTypeConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
+ * @ProcedureMasterTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
+ * @ProcedureAllowedSegmentsConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
-    public const VALIDATION_GROUP_MANDATORY_PROCEDURE = 'mandatory_procedure';
-    public const VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE = 'mandatory_procedure_template';
-    // This validation group is intended ONLY for procedures with all dependent sub-entities,
-    // like UiDefinition, FormDefinitions, etc.
-    public const VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED = 'mandatory_procedure_all_included';
-
-    public const VALIDATION_GROUP_DEFAULT = 'Default';
-
-    /**
-     * Key used in phases to determine state of participation.
-     *
-     * @var string
-     */
-    public const PARTICIPATIONSTATE_KEY = 'participationstate';
-    /**
-     * Value to define that participation has finished for procedure.
-     *
-     * @var string
-     */
-    public const PARTICIPATIONSTATE_FINISHED = 'finished';
-
-    /**
-     * Value to define that users may provide an access token to participate.
-     *
-     * @value string
-     */
-    public const PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN = 'participateWithToken';
-
-    /**
-     * Value to define the public participation phase in a Procedure.
-     */
-    public const PROCEDURE_PARTICIPATION_PHASE = 'participation';
-
-    /**
-     * Possible values for procedure permissionsets.
-     */
-    public const PROCEDURE_PHASE_PERMISSIONSET_HIDDEN = 'hidden';
-    public const PROCEDURE_PHASE_PERMISSIONSET_READ = 'read';
-    public const PROCEDURE_PHASE_PERMISSIONSET_WRITE = 'write';
-
-    public const MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH = 2000;
-    public const MAX_PUBLIC_DESCRIPTION_LENGTH = 10000;
 
     /**
      * @var string|null
@@ -152,7 +121,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * {@link Orga} that owns the procedure. Should never be null, as all procedures are created by some
-     * organization. Must never be {@link User::ANONYMOUS_USER_ORGA_ID}.
+     * organization. Must never be {@link UserInterface::ANONYMOUS_USER_ORGA_ID}.
      * Will be null on some ancient procedures.
      *
      * @var Orga
@@ -662,7 +631,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * e.g. an Id given by an external system that we need to reference later on.
      *
      * Please note that the property is not named like the database field. This is by purpose. There already exists a
-     * {@see Procedure::externId} property. This one seems to be outdated and may be deleted later on, but this needs
+     * {@see ProcedureInterface::externId} property. This one seems to be outdated and may be deleted later on, but this needs
      * some more investigation. As soon as the other field is dropped, this property might be renamed to externId
      *
      * @var string
@@ -719,7 +688,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->elements = $elements;
     }
 
-    public function addElement(Elements $element): void
+    public function addElement(ElementsInterface $element): void
     {
         $this->elements->add($element);
     }
@@ -742,7 +711,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @deprecated use {@link Procedure::getId()} instead
+     * @deprecated use {@link ProcedureInterface::getId()} instead
      */
     public function getIdent(): ?string
     {
@@ -815,7 +784,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Orga $orga
+     * @param OrgaInterface $orga
      *
      * @return $this
      */
@@ -887,7 +856,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPhasePermissionset(): string
     {
-        return $this->phasePermissionset ?? self::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->phasePermissionset ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
     }
 
     public function setPhasePermissionset(string $phasePermissionset): Procedure
@@ -1205,7 +1174,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhasePermissionset ?? self::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->publicParticipationPhasePermissionset ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
     }
 
     public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
@@ -1647,11 +1616,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Add Organisation to this Procedure.
      *
-     * @param Orga $organisation - Organisation to add
+     * @param OrgaInterface $organisation - Organisation to add
      *
      * @return Procedure - updated Procedure
      */
-    public function addOrganisation(Orga $organisation)
+    public function addOrganisation(OrgaInterface $organisation)
     {
         // hasOrganisation()
         if (false === $this->hasOrganisation($organisation->getId())) {
@@ -1666,7 +1635,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @return Procedure
      */
-    public function removeOrganisation(Orga $organisation)
+    public function removeOrganisation(OrgaInterface $organisation)
     {
         if ($this->hasOrganisation($organisation->getId())) {
             $this->organisation->removeElement($organisation);
@@ -1730,7 +1699,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->settings;
     }
 
-    public function setSettings(ProcedureSettings $settings): void
+    public function setSettings(ProcedureSettingsInterface $settings): void
     {
         $this->settings = $settings;
     }
@@ -1773,12 +1742,12 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Orga[] $planningOffices
+     * @param OrgaInterface[] $planningOffices
      */
     public function setPlanningOffices($planningOffices): self
     {
         $this->planningOffices = new ArrayCollection($planningOffices);
-        $this->planningOffices->forAll(function ($key, Orga $planningOffice): bool {
+        $this->planningOffices->forAll(function ($key, OrgaInterface $planningOffice): bool {
             return $planningOffice->addAdministratableProcedure($this);
         });
 
@@ -1811,9 +1780,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Orga[] $dataInputOrganisations
+     * @param OrgaInterface[] $dataInputOrganisations
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @return Procedure
      */
     public function setDataInputOrganisations($dataInputOrganisations)
     {
@@ -1836,7 +1805,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param NotificationReceiver[] $notificationReceivers
+     * @param NotificationReceiverInterface[] $notificationReceivers
      */
     public function setNotificationReceivers(array $notificationReceivers): void
     {
@@ -1962,7 +1931,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Collection<int, EmailAddress> $agencyExtraEmailAddresses
+     * @param Collection<int, EmailAddressInterface> $agencyExtraEmailAddresses
      *
      * @return $this
      */
@@ -1974,7 +1943,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Collection<int, EmailAddress> $agencyExtraEmailAddresses
+     * @param Collection<int, EmailAddressInterface> $agencyExtraEmailAddresses
      *
      * @return $this
      */
@@ -2063,7 +2032,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param Customer|null $customer
+     * @param CustomerInterface|null $customer
      * @param bool          $handleBothSites
      */
     public function setCustomer($customer, $handleBothSites = true): Procedure
@@ -2098,7 +2067,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @return Procedure - updated Procedure
      */
-    public function addProcedureCategory(ProcedureCategory $procedureCategory): Procedure
+    public function addProcedureCategory(ProcedureCategoryInterface $procedureCategory): Procedure
     {
         if (false === $this->hasProcedureCategory($procedureCategory)) {
             $this->procedureCategories->add($procedureCategory);
@@ -2110,7 +2079,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Is ProcedureCategory attached to Procedure.
      */
-    public function hasProcedureCategory(ProcedureCategory $procedureCategory): bool
+    public function hasProcedureCategory(ProcedureCategoryInterface $procedureCategory): bool
     {
         if ($this->procedureCategories instanceof Collection) {
             $existingProcedureCategory = $this->procedureCategories->filter(
@@ -2129,7 +2098,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Detach ProcedureCategory from this Procedure.
      */
-    public function removeProcedureCategory(ProcedureCategory $procedureCategory): self
+    public function removeProcedureCategory(ProcedureCategoryInterface $procedureCategory): self
     {
         if ($this->hasProcedureCategory($procedureCategory)) {
             $this->procedureCategories->removeElement($procedureCategory);
@@ -2202,7 +2171,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return null;
     }
 
-    public function addSurvey(Survey $survey): void
+    public function addSurvey(SurveyInterface $survey): void
     {
         $this->surveys[] = $survey;
     }
@@ -2236,22 +2205,22 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->procedureType;
     }
 
-    public function setProcedureType(ProcedureType $procedureType): void
+    public function setProcedureType(ProcedureTypeInterface $procedureType): void
     {
         $this->procedureType = $procedureType;
     }
 
-    public function setProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition): void
+    public function setProcedureBehaviorDefinition(ProcedureBehaviorDefinitionInterface $procedureBehaviorDefinition): void
     {
         $this->procedureBehaviorDefinition = $procedureBehaviorDefinition;
     }
 
-    public function setProcedureUiDefinition(ProcedureUiDefinition $procedureUiDefinition): void
+    public function setProcedureUiDefinition(ProcedureUiDefinitionInterface $procedureUiDefinition): void
     {
         $this->procedureUiDefinition = $procedureUiDefinition;
     }
 
-    public function setStatementFormDefinition(StatementFormDefinition $statementFormDefinition): void
+    public function setStatementFormDefinition(StatementFormDefinitionInterface $statementFormDefinition): void
     {
         $this->statementFormDefinition = $statementFormDefinition;
     }
@@ -2285,7 +2254,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->exportFieldsConfigurations = new ArrayCollection();
     }
 
-    public function addExportFieldsConfiguration(ExportFieldsConfiguration $exportFieldsConfiguration): self
+    public function addExportFieldsConfiguration(ExportFieldsConfigurationInterface $exportFieldsConfiguration): self
     {
         $this->exportFieldsConfigurations->add($exportFieldsConfiguration);
 
@@ -2294,10 +2263,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function isInPublicParticipationPhase(): bool
     {
-        return self::PROCEDURE_PARTICIPATION_PHASE === $this->getPublicParticipationPhase();
+        return ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE === $this->getPublicParticipationPhase();
     }
 
-    public function addTagTopic(TagTopic $tagTopic): void
+    public function addTagTopic(TagTopicInterface $tagTopic): void
     {
         $this->topics->add($tagTopic);
     }
@@ -2335,7 +2304,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->segmentPlaces;
     }
 
-    public function addSegmentPlace(Place $place): void
+    public function addSegmentPlace(PlaceInterface $place): void
     {
         if (!$this->segmentPlaces->contains($place)) {
             $this->segmentPlaces->add($place);

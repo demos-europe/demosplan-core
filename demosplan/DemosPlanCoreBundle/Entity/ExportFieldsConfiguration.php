@@ -13,15 +13,16 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository")
  */
-class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterface
+class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterface, ExportFieldsConfigurationInterface
 {
     /**
      * @var string|null
@@ -39,7 +40,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
     /**
      * This is the owning side.
      *
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="exportFieldsConfigurations", cascade={"persist"})
      *
@@ -261,7 +262,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      */
     private $institutionOrCitizenExportable;
 
-    public function __construct(Procedure $procedure)
+    public function __construct(ProcedureInterface $procedure)
     {
         $this->initializeAllProperties(true);
 
@@ -554,7 +555,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
         return $this->id;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity()
  */
-class ProcedurePerson implements UuidEntityInterface
+class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet
@@ -222,7 +223,7 @@ class ProcedurePerson implements UuidEntityInterface
     /**
      * Adds the given statement to the similarForeignStatements if not already containing.
      */
-    public function addSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function addSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->add($similarForeignStatement);
@@ -233,7 +234,7 @@ class ProcedurePerson implements UuidEntityInterface
         }
     }
 
-    public function removeSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function removeSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if ($this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->removeElement($similarForeignStatement);

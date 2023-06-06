@@ -11,8 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,14 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
-class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
+class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, ProcedureUiDefinitionInterface
 {
-    /**
-     * The placeholder that may be used in {@link ProcedureUiDefinition::$statementPublicSubmitConfirmationText}.
-     * Do not simply change the value of this constant without migrating the data in the database too.
-     */
-    public const STATEMENT_PUBLIC_SUBMIT_CONFIRMATION_TEXT_PLACEHOLDER = 'statementPublicSubmitConfirmationTextPlaceholder';
-
     /**
      * @var string|null
      *
@@ -153,7 +150,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         if ($this->procedureType instanceof ProcedureType) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This ProcedureUiDefinition is already related to a ProcedureType.
@@ -170,7 +167,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedureType(ProcedureType $procedureType): void
+    public function setProcedureType(ProcedureTypeInterface $procedureType): void
     {
         if ($this->procedure instanceof Procedure) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This ProcedureUiDefinition is already related to a Procedure.

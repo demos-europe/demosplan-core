@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Survey;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,13 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyRepository")
  */
-class Survey extends CoreEntity implements UuidEntityInterface
+class Survey extends CoreEntity implements UuidEntityInterface, SurveyInterface
 {
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_CONFIGURATION = 'configuration';
-    public const STATUS_EVALUATION = 'evaluation';
-    public const STATUS_PARTICIPATION = 'participation';
-
     /**
      * @var string|null
      *
@@ -81,7 +78,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
     protected $status;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure",
      *     cascade={"persist"}, inversedBy="surveys")
@@ -92,7 +89,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
     protected $procedure;
 
     /**
-     * @var Collection<int, SurveyVote>
+     * @var Collection<int, SurveyVoteInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
      *      mappedBy="survey", cascade={"persist", "remove"})
@@ -164,12 +161,12 @@ class Survey extends CoreEntity implements UuidEntityInterface
         $this->status = $status;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
 
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }
@@ -184,9 +181,9 @@ class Survey extends CoreEntity implements UuidEntityInterface
      *
      * @param string $voteId
      */
-    public function getVote($voteId): ?SurveyVote
+    public function getVote($voteId): ?SurveyVoteInterface
     {
-        /** @var SurveyVote $vote */
+        /** @var SurveyVoteInterface $vote */
         foreach ($this->votes as $vote) {
             if ($vote->getId() == $voteId) {
                 return $vote;
@@ -196,7 +193,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
         return null;
     }
 
-    public function addVote(SurveyVote $vote): void
+    public function addVote(SurveyVoteInterface $vote): void
     {
         $this->votes[] = $vote;
     }
@@ -204,7 +201,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
     public function getPositiveVotes(): Collection
     {
         return $this->votes->filter(
-            static function (SurveyVote $vote) {
+            static function (SurveyVoteInterface $vote) {
                 return $vote->isAgreed();
             }
         );
@@ -213,7 +210,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
     public function getNegativeVotes(): Collection
     {
         return $this->votes->filter(
-            static function (SurveyVote $vote) {
+            static function (SurveyVoteInterface $vote) {
                 return !$vote->isAgreed();
             }
         );
@@ -222,7 +219,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
     public function getReviewRequiredVotes(): Collection
     {
         return $this->votes->filter(
-            static function (SurveyVote $vote) {
+            static function (SurveyVoteInterface $vote) {
                 return $vote->isReviewRequired();
             }
         );

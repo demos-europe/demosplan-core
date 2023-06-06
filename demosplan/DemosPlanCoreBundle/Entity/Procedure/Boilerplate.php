@@ -11,9 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,7 +28,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository")
  */
-class Boilerplate extends CoreEntity implements UuidEntityInterface
+class Boilerplate extends CoreEntity implements UuidEntityInterface, BoilerplateInterface
 {
     /**
      * Unique identification of the boilerplate entry.
@@ -42,7 +46,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     protected $ident;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -54,7 +58,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
      * Not customisable. Cant be created, updated or delete by user.
      * Means in which area this Boilerplate will be used/loaded.
      *
-     * @var Collection<int,BoilerplateCategory>
+     * @var Collection<int,BoilerplateCategoryInterface>
      *
      * @ORM\ManyToMany(targetEntity="BoilerplateCategory", mappedBy="boilerplates")
      *
@@ -69,7 +73,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Customisable group. Can be created, updated, deleted by user.
      *
-     * @var BoilerplateGroup
+     * @var BoilerplateGroupInterface
      *
      * This Class/Entity is the owning side
      *
@@ -80,7 +84,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     protected $group;
 
     /**
-     * @var Collection<int, Tag>
+     * @var Collection<int, TagInterface>
      *
      * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "boilerplate")
      */
@@ -130,7 +134,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @deprecated use {@link Boilerplate::getId()} instead
+     * @deprecated use {@link BoilerplateInterface::getId()} instead
      */
     public function getIdent(): ?string
     {
@@ -151,7 +155,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -159,7 +163,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {
@@ -263,7 +267,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
      *
      * @param string $id identifies the tag
      *
-     * @return Tag|null
+     * @return TagInterface|null
      */
     public function getTag($id)
     {
@@ -281,9 +285,9 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Add a specific BoilerplateCategory to this Boilerplate.
      *
-     * @param BoilerplateCategory $boilerplateCategory
+     * @param BoilerplateCategoryInterface $boilerplateCategory
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function addBoilerplateCategory($boilerplateCategory)
     {
@@ -298,9 +302,9 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a specific BoilerplateCategory from this Boilerplate.
      *
-     * @param BoilerplateCategory $boilerplateCategory
+     * @param BoilerplateCategoryInterface $boilerplateCategory
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function removeBoilerplateCategory($boilerplateCategory)
     {
@@ -328,7 +332,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     public function getCategoryTitles(): array
     {
         $categoryTitles = [];
-        /** @var BoilerplateCategory $category */
+        /** @var BoilerplateCategoryInterface $category */
         foreach ($this->categories as $category) {
             $categoryTitles[] = $category->getTitle();
         }
@@ -349,13 +353,13 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Sets this Boilerplate's categories.
      *
-     * @param BoilerplateCategory[] $boilerplateCategories
+     * @param BoilerplateCategoryInterface[] $boilerplateCategories
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function setCategories($boilerplateCategories)
     {
-        /** @var BoilerplateCategory $category */
+        /** @var BoilerplateCategoryInterface $category */
         foreach ($this->categories as $category) {
             $category->removeBoilerplate($this);
         }
@@ -370,9 +374,9 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Add a specific Tag to this Boilerplate.
      *
-     * @param Tag $tag
+     * @param TagInterface $tag
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function addTag($tag)
     {
@@ -387,9 +391,9 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a specific Tag from this Boilerplate.
      *
-     * @param Tag $tag
+     * @param TagInterface $tag
      *
-     * @return Boilerplate
+     * @return BoilerplateInterface
      */
     public function removeTag($tag)
     {
@@ -404,14 +408,14 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return BoilerplateGroup|null
+     * @return BoilerplateGroupInterface|null
      */
     public function getGroup()
     {
         return $this->group;
     }
 
-    public function setGroup(BoilerplateGroup $group)
+    public function setGroup(BoilerplateGroupInterface $group)
     {
         if ($this->hasGroup() && $this->getGroupId() !== $group->getId()) {
             $this->group->removeBoilerplate($this);
