@@ -903,13 +903,13 @@
                                     {% endfor %}
                                 {% endif %}
 
-                                {% set user = app.user %}
+                                {% set user = currentUser %}
                                 {% set username = user.firstName ~ ' ' ~ user.lastName %}
 
                                 <dp-select-statement-cluster
                                     :init-cluster-list="JSON.parse('{{ clusters|default([])|json_encode|e('js', 'utf-8') }}')"
                                     init-selected-cluster="{{ templateVars.table.statement.headStatement.id|default('') }}"
-                                    current-user-id="{{ user.ident }}"
+                                    current-user-id="{{ user.id }}"
                                     current-user-name="{{ username }}"
                                     procedure-id="{{ templateVars.table.procedure.id|default }}"
                                     :ignore-last-claimed="true"

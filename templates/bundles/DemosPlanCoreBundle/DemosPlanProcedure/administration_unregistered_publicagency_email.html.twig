@@ -1,0 +1,153 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+        heading: 'email.invitation.write'|trans,
+        highlighted: 'publicagency_unregistered'
+    } %}
+
+    {% set procedureId =  templateVars.procedure.id %}
+    {% set selectedAddressBookEntries = templateVars.addressBookEntries %}
+
+    <p class="u-mt-0_5">
+        {{ 'invitable_institutions.unregistered.email.explanation'|trans }}
+    </p>
+
+    {% if selectedAddressBookEntries|length == 0 %}
+        <p class="flash flash-info u-mt-0_5">
+            {{ 'invitable_institutions.unregistered.select.explanation'|trans }}
+        </p>
+    {% else %}
+        <p class="flash flash-confirm u-mt-0_5 weight--bold">
+            {{ 'invitable_institutions.unregistered.selected.number'|trans({ count: selectedAddressBookEntries|length }) }}
+        </p>
+        <dp-accordion
+            title="{{ 'recipients'|trans }}"
+            class="u-mb u-mt"
+            compressed>
+            <div class="u-mt-0_5">
+                <table class="c-table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'invitable_institution'|trans }}</th>
+                        <th>{{ 'email'|trans }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in selectedAddressBookEntries %}
+                        <tr>
+                            <td>
+                                {{ entry.name }}
+                            </td>
+                            <td>
+                                {{ entry.emailAddress|default('no.participation.email'|trans) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </dp-accordion>
+    {% endif %}
+
+    <form
+        id="inviteUnregisteredInstitution"
+        action="{{ path('DemosPlan_invite_unregistered_public_agency_email', {'procedureId': procedureId}) }}"
+        method="post"
+        data-dp-validate="inviteUnregisteredInstitution">
+
+        <fieldset>
+
+            {% for selectedEntry in selectedAddressBookEntries %}
+                <input
+                    type="hidden"
+                    name="entries_selected[]"
+                    value="{{ selectedEntry.id }}">
+            {% endfor %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'subject'|trans },
+                        control: {
+                            name: 'r_emailTitle',
+                            value: procedure.settings.emailTitle|default('participation.invitation'|trans ~': ' ~ templateVars.procedure.name|default)
+                        },
+                        type: 'text',
+                        required: true
+                    }
+                ]
+            }) }}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'email.cc'|trans, hint: 'explanation.email.cc' },
+                        control: { name: 'r_emailCc', value: templateVars.procedure.settings.emailCc|default },
+                        type: 'text'
+                    }
+                ]
+            }) }}
+
+            <div class="{{ 'u-mb-0_75'|prefixClass }}">
+                <dp-label
+                    for="r_emailText"
+                    text="{{ 'email.body'|trans }}">
+                </dp-label>
+                <dp-editor
+                    id="r_emailText"
+                    ref="r_emailText"
+                    hidden-input="r_emailText"
+                    required
+                    :toolbar-items="{
+                        headings: [1,2,3],
+                        linkButton: true
+                    }"
+                    value="{{ templateVars.emailText|default }}">
+                    <template v-slot:modal="modalProps">
+                        <dp-boiler-plate-modal
+                            ref="boilerPlateModal"
+                            boiler-plate-type="email"
+                            procedure-id="{{ procedureId }}"
+                            @insert="text => modalProps.handleInsertText(text)">
+                        </dp-boiler-plate-modal>
+                    </template>
+                    <template v-slot:button>
+                        <button
+                            class="{{ 'menubar__button'|prefixClass }}"
+                            type="button"
+                            v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                            @click.stop="$refs.boilerPlateModal.toggleModal()">
+                            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                        </button>
+                    </template>
+                </dp-editor>
+            </div>
+
+            <a
+                class="btn btn--secondary text--left u-mt-0_5"
+                href="{{ path('DemosPlan_invite_unregistered_public_agency_list', {'procedureId': procedureId, 'organisationId': currentUser.organisationId}) }}">
+                {{ "back"|trans }}
+            </a>
+
+            <div class="cf text--right display--inline float--right u-mt-0_5">
+                <button
+                    class="btn btn--primary"
+                    type="submit"
+                    name="sendEmail"
+                    {% if selectedAddressBookEntries|length == 0 %}disabled{% endif %}>
+                    {{ 'email.send'|trans }}
+                </button>
+            </div>
+
+        </fieldset>
+    </form>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationUnregisteredPublicagencyEmail.js']) }}
+{% endblock javascripts %}

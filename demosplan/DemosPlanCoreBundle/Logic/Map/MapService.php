@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
@@ -31,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapOptions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
