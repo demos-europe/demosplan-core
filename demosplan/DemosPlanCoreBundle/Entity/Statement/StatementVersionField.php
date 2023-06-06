@@ -12,13 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_statement_version_fields", indexes={@ORM\Index(name="_st_id", columns={"_st_id"})})
+ *
  * @ORM\Entity
  */
 class StatementVersionField implements UuidEntityInterface, StatementVersionFieldInterface
@@ -27,8 +28,11 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
      * @var string|null
      *
      * @ORM\Column(name="_sv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -81,6 +85,7 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
      * @var DateTime
      *
      * @ORM\Column(name="_sv_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $created;
@@ -89,6 +94,7 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
      * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="version")
+     *
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     protected $statement;

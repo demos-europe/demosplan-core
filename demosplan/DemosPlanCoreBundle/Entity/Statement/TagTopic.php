@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -87,7 +87,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     /**
      * * Necessary to set Type of $this->tags.
      *
-     * @param string    $title
+     * @param string             $title
      * @param ProcedureInterface $procedure
      */
     public function __construct($title, $procedure)

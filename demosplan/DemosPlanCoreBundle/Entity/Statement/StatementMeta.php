@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_statement_meta")
+ *
  * @ORM\Entity
  */
 class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
@@ -29,8 +30,11 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var string|null
      *
      * @ORM\Column(name="_stm_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -39,6 +43,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var StatementInterface
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="meta", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     protected $statement;
@@ -52,6 +57,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var string
      *
      * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidAuthorNull")
      */
     protected $authorName = '';
@@ -76,6 +82,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var string
      *
      * @ORM\Column(name="_stm_submit_name", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidSubmitNull")
      */
     protected $submitName = '';
@@ -84,6 +91,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var string
      *
      * @ORM\Column(name="_stm_orga_name", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaNameNull")
      */
     protected $orgaName = '';
@@ -92,6 +100,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * @var string
      *
      * @ORM\Column(name="_stm_orga_department_name", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaDepartmentNull")
      */
     protected $orgaDepartmentName = '';
@@ -123,7 +132,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaPostalNull")
+     *
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
     protected $orgaPostalCode = '';
@@ -133,6 +144,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      *             !This is also the city of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_city", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaCityNull")
      */
     protected $orgaCity = '';
@@ -142,7 +154,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      *             !This is also the email address of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_email", type="string", length=255, nullable=false)
+     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaMailNull")
+     *
      * @Assert\Email(groups={Statement::IMPORT_VALIDATION}, message = "email.address.invalid")
      */
     protected $orgaEmail = '';

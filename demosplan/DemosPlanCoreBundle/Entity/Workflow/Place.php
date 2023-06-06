@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Workflow;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository")
+ *
  * @ORM\Table(name="workflow_place", uniqueConstraints={
+ *
  *        @ORM\UniqueConstraint(name="unique_workflow_place_name", columns={"name", "procedure_id"}),
  *        @ORM\UniqueConstraint(name="unique_workflow_place_sort_index", columns={"sort_index", "procedure_id"})
  * })
@@ -32,8 +34,11 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      * @var string|null `null` if this instance was not persisted yet
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     private $id;
@@ -44,7 +49,9 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      * @var string
      *
      * @Assert\NotBlank(normalizer="trim", allowNull=false)
+     *
      * @Assert\Length(min=1, max=255, normalizer="trim")
+     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $name;
@@ -55,7 +62,9 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      * @var string
      *
      * @Assert\NotNull()
+     *
      * @Assert\Length(min=0, max=255, normalizer="trim")
+     *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
     private $description = '';
@@ -64,6 +73,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      * @var int
      *
      * @Assert\NotNull
+     *
      * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
      */
     private $sortIndex;
@@ -72,7 +82,9 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      * @var ProcedureInterface
      *
      * @Assert\NotNull
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     private $procedure;

@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
-use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;

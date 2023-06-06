@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -40,7 +40,7 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 
     /**
      * @var StatementInterface
-     *                onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
+     *                         onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="votes")
      *

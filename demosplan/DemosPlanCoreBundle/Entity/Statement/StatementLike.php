@@ -12,14 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementLikeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="statement_likes")
+ *
  * @ORM\Entity
  */
 class StatementLike implements UuidEntityInterface, StatementLikeInterface
@@ -28,8 +29,11 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -38,6 +42,7 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
      * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="likes")
+     *
      * @ORM\JoinColumn(name="st_id", referencedColumnName="_st_id", onDelete="CASCADE")
      */
     protected $statement;
@@ -46,6 +51,7 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
      * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT", nullable=true)
      */
     protected $user;
@@ -61,6 +67,7 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;

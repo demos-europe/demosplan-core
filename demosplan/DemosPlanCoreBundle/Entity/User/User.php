@@ -20,11 +20,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
@@ -616,9 +616,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->createdDate;
     }
 
-    /**
-     * @param DateTime $createdDate
-     */
     public function setCreatedDate(DateTime $createdDate)
     {
         $this->createdDate = $createdDate;

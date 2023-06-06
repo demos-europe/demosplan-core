@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 

@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
@@ -78,7 +78,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
 
     /**
      * @var Collection<int, ProcedureInterface>
-     *                                 One procedureType has many procedures. This is the inverse side.
+     *                                          One procedureType has many procedures. This is the inverse side.
      *
      * @ORM\OneToMany(targetEntity="Procedure", mappedBy="procedureType", cascade={"persist"})
      *

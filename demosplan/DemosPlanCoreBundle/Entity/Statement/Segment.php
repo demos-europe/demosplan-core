@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,8 +29,11 @@ class Segment extends Statement implements SegmentInterface
      * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
+     *
      * @Assert\NotNull(groups={SegmentInterface::VALIDATION_GROUP_IMPORT})
+     *
      * @Assert\Type(groups={SegmentInterface::VALIDATION_GROUP_IMPORT}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
      */
     protected $parentStatementOfSegment;
@@ -51,6 +54,7 @@ class Segment extends Statement implements SegmentInterface
      * @var int
      *
      * @Assert\NotNull(groups={SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY})
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $orderInProcedure;
@@ -69,7 +73,9 @@ class Segment extends Statement implements SegmentInterface
      * @var PlaceInterface
      *
      * @Assert\NotBlank(groups={"Default", SegmentInterface::VALIDATION_GROUP_IMPORT})
+     *
      * @ORM\ManyToOne(targetEntity=Place::class)
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     private $place;

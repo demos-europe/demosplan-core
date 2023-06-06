@@ -13,23 +13,23 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EmailAddressInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\NotificationReceiverInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
@@ -68,14 +68,17 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *          )
  *      )
  * })
+ *
  * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
+ *
  * @ProcedureTypeConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
+ *
  * @ProcedureMasterTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
+ *
  * @ProcedureAllowedSegmentsConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
-
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -2033,7 +2036,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param CustomerInterface|null $customer
-     * @param bool          $handleBothSites
+     * @param bool                   $handleBothSites
      */
     public function setCustomer($customer, $handleBothSites = true): Procedure
     {

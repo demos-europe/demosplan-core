@@ -23,6 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_procedure_settings", indexes={@ORM\Index(name="_procedure_settings_ibfk_1", columns={"_p_id"})})
+ *
  * @ORM\Entity
  */
 class ProcedureSettings extends CoreEntity implements UuidEntityInterface, ProcedureSettingsInterface
@@ -43,8 +44,11 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @var string|null
      *
      * @ORM\Column(name="_ps_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -193,6 +197,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @var ProcedureInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="settings")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -236,6 +241,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $designatedPhaseChangeUser = null;
@@ -244,6 +250,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $designatedPublicPhaseChangeUser = null;
@@ -332,6 +339,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * @var Collection<int,ProcedureInterface>
      *
      * @ORM\ManyToMany(targetEntity=Procedure::class)
+     *
      * @ORM\JoinTable(
      *     name="procedure_settings_allowed_segment_procedures",
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_ps_id")},

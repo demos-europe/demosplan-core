@@ -32,8 +32,11 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -48,6 +51,7 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     private $uploader;
@@ -58,7 +62,9 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var CustomerInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
+     *
      * @Assert\NotNull();
      */
     private $customerContext;
@@ -69,8 +75,11 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var FileInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
+     *
      * @Assert\NotNull();
+     *
      * @VideoFileConstraint()
      */
     private $file;
@@ -81,7 +90,9 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
+     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
+     *
      * @Assert\Length(min=1, max=255, normalizer="trim")
      */
     private $title = '';
@@ -92,7 +103,9 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Assert\NotNull()
+     *
      * @Assert\Length(max=65535, normalizer="trim")
      */
     private $description = '';
@@ -101,6 +114,7 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var DateTimeInterface
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -109,6 +123,7 @@ class Video implements UuidEntityInterface, VideoInterface
      * @var DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     private $modificationDate;

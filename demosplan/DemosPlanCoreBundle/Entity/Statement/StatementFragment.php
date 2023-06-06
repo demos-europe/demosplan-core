@@ -11,29 +11,29 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
-use Tightenco\Collect\Support\Collection as SupportCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Tightenco\Collect\Support\Collection as SupportCollection;
 
 /**
  * StatementFragment - Represents a fragment of a statement.
@@ -526,20 +526,20 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * Return all Tags, used by this Fragment, ordered under the related Topic in a flat Form (Names).
      *
      * @return SupportCollection
-     *                          Format:
-     *                          [
-     *                          'NameOfTopic1':
-     *                          [
-     *                          'NameOfTag1',
-     *                          'NameOfTag2',
-     *                          'NameOfTag3'
-     *                          ]
-     *                          'NameOfTopic2':
-     *                          [
-     *                          'NameOfTag3',
-     *                          'NameOfTag4',
-     *                          ]
-     *                          ]
+     *                           Format:
+     *                           [
+     *                           'NameOfTopic1':
+     *                           [
+     *                           'NameOfTag1',
+     *                           'NameOfTag2',
+     *                           'NameOfTag3'
+     *                           ]
+     *                           'NameOfTopic2':
+     *                           [
+     *                           'NameOfTag3',
+     *                           'NameOfTag4',
+     *                           ]
+     *                           ]
      */
     public function getTagsAndTopics()
     {
@@ -564,50 +564,50 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * Return all Tags, used by this Fragment, ordered under the related Topic in a detailed Form.
      *
      * @return SupportCollection
-     *                          Format:
-     *                          [
-     *                          'IdOfTopic1':
-     *                          [
-     *                          id = 'IdOfTopic1',
-     *                          title = 'TitleOfTopic1'
-     *                          tags =
-     *                          [
-     *                          'IdOfTag1' =
-     *                          [
-     *                          id = 'IdOfTag1',
-     *                          title = 'TitleOfTag1'
-     *                          ],
-     *                          'IdOfTag2' =
-     *                          [
-     *                          id = 'IdOfTag2',
-     *                          title = 'TitleOfTag2'
-     *                          ],
-     *                          'IdOfTag3' =
-     *                          [
-     *                          id = 'IdOfTag3',
-     *                          title = 'TitleOfTag3'
-     *                          ]
-     *                          ]
-     *                          ]
-     *                          'IdOfTopic2':
-     *                          [
-     *                          id = 'IdOfTopic2',
-     *                          title = 'TitleOfTopic2'
-     *                          tags =
-     *                          [
-     *                          'IdOfTag4' =
-     *                          [
-     *                          id = 'IdOfTag4',
-     *                          title = 'TitleOfTag4'
-     *                          ],
-     *                          'IdOfTag5' =
-     *                          [
-     *                          id = 'IdOfTag5',
-     *                          title = 'TitleOfTag5'
-     *                          ]
-     *                          ]
-     *                          ]
-     *                          ]
+     *                           Format:
+     *                           [
+     *                           'IdOfTopic1':
+     *                           [
+     *                           id = 'IdOfTopic1',
+     *                           title = 'TitleOfTopic1'
+     *                           tags =
+     *                           [
+     *                           'IdOfTag1' =
+     *                           [
+     *                           id = 'IdOfTag1',
+     *                           title = 'TitleOfTag1'
+     *                           ],
+     *                           'IdOfTag2' =
+     *                           [
+     *                           id = 'IdOfTag2',
+     *                           title = 'TitleOfTag2'
+     *                           ],
+     *                           'IdOfTag3' =
+     *                           [
+     *                           id = 'IdOfTag3',
+     *                           title = 'TitleOfTag3'
+     *                           ]
+     *                           ]
+     *                           ]
+     *                           'IdOfTopic2':
+     *                           [
+     *                           id = 'IdOfTopic2',
+     *                           title = 'TitleOfTopic2'
+     *                           tags =
+     *                           [
+     *                           'IdOfTag4' =
+     *                           [
+     *                           id = 'IdOfTag4',
+     *                           title = 'TitleOfTag4'
+     *                           ],
+     *                           'IdOfTag5' =
+     *                           [
+     *                           id = 'IdOfTag5',
+     *                           title = 'TitleOfTag5'
+     *                           ]
+     *                           ]
+     *                           ]
+     *                           ]
      */
     public function getTopics()
     {
@@ -641,8 +641,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Adds a tag to this statement fragment.
-     *
-     * @param TagInterface $tag
      */
     public function addTag(TagInterface $tag)
     {
@@ -653,8 +651,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Removes a tag to this statement fragment.
-     *
-     * @param TagInterface $tag
      */
     public function removeTag(TagInterface $tag)
     {

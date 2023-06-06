@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -31,8 +31,11 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -44,7 +47,9 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
      *     inversedBy="comments"
      * )
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
+     *
      * @Assert\NotNull
      */
     protected $segment;
@@ -55,6 +60,7 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $submitter;
@@ -65,6 +71,7 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var PlaceInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     protected $place;
@@ -73,6 +80,7 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $creationDate;
@@ -84,7 +92,9 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Assert\NotBlank
+     *
      * @Assert\Length(min=1, max=65536)
      */
     protected $text;

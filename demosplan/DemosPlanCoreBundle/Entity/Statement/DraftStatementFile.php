@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTimeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementFileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,8 +27,11 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
      * @var string
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      */
     private $id;
@@ -39,6 +42,7 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
      * @var DraftStatementInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="files")
+     *
      * @ORM\JoinColumn(referencedColumnName="_ds_id", nullable=false)
      */
     private $draftStatement;
@@ -47,6 +51,7 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
      * @var DateTimeInterface
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $createDate;
@@ -55,6 +60,7 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
      * @var FileInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
      */
     private $file;

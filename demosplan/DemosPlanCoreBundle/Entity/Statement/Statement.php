@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,25 +11,25 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
