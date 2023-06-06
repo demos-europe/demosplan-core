@@ -8,6 +8,7 @@
  */
 
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { set } from 'vue'
 
 const AssessmentTable = {
   namespaced: true,
@@ -112,7 +113,7 @@ const AssessmentTable = {
       if (Array.isArray(state.assessmentBase[data.prop])) {
         state.assessmentBase[data.prop].unshift(data.value)
       } else if (typeof state.assessmentBase[data.prop] === 'object' && data.prop !== 'paragraph') {
-        Vue.set(state.assessmentBase[data.prop], [data.value.key], data.value.title)
+        set(state.assessmentBase[data.prop], [data.value.key], data.value.title)
       } else if (data.prop === 'paragraph') { // To paragraphs the empty option has to be passed differently because of the specific structure of data
         Object.entries(state.assessmentBase.paragraph).forEach(element => {
           element.forEach(array => {
@@ -136,12 +137,12 @@ const AssessmentTable = {
      * @TODO maybe extract stuff that is not related to a procedure into a more generic route/store
      */
     setAssessmentBaseProperty (state, data) {
-      Vue.set(state.assessmentBase, [data.prop], data.val)
+      set(state.assessmentBase, [data.prop], data.val)
       state.assessmentBaseLoaded = true
     },
 
     setModalProperty (state, data) {
-      Vue.set(state.modals, [data.prop], data.val)
+      set(state.modals, [data.prop], data.val)
     },
 
     /**
@@ -149,7 +150,7 @@ const AssessmentTable = {
      * @param data {Object<prop, val>}
      */
     setProperty (state, data) {
-      Vue.set(state, [data.prop], data.val)
+      set(state, [data.prop], data.val)
     }
   },
 
