@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementUnifiedDataFormatter;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
@@ -164,6 +165,7 @@ class DocxExporter
         StatementFragmentService $statementFragmentService,
         StatementHandler $statementHandler,
         StatementService $statementService,
+        private StatementUnifiedDataFormatter $statementUnifiedDataFormatter,
         TranslatorInterface $translator
     ) {
         $this->config = $config;
@@ -261,7 +263,7 @@ class DocxExporter
                             if ($item instanceof StatementFragment) {
                                 $item = $this->formatFragmentObject($item);
                             } elseif ($item instanceof Statement) {
-                                $item = $this->formatStatementObject($item);
+                                $item = $this->statementUnifiedDataFormatter->formatStatementObject($item);
                             } else {
                                 $type = gettype($item);
                                 throw new InvalidArgumentException("invalid type given: {$type}");
@@ -603,7 +605,7 @@ class DocxExporter
      */
     public function formatFragmentObject(StatementFragment $fragment): array
     {
-        $item = $this->formatStatementObject($fragment->getStatement());
+        $item = $this->statementUnifiedDataFormatter->formatStatementObject($fragment->getStatement());
 
         // override selected item fields with fragment content:
         $item['type'] = 'fragment';
@@ -614,74 +616,6 @@ class DocxExporter
         $item['elementTitle'] = $fragment->getElementTitle();
 
         return $item;
-    }
-
-    /**
-     * Statement in unified data format.
-     *
-     * @return array - formatted statement
-     *
-     * @throws ReflectionException
-     *
-     * @deprecated Use {@link formatStatementObject} instead
-     */
-    public function formatStatementArray(array $statement): array
-    {
-        return [
-            'type'                      => 'statement',
-            'attachments'               => $statement['attachments'] ?? null,
-            'authoredDate'              => $statement['meta']['authoredDate'] ?? null,
-            'cluster'                   => $statement['cluster'] ?? null,
-            'documentTitle'             => $statement['document']['title'] ?? null,
-            'externId'                  => $statement['externId'] ?? null,
-            'formerExternId'            => $statement['formerExternId'] ?? null,
-            'elementTitle'              => $statement['element']['title'] ?? null,
-            'files'                     => $statement['files'] ?? null,
-            'orgaName'                  => $statement['meta']['orgaName'] ?? null,
-            'orgaDepartmentName'        => $statement['meta']['orgaDepartmentName'] ?? null,
-            'originalId'                => $statement['original']['ident'] ?? null,
-            'paragraphTitle'            => $statement['paragraph']['title'] ?? null,
-            'parentId'                  => $statement['parent']['ident'] ?? null,
-            'polygon'                   => $statement['polygon'] ?? null,
-            'publicAllowed'             => $statement['publicAllowed'] ?? null,
-            'publicCheck'               => $statement['publicCheck'] ?? null,
-            'publicStatement'           => $statement['publicStatement'] ?? null,
-            'publicVerified'            => $statement['publicVerified'] ?? null,
-            'publicVerifiedTranslation' => $statement['publicVerifiedTranslation'] ?? null,
-            'recommendation'            => $statement['recommendation'] ?? null,
-            'submit'                    => $statement['submit'] ?? null,
-            'submitName'                => $statement['meta']['submitName'] ?? null,
-            'authorName'                => $statement['meta']['authorName'] ?? null,
-            'text'                      => $statement['text'] ?? null,
-            'votes'                     => $statement['votes'] ?? null,
-            'votesNum'                  => $statement['votesNum'] ?? null,
-            'likesNum'                  => $statement['likesNum'] ?? null,
-            'fragments'                 => [],
-            'userState'                 => $statement['meta']['userState'] ?? null,
-            'userGroup'                 => $statement['meta']['userGroup'] ?? null,
-            'userOrganisation'          => $statement['meta']['userOrganisation'] ?? null,
-            'movedToProcedureName'      => $statement['movedToProcedureName'] ?? null,
-            'movedFromProcedureName'    => $statement['movedFromProcedureName'] ?? null,
-            'userPosition'              => $statement['meta']['userPosition'] ?? null,
-            'isClusterStatement'        => $statement['isClusterStatement'] ?? null,
-            'name'                      => $statement['name'] ?? null,
-        ];
-    }
-
-    /**
-     * Statement in unified data format.
-     *
-     * @return array formatted statement
-     *
-     * @throws ReflectionException
-     */
-    public function formatStatementObject(Statement $statement): array
-    {
-        $item = $this->statementService->convertToLegacy($statement);
-        $item['parent'] = $this->statementService->convertToLegacy($statement->getParent());
-        $item['original'] = $this->statementService->convertToLegacy($statement->getOriginal());
-
-        return $this->formatStatementArray($item);
     }
 
     /**
@@ -1104,7 +1038,7 @@ class DocxExporter
     {
         return collect($statements)
             ->map(function (array $statement) use ($exportType, $requestPost): array {
-                $item = $this->formatStatementArray($statement);
+                $item = $this->statementUnifiedDataFormatter->formatStatementArray($statement);
 
                 // if there are fragments and fragment export was selected
                 if ('statementsAndFragments' === $exportType && 0 < count($statement['fragments'])) {
@@ -1143,7 +1077,7 @@ class DocxExporter
         $tmpElementId = $fragment['elementId'];
         $tmpElementTitle = $fragment['elementTitle'];
 
-        $item = $this->formatStatementArray($statement);
+        $item = $this->statementUnifiedDataFormatter->formatStatementArray($statement);
         $item['sortIndex'] = $fragment['sortIndex'];
 
         // override selected item fields with fragment content:

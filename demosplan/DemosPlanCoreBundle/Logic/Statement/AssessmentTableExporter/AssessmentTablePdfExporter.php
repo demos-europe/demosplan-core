@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementUnifiedDataFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -75,6 +76,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
+        private StatementUnifiedDataFormatter $statementUnifiedDataFormatter,
         TranslatorInterface $translator
         ) {
         parent::__construct(
@@ -368,7 +370,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         foreach ($statements as $statement) {
             // 'statementsAndFragments' or 'fragmentsOnly'
             if (true === $statementsOnly) {
-                $item = $this->assessmentTableOutput->formatStatementArray($statement);
+                $item = $this->statementUnifiedDataFormatter->formatStatementArray($statement);
                 $items->push($item);
             } else {
                 if (true === $original) {
@@ -395,7 +397,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 } else {
                     // if there are no fragments, export the entire statement
 
-                    $item = $this->assessmentTableOutput->formatStatementArray($statement);
+                    $item = $this->statementUnifiedDataFormatter->formatStatementArray($statement);
                     $items->push($item);
                 }
             }
@@ -548,7 +550,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         $tmpElementId = $fragment['elementId'];
         $tmpElementTitle = $fragment['elementTitle'];
 
-        $item = $this->assessmentTableOutput->formatStatementArray($statement);
+        $item = $this->statementUnifiedDataFormatter->formatStatementArray($statement);
 
         // override selected item fields with fragment content:
         $item['type'] = 'fragment';
