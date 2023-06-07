@@ -160,7 +160,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
         $this->name = $name;
     }
 
-    public function addProcedure(Procedure $procedure): void
+    public function addProcedure(ProcedureInterface $procedure): void
     {
         if ($procedure->isMasterTemplate()) {
             throw new FunctionalLogicException('Masterblueprint should not be attached to a procedureType.');

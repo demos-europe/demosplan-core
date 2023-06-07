@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use DateTimeInterface;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementFileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
@@ -85,7 +85,7 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
         return $this;
     }
 
-    public function getCreateDate(): DateTimeInterface
+    public function getCreateDate(): DateTime
     {
         return $this->createDate;
     }

@@ -585,7 +585,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->salt;
     }
 
-    public function setSalt(?string $salt): UserInterface
+    public function setSalt(?string $salt): User
     {
         $this->salt = $salt;
 
