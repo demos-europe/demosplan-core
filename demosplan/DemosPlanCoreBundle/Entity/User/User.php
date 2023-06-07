@@ -35,7 +35,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -52,7 +52,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
+class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
 {
     /**
      * @var string|null
@@ -327,7 +327,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * As one user might belong only to one organisation another "twin" user is needed to fulfill
      * this purpose.
      *
-     * @var UserInterface|null
+     * @var SecurityUserInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
      *
@@ -471,7 +471,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @deprecated use {@link UserInterface::getId()} instead
+     * @deprecated use {@link SecurityUserInterface::getId()} instead
      */
     public function getIdent(): ?string
     {
@@ -585,7 +585,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->salt;
     }
 
-    public function setSalt(?string $salt): UserInterface
+    public function setSalt(?string $salt): SecurityUserInterface
     {
         $this->salt = $salt;
 
@@ -1286,7 +1286,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?UserInterface
+    public function getTwinUser(): ?SecurityUserInterface
     {
         return $this->twinUser;
     }
@@ -1296,7 +1296,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?AddonUserInterface $twinUser): UserInterface
+    public function setTwinUser(?AddonUserInterface $twinUser): SecurityUserInterface
     {
         $this->twinUser = $twinUser;
 
