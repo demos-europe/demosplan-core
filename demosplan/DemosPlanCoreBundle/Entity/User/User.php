@@ -1286,7 +1286,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?UserInterface
+    public function getTwinUser(): ?User
     {
         return $this->twinUser;
     }
@@ -1296,7 +1296,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?User $twinUser): UserInterface
+    public function setTwinUser(UserInterface|AddonUserInterface|null $twinUser): User
     {
         $this->twinUser = $twinUser;
 
@@ -1447,7 +1447,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * @param CustomerInterface|null $customer
      */
-    public function addDplanrole(Role $role, $customer = null)
+    public function addDplanrole(RoleInterface $role, $customer = null)
     {
         // prevents the same role being set multiple times (if they have been set previously)
         if ($this->hasRole($role->getCode(), $customer)) {
