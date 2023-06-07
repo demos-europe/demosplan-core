@@ -114,12 +114,11 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <dp-recommendation-modal
-              v-if="segment.hasRelationship('tags')"
-              ref="recommendationModal"
-              :procedure-id="procedureId"
-              :segment-id="segment.id"
-              @insert-recommendation="text => modalProps.appendText(text)" />
+            <addon-wrapper
+              ref="addonWrapper"
+              :addon-props="addonProps"
+              hook-name="recommendation.modal"
+              :ref-component="refRecModal" />
           </template>
           <template v-slot:button>
             <button
@@ -296,9 +295,9 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
 
 export default {
   name: 'StatementSegment',
@@ -306,6 +305,7 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    AddonWrapper,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
@@ -317,7 +317,6 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
-    DpRecommendationModal,
     VPopover
   },
 
@@ -364,6 +363,10 @@ export default {
 
   data () {
     return {
+      addonProps: {
+        segmentId: this.segment.id,
+        procedureId: this.procedureId
+      },
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
@@ -372,6 +375,7 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      refRecModal: 'recommendationModal',
       selectedPlace: { id: '', type: 'Place' }
     }
   },
@@ -548,7 +552,7 @@ export default {
     },
 
     openRecommendationModal () {
-      this.$refs.recommendationModal.toggleModal('open')
+      this.$refs.addonWrapper.$refs[this.refRecModal].toggleModal('open')
     },
 
     /**

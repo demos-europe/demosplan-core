@@ -9,7 +9,7 @@
 
 <template>
   <span
-    :class="`border-radius-small ${colorClasses} ${sizeClasses}`"
+    :class="`border-radius-small ${colorClasses} ${sizeClasses} badge`"
     v-text="text" />
 </template>
 
@@ -29,7 +29,7 @@ export default {
       type: String,
       required: false,
       default: 'medium',
-      validator: (prop) => ['small', 'medium', 'large'].includes(prop)
+      validator: (prop) => ['smaller', 'small', 'medium', 'large'].includes(prop)
     },
 
     text: {
@@ -53,6 +53,7 @@ export default {
 
     sizeClasses () {
       const cssClassMap = {
+        smaller: 'font-size-small u-ph-0_25',
         small: 'font-size-small u-pv-0_125 u-ph-0_25',
         medium: 'font-size-medium u-pv-0_25 u-ph-0_5',
         large: 'font-size-large u-pv-0_5 u-ph-0_75'

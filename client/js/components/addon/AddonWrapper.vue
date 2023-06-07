@@ -11,6 +11,7 @@
   <div>
     <component
       :is="component"
+      :ref="refComponent"
       v-bind="addonProps"
     />
   </div>
@@ -24,6 +25,15 @@ export default {
 
   props: {
     /**
+     * The addonProps prop will be binded to the addon component to add props dynamically.
+     */
+    addonProps: {
+      type: Object,
+      required: false,
+      default: () => {}
+    },
+
+    /**
      * The hookName prop will be used to load an addon via the generic rpc route.
      */
     hookName: {
@@ -32,13 +42,10 @@ export default {
       default: ''
     },
 
-    /**
-     * The addonProps prop will be binded to the addon component to add props dynamically.
-     */
-    addonProps: {
-      type: Object,
+    refComponent: {
+      type: String,
       required: false,
-      default: () => {}
+      default: ''
     }
   },
 

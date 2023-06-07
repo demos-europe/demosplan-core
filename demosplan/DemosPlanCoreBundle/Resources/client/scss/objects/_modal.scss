@@ -83,4 +83,12 @@ $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
         margin: $inuit-base-spacing-unit 0 0;
         height: auto;
     }
+    &.recommendation-modal {
+        li:hover {
+            background-color: $dp-color-background-light;
+            .badge {
+                background-color: $dp-color-main;
+            }
+        }
+    }
 }
