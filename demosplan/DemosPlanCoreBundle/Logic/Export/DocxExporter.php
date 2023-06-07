@@ -95,11 +95,6 @@ class DocxExporter
     protected $fileService;
 
     /**
-     * @var MapService
-     */
-    protected $serviceMap;
-
-    /**
      * @var ServiceImporter
      */
     protected $serviceImport;
@@ -158,6 +153,7 @@ class DocxExporter
         FileService $fileService,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
+        protected readonly MapService $mapService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementHandler $statementHandler,
@@ -1708,12 +1704,12 @@ class DocxExporter
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
                 Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
             }
-            $cell2->addText($statement->getProcedure()->getSettings()->getCopyright());
+            $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
     }
 
     /**
-     * Generate Html imagetag to be used in PhphWord Html::addHtml().
+     * Generate Html imagetag to be used in PhpWord Html::addHtml().
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel
