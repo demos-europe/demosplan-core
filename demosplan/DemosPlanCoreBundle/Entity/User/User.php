@@ -585,7 +585,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->salt;
     }
 
-    public function setSalt(?string $salt): User
+    public function setSalt(?string $salt): UserInterface
     {
         $this->salt = $salt;
 
@@ -1286,7 +1286,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?User
+    public function getTwinUser(): ?UserInterface
     {
         return $this->twinUser;
     }
@@ -1296,7 +1296,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(UserInterface|AddonUserInterface|null $twinUser): User
+    public function setTwinUser(?User $twinUser): UserInterface
     {
         $this->twinUser = $twinUser;
 
@@ -1744,7 +1744,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     public function isDefaultGuestUser(): bool
     {
-        return UserInterface::ANONYMOUS_USER_ID === $this->id;
+        return AddonUserInterface::ANONYMOUS_USER_ID === $this->id;
     }
 
     public function isProvidedByIdentityProvider(): bool
