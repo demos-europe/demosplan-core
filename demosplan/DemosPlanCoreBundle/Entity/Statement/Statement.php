@@ -19,9 +19,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -4162,6 +4164,58 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setAnonymous(bool $anonymous): Statement
     {
         $this->anonymous = $anonymous;
+
+        return $this;
+    }
+
+    public function getParentStatementOfSegment(): StatementInterface
+    {
+        return $this->parentStatementOfSegment;
+    }
+
+    public function getParentStatement(): StatementInterface
+    {
+        return $this->parentStatementOfSegment;
+    }
+
+    public function setParentStatementOfSegment(StatementInterface $parentStatementOfSegment): void
+    {
+        $this->parentStatementOfSegment = $parentStatementOfSegment;
+    }
+
+    public function getOrderInProcedure(): int
+    {
+        return $this->orderInProcedure;
+    }
+
+    public function setOrderInProcedure(int $orderInProcedure): void
+    {
+        $this->orderInProcedure = $orderInProcedure;
+    }
+
+    public function setPlace(PlaceInterface $place): self
+    {
+        $this->place = $place;
+
+        return $this;
+    }
+
+    public function getPlace(): PlaceInterface
+    {
+        return $this->place;
+    }
+
+    /**
+     * Needed for elasticsearch indexing.
+     */
+    public function getPlaceId(): string
+    {
+        return $this->place->getId();
+    }
+
+    public function addComment(SegmentCommentInterface $comment): self
+    {
+        $this->comments->add($comment);
 
         return $this;
     }

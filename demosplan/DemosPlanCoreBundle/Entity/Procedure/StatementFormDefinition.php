@@ -11,7 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -195,7 +197,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         if ($this->procedureType instanceof ProcedureType) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This StatementFormDefinition is already related to a ProcedureType.

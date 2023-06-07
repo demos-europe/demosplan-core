@@ -1296,7 +1296,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?User $twinUser): UserInterface
+    public function setTwinUser(?AddonUserInterface $twinUser): UserInterface
     {
         $this->twinUser = $twinUser;
 

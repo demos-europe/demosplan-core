@@ -33,6 +33,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
