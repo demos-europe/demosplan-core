@@ -19,11 +19,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * GlobalContent (derzeit GlobalFaq und GlobalNews).
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqRepository")
+ * @ORM\Entity()
  */
-class Faq extends CoreEntity implements FaqInterface
+class PlatformFaq extends CoreEntity implements FaqInterface
 {
     /**
      * @var string|null
@@ -83,20 +81,20 @@ class Faq extends CoreEntity implements FaqInterface
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="faq_id", referencedColumnName="id", onDelete="CASCADE")},
+     *     joinColumns={@ORM\JoinColumn(name="platformFaq_id", referencedColumnName="id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
      */
     protected $roles;
 
     /**
-     * @var FaqCategory
+     * @var PlatformFaqCategory
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\FaqCategory")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory")
      *
      * @ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
-    protected $faqCategory;
+    protected $platformFaqCategory;
 
     public function __construct()
     {
@@ -243,11 +241,11 @@ class Faq extends CoreEntity implements FaqInterface
     /**
      * Set Category.
      *
-     * @param FaqCategory $faqCategory
+     * @param PlatformFaqCategory $platformFaqCategory
      */
-    public function setCategory($faqCategory): self
+    public function setCategory($platformFaqCategory): self
     {
-        $this->faqCategory = $faqCategory;
+        $this->platformFaqCategory = $platformFaqCategory;
 
         return $this;
     }
@@ -255,9 +253,9 @@ class Faq extends CoreEntity implements FaqInterface
     /**
      * Get Category.
      */
-    public function getCategory(): FaqCategory
+    public function getCategory(): PlatformFaqCategory
     {
-        return $this->faqCategory;
+        return $this->platformFaqCategory;
     }
 
     public function hasRoleGroupCode(string $code): bool
