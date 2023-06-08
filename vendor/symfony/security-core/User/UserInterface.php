@@ -1,12 +1,11 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
+/**
+ * This file is part of the package demosplan.
  *
- * (c) Fabien Potencier <fabien@symfony.com>
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * All rights reserved
  */
 
 namespace Symfony\Component\Security\Core\User;
@@ -47,6 +46,18 @@ interface UserInterface
      * @return string[]
      */
     public function getRoles();
+
+    /**
+     * Returns the password used to authenticate the user.
+     *
+     * This should be the hashed password. On authentication, a plain-text
+     * password will be hashed, and then compared to this value.
+     *
+     * This method is deprecated since Symfony 5.3, implement it from {@link PasswordAuthenticatedUserInterface} instead.
+     *
+     * @return string|null
+     */
+    public function getPassword();
 
     /**
      * Returns the salt that was originally used to hash the password.
