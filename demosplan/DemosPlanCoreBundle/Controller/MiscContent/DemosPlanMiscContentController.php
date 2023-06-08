@@ -461,6 +461,9 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/informationen"
      * )
      *
+     * The faq are a combination of Platform-faq (platformList) which are customer independent
+     * and the customer-specific-faq (list)
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -469,8 +472,15 @@ class DemosPlanMiscContentController extends BaseController
      */
     public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $platformCategories = $faqHandler->getPlatformFaqCategories();
-        $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        try {
+            $platformCategories = $faqHandler->getPlatformFaqCategories();
+            $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        }
+        catch (UnexpectedValueException $e) {
+            $this->logger->error('Get platformFaqCategories failed.', [$e]);
+        }
+
+        // try
         $templateVars = [
             'list'         => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
             'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),

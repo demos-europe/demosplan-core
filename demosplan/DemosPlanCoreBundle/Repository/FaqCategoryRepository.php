@@ -18,6 +18,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use UnexpectedValueException;
 
 class FaqCategoryRepository extends CoreRepository
 {
@@ -67,24 +68,14 @@ class FaqCategoryRepository extends CoreRepository
 
     /**
      * Get all static platformFaqCategories - same for all customers.
+     * @throws UnexpectedValueException
      *
      * @return PlatformFaqCategory[]
+     *
      */
     public function getCustomerIndependentPlatformFaqCategories(): array
     {
-        try {
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('platformFaqCategory')
-                ->from(PlatformFaqCategory::class, 'platformFaqCategory')
-                ->orderBy('platformFaqCategory.title');
-
-            return $query->getQuery()->getResult();
-        } catch (NoResultException $e) {
-            $this->logger->error('Get platformFaqCategories failed.', [$e]);
-
-            return [];
-        }
+        return $this->getEntityManager()->getRepository(PlatformFaqCategory::class)->findBy([], ['title' => 'ASC']);
     }
 
     /**

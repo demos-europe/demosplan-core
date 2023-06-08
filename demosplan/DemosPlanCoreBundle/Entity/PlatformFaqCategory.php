@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity()
  */
-class PlatformFaqCategory extends CoreEntity implements UuidEntityInterface, FaqCategoryInterface
+class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
      * @var string|null

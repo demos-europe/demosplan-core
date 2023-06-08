@@ -22,7 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity()
  */
-class PlatformFaq extends CoreEntity implements UuidEntityInterface, FaqInterface
+class PlatformFaq extends CoreEntity implements FaqInterface
 {
     /**
      * @var string|null

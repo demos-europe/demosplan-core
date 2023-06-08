@@ -33,6 +33,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
+use UnexpectedValueException;
 
 class FaqService extends CoreService
 {
@@ -123,6 +124,8 @@ class FaqService extends CoreService
 
     /**
      * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @throws UnexpectedValueException
      *
      * @return PlatformFaqCategory[]
      */

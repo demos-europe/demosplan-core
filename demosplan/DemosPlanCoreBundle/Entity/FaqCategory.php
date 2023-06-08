@@ -21,7 +21,7 @@ use UnexpectedValueException;
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository")
  */
-class FaqCategory extends CoreEntity implements UuidEntityInterface, FaqCategoryInterface
+class FaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
      * These are allowed types, independent of the role.

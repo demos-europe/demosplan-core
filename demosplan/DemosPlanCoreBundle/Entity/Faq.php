@@ -24,7 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqRepository")
  */
-class Faq extends CoreEntity implements UuidEntityInterface, FaqInterface
+class Faq extends CoreEntity implements FaqInterface
 {
     /**
      * @var string|null
