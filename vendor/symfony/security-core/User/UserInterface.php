@@ -1,11 +1,12 @@
 <?php
 
-/**
- * This file is part of the package demosplan.
+/*
+ * This file is part of the Symfony package.
  *
- * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ * (c) Fabien Potencier <fabien@symfony.com>
  *
- * All rights reserved
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Symfony\Component\Security\Core\User;
