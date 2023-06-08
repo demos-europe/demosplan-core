@@ -36,7 +36,9 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     {
         $routeCollection = new RouteCollection();
         foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
-            $this->addControllers($addonInfo, $routeCollection);
+            if ($addonInfo->isEnabled()) {
+                $this->addControllers($addonInfo, $routeCollection);
+            }
         }
 
         return $routeCollection;
