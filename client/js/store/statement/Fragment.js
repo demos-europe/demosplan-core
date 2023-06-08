@@ -8,6 +8,7 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { del, set } from 'vue'
 
 export default {
   namespaced: true,
@@ -60,7 +61,7 @@ export default {
      * @param {Object} fragment
      */
     addFragmentToSelection (state, fragment) {
-      Vue.set(state.selectedFragments, [fragment.id], fragment)
+      set(state.selectedFragments, [fragment.id], fragment)
     },
 
     /**
@@ -87,10 +88,10 @@ export default {
 
       const fragments = { ...state.fragments }
       fragments[ids.statementId] = statementObj
-      Vue.set(state, 'fragments', fragments)
+      set(state, 'fragments', fragments)
 
       if (hasOwnProp(state.selectedFragments, ids.fragmentId)) {
-        Vue.delete(state.selectedFragments, ids.fragmentId)
+        del(state.selectedFragments, ids.fragmentId)
         state.selectedFragments = { ...state.selectedFragments }
       }
 
@@ -116,7 +117,7 @@ export default {
           }
         }
       }
-      Vue.set(state.fragments, statementId, fragments)
+      set(state.fragments, statementId, fragments)
     },
 
     /**
@@ -124,7 +125,7 @@ export default {
      * @param {String} fragmentId
      */
     removeFragmentFromSelection (state, fragmentId) {
-      Vue.delete(state.selectedFragments, fragmentId)
+      del(state.selectedFragments, fragmentId)
     },
 
     /**
@@ -132,7 +133,7 @@ export default {
      * @param {Array} initFragments
      */
     setInitFragments (state, initFragments) {
-      Vue.set(state, 'initFragments', initFragments)
+      set(state, 'initFragments', initFragments)
     },
 
     /**
@@ -162,7 +163,7 @@ export default {
 
       // If fragment to update is selected and assignee or editableState is changed, we have to set it also in session storage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedFragments, data.fragmentId)) {
-        Vue.set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
+        set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
