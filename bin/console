@@ -20,9 +20,7 @@ if (isset($_ENV['ACTIVE_PROJECT'])) {
 }
 
 if (null === $activeProject) {
-    echo "Cannot determine project, please set ACTIVE_PROJECT on call or in the environment.\n";
-
-    return 1;
+    $activeProject = 'core';
 }
 
 require __DIR__.'/../vendor/autoload.php';
