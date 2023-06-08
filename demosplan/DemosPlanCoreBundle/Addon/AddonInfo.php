@@ -43,11 +43,7 @@ final class AddonInfo
 
     public function getControllerPaths(): array
     {
-        if (is_array($this->config['manifest']['controller_paths'])) {
-            return $this->config['manifest']['controller_paths'];
-        }
-
-        return [$this->config['manifest']['controller_paths']];
+        return $this->config['manifest']['controller_paths'];
     }
 
     public function hasUIHooks(): bool
