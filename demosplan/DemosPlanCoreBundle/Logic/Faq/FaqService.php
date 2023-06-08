@@ -161,17 +161,13 @@ class FaqService extends CoreService
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
-        $categoryName = '';
-        $className = '';
-        if ($faqCategory instanceof FaqCategory) {
-            $categoryName = 'faqCategory';
-            $className = Faq::class;
-        }
+        $categoryName = 'faqCategory';
+        $className = Faq::class;
+
         if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
             $className = PlatformFaq::class;
         }
-
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
             $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
