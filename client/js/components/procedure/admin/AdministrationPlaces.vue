@@ -70,7 +70,7 @@
           id="editPlaceName"
           maxlength="250"
           required
-          v-model="rowData.name" />
+          v-model="newRowData.name" />
       </template>
       <template v-slot:description="rowData">
         <div
@@ -80,7 +80,7 @@
           v-else
           id="editPlaceDescription"
           maxlength="250"
-          v-model="rowData.description" />
+          v-model="newRowData.description" />
       </template>
       <template v-slot:flyout="rowData">
         <div class="float--right">
@@ -182,6 +182,7 @@ export default {
       isLoading: false,
       addNewPlace: false,
       newPlace: {},
+      newRowData: {},
       places: []
     }
   },
@@ -201,6 +202,7 @@ export default {
     abort (rowData) {
       rowData.name = this.initialRowData.name
       rowData.description = this.initialRowData.description
+      this.newRowData = {}
 
       this.setEditMode(rowData, false)
     },
@@ -222,6 +224,9 @@ export default {
       // Save initial state of currently edited row
       this.initialRowData.name = rowData.name
       this.initialRowData.description = rowData.description
+
+      this.newRowData.name = rowData.name
+      this.newRowData.description = rowData.description
 
       this.setEditMode(rowData)
     },
@@ -316,6 +321,13 @@ export default {
       this.places[idx].edit = state
     },
 
+    updatePlaceData (rowData) {
+      const idx = this.places.findIndex(el => el.id === rowData.id)
+
+      this.places[idx].name = this.newRowData.name
+      this.places[idx].description = this.newRowData.description
+    },
+
     updatePlace (rowData) {
       if (!this.isUniquePlaceName(rowData.name)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
@@ -325,8 +337,8 @@ export default {
           id: rowData.id,
           type: 'Place',
           attributes: {
-            name: rowData.name,
-            description: rowData.description
+            name: this.newRowData.name,
+            description: this.newRowData.description
           }
         }
       }
@@ -336,6 +348,7 @@ export default {
         .catch((err) => console.error(err))
         .finally(() => {
           this.setEditMode(rowData, false)
+          this.updatePlaceData(rowData)
         })
     },
 
