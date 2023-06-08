@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqCategoryInterface;
 use Doctrine\ORM\Mapping as ORM;

@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqInterface;
 use Doctrine\Common\Collections\ArrayCollection;

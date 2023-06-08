@@ -380,9 +380,9 @@ class FaqHandler extends CoreHandler
     /**
      * Get all platform-faq-categories sorted alphabetically by title.
      *
-     * @throws UnexpectedValueException
-     *
      * @return Collection<PlatformFaqCategory>
+     *
+     * @throws UnexpectedValueException
      */
     public function getPlatformFaqCategories(): Collection
     {

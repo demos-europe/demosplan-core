@@ -125,9 +125,9 @@ class FaqService extends CoreService
     /**
      * Get all platform-faq-categories sorted alphabetically by title.
      *
-     * @throws UnexpectedValueException
-     *
      * @return PlatformFaqCategory[]
+     *
+     * @throws UnexpectedValueException
      */
     public function getPlatformFaqCategories(): array
     {
