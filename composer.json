@@ -143,7 +143,6 @@
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
         "php-parallel-lint/php-console-highlighter": "^0.5",
-        "phpcompatibility/php-compatibility": "^9.3",
         "phpspec/prophecy": "^1.15",
         "phpstan/phpstan": "^1.9",
         "phpstan/phpstan-symfony": "^1.2",
@@ -202,9 +201,5 @@
     },
     "conflict": {
       "twig/twig": "<2.10"
-    },
-    "scripts": {
-      "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
-      "post-update-cmd" : "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
     }
 }
