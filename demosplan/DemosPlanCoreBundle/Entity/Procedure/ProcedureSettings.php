@@ -29,18 +29,6 @@ use Doctrine\ORM\Mapping as ORM;
 class ProcedureSettings extends CoreEntity implements UuidEntityInterface, ProcedureSettingsInterface
 {
     /**
-     * Max length of the {@see mapHint} field.
-     *
-     * @var int
-     */
-    public const MAP_HINT_MAX_LENGTH = 2000;
-    /**
-     * Min length of the {@see mapHint} field.
-     *
-     * @var int
-     */
-    public const MAP_HINT_MIN_LENGTH = 50;
-    /**
      * @var string|null
      *
      * @ORM\Column(name="_ps_id", type="string", length=36, options={"fixed":true})

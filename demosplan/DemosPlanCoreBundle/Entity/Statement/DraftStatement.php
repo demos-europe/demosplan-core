@@ -490,7 +490,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     }
 
     /**
-     * @deprecated use {@link DraftStatementInterface::getId()} instead
+     * @deprecated use {@link DraftStatement::getId()} instead
      */
     public function getIdent(): ?string
     {

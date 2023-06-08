@@ -471,7 +471,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     }
 
     /**
-     * @deprecated use {@link SecurityUserInterface::getId()} instead
+     * @deprecated use {@link User::getId()} instead
      */
     public function getIdent(): ?string
     {
