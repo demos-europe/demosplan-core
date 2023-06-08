@@ -1,0 +1,80 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+        heading: 'invitable_institution.unregistered.invite'|trans,
+        highlighted: 'publicagency_unregistered'
+    } %}
+
+    {% set entries = templateVars.addressBookEntries %}
+
+<form
+    name="selectEntriesForm"
+    action="{{ path('DemosPlan_invite_unregistered_public_agency_email', {'procedureId': templateVars.procedure.id}) }}"
+    method="post"
+>
+
+    <p class="u-mt">
+        {{ 'invitable_institutions.unregistered.invite.explanation'|trans({ projectName:projectName })|wysiwyg }}
+    </p>
+
+    {# Actions #}
+    <label
+        class="btn-icns btn-icns--thin display--inline position--relative" style="top: 10px">
+        <input
+            id="select_all"
+            type="checkbox"
+            data-form-actions-check-all>
+        {{ "markall"|trans }}
+    </label>
+
+    <button
+        class="btn btn--primary float--right"
+        name="writeEmail">
+        {{ 'email.invitation.write'|trans }}
+        <i class="fa fa-angle-right u-pl-0_25"></i>
+    </button>
+
+    {# Table with selectable unregistered institutions #}
+    <table class="u-mb u-mt border--top">
+        <colgroup>
+            <col style="width: 2%; white-space: nowrap;">
+            <col style="width: 50%; white-space: nowrap;">
+            <col style="width: 40%; white-space: nowrap;">
+        </colgroup>
+        <thead class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5 text--left">
+        <tr>
+            <th></th>
+            <th class="u-pt-0_5 u-pr-0_25 u-pb-0_25 u-pl-0_5">{{ 'invitable_institution'|trans }}</th>
+            <th class="u-pt-0_5 u-pr-0_25 u-pb-0_25">{{ 'email.address'|trans }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entry in entries  %}
+            <tr class="border--top o-sortablelist__item">
+                <td>
+                    <input
+                        name="entries_selected[]"
+                        type="checkbox"
+                        value="{{ entry.id }}"
+                        data-checkable-item>
+                </td>
+                <td class="u-pl-0_5 u-pt-0_5">
+                    <p>{{ entry.name }}</p>
+                </td>
+                <td class="u-pt-0_25 u-pr-0_25">
+                    <p class="u-mb-0_25">{{ entry.emailAddress }}</p>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}
