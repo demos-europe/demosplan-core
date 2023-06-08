@@ -20,7 +20,7 @@ class Version20230531123431 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T31885: create platform_faq, platform_faq_role, platform_faq_category';
+        return 'refs T31885: create platform_faq, platform_faq_role, platform_faq_category, to allow getting a kind of global faqs besides the already existing customer-faqs';
     }
 
     /**
