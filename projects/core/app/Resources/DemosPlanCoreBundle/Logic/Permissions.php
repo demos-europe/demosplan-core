@@ -14,14 +14,11 @@ use demosplan\DemosPlanCoreBundle\Permissions\ProjectPermissions;
 
 class Permissions extends ProjectPermissions
 {
-
     public function projectGlobalPermissions(): void
     {
-
     }
 
     public function projectProcedurePermissions(): void
     {
-
     }
 }
