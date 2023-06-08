@@ -104,7 +104,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 
     public function __construct(
         string $fieldName,
-        StatementFormDefinitionInterface $statementFormDefinition,
+        StatementFormDefinition $statementFormDefinition,
         int $orderNumber,
         bool $enabled,
         bool $required

@@ -92,7 +92,7 @@ use UnexpectedValueException;
  *
  * @SimilarStatementSubmittersSameProcedureConstraint(groups={"Default", "manual_create"})
  */
-class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterface
+class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
     /**
      * @var string|null

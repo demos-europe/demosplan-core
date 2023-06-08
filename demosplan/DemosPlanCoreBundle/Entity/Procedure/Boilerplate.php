@@ -134,7 +134,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     }
 
     /**
-     * @deprecated use {@link BoilerplateInterface::getId()} instead
+     * @deprecated use {@link Boilerplate::getId()} instead
      */
     public function getIdent(): ?string
     {

@@ -111,7 +111,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @param string $title
      */
-    public function __construct($title, TagTopicInterface $topic)
+    public function __construct($title, TagTopic $topic)
     {
         $this->setTitle($title);
         $this->topic = $topic;

@@ -16,6 +16,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -262,7 +263,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      */
     private $institutionOrCitizenExportable;
 
-    public function __construct(ProcedureInterface $procedure)
+    public function __construct(Procedure $procedure)
     {
         $this->initializeAllProperties(true);
 

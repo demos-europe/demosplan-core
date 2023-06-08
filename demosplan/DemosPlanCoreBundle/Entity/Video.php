@@ -19,6 +19,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -129,9 +131,9 @@ class Video implements UuidEntityInterface, VideoInterface
     private $modificationDate;
 
     public function __construct(
-        UserInterface $uploader,
-        CustomerInterface $customerContext,
-        FileInterface $file,
+        User $uploader,
+        Customer $customerContext,
+        File $file,
         string $title = '',
         $description = ''
     ) {

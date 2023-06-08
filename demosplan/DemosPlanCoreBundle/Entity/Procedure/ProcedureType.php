@@ -126,9 +126,9 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     public function __construct(
         string $name,
         string $description,
-        StatementFormDefinitionInterface $statementFormDefinition,
-        ProcedureBehaviorDefinitionInterface $procedureBehaviorDefinition,
-        ProcedureUiDefinitionInterface $procedureUiDefinition
+        StatementFormDefinition $statementFormDefinition,
+        ProcedureBehaviorDefinition $procedureBehaviorDefinition,
+        ProcedureUiDefinition $procedureUiDefinition
     ) {
         $this->name = $name;
         $this->description = $description;

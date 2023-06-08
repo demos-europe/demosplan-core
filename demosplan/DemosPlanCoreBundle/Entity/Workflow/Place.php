@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Workflow;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -89,7 +90,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
      */
     private $procedure;
 
-    public function __construct(ProcedureInterface $procedure, string $name = '', int $sortIndex = 0, string $id = null)
+    public function __construct(Procedure $procedure, string $name = '', int $sortIndex = 0, string $id = null)
     {
         $this->procedure = $procedure;
         $this->name = $name;

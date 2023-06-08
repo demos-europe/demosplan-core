@@ -18,6 +18,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -99,7 +101,7 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      */
     protected $text;
 
-    public function __construct(SegmentInterface $segment, UserInterface $submitter, PlaceInterface $place, string $text)
+    public function __construct(Segment $segment, User $submitter, Place $place, string $text)
     {
         $this->segment = $segment;
         $this->submitter = $submitter;

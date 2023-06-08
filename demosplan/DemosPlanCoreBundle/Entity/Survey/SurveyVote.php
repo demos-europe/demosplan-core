@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use UnexpectedValueException;
@@ -103,7 +104,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface, SurveyVoteIn
     /**
      * @throws Exception
      */
-    public function __construct(bool $isAgreed, string $text, SurveyInterface $survey, UserInterface $user)
+    public function __construct(bool $isAgreed, string $text, Survey $survey, User $user)
     {
         $this->createdDate = new DateTime();
         $this->isAgreed = $isAgreed;

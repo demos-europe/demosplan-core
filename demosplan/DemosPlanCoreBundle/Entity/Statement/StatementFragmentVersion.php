@@ -235,7 +235,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     protected $document;
 
-    public function __construct(StatementFragmentInterface $fragmentToCreateVersionFrom)
+    public function __construct(StatementFragment $fragmentToCreateVersionFrom)
     {
         $this->archivedDepartmentName = $fragmentToCreateVersionFrom->getArchivedDepartmentName();
         $this->archivedOrgaName = $fragmentToCreateVersionFrom->getArchivedOrgaName();
