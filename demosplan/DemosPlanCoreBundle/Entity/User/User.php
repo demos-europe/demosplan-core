@@ -52,7 +52,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
+class User implements SamlUserInterface, UuidEntityInterface, AddonUserInterface
 {
     /**
      * @var string|null
