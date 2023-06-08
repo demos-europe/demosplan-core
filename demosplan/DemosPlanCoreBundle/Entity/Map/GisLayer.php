@@ -28,7 +28,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class GisLayer extends CoreEntity implements GisLayerInterface
 {
-
     /**
      * Unique identification of the Gislayer entry.
      *
