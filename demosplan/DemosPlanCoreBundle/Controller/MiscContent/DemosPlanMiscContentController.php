@@ -475,8 +475,7 @@ class DemosPlanMiscContentController extends BaseController
         try {
             $platformCategories = $faqHandler->getPlatformFaqCategories();
             $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             $this->logger->error('Get platformFaqCategories failed.', [$e]);
         }
 

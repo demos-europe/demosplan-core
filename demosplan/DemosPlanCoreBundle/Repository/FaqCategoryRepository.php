@@ -68,10 +68,10 @@ class FaqCategoryRepository extends CoreRepository
 
     /**
      * Get all static platformFaqCategories - same for all customers.
-     * @throws UnexpectedValueException
      *
      * @return PlatformFaqCategory[]
      *
+     * @throws UnexpectedValueException
      */
     public function getCustomerIndependentPlatformFaqCategories(): array
     {
