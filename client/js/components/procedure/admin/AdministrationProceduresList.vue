@@ -159,7 +159,7 @@ import {
   DpSearchField,
   DpSelect,
   formatDate
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'AdministrationProceduresList',

@@ -203,7 +203,7 @@ import {
   makeFormPost,
   toggleFullscreen,
   unbindFullScreenChange
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
 import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'

@@ -91,7 +91,7 @@ import {
   DpLoading,
   formatDate,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpSurveyCommentsList',

@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui/src'
 
 const LookupStatus = {
   NONE: 0,

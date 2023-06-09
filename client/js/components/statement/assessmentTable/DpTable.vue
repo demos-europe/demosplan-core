@@ -231,7 +231,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
@@ -259,7 +259,7 @@ export default {
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
     DpSlidebar: async () => {
-      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui/src')
       return DpSlidebar
     },
     DpAssessmentTableCard,

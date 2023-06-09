@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-ui/src'
 import dayjs from 'dayjs'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'

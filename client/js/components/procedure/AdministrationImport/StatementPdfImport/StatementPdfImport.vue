@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpUploadFiles, getFileIdsByHash, handleResponseMessages } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpUploadFiles, getFileIdsByHash, handleResponseMessages } from '@demos-europe/demosplan-ui/src'
 import StatementPdfImportList from './StatementPdfImportList'
 
 export default {

@@ -162,7 +162,7 @@ import {
   DpEditableList,
   DpInput,
   dpValidateMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapMutations } from 'vuex'
 
 export default {

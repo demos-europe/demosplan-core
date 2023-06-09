@@ -294,7 +294,7 @@ import {
   DpMultiselect,
   prefixClassMixin,
   VPopover
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
@@ -314,7 +314,7 @@ export default {
     DpLabel,
     DpMultiselect,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     DpRecommendationModal,

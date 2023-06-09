@@ -36,7 +36,7 @@
 </dp-modal>
 
 <script>
-import { DpButtonRow, DpModal } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpModal } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
 

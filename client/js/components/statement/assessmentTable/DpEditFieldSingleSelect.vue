@@ -77,7 +77,7 @@
 
 <script>
 import DpEditField from './DpEditField'
-import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpEditFieldSingleSelect',

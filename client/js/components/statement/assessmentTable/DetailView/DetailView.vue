@@ -19,7 +19,7 @@ import {
   DpDatepicker,
   DpMultiselect,
   DpUploadFiles
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
@@ -43,11 +43,11 @@ export default {
     DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
 
     DpSlidebar: async () => {
-      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui/src')
       return DpSlidebar
     },
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),

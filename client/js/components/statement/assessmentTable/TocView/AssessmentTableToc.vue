@@ -29,7 +29,7 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import AssessmentTableTocGroup from './AssessmentTableTocGroup'
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'AssessmentTableToc',

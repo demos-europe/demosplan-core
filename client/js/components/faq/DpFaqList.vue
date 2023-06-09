@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpTreeList } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpFaqCategoryItem from './DpFaqCategoryItem'
 import DpFaqItem from './DpFaqItem'

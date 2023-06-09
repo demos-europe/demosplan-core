@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui'
+import { CleanHtml } from '@demos-europe/demosplan-ui/src'
 import { mapActions } from 'vuex'
 import SharedMethods from './../SharedProcedureMethods'
 

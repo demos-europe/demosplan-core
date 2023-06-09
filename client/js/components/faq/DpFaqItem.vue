@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { DpMultiselect, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpMultiselect, DpToggle } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {

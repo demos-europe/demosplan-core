@@ -19,7 +19,7 @@
 <script>
 import { always } from 'ol/events/condition'
 import { DragZoom } from 'ol/interaction'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpOlMapDragZoom',

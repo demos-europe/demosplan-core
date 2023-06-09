@@ -11,7 +11,7 @@
  * This is the entrypoint for public_paragraph_document.html.twig
  */
 
-import { DpUploadFiles, prefixClass, TableWrapper } from '@demos-europe/demosplan-ui'
+import { DpUploadFiles, prefixClass, TableWrapper } from '@demos-europe/demosplan-ui/src'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'

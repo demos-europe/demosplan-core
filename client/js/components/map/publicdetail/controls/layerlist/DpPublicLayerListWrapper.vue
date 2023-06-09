@@ -38,7 +38,7 @@
 
 <script>
 import DpPublicLayerList from './DpPublicLayerList'
-import { prefixClass } from '@demos-europe/demosplan-ui'
+import { prefixClass } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpPublicLayerListWrapper',

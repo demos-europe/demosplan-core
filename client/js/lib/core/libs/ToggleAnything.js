@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { getAnimationEventName, prefixClass } from '@demos-europe/demosplan-ui'
+import { getAnimationEventName, prefixClass } from '@demos-europe/demosplan-ui/src'
 
 /**
  *  ToggleAnything

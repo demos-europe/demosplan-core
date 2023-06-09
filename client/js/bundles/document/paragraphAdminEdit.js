@@ -11,7 +11,7 @@
  * This is the entrypoint for paragraph_admin_edit.html.twig
  */
 
-import { DpEditor, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

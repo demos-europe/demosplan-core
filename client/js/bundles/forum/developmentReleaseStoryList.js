@@ -11,7 +11,7 @@
  * This is the entry point for development_release_story_list.html.twig
  */
 
-import { DpAccordion } from '@demos-europe/demosplan-ui'
+import { DpAccordion } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

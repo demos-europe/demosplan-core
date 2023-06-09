@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpFragmentListFilterModal',

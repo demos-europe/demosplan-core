@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'

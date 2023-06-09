@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'

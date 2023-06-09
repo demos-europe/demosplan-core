@@ -294,7 +294,7 @@ import {
   DpStickyElement,
   formatDate,
   tableSelectAllItems
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'

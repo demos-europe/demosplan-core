@@ -190,7 +190,7 @@
 </template>
 
 <script>
-import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
 import { v4 as uuid } from 'uuid'

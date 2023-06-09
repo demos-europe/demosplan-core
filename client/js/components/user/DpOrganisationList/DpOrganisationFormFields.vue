@@ -714,7 +714,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpOrganisationFormFields',

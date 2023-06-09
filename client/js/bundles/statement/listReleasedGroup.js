@@ -11,7 +11,7 @@
  * This is the entrypoint for list_released_group.html.twig
  */
 
-import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui/src'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { initialize } from '@DpJs/InitVue'

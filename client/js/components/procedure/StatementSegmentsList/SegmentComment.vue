@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { CleanHtml, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, formatDate } from '@demos-europe/demosplan-ui/src'
 import { mapState } from 'vuex'
 
 export default {

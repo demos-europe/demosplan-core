@@ -11,7 +11,7 @@
  * This is the entry point for administration_edit.html.twig
  */
 
-import { DpDateRangePicker, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpDateRangePicker, dpValidate } from '@demos-europe/demosplan-ui/src'
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings

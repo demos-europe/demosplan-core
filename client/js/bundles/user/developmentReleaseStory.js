@@ -11,7 +11,7 @@
  * This is the entrypoint for development_release_story_threadentry_list.html.twig
  */
 
-import { DpAccordion, VPopover } from '@demos-europe/demosplan-ui'
+import { DpAccordion, VPopover } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

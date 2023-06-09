@@ -214,7 +214,7 @@ import {
   DpMultiselect,
   DpTextWrapper,
   prefixClassMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
@@ -228,7 +228,7 @@ export default {
     DpButton,
     DpTextWrapper,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

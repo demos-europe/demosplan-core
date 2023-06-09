@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui/src'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {

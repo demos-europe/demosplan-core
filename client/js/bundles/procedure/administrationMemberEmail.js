@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
-import { DpAccordion, DpEditor, DpInlineNotification, DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpEditor, DpInlineNotification, DpLabel, dpValidate } from '@demos-europe/demosplan-ui/src'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'

@@ -238,7 +238,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui/src'
 import DomPurify from 'dompurify'
 import { mapState } from 'vuex'
 

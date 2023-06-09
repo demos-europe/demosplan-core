@@ -15,13 +15,13 @@
  * import DpAccordion from '@DpJs/components/core/DpAccordion'
  * import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
  */
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
 const components = {
   DpEditor: async () => {
-    const { DpEditor } = await import('@demos-europe/demosplan-ui')
+    const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
     return DpEditor
   },
   ProcedureTypeSelect

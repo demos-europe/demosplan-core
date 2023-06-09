@@ -79,7 +79,7 @@ export default {
 
   components: {
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

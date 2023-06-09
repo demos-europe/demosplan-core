@@ -26,7 +26,7 @@
  * }
  */
 
-import { throttle } from '@demos-europe/demosplan-ui'
+import { throttle } from '@demos-europe/demosplan-ui/src'
 
 const updateElement = function (element) {
   const innerHeight = window.innerHeight || document.documentElement.clientHeight

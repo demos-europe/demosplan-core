@@ -91,7 +91,7 @@ import {
   DpTreeList,
   hasAnyPermissions,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'

@@ -165,7 +165,7 @@ import {
   DpResettableInput,
   dpRpc,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 

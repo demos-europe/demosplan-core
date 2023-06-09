@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, dpRpc, DpSelect } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, dpRpc, DpSelect } from '@demos-europe/demosplan-ui/src'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 
 export default {

@@ -132,7 +132,7 @@ import {
   DpAutocomplete,
   DpLoading,
   prefixClassMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
 import DpOlMapLayer from './DpOlMapLayer'

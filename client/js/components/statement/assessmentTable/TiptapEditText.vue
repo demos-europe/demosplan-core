@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { Base64 } from 'js-base64'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 
@@ -130,7 +130,7 @@ export default {
     DpHeightLimit,
     DpLoading,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

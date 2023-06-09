@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 
 const Filter = {
 

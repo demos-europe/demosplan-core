@@ -29,7 +29,7 @@
 </dp-modal>
 
 <script>
-import { DpModal, DpSelect } from '@demos-europe/demosplan-ui'
+import { DpModal, DpSelect } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpLabelModal',

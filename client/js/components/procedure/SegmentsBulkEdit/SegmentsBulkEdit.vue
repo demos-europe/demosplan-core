@@ -257,7 +257,7 @@ import {
   dpRpc,
   hasOwnProp,
   prefixClassMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
@@ -275,13 +275,13 @@ export default {
     ActionStepperResponse,
     DpBoilerPlateModal,
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/src')
       return DpInlineNotification
     },
     DpMultiselect,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     SelectedTagsList

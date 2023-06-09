@@ -12,8 +12,7 @@ import {
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
-  Tooltip
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import {
   initGlobalEventListener,
   ToggleSideMenu,

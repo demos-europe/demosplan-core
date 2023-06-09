@@ -33,7 +33,7 @@
 
 <script>
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'AssessmentStatementDetailFinalEmail',
@@ -41,7 +41,7 @@ export default {
   components: {
     DpBoilerPlateModal,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

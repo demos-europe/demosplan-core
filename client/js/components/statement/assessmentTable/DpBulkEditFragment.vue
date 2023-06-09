@@ -220,7 +220,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
@@ -234,7 +234,7 @@ export default {
     DpTextWrapper,
     DpMultiselect,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

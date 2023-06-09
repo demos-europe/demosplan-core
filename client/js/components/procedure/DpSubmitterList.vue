@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { CleanHtml, dpApi, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpSubmitterList',

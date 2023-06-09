@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
+import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui/src'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {

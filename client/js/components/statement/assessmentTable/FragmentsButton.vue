@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { hasOwnProp } from '@demos-europe/demosplan-ui'
+import { hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { mapGetters } from 'vuex'
 
 export default {

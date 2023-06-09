@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { DpCheckbox } from '@demos-europe/demosplan-ui'
+import { DpCheckbox } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'ActionStepperAction',

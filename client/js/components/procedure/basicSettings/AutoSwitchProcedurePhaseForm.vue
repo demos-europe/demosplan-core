@@ -96,7 +96,7 @@ import {
   DpLabel,
   DpSelect,
   formatDate
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -106,7 +106,7 @@ export default {
     DpDateRangePicker,
     DpDatetimePicker,
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/src')
       return DpInlineNotification
     },
     DpLabel,

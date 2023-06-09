@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui/src'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {
@@ -74,7 +74,7 @@ export default {
 
   components: {
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/src')
       return DpInlineNotification
     },
     DpLoading,

@@ -11,7 +11,7 @@
  * This is the entrypoint for edit_orga_branding.html.twig
  */
 
-import { DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

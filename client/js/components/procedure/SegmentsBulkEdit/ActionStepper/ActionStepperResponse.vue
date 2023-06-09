@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'ActionStepperResponse',

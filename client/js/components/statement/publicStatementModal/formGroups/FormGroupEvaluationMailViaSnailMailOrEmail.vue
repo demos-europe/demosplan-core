@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import { DpCheckbox, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import formGroupMixin from '../mixins/formGroupMixin'
 import FormGroupPostalAndCity from './FormGroupPostalAndCity'
 import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'

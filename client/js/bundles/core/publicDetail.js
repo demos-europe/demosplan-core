@@ -12,7 +12,7 @@
  * See map-publicdetail.js for the entrypoint loaded when there is a Map
  */
 
-import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
+import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui/src'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { initialize } from '@DpJs/InitVue'

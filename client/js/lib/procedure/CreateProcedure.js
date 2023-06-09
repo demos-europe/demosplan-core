@@ -15,7 +15,7 @@
  *
  * All rights reserved
  */
-import { dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui/src'
 
 const setWarningForUnsetBounds = () => {
   const statusBox = document.querySelector('#js__statusBox')

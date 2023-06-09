@@ -11,7 +11,7 @@
  * This is the entrypoint for list_draft.html.twig
  */
 
-import { DpModal, DpUploadFiles, prefixClass } from '@demos-europe/demosplan-ui'
+import { DpModal, DpUploadFiles, prefixClass } from '@demos-europe/demosplan-ui/src'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'

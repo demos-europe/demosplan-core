@@ -164,7 +164,7 @@ import {
   DpSkeletonBox,
   DpSlidingPagination,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 

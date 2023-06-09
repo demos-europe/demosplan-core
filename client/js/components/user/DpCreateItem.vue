@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 
 export default {

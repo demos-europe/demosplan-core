@@ -84,7 +84,7 @@ import {
   DpInput,
   dpRpc,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import lscache from 'lscache'
 
 export default {

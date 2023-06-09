@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { makeFormPost } from '@demos-europe/demosplan-ui'
+import { makeFormPost } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpDeleteMasterToeb',

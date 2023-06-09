@@ -648,7 +648,7 @@ import {
   makeFormPost,
   prefixClassMixin,
   toggleFullscreen
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
@@ -687,7 +687,7 @@ export default {
     DpMultistepNav,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     DpUploadFiles,

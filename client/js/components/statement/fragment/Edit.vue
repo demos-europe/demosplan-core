@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui/src'
 import qs from 'qs'
 
 export default {

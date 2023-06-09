@@ -10,7 +10,7 @@
 /**
  * This is the entry point for elements_admin_import.html.twig
  */
-import { DpCheckbox } from '@demos-europe/demosplan-ui'
+import { DpCheckbox } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpCheckbox }

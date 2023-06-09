@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 

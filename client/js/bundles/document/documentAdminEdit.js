@@ -11,7 +11,7 @@
  * This is the entrypoint for document_admin_edit.html.twig
  */
 
-import { DpInput, DpLabel, DpRadio, DpTextArea, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpInput, DpLabel, DpRadio, DpTextArea, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

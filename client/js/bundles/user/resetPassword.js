@@ -12,7 +12,7 @@
  */
 
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

@@ -35,7 +35,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpFlyout } from '@demos-europe/demosplan-ui'
+import { DpFlyout } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'RegisterFlyout',

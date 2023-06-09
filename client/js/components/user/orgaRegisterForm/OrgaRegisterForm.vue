@@ -175,7 +175,7 @@ import {
   DpFormRow,
   DpInput,
   prefixClassMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'OrgaRegisterForm',

@@ -11,7 +11,7 @@
  * This is the entrypoint for orga_register_form.html.twig
  */
 
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 import OrgaRegisterForm from '@DpJs/components/user/orgaRegisterForm/OrgaRegisterForm'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'

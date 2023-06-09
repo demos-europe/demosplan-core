@@ -230,7 +230,7 @@ import {
   DpSelect,
   DpTextArea,
   dpValidateMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'

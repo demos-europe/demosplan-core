@@ -199,7 +199,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal, hasAnyPermissions } from '@demos-europe/demosplan-ui/src'
 import availableFilterFields from './availableFilterFields.json'
 import { mapMutations } from 'vuex'
 

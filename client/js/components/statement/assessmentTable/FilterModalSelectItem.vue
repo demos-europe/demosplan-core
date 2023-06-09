@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpLoading, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLoading, DpMultiselect } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {

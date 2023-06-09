@@ -102,7 +102,7 @@ import {
   DpLoading,
   dpRpc,
   handleResponseMessages
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { v4 as uuid } from 'uuid'
 

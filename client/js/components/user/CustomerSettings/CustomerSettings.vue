@@ -193,7 +193,7 @@
 </template>
 
 <script>
-import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui/src'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
@@ -209,7 +209,7 @@ export default {
     DpLabel,
     DpLoading,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     }
   },

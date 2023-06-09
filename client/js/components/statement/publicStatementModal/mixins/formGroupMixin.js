@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { mapMutations, mapState } from 'vuex'
 
 export default {

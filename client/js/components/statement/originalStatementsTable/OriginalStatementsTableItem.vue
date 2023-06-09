@@ -192,7 +192,7 @@ import {
   DpHeightLimit,
   formatDate,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {

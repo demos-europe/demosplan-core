@@ -31,7 +31,7 @@
 </portal>
 
 <script>
-import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpMapModal',

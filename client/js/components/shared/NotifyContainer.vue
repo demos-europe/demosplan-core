@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { DpNotifyMessage, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpNotifyMessage, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { mapMutations, mapState } from 'vuex'
 
 export default {

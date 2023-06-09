@@ -384,7 +384,7 @@ useful info about the component:
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'

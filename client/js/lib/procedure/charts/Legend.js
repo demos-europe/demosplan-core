@@ -8,7 +8,7 @@
  */
 
 import { format } from 'd3-format'
-import { hasOwnProp } from '@demos-europe/demosplan-ui'
+import { hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { select } from 'd3-selection'
 import { sum } from 'd3-array'
 

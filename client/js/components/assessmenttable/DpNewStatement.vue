@@ -20,7 +20,7 @@ import {
   DpUploadFiles,
   dpValidateMixin,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters } from 'vuex'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { DpLoading, MatchMedia } from '@demos-europe/demosplan-ui'
+import { DpLoading, MatchMedia } from '@demos-europe/demosplan-ui/src'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpContentToggle from './ContentToggle'
 import DpDetailView from './DetailView'

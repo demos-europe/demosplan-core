@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
+import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui/src'
 import DpPublicLayerList from './DpPublicLayerList'
 import { mapGetters } from 'vuex'
 

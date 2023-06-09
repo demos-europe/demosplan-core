@@ -52,7 +52,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui/src'
 import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
 
 export default {

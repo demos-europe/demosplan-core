@@ -11,7 +11,7 @@
  * This is a utility function to highlight links in a hash menu.
  */
 
-import { prefixClass } from '@demos-europe/demosplan-ui'
+import { prefixClass } from '@demos-europe/demosplan-ui/src'
 
 function highlightActiveLinks (linkSelector) {
   const navLinks = document.querySelectorAll(linkSelector)

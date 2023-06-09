@@ -11,7 +11,7 @@
  * This is the entrypoint for citizen_register_form.html.twig
  */
 
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import CitizenRegisterForm from '@DpJs/components/user/citizenRegisterForm/CitizenRegisterForm'
 import { initialize } from '@DpJs/InitVue'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'

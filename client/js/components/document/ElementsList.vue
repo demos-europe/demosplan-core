@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpLoading, DpTreeList, formatBytes, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLoading, DpTreeList, formatBytes, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 
 export default {

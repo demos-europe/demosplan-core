@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-ui'
+import { prefixClass } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpPublicLayerListLayer',

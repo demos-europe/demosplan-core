@@ -117,7 +117,7 @@ import {
   DpInput,
   DpLoading,
   dpValidateMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {

@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for gateway_newUser.html.twig
  */
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {}

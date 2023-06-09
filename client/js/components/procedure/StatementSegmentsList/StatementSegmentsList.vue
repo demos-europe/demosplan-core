@@ -167,7 +167,7 @@ import {
   DpFlyout,
   DpSlidebar,
   DpStickyElement
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'

@@ -147,7 +147,7 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style'
 import { containsExtent, getCenter } from 'ol/extent'
 import { defaults as defaultInteractions, Draw, Modify, Select, Snap } from 'ol/interaction'
-import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { createBox } from 'ol/interaction/Draw'
 import DpLabelModal from './DpLabelModal'
 import DpSendBeacon from './DpSendBeacon'

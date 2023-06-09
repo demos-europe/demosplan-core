@@ -247,7 +247,7 @@ import {
   DpStickyElement,
   tableSelectAllItems,
   VPopover
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'

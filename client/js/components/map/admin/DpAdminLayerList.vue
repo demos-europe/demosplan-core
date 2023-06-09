@@ -188,7 +188,7 @@
 </template>
 
 <script>
-import { DpButton, DpDraggable, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDraggable, DpLoading } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
 import lscache from 'lscache'

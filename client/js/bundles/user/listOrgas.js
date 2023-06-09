@@ -11,7 +11,7 @@
  * This is the entrypoint for list_orgas.html.twig
  */
 
-import { DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, dpValidate } from '@demos-europe/demosplan-ui/src'
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
 import { initialize } from '@DpJs/InitVue'

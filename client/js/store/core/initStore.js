@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import Vuex from 'vuex'

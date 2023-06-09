@@ -11,7 +11,7 @@
  * This is the entrypoint for portal_user.html.twig
  */
 
-import { DpAccordion, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpAccordion, dpValidate } from '@demos-europe/demosplan-ui/src'
 import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
 import { initialize } from '@DpJs/InitVue'
 import PersonalData from '@DpJs/components/user/portalUser/PersonalData'

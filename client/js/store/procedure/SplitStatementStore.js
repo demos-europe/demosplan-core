@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 

@@ -11,7 +11,7 @@
  * This is the entrypoint for contact.html.twig
  */
 
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 initialize().then(() => {

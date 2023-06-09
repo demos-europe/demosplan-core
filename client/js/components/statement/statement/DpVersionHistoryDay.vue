@@ -56,7 +56,7 @@
 
 <script>
 import DpVersionHistoryItem from './DpVersionHistoryItem'
-import { formatDate } from '@demos-europe/demosplan-ui'
+import { formatDate } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpVersionHistoryDay',

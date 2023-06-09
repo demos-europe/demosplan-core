@@ -501,7 +501,7 @@ import {
   getFileInfo,
   hasOwnProp,
   VPopover
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
 import DpFragmentEdit from '../fragment/Edit'

@@ -18,7 +18,7 @@ import {
   DpInput,
   DpMultiselect,
   sortAlphabetically
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
@@ -39,7 +39,7 @@ export default {
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
     DpUploadFiles: async () => {
-      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui/src')
       return DpUploadFiles
     },
     ExportSettings

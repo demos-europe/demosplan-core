@@ -9,7 +9,7 @@
 
 <script>
 import DpEmailList from './DpEmailList'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpMultiselect } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpMasterBasicSettings',
@@ -18,11 +18,11 @@ export default {
     DpEmailList,
     DpMultiselect,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     DpUploadFiles: async () => {
-      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui/src')
       return DpUploadFiles
     }
   },

@@ -88,7 +88,7 @@ import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawPoint from '@DpJs/components/map/map/DpOlMapDrawPoint'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import DpProcedureCoordinateInput from './DpProcedureCoordinateInput'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import ProcedureCoordinateGeolocation from '@DpJs/components/procedure/basicSettings/ProcedureCoordinateGeolocation'
 
 export default {

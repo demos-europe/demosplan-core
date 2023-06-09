@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { CleanHtml, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, Tooltip } from '@demos-europe/demosplan-ui/src'
 
 // This number is used to shorten long texts.
 const SHORT_TEXT_CHAR_LENGTH = 300

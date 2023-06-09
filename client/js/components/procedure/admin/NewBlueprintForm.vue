@@ -148,7 +148,7 @@ import {
   DpLoading,
   DpSelect,
   DpTextArea
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
 export default {

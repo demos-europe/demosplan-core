@@ -365,7 +365,7 @@ import {
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -394,7 +394,7 @@ export default {
     DpSelect,
     DpTextArea,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/src')
       return DpEditor
     },
     DpUploadFiles,

@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui'
+import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpFragmentStatus',

@@ -13,7 +13,7 @@
 
 import AssessmentTableOriginal from '@DpJs/lib/statement/AssessmentTableOriginal'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui/src'
 import DpFilterModal from '@DpJs/components/statement/assessmentTable/DpFilterModal'
 import FilterStore from '@DpJs/store/statement/Filter'
 import { initialize } from '@DpJs/InitVue'

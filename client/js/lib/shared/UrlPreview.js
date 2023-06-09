@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui/src'
 import { v4 as uuid } from 'uuid'
 
 /**

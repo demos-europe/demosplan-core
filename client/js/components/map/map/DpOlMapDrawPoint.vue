@@ -22,7 +22,7 @@
 <script>
 import { Draw } from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { Vector } from 'ol/layer'
 
 export default {

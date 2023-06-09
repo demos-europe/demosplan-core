@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
-import { DpSlidebar } from '@demos-europe/demosplan-ui'
+import { DpSlidebar } from '@demos-europe/demosplan-ui/src'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import { initialize } from '@DpJs/InitVue'
 import SegmentFilterStore from '@DpJs/store/procedure/SegmentFilter'

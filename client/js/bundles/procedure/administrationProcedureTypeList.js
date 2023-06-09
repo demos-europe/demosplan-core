@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_procedure_type_list.html.twig
  */
 
-import { DpCard } from '@demos-europe/demosplan-ui'
+import { DpCard } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpCard }

@@ -11,7 +11,7 @@
  * This is the entrypoint for list_orga_statements.html.twig
  */
 
-import { DpButton, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification } from '@demos-europe/demosplan-ui/src'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

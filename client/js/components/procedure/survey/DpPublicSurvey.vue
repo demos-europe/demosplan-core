@@ -172,7 +172,7 @@ import {
   DpTextArea,
   MatchMedia,
   prefixClassMixin
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import DpPublicSurveyComment from '@DpJs/components/procedure/survey/DpPublicSurveyComment'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
 

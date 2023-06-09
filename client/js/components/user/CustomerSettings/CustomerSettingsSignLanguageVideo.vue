@@ -88,7 +88,7 @@ import {
   DpUploadFiles,
   dpValidateMixin,
   getFileIdsByHash
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -99,7 +99,7 @@ export default {
     DpTextArea,
     DpUploadFiles,
     DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/src')
       return DpVideoPlayer
     }
   },

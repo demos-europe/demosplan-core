@@ -214,7 +214,7 @@ import {
   DpMultiselect,
   handleResponseMessages,
   hasOwnProp
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 

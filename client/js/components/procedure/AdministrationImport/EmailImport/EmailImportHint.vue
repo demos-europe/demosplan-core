@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { DpDetails, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { DpDetails, DpInlineNotification } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'EmailImportHint',

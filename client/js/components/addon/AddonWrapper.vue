@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'AddonWrapper',

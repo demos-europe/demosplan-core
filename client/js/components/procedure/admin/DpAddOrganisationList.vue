@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 
 export default {

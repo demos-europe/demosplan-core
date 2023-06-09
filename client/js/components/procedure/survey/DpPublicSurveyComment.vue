@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { formatDate, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { formatDate, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpPublicSurveyComment',

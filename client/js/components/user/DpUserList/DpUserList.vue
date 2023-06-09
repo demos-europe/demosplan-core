@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -115,7 +115,7 @@ export default {
     DpButton,
     DpLoading,
     DpSlidingPagination: async () => {
-      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui/src')
       return DpSlidingPagination
     },
     DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')

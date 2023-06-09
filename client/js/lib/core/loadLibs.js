@@ -12,7 +12,7 @@ import {
   ActionMenu,
   Confirm,
   Sticky
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 import {
   CharCount,

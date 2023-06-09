@@ -17,7 +17,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 
 // Globally used
-import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
+import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui/src'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import lscache from 'lscache'
 import PortalVue from 'portal-vue'

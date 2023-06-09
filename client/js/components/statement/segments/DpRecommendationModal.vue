@@ -61,7 +61,7 @@
 </dp-modal>
 
 <script>
-import { dataTableSearch, dpApi, DpLabel, DpLoading, DpModal, DpSearchField } from '@demos-europe/demosplan-ui'
+import { dataTableSearch, dpApi, DpLabel, DpLoading, DpModal, DpSearchField } from '@demos-europe/demosplan-ui/src'
 import { mapMutations, mapState } from 'vuex'
 import DpInsertableRecommendation from './DpInsertableRecommendation'
 

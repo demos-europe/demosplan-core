@@ -238,7 +238,7 @@ import {
   DpButton,
   DpCheckbox,
   DpTooltipIcon
-} from '@demos-europe/demosplan-ui'
+} from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpStatementAnonymize',

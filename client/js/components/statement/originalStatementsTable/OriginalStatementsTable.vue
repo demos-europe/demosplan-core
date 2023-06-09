@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpPager } from '@demos-europe/demosplan-ui/src'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
@@ -148,7 +148,7 @@ export default {
     DpLoading,
     DpExportModal,
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/src')
       return DpInlineNotification
     },
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),

@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui/src'
 import { sanitizeUrl } from '@braintree/sanitize-url'
 
 export default {

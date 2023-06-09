@@ -9,7 +9,7 @@
 
 <script>
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import { DpButton, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui/src'
 import { mapMutations, mapState } from 'vuex'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
@@ -26,11 +26,11 @@ export default {
     DpPublicStatementList,
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpSelect: async () => {
-      const { DpSelect } = await import('@demos-europe/demosplan-ui')
+      const { DpSelect } = await import('@demos-europe/demosplan-ui/src')
       return DpSelect
     },
     DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/src')
       return DpVideoPlayer
     },
     ElementsList: () => import('@DpJs/components/document/ElementsList')

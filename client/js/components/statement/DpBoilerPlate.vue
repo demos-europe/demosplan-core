@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui/src'
 
 export default {
   name: 'DpBoilerPlate',

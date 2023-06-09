@@ -9,7 +9,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { DpCopyPasteButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpCopyPasteButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui/src'
 import DpSelectDocument from './../fragment/SelectDocument'
 
 export default {
