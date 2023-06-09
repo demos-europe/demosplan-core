@@ -22,7 +22,6 @@ import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import lscache from 'lscache'
 import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
-import Vuex from 'vuex'
 
 // Mocking global stuff
 const Vue = createLocalVue()
@@ -67,7 +66,6 @@ global.dplan = dplan
 // Add plugins to Vue instance
 Vue.use(PortalVue)
 
-Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 Vue.directive('tooltip', VTooltip)
