@@ -827,7 +827,7 @@ class MapService extends CoreService
             return null;
         }
 
-        return str_replace('{year}', date('Y'), $mapAttribution);
+        return str_replace('{currentYear}', date('Y'), $mapAttribution);
     }
 
     protected function convertArrayValuesToFloats(array $someArray): array

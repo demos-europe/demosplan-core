@@ -1753,7 +1753,7 @@ export default {
       let label = ''
 
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        label = this.procedureSettings.copyright.replace('{year}', currentYear)
+        label = this.procedureSettings.copyright.replace('{currentYear}', currentYear)
       } else {
         label = Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
