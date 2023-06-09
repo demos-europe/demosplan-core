@@ -616,7 +616,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
         return $this->createdDate;
     }
 
-    public function setCreatedDate(DateTime $createdDate)
+    public function setCreatedDate(DateTimeInterface $createdDate)
     {
         $this->createdDate = $createdDate;
     }
