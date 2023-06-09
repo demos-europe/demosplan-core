@@ -34,7 +34,7 @@
         "demos-europe/edt-dql": "^0.16.0",
         "demos-europe/edt-extra": "^0.16.0",
         "demos-europe/edt-paths": "^0.16.0",
-        "demos-europe/demosplan-addon": "dev-F_T32212_add_addon_interfaces_add_necessary_interfaces",
+        "demos-europe/demosplan-addon": "dev-main",
         "doctrine/annotations": "^1.13",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
