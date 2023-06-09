@@ -29,12 +29,10 @@ import HamburgerMenuButton from './components/button/HamburgerMenuButton'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import PortalVue from 'portal-vue'
 import Vue from 'vue'
-import Vuex from 'vuex'
 
 loadSentry()
 // Add plugins to Vue instance
 Vue.use(PortalVue)
-Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
