@@ -39,6 +39,10 @@ Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
 Vue.component('DpObscure', DpObscure)
+Vue.component('HamburgerMenuButton', HamburgerMenuButton)
+Vue.component('NotifyContainer', NotifyContainer)
+Vue.component('DpAccordion', DpAccordion)
+Vue.component('DpFlyout', DpFlyout)
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -58,8 +62,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
        * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
        * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
        */
-      components: { ...components, DpAccordion, DpFlyout, HamburgerMenuButton ,NotifyContainer },
-      store: store,
+      components,
+      store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()
