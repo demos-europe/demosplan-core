@@ -585,7 +585,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
         return $this->salt;
     }
 
-    public function setSalt(?string $salt): SecurityUserInterface
+    public function setSalt(?string $salt): AddonUserInterface
     {
         $this->salt = $salt;
 
