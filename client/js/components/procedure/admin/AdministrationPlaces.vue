@@ -204,7 +204,7 @@ export default {
       rowData.description = this.initialRowData.description
       this.newRowData = {}
 
-      this.setEditMode(rowData, false)
+      this.setEditMode(rowData.id, false)
     },
 
     changeManualsort (val) {
@@ -228,7 +228,7 @@ export default {
       this.newRowData.name = rowData.name
       this.newRowData.description = rowData.description
 
-      this.setEditMode(rowData)
+      this.setEditMode(rowData.id)
     },
 
     fetchPlaces () {
@@ -315,14 +315,14 @@ export default {
         })
     },
 
-    setEditMode (rowData, state = true) {
-      const idx = this.places.findIndex(el => el.id === rowData.id)
+    setEditMode (id, state = true) {
+      const idx = this.places.findIndex(el => el.id === id)
 
       this.places[idx].edit = state
     },
 
-    updatePlaceData (rowData) {
-      const idx = this.places.findIndex(el => el.id === rowData.id)
+    updatePlaceData (id) {
+      const idx = this.places.findIndex(el => el.id === id)
 
       this.places[idx].name = this.newRowData.name
       this.places[idx].description = this.newRowData.description
@@ -347,8 +347,8 @@ export default {
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
-          this.setEditMode(rowData, false)
-          this.updatePlaceData(rowData)
+          this.setEditMode(rowData.id, false)
+          this.updatePlaceData(rowData.id)
         })
     },
 
