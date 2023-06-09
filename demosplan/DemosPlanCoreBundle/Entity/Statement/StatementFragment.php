@@ -55,7 +55,7 @@ use Tightenco\Collect\Support\Collection as SupportCollection;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository")
  */
-class StatementFragment extends CoreEntity implements UuidEntityInterface
+class StatementFragment extends CoreEntity implements UuidEntityInterface, StatementFragmentInterface
 {
     /**
      * @var string|null
