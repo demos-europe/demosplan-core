@@ -11,9 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -22,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository")
  */
-class ParagraphVersion extends CoreEntity implements UuidEntityInterface
+class ParagraphVersion extends CoreEntity implements UuidEntityInterface, ParagraphVersionInterface
 {
     /**
      * @var string|null
@@ -40,7 +43,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Attention: This entity has to be persist, if the related paragraph is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
-     * @var Paragraph
+     * @var ParagraphInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="versions")
      *
@@ -56,7 +59,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     protected $pdId;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -77,7 +80,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Attention: This entity has to be persist, if the related paragraph is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
      *
@@ -179,7 +182,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
@@ -187,7 +190,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Elements|null
+     * @return ElementsInterface|null
      */
     public function getElement()
     {
@@ -195,7 +198,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Elements $element
+     * @param ElementsInterface $element
      */
     public function setElement($element)
     {
@@ -203,7 +206,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Paragraph
+     * @return ParagraphInterface
      */
     public function getParagraph()
     {
@@ -211,7 +214,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Paragraph $paragraph
+     * @param ParagraphInterface $paragraph
      */
     public function setParagraph($paragraph)
     {
@@ -221,14 +224,14 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setProcedure($procedure)
     {
         $this->procedure = $procedure;
-        if ($procedure instanceof Procedure) {
+        if ($procedure instanceof ProcedureInterface) {
             $this->pId = $procedure->getId();
         }
 
@@ -238,7 +241,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -252,7 +255,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -264,7 +267,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param string $category
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setCategory($category)
     {
@@ -288,7 +291,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param string $title
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setTitle($title)
     {
@@ -310,7 +313,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param string $text
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setText($text)
     {
@@ -334,7 +337,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param int $order
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setOrder($order)
     {
@@ -358,7 +361,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $visible
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setVisible($visible)
     {
@@ -382,7 +385,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $deleted
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setDeleted($deleted)
     {
@@ -406,7 +409,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $createDate
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setCreateDate($createDate)
     {
@@ -430,7 +433,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $modifyDate
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setModifyDate($modifyDate)
     {
@@ -454,7 +457,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $deleteDate
      *
-     * @return ParagraphVersion
+     * @return ParagraphVersionInterface
      */
     public function setDeleteDate($deleteDate)
     {
