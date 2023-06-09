@@ -66,7 +66,7 @@
             });
 
             L.control.attribution({
-                prefix: '{{ map.mapAttribution|default|replace({'{year}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
+                prefix: '{{ map.mapAttribution|default|replace({'{currentYear}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
                     linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
                     currentYear: {{ 'now' | date('Y') }}
                 })
