@@ -279,6 +279,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
+        $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
@@ -292,7 +293,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['memo'] = $segmentOrStatement->getParentStatementOfSegment()->getMemo();
             $exportData['internId'] = $segmentOrStatement->getParentStatementOfSegment()->getInternId();
             $exportData['oName'] = $segmentOrStatement->getParentStatementOfSegment()->getOName();
-            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDate();
+            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDateString();
             $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
             $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
