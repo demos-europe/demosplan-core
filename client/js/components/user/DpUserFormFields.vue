@@ -136,7 +136,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         class="u-mb-0_5"
-        :custom-label="props =>`${ roles[props.option.id].attributes.name }`"
+        :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="role"
         label="name"
         multiple

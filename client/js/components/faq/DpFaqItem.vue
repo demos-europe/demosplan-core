@@ -16,7 +16,6 @@
       <dp-multiselect
         v-if="availableGroupOptions.length > 1"
         :allow-empty="false"
-        :custom-label="props =>`${props.option.title}`"
         data-cy="selectedGroups"
         multiple
         :options="availableGroupOptions"
