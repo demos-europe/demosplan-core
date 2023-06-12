@@ -69,6 +69,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MultiTermsAggregation;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;

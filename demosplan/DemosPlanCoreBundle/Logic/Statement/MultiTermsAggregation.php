@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Aggregation\Traits\MissingTrait;
