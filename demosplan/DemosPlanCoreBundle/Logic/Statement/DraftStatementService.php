@@ -755,7 +755,7 @@ class DraftStatementService extends CoreService
                 'released'          => true,
                 'submittedDate'     => new DateTime(),
                 'rejected'          => false,
-                'rejectedReason'    => ''
+                'rejectedReason'    => '',
             ];
 
             $draftStatement = $this->updateDraftStatement($data, false);
