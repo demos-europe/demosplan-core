@@ -677,8 +677,10 @@ class DraftStatementService extends CoreService
     /**
      * Stellungsnahmen werden eingereicht.
      *
-     * Nach dem Aufruf haben sich folgende Werte der Stellungsnahmen geändert:
+     * After calling this method - the following attributes of the draft-statement(s) will be altered:
      * submitted = true
+     * rejected = false
+     * rejectedReason = ''
      *
      * @param string|array $draftStatementIds
      * @param User         $user
@@ -748,10 +750,12 @@ class DraftStatementService extends CoreService
             }
 
             $data = [
-                'ident'         => $draftStatementId,
-                'submitted'     => true,
-                'released'      => true,
-                'submittedDate' => new DateTime(),
+                'ident'             => $draftStatementId,
+                'submitted'         => true,
+                'released'          => true,
+                'submittedDate'     => new DateTime(),
+                'rejected'          => false,
+                'rejectedReason'    => ''
             ];
 
             $draftStatement = $this->updateDraftStatement($data, false);
