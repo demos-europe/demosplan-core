@@ -3,14 +3,12 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
-
-use function array_key_exists;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -27,6 +25,8 @@ use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
 use Exception;
+
+use function array_key_exists;
 
 class ElasticSearchService extends CoreService
 {
@@ -440,9 +440,9 @@ class ElasticSearchService extends CoreService
      */
     public function addUserFilter($key, $userFilters, $boolMustFilter, $boolMustNotFilter, $nullvalue = null, $rawFields = [], $addAllAggregations = true)
     {
-        if (array_key_exists($key, $userFilters) && ($addAllAggregations || $this->hasFilterValue(
-            $userFilters[$key]
-        ))) {
+        if (array_key_exists($key, $userFilters)
+            && ($addAllAggregations || $this->hasFilterValue($userFilters[$key]))
+        ) {
             $value = \is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
             $key = \in_array($key, $rawFields, true) ? $key.'.raw' : $key;
             $count = count($value);
@@ -500,9 +500,9 @@ class ElasticSearchService extends CoreService
      * Convert Result to Legacy.
      *
      * @param string|null $search
-     * @param array  $filters
-     * @param array  $sort
-     * @param string $resultKey
+     * @param array       $filters
+     * @param array       $sort
+     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,
