@@ -31,7 +31,7 @@ $utility-border-thickness: $dp-border-thickness;
             background-color: $dp-color-selection-bg;
         }
 
-        &--assigned + .segment-list-row--assigned {
+        &--assigned + .segment-list-row--assigned:not(.fullscreen) {
             margin-top: $inuit-base-spacing-unit--tiny;
         }
 
