@@ -40,7 +40,7 @@
         label="name"
         multiple
         :name="`${entityId}:${fieldKey}`"
-        :options="options"
+        :options="selectOptions"
         track-by="id"
         @input="val => handleInput(val)">
         <template v-slot:option="{ props }">
@@ -161,7 +161,8 @@ export default {
       selected: [],
 
       //  Previously selected value to be able to restore it on reset
-      selectedBefore: []
+      selectedBefore: [],
+      selectOptions: []
     }
   },
 
@@ -207,6 +208,7 @@ export default {
 
       this.selected = this.value.map(el => optionsToSearch.find(opt => opt.id === el.id))
       this.selectedBefore = this.selected
+      this.selectOptions = optionsToSearch
     },
 
     save () {
