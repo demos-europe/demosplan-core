@@ -39,8 +39,6 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
     public const FAQ_CATEGORY_TYPES_OPTIONAL = 'custom_category';
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -49,60 +47,47 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected $id;
+    protected ?string $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
-    protected $title;
+    protected string $title;
 
     /**
      * Has no function for custom categories.
      *
-     * @var string
-     *
      * @ORM\Column(type="string", length=50, nullable=false, options={"default":"custom_category"})
      */
-    protected $type = self::FAQ_CATEGORY_TYPES_OPTIONAL;
+    protected string $type = self::FAQ_CATEGORY_TYPES_OPTIONAL;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $createDate;
+    protected DateTime $createDate;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $modifyDate;
+    protected DateTime $modifyDate;
 
     /**
-     * @var Customer
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
      */
-    protected $customer;
+    protected Customer $customer;
 
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle($title): self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -145,10 +130,7 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
         $this->customer = $customer;
     }
 
-    /**
-     * @param DateTime $createDate
-     */
-    public function setCreateDate($createDate): self
+    public function setCreateDate(DateTime $createDate): self
     {
         $this->createDate = $createDate;
 
@@ -160,10 +142,7 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
         return $this->createDate;
     }
 
-    /**
-     * @param DateTime $modifyDate
-     */
-    public function setModifyDate($modifyDate): self
+    public function setModifyDate(DateTime $modifyDate): self
     {
         $this->modifyDate = $modifyDate;
 

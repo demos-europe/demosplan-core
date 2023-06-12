@@ -17,90 +17,40 @@ use Doctrine\Common\Collections\Collection;
 
 interface FaqInterface extends UuidEntityInterface
 {
-    public function setTitle($title): self;
+    public function setTitle(string $title): self;
 
-    /**
-     * Get title.
-     */
     public function getTitle(): string;
 
-    /**
-     * Set text.
-     *
-     * @param string $text
-     */
-    public function setText($text): self;
+    public function setText(string $text): self;
 
-    /**
-     * Get text.
-     */
     public function getText(): string;
 
-    /**
-     * Set enabled.
-     *
-     * @param bool $enabled
-     */
-    public function setEnabled($enabled): self;
+    public function setEnabled(bool $enabled): self;
 
-    /**
-     * Get enabled.
-     */
     public function getEnabled(): bool;
 
-    /**
-     * Set createDate.
-     *
-     * @param DateTime $createDate
-     */
-    public function setCreateDate($createDate): self;
+    public function setCreateDate(DateTime $createDate): self;
 
-    /**
-     * Get createDate.
-     */
     public function getCreateDate(): DateTime;
 
-    /**
-     * Set modifyDate.
-     *
-     * @param DateTime $modifyDate
-     */
-    public function setModifyDate($modifyDate): self;
+    public function setModifyDate(DateTime $modifyDate): self;
 
-    /**
-     * Get modifyDate.
-     */
     public function getModifyDate(): DateTime;
 
     /**
-     * Set Roles.
-     *
-     * @param array $roles
+     * @param array<int, Role> $roles
      */
-    public function setRoles($roles): self;
+    public function setRoles(array $roles): self;
 
-    /**
-     * Add Role.
-     */
     public function addRole(Role $role): self;
 
     /**
-     * Get Roles.
-     *
      * @return Collection<int, Role>
      */
     public function getRoles(): Collection;
 
-    /**
-     * Set Category.
-     *
-     * @param FaqCategoryInterface $faqCategory
-     */
-    public function setCategory($faqCategory): self;
+    public function setCategory(FaqCategoryInterface $faqCategory): self;
 
-    /**
-     * Get Category.
-     */
     public function getCategory(): FaqCategoryInterface;
 
     public function hasRoleGroupCode(string $code): bool;

@@ -21,8 +21,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -31,42 +29,33 @@ class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected $id;
+    protected ?string $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
-    protected $title;
+    protected string $title;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $createDate;
+    protected DateTime $createDate;
 
     /**
-     * @var DateTime
-     *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $modifyDate;
+    protected DateTime $modifyDate;
 
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle($title): self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -78,10 +67,7 @@ class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
         return $this->title;
     }
 
-    /**
-     * @param DateTime $createDate
-     */
-    public function setCreateDate($createDate): self
+    public function setCreateDate(DateTime $createDate): self
     {
         $this->createDate = $createDate;
 
@@ -93,10 +79,7 @@ class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
         return $this->createDate;
     }
 
-    /**
-     * @param DateTime $modifyDate
-     */
-    public function setModifyDate($modifyDate): self
+    public function setModifyDate(DateTime $modifyDate): self
     {
         $this->modifyDate = $modifyDate;
 
