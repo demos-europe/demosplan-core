@@ -21,7 +21,7 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
@@ -29,7 +29,7 @@ services:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
-        class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
@@ -63,7 +63,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\FileServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\FileService'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
-        class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
+        class: demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService
 
     DemosEurope\DemosplanAddon\Contracts\PlaceServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService
@@ -90,7 +90,7 @@ services:
 
 
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
-        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler
+        class: demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler
 
     DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface:
         class: demosplan\DemosPlanCoreBundle\ValueObject\ValueObject
@@ -170,7 +170,7 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
-        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
+        class: demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService
         arguments:
             $esProcedurePersister : '@fos_elastica.object_persister.procedures'
             $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
@@ -688,7 +688,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
             - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService' ] ]
-            - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
+            - [ 'setProcedureService', [ '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService' ] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
         lazy: true
@@ -741,37 +741,37 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineProcedureListener:
         autowire: true
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure, lazy: true }
 
-    demosplan\DemosPlanProcedureBundle\Form\ProcedureFormType: ~
+    demosplan\DemosPlanCoreBundle\Form\ProcedureFormType: ~
 
 
-    demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService:
         lazy: true
 
     dplan.procedure:
-        alias: 'demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler'
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler'
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader:
         lazy: true
 
-    demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService:
-        lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-
-    demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         arguments:
@@ -779,44 +779,44 @@ services:
             $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
             $environment: '%kernel.environment%'
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureToLegacyConverter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureToLegacyConverter: ~
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureCategoryService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ProcedureElasticsearchRepository:
         $procedureSearchType: "@fos_elastica.index.procedures"
 
-    demosplan\DemosPlanProcedureBundle\Logic\ExportService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService:
         lazy: true
         arguments:
             $rendererPath: '%pdf_renderer_path%'
             $rendererName: '%pdf_renderer_name%'
 
-    demosplan\DemosPlanProcedureBundle\Transformers\AssessmentTableFilterTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:

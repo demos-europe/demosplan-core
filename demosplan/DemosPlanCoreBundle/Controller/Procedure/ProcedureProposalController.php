@@ -15,11 +15,11 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
-use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +57,7 @@ class ProcedureProposalController extends BaseController
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
             [
                 'title'     => 'procedure.proposal.list',
                 'proposals' => $procedureProposals,
@@ -89,7 +89,7 @@ class ProcedureProposalController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
             [
                 'title'        => 'procedure.proposal.detail',
                 'templateVars' => [
@@ -135,7 +135,7 @@ class ProcedureProposalController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_procedure_proposal.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.proposal.create',

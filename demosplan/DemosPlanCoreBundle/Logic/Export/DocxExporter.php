@@ -29,13 +29,13 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
@@ -44,9 +44,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\Style\Language;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -96,11 +94,6 @@ class DocxExporter
      * @var FileService
      */
     protected $fileService;
-
-    /**
-     * @var MapService
-     */
-    protected $serviceMap;
 
     /**
      * @var ServiceImporter
@@ -161,6 +154,7 @@ class DocxExporter
         FileService $fileService,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
+        protected readonly MapService $mapService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementHandler $statementHandler,
@@ -198,7 +192,7 @@ class DocxExporter
          * Therefore this workaround with similar but project specific creation of
          * documents.
          */
-        $phpWord = $this->initializePhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         $incomingStatements = $outputResult->getStatements();
         $procedure = $this->getProcedureHandler()->getProcedureWithCertainty($outputResult->getProcedure()['id']);
@@ -523,21 +517,6 @@ class DocxExporter
             ->pluck('id')
             ->unique()
             ->all();
-    }
-
-    protected function initializePhpWord(): PhpWord
-    {
-        $phpWord = new PhpWord();
-        // avoid problems with < in statementTexts T3921
-        Settings::setOutputEscapingEnabled(true);
-        // https://stackoverflow.com/questions/33267654/
-        $phpWord->getSettings()->setUpdateFields(true);
-        $phpWord->getSettings()->setThemeFontLang(new Language(Language::DE_DE));
-
-        // http://phpword.readthedocs.org/en/latest/index.html
-        // https://github.com/PHPOffice/PHPWord
-
-        return $phpWord;
     }
 
     /**
@@ -1730,12 +1709,12 @@ class DocxExporter
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
                 Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
             }
-            $cell2->addText($statement->getProcedure()->getSettings()->getCopyright());
+            $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
     }
 
     /**
-     * Generate Html imagetag to be used in PhphWord Html::addHtml().
+     * Generate Html imagetag to be used in PhpWord Html::addHtml().
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel

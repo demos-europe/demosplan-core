@@ -45,9 +45,8 @@ module.exports = {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
     '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue2-jest'
   },
-  // Do not transform dependencies from node_nodules, but transform demosplan-ui components.
   transformIgnorePatterns: [
-    '/node_modules/(?!(demosplan-ui)/)'
+    '/node_modules/demosplan-ui'
   ],
   // Send a notification when tests fail or once when they pass
   notifyMode: 'failure-success',

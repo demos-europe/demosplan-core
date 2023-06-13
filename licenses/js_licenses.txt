@@ -8,7 +8,6 @@
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
 @babel/runtime: MIT
-@demos-europe/demosplan-utils: MIT
 @demos-europe/dp-consent: MIT
 @efrane/vuex-json-api: MIT
 @fullhuman/postcss-purgecss: MIT
@@ -133,4 +132,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 05.01.2023 15:27
+As of 12.06.2023 07:04

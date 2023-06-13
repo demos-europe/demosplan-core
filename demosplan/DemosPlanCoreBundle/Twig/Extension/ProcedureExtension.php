@@ -17,9 +17,9 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -65,7 +65,7 @@ class ProcedureExtension extends ExtensionBase
         ContainerInterface $container,
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface       $logger,
+        LoggerInterface $logger,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         TranslatorInterface $translator)
@@ -76,7 +76,7 @@ class ProcedureExtension extends ExtensionBase
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->currentUser = $currentUser;
-        $this->logger       = $logger;
+        $this->logger = $logger;
     }
 
     public function getFunctions(): array
