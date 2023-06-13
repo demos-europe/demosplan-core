@@ -32,7 +32,7 @@ class SegmentBulkEditController extends BaseController
      */
     public function showFormAction(string $procedureId): Response
     {
-        return $this->renderTemplate('@DemosPlanProcedure/DemosPlanProcedure/administration_segments_bulk_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_bulk_edit.html.twig', [
             'procedure' => $procedureId,
             'title'     => 'segments.bulk.edit',
         ]);

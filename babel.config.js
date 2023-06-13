@@ -8,7 +8,7 @@
  */
 
 // babel.config.js
-let config = {
+const config = {
   presets: [
     ['@babel/preset-env', {
       modules: false,

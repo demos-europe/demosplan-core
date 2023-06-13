@@ -110,14 +110,19 @@
             <label
                 class="layout__item u-1-of-4"
                 for="r_copyright">
-                {{ 'copyright.source'|trans }}
+                {{ 'map.attribution'|trans }}
             </label><!--
-         --><input
-                name="r_copyright"
-                type="text"
-                id="r_copyright"
-                class="o-form__control-input layout__item u-3-of-4"
-                value="{{ mapglobals.copyright }}">
+         --><div class="layout__item u-3-of-4 u-pl-0">
+                <input
+                    name="r_copyright"
+                    type="text"
+                    id="r_copyright"
+                    class="o-form__control-input width-100p"
+                    value="{{ mapglobals.copyright }}">
+                <p class="lbl__hint">
+                    {{ 'map.attribution.placeholder'|trans|wysiwyg('strong') }}
+                </p>
+            </div>
 
             {% if hasPermission('feature_layer_groups_alternate_visibility') %}
                 {# Activate feature to show only layers from one category simultaneously #}
@@ -150,6 +155,7 @@
 
                 <div>
                     <dp-map-view
+                        default-attribution="{{ mapglobals.copyright }}"
                         procedure-id="{{ procedure }}"
                         procedure-coordinates="{{ templateVars.mapglobals.procedure.settings.coordinate }}"
                         procedure-territory="{{ templateVars.territory|default('{}') }}"

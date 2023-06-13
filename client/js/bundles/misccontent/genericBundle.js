@@ -9,10 +9,10 @@
 
 // This is used in blp participation area where RegisterFlyout is used in the header of every view.
 import { initialize } from '@DpJs/InitVue'
-import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
-  DpRegisterFlyout
+  RegisterFlyout
 }
 
 initialize(components)

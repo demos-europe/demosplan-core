@@ -31,6 +31,7 @@
       ref="map"
       :options="{
         autoSuggest: false,
+        defaultAttribution,
         procedureExtent: false,
         initialExtent: true,
         initCenter: center
@@ -149,6 +150,12 @@ export default {
   },
 
   props: {
+    defaultAttribution: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     procedureId: {
       required: false,
       type: String,

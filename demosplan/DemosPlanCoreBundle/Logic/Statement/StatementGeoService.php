@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use geoPHP;
@@ -67,7 +68,13 @@ class StatementGeoService extends CoreService
      */
     private $globalConfig;
 
+    /**
+     * @var DatasheetService
+     */
+    private $datasheetService;
+
     public function __construct(
+        DatasheetService $datasheetService,
         CountyService $countyService,
         Environment $twig,
         GlobalConfigInterface $globalConfig,
@@ -85,6 +92,7 @@ class StatementGeoService extends CoreService
         $this->statementService = $statementService;
         $this->twig = $twig;
         $this->globalConfig = $globalConfig;
+        $this->datasheetService = $datasheetService;
     }
 
     /**
@@ -604,7 +612,7 @@ class StatementGeoService extends CoreService
      */
     private function isStatementOfProcedurePartOfWind(int $windNumber, string $procedureId): bool
     {
-        return $windNumber === $this->globalConfig->getDatasheetVersion($procedureId);
+        return $windNumber === $this->datasheetService->getDatasheetVersion($procedureId);
     }
 
     /**

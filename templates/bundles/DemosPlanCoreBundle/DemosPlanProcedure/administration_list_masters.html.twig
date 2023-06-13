@@ -1,0 +1,93 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'masters.administrate'|trans
+    } %}
+
+    <p>
+        {{ 'text.masters.list'|trans }}
+    </p>
+
+    <form
+        class="u-mb space-inline-s"
+        name="proceduresearchForm"
+        action="{{ path('DemosPlan_procedure_templates_list') }}">
+        {{ uiComponent('form.input.text', {
+            name: 'search_word',
+            value: templateVars.search,
+            class: 'layout__item u-1-of-3',
+            size: 'medium',
+            attributes: ['placeholder=' ~ 'searchterm'|trans, 'aria-label=' ~ 'searchterm'|trans, 'data-cy=searchWord']
+        }) }}
+        <input
+            class="btn btn--primary"
+            type="submit"
+            data-cy="searchingSubmit"
+            value="{{ 'searching'|trans }}">
+        <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_templates_list') }}">
+            {{ 'reset'|trans }}
+        </a>
+    </form>
+
+    <form name="procedureForm">
+        {% if (hasPermission('feature_admin_delete_procedure') and templateVars.list.procedures is defined and templateVars.list.procedures|length) or hasPermission('feature_admin_new_procedure') %}
+            <div class="flex">
+                {% if hasPermission('feature_admin_delete_procedure') and templateVars.list.procedures is defined and templateVars.list.procedures|length %}
+                    <button
+                        class="btn--blank o-link--default u-ml-0_25"
+                        name="deleteProcedure"
+                        type="submit"
+                        data-cy="deleteMasterProcedure"
+                        data-delete-master-procedure="{# This attribute is used as a hook to append an EventListener in administrationListMasters.js #}">
+                        <i class="fa fa-times-circle u-mr-0_25" aria-hidden="true"></i>
+                        {{- 'delete'|trans -}}
+                    </button>
+                {% endif %}
+
+                {% if hasPermission('feature_admin_new_procedure') %}
+                    <a
+                        class="btn btn--primary flex-item-end"
+                        href="{{ path('DemosPlan_master_new') }}"
+                        data-extern-dataport="createMasterProcedure"
+                        data-cy="createMasterProcedure">
+                        {{ 'master.new'|trans }}
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if templateVars.list.procedures is defined and templateVars.list.procedures|length %}
+            <table class="c-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                            <span class="hide-visually">
+                                {{ 'entries.checked'|trans }}
+                            </span>
+                        </th>
+                        <th>
+                            {{ 'name'|trans }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for procedure in templateVars.list.procedures %}
+                        {% include '@DemosPlanCore/DemosPlanProcedure/administration_list_masters_entry.html.twig' %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            {{ uiComponent('inline-notification', {
+                message: 'blueprints.none'|trans,
+                type: 'info'
+            }) }}
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationListMasters.js']) }}
+{% endblock %}

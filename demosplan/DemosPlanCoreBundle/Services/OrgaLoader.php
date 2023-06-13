@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Services;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaValueObject;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;

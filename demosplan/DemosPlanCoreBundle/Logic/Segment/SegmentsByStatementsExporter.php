@@ -297,6 +297,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
             $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
+            $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
         $exportData['tags'] = array_map([$this->entityHelper, 'toArray'], $exportData['tags']->toArray());
