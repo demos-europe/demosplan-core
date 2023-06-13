@@ -42,7 +42,7 @@ class UserMapper implements UserMapperInterface
      */
     public function getValidUser(Credentials $credentials): ?User
     {
-        return $this->userService->getValidUser(trim($credentials->getLogin()));
+        return $this->userService->getValidUser(trim($credentials->getLogin() ?? ''));
     }
 
     public function setRequestStack(RequestStack $requestStack): UserMapper

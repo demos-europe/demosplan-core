@@ -14,7 +14,7 @@ namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Tests\Base\FunctionalTestCase;
