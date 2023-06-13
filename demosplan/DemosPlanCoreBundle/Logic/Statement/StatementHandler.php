@@ -3043,8 +3043,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if ($newOriginalStatement instanceof Statement) {
                 $assessableStatement = $this->createNonOriginalStatement($originalStatement, $newOriginalStatement);
 
-                if ($assessableStatement instanceof Statement && $this->permissions->hasPermission('feature_similar_statement_submitter')) {
+                if ($this->permissions->hasPermission('feature_similar_statement_submitter')) {
                     $this->attachSimilarStatementSubmitters($assessableStatement, $data);
+                    $this->statementService->updateStatementObject($assessableStatement);
                 }
 
                 /** @var ManualStatementCreatedEvent $assessableStatementEvent */
