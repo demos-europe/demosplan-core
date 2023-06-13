@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
@@ -440,9 +441,7 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function getProcedurePhases()
     {
-        $path = DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config');
-
-        return Yaml::parseFile($path.'/procedurephases.yml');
+        return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }
 
     /**
@@ -608,6 +607,11 @@ class FunctionalTestCase extends WebTestCase
     }
 
     protected function getProcedureBehaviorDefinitionReference(string $name): ProcedureBehaviorDefinition
+    {
+        return $this->getReference($name);
+    }
+
+    protected function getProcedurePersonReference(string $name): ProcedurePerson
     {
         return $this->getReference($name);
     }

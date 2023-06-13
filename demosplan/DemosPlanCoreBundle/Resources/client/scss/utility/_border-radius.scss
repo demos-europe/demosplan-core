@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -9,22 +9,22 @@
 
 .border-radius {
     &-none {
-        border-radius: $dp-token-rounded-none;
+        border-radius: $dp-rounded-none;
     }
 
     &-small {
-        border-radius: $dp-token-rounded-small; // 3px
+        border-radius: $dp-rounded-small; // 3px
     }
 
     &-medium {
-        border-radius: $dp-token-rounded-medium; // 4px
+        border-radius: $dp-rounded-medium; // 4px
     }
 
     &-large {
-        border-radius: $dp-token-rounded-large; // 5px
+        border-radius: $dp-rounded-large; // 5px
     }
 
     &-extra-large {
-        border-radius: $dp-token-rounded-large * 2; // 10px
+        border-radius: $dp-rounded-large * 2; // 10px
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,6 +26,7 @@ class FaqApiController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_admin_faq_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_faq")
      *
      * @deprecated use `api_resource_update` route instead
@@ -52,6 +53,7 @@ class FaqApiController extends APIController
      *        methods={"DELETE"},
      *        name="dp_api_admin_faq_delete",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function deleteAction(string $faqId, FaqHandler $faqHandler): APIResponse

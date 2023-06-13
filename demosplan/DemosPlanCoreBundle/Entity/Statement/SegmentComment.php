@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,6 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
@@ -23,46 +27,53 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity
  */
-class SegmentComment implements UuidEntityInterface
+class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Segment
+     * @var SegmentInterface
      *
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
      *     inversedBy="comments"
      * )
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
+     *
      * @Assert\NotNull
      */
     protected $segment;
 
     /**
-     * May be `null` if the {@link User} was deleted after this instance was created.
+     * May be `null` if the {@link UserInterface} was deleted after this instance was created.
      *
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $submitter;
 
     /**
-     * May be `null` if the {@link Place} was deleted after this instance was created.
+     * May be `null` if the {@link PlaceInterface} was deleted after this instance was created.
      *
-     * @var Place|null
+     * @var PlaceInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     protected $place;
@@ -71,6 +82,7 @@ class SegmentComment implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $creationDate;
@@ -82,7 +94,9 @@ class SegmentComment implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Assert\NotBlank
+     *
      * @Assert\Length(min=1, max=65536)
      */
     protected $text;
@@ -100,12 +114,12 @@ class SegmentComment implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getSubmitter(): ?User
+    public function getSubmitter(): ?UserInterface
     {
         return $this->submitter;
     }
 
-    public function getPlace(): ?Place
+    public function getPlace(): ?PlaceInterface
     {
         return $this->place;
     }

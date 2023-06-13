@@ -78,9 +78,9 @@
                         <a
                             href="#"
                             @click.stop.prevent="$refs.filterModal.toggle()"
-                            class="{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length > 0 %}color--highlight{% endif %}"
+                            class="{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length > 0 %}color-highlight{% endif %}"
                         >
-                            <i class="fa fa-lg fa-filter{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length %} color--highlight{% endif %}"></i>
+                            <i class="fa fa-lg fa-filter{% if templateVars.filterSet.activeFilters is defined and templateVars.filterSet.activeFilters|length %} color-highlight{% endif %}"></i>
                             {{ 'filter.verb'|trans }}
                         </a>
 
@@ -117,20 +117,19 @@
                                             </label>
                                             <div class="layout__item u-3-of-4">
                                                 <dp-multiselect
+                                                    v-model="userSelection[stripRaw(filter.name)]"
                                                     multiple
                                                     :options="Object.values(filter.values)"
-                                                    v-model="userSelection[stripRaw(filter.name)]"
-                                                    track-by="value"
-                                                >
-                                                    <template v-slot:option="props">
+                                                    track-by="value">
+                                                    <template v-slot:option="{ props }">
                                                         {% verbatim %}{{ props.option.label }} ({{ Translator.trans(props.option.count) }}){% endverbatim %}
                                                     </template>
-                                                    <template v-slot:tag="props">
-                                        <span class="multiselect__tag">
-                                            {% verbatim %}{{ props.option.label }} ({{ Translator.trans(props.option.count) }}){% endverbatim %}
-                                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                            <input type="hidden" :value="props.option.value" :name="filter.name + '[]'"/>
-                                        </span>
+                                                    <template v-slot:tag="{ props }">
+                                                        <span class="multiselect__tag">
+                                                            {% verbatim %}{{ props.option.label }} ({{ Translator.trans(props.option.count) }}){% endverbatim %}
+                                                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                                            <input type="hidden" :value="props.option.value" :name="filter.name + '[]'"/>
+                                                        </span>
                                                     </template>
                                                 </dp-multiselect>
                                             </div>

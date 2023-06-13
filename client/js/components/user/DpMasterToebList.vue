@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,7 +22,7 @@
         class="text--right"
         :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}">
         <button
-          class="btn--blank color-brand-main u-mt-0_125 u-mr-0_75"
+          class="btn--blank color-main u-mt-0_125 u-mr-0_75"
           type="button"
           @click="() => fullscreen()"
           aria-haspopup="true"
@@ -72,7 +72,7 @@
           class="c-actionmenu o-page__switcher-menu"
           data-actionmenu>
           <button
-            class="btn--blank color-brand-main c-actionmenu__trigger"
+            class="btn--blank color-main c-actionmenu__trigger"
             type="button"
             aria-haspopup="true"
             aria-role="navigation"
@@ -147,7 +147,7 @@
             type="button">
             <i
               class="fa"
-              :class="(headerData.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color--highlight' : 'fa-sort-down color--highlight') : 'fa-sort color--grey'" />
+              :class="(headerData.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-highlight' : 'fa-sort-down color-highlight') : 'fa-sort color--grey'" />
           </button>
           {{ headerData.value }}
         </div>
@@ -517,7 +517,7 @@ export default {
         .then(data => {
           if (data.code === 100 && data.success === true && data.hasNewReportEntry === true) {
             // @todo find a more solid way to detect the target.
-            document.querySelector('.fa-bell').classList.add('color--system-error-dark')
+            document.querySelector('.fa-bell').classList.add('color-status-failed-fill')
           }
         })
     },

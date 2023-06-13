@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -64,11 +65,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportAll(Procedure $procedure, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
+
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+
         if (0 === count($statements)) {
-            return $this->exportEmptyStatements(new PhpWord(), $procedure);
+            return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements(new PhpWord(), $procedure, $statements);
+        return $this->exportStatements($phpWord, $procedure, $statements);
     }
 
     /**

@@ -1,11 +1,13 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
  *
  * All rights reserved
  */
+
+import { del } from 'vue'
 
 const Voter = {
 
@@ -31,7 +33,7 @@ const Voter = {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      Vue.delete(state.voters, index)
+      del(state.voters, index)
     }
 
   }

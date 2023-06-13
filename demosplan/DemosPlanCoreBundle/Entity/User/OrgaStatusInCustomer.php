@@ -3,14 +3,17 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -31,10 +34,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {
-    public const STATUS_PENDING = 'pending';
-    public const STATUS_ACCEPTED = 'accepted';
-    public const STATUS_REJECTED = 'rejected';
-
     /**
      * @var string|null
      *
@@ -51,7 +50,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     /**
      * Foreign key, Orga object.
      *
-     * @var Orga
+     * @var OrgaInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers", cascade={"remove"})
      *
@@ -62,7 +61,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     /**
      * Foreign key, Orga Type object.
      *
-     * @var OrgaType
+     * @var OrgaTypeInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers", cascade={"remove"})
      *
@@ -73,7 +72,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     /**
      * Foreign key, Customer object.
      *
-     * @var Customer
+     * @var CustomerInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses", cascade={"remove"})
      *
@@ -103,7 +102,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
         return $this->orga;
     }
 
-    public function setOrga(Orga $orga)
+    public function setOrga(OrgaInterface $orga)
     {
         $this->orga = $orga;
     }
@@ -113,7 +112,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
         return $this->orgaType;
     }
 
-    public function setOrgaType(OrgaType $orgaType)
+    public function setOrgaType(OrgaTypeInterface $orgaType)
     {
         $this->orgaType = $orgaType;
     }
@@ -123,7 +122,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
         return $this->customer;
     }
 
-    public function setCustomer(Customer $customer)
+    public function setCustomer(CustomerInterface $customer)
     {
         $this->customer = $customer;
     }
@@ -136,9 +135,9 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     public function setStatus(string $status)
     {
         switch ($status) {
-            case self::STATUS_ACCEPTED:
-            case self::STATUS_REJECTED:
-            case self::STATUS_PENDING:
+            case OrgaStatusInCustomerInterface::STATUS_ACCEPTED:
+            case OrgaStatusInCustomerInterface::STATUS_REJECTED:
+            case OrgaStatusInCustomerInterface::STATUS_PENDING:
                 $this->status = $status;
                 break;
             default:

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -39,7 +41,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository")
  */
-class GdprConsent extends CoreEntity implements UuidEntityInterface
+class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsentInterface
 {
     /**
      * @var string|null
@@ -57,9 +59,9 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     /**
      * The consent was given to this entity.
      *
-     * No onDelete="CASCADE" as this is already done by doctrine. See {@link Statement::gdprConsent}.
+     * No onDelete="CASCADE" as this is already done by doctrine. See {@link StatementInterface::gdprConsent}.
      *
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="gdprConsent")
      *
@@ -114,7 +116,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * submitted the statement without an user account at all. To be clear: we want to keep the consent if the
      * user deletes they account, as a person does not lose they right to revoke with the deletion.
      *
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
@@ -165,7 +167,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return User|null
+     * @return UserInterface|null
      */
     public function getConsentee()
     {
@@ -173,7 +175,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User|null $consentee
+     * @param UserInterface|null $consentee
      */
     public function setConsentee($consentee)
     {
@@ -181,7 +183,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -191,7 +193,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     /**
      * @throws InvalidDataException
      */
-    public function setStatement(Statement $statement)
+    public function setStatement(StatementInterface $statement)
     {
         $this->statement = $statement;
 

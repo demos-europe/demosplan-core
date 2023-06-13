@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -10,63 +10,63 @@
 //  Utility classes: font-size
 
 // 50px
-.font-size-brand-hero {
-    @include inuit-font-size($dp-token-font-size-brand-hero);
+.font-size-hero {
+    @include inuit-font-size($dp-font-size-hero);
 }
 
 // 27.65px
 .font-size-h1 {
-    @include inuit-font-size($dp-token-font-size-h1, 1.3);
+    @include inuit-font-size($dp-font-size-h1, 1.3);
 }
 
 // 23px
 .font-size-h2 {
-    @include inuit-font-size($dp-token-font-size-h2, 1.3);
+    @include inuit-font-size($dp-font-size-h2, 1.3);
 }
 
 // 19.2 px
 .font-size-h3 {
-    @include inuit-font-size($dp-token-font-size-h3, 1.3);
+    @include inuit-font-size($dp-font-size-h3, 1.3);
 }
 
 // 16px
 .font-size-h4 {
-    @include inuit-font-size($dp-token-font-size-h4);
+    @include inuit-font-size($dp-font-size-h4);
 }
 
 // 14px
 .font-size-h5 {
-    @include inuit-font-size($dp-token-font-size-h5, 1.3);
+    @include inuit-font-size($dp-font-size-h5, 1.3);
 }
 
 // 12px
 .font-size-h6 {
-    @include inuit-font-size($dp-token-font-size-h6, 1.3);
+    @include inuit-font-size($dp-font-size-h6, 1.3);
 }
 
 // 23 px
 .font-size-larger {
-    @include inuit-font-size($dp-token-font-size-larger, 1.3);
+    @include inuit-font-size($dp-font-size-larger, 1.3);
 }
 
 // 19.2 px
 .font-size-large {
-    @include inuit-font-size($dp-token-font-size-large, 1.3);
+    @include inuit-font-size($dp-font-size-large, 1.3);
 }
 
 // 16 px
 .font-size-medium {
-    @include inuit-font-size($dp-token-font-size-medium);
+    @include inuit-font-size($dp-font-size-medium);
 }
 
 // 14 px
 .font-size-small {
-    @include inuit-font-size($dp-token-font-size-small, 1.3);
+    @include inuit-font-size($dp-font-size-small, 1.3);
 }
 
 // 12 px
 .font-size-smaller {
-    @include inuit-font-size($dp-token-font-size-smaller, 1.3);
+    @include inuit-font-size($dp-font-size-smaller, 1.3);
 }
 
 // 0

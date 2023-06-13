@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -31,6 +31,7 @@
       ref="map"
       :options="{
         autoSuggest: false,
+        defaultAttribution,
         procedureExtent: false,
         initialExtent: true,
         initCenter: center
@@ -149,6 +150,12 @@ export default {
   },
 
   props: {
+    defaultAttribution: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     procedureId: {
       required: false,
       type: String,

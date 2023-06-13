@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -7,7 +7,8 @@
   All rights reserved
 </license>
 
-<dp-table-card
+<template>
+  <dp-table-card
     class="c-public-statement"
     :open="isOpen">
     <template v-slot:header="">
@@ -38,8 +39,8 @@
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
               @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
-            <i
-                class="fa fa-exclamation-circle color-ui-highlight u-mr-0_5"
+              <i
+                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
                 v-tooltip="Translator.trans('unsaved.changes')" />
             </button>
           </div>
@@ -51,8 +52,8 @@
               :key="item.id"
               class="display--inline u-mr-0_5">
               <button
-                v-if="item.type === 'button'"v-bind="item.attrs"
-              v-bind="item.attrs"
+                v-if="item.type === 'button'"
+                v-bind="item.attrs"
                 class="btn--blank o-link--default u-valign--middle"
                 @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
                 {{ item.text }}
@@ -60,9 +61,9 @@
               <a
                 v-else-if="item.type === 'link'"
                 v-bind="item.attrs"
-              class="o-link--default u-valign--middle"
-              :href="item.url">
-              {{ item.text }}
+                class="o-link--default u-valign--middle"
+                :href="item.url">
+                {{ item.text }}
               </a>
               <h4
                 v-else-if="item.type === 'heading'"
@@ -87,46 +88,46 @@
                 <button
                   v-if="item.type === 'button'"
                   v-bind="item.attrs"
-                v-bind="item.attrs"  class="btn--blank o-link--default"
+                  class="btn--blank o-link--default"
                   @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
-                {{ item.text }}
-              </button>
-              <h4
-                v-if="item.type === 'heading'"
-                v-bind="item.attrs"
-                class="color--grey u-mb-0 u-mt-0_25 font-size-small">
-                {{ item.text }}
-              </h4>
-            </div>
-          </dp-flyout>
-        </div><!--
-     --><div class="display--inline">
-          <button
-            @click="isOpen = false === isOpen"
-            type="button"
-            class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle">
-            <i
-              class="fa"
-              :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
-          </button>
+                  {{ item.text }}
+                </button>
+                <h4
+                  v-if="item.type === 'heading'"
+                  v-bind="item.attrs"
+                  class="color--grey u-mb-0 u-mt-0_25 font-size-small">
+                  {{ item.text }}
+                </h4>
+              </div>
+            </dp-flyout>
+          </div><!--
+       --><div class="display--inline">
+            <button
+              @click="isOpen = false === isOpen"
+              type="button"
+              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle">
+              <i
+                class="fa"
+                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </template>
+    </template>
 
-<div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
-      <div class="u-1-of-1 c-public-statement__content-item">
-        <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('organisation') }}
-        </div><!--
-     --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
-          {{ organisation || '-' }}
-        </div>
+  <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+    <div class="u-1-of-1 c-public-statement__content-item">
+      <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('organisation') }}
       </div><!--
+    --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
+        {{ organisation || '-' }}
+      </div>
+    </div><!--
    --><div class="u-1-of-1 c-public-statement__content-item">
-        <div
-          v-if="showAuthor"
-          class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+      <div
+        v-if="showAuthor"
+        class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
           {{ Translator.trans('authored.by') }}
         </div><!--
      --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
@@ -167,8 +168,8 @@
           {{ paragraph }}
         </div>
       </div>
-    </div><!--
- --><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+      </div><!--
+  --><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
       <div class="u-1-of-1 c-public-statement__content-item">
         <template v-if="hasPermission('field_statement_location')">
           <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
@@ -216,24 +217,25 @@
      --><div
           class="display--inline-block u-2-of-3 u-1-of-1-palm overflow-word-break"
           v-cleanhtml="renderAttachments(attachments)" />
+        </div>
       </div>
-    </div>
-    <dp-inline-notification
-      v-if="rejectedReason"
-      class="u-mt"
-      type="info">
-      <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
-      <div>{{ rejectedReason }}</div>
-    </dp-inline-notification>
-    <div class="u-1-of-1 u-mt">
-      <div class="c-public-statement__label">
-        {{ Translator.trans('statementtext') }}
+      <dp-inline-notification
+        v-if="rejectedReason"
+        class="u-mt"
+        type="info">
+        <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
+        <div>{{ rejectedReason }}</div>
+      </dp-inline-notification>
+      <div class="u-1-of-1 u-mt">
+        <div class="c-public-statement__label">
+          {{ Translator.trans('statementtext') }}
+        </div>
+        <div
+          class="overflow-word-break"
+          v-cleanhtml="text" />
       </div>
-      <div
-        class="overflow-word-break"
-        v-cleanhtml="text" />
-    </div>
-</dp-table-card>
+  </dp-table-card>
+</template>
 
 <script>
 import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui'

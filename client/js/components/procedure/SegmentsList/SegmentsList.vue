@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -34,7 +34,7 @@
             :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
-            :ref="filterFlyout[idx]"
+            :ref="`filterFlyout${idx}`"
             :label="Translator.trans(filter.labelTranslationKey)"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
@@ -252,6 +252,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 
 export default {
@@ -276,7 +277,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -312,6 +313,11 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -406,6 +412,10 @@ export default {
 
     selectableColumns () {
       return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
     }
   },
 
@@ -496,11 +506,15 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then(data => {
-          this.isLoading = false
+        .then((data) => {
+          /**
+           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+           */
+          this.setLocalStorage(data.meta.pagination)
+
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
-          this.initPagination(data)
+          this.updatePagination(data.meta.pagination)
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
@@ -510,6 +524,9 @@ export default {
               StatementSegment: ['id'].join()
             }
           })
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -555,24 +572,12 @@ export default {
       this.applyQuery(page)
     },
 
-    initPagination (data) {
-      const dataPag = data.meta.pagination
-      this.pagination = {
-        count: dataPag.count,
-        currentPage: dataPag.current_page,
-        limits: [10, 25, 50, 100],
-        perPage: dataPag.per_page,
-        total: dataPag.total,
-        totalPages: dataPag.total_pages
-      }
-    },
-
     resetQuery () {
       this.searchTerm = ''
       this.$refs.customSearch.reset()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+        this.$refs[`filterFlyout${idx}`].reset()
       })
       this.updateQueryHash()
       this.resetSelection()
@@ -670,7 +675,8 @@ export default {
         this.updateFilterQuery(query)
       })
     }
-    this.applyQuery(1)
+    this.initPagination()
+    this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
     this.fetchAssignableUsers()

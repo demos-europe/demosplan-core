@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -18,7 +18,7 @@
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
-        :class="{'color--highlight': true === highlighted}"
+        :class="{'color-highlight': true === highlighted}"
         @click="submit" />
       <dp-input
         has-icon
@@ -37,7 +37,7 @@
       type="button"
       data-cy="searchAdvanced"
       @click.prevent="toggleModal"
-      :class="{'color--highlight':true === highlighted}"
+      :class="{'color-highlight':true === highlighted}"
       class="btn--blank o-link--default display--inline-block u-m-0 u-p-0 u-ml-0_5">
       {{ Translator.trans('search.advanced') }}
     </button>

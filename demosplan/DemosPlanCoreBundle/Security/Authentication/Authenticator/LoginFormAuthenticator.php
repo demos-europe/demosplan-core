@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -61,25 +60,6 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         return $credentialsVO;
     }
 
-    public function validateCredentials(Credentials $credentials): void
-    {
-        // check for password strength and warn if it is too weak
-        $violations = $this->passwordValidator->validate($credentials->getPassword());
-        if (0 < $violations->count()) {
-            $linkChangeText = $this->translator->trans('password.change');
-            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
-                'warning',
-                'warning.password.weak',
-                [],
-                'DemosPlan_user_portal',
-                [],
-                $linkChangeText)
-            );
-        }
-
-        parent::validateCredentials($credentials);
-    }
-
     protected function getPassport(Credentials $credentials): Passport
     {
         $user = $this->userMapper->getValidUser($credentials);
@@ -89,6 +69,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             new PasswordCredentials($credentials->getPassword()),
             [
                 new PasswordUpgradeBadge($credentials->getPassword()),
+                new WeakPasswordCheckerBadge($credentials->getPassword()),
                 new CsrfTokenBadge('authenticate', $credentials->getToken()),
             ]
         );
@@ -97,6 +78,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $this->messageBag->add('warning', 'warning.login.failed');
+        $this->logger->info('Login failed', [$exception]);
 
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));
     }

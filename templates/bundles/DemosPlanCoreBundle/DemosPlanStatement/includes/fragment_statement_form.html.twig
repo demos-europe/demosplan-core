@@ -52,19 +52,18 @@
                     {% set tagArray = [] %}
                 {% endfor %}
                 <dp-multiselect
-                    multiple
                     id="r_tags[]"
-                    :options="JSON.parse('{{ groups|default([])|json_encode|e('js', 'utf-8') }}')"
                     v-model="tags"
-                    label="title"
-                    track-by="id"
-                    group-values="tags"
-                    group-label="groupName"
-                    :group-select="false"
                     class="u-mt-0_25 weight--normal"
                     data-cy="fragmentTopicsTags"
-                >
-                    <template v-slot:option="props">
+                    group-label="groupName"
+                    :group-select="false"
+                    group-values="tags"
+                    label="title"
+                    multiple
+                    :options="JSON.parse('{{ groups|default([])|json_encode|e('js', 'utf-8') }}')"
+                    track-by="id">
+                    <template v-slot:option="{ props }">
                         <strong v-if="props.option.$isLabel">
                             {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
                         </strong>
@@ -72,7 +71,7 @@
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </span>
                     </template>
-                    <template v-slot:tag="props">
+                    <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -115,19 +114,18 @@
                         {% set counties = counties|merge([{id: county.id, name: county.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_counties[]"
-                        :options="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="counties"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentCounties"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -158,19 +156,18 @@
                         {% set municipalities = municipalities|merge([{id: municipality.id, name: municipality.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_municipalities[]"
-                        :options="JSON.parse('{{ municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="municipalities"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentMunicipalities"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -202,19 +199,18 @@
                         {% set priorityAreas = priorityAreas|merge([{id: priorityArea.id, name: priorityArea.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_priorityAreas[]"
-                        :options="JSON.parse('{{ priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="priorityAreas"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentPriorityAreas"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -264,13 +260,13 @@
                     {% set agencies = agencies|merge([{ id: departmentId, name: department.orga.name ~ ', ' ~ department.name }]) %}
                 {% endfor %}
                 <dp-multiselect
-                    :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
-                    track-by="name"
-                    label="name"
+                    v-model="department"
                     :allow-empty="false"
                     class="display--inline-block"
-                    v-model="department">
-                    <template v-slot:option="props">
+                    label="name"
+                    :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
+                    track-by="name">
+                    <template v-slot:option="{ props }">
                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                     </template>
                 </dp-multiselect>

@@ -21,6 +21,7 @@ phpstan.neon
 .lnav
 !.github
 logs
+/docker-compose.override.yml
 
 ###> symfony/framework-bundle ###
 /.env.local
