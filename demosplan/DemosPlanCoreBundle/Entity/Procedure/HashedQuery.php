@@ -21,7 +21,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/filterhash/ Wiki: Filterhash
  *
  * @ORM\Table(indexes={@ORM\Index(name="hash_idx", columns={"hash"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository")
  */
 class HashedQuery extends CoreEntity implements UuidEntityInterface
 {
@@ -29,8 +30,11 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -53,6 +57,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $created;
@@ -61,6 +66,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $modified;
@@ -69,6 +75,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="NO ACTION")
      */
     protected $procedure;

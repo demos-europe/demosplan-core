@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -40,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -84,6 +83,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
@@ -92,6 +92,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
@@ -112,11 +113,13 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
+use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -126,6 +129,7 @@ use Doctrine\ORM\ORMException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use Elastica\Aggregation\GlobalAggregation;
 use Elastica\Exception\ClientException;
 use Elastica\Index;
 use Elastica\Query;
@@ -148,6 +152,23 @@ use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface
 {
+    /**
+     * The name of the terms aggregation on the {@link Statement::$status} field.
+     */
+    public const AGGREGATION_STATEMENT_STATUS = 'status';
+    /**
+     * The name of the terms aggregation on the {@link Statement::$priority} field.
+     */
+    public const AGGREGATION_STATEMENT_PRIORITY = 'priority';
+    /**
+     * Name of the {@link Statement::$status} field.
+     */
+    public const FIELD_STATEMENT_STATUS = 'status';
+    /**
+     * Name of the {@link Statement::$priority} field.
+     */
+    public const FIELD_STATEMENT_PRIORITY = 'priority';
+
     /**
      * @var ProcedureService
      */
@@ -838,6 +859,18 @@ class StatementService extends CoreService implements StatementServiceInterface
         );
     }
 
+    public function getMovedStatementData(Procedure $procedure): ?MovedStatementData
+    {
+        if (!$this->permissions->hasPermission('feature_statement_move_to_procedure')) {
+            return null;
+        }
+
+        return new MovedStatementData(
+            $this->getStatementsMovedToThisProcedureCount($procedure),
+            $this->getStatementsMovedFromThisProcedureCount($procedure)
+        );
+    }
+
     private function generateAccessMap(): array
     {
         $currentUser = $this->currentUser->getUser();
@@ -970,17 +1003,18 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Get all statements to a specific procedure.
      *
-     * @param string $procedureId                  - identifies the procedure
-     * @param array  $filters                      - data to get more specific result
-     * @param array  $sort                         - data contains information of the order of the result
-     * @param string $search
-     * @param int    $limit
-     * @param int    $page
-     * @param array  $searchFields
-     * @param bool   $aggregationsOnly
-     * @param int    $aggregationsMinDocumentCount
-     * @param bool   $logStatementViews
-     * @param bool   $addAllAggregations           - If true all aggregations will be used. Otherwise only those fields in $filters
+     * @param string                  $procedureId                  - identifies the procedure
+     * @param array                   $filters                      - data to get more specific result
+     * @param array                   $sort                         - data contains information of the order of the result
+     * @param string                  $search
+     * @param int                     $limit
+     * @param int                     $page
+     * @param array                   $searchFields
+     * @param bool                    $aggregationsOnly
+     * @param int                     $aggregationsMinDocumentCount
+     * @param bool                    $logStatementViews
+     * @param bool                    $addAllAggregations           - If true all aggregations will be used. Otherwise only those fields in $filters
+     * @param list<GlobalAggregation> $customAggregations
      *
      * @throws Exception
      */
@@ -995,7 +1029,8 @@ class StatementService extends CoreService implements StatementServiceInterface
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
         $logStatementViews = true,
-        $addAllAggregations = true
+        $addAllAggregations = true,
+        array $customAggregations = []
     ): ElasticsearchResultSet {
         try {
             // get Elasticsearch aggregations aka Userfilters
@@ -1009,7 +1044,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $searchFields,
                 $aggregationsOnly,
                 $aggregationsMinDocumentCount,
-                $addAllAggregations
+                $addAllAggregations,
+                $customAggregations
             );
 
             $statementList = $this->searchService->simplifyEsStructure($elasticsearchResult, $search, $filters, $sort);
@@ -2875,16 +2911,17 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Gets Aggegations from Elasticsearch to use as facetted filters.
      *
-     * @param array      $userFilters
-     * @param string     $procedureId
-     * @param string     $search
-     * @param array|null $sort
-     * @param int        $limit
-     * @param int        $page                         First page is 1
-     * @param array      $searchFields
-     * @param bool       $aggregationsOnly
-     * @param int        $aggregationsMinDocumentCount
-     * @param bool       $addAllAggregations
+     * @param array                   $userFilters
+     * @param string                  $procedureId
+     * @param string                  $search
+     * @param array|null              $sort
+     * @param int                     $limit
+     * @param int                     $page                         First page is 1
+     * @param array                   $searchFields
+     * @param bool                    $aggregationsOnly
+     * @param int                     $aggregationsMinDocumentCount
+     * @param bool                    $addAllAggregations
+     * @param list<GlobalAggregation> $customAggregations
      */
     protected function getElasticsearchResult(
         $userFilters,
@@ -2896,7 +2933,8 @@ class StatementService extends CoreService implements StatementServiceInterface
         $searchFields = [],
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
-        $addAllAggregations = true
+        $addAllAggregations = true,
+        array $customAggregations = []
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
@@ -3016,7 +3054,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                         $boolMustNotFilter,
                         null,
                         $rawFields,
-                        $addAllAggregations);
+                        $addAllAggregations
+                    );
                 }
             }
 
@@ -3039,6 +3078,12 @@ class StatementService extends CoreService implements StatementServiceInterface
             // GET QUERY (END)
 
             /********************************** QUERY AGGREGATIONS (INI) *********************************************/
+
+            /****************************************** CUSTOM AGGREGATIONS ******************************************/
+
+            foreach ($customAggregations as $customAggregation) {
+                $query->addAggregation($customAggregation);
+            }
 
             /****************************************** EINREICHUNG **************************************************/
 
@@ -3101,8 +3146,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $query = $this->searchService->addEsMissingAggregation($query, 'assignee.id');
             }
             // Bearbeitungsstatus - status - status
-            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
-                $query = $this->searchService->addEsAggregation($query, 'status');
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
+                $query = $this->searchService->addEsAggregation($query, self::FIELD_STATEMENT_STATUS, null, null, self::AGGREGATION_STATEMENT_STATUS);
             }
             // Votum - votePla - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
@@ -3162,8 +3207,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $query = $this->searchService->addEsAggregation($query, 'type');
             }
             // Priorität - priority - priority
-            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
-                $query = $this->searchService->addEsAggregation($query, 'priority');
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
+                $query = $this->searchService->addEsAggregation($query, self::FIELD_STATEMENT_PRIORITY, null, null, self::AGGREGATION_STATEMENT_PRIORITY);
             }
             // Empfehlung - voteStk - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
@@ -3263,13 +3308,13 @@ class StatementService extends CoreService implements StatementServiceInterface
                 throw $e;
             }
 
-            $aggregations = $resultSet->getAggregations();
+            $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
-                $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+                $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($esResultAggregations, $userFilters);
             }
 
-            $aggregation = [];
+            $processedAggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = \collect($elementsAdminList)
                 ->mapWithKeys(static function (Elements $element): array {
@@ -3278,33 +3323,40 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             /********************************** QUERY AGGREGATIONS (INI) *********************************************/
 
+            /****************************************** CUSTOM AGGREGATIONS ******************************************/
+
+            foreach ($customAggregations as $customAggregation) {
+                $name = $customAggregation->getName();
+                $processedAggregation = $this->searchService->addAggregationResultToArray($name, $name, $esResultAggregations, $processedAggregation);
+            }
+
             /****************************************** EINREICHUNG **************************************************/
             // Öffentlichkeit/Institution - publicStatement - publicStatement
             if ($addAllAggregations || \array_key_exists('publicStatement', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('publicStatement', 'publicStatement', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('publicStatement', 'publicStatement', $esResultAggregations, $processedAggregation);
             }
             // Institution/Name - institution - oName.raw
             if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('oName.raw', 'institution', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('oName.raw', 'institution', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('oName.raw', 'institution', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('oName.raw', 'institution', $esResultAggregations, $processedAggregation);
             }
             // Abteilung - department - dName.raw
             if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('dName.raw', 'department', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('dName.raw', 'department', $esResultAggregations, $processedAggregation);
             }
             // Verfahrensschritt - phase - phase
             if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('phase', 'phase', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('phase', 'phase', $esResultAggregations, $processedAggregation);
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
                 $movedStatementCount = 0;
-                $aggregation['movedFromProcedureId'] = [];
-                if (isset($aggregations['movedFromProcedureId'])) {
-                    foreach ($aggregations['movedFromProcedureId']['buckets'] as $agg) {
+                $processedAggregation['movedFromProcedureId'] = [];
+                if (isset($esResultAggregations['movedFromProcedureId'])) {
+                    foreach ($esResultAggregations['movedFromProcedureId']['buckets'] as $agg) {
                         $procedure = $this->procedureRepository->get($agg['key']);
                         $label = $procedure instanceof Procedure ? $procedure->getName() : '';
-                        $aggregation['movedFromProcedureId'][] = [
+                        $processedAggregation['movedFromProcedureId'][] = [
                             'count' => $agg['doc_count'],
                             'label' => $label,
                             'value' => $agg['key'],
@@ -3312,7 +3364,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         $movedStatementCount += $agg['doc_count'];
                     }
                 }
-                array_unshift($aggregation['movedFromProcedureId'], [
+                array_unshift($processedAggregation['movedFromProcedureId'], [
                     'label' => $this->translator->trans('all'),
                     'value' => $this->searchService::EXISTING_FIELD_FILTER,
                     'count' => $movedStatementCount,
@@ -3321,12 +3373,12 @@ class StatementService extends CoreService implements StatementServiceInterface
             // Verschobene Stellungnahmen aus diesem Verfahren - movedToProcedureId - movedToProcedureId
             if ($addAllAggregations || \array_key_exists('movedToProcedureId', $userFilters)) {
                 $movedStatementCount = 0;
-                $aggregation['movedToProcedureId'] = [];
-                if (isset($aggregations['movedToProcedureId'])) {
-                    foreach ($aggregations['movedToProcedureId']['buckets'] as $agg) {
+                $processedAggregation['movedToProcedureId'] = [];
+                if (isset($esResultAggregations['movedToProcedureId'])) {
+                    foreach ($esResultAggregations['movedToProcedureId']['buckets'] as $agg) {
                         $procedure = $this->procedureRepository->get($agg['key']);
                         $label = $procedure instanceof Procedure ? $procedure->getName() : '';
-                        $aggregation['movedToProcedureId'][] = [
+                        $processedAggregation['movedToProcedureId'][] = [
                             'count' => $agg['doc_count'],
                             'label' => $label,
                             'value' => $agg['key'],
@@ -3334,7 +3386,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         $movedStatementCount += $agg['doc_count'];
                     }
                 }
-                array_unshift($aggregation['movedToProcedureId'], [
+                array_unshift($processedAggregation['movedToProcedureId'], [
                     'label' => $this->translator->trans('all'),
                     'value' => $this->searchService::EXISTING_FIELD_FILTER,
                     'count' => $movedStatementCount,
@@ -3342,22 +3394,22 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             if ($addAllAggregations || \array_key_exists('publicCheck', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('publicCheck', 'publicCheck', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('publicCheck', 'publicCheck', $esResultAggregations, $processedAggregation);
             }
 
             /***************************************** STELLUNGNAHME ************************************************/
 
             // Sachbearbeiter - assignee_id
             if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('assignee.id', 'assignee_id', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('assignee.id', 'assignee_id', $esResultAggregations, $processedAggregation);
             }
-            if (isset($aggregations['assignee_id'])) {
-                foreach ($aggregations['assignee_id']['buckets'] as $agg) {
+            if (isset($esResultAggregations['assignee_id'])) {
+                foreach ($esResultAggregations['assignee_id']['buckets'] as $agg) {
                     $user = $this->userService->getSingleUser($agg['key']);
                     $userName = $user instanceof User ?
                         $user->getFirstname().' '.$user->getLastname().' -- '.$user->getOrgaName() :
                         '';
-                    $aggregation['assignee_id'][] = [
+                    $processedAggregation['assignee_id'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $userName,
                         'value' => $agg['key'],
@@ -3365,16 +3417,16 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Bearbeitungsstatus - status
-            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('status', 'status', $aggregations, $aggregation);
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_STATUS, $userFilters)) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray(self::AGGREGATION_STATEMENT_STATUS, self::AGGREGATION_STATEMENT_STATUS, $esResultAggregations, $processedAggregation);
             }
             // Votum - votePla
             if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('votePla', 'votePla', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('votePla', 'votePla', $esResultAggregations, $processedAggregation);
             }
-            if (isset($aggregations['votePla'])) {
-                foreach ($aggregations['votePla']['buckets'] as $agg) {
-                    $aggregation['votePla'][] = [
+            if (isset($esResultAggregations['votePla'])) {
+                foreach ($esResultAggregations['votePla']['buckets'] as $agg) {
+                    $processedAggregation['votePla'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $this->translator->trans('fragment.vote.'.$agg['key']),
                         'value' => $agg['key'],
@@ -3383,43 +3435,43 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
             // Kreis - countyNames
             if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('countyNames.raw', 'countyNames', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('countyNames', 'countyNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('countyNames.raw', 'countyNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('countyNames', 'countyNames', $esResultAggregations, $processedAggregation);
             }
             // Gemeinde - municipalityNames
             if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('municipalityNames.raw', 'municipalityNames', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('municipalityNames', 'municipalityNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('municipalityNames.raw', 'municipalityNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('municipalityNames', 'municipalityNames', $esResultAggregations, $processedAggregation);
             }
             // Schlagwort - tagNames - tagNams.raw
             if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('tagNames.raw', 'tagNames', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('tagNames', 'tagNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('tagNames.raw', 'tagNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('tagNames', 'tagNames', $esResultAggregations, $processedAggregation);
             }
             // Potenzialflächen - priorityAreaKeys
             if ($addAllAggregations || \array_key_exists('priorityAreaKeys', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $esResultAggregations, $processedAggregation);
             }
             // Dokument - planningDocument - elementId
             if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('elementId', 'planningDocument', $aggregations, $aggregation, $elementMap);
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('elementId', 'planningDocument', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('elementId', 'planningDocument', $esResultAggregations, $processedAggregation, $elementMap);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('elementId', 'planningDocument', $esResultAggregations, $processedAggregation);
             }
             // Kapitel - reasonParagraph - paragraphParentId
             if ($addAllAggregations || \array_key_exists('reasonParagraph', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('paragraphParentId', 'reasonParagraph', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('paragraphParentId', 'reasonParagraph', $aggregations, $aggregation, $this->getParagraphMap($aggregations['paragraphParentId']['buckets']));
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('paragraphParentId', 'reasonParagraph', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('paragraphParentId', 'reasonParagraph', $esResultAggregations, $processedAggregation, $this->getParagraphMap($esResultAggregations['paragraphParentId']['buckets']));
             }
             // Datei - documentParentId
             if ($addAllAggregations || \array_key_exists('documentParentId', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('documentParentId', 'documentParentId', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('documentParentId', 'documentParentId', $esResultAggregations, $processedAggregation);
             }
-            if (isset($aggregations['documentParentId'])) {
-                foreach ($aggregations['documentParentId']['buckets'] as $agg) {
+            if (isset($esResultAggregations['documentParentId'])) {
+                foreach ($esResultAggregations['documentParentId']['buckets'] as $agg) {
                     $document = $this->singleDocumentRepository->findOneBy(['id' => $agg['key']]);
                     $label = $document instanceof SingleDocument ? $document->getTitle() : '';
-                    $aggregation['documentParentId'][] = [
+                    $processedAggregation['documentParentId'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $label,
                         'value' => $agg['key'],
@@ -3428,21 +3480,21 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
             // Thema - topicNames - topicNames.raw
             if ($addAllAggregations || \array_key_exists('topicNames', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('topicNames.raw', 'topicNames', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('topicNames', 'topicNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('topicNames.raw', 'topicNames', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('topicNames', 'topicNames', $esResultAggregations, $processedAggregation);
             }
             // ID - externId - externId
             if ($addAllAggregations || \array_key_exists('externId', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('externId', 'externId', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('externId', 'externId', $esResultAggregations, $processedAggregation);
             }
             // Gruppenname - name - name.raw
             if ($addAllAggregations || \array_key_exists('name', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('name.raw', 'name', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('name.raw', 'name', $esResultAggregations, $processedAggregation);
             }
             // Art der Stellungnahme - type
-            if (isset($aggregations['type'])) {
-                foreach ($aggregations['type']['buckets'] as $agg) {
-                    $aggregation['type'][] = [
+            if (isset($esResultAggregations['type'])) {
+                foreach ($esResultAggregations['type']['buckets'] as $agg) {
+                    $processedAggregation['type'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $this->translator->trans('statement.type.'.$agg['key']),
                         'value' => $agg['key'],
@@ -3450,16 +3502,16 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Priorität - priority
-            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('priority', 'priority', $aggregations, $aggregation);
+            if ($addAllAggregations || \array_key_exists(self::AGGREGATION_STATEMENT_PRIORITY, $userFilters)) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray(self::AGGREGATION_STATEMENT_PRIORITY, self::AGGREGATION_STATEMENT_PRIORITY, $esResultAggregations, $processedAggregation);
             }
             // Empfehlung - voteStk
             if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
-                $aggregation = $this->searchService->addMissingAggregationResultToArray('voteStk', 'voteStk', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addMissingAggregationResultToArray('voteStk', 'voteStk', $esResultAggregations, $processedAggregation);
             }
-            if (isset($aggregations['voteStk'])) {
-                foreach ($aggregations['voteStk']['buckets'] as $agg) {
-                    $aggregation['voteStk'][] = [
+            if (isset($esResultAggregations['voteStk'])) {
+                foreach ($esResultAggregations['voteStk']['buckets'] as $agg) {
+                    $processedAggregation['voteStk'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $this->translator->trans('fragment.vote.'.$agg['key']),
                         'value' => $agg['key'],
@@ -3468,16 +3520,16 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
             // project specifics
             if ($addAllAggregations || \array_key_exists('meta.userState', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('meta.userState', 'userState', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('meta.userState', 'userState', $esResultAggregations, $processedAggregation);
             }
             if ($addAllAggregations || \array_key_exists('meta.userGroup', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('meta.userGroup', 'userGroup', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('meta.userGroup', 'userGroup', $esResultAggregations, $processedAggregation);
             }
             if ($addAllAggregations || \array_key_exists('meta.userOrganisation', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('meta.userOrganisation', 'userOrganisation', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('meta.userOrganisation', 'userOrganisation', $esResultAggregations, $processedAggregation);
             }
             if ($addAllAggregations || \array_key_exists('meta.userPosition', $userFilters)) {
-                $aggregation = $this->searchService->addAggregationResultToArray('meta.userPosition', 'userPosition', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('meta.userPosition', 'userPosition', $esResultAggregations, $processedAggregation);
             }
 
             /*************************************** DATENSATZ / FRAGMENTS *******************************************/
@@ -3486,105 +3538,105 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             // Sachbearbeiter - fragments_lastClaimed_id - fragments.lastClaimedUserId
             if ($addAllAggregations || \array_key_exists('fragments_lastClaimed_id', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.lastClaimedUserId', 'fragments_lastClaimed_id', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.lastClaimedUserId', 'fragments_lastClaimed_id', $esResultAggregations, $processedAggregation);
             }
             $fragmentAggregations = $fragmentEsResult->getAggregations();
             if (isset($fragmentAggregations['lastClaimed_id'])) {
-                $aggregation['fragments_lastClaimed_id'] = \array_merge($aggregation['fragments_lastClaimed_id'],
+                $processedAggregation['fragments_lastClaimed_id'] = \array_merge($processedAggregation['fragments_lastClaimed_id'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['lastClaimed_id'],
                         'value',
                         'value',
                         'count'
                     ));
-            } elseif (isset($aggregations['fragments_lastClaimed_id'])) {
-                $aggregation['fragments_lastClaimed_id'] = \array_merge($aggregation['fragments_lastClaimed_id'],
+            } elseif (isset($esResultAggregations['fragments_lastClaimed_id'])) {
+                $processedAggregation['fragments_lastClaimed_id'] = \array_merge($processedAggregation['fragments_lastClaimed_id'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
-                        $aggregations['fragments_lastClaimed_id']['buckets']
+                        $esResultAggregations['fragments_lastClaimed_id']['buckets']
                     ));
             }
             // Bearbeitungsstatus - fragments_status - fragments.status
             if (isset($fragmentAggregations['status'])) {
-                $aggregation = $this->searchService->addFragmentEsResultToArray('fragments_status', 'fragments_status', $fragmentAggregations, $aggregation);
-            } elseif (isset($aggregations['fragments_status'])) {
-                $aggregation = $this->searchService->addAggregationResultToArray('fragments_status', 'fragments_status', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentEsResultToArray('fragments_status', 'fragments_status', $fragmentAggregations, $processedAggregation);
+            } elseif (isset($esResultAggregations['fragments_status'])) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray('fragments_status', 'fragments_status', $esResultAggregations, $processedAggregation);
             }
             // Votum - fragments_vote - fragments.vote
             if (isset($fragmentAggregations['vote'])) {
-                $aggregation = $this->searchService->addFragmentEsResultToArray('vote', 'fragments_vote', $fragmentAggregations, $aggregation, $this->statementFragmentService->getVoteLabelMap());
-            } elseif (isset($aggregations['fragments_vote'])) {
-                $aggregation = $this->searchService->addAggregationResultToArray('fragments_vote', 'fragments_vote', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentEsResultToArray('vote', 'fragments_vote', $fragmentAggregations, $processedAggregation, $this->statementFragmentService->getVoteLabelMap());
+            } elseif (isset($esResultAggregations['fragments_vote'])) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray('fragments_vote', 'fragments_vote', $esResultAggregations, $processedAggregation);
             }
             // Kreis - fragments_countyNames - fragments.countyNames
             if ($addAllAggregations || \array_key_exists('fragments_countyNames', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.countyNames', 'fragments_countyNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.countyNames', 'fragments_countyNames', $esResultAggregations, $processedAggregation);
             }
             if (isset($fragmentAggregations['countyNames'])) {
-                $aggregation['fragments_countyNames'] = \array_merge($aggregation['fragments_countyNames'],
+                $processedAggregation['fragments_countyNames'] = \array_merge($processedAggregation['fragments_countyNames'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['countyNames'],
                         'value',
                         'value',
                         'count'
                     ));
-            } elseif (isset($aggregations['fragments_countyNames'])) {
-                $aggregation['fragments_countyNames'] = \array_merge(\array_key_exists('fragments_countyNames', $aggregation) ? $aggregation['fragments_countyNames'] : [],
+            } elseif (isset($esResultAggregations['fragments_countyNames'])) {
+                $processedAggregation['fragments_countyNames'] = \array_merge(\array_key_exists('fragments_countyNames', $processedAggregation) ? $processedAggregation['fragments_countyNames'] : [],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
-                        $aggregations['fragments_countyNames']['buckets']
+                        $esResultAggregations['fragments_countyNames']['buckets']
                     ));
             }
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
             if ($addAllAggregations || \array_key_exists('fragments_municipalityNames', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.municipalityNames', 'fragments_municipalityNames', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.municipalityNames', 'fragments_municipalityNames', $esResultAggregations, $processedAggregation);
             }
             if (isset($fragmentAggregations['municipalityNames'])) {
-                $aggregation['fragments_municipalityNames'] = \array_merge($aggregation['fragments_municipalityNames'],
+                $processedAggregation['fragments_municipalityNames'] = \array_merge($processedAggregation['fragments_municipalityNames'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['municipalityNames'],
                         'value',
                         'value',
                         'count'
                     ));
-            } elseif (isset($aggregations['fragments_municipalityNames'])) {
-                $aggregation['fragments_municipalityNames'] = \array_merge(\array_key_exists('fragments_municipalityNames', $aggregation) ? $aggregation['fragments_municipalityNames'] : [],
+            } elseif (isset($esResultAggregations['fragments_municipalityNames'])) {
+                $processedAggregation['fragments_municipalityNames'] = \array_merge(\array_key_exists('fragments_municipalityNames', $processedAggregation) ? $processedAggregation['fragments_municipalityNames'] : [],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
-                        $aggregations['fragments_municipalityNames']['buckets']
+                        $esResultAggregations['fragments_municipalityNames']['buckets']
                     ));
             }
             // Schlagwort - fragments_tagNames - fragments.tags.name
             if (isset($fragmentAggregations['tagNames'])) {
-                $aggregation = $this->searchService->addFragmentEsResultToArray('tagNames', 'fragments_tagNames', $fragmentAggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentEsResultToArray('tagNames', 'fragments_tagNames', $fragmentAggregations, $processedAggregation);
             }
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
             if ($addAllAggregations || \array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $esResultAggregations, $processedAggregation);
             }
             // Dokument - fragments_element - fragments.elementId
             if ($addAllAggregations || \array_key_exists('fragments_element', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.elementId', 'fragments_element', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.elementId', 'fragments_element', $esResultAggregations, $processedAggregation);
             }
-            if (isset($aggregations['fragments_element'])) {
-                $aggregation = $this->searchService->addAggregationResultToArray('fragments_element', 'fragments_element', $aggregations, $aggregation, $elementMap);
+            if (isset($esResultAggregations['fragments_element'])) {
+                $processedAggregation = $this->searchService->addAggregationResultToArray('fragments_element', 'fragments_element', $esResultAggregations, $processedAggregation, $elementMap);
             }
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
             if ($addAllAggregations || \array_key_exists('fragments_paragraphParentId', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.paragraphParentId', 'fragments_paragraphParentId', $aggregations, $aggregation);
-                $aggregation = $this->searchService->addAggregationResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $aggregations, $aggregation, $this->getParagraphMap($aggregations['fragments_paragraphParentId']['buckets']));
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.paragraphParentId', 'fragments_paragraphParentId', $esResultAggregations, $processedAggregation);
+                $processedAggregation = $this->searchService->addAggregationResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $esResultAggregations, $processedAggregation, $this->getParagraphMap($esResultAggregations['fragments_paragraphParentId']['buckets']));
             }
             if (isset($fragmentAggregations['paragraphParentId'])) {
-                $aggregation = $this->searchService->addFragmentEsResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $fragmentAggregations, $aggregation, $this->getParagraphMap(
+                $processedAggregation = $this->searchService->addFragmentEsResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $fragmentAggregations, $processedAggregation, $this->getParagraphMap(
                     $fragmentAggregations['fragments_paragraphParentId'], 'value'));
             }
             if ($addAllAggregations || \array_key_exists('fragments_documentParentId', $userFilters)) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.documentParentId', 'fragments_documentParentId', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.documentParentId', 'fragments_documentParentId', $esResultAggregations, $processedAggregation);
             }
             // Datei - fragments_documentParentId - fragments.documentParentId
-            if (isset($aggregations['fragments.documentParentId'])) {
-                foreach ($aggregations['fragments.documentParentId']['buckets'] as $agg) {
+            if (isset($esResultAggregations['fragments.documentParentId'])) {
+                foreach ($esResultAggregations['fragments.documentParentId']['buckets'] as $agg) {
                     $document = $this->singleDocumentRepository->findOneBy(['id' => $agg['key']]);
                     $label = $document instanceof SingleDocument ? $document->getTitle() : '';
-                    $aggregation['fragments_documentParentId'][] = [
+                    $processedAggregation['fragments_documentParentId'][] = [
                         'count' => $agg['doc_count'],
                         'label' => $label,
                         'value' => $agg['key'],
@@ -3593,19 +3645,19 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
             // Fachbehörde - fragments_reviewerName - fragments.departmentId
             if (isset($fragmentAggregations['departmentId'])) {
-                $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.departmentId', 'fragments_reviewerName', $aggregations, $aggregation);
+                $processedAggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.departmentId', 'fragments_reviewerName', $esResultAggregations, $processedAggregation);
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
-            $useAggregationResult2 = isset($aggregations['fragments_reviewerName']);
+            $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
             if (true === $useEsResult2 || true === $useAggregationResult2) {
                 $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
                 $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ? $fragmentAggregations['departmentId'] : $aggregations['fragments_reviewerName']['buckets'];
+                $listToUse2 = true === $useEsResult2 ? $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
                         $department = $this->departmentRepository->get($agg[$valueKey2]);
                         if (null !== $department) {
-                            $aggregation['fragments_reviewerName'][] = $this->buildReviewerAggregationArray($department, $agg, $countKey2, $valueKey2);
+                            $processedAggregation['fragments_reviewerName'][] = $this->buildReviewerAggregationArray($department, $agg, $countKey2, $valueKey2);
                         } else {
                             $this->logger->warning('$department is null for id `'.$agg[$valueKey2].'`');
                         }
@@ -3616,7 +3668,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             /************************************* ADD AGGREGATIONS TO RESULT (END) **********************************/
 
             // add modified Aggregations to Result
-            $elasticsearchResultStatement->setAggregations($aggregation);
+            $elasticsearchResultStatement->setAggregations($processedAggregation);
             $elasticsearchResultStatement->setPager($paginator);
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
@@ -3717,8 +3769,8 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ('submitDate' === $sortProperty) {
             $esSort = ['submit' => $sortDirection];
         }
-        if ('priority' === $sortProperty) {
-            $esSort = ['priority' => $sortDirection];
+        if (self::FIELD_STATEMENT_PRIORITY === $sortProperty) {
+            $esSort = [self::FIELD_STATEMENT_PRIORITY => $sortDirection];
         }
         if ('forPoliticians' === $sortProperty) {
             $esSort = [
@@ -4152,9 +4204,10 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param array $filters ['fieldName' =>[mustMatchValues]]
      */
-    public function getStatementsMovedToThisProcedureCount(Procedure $procedure, array $filters = []): array
+    public function getStatementsMovedToThisProcedureCount(Procedure $procedure, array $filters = []): StatementMovementCollection
     {
-        $to = ['total' => 0, 'procedures' => []];
+        $total = 0;
+        $procedures = [];
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
@@ -4186,27 +4239,28 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($agg['buckets'] as $bucket) {
                     /** @var Procedure $procedure */
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $to['procedures'][] = [
-                        'id'    => 'from-'.$procedure->getId(),
-                        'title' => $procedure->getName(),
-                        'value' => $bucket['doc_count'],
-                    ];
-                    $to['total'] += $bucket['doc_count'];
+                    $procedures[] = new StatementMovement(
+                        'from-'.$procedure->getId(),
+                        $procedure->getName(),
+                        $bucket['doc_count']
+                    );
+                    $total += $bucket['doc_count'];
                 }
             }
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedToProcedureCount failed. ', [$e]);
         }
 
-        return $to;
+        return new StatementMovementCollection($procedures, $total);
     }
 
     /**
      * @param array $filters ['fieldName' =>[mustMatchValues]]
      */
-    public function getStatementsMovedFromThisProcedureCount(Procedure $procedure, array $filters = []): array
+    public function getStatementsMovedFromThisProcedureCount(Procedure $procedure, array $filters = []): StatementMovementCollection
     {
-        $from = ['total' => 0, 'procedures' => []];
+        $total = 0;
+        $procedures = [];
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
@@ -4237,19 +4291,19 @@ class StatementService extends CoreService implements StatementServiceInterface
             foreach ($aggs as $agg) {
                 foreach ($agg['buckets'] as $bucket) {
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $from['procedures'][] = [
-                        'id'    => 'to-'.$procedure->getId(),
-                        'title' => $procedure->getName(),
-                        'value' => $bucket['doc_count'],
-                    ];
-                    $from['total'] += $bucket['doc_count'];
+                    $procedures[] = new StatementMovement(
+                        'to-'.$procedure->getId(),
+                        $procedure->getName(),
+                        $bucket['doc_count']
+                    );
+                    $total += $bucket['doc_count'];
                 }
             }
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedFromProcedureCount failed. ', [$e]);
         }
 
-        return $from;
+        return new StatementMovementCollection($procedures, $total);
     }
 
     /**

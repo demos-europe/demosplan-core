@@ -11,6 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Survey;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -25,12 +28,8 @@ use UnexpectedValueException;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository")
  */
-class SurveyVote extends CoreEntity implements UuidEntityInterface
+class SurveyVote extends CoreEntity implements UuidEntityInterface, SurveyVoteInterface
 {
-    public const PUBLICATION_PENDING = 'publication_pending';
-    public const PUBLICATION_REJECTED = 'publication_rejected';
-    public const PUBLICATION_APPROVED = 'publication_approved';
-
     /**
      * @var string|null
      *
@@ -71,7 +70,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(name="text_review", type="string", nullable=false)
      */
-    protected $textReview = self::PUBLICATION_PENDING;
+    protected $textReview = SurveyVoteInterface::PUBLICATION_PENDING;
 
     /**
      * @var DateTime
@@ -81,7 +80,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
     protected $createdDate;
 
     /**
-     * @var Survey
+     * @var SurveyInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\Survey",
      *     cascade={"persist"}, inversedBy="votes")
@@ -92,7 +91,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
     protected $survey;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User",
      *     cascade={"persist"}, inversedBy="surveyVotes")
@@ -148,7 +147,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      */
     public function hasApprovedText(): bool
     {
-        return $this->hasText() && self::PUBLICATION_APPROVED === $this->getTextReview();
+        return $this->hasText() && SurveyVoteInterface::PUBLICATION_APPROVED === $this->getTextReview();
     }
 
     /**
@@ -156,7 +155,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
      */
     public function isReviewRequired(): bool
     {
-        return $this->hasText() && self::PUBLICATION_PENDING === $this->getTextReview();
+        return $this->hasText() && SurveyVoteInterface::PUBLICATION_PENDING === $this->getTextReview();
     }
 
     public function hasText(): bool
@@ -169,12 +168,12 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
         return $this->createdDate;
     }
 
-    public function getSurvey(): Survey
+    public function getSurvey(): SurveyInterface
     {
         return $this->survey;
     }
 
-    public function getUser(): User
+    public function getUser(): UserInterface
     {
         return $this->user;
     }
@@ -182,9 +181,9 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
     public static function getTextReviewAllowedValues(): array
     {
         return [
-            self::PUBLICATION_PENDING,
-            self::PUBLICATION_APPROVED,
-            self::PUBLICATION_REJECTED,
+            SurveyVoteInterface::PUBLICATION_PENDING,
+            SurveyVoteInterface::PUBLICATION_APPROVED,
+            SurveyVoteInterface::PUBLICATION_REJECTED,
         ];
     }
 }

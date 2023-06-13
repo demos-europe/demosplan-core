@@ -1,0 +1,152 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+        heading: 'invitable_institution.administer'|trans,
+        highlighted: 'publicagency_registered'
+    } %}
+
+    <p class="u-mt-0_5">
+        {{ 'invitable_institution.add.explanation'|trans }}
+    </p>
+
+    <form
+        class="u-mt"
+        name="procedureForm"
+        action="{{ path('DemosPlan_procedure_member_index',{'procedure': procedure}) }}"
+        method="post">
+
+        {% if templateVars.orgas is defined and templateVars.orgas|length > 0 %}
+        <div class="cf">
+            <label class="o-link--default display--inline-block u-valign--middle line-height--2 u-mh-0_5 u-mb-0">
+                <input
+                    id="select_all"
+                    type="checkbox"
+                    class="u-mr-0"
+                    data-cy="selectAll"
+                    data-form-actions-check-all>
+                {{ "markall"|trans }}
+            </label>
+
+            <button
+                class="btn--blank o-link--default u-mr-0_5"
+                type="submit"
+                name="delete_orga_action"
+                data-cy="deleteOrgaAction"
+                data-form-actions-confirm="{{ 'check.invitable_institutions.marked.delete'|trans }}"
+            >
+                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                {{ 'remove'|trans }}
+            </button>
+
+            <button
+                class="btn--blank o-link--default u-mr-0_5"
+                data-cy="emailInvitationWrite"
+                name="email_orga_action"
+                type="submit"
+                id="writeEmailButton"
+            >
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                {{ 'email.invitation.write'|trans }}
+            </button>
+
+            <button
+                class="btn--blank o-link--default"
+                data-cy="pdfExport"
+                type="button"
+                id="pdfExportButton"
+            >
+                <i class="fa fa-file" aria-hidden="true"></i>
+                {{ 'pdf.export'|trans }}
+            </button>
+
+            {# Wenn MasterTöbListe genutzt werden soll, Link zur Ansicht #}
+            {% set addMemberPath = path('DemosPlan_procedure_member_add',{'procedure': procedure }) %}
+            {% if permissions.area_use_mastertoeblist.enabled== true %}
+                {% set addMemberPath = path('DemosPlan_procedure_member_add_mastertoeblist',{'procedure': procedure }) %}
+            {% endif %}
+            <a
+                class="btn btn--primary float--right"
+                href="{{ addMemberPath }}"
+                data-cy="addMemberPath">
+                  {{ "invitable_institution.add"|trans }}
+            </a>
+        </div>
+
+        <table class="u-mb u-mt-0_5 o-toggle o-toggle--not-animated border--top">
+            <colgroup>
+                <col>
+                <col class="width-75p">
+                {% if hasPermission('field_organisation_paper_copy_spec')%}
+                    <col>
+                {% endif %}
+                {% if hasPermission('field_organisation_paper_copy')%}
+                    <col class="width-10p">
+                {% endif %}
+                <col>
+                <col class="width-15p">
+                <col class="width-5p">
+            </colgroup>
+            <thead class="color--grey u-mt-0_5 u-mr-0_5">
+                <tr class="u-valign--bottom">
+                    <th class="checkbox u-pt-0_5 u-pb-0_25">
+                    </th>
+                    <th class="u-pt-0_5 u-pb-0_25 u-pl-0_25 text--left">
+                        {{ 'invitable_institution'|trans }}
+                    </th>
+                    {% if hasPermission('field_organisation_paper_copy_spec')%}
+                        <th class="u-pt-0_5 u-pb-0_25 text--left">
+                            {{ "copies.kind"|trans }}
+                        </th>
+                    {% endif %}
+                    {% if hasPermission('field_organisation_paper_copy')%}
+                        <th class="u-pt-0_5 u-pb-0_25 u-pl-0_5 text--right">
+                            {{ 'copies'|trans }}
+                        </th>
+                    {% endif %}
+                    <th class="u-pt-0_5 u-pl-0_5 u-pb-0_25 text--right">
+                        {{ 'statement'|trans }}
+                    </th>
+                    <th class="u-pt-0_5 u-pl-0_5 u-pb-0_25 text--right">
+                        {{ 'invitation'|trans }}
+                        <dp-tooltip-icon
+                            icon="fa-question-circle"
+                            text="{{ 'invitable_institutions.invitation.explanation'|trans }}"
+                        ></dp-tooltip-icon>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                    {% for orga in templateVars.orgas %}
+                        {% include '@DemosPlanCore/DemosPlanProcedure/administration_member_list_entry.html.twig' %}
+                    {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            {# Wenn MasterTöbListe genutzt werden soll, Link zur Ansicht #}
+            {% set addMemberPath = path('DemosPlan_procedure_member_add',{'procedure': procedure }) %}
+            {% if permissions.area_use_mastertoeblist.enabled== true %}
+                {% set addMemberPath = path('DemosPlan_procedure_member_add_mastertoeblist',{'procedure': procedure }) %}
+            {% endif %}
+            <p class="flash flash-info">
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                {{ 'invitable_institutions.added.none'|trans }}
+            </p>
+
+            <a
+                class="btn btn--primary u-mb float--right"
+                href="{{ addMemberPath }}"
+                data-cy="addMemberPath">
+                {{ "invitable_institution.add"|trans }}
+            </a>
+        {% endif %}
+
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationMemberList.js') }}
+{% endblock javascripts %}
