@@ -470,10 +470,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $explodedParts = explode('.', $attributeKey);
             switch (count($explodedParts)) {
                 case 2:
-                    if ('authoredDate' === $explodedParts[1]) {
-                        $timestamp = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                        $statementArray[$explodedParts[0]][$explodedParts[1]] = date('d-m-Y', $timestamp);
-                    }
                     $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
                     break;
                 case 3:
