@@ -104,7 +104,7 @@ class SegmentsExporter
         $table = $section->addTable($this->styles['statementInfoTable']);
         $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
 
-        if ('' !==  $statement->getAuthoredDateString()) {
+        if ('' !== $statement->getAuthoredDateString()) {
             $authoredDateRow = $table->addRow();
             $this->addSegmentCell($authoredDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
             $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
@@ -112,7 +112,7 @@ class SegmentsExporter
             $this->addSegmentCell($authoredDateRow, $authoredAt, $this->styles['statementInfoTextCell']);
         }
 
-        if ('' !==  $statement->getSubmitDateString()) {
+        if ('' !== $statement->getSubmitDateString()) {
             $submitDateRow = $table->addRow();
             $this->addSegmentCell($submitDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
@@ -134,7 +134,7 @@ class SegmentsExporter
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
         }
 
-        //formation only
+        // formation only
         $row5 = $table->addRow();
         $this->addSegmentCell($row5, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
