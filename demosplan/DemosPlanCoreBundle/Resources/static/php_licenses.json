@@ -350,7 +350,7 @@
         "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
     },
     {
-        "license": "Apache-2.0",
+        "license": "MIT",
         "package": "sentry/sentry-symfony",
         "website": "https://github.com/getsentry/sentry-symfony"
     },
@@ -373,6 +373,11 @@
         "license": "MIT",
         "package": "symfony/asset",
         "website": "https://github.com/symfony/asset"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/browser-kit",
+        "website": "https://github.com/symfony/browser-kit"
     },
     {
         "license": "MIT",
@@ -403,6 +408,11 @@
         "license": "MIT",
         "package": "symfony/dotenv",
         "website": "https://github.com/symfony/dotenv"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/error-handler",
+        "website": "https://github.com/symfony/error-handler"
     },
     {
         "license": "MIT",
@@ -471,6 +481,16 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/options-resolver",
+        "website": "https://github.com/symfony/options-resolver"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/password-hasher",
+        "website": "https://github.com/symfony/password-hasher"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/phpunit-bridge",
         "website": "https://github.com/symfony/phpunit-bridge"
     },
@@ -531,8 +551,23 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/string",
+        "website": "https://github.com/symfony/string"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/templating",
         "website": "https://github.com/symfony/templating"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/translation",
+        "website": "https://github.com/symfony/translation"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/twig-bridge",
+        "website": "https://github.com/symfony/twig-bridge"
     },
     {
         "license": "MIT",

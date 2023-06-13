@@ -11,9 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository")
  */
-class Paragraph extends CoreEntity implements UuidEntityInterface
+class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInterface
 {
     /**
      * @var string|null
@@ -40,7 +43,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -54,7 +57,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $pId;
 
     /**
-     * @var Paragraph
+     * @var ParagraphInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="children")
      *
@@ -63,7 +66,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $parent;
 
     /**
-     * @var Paragraph[]
+     * @var ParagraphInterface[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
      *
@@ -77,7 +80,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $elementId;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
      *
@@ -162,7 +165,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $deleteDate;
 
     /**
-     * @var ParagraphVersion[]
+     * @var ParagraphVersionInterface[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", mappedBy="paragraph")
      *
@@ -181,7 +184,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getParent(): ?Paragraph
+    public function getParent(): ?ParagraphInterface
     {
         return $this->parent;
     }
@@ -189,9 +192,9 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function setParent(?Paragraph $parent): self
+    public function setParent(?ParagraphInterface $parent): self
     {
-        if ($parent instanceof Paragraph) {
+        if ($parent instanceof ParagraphInterface) {
             $parent->addChild($this);
         }
         $this->parent = $parent;
@@ -200,7 +203,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Paragraph[]
+     * @return ParagraphInterface[]
      */
     public function getChildren(): array
     {
@@ -212,7 +215,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Paragraph[] $children
+     * @param ParagraphInterface[] $children
      *
      * @return $this
      */
@@ -226,7 +229,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function addChild(Paragraph $child): self
+    public function addChild(ParagraphInterface $child): self
     {
         if (!$this->children->contains($child)) {
             $this->children->add($child);
@@ -238,7 +241,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function removeChild(Paragraph $child): self
+    public function removeChild(ParagraphInterface $child): self
     {
         if ($this->children instanceof Collection && $this->children->contains($child)) {
             $this->children->removeElement($child);
@@ -250,7 +253,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      */
-    public function setProcedure(Procedure $procedure): self
+    public function setProcedure(ProcedureInterface $procedure): self
     {
         $this->procedure = $procedure;
         $this->pId = $procedure->getId();
@@ -261,7 +264,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      */
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
@@ -273,7 +276,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -287,19 +290,19 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
         return $this->elementId;
     }
 
-    public function getElement(): Elements
+    public function getElement(): ElementsInterface
     {
         return $this->element;
     }
 
-    public function setElement(Elements $element): void
+    public function setElement(ElementsInterface $element): void
     {
         $this->element = $element;
     }
@@ -485,7 +488,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int, ParagraphVersion>
+     * @return Collection<int, ParagraphVersionInterface>
      */
     public function getVersions(): Collection
     {

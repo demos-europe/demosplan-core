@@ -11,6 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
@@ -25,12 +30,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ProcedureType - Defines a specific type of a Procedure,
  * which is composed of a ProcedureUIDefinition, a ProcedureBehaviorDefinition and a StatementFormDefinition.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureTypeRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository")
  */
-class ProcedureType extends CoreEntity implements UuidEntityInterface
+class ProcedureType extends CoreEntity implements UuidEntityInterface, ProcedureTypeInterface
 {
-    public const BAULEITPLANUNG = 'Bauleitplanung';
-
     /**
      * @var string|null
      *
@@ -74,8 +77,8 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
     private $name;
 
     /**
-     * @var Collection<int, Procedure>
-     *                                 One procedureType has many procedures. This is the inverse side.
+     * @var Collection<int, ProcedureInterface>
+     *                                          One procedureType has many procedures. This is the inverse side.
      *
      * @ORM\OneToMany(targetEntity="Procedure", mappedBy="procedureType", cascade={"persist"})
      *
@@ -84,7 +87,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
     private $procedures;
 
     /**
-     * @var StatementFormDefinition
+     * @var StatementFormDefinitionInterface
      *
      * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
      *
@@ -93,7 +96,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
     private $statementFormDefinition;
 
     /**
-     * @var ProcedureBehaviorDefinition
+     * @var ProcedureBehaviorDefinitionInterface
      *
      * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
      *
@@ -102,7 +105,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
     private $procedureBehaviorDefinition;
 
     /**
-     * @var ProcedureUiDefinition
+     * @var ProcedureUiDefinitionInterface
      *
      * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
      *
@@ -157,7 +160,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
         $this->name = $name;
     }
 
-    public function addProcedure(Procedure $procedure): void
+    public function addProcedure(ProcedureInterface $procedure): void
     {
         if ($procedure->isMasterTemplate()) {
             throw new FunctionalLogicException('Masterblueprint should not be attached to a procedureType.');
@@ -167,17 +170,17 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
         $procedure->setProcedureType($this);
     }
 
-    public function getStatementFormDefinition(): StatementFormDefinition
+    public function getStatementFormDefinition(): StatementFormDefinitionInterface
     {
         return $this->statementFormDefinition;
     }
 
-    public function getProcedureBehaviorDefinition(): ProcedureBehaviorDefinition
+    public function getProcedureBehaviorDefinition(): ProcedureBehaviorDefinitionInterface
     {
         return $this->procedureBehaviorDefinition;
     }
 
-    public function getProcedureUiDefinition(): ProcedureUiDefinition
+    public function getProcedureUiDefinition(): ProcedureUiDefinitionInterface
     {
         return $this->procedureUiDefinition;
     }

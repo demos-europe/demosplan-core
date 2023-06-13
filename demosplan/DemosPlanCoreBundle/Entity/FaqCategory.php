@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqCategoryInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
@@ -20,7 +20,7 @@ use UnexpectedValueException;
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository")
  */
-class FaqCategory extends CoreEntity implements UuidEntityInterface
+class FaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
      * These are allowed types, independent of the role.

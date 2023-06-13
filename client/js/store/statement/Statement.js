@@ -7,7 +7,13 @@
  * All rights reserved
  */
 
-import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-ui/src'
+import { del, set } from 'vue'
+import {
+  dpApi,
+  handleResponseMessages,
+  hasAnyPermissions,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui/src'
 
 /**
  * Adds empty title attribute for element/paragraph/document
@@ -229,7 +235,7 @@ export default {
      * @param {Object} element
      */
     addElementToSelection (state, element) {
-      state.selectedElements[element.id] = element
+      set(state.selectedElements, [element.id], element)
     },
 
     /**
@@ -259,7 +265,7 @@ export default {
      * @param {String} elementId
      */
     removeElementFromSelection (state, elementId) {
-      delete state.selectedElements[elementId]
+      del(state.selectedElements, elementId)
     },
 
     /**
@@ -267,7 +273,7 @@ export default {
      * @param {String} statementId
      */
     removeStatement (state, statementId) {
-      delete state.statements[statementId]
+      del(state.statements, statementId)
     },
 
     /**
@@ -275,7 +281,7 @@ export default {
      * @param {Object} elements
      */
     replaceElementSelection (state, elements) {
-     state['selectedElements'] = elements
+      set(state, 'selectedElements', elements)
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements'))
 
       if (hasOwnProp(selectedEntries, state.procedureId) && state.persistStatementSelection) {
@@ -290,7 +296,7 @@ export default {
      * @param {Object} newStatement
      */
     replaceStatement (state, oldStatementId, newStatement) {
-     state.statements[oldStatementId] = newStatement
+      set(state.statements, oldStatementId, newStatement)
     },
 
     resetSelection (state) {
@@ -298,28 +304,28 @@ export default {
     },
 
     resetStatements (state) {
-      state.statements = {}
+      set(state, 'statements', {})
     },
 
     /**
      * @param value
      */
     setFilteredState (state, value) {
-     state['isFiltered'] = value
+      set(state, 'isFiltered', value)
     },
 
     /**
      * @param {Object} data
      */
     setInitStatements (state, data) {
-     state['initStatements'] = data
+      set(state, 'initStatements', data)
     },
 
     /**
      * @param {String} value
      */
     setProcedureId (state, value) {
-     state['procedureId'] = value
+      set(state, 'procedureId', value)
     },
 
     setSelectedElements (state, elements) {
@@ -330,7 +336,7 @@ export default {
      * Set grouping of statements as displayed in the TOC
      */
     setStatementGrouping (state, grouping) {
-     state['statementGrouping'] = grouping
+      set(state, 'statementGrouping', grouping)
     },
 
     setStatements (state, statements) {
@@ -341,11 +347,11 @@ export default {
      * @param value
      */
     updatePagination (state, value) {
-      state.pagination = Object.assign(state.pagination, value)
+      set(state, 'pagination', Object.assign(state.pagination, value))
     },
 
     updatePersistStatementSelection (state, value) {
-     state['persistStatementSelection'] = value
+      set(state, 'persistStatementSelection', value)
     },
 
     /**
@@ -360,7 +366,7 @@ export default {
 
       // If assignee was changed and statement is selected, we have to update selectedElements in store and sessionStorage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedElements, data.id)) {
-        state.selectedElements[data.id].assignee = data.assignee
+        set(state.selectedElements[data.id], 'assignee', data.assignee)
         state.selectedElements = { ...state.selectedElements }
 
         if (state.persistStatementSelection) {

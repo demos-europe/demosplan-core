@@ -6,6 +6,8 @@
  *
  * All rights reserved
  */
+import { del } from 'vue'
+
 const Voter = {
 
   namespaced: true,
@@ -32,7 +34,7 @@ const Voter = {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      state.voters.splice(index, 1)
+      del(state.voters, index)
     }
 
   }

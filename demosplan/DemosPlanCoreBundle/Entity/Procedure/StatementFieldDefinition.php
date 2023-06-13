@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,19 +25,24 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Defines the availability of a customizable fields on a statement (participation).
  *
  * @ORM\Table(uniqueConstraints={
+ *
  *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
  *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
  */
-class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
+class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface, StatementFieldDefinitionInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -44,6 +51,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -52,6 +60,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
@@ -78,9 +87,10 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
     private $required = true;
 
     /**
-     * @var StatementFormDefinition
+     * @var StatementFormDefinitionInterface
      *
      * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+     *
      * @JoinColumn(referencedColumnName="id", nullable=false)
      */
     private $statementFormDefinition;
@@ -126,7 +136,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getStatementFormDefinition(): StatementFormDefinition
+    public function getStatementFormDefinition(): StatementFormDefinitionInterface
     {
         return $this->statementFormDefinition;
     }

@@ -141,14 +141,16 @@
                 line-height: 27px;
                 text-align: center;
 
+                cursor: pointer;
+
                 &:not(:last-child) {
                     margin-right: 1px;
                 }
 
                 &.active,
                 &:hover {
-                    @extend %tabs-btn-color;
-                    background: $dp-color-main;
+                    background-color: $dp-color-main;
+                    color: $dp-color-main-contrast;
                 }
             }
         }

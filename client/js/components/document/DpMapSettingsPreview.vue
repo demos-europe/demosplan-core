@@ -36,7 +36,8 @@
         :options="{
           scaleSelect: false,
           autoSuggest: false,
-          controls: [],
+          controls: [attributionControl],
+          defaultAttribution: mapAttribution,
           initView: false,
           initCenter: false,
           procedureExtent: true
@@ -231,6 +232,7 @@
 
 <script>
 import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui/src'
+import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'
@@ -246,6 +248,12 @@ export default {
   },
 
   props: {
+    mapAttribution: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     procedureId: {
       required: false,
       type: String,
@@ -318,6 +326,10 @@ export default {
   },
 
   computed: {
+    attributionControl () {
+      return new Attribution({ collapsible: false })
+    },
+
     features () {
       /*
        *  Transform the value that is saved as a string into valid GeoJSON

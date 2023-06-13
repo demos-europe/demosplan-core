@@ -8,6 +8,7 @@
  */
 
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui/src'
+import { del, set } from 'vue'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -48,7 +49,7 @@ const SplitStatementStore = {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        state.segments.splice(index, 1)
+        del(state.segments, index)
       }
     },
 
@@ -88,7 +89,7 @@ const SplitStatementStore = {
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
       if (oldSegmentIndex >= 0) {
-       state.segments[oldSegmentIndex] = newSegment
+        set(state.segments, oldSegmentIndex, newSegment)
       }
     },
 
@@ -97,11 +98,11 @@ const SplitStatementStore = {
     },
 
     setProperty (state, data) {
-     state[data.prop] = data.val
+      set(state, data.prop, data.val)
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
-      state.statement.attributes.segmentDraftList = segmentDraftList || null
+      set(state.statement.attributes, 'segmentDraftList', segmentDraftList || null)
     },
 
     /**
@@ -115,13 +116,13 @@ const SplitStatementStore = {
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        state[data.prop][state[data.prop].length] = data.obj
+        set(state[data.prop], state[data.prop].length, data.obj)
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        state[data.prop][titleIdx] = data.obj
+        set(state[data.prop], titleIdx, data.obj)
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        state[data.prop].splice(idIdx, 1)
+        del(state[data.prop], idIdx)
       }
     }
   },
