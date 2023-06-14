@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -119,9 +120,9 @@ class FaqHandler extends CoreHandler
     /**
      * Get all (enabled and disabled) faqs of a category.
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
     }
@@ -377,11 +378,23 @@ class FaqHandler extends CoreHandler
     }
 
     /**
+     * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @return Collection<PlatformFaqCategory>
+     *
+     * @throws UnexpectedValueException
+     */
+    public function getPlatformFaqCategories(): Collection
+    {
+        return collect($this->faqService->getPlatformFaqCategories());
+    }
+
+    /**
      * Get all faqs and sort by category into array.
      *
      * @param Collection $categories a collection of {@link Category categories}
      *
-     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     * @return array<string, array{id: string, label: string, faqlist: list<FaqInterface>}>
      */
     public function convertIntoTwigFormat(Collection $categories, User $user): array
     {
@@ -512,11 +525,11 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * @param array<int, Faq> $faqs
+     * @param array<int, FaqInterface> $faqs
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
     }

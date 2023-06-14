@@ -10,7 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,25 +25,19 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Segment extends Statement implements SegmentInterface
 {
-    public const VALIDATION_GROUP_SEGMENT_MANDATORY = 'segment_mandatory';
-    public const VALIDATION_GROUP_DEFAULT = 'segment_default';
-    public const VALIDATION_GROUP_IMPORT = 'segment_import';
-
-    public const RECOMMENDATION_FIELD_NAME = 'recommendation';
-
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
      */
-    #[Assert\NotNull(groups: [Segment::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [Segment::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
     protected $parentStatementOfSegment;
 
     /**
-     * @var Collection<int, SegmentComment>
+     * @var Collection<int, SegmentCommentInterface>
      *
      * @ORM\OneToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment",
@@ -56,27 +53,27 @@ class Segment extends Statement implements SegmentInterface
      *
      * @ORM\Column(type="integer", nullable=true)
      */
-    #[Assert\NotNull(groups: [Segment::VALIDATION_GROUP_SEGMENT_MANDATORY])]
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY])]
     private $orderInProcedure;
 
     /**
-     * The {@link Place} this instance is coupled to.
+     * The {@link PlaceInterface} this instance is coupled to.
      *
-     * Already replaces {@link Statement::$status} for {@link Segment} instances, meaning
-     * {@link Statement::$status} is to be ignored in the context of a {@link Segment}!
-     * Later {@link Statement::$status} will be fully replaced by a relationship.
+     * Already replaces {@link StatementInterface::$status} for {@link SegmentInterface} instances, meaning
+     * {@link StatementInterface::$status} is to be ignored in the context of a {@link SegmentInterface}!
+     * Later {@link StatementInterface::$status} will be fully replaced by a relationship.
      *
-     * Because {@link Segment} and {@link Statement} share a single table (and {@link Statement}s
-     * do not yet have a {@link Place}) we set the place
-     * to `nullable=true`, even though it must never be `null` for a {@link Segment}.
+     * Because {@link SegmentInterface} and {@link StatementInterface} share a single table (and {@link StatementInterface}s
+     * do not yet have a {@link PlaceInterface}) we set the place
+     * to `nullable=true`, even though it must never be `null` for a {@link SegmentInterface}.
      *
-     * @var Place
+     * @var PlaceInterface
      *
      * @ORM\ManyToOne(targetEntity=Place::class)
      *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
-    #[Assert\NotBlank(groups: ['Default', Segment::VALIDATION_GROUP_IMPORT])]
+    #[Assert\NotBlank(groups: ['Default', SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
 
     public function __construct()
@@ -85,17 +82,17 @@ class Segment extends Statement implements SegmentInterface
         $this->comments = new ArrayCollection();
     }
 
-    public function getParentStatementOfSegment(): Statement
+    public function getParentStatementOfSegment(): StatementInterface
     {
         return $this->parentStatementOfSegment;
     }
 
-    public function getParentStatement(): Statement
+    public function getParentStatement(): StatementInterface
     {
         return $this->parentStatementOfSegment;
     }
 
-    public function setParentStatementOfSegment(Statement $parentStatementOfSegment): void
+    public function setParentStatementOfSegment(StatementInterface $parentStatementOfSegment): void
     {
         $this->parentStatementOfSegment = $parentStatementOfSegment;
     }
@@ -118,14 +115,14 @@ class Segment extends Statement implements SegmentInterface
         $this->orderInProcedure = $orderInProcedure;
     }
 
-    public function setPlace(Place $place): self
+    public function setPlace(PlaceInterface $place): self
     {
         $this->place = $place;
 
         return $this;
     }
 
-    public function getPlace(): Place
+    public function getPlace(): PlaceInterface
     {
         return $this->place;
     }
@@ -138,7 +135,7 @@ class Segment extends Statement implements SegmentInterface
         return $this->place->getId();
     }
 
-    public function addComment(SegmentComment $comment): self
+    public function addComment(SegmentCommentInterface $comment): self
     {
         $this->comments->add($comment);
 

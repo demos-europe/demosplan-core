@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Workflow;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
@@ -27,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *        @ORM\UniqueConstraint(name="unique_workflow_place_sort_index", columns={"sort_index", "procedure_id"})
  * })
  */
-class Place extends CoreEntity implements SortableInterface
+class Place extends CoreEntity implements SortableInterface, PlaceInterface
 {
     /**
      * @var string|null `null` if this instance was not persisted yet
@@ -73,7 +75,7 @@ class Place extends CoreEntity implements SortableInterface
     private $sortIndex;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
      *
@@ -119,7 +121,7 @@ class Place extends CoreEntity implements SortableInterface
         return $this->sortIndex;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }

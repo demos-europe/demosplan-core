@@ -35,6 +35,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection;
+use UnexpectedValueException;
 
 /**
  * Ausgabe Newseiten und andere Einzelseiten.
@@ -410,6 +412,9 @@ class DemosPlanMiscContentController extends BaseController
     }
 
     /**
+     * The faq are a combination of Platform-faq (platformList) which are customer independent
+     * and the customer-specific-faq (list)
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -419,9 +424,19 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_information', path: '/informationen')]
     public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $platformCategories = new Collection();
+        $customFaqCategories = new Collection();
+        try {
+            $platformCategories = $faqHandler->getPlatformFaqCategories();
+            $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        } catch (UnexpectedValueException $e) {
+            $this->logger->error('Get platformFaqCategories failed.', [$e]);
+        }
+
+        // try
         $templateVars = [
-            'list' => $faqHandler->convertIntoTwigFormat($categories, $userProvider->getUser()),
+            'list'         => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
+            'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),
         ];
 
         return $this->renderTemplate(

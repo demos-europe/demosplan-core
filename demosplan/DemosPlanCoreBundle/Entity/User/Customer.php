@@ -10,12 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Branding;
+use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Video;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -42,7 +47,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     private $id;
 
     /**
-     * @var Collection<int, CustomerCounty>
+     * @var Collection<int, CustomerCountyInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="customer", cascade={"persist"})
      */
@@ -77,14 +82,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     private $orgas;
 
     /**
-     * @var Collection<int, UserRoleInCustomer>
+     * @var Collection<int, UserRoleInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
 
     /**
-     * @var Collection<int, OrgaStatusInCustomer>
+     * @var Collection<int, OrgaStatusInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
      */
@@ -124,7 +129,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * T15644:.
      *
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="customer")
      *
@@ -168,7 +173,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     protected $baseLayerLayers = '';
 
     /**
-     * @var Branding|null
+     * @var BrandingInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
      */
@@ -186,7 +191,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.
      *
-     * @var Collection<int, Video>
+     * @var Collection<int, VideoInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Video")
      *
@@ -198,7 +203,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     private $signLanguageOverviewVideos;
 
     /**
-     * Description text for the page in which {@link Customer::$signLanguageOverviewVideos} are shown.
+     * Description text for the page in which {@link CustomerInterface::$signLanguageOverviewVideos} are shown.
      *
      * @var string
      *
@@ -239,7 +244,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, CustomerCounty>
+     * @return Collection<int, CustomerCountyInterface>
      */
     public function getCustomerCounties(): Collection
     {
@@ -247,7 +252,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Collection<int, CustomerCounty> $customerCounties
+     * @param Collection<int, CustomerCountyInterface> $customerCounties
      */
     public function setCustomerCounties(Collection $customerCounties): void
     {
@@ -275,7 +280,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return OrgaStatusInCustomer[]
+     * @return OrgaStatusInCustomerInterface[]
      */
     public function getOrgaStatuses()
     {
@@ -283,7 +288,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Collection<int, OrgaStatusInCustomer> $orgaStatuses
+     * @param Collection<int, OrgaStatusInCustomerInterface> $orgaStatuses
      */
     public function setOrgaStatuses(Collection $orgaStatuses)
     {
@@ -294,7 +299,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         $orgas = new ArrayCollection();
 
-        /** @var OrgaStatusInCustomer $customerOrgaTypes */
+        /** @var OrgaStatusInCustomerInterface $customerOrgaTypes */
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
             if (!$orgas->contains($orga)) {
@@ -311,9 +316,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     public function getEmailsOfUsersOfOrgas(): array
     {
         $mailAddresses = [];
-        /** @var Orga $orga */
+        /** @var OrgaInterface $orga */
         foreach ($this->getOrgas() as $orga) {
-            /** @var User $user */
+            /** @var UserInterface $user */
             foreach ($orga->getUsers() as $user) {
                 $mailAddresses[] = $user->getEmail();
             }
@@ -323,7 +328,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Collection<int, Orga> $orgas
+     * @param Collection<int, OrgaInterface> $orgas
      */
     public function setOrgas(Collection $orgas)
     {
@@ -334,14 +339,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, UserRoleInCustomer>
+     * @return Collection<int, UserRoleInCustomerInterface>
      */
     public function getUserRoles(): Collection
     {
         return $this->userRoles;
     }
 
-    public function addOrga(Orga $orga): bool
+    public function addOrga(OrgaInterface $orga): bool
     {
         if (!$this->orgas->contains($orga)) {
             $this->orgas[] = $orga;
@@ -352,7 +357,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         return false;
     }
 
-    public function removeOrga(Orga $orga)
+    public function removeOrga(OrgaInterface $orga)
     {
         $this->orgas->removeElement($orga);
     }
@@ -412,7 +417,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Procedure|null
+     * @return ProcedureInterface|null
      */
     public function getDefaultProcedureBlueprint()
     {
@@ -420,7 +425,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Procedure|null $defaultProcedureBlueprint
+     * @param ProcedureInterface|null $defaultProcedureBlueprint
      */
     public function setDefaultProcedureBlueprint($defaultProcedureBlueprint): void
     {
@@ -457,12 +462,12 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->baseLayerLayers = $baseLayerLayers;
     }
 
-    public function getBranding(): ?Branding
+    public function getBranding(): ?BrandingInterface
     {
         return $this->branding;
     }
 
-    public function setBranding(?Branding $branding): void
+    public function setBranding(?BrandingInterface $branding): void
     {
         $this->branding = $branding;
     }
@@ -478,14 +483,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, Video>
+     * @return Collection<int, VideoInterface>
      */
     public function getSignLanguageOverviewVideos(): Collection
     {
         return $this->signLanguageOverviewVideos;
     }
 
-    public function addSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    public function addSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         if (!$this->signLanguageOverviewVideos->contains($signLanguageOverviewVideo)) {
             $this->signLanguageOverviewVideos[] = $signLanguageOverviewVideo;
@@ -494,7 +499,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         return $this;
     }
 
-    public function removeSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    public function removeSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         $this->signLanguageOverviewVideos->removeElement($signLanguageOverviewVideo);
 

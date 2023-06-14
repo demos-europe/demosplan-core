@@ -68,17 +68,19 @@ ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
 sensio/framework-extra-bundle: MIT
-sentry/sentry-symfony: Apache-2.0
+sentry/sentry-symfony: MIT
 squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
 stof/doctrine-extensions-bundle: MIT
 symfony/asset: MIT
+symfony/browser-kit: MIT
 symfony/cache: MIT
 symfony/css-selector: MIT
 symfony/debug-bundle: MIT
 symfony/dependency-injection: MIT
 symfony/dom-crawler: MIT
 symfony/dotenv: MIT
+symfony/error-handler: MIT
 symfony/expression-language: MIT
 symfony/filesystem: MIT
 symfony/finder: MIT
@@ -92,6 +94,8 @@ symfony/mailer: MIT
 symfony/maker-bundle: MIT
 symfony/mime: MIT
 symfony/monolog-bundle: MIT
+symfony/options-resolver: MIT
+symfony/password-hasher: MIT
 symfony/phpunit-bridge: MIT
 symfony/polyfill-apcu: MIT
 symfony/polyfill-intl-messageformatter: MIT
@@ -104,7 +108,10 @@ symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
 symfony/stopwatch: MIT
+symfony/string: MIT
 symfony/templating: MIT
+symfony/translation: MIT
+symfony/twig-bridge: MIT
 symfony/twig-bundle: MIT
 symfony/validator: MIT
 symfony/var-dumper: MIT
@@ -122,4 +129,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 
-As of 05.01.2023 15:27
+As of 12.06.2023 07:03

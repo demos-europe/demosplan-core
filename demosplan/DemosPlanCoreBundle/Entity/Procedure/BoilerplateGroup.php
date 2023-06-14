@@ -11,6 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,7 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository")
  */
-class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
+class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, BoilerplateGroupInterface
 {
     /**
      * @var string|null
@@ -55,7 +58,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     protected $createDate;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="Procedure")
      *
@@ -64,7 +67,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     protected $procedure;
 
     /**
-     * @var Collection<int, Boilerplate
+     * @var Collection<int, BoilerplateInterface
      *
      * @ORM\OneToMany(targetEntity = "Boilerplate", mappedBy = "group")
      *
@@ -73,8 +76,8 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     protected $boilerplates;
 
     /**
-     * @param string    $title
-     * @param Procedure $procedure
+     * @param string             $title
+     * @param ProcedureInterface $procedure
      */
     public function __construct($title, $procedure)
     {
@@ -119,12 +122,12 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
         $this->createDate = $createDate;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
 
-    public function setProcedure(Procedure $procedure)
+    public function setProcedure(ProcedureInterface $procedure)
     {
         $this->procedure = $procedure;
 
@@ -140,7 +143,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     public function getCategoryTitles(): array
     {
         $categoryTitles = [];
-        /** @var Boilerplate $boilerplate */
+        /** @var BoilerplateInterface $boilerplate */
         foreach ($this->getBoilerplates() as $boilerplate) {
             foreach ($boilerplate->getCategoryTitles() as $title) {
                 $categoryTitles[] = $title;
@@ -153,12 +156,12 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     /**
      * @param string $categoryTitle
      *
-     * @return Boilerplate[]
+     * @return BoilerplateInterface[]
      */
     public function filterBoilerplatesByCategory($categoryTitle): array
     {
         $resultSet = [];
-        /** @var Boilerplate $boilerplate */
+        /** @var BoilerplateInterface $boilerplate */
         foreach ($this->getBoilerplates() as $boilerplate) {
             if ($boilerplate->hasCategory($categoryTitle)) {
                 $resultSet[] = $boilerplate;
@@ -181,7 +184,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
      *
      * @param string $id identifies the Boilerplate
      *
-     * @return Boilerplate|null
+     * @return BoilerplateInterface|null
      */
     public function getBoilerplate(string $id)
     {
@@ -199,7 +202,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     /**
      * Add a specific Boilerplate to this BoilerplateGroup.
      */
-    public function addBoilerplate(Boilerplate $boilerplate): BoilerplateGroup
+    public function addBoilerplate(BoilerplateInterface $boilerplate): BoilerplateGroupInterface
     {
         if (!$this->boilerplates->contains($boilerplate)) {
             $this->boilerplates->add($boilerplate);
@@ -215,7 +218,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a specific Boilerplate from this BoilerplateGroup.
      */
-    public function removeBoilerplate(Boilerplate $boilerplate): BoilerplateGroup
+    public function removeBoilerplate(BoilerplateInterface $boilerplate): BoilerplateGroupInterface
     {
         $this->boilerplates->removeElement($boilerplate);
         if ($boilerplate->hasGroup()) {
@@ -226,7 +229,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Boilerplate[] $boilerplates
+     * @param BoilerplateInterface[] $boilerplates
      */
     public function removeBoilerplates(array $boilerplates)
     {
@@ -240,7 +243,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
      *
      * @return $this
      */
-    public function removeAllBoilerplates(): BoilerplateGroup
+    public function removeAllBoilerplates(): BoilerplateGroupInterface
     {
         foreach ($this->getBoilerplates() as $boilerplate) {
             $boilerplate->detachGroup();

@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -34,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity
  */
-class CustomerCounty extends CoreEntity implements UuidEntityInterface
+class CustomerCounty extends CoreEntity implements UuidEntityInterface, CustomerCountyInterface
 {
     /**
      * @var string|null
@@ -52,7 +54,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
     /**
      * Foreign key, Customer object.
      *
-     * @var Customer
+     * @var CustomerInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCounties", cascade={"remove"})
      *
@@ -63,7 +65,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
     /**
      * Foreign key, County object.
      *
-     * @var County
+     * @var CountyInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="customerCounties", cascade={"remove"})
      *
@@ -92,24 +94,24 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
-    public function getCustomer(): Customer
+    public function getCustomer(): CustomerInterface
     {
         return $this->customer;
     }
 
-    public function setCustomer(Customer $customer): self
+    public function setCustomer(CustomerInterface $customer): self
     {
         $this->customer = $customer;
 
         return $this;
     }
 
-    public function getCounty(): County
+    public function getCounty(): CountyInterface
     {
         return $this->county;
     }
 
-    public function setCounty(County $county): self
+    public function setCounty(CountyInterface $county): self
     {
         $this->county = $county;
 

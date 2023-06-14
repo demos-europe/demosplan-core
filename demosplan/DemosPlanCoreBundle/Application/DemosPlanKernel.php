@@ -109,8 +109,8 @@ class DemosPlanKernel extends Kernel
     {
         $coreConfigPath = DemosPlanPath::getConfigPath();
 
-        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
+        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS,  'glob');
 
         $routesConfig = DemosPlanPath::getProjectPath('app/config/routing.yml');
 
@@ -278,7 +278,9 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        if ('test' !== $this->getEnvironment()) {
+            $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        }
     }
 
     public function getActiveProject(): string

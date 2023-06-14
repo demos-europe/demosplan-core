@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -133,12 +134,13 @@ class PermissionsTest extends FunctionalTestCase
         $permissionsClass = $this->getPermissionsClass();
 
         $customerService = static::$container->get(CustomerService::class);
+        $addonRegistry = static::$container->get(AddonRegistry::class);
 
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
         /** @var Permissions $permissions */
         $permissions = (new ReflectionClass($permissionsClass))
             ->newInstance(
-                new SplFixedArray(),
+                $addonRegistry,
                 $customerService,
                 $logger,
                 $globalConfig,

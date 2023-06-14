@@ -69,6 +69,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MultiTermsAggregation;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -94,6 +95,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateGroupVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedureFormData;
+use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\PriorityPair;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -128,6 +131,9 @@ use Twig\Error\SyntaxError;
  */
 class DemosPlanProcedureController extends BaseController
 {
+    private const NONE = 'none';
+    private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+
     /**
      * @var MapService
      */
@@ -278,23 +284,6 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = $this->collectProcedureDashboard($statementService, $translator, $permissions, $procedureId);
 
         try {
-            $statements = $statementService->getStatementsByProcedureId(
-                $procedureId,
-                [],
-                null,
-                null,
-                0,
-                1,
-                [],
-                true
-            );
-
-            $templateVars['statementsTotal'] = $statements->getTotal();
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-        }
-
-        try {
             if ($permissions->hasPermission('area_statements_fragment')) {
                 $statementFragments = $statementFragmentService->getStatementFragmentsProcedure($procedureId);
                 $fragmentStatusEmptyData = $this->getFragmentStatusEmptyData($translator);
@@ -384,9 +373,7 @@ class DemosPlanProcedureController extends BaseController
      *       ],
      *   ];
      *
-     * @param array $templateVars
-     *
-     * @return mixed
+     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData, procedureHasSurveys?: bool}
      *
      * @throws Exception
      */
@@ -395,84 +382,41 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         PermissionsInterface $permissions,
         string $procedureId,
-        $templateVars = []
-    ) {
+    ): array {
+        $templateVars = [];
+        /** @var array<string, string> $formParamsStatementStatus */
         $formParamsStatementStatus = $this->getFormParameter('statement_status');
+        /** @var array<string, string> $formParamsStatementPriority */
         $formParamsStatementPriority = $this->getFormParameter('statement_priority');
         // add Empty Value
         $formParamsStatementPriority[''] = 'notassigned';
 
-        // set some defaults and helper Vars
-        $priorityInitialValues = [];
-
         // precollect data for each priority
         foreach ($formParamsStatementPriority as $key => $label) {
-            $categoryKey = '' === $key ? 'none' : $key;
-            $categoryLabel = $translator->trans($label);
-            $templateVars['statementPriorities'][] =
-                [
-                    'key'   => $categoryKey,
-                    'label' => $categoryLabel,
-                ];
-            // save initial zero values to be set later on as defaults
-            $priorityInitialValues[$categoryKey] = 0;
+            $templateVars['statementPriorities'][] = new PriorityPair(
+                $this->generateCategoryKey($key),
+                $translator->trans($label),
+            );
         }
 
-        // collect for each status their priority aggregations
-        // therefore several Elasticsearch requests needs to be fired
-        if ($permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
-            foreach ($formParamsStatementStatus as $statusKey => $statusLabel) {
-                // set default data if no aggregation is found
-                $statementData = [
-                    'Category' => $translator->trans($statusLabel),
-                    'count'    => 0,
-                    'freq'     => $priorityInitialValues,
-                ];
-                // fetch priorities for each status
-                foreach ($formParamsStatementPriority as $priorityKey => $priorityLabel) {
-                    try {
-                        $statements = $statementService->getStatementsByProcedureId(
-                            $procedureId,
-                            ['status' => $statusKey, 'isPlaceholder' => false],
-                            null,
-                            null,
-                            0,
-                            1
-                        );
-                    } catch (Exception $e) {
-                        $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-                        continue;
-                    }
-
-                    // save total statement count per status
-                    $statementData['count'] = $statements->getTotal();
-
-                    // add link with filterhash to assessment table
-                    if (0 < $statements->getTotal()) {
-                        $statementData['url'] = $this->generateAssessmentTableFilterLinkFromStatus($statusKey, $procedureId, 'statement');
-                    }
-
-                    // save priorities per status
-                    if (\array_key_exists('priority', $statements->getFilterSet()['filters'])) {
-                        foreach ($statements->getFilterSet()['filters']['priority'] as $aggregation) {
-                            $priorityKey = ('' == $aggregation['value'] || 'no_value' === $aggregation['value']) ? 'none' : $aggregation['value'];
-                            $statementData['freq'][$priorityKey] = $aggregation['count'];
-                        }
-                    }
-                }
-
-                $templateVars['statementStatusData'][] = $statementData;
-            }
+        $statementStatusData = $this->getStatementStatusData(
+            $permissions,
+            $translator,
+            $formParamsStatementStatus,
+            $formParamsStatementPriority,
+            $statementService,
+            $procedureId
+        );
+        if (null !== $statementStatusData) {
+            $templateVars['statementStatusData'] = $statementStatusData['statementStatusData'];
+            $templateVars['statementsTotal'] = $statementStatusData['total'];
         }
 
         // try block is about getting count for moved statements
         try {
             $procedure = $this->procedureService->getProcedure($procedureId);
-
-            $movedStatementData = [];
-            if ($permissions->hasPermission('feature_statement_move_to_procedure')) {
-                $movedStatementData['toThisProcedure'] = $statementService->getStatementsMovedToThisProcedureCount($procedure);
-                $movedStatementData['fromThisProcedure'] = $statementService->getStatementsMovedFromThisProcedureCount($procedure);
+            $movedStatementData = $statementService->getMovedStatementData($procedure);
+            if (null !== $movedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
             $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
@@ -481,6 +425,94 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $templateVars;
+    }
+
+    protected function generateCategoryKey(string $key): string
+    {
+        return '' === $key ? self::NONE : $key;
+    }
+
+    /**
+     * @param array<string, string> $statementStatuses
+     * @param array<string, string> $statementPriorities
+     *
+     * @return array{statementStatusData: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, total: int}|null
+     *
+     * @throws Exception
+     */
+    protected function getStatementStatusData(
+        PermissionsInterface $permissions,
+        TranslatorInterface $translator,
+        array $statementStatuses,
+        array $statementPriorities,
+        StatementService $statementService,
+        string $procedureId
+    ): ?array {
+        $priorityInitialValues = [];
+        foreach ($statementPriorities as $key => $label) {
+            // save initial zero values to be set later on as defaults
+            $priorityInitialValues[$this->generateCategoryKey($key)] = 0;
+        }
+
+        // collect for each status their priority aggregations
+        // therefore several Elasticsearch requests needs to be fired
+        if (!$permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
+            return null;
+        }
+
+        $statementStatusData = [];
+        // generate a statementStatusData item for each statement status
+        foreach ($statementStatuses as $statusKey => $statusLabel) {
+            // set default data if no aggregation is found
+            $statementStatusData[$statusKey] = [
+                'Category' => $translator->trans($statusLabel),
+                'count'    => 0,
+                'freq'     => $priorityInitialValues,
+            ];
+        }
+
+        try {
+            $statementQueryResult = $this->getStatements($statementService, $procedureId);
+        } catch (Exception $exception) {
+            $this->logger->warning('Could not get Statements by Status ', [$exception]);
+
+            return [
+                'statementStatusData' => array_values($statementStatusData),
+                'total'               => 0,
+            ];
+        }
+
+        // save status counts
+        $esResultMeta = $statementQueryResult->getFilterSet();
+        $aggregations = $esResultMeta['filters'];
+        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
+            $statusValue = $aggregationBucket['value'];
+            $statusCount = $aggregationBucket['count'];
+            $statementStatusData[$statusValue]['count'] = $statusCount;
+
+            // add link with filterhash to assessment table
+            if (0 < $statusCount) {
+                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                    $statusValue,
+                    $procedureId,
+                    'statement'
+                );
+            }
+        }
+
+        // save priority count per status
+        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+            [$statusValue, $priorityValue] = $aggregationBucket['value'];
+            if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                $priorityValue = self::NONE;
+            }
+            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
+        }
+
+        return [
+            'statementStatusData' => array_values($statementStatusData),
+            'total'               => $statementQueryResult->getTotal(),
+        ];
     }
 
     /**
@@ -2831,5 +2863,27 @@ class DemosPlanProcedureController extends BaseController
     private function eMailTitleContainsOldProcedureName(string $eMailTitle, string $oldProcedureName): bool
     {
         return str_contains(strtolower($eMailTitle), strtolower($oldProcedureName));
+    }
+
+    protected function getStatements(StatementService $statementService, string $procedureId): ElasticsearchResultSet
+    {
+        $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_STATUS);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_PRIORITY);
+
+        return $statementService->getStatementsByProcedureId(
+            $procedureId,
+            ['isPlaceholder' => false],
+            null,
+            null,
+            0,
+            1,
+            [],
+            true,
+            0,
+            true,
+            true,
+            [$statusPriorityAggregation]
+        );
     }
 }

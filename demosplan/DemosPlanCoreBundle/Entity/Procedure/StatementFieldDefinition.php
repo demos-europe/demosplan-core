@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,7 +32,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
  */
-class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
+class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface, StatementFieldDefinitionInterface
 {
     /**
      * @var string|null
@@ -85,7 +87,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
     private $required = true;
 
     /**
-     * @var StatementFormDefinition
+     * @var StatementFormDefinitionInterface
      *
      * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
      *
@@ -134,7 +136,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getStatementFormDefinition(): StatementFormDefinition
+    public function getStatementFormDefinition(): StatementFormDefinitionInterface
     {
         return $this->statementFormDefinition;
     }
