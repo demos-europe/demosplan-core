@@ -413,7 +413,7 @@ class DemosPlanMiscContentController extends BaseController
 
     /**
      * The faq are a combination of Platform-faq (platformList) which are customer independent
-     * and the customer-specific-faq (list)
+     * and the customer-specific-faq (list).
      *
      * @DplanPermissions("area_demosplan")
      *

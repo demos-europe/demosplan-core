@@ -110,7 +110,7 @@ class DemosPlanKernel extends Kernel
         $coreConfigPath = DemosPlanPath::getConfigPath();
 
         $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
-        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS,  'glob');
+        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, 'glob');
 
         $routesConfig = DemosPlanPath::getProjectPath('app/config/routing.yml');
 
