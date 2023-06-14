@@ -45,7 +45,7 @@
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
     "@masterportal/masterportalapi": "^2.19.0",
-    "@sentry/browser": "^7.51.2",
+    "@sentry/browser": "^7.55.0",
     "@sentry/integrations": "^7.51.2",
     "@sentry/tracing": "^7.51.2",
     "@uppy/core": "^3.2.0",
