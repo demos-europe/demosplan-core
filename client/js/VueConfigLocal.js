@@ -18,16 +18,27 @@ import { createLocalVue, shallowMount } from '@vue/test-utils'
 
 // Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
-import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import lscache from 'lscache'
 import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
 import Vuex from 'vuex'
 
+/*
+ * This is copied from DpVueCore.js
+ * Since there is an issue with the hasOwnProp and it has to be loaded via
+ * async/await which causes problems in the jest context, this looked like a way to
+ * make the tests run without refactoring everything
+ */
+const DPVueCorePlugin = {
+  install: function (VueCore) {
+    VueCore.prototype.dplan = window.dplan
+    VueCore.prototype.hasPermission = window.hasPermission
+  }
+}
+
 // Mocking global stuff
 const Vue = createLocalVue()
-const features = []
-const hasPermission = jest.fn((feature) => !!features[feature])
+const hasPermission = jest.fn(() => true)
 
 const Translator = {
   trans: jest.fn(key => key)

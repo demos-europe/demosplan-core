@@ -11,10 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -41,7 +44,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * Attention: This entity has to be persist, if the related singleDocument is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
-     * @var SingleDocument
+     * @var SingleDocumentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", inversedBy="versions")
      *
@@ -57,7 +60,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     protected $sdId;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -76,7 +79,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     protected $elementId;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
      *
@@ -185,12 +188,12 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure): self
     {
         $this->procedure = $procedure;
-        if ($procedure instanceof Procedure) {
+        if ($procedure instanceof ProcedureInterface) {
             $this->pId = $procedure->getId();
         }
 
@@ -200,7 +203,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * Get procedure.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -214,7 +217,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -228,7 +231,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
@@ -236,7 +239,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     }
 
     /**
-     * @return Elements|null
+     * @return ElementsInterface|null
      */
     public function getElement()
     {
@@ -244,11 +247,11 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     }
 
     /**
-     * @param Elements $element
+     * @param ElementsInterface $element
      */
     public function setElement($element)
     {
-        if ($element instanceof Elements) {
+        if ($element instanceof ElementsInterface) {
             $this->elementId = $element->getId();
         }
         $this->element = $element;
@@ -479,7 +482,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     }
 
     /**
-     * @return SingleDocument|null
+     * @return SingleDocumentInterface|null
      */
     public function getSingleDocument()
     {
@@ -496,7 +499,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     }
 
     /**
-     * @param SingleDocument $singleDocument
+     * @param SingleDocumentInterface $singleDocument
      */
     public function setSingleDocument($singleDocument)
     {

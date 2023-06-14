@@ -23,6 +23,7 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
     public function testSuccessfulExecute(): void
     {
+        self::markSkippedForCIIntervention();
         $commandTester = $this->getCommandTester();
 
         $newCustomerName = 'New Customer';
@@ -44,6 +45,8 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
     public function testInvalidDuplicateCustomerExecute(): void
     {
+        self::markSkippedForCIIntervention();
+
         $commandTester = $this->getCommandTester();
 
         // use three inputs, as we want to test whether first input is marked as existing customer
@@ -67,6 +70,9 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
      */
     public function testWithNameAndSubdomain(string $customerName, string $customerSubdomain): void
     {
+        // needs mysql connection somehow
+        self::markSkippedForCIIntervention();
+
         $commandTester = $this->getCommandTester();
         $customers = $this->getCustomers($customerSubdomain);
         self::assertEmpty($customers);

@@ -64,9 +64,9 @@ export default {
   computed: {
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
-      // If a value is currently given, replace the {year} placeholder within that value
+      // If a value is currently given, replace the {currentYear} placeholder within that value
       if (this?.attributions) {
-        return this.attributions.replaceAll('{year}', currentYear)
+        return this.attributions.replaceAll('{currentYear}', currentYear)
       }
       // If not, default to the default message
       return Translator.trans('map.attribution.default', {

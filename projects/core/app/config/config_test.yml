@@ -1,0 +1,22 @@
+imports:
+    - { resource: config_dev.yml }
+
+framework:
+    test: ~
+    session:
+        storage_id: session.storage.mock_file
+    profiler:
+        enabled: false
+        collect: false
+
+sentry:
+    tracing:
+        enabled: false
+
+web_profiler:
+    toolbar: false
+    intercept_redirects: false
+
+parameters:
+    advancedsearchservice_index_name_prefix: 'core_test'
+    email_bouncefile_path: "%kernel.cache_dir%"

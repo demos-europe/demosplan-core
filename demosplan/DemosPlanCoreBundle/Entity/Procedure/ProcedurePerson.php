@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -223,7 +225,7 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
     /**
      * Adds the given statement to the similarForeignStatements if not already containing.
      */
-    public function addSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function addSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->add($similarForeignStatement);
@@ -234,7 +236,7 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
         }
     }
 
-    public function removeSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function removeSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if ($this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->removeElement($similarForeignStatement);

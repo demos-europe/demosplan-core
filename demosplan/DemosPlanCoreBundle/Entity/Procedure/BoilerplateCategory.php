@@ -11,6 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,12 +26,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository")
  */
-class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
+class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, BoilerplateCategoryInterface
 {
-    public const TITLE_NEWS_NOTES = 'news.notes';
-    public const TITLE_EMAIL = 'email';
-    public const TITLE_CONSIDERATION = 'consideration';
-
     /**
      * Unique identification of the boilerplate entry.
      *
@@ -45,7 +44,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -54,7 +53,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     protected $procedure;
 
     /**
-     * @var Collection<int, Boilerplate>
+     * @var Collection<int, BoilerplateInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", inversedBy="categories")
      *
@@ -117,7 +116,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -125,7 +124,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {
@@ -199,9 +198,9 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     /**
      * Add a given Boilerplate to this BoilerplateCategory.
      *
-     * @param Boilerplate $bp
+     * @param BoilerplateInterface $bp
      *
-     * @return BoilerplateCategory
+     * @return BoilerplateCategoryInterface
      */
     public function addBoilerplate($bp)
     {
@@ -216,9 +215,9 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     /**
      * Remove the given Boilerplate from this BoilerplateCategory.
      *
-     * @param Boilerplate $boilerplate
+     * @param BoilerplateInterface $boilerplate
      *
-     * @return BoilerplateCategory
+     * @return BoilerplateCategoryInterface
      */
     public function removeBoilerplate($boilerplate)
     {
