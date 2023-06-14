@@ -21,7 +21,6 @@ import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
-import Vuex from 'vuex'
 
 /*
  * This is copied from DpVueCore.js
@@ -78,7 +77,6 @@ global.dplan = dplan
 // Add plugins to Vue instance
 Vue.use(PortalVue)
 
-Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 Vue.directive('tooltip', VTooltip)
