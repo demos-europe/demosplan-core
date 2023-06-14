@@ -152,7 +152,9 @@
           {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
         </template>
         <template v-slot:text="rowData">
-          <div v-cleanhtml="rowData.attributes.text" />
+          <div
+            v-cleanhtml="rowData.attributes.text"
+            class="overflow-word-break" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
