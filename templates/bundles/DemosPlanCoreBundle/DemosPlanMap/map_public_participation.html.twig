@@ -2,7 +2,7 @@
 
     {#
         Leaflet. To be refactored into one of:
-            - client/js/components/procedure/publicindex/Procedures.vue which uses Leaflet / Vue
+            - DemosPlanProcedureBundle/Resources/client/js/components/publicindex/Procedures.vue which uses Leaflet / Vue
             - DemosPlanMapBundle/Resources/client/js/components/map/DpOlMap.vue which uses openlayers 5 / Vue
         Possibly the 2nd option but the Leaflet Markercluster looks better.
     #}
@@ -65,12 +65,7 @@
                 attributionControl: false
             });
 
-            L.control.attribution({
-                prefix: '{{ map.mapAttribution|default|replace({'{year}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
-                    linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
-                    currentYear: {{ 'now' | date('Y') }}
-                })
-            }).addTo(map);
+            L.control.attribution({prefix: '{{ map.mapAttribution|default|trans|wysiwyg }}' || Translator.trans('map.attribution.default', { a: function (msg) { return '<a href="/impressum">' + msg + '</a>' }}) }).addTo(map);
 
             (function() {
                 var control = new L.Control({position:'topleft'})

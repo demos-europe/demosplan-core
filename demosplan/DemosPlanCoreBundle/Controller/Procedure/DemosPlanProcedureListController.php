@@ -20,10 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
@@ -31,6 +27,10 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ExportService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Elastica\Exception\NotFoundException;
@@ -122,7 +122,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             );
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => 'procedure.list',
@@ -198,7 +198,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             );
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => 'procedure.public.participation',
@@ -228,7 +228,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $procedures = $procedureHandler->convertProceduresForTwigAdminList($procedures);
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_search_procedures.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_search_procedures.html.twig',
             [
                 'templateVars' => ['procedures' => $procedures],
                 'title'        => 'procedures.search.statements',
@@ -325,7 +325,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars([], $title);
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_list.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -367,7 +367,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars($templateVars, $title);
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_list_masters.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_masters.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -445,7 +445,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $htmlContent = $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/public_index_list.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/public_index_list.html.twig',
                 [
                     'templateVars' => $serviceOutput,
                 ]

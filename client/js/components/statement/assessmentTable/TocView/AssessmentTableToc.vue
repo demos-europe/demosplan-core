@@ -18,10 +18,13 @@
       <dp-button
         v-show="isRefreshButtonVisible"
         class="u-ml-0_5 u-mb-0_5"
-        icon="refresh"
-        :text="Translator.trans('refresh')"
         variant="outline"
-        @click="triggerUpdate" />
+        @click="triggerUpdate">
+        <i
+          class="fa fa-refresh"
+          aria-hidden="true" />
+        {{ Translator.trans("refresh") }}
+      </dp-button>
     </transition>
   </div>
 </template>

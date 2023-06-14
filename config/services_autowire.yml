@@ -12,6 +12,10 @@ services:
         exclude:
             - '../demosplan/DemosPlanCoreBundle/{Entity,Tests,ResourceTypes,StoredQuery,Resources/config}'
 
+    demosplan\DemosPlanProcedureBundle\:
+        resource: '../demosplan/DemosPlanProcedureBundle/*'
+        exclude: '../demosplan/DemosPlanProcedureBundle/{Entity,Tests}'
+
 ############### Fixtures
 
     demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData\:

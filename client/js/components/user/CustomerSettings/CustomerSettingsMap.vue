@@ -35,11 +35,11 @@
       id="r_mapAttribution"
       class="u-mb-0_75"
       :label="{
-        hint: `${Translator.trans('map.attribution.hint')} ${Translator.trans('map.attribution.placeholder')}`,
+        hint: Translator.trans('map.attribution.hint'),
         text: Translator.trans('map.attribution')
       }"
       name="r_mapAttribution"
-      v-model="currentMapAttribution" />
+      :value="mapAttribution" />
 
     <p class="weight--bold u-mb-0">
       {{ Translator.trans('map.base.settings.preview') }}:
@@ -56,16 +56,14 @@
         defaultMapExtent: mapExtent
       }"
       :options="{
-        controls: [attributionControl],
+        controls: [],
         autoSuggest: { enabled: false },
-        defaultAttribution: currentMapAttribution,
       }" />
   </div>
 </template>
 
 <script>
 import { debounce, DpInput } from '@demos-europe/demosplan-ui'
-import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 
 export default {
@@ -104,16 +102,9 @@ export default {
 
   data () {
     return {
-      currentMapAttribution: this.mapAttribution,
       layer: this.initLayer,
       layerUrl: this.initLayerUrl,
       mapKey: 0
-    }
-  },
-
-  computed: {
-    attributionControl () {
-      return new Attribution({ collapsible: false })
     }
   },
 

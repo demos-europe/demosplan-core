@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Tests\Base\UnitTestCase;
 
 class FieldConfiguratorTest extends UnitTestCase

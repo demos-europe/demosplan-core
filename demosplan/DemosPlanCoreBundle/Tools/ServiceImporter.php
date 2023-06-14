@@ -90,10 +90,8 @@ class ServiceImporter implements ServiceImporterInterface
         MessageBagInterface $messageBag,
         ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
-        RouterInterface $router,
-        RpcClient $client
+        RouterInterface $router
     ) {
-        $this->client = $client;
         $this->router = $router;
         $this->messageBag = $messageBag;
         $this->fileService = $fileService;

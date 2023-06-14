@@ -28,13 +28,13 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
@@ -95,6 +95,11 @@ class DocxExporter
     protected $fileService;
 
     /**
+     * @var MapService
+     */
+    protected $serviceMap;
+
+    /**
      * @var ServiceImporter
      */
     protected $serviceImport;
@@ -153,7 +158,6 @@ class DocxExporter
         FileService $fileService,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
-        protected readonly MapService $mapService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementHandler $statementHandler,
@@ -1704,12 +1708,12 @@ class DocxExporter
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
                 Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
             }
-            $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
+            $cell2->addText($statement->getProcedure()->getSettings()->getCopyright());
         }
     }
 
     /**
-     * Generate Html imagetag to be used in PhpWord Html::addHtml().
+     * Generate Html imagetag to be used in PhphWord Html::addHtml().
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel

@@ -46,25 +46,31 @@
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
       name="procedureForm"
       ref="procedureForm">
-      <dp-button
+      <button
         v-if="hasPermission('feature_admin_delete_procedure')"
+        class="btn--blank o-link--default u-ml-0_25 u-mr-0_75"
         data-cy="deleteProcedure"
-        icon="delete"
+        @click="deleteProcedures"
         name="deleteProcedure"
-        :text="Translator.trans('delete')"
-        type="submit"
-        variant="subtle"
-        @click="deleteProcedures" />
+        type="submit">
+        <i
+          aria-hidden="true"
+          class="fa fa-times-circle u-mr-0_25" />
+        {{ Translator.trans('delete') }}
+      </button>
 
-      <dp-button
+      <button
         v-if="hasPermission('feature_admin_export_procedure')"
+        class="btn--blank o-link--default u-ml-0_25"
         data-cy="ExportProcedure"
-        icon="download"
+        @click="exportProcedures"
         name="exportProcedure"
-        :text="Translator.trans('print.and.export')"
-        type="submit"
-        variant="subtle"
-        @click="exportProcedures" />
+        type="submit">
+        <i
+          class="fa fa-download u-mr-0_25"
+          aria-hidden="true" />
+        {{ Translator.trans('print.and.export') }}
+      </button>
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input

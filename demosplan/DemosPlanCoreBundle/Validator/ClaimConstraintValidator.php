@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

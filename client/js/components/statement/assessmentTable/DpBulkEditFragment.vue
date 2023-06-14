@@ -172,9 +172,12 @@
         <dp-button
           v-if="isError === false"
           :busy="isLoading"
-          icon-after="chevron-right"
-          :text="Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount })"
-          @click.once="submitData" />
+          @click.once="submitData">
+          {{ Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount }) }}
+          <i
+            class="fa fa-angle-right u-pl-0_25"
+            aria-hidden="true" />
+        </dp-button>
         <!-- if there's an error in response (so edit failed), show the 'back to ATabelle' button -->
         <a
           v-if="isError"

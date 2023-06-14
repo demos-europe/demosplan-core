@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

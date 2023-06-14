@@ -581,10 +581,6 @@ feature_admin_element_edit:
     label: 'Kategorien bearbeiten'
     loginRequired: true
     parent: feature_admin
-feature_admin_element_delete:
-    label: 'delete categories'
-    loginRequired: true
-    parent: feature_admin
 feature_admin_element_import:
     label: 'Kategorien und Dateien importieren'
     loginRequired: true

@@ -67,8 +67,8 @@ export default {
   components: {
     DpAccordion,
     DpButtonRow,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields'),
-    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')
+    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
+    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserFormFields')
   },
 
   mixins: [dpValidateMixin],

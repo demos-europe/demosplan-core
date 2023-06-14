@@ -91,9 +91,10 @@
         <dp-button
           class="float--right"
           :disabled="isInvalid()"
-          icon-after="chevron-right"
-          :text="Translator.trans('continue.confirm')"
-          @click="next" />
+          @click="next">
+          {{ Translator.trans('continue.confirm') }}
+          <i class="fa fa-angle-right u-pl-0_25" />
+        </dp-button>
       </div>
     </template>
 
@@ -136,15 +137,17 @@
       <div class="cf">
         <dp-button
           color="secondary"
-          icon="chevron-left"
-          :text="Translator.trans('bulk.edit.actions.edit')"
-          @click="back" />
+          @click="back">
+          <i class="fa fa-angle-left u-pr-0_25" />
+          {{ Translator.trans('bulk.edit.actions.edit') }}
+        </dp-button>
         <dp-button
           class="float--right"
           :busy="busy"
-          icon-after="chevron-right"
-          :text="Translator.trans('bulk.edit.actions.apply')"
-          @click="submit" />
+          @click="submit">
+          {{ Translator.trans('bulk.edit.actions.apply') }}
+          <i class="fa fa-angle-right u-pl-0_25" />
+        </dp-button>
       </div>
     </template>
 

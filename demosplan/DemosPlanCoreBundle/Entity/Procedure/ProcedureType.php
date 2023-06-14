@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ProcedureType - Defines a specific type of a Procedure,
  * which is composed of a ProcedureUIDefinition, a ProcedureBehaviorDefinition and a StatementFormDefinition.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureTypeRepository")
  */
 class ProcedureType extends CoreEntity implements UuidEntityInterface
 {
