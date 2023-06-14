@@ -68,7 +68,7 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l"
+      class="segment-list-col--l overflow-word-break"
       v-cleanhtml="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
@@ -85,7 +85,7 @@
           aria-hidden="true" />
       </button>
     </div>
-    <div class="segment-list-col--l">
+    <div class="segment-list-col--l overflow-word-break">
       <div
         v-if="isAssignedToMe === false"
         :class="{ 'color--grey': visibleRecommendation === '' }"
