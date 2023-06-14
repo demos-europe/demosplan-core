@@ -5,16 +5,16 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**

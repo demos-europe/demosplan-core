@@ -2,6 +2,9 @@ name: Run FE_headerWriter
 
 on:
   pull_request:
+    branches:
+      - main
+      - release
     paths:
       - '**.scss'
       - '**.js'

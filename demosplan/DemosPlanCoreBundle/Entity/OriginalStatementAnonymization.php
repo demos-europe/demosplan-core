@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,23 +11,27 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository")
  */
-class OriginalStatementAnonymization
+class OriginalStatementAnonymization implements OriginalStatementAnonymizationInterface
 {
     /**
      * @var string
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -36,23 +40,27 @@ class OriginalStatementAnonymization
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $created;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="anonymizations")
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
+     *
      * @IsOriginalStatementConstraint()
      */
     protected $statement;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false)
      */
     protected $createdBy;
@@ -125,22 +133,22 @@ class OriginalStatementAnonymization
         $this->textPassagesAnonymized = $textPassagesAnonymized;
     }
 
-    public function getStatement(): Statement
+    public function getStatement(): StatementInterface
     {
         return $this->statement;
     }
 
-    public function setStatement(Statement $statement): void
+    public function setStatement(StatementInterface $statement): void
     {
         $this->statement = $statement;
     }
 
-    public function getCreatedBy(): User
+    public function getCreatedBy(): UserInterface
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(User $createdBy): void
+    public function setCreatedBy(UserInterface $createdBy): void
     {
         $this->createdBy = $createdBy;
     }

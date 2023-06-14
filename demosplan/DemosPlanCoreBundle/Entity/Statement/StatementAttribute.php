@@ -3,13 +3,16 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository")
  */
-class StatementAttribute extends CoreEntity implements UuidEntityInterface
+class StatementAttribute extends CoreEntity implements UuidEntityInterface, StatementAttributeInterface
 {
     /**
      * @var string|null
@@ -35,7 +38,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Statement|null
+     * @var StatementInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="statementAttributes")
      *
@@ -49,7 +52,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     protected $statementId;
 
     /**
-     * @var DraftStatement|null
+     * @var DraftStatementInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="statementAttributes")
      *
@@ -93,7 +96,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -101,7 +104,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return $this
      */
@@ -113,7 +116,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function getDraftStatement()
     {
@@ -121,7 +124,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param DraftStatement $draftStatement
+     * @param DraftStatementInterface $draftStatement
      *
      * @return $this
      */

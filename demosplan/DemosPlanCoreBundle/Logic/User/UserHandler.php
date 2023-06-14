@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -50,20 +50,19 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\EmailAddressVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\ValueObject\EmailAddressVO;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use LogicException;
 use RuntimeException;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -1354,7 +1353,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($data as $ident => $department) {
             try {
                 $result = $this->updateDepartment($ident, $department);
-                if (array_key_exists('mandatoryfieldwarning', $result)) {
+                if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
                     return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
                 }
             } catch (Exception $e) {
@@ -1618,7 +1617,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             );
 
             // check PW before send mail
-            if (!$hasherFactory->getPasswordHasher($user)->verify($user->getPassword() ?? '', $password, $user->getSalt())) {
+            if (!$hasherFactory->getPasswordHasher($user)->verify($user->getPassword() ?? '', $password)) {
                 $this->getLogger()->info(
                     'Wrong password on request of email change.',
                     ['userId' => $userId]

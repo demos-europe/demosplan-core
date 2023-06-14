@@ -3,15 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use ReflectionClass;
-use ReflectionMethod;
 use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use ReflectionClass;
 use ReflectionMethod;
@@ -59,8 +57,8 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     private function addControllers(mixed $addonInfo, RouteCollection $routeCollection): void
     {
         $controllerDir = $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT;
-        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerDir)) {
-            $controllerPath = AddonPath::getRootPath($controllerDir);
+        $controllerPath = AddonPath::getRootPath($controllerDir);
+        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerPath)) {
             $routeCollection->addCollection($this->load($controllerPath));
         }
     }

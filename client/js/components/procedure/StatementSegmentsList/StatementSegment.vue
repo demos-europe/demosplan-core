@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -168,13 +168,13 @@
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
-            :options="places"
-            class="u-1-of-1"
             v-model="selectedPlace"
             :allow-empty="false"
+            class="u-1-of-1"
             label="name"
+            :options="places"
             track-by="id">
-            <template v-slot:option="props">
+            <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"

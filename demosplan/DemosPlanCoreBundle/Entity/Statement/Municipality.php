@@ -3,13 +3,16 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository")
  */
-class Municipality extends CoreEntity implements UuidEntityInterface
+class Municipality extends CoreEntity implements UuidEntityInterface, MunicipalityInterface
 {
     /**
      * @var string|null
@@ -51,7 +54,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     protected $officialMunicipalityKey = null;
 
     /**
-     * @var Collection<int, Statement>
+     * @var Collection<int, StatementInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="municipalities")
      *
@@ -64,7 +67,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     protected $statements;
 
     /**
-     * @var Collection<int, StatementFragment>
+     * @var Collection<int, StatementFragmentInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="municipalities", cascade={"persist"})
      *
@@ -130,7 +133,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     /**
      * Add Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return bool - true if the given statement was added to this municipality, otherwise false
      */
@@ -147,7 +150,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     /**
      * Remove Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      */
     public function removeStatement($statement)
     {
@@ -167,7 +170,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     /**
      * Add StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function addStatementFragment($fragment)
     {
@@ -179,7 +182,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface
     /**
      * Remove StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function removeStatementFragment($fragment)
     {

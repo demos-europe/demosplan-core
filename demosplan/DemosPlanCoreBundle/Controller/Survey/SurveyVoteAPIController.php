@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -19,19 +19,19 @@
 
 //  placeholders
 %tabs-btn-color {
-    background-color: $dp-token-color-brand-main;
-    color: $dp-token-color-brand-main-contrast;
+    background-color: $dp-color-main;
+    color: $dp-color-main-contrast;
 }
 
 %tabs-btn-color-active {
-    background-color: $dp-color-white;
-    color: $dp-token-color-brand-highlight;
+    background-color: $dp-color-highlight-contrast;
+    color: $dp-color-highlight;
 }
 
 // Contains tab-nav. Tab content is a sibling of .c-tabs.
 .c-tabs {
 
-    background-color: $dp-token-color-brand-alt;
+    background-color: $dp-color-alt;
 
     &__title {
         display: inline-block;
@@ -66,7 +66,7 @@
             padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit;
         }
 
-        font-size: $dp-token-font-size-large;
+        font-size: $dp-font-size-large;
 
         //  no js styles: active state (because there is only one tab in nojs state and this one is highlighted)
         &,
@@ -128,7 +128,7 @@
         overflow-y: hidden;
 
         .tab-header {
-            border-bottom: 1px solid $dp-token-color-brand-main;
+            border-bottom: 1px solid $dp-color-main;
 
             .tab {
                 margin: 0;
@@ -141,14 +141,16 @@
                 line-height: 27px;
                 text-align: center;
 
+                cursor: pointer;
+
                 &:not(:last-child) {
                     margin-right: 1px;
                 }
 
                 &.active,
                 &:hover {
-                    @extend %tabs-btn-color;
-                    background: $dp-token-color-brand-main;
+                    background-color: $dp-color-main;
+                    color: $dp-color-main-contrast;
                 }
             }
         }

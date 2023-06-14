@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssignService extends CoreService
 {
@@ -61,7 +61,7 @@ class AssignService extends CoreService
     public function isStatementObjectAssignedToCurrentUser(Statement $statement): bool
     {
         $token = $this->tokenStorage->getToken();
-        if (!$token instanceof DemosToken) {
+        if (!$token instanceof TokenInterface) {
             return false;
         }
         $user = $token->getUser();

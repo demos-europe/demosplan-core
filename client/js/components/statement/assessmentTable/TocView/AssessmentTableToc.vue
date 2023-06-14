@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -18,13 +18,10 @@
       <dp-button
         v-show="isRefreshButtonVisible"
         class="u-ml-0_5 u-mb-0_5"
+        icon="refresh"
+        :text="Translator.trans('refresh')"
         variant="outline"
-        @click="triggerUpdate">
-        <i
-          class="fa fa-refresh"
-          aria-hidden="true" />
-        {{ Translator.trans("refresh") }}
-      </dp-button>
+        @click="triggerUpdate" />
     </transition>
   </div>
 </template>

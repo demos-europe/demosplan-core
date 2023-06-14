@@ -3,42 +3,27 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsValidStatementAttachmentType;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Some kind of file connected to a {@link Statement} or original {@link Statement}.
+ * Some kind of file connected to a {@link StatementInterface} or original {@link StatementInterface}.
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository")
  */
 class StatementAttachment implements UuidEntityInterface, StatementAttachmentInterface
 {
-    /**
-     * A file that originally resulted in the original statement being created. E.g. a PDF file
-     * send via email.
-     *
-     * @var string
-     */
-    public const SOURCE_STATEMENT = 'source_statement';
-    /**
-     * Attachments with this type can have any kind of content. We can only speculate that it
-     * may be legal documents from lawyers or reviewers, images or other files supporting the
-     * statement.
-     *
-     * @var string
-     */
-    public const GENERIC = 'generic';
-
     /**
      * @var string|null
      *
@@ -53,7 +38,7 @@ class StatementAttachment implements UuidEntityInterface, StatementAttachmentInt
     protected $id;
 
     /**
-     * @var File
+     * @var FileInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
      *
@@ -71,7 +56,7 @@ class StatementAttachment implements UuidEntityInterface, StatementAttachmentInt
     protected $type;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="attachments")
      *
@@ -79,12 +64,12 @@ class StatementAttachment implements UuidEntityInterface, StatementAttachmentInt
      */
     protected $statement;
 
-    public function getFile(): File
+    public function getFile(): FileInterface
     {
         return $this->file;
     }
 
-    public function setFile(File $file): void
+    public function setFile(FileInterface $file): void
     {
         $this->file = $file;
     }
@@ -109,12 +94,12 @@ class StatementAttachment implements UuidEntityInterface, StatementAttachmentInt
         $this->type = $type;
     }
 
-    public function getStatement(): Statement
+    public function getStatement(): StatementInterface
     {
         return $this->statement;
     }
 
-    public function setStatement(Statement $statement): void
+    public function setStatement(StatementInterface $statement): void
     {
         $this->statement = $statement;
     }

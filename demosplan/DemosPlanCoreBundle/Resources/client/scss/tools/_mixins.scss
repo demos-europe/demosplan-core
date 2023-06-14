@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -49,11 +49,11 @@
         @if $outline {
             // The outline is combined with a bright background to let the focused element stand out even more.
             background-color: $dp-color-white;
-            outline: 2px solid $dp-token-color-brand-link;
+            outline: 2px solid $dp-color-interactive-default;
         }
 
         @if $color {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         // While outline + color may be enough of a focus preset for most block level

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -91,10 +91,9 @@
         <dp-button
           class="float--right"
           :disabled="isInvalid()"
-          @click="next">
-          {{ Translator.trans('continue.confirm') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('continue.confirm')"
+          @click="next" />
       </div>
     </template>
 
@@ -137,17 +136,15 @@
       <div class="cf">
         <dp-button
           color="secondary"
-          @click="back">
-          <i class="fa fa-angle-left u-pr-0_25" />
-          {{ Translator.trans('bulk.edit.actions.edit') }}
-        </dp-button>
+          icon="chevron-left"
+          :text="Translator.trans('bulk.edit.actions.edit')"
+          @click="back" />
         <dp-button
           class="float--right"
           :busy="busy"
-          @click="submit">
-          {{ Translator.trans('bulk.edit.actions.apply') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('bulk.edit.actions.apply')"
+          @click="submit" />
       </div>
     </template>
 

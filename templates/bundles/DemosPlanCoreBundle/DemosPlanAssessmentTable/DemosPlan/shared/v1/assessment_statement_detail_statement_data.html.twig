@@ -903,13 +903,13 @@
                                     {% endfor %}
                                 {% endif %}
 
-                                {% set user = app.user %}
+                                {% set user = currentUser %}
                                 {% set username = user.firstName ~ ' ' ~ user.lastName %}
 
                                 <dp-select-statement-cluster
                                     :init-cluster-list="JSON.parse('{{ clusters|default([])|json_encode|e('js', 'utf-8') }}')"
                                     init-selected-cluster="{{ templateVars.table.statement.headStatement.id|default('') }}"
-                                    current-user-id="{{ user.ident }}"
+                                    current-user-id="{{ user.id }}"
                                     current-user-name="{{ username }}"
                                     procedure-id="{{ templateVars.table.procedure.id|default }}"
                                     :ignore-last-claimed="true"
@@ -1281,18 +1281,17 @@
                                     {{ "counties"|trans }}
                                 </strong>
                                 <dp-multiselect
+                                    v-model="selectedCounties"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="counties"
-                                    v-model="selectedCounties"
-                                    @input="sortSelected('Counties')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('Counties')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -1333,18 +1332,17 @@
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <dp-multiselect
+                                    v-model="selectedMunicipalities"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="municipalities"
-                                    v-model="selectedMunicipalities"
-                                    @input="sortSelected('Municipalities')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('Municipalities')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -1385,18 +1383,17 @@
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
+                                    v-model="selectedPriorityAreas"
                                     class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
                                     multiple
                                     :options="priorityAreas"
-                                    v-model="selectedPriorityAreas"
-                                    @input="sortSelected('PriorityAreas')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('PriorityAreas')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>

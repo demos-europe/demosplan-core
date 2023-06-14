@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -59,15 +59,15 @@
           <!--</p>-->
           <dp-multiselect
             ref="newAssignee"
+            v-model="options.newAssignee.value"
             :allow-empty="false"
+            class="u-mb width-450"
+            :custom-label="props => `${props.option.name} ${props.option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            class="u-mb width-450"
-            v-model="options.newAssignee.value"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`">
-            <template v-slot:option="{ option }">
-              {{ option.name }} {{ option.id === currentUserId? ` (Sie)` : '' }}
+            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            <template v-slot:option="{ props }">
+              {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
           </dp-multiselect>
         </div>
@@ -172,12 +172,9 @@
         <dp-button
           v-if="isError === false"
           :busy="isLoading"
-          @click.once="submitData">
-          {{ Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount }) }}
-          <i
-            class="fa fa-angle-right u-pl-0_25"
-            aria-hidden="true" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount })"
+          @click.once="submitData" />
         <!-- if there's an error in response (so edit failed), show the 'back to ATabelle' button -->
         <a
           v-if="isError"

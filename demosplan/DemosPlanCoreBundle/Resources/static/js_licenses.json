@@ -50,11 +50,6 @@
         "website": "https://babel.dev/docs/en/next/babel-runtime"
     },
     {
-        "package": "@demos-europe/demosplan-utils",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
         "package": "@demos-europe/dp-consent",
         "license": "MIT",
         "website": "Unknown"
@@ -442,7 +437,7 @@
     {
         "package": "proj4",
         "license": "MIT",
-        "website": "Unknown"
+        "website": "https://proj4js.github.io/proj4js/"
     },
     {
         "package": "prosemirror-history",
@@ -577,7 +572,7 @@
     {
         "package": "util",
         "license": "MIT",
-        "website": "https://github.com/defunctzombie/node-util"
+        "website": "https://github.com/browserify/node-util"
     },
     {
         "package": "uuid",
