@@ -11,12 +11,12 @@
  * This is the entrypoint for faqlist.html.twig
  */
 
-import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpRegisterFlyout
+  RegisterFlyout
 }
 
 initialize(components).then(() => {

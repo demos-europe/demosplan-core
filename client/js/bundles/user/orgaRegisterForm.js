@@ -11,13 +11,14 @@
  * This is the entrypoint for orga_register_form.html.twig
  */
 
-import { DpRegisterFlyout, dpValidate } from '@demos-europe/demosplan-ui'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import OrgaRegisterForm from '@DpJs/components/user/orgaRegisterForm/OrgaRegisterForm'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
   OrgaRegisterForm,
-  DpRegisterFlyout
+  RegisterFlyout
 }
 
 initialize(components).then(() => {
