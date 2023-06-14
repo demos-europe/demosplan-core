@@ -82,7 +82,8 @@ class Config {
           /split-statement/
         ],
         greedy: [
-          /tooltip/
+          /tooltip/,
+          /swagger-ui/
         ]
       }
     }
