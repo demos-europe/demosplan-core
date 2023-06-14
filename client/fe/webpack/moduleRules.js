@@ -96,13 +96,6 @@ if (config.cssPurge.enabled) {
 const moduleRules =
   [
     {
-      test: /\.css$/,
-      use: [
-        MiniCssExtractPlugin.loader,
-        'vue-loader'
-      ]
-    },
-    {
       test: /\.vue$/,
       loader: 'vue-loader'
     },
@@ -127,24 +120,19 @@ const moduleRules =
     {
       test: /\.s?css$/,
       use: [
-        {
-          loader: 'vue-style-loader'
-        },
-        {
-          loader: MiniCssExtractPlugin.loader,
-          // Output path is declared in the plugin due to weird webpack path declarations
-          options: {
-            /*
-             * You can specify a publicPath here
-             * by default it uses publicPath in webpackOptions.output
-             */
-            esModule: false,
-            publicPath: '../../css/'
-          }
-        },
+        MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
+            /*
+             * The importLoaders option gets postcss-loader to also process css imports.
+             * @see https://webpack.js.org/loaders/css-loader/#importloaders
+             * However when omitting the .css extension from the @imported css files,
+             * sass-loader will treat the import like a scss file, inlining it
+             * instead of leaving the css @import unprocessed as a native import.
+             * @see https://github.com/webpack-contrib/sass-loader/issues/101#issuecomment-128684387
+             */
+            importLoaders: 1,
             url: false
           }
         },
