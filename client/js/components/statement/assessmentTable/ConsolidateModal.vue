@@ -86,7 +86,7 @@
         v-model="selectedStatements"
         :allow-empty="false"
         :class="validations.selection ? 'u-mb' : 'u-mb-0_25'"
-        :custom-label="props =>`${props.option.extid}`"
+        :custom-label="option =>`${option.extid}`"
         :max-height="150"
         multiple
         :options="initialStatementSelection"
@@ -142,7 +142,7 @@
           id="clusters-single-select"
           v-model="headStatement"
           :class="{ 'u-mb': validations.headStatement, 'u-mb-0_25': false === validations.headStatement }"
-          :custom-label="props => props.option.extid"
+          :custom-label="option => option.extid"
           :options="selectedStatementsWithoutGroups"
           ref="multiselect"
           track-by="id"
