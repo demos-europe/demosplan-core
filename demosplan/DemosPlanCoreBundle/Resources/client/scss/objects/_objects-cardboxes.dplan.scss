@@ -38,12 +38,12 @@
 }
 
 .js .card__item:hover {
-    background-color: $dp-color-interactive-subtle-hover;
+    background-color: $dp-color-interactive-hover-subtle;
 
     animation: background-default-brand 1s;
 }
 
 @keyframes background-default-brand {
     0% { background-color: $dp-color-white; }
-    100% { background-color: $dp-color-interactive-subtle-hover; }
+    100% { background-color: $dp-color-interactive-hover-subtle; }
 }

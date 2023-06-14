@@ -11,8 +11,8 @@
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureStatisticsService;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Tests\Base\FunctionalTestCase;
 
 class ProcedureStatisticsServiceTest extends FunctionalTestCase

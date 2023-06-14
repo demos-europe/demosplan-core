@@ -13,12 +13,11 @@ namespace demosplan\DemosPlanCoreBundle\Services\Map;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
-use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresLoggerTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use SimpleXMLElement;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -82,15 +81,9 @@ class GetFeatureInfo
      */
     private $currentProcedureService;
 
-    /**
-     * @var DatasheetService
-     */
-    private $datasheetService;
-
     public function __construct(
         ContentService $contentService,
         CurrentProcedureService $currentProcedureService,
-        DatasheetService $datasheetService,
         GlobalConfigInterface $config,
         HttpCall $httpCall,
         StatementGeoService $statementGeoService
@@ -105,7 +98,6 @@ class GetFeatureInfo
         $this->statementGeoService = $statementGeoService;
         $this->serviceContent = $contentService;
         $this->currentProcedureService = $currentProcedureService;
-        $this->datasheetService = $datasheetService;
     }
 
     /**
@@ -150,7 +142,7 @@ class GetFeatureInfo
         $url2 = $this->url2;
         $globalConfig = $this->getGlobalConfig();
         $procedure = $this->getProcedureArray();
-        $datasheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
+        $datasheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
         if (2 === $datasheetVersion) {
             $url2 = $globalConfig->getMapGetFeatureInfoUrl2V2();
         } elseif (3 === $datasheetVersion) {
@@ -172,7 +164,7 @@ class GetFeatureInfo
         $globalConfig = $this->getGlobalConfig();
         $url2Layer = $globalConfig->getMapGetFeatureInfoUrl2Layer();
         $procedure = $this->getProcedureArray();
-        $dataSheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
+        $dataSheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
         if (2 === $dataSheetVersion) {
             $url2Layer = $globalConfig->getMapGetFeatureInfoUrl2V2Layer();
         } elseif (3 === $dataSheetVersion) {
@@ -194,7 +186,7 @@ class GetFeatureInfo
         $versionString = '';
         $globalConfig = $this->getGlobalConfig();
         $procedure = $this->getProcedureArray();
-        $dataSheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
+        $dataSheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
         if (2 === $dataSheetVersion) {
             $versionString = '_2018';
         } elseif (3 === $dataSheetVersion) {

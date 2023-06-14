@@ -179,52 +179,52 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\AddressRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Address'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition'
 
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureSubscriptionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition'
 
-    demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\UserFilterSetRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
 
-    demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'
 
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory'
 
-    demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery'
 
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureTypeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal'
 
-    demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\InstitutionMailRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory'
 
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository:
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition'
 
     demosplan\DemosPlanCoreBundle\Repository\SurveyRepository:

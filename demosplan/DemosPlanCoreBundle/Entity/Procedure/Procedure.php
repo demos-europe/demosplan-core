@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
-use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -33,7 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanProcedureBundle\Constraint\ProcedureTypeConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,11 +40,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository")
- *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository")
  * @ORM\AssociationOverrides({
- *
  *      @ORM\AssociationOverride(name="slugs",
  *          joinTable=@ORM\JoinTable(
  *              joinColumns=@ORM\JoinColumn(name="p_id", referencedColumnName="_p_id"),
@@ -53,13 +49,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *          )
  *      )
  * })
- *
  * @ProcedureTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
- *
  * @ProcedureTypeConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
- *
  * @ProcedureMasterTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
- *
  * @ProcedureAllowedSegmentsConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
 class Procedure extends SluggedEntity implements ProcedureInterface
@@ -113,11 +105,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *                  to be able to be used as xs:ID type in XML messages
      *
      * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
     protected $id;
@@ -158,9 +147,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="procedures")
-     *
      * @ORM\JoinColumns({
-     *
      *   @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")
      * })
      */
@@ -384,7 +371,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_p_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -423,7 +409,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int, Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="procedureInvitations")
-     *
      * @ORM\JoinTable(
      *     name="_procedure_orga_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")},
@@ -445,7 +430,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int, Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="administratableProcedures")
-     *
      * @ORM\JoinTable(
      *     name="procedure_planningoffices",
      *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id")},
@@ -458,7 +442,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int, Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
      * @ORM\JoinTable(
      *     name="procedure_orga_datainput",
      *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")},
@@ -492,7 +475,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int,Elements>
      *
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="procedure")
-     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id")
      */
     protected $elements;
@@ -503,7 +485,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int, User>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="authorizedProcedures")
-     *
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", onDelete="CASCADE")}
@@ -529,7 +510,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @ORM\ManyToMany(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
      *     cascade={"persist"})
-     *
      * @ORM\JoinTable(
      *     name="procedure_agency_extra_email_address",
      *     joinColumns={@ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", nullable=false)},
@@ -543,7 +523,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Customer
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="defaultProcedureBlueprint", cascade={"remove", "persist"})
-     *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
     protected $customer;
@@ -555,7 +534,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory",
      *      cascade={"persist"}
      * )
-     *
      * @ORM\JoinTable(
      *      name="procedure_procedure_category_doctrine",
      *      joinColumns={@ORM\JoinColumn(
@@ -598,7 +576,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
      *
      * @ORM\ManyToOne(targetEntity="ProcedureType", inversedBy="procedures")
-     *
      * @ORM\JoinColumn(nullable=true)
      */
     private $procedureType;
@@ -609,7 +586,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var StatementFormDefinition|null
      *
      * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
      * @ORM\JoinColumn(nullable=true)
      */
     private $statementFormDefinition;
@@ -620,7 +596,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var ProcedureBehaviorDefinition|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
      * @ORM\JoinColumn(nullable=true)
      */
     private $procedureBehaviorDefinition;
@@ -631,7 +606,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var ProcedureUiDefinition|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
      * @ORM\JoinColumn(nullable=true)
      */
     private $procedureUiDefinition;
@@ -642,7 +616,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var Collection<int, ExportFieldsConfiguration>
      *
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration", mappedBy="procedure", cascade={"persist", "remove"})
-     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
     private $exportFieldsConfigurations;

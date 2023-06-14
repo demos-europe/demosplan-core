@@ -86,8 +86,8 @@ const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
-      style: config.stylesEntryPoint,
-      'style-public': config.publicStylesEntryPoint,
+      css: config.stylesEntryPoint,
+      publiccss: config.publicStylesEntryPoint,
       ...bundleEntryPoints(config.clientBundleGlob)
     }
   },

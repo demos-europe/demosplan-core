@@ -1,0 +1,135 @@
+<form
+    id="publicStatementForm"
+    class="{{ 'c-statement__form'|prefixClass }}"
+    action="{{ formAction }}"
+    method="post"
+    enctype="multipart/form-data"
+    name="statementForm"
+    role="document"
+>
+
+    <input type="hidden" name="action" value="{{ hiddenAction }}">
+
+    {# field for file upload - probably broken and only needed for nojs scenario. #}
+    {% if hasPermission('field_statement_file') %}
+        <input type="hidden" name="r_files_initial" value="{{ templateVars.statement.file|default() }}">
+    {% endif %}
+
+    {# fields for paragraph / document reference #}
+    <input type="hidden" name="r_element_id" value="{{ templateVars.statement.elementId|default() }}">
+    <input type="hidden" name="r_element_title" value="{{ templateVars.statement.elementTitle|default() }}">
+    <input type="hidden" name="r_paragraph_id" value="{{ templateVars.statement.paragraphId|default() }}">
+    <input type="hidden" name="r_paragraph_title" value="{{ templateVars.statement.paragraphTitle|default() }}">
+    <input type="hidden" name="r_document_id" value="{{ templateVars.statement.documentId|default() }}">
+    <input type="hidden" name="r_document_title" value="{{ templateVars.statement.documentTitle|default() }}">
+
+    {# fields for draftStatement edit #}
+    {% if displayEditSubmit|default %}
+        <input type="hidden" name="r_ident" value="{{ templateVars.draftStatement.ident|default }}">
+        <input type="hidden" name="r_polygon" value='{{ templateVars.draftStatement.polygon|default|raw }}' disabled>{# T15 check #}
+
+        {% set draftStatementPriorityAreas = templateVars.draftStatement.statementAttributes.priorityAreaKey|default %}
+        <input
+            type="hidden"
+            name="r_priorityAreaKey"
+            value="{{ draftStatementPriorityAreas is iterable ? draftStatementPriorityAreas|join : draftStatementPriorityAreas|default() }}"
+            disabled>
+    {% endif %}
+
+    {# fields for location reference via map #}
+    {% if proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area') %}
+        <input type="hidden" name="location_is_set" value="">
+        <input type="hidden" name="r_location_priority_area_key" value="">
+        <input type="hidden" name="r_location_priority_area_type" value="">
+        <input type="hidden" name="r_location_point" value="">
+        <input type="hidden" name="r_location_geometry" value="">
+    {% endif %}
+
+    <header class="{{ 'c-statement__header cf'|prefixClass }}" role="banner">
+
+        {# dialog title #}
+        <h2
+            id="statementModalTitle"
+            class="{{ 'color-highlight float--left u-m-0'|prefixClass }}"
+            data-statement-state-started
+        >
+            <i class="{{ 'fa fa-comment'|prefixClass }}" aria-hidden="true"></i>
+            {{ 'statement.yours'|trans }}
+        </h2>
+    </header>
+
+    {# Stellungnahme #}
+    {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_statement.html.twig' %}
+
+    {# Persönliche Daten, Überprüfen #}
+    {% if not loggedin %}
+        {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_personal_data.html.twig' %}
+        {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_recheck.html.twig'  %}
+    {% endif %}
+
+    {# should be used with |raw Filter in this special case as html-tags are returned #}
+    {{ extensionPointMarkup('formExtraFields')|raw }}
+
+    <div class="{{ 'u-mv-0_5 space-inline-s cf'|prefixClass }}" data-statement-state-submit>
+        {% if loggedin %}
+            <button
+                type="reset"
+                class="{{ 'btn btn--secondary u-1-of-1-palm'|prefixClass }}">
+                {{ "discard.changes"|trans }}
+            </button>
+            {% if displayEditSubmit|default %}
+                {# Logged in, existing draft statement #}
+                <button
+                    type="submit"
+                    class="{{ 'btn btn--primary float--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
+                    data-cy="saveChangedStatement">
+                    {{ "statement.save.altered"|trans }}
+                </button>
+            {% else %}
+                {# Logged in, new draft statement #}
+                <div class="{{ "display--inline-block float--right u-1-of-1-palm u-mt-0_5-palm"|prefixClass }}">
+                    {% if hasPermission('feature_draft_statement_citizen_immediate_submit') %}
+                        <button
+                            type="submit"
+                            class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}">
+                            {{ "statement.save.immediate"|trans }}
+                        </button>
+                    {% endif %}
+                    <button
+                        type="submit"
+                        class="{{ ((hasPermission('feature_draft_statement_citizen_immediate_submit') ? 'btn btn--secondary' : 'btn btn--primary') ~ ' u-1-of-1-palm')|prefixClass }}"
+                        data-cy="saveAsDraft">
+                        {{ "statement.save.as.draft"|trans }}
+                    </button>
+                </div>
+            {% endif %}
+        {% else %}
+            {# Guest user #}
+            <button
+                type="reset"
+                class="{{ 'btn btn--secondary u-1-of-1-palm'|prefixClass }}">
+                {{ "discard.statement"|trans }}
+            </button>
+            <button
+                id="submit"
+                type="submit"
+                class="{{ 'btn btn--primary u-ml float--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
+                data-cy="submitStatement">
+                <i class="{{ 'fa fa-comment u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
+                {{ "statement.submit.now"|trans }}
+            </button>
+        {% endif %}
+    </div>
+
+    {# error / loading feedback #}
+    <p class="{{ 'flash flash-error u-mb-0 hide-visually'|prefixClass }}" aria-hidden="true" data-statement-submit-feedback="error">
+        {{ "error.statement.not.saved"|trans }}
+    </p>
+    <p class="{{ 'u-mt-0_5 u-mb-0 hide-visually'|prefixClass }}" data-statement-submit-feedback="loading" aria-label="{{ 'loading.data'|trans }}">
+        <img src="{{ asset('img/ajax-loader.gif') }}" alt="">
+    </p>
+
+    {# placeholder for success message #}
+    <div data-statement-submit-feedback="success"></div>
+
+</form>

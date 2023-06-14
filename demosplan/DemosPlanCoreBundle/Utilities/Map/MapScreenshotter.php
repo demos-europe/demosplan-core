@@ -37,7 +37,6 @@ use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 
 class MapScreenshotter
@@ -139,11 +138,6 @@ class MapScreenshotter
     private $textIntoImageInserter;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
      * @var UrlFileReader
      */
     private $urlFileReader;
@@ -163,7 +157,6 @@ class MapScreenshotter
         PolygonIntoMapLayerMerger $polygonIntoMapLayerMerger,
         FeaturesToMapLayersConverter $featuresToMapLayersConverter,
         TextIntoImageInserter $textIntoImageInserter,
-        TranslatorInterface $translator,
         UrlFileReader $urlFileReader,
         WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter
     ) {
@@ -181,7 +174,6 @@ class MapScreenshotter
         $this->polygonIntoMapLayerMerger = $polygonIntoMapLayerMerger;
         $this->featuresToMapLayersConverter = $featuresToMapLayersConverter;
         $this->textIntoImageInserter = $textIntoImageInserter;
-        $this->translator = $translator;
         $this->urlFileReader = $urlFileReader;
         $this->wmsToWmtsCoordinatesConverter = $wmsToWmtsCoordinatesConverter;
     }
@@ -204,7 +196,8 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
+                    $copyrightText = '© basemap.de BKG (www.basemap.de) /'.
+                    'LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
@@ -271,7 +264,7 @@ class MapScreenshotter
     ): ?string {
         try {
             $copyrightText = $copyrightText
-                ?? $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
+                ?? '© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
 
             $features = $this
                 ->geoJsonToFeaturesConverter

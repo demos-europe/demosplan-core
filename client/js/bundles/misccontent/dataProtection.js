@@ -8,10 +8,10 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
 
 const components = {
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components).then(() => {

@@ -19,8 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure_subscriptions", uniqueConstraints={@ORM\UniqueConstraint(name="_psu_id", columns={"_psu_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureSubscriptionRepository")
  */
 class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
 {
@@ -28,11 +27,8 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_psu_id", type="string", length=36, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -41,7 +37,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")
      * })
      */
@@ -91,7 +86,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_psu_created_date", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -100,7 +94,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_psu_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
@@ -109,7 +102,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_psu_deleted_date", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $deletedDate;

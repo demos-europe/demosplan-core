@@ -170,9 +170,10 @@
       <div class="text--right">
         <dp-button
           :busy="isLoading"
-          icon-after="chevron-right"
-          :text="Translator.trans('actions.statements.apply', { count: selectedElementsCount })"
-          @click.once="submitData" />
+          @click.once="submitData">
+          {{ Translator.trans('actions.statements.apply', { count: selectedElementsCount }) }}
+          <i class="fa fa-angle-right u-pl-0_25" />
+        </dp-button>
 
         <a
           class="btn btn--secondary float--left"
@@ -199,9 +200,11 @@
         {{ Translator.trans(options[option].successMessage) }}
       </p>
       <dp-button
-        icon="chevron-left"
-        :text="Translator.trans('considerationtable.back')"
-        @click="handleReturn" />
+        :text="Translator.trans('save')"
+        @click="handleReturn">
+        <i class="fa fa-angle-left u-pr-0_25" />
+        {{ Translator.trans('considerationtable.back') }}
+      </dp-button>
     </div>
   </div>
 </template>

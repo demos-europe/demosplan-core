@@ -14,7 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
@@ -25,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
@@ -33,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapOptions;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
@@ -445,7 +444,7 @@ class MapService extends CoreService
             $kindOfStatement = $this->getStatementOrDraftStatementFromId($draftStatementOrStatementId);
 
             // Make screenshot and return file name and path
-            $copyrightText = $this->getReplacedMapAttribution($kindOfStatement->getProcedure());
+            $copyrightText = $kindOfStatement->getProcedure()->getSettings()->getCopyright();
             $polygon = $kindOfStatement->getPolygon();
             $this->getLogger()->info('Found polygon: '.DemosPlanTools::varExport($polygon, true));
             $file = $this->mapScreenshotter->makeScreenshot($polygon, $gisLayer, $copyrightText);
@@ -817,17 +816,6 @@ class MapService extends CoreService
         $mapOptions->lock();
 
         return $mapOptions;
-    }
-
-    public function getReplacedMapAttribution(Procedure $procedure): ?string
-    {
-        $mapAttribution = $procedure->getSettings()->getCopyright();
-
-        if (null === $mapAttribution) {
-            return null;
-        }
-
-        return str_replace('{year}', date('Y'), $mapAttribution);
     }
 
     protected function convertArrayValuesToFloats(array $someArray): array

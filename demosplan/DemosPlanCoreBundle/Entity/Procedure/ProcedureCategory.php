@@ -18,8 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Procedure category.
  *
  * @ORM\Table(name="procedure_category")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository")
  */
 class ProcedureCategory extends CoreEntity implements UuidEntityInterface
 {
@@ -27,11 +26,8 @@ class ProcedureCategory extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="procedure_category_id", type="string", length=36, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

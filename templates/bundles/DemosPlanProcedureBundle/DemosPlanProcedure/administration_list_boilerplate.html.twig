@@ -1,0 +1,211 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'boilerplates' |trans
+    } %}
+
+    <form
+        class="cf"
+        name="itemsForm"
+        method="post"
+        action="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+        <input type="hidden" name="manualsort" value="">
+
+        {# mark all #}
+        <label class="u-mb-0 u-mh-0_75 display--inline-block">
+            <input
+                class="u-mr-0"
+                type="checkbox"
+                data-cy="checkAllItems"
+                data-form-actions-check-all
+                name="checkAllItems"
+                value="">
+            {{ "all"|trans }}
+        </label>
+
+        {# delete marked items #}
+        <button
+            class="btn-icns u-ml-0_25"
+            data-cy="deleteSelectedBoilerplate"
+            name="boilerplateDeleteChecked"
+            data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
+            <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+        </button>
+
+        <dp-split-button
+            data-cy="addNewBoilerplate"
+            class="display--inline-block float--right">
+            <a
+               class="btn btn--primary has-dropdown u-m-0"
+               data-cy="generateBoilerplate"
+               href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
+                {{ "boilerplate.generate"|trans }}
+            </a><!--
+         --><template v-slot:dropdown>
+            <a
+               data-cy="addNewBoilerplateGroup"
+               href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
+               {{ "new.group.create"|trans }}
+            </a>
+            </template>
+        </dp-split-button>
+
+
+        <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
+            <colgroup>
+                <col class="width-5p">
+                <col class="width-40p">
+                <col class="width-40p">
+                <col class="width-10p">
+                <col class="width-5p">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>
+                        {{ "boilerplates.in.group" |trans }}
+                    </th>
+                    <th>
+                        {{ "area.category.show" |trans }}
+                    </th>
+                    <th class="text--center">
+                        {{ "actions" |trans }}
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for boilerplate in templateVars.list|default([]) %}
+                {% if not boilerplate.group|default %}
+                    <tr
+                        id="{{ boilerplate.ident|default }}"
+                        class="o-animate--bg-color">
+                        <td>
+                            <input
+                                id="boilerplate_delete:{{ boilerplate.ident|default('') }}"
+                                name="boilerplate_delete[]"
+                                class="u-ml-0_5"
+                                type="checkbox"
+                                value="{{ boilerplate.ident|default('') }}"
+                                data-checkable-item="">
+                        </td>
+                        <td class="o-hellip--td">
+                            <label
+                                class="lbl--text display--inline o-hellip"
+                                for="boilerplate_delete:{{ boilerplate.ident|default('') }}">
+                                {{ boilerplate.title|default('Titel') }}
+                            </label>
+                        </td>
+                        <td>
+                            {% for cat in boilerplate.categories %}
+                                {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="text--center">
+                            <a
+                                href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
+                                class="o-toggle__trigger u-mr-0_5 u-valign--middle js__toggleAnything">
+                                <i
+                                    class="fa fa-pencil"
+                                    aria-hidden="true">
+                                </i>
+                            </a>
+                            <button
+                                class="btn--blank o-link--default"
+                                value="{{ boilerplate.id }}"
+                                name="boilerplateDeleteItem"
+                                data-form-actions-confirm="{{ 'check.boilerplate.delete'|trans({ boilerplate: boilerplate.title }) }}"
+                                data-form-actions-confirm-simple
+                                title="{{ "topic.delete" |trans }}">
+                                <i
+                                    class="fa fa-trash"
+                                    aria-hidden="true">
+                                </i>
+                            </button>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            {% for boilerplateGroup in templateVars.boilerplateGroups|default([]) %}
+                <tr
+                    id="{{ boilerplateGroup.id|default }}"
+                    data-cy="boilerplateGroupList"
+                    class="o-animate--bg-color"
+                >
+                    <td>
+                        <input
+                            id="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}"
+                            name="boilerplateGroupIdsTo_delete[]"
+                            class="u-ml-0_5"
+                            type="checkbox"
+                            value="{{ boilerplateGroup.id|default }}"
+                            data-checkable-item=""
+                            data-checkable-parent-id="{{ boilerplateGroup.id|default }}">
+                    </td>
+                    <td class="o-hellip--td">
+                        {% if boilerplateGroup.boilerplates|length > 0 %}
+                            <i
+                                class="fa u-mr-0_125 fa-folder-open u-valign--middle"
+                                aria-hidden="true">
+                            </i>
+                        {% else %}
+                            <i
+                                class="fa u-mr-0_125 fa-folder-o u-valign--middle"
+                                aria-hidden="true">
+                            </i>
+                        {% endif %}
+                        <label
+                            class="lbl--text display--inline-block u-mb-0 o-hellip max-width-90p u-valign--middle"
+                            for="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}">
+                            {{ boilerplateGroup.title }}
+                        </label>
+                    </td>
+                    <td></td>
+                    <td class="text--center">
+                        <dp-flyout>
+                            <a href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}">
+                                {{ 'boilerplate.generate' |trans }}
+                            </a>
+                            <a href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': boilerplateGroup.id}) }}">
+                                {{ 'group.edit' |trans }}
+                            </a>
+                            <button
+                                class="btn--blank o-link--default"
+                                value="{{ boilerplateGroup.id }}"
+                                name="boilerplateGroupDeleteAllContent"
+                                data-form-actions-confirm="{{ "check.boilerplateGroup.delete"|trans({ boilerplateGroup: boilerplateGroup.title }) }}"
+                                data-form-actions-confirm-simple>
+                                {{ 'group.delete' |trans }}
+                            </button>
+                        </dp-flyout>
+                    </td>
+                    <td>
+                        {% if boilerplateGroup.boilerplates|length > 0 %}
+                            <div
+                                class="text--right u-pr-0_5 o-toggle__trigger js__toggleAnything is-active-toggle"
+                                data-toggle="#{{ boilerplateGroup.id|default }}">
+                                <i class="fa o-toggle__icon--angle" aria-hidden="true"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% for boilerplate in boilerplateGroup.boilerplates %}
+                    {% include '@DemosPlanProcedure/DemosPlanProcedure/administration_list_boilerplate_entry.html.twig' %}
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </form>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationListBoilerplate.js') }}
+{% endblock javascripts %}
