@@ -1296,10 +1296,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.1.1.tgz#c9c61d9fe5ca5ac664e1153bb0aa0eba1c6d6308"
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
-"@demos-europe/demosplan-ui@^0":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.2.tgz#c6165dade50efb4720b6af96e2376de1804c25ae"
-  integrity sha512-NMyBhT0cVN7fJXUCgvRp/M9g5k/vyy6Tp7xxE83SzaisGEiHFZjR7VcKuzqXjhCrRxsuuvyG2Y1M3InAt4ytuQ==
+"@demos-europe/demosplan-ui@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.4.tgz#ba1df51f16967922cda237f46e9da9308dde169c"
+  integrity sha512-sxZ/VD3Z9zCSWNCgvhHrss3jMCvWJlrB7qlZ8dlFIuxIVSKXChF4OiH6EU4vjkepxRhpZunZBY//li2Yt4iumA==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@uppy/core" "^3.0.1"
