@@ -20,6 +20,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function parse_url;
 use function rawurlencode;
 use function str_replace;

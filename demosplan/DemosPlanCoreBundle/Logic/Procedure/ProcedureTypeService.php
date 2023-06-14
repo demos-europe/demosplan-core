@@ -497,7 +497,6 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         }, $entities);
     }
 
-
     public function getProcedureTypeByName(string $name): ?ProcedureType
     {
         return $this->procedureTypeRepository->findOneBy(['name' => $name]);
