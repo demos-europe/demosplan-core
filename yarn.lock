@@ -1861,10 +1861,10 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.0.tgz#8fae151d76e3fdd018861e3e89d919bac260c8be"
-  integrity sha512-Kl8j2neoxN3zxlunzoeBk3Qu/ZhRDcCxjoLOmUwJu7eRzaUc8S0LOsUGPjm8cXh/AX4MOK2TMbb3mh3UOUBWtg==
+"@masterportal/masterportalapi@^2.19.2":
+  version "2.19.2"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.2.tgz#b6a3d0fe84e4e1cc968eb459d0eeb8605960be72"
+  integrity sha512-By/MtU71pzQOAxH7/JlcbYud0dmPtgffFeifRs1WyqKeHywdKmZ2lMQDWgmaUksR9bAJT4TKmaVgaAl79bwAqw==
   dependencies:
     core-js "^3.30.2"
     dayjs "^1.11.7"
