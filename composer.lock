@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c19625b6e72f7c4863d9982e4af33d6",
+    "content-hash": "2023aaae37b7e474b46907f9d3157188",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1289,7 +1289,7 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-main",
+            "version": "v0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
@@ -1322,7 +1322,6 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
-            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1335,7 +1334,7 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.0.4"
             },
             "time": "2023-06-05T07:35:13+00:00"
         },
@@ -22157,9 +22156,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "demos-europe/demosplan-addon": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
