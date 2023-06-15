@@ -1861,10 +1861,10 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.0.tgz#8fae151d76e3fdd018861e3e89d919bac260c8be"
-  integrity sha512-Kl8j2neoxN3zxlunzoeBk3Qu/ZhRDcCxjoLOmUwJu7eRzaUc8S0LOsUGPjm8cXh/AX4MOK2TMbb3mh3UOUBWtg==
+"@masterportal/masterportalapi@^2.19.2":
+  version "2.19.2"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.19.2.tgz#b6a3d0fe84e4e1cc968eb459d0eeb8605960be72"
+  integrity sha512-By/MtU71pzQOAxH7/JlcbYud0dmPtgffFeifRs1WyqKeHywdKmZ2lMQDWgmaUksR9bAJT4TKmaVgaAl79bwAqw==
   dependencies:
     core-js "^3.30.2"
     dayjs "^1.11.7"
@@ -2319,10 +2319,10 @@
   optionalDependencies:
     prettier "^1.18.2 || ^2.0.0"
 
-"@vue/test-utils@^1.3.5":
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.3.5.tgz#7beba75901c3a08a48b5657b63de02094dc40719"
-  integrity sha512-ezdlDNoxi5m/eP5Chg34AjnmNplrik4fyzB2DB9Yqa32OpywV8IvHqK9eCf+nIVsHFBejjV00agPFYRH2/D3Hg==
+"@vue/test-utils@^1.3.6":
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.3.6.tgz#6656bd8fa44dd088b4ad80ff1ee28abe7e5ddf87"
+  integrity sha512-udMmmF1ts3zwxUJEIAj5ziioR900reDrt6C9H3XpWPsLBx2lpHKoA4BTdd9HNIYbkGltWw+JjWJ+5O6QBwiyEw==
   dependencies:
     dom-event-types "^1.0.0"
     lodash "^4.17.15"
@@ -4342,17 +4342,17 @@ eslint-plugin-standard@^5.0.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-5.0.0.tgz#c43f6925d669f177db46f095ea30be95476b1ee4"
   integrity sha512-eSIXPc9wBM4BrniMzJRBm2uoVuXz2EPa+NXPk2+itrVt+r5SbKFERx/IgrK/HmfjddyKVz2f+j+7gBRvu19xLg==
 
-eslint-plugin-vue@^9.12.0:
-  version "9.12.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.12.0.tgz#3174eaaedc143bf7b392b3defa3f18889606bb73"
-  integrity sha512-xH8PgpDW2WwmFSmRfs/3iWogef1CJzQqX264I65zz77jDuxF2yLy7+GA2diUM8ZNATuSl1+UehMQkb5YEyau5w==
+eslint-plugin-vue@^9.14.1:
+  version "9.14.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.14.1.tgz#3b0c9857642dac547c7564031cfb09d283eafdd4"
+  integrity sha512-LQazDB1qkNEKejLe/b5a9VfEbtbczcOaui5lQ4Qw0tbRBbQYREyxxOV5BQgNDTqGPs9pxqiEpbMi9ywuIaF7vw==
   dependencies:
     "@eslint-community/eslint-utils" "^4.3.0"
     natural-compare "^1.4.0"
     nth-check "^2.0.1"
     postcss-selector-parser "^6.0.9"
     semver "^7.3.5"
-    vue-eslint-parser "^9.0.1"
+    vue-eslint-parser "^9.3.0"
     xml-name-validator "^4.0.0"
 
 eslint-plugin-vuejs-accessibility@^2.1.0:
@@ -4856,10 +4856,10 @@ glob-to-regexp@^0.4.1:
   resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz#c75297087c851b9a578bd217dd59a92f59fe546e"
   integrity sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==
 
-glob@^10.2.6:
-  version "10.2.6"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-10.2.6.tgz#1e27edbb3bbac055cb97113e27a066c100a4e5e1"
-  integrity sha512-U/rnDpXJGF414QQQZv5uVsabTVxMSwzS5CH0p3DRCIV6ownl4f7PzGnkGmvlum2wB+9RlJWJZ6ACU1INnBqiPA==
+glob@^10.2.7:
+  version "10.2.7"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-10.2.7.tgz#9dd2828cd5bc7bd861e7738d91e7113dda41d7d8"
+  integrity sha512-jTKehsravOJo8IJxUGfZILnkvVJM/MOfHRs8QcXolVef2zNI9Tqyy5+SeuOAZd3upViEZQLyFpQhYiHLrMUNmA==
   dependencies:
     foreground-child "^3.1.0"
     jackspeak "^2.0.3"
@@ -7687,10 +7687,10 @@ prosemirror-model@^1.0.0, prosemirror-model@^1.13.1, prosemirror-model@^1.16.0, 
   dependencies:
     orderedmap "^2.0.0"
 
-prosemirror-schema-basic@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/prosemirror-schema-basic/-/prosemirror-schema-basic-1.2.1.tgz#a5a137a6399d1a829873332117d2fe8131d291d0"
-  integrity sha512-vYBdIHsYKSDIqYmPBC7lnwk9DsKn8PnVqK97pMYP5MLEDFqWIX75JiaJTzndBii4bRuNqhC2UfDOfM3FKhlBHg==
+prosemirror-schema-basic@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/prosemirror-schema-basic/-/prosemirror-schema-basic-1.2.2.tgz#6695f5175e4628aab179bf62e5568628b9cfe6c7"
+  integrity sha512-/dT4JFEGyO7QnNTe9UaKUhjDXbTNkiWTq/N4VpKaF79bBjSExVV2NXmJpcM7z/gD7mbqNjxbmWW5nf1iNSSGnw==
   dependencies:
     prosemirror-model "^1.19.0"
 
@@ -9061,10 +9061,10 @@ vue-click-outside@^1.1.0:
   resolved "https://registry.yarnpkg.com/vue-click-outside/-/vue-click-outside-1.1.0.tgz#48b7680b518923e701643cccb3e165854aad99eb"
   integrity sha512-pNyvAA9mRXJwPHlHJyjMb4IONSc7khS5lxGcMyE2EIKgNMAO279PWM9Hyq0d5J4FkiSRdmFLwnbjDd5UtPizHQ==
 
-vue-eslint-parser@^9.0.1:
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-9.1.0.tgz#0e121d1bb29bd10763c83e3cc583ee03434a9dd5"
-  integrity sha512-NGn/iQy8/Wb7RrRa4aRkokyCZfOUWk19OP5HP6JEozQFX5AoS/t+Z0ZN7FY4LlmWc4FNI922V7cvX28zctN8dQ==
+vue-eslint-parser@^9.0.1, vue-eslint-parser@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/vue-eslint-parser/-/vue-eslint-parser-9.3.0.tgz#775a974a0603c9a73d85fed8958ed9e814a4a816"
+  integrity sha512-48IxT9d0+wArT1+3wNIy0tascRoywqSUe2E1YalIC1L8jsUGe5aJQItWfRok7DVFGz3UYvzEI7n5wiTXsCMAcQ==
   dependencies:
     debug "^4.3.4"
     eslint-scope "^7.1.1"

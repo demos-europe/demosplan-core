@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -1469,8 +1470,12 @@ class DocxExporter
             // Dateien
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_FILES, $exportConfig, $statement)) {
                 foreach ($statement->getFiles() as $fileString) {
-                    $file = explode(':', $fileString);
-                    $fileName = $file[0] ?? '';
+                    if ($fileString instanceof File) {
+                        $fileName = $fileString->getFilename();
+                    } else {
+                        $file = explode(':', $fileString);
+                        $fileName = $file[0] ?? '';
+                    }
                     if ($anonym) {
                         $cell2AddText('file', $this->getTranslator()->trans('files.attached'));
                     } else {

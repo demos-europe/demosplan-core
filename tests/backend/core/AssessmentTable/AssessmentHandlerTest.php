@@ -50,6 +50,9 @@ class AssessmentHandlerTest extends FunctionalTestCase
      */
     public function testAnonymousFileOnStatementsDoxcExport()
     {
+        // getStatementsByProcedureId() is called in exportDocx() and it is not mocked which needs elasticsearch
+        self::markSkippedForCIIntervention();
+
         /** @var Statement $statement */
         $statement = $this->fixtures->getReference(self::STATEMENT_REFERENCE);
         $file1 = new File();

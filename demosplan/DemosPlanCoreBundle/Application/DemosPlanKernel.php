@@ -278,7 +278,9 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new RpcMethodSolverPass());
         $container->addCompilerPass(new MenusLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        if ('test' !== $this->getEnvironment()) {
+            $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        }
     }
 
     public function getActiveProject(): string
