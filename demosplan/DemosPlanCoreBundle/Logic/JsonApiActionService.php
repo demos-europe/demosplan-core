@@ -110,12 +110,12 @@ class JsonApiActionService extends AbstractApiService
         APIPagination $pagination = null
     ): ApiListResult {
         if (null === $pagination) {
-            $filteredEntities = $this->entityFetcher->listEntities($type, $conditions, $sortMethods);
+            $filteredEntities = $type->listEntities($conditions, $sortMethods);
 
             return new ApiListResult($filteredEntities, [], null);
         }
 
-        $paginator = $this->entityFetcher->getEntityPaginator($type, $pagination, $conditions, $sortMethods);
+        $paginator = $type->getEntityPaginator($pagination, $conditions, $sortMethods);
 
         $entities = $paginator->getCurrentPageResults();
         $entities = Iterables::asArray($entities);
@@ -137,14 +137,14 @@ class JsonApiActionService extends AbstractApiService
         APIPagination $pagination = null
     ): ApiListResult {
         // we do not need to apply any sorting here, because it needs to be applied later
-        $entityIdentifiers = $this->entityFetcher->listEntityIdentifiers($type, $conditions, []);
+        $entityIdentifiers = $type->listEntityIdentifiers($conditions, []);
 
         return $this->jsonApiEsService->getEsFilteredObjects($type, $entityIdentifiers, $searchParams, $filterAsArray, $requireEntities, $sortMethods, $pagination);
     }
 
     protected function getObject(ResourceTypeInterface $type, string $id): object
     {
-        return $this->entityFetcher->getEntityAsReadTarget($type, $id);
+        return $type->getEntityAsReadTarget($id);
     }
 
     protected function updateObject(ResourceTypeInterface $resourceType, string $resourceId, array $properties): ?object
@@ -153,7 +153,7 @@ class JsonApiActionService extends AbstractApiService
             throw new TypeRetrievalAccessException("Resource type is not updatable: {$resourceType::getName()}");
         }
 
-        $entity = $this->entityFetcher->getEntityAsUpdateTarget($resourceType, $resourceId);
+        $entity = $resourceType->getEntityByTypeIdentifier($resourceId);
 
         $preEvent = new BeforeResourceUpdateEvent($entity, $resourceType, $properties);
         $this->eventDispatcher->dispatch($preEvent);
@@ -279,7 +279,7 @@ class JsonApiActionService extends AbstractApiService
             throw new TypeRetrievalAccessException("Resource type is not deletable: {$resourceType::getName()}");
         }
 
-        $entity = $this->entityFetcher->getEntityAsDeletionTarget($resourceType, $resourceId);
+        $entity = $resourceType->getEntityByTypeIdentifier($resourceId);
 
         $beforeDeletionEvent = new BeforeResourceDeletionEvent($entity, $resourceType);
         $this->eventDispatcher->dispatch($beforeDeletionEvent);

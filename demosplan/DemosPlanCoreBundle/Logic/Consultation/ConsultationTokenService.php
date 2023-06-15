@@ -197,7 +197,7 @@ class ConsultationTokenService
             );
         $sort = $this->getSortMethod($sortParams);
 
-        return $this->entityFetcher->listEntities($this->consultationTokenResourceType, [$condition], [$sort]);
+        return $this->consultationTokenResourceType->listEntities([$condition], [$sort]);
     }
 
     public function getTokenForStatement(Statement $statement): ?ConsultationToken

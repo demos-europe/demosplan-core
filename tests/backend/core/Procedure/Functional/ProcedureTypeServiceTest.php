@@ -283,11 +283,9 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        /** @var EntityFetcher $entityFetcher */
-        $entityFetcher = self::$container->get(EntityFetcher::class);
         /** @var ProcedureTypeResourceType $procedureTypeResourceType */
         $procedureTypeResourceType = self::$container->get(ProcedureTypeResourceType::class);
-        $procedureTypes = $entityFetcher->listEntities($procedureTypeResourceType, [], []);
+        $procedureTypes = $procedureTypeResourceType->listEntities([], []);
         static::assertCount($this->countEntries(ProcedureType::class), $procedureTypes);
     }
 

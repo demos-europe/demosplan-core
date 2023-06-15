@@ -315,9 +315,12 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
                 $statementFieldDefinitionResourceType->required
             );
 
-            $statementFieldDefinitionChanges[] = $this->resourcePersister->updateBackingObject(
+            $statementFieldDefinition = $statementFieldDefinitionResourceType->getEntityByTypeIdentifier(
+                $fieldDefinition['id']
+            );
+            $statementFieldDefinitionChanges[] = $this->resourcePersister->updateBackingObjectWithEntity(
                 $statementFieldDefinitionResourceType,
-                $fieldDefinition['id'],
+                $statementFieldDefinition,
                 $statementFieldDefinitionProperties
             );
         }
@@ -334,7 +337,8 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         Request $request
     ): Request {
         $params = $request->request->all();
-        $originalProcedureTypeEntity = $this->entityFetcher->getEntityAsReadTarget($this->procedureTypeResourceType, $params['id']);
+        /** @var ProcedureType $originalProcedureTypeEntity */
+        $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntityAsReadTarget($params['id']);
         // Always adds participationGuestOnly since it is never send in the form
         $originalParticipationGuestOnly = $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
         $params[$formName]['procedureBehaviorDefinition']['participationGuestOnly'] = $originalParticipationGuestOnly;
@@ -429,7 +433,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
+        $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
 
         return array_map(fn(object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
     }

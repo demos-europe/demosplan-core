@@ -757,12 +757,9 @@ class ExcelImporter extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
         );
 
-        $matchingTags = $this->entityFetcher->listPrefilteredEntities($this->tagResourceType, $this->generatedTags, [$titleCondition]);
+        $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->entityFetcher->listEntities(
-                $this->tagResourceType,
-                [$titleCondition]
-            );
+            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
         }
 
         return $matchingTags[0] ?? null;

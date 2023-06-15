@@ -18,9 +18,14 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DoctrineOrmPartialDTOProvider;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PartialDTO;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
@@ -29,24 +34,46 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
+use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
+use Doctrine\ORM\EntityManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
+use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\DqlQuerying\Utilities\JoinFinder;
+use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PaginationException;
+use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
+use EDT\Querying\EntityProviders\EntityProviderInterface;
+use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
+use EDT\Querying\Utilities\ConditionEvaluator;
+use EDT\Querying\Utilities\Iterables;
+use EDT\Querying\Utilities\Sorter;
+use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
+use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
+use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Properties\UpdatableRelationship;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use IteratorAggregate;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -133,6 +160,13 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      * @var MessageFormatter
      */
     private $messageFormatter;
+
+    protected ?EntityFetcher $entityFetcher;
+    protected ?EntityManager $entityManager;
+    protected ?SchemaPathProcessor $schemaPathProcessor;
+    protected ?ConditionEvaluator $conditionEvaluator;
+    protected ?Sorter $sorter;
+    protected ?JoinFinder $joinFinder;
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
@@ -270,6 +304,57 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     }
 
     /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setEntityFetcher(EntityFetcher $entityFetcher): void
+    {
+        $this->entityFetcher = $entityFetcher;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setEntityManager(EntityManager $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+        $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setSchemaPathProcessor(SchemaPathProcessor $schemaPathProcessor): void
+    {
+        $this->schemaPathProcessor = $schemaPathProcessor;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setConditionEvaluator(ConditionEvaluator $conditionEvaluator): void
+    {
+        $this->conditionEvaluator = $conditionEvaluator;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setSorter(Sorter $sorter): void
+    {
+        $this->sorter = $sorter;
+    }
+
+    /**
      * @param array<string, mixed> $parameters
      *
      * @throws MessageBagException
@@ -362,6 +447,223 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
             })->all();
     }
 
+    /**
+     * Will return all entities matching the given condition with the specified sorting.
+     *
+     * For all properties accessed while filtering/sorting it is checked if:
+     *
+     * * the given type and the types in the property paths are
+     *  {@link TypeInterface::isAvailable() available at all} and
+     *  {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *  {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *  {@link SortableTypeInterface::getSortableProperties() sorting}
+     *
+     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
+     *                                                        higher priority. Ie. a second sort method
+     *                                                        will be applied to each subset individually
+     *                                                        that resulted from the first sort method.
+     *                                                        The array keys will be ignored.
+     *
+     * @return array<int,T>
+     *
+     * @throws AccessException thrown if the resource type denies the currently logged in user
+     *                         the access to the resource type needed to fulfill the request
+     */
+    public function listEntities(array $conditions, array $sortMethods = []): array
+    {
+        if (!$this->isDirectlyAccessible()) {
+            throw AccessException::typeNotDirectlyAccessible($this);
+        }
+
+        $entityProvider = $this->createOrmEntityProvider();
+
+        return $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
+    }
+
+    /**
+     * Unlike {@link EntityFetcher::listPaginatedEntitiesUnrestricted} this method accepts conditions and sort methods using the
+     * schema of a resource type instead of the schema of the backing entity.
+     *
+     * It will automatically check access rights and apply aliases before creating a
+     * {@link QueryBuilder} and using it to create the returned {@link DemosPlanPaginator}.
+     *
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     * @param array<int, OrderBySortMethodInterface>    $sortMethods
+     *
+     * @throws MappingException
+     * @throws PaginationException
+     * @throws PathException
+     */
+    public function getEntityPaginator(
+        APIPagination $pagination,
+        array $conditions,
+        array $sortMethods = []
+    ): DemosPlanPaginator {
+        if (!$this->isAvailable()) {
+            throw AccessException::typeNotAvailable($this);
+        }
+
+        if (!$this->isDirectlyAccessible()) {
+            throw AccessException::typeNotDirectlyAccessible($this);
+        }
+
+        $conditions = $this->mapConditions($conditions);
+        $sortMethods = $this->mapSortMethods($sortMethods);
+
+        $entityProvider = $this->createOrmEntityProvider();
+        $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
+
+        $queryAdapter = new QueryAdapter($queryBuilder);
+        $paginator = new DemosPlanPaginator($queryAdapter);
+        $paginator->setMaxPerPage($pagination->getSize());
+        $paginator->setCurrentPage($pagination->getNumber());
+
+        return $paginator;
+    }
+
+    /**
+     * Will return all entities matching the given condition with the specified sorting. The dataObjects array is the data source from which
+     * matching entities will be returned (This is the only difference to the listEntities function above!).
+     *
+     * For all properties accessed while filtering/sorting it is checked if:
+     *
+     * * the given type and the types in the property paths are
+     *   {@link TypeInterface::isAvailable() available at all} and
+     *   {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *   {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *   {@link SortableTypeInterface::getSortableProperties() sorting}
+     *
+     * @param array<int,T>                       $dataObjects
+     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
+     *                                                        higher priority. Ie. a second sort method
+     *                                                        will be applied to each subset individually
+     *                                                        that resulted from the first sort method.
+     *                                                        The array keys will be ignored.
+     *
+     * @return array<int, T>
+     *
+     * @throws AccessException thrown if the resource type denies the currently logged in user
+     *                         the access to the resource type needed to fulfill the request
+     */
+    public function listPrefilteredEntities(
+        array $dataObjects,
+        array $conditions = [],
+        array $sortMethods = []
+    ): array {
+        if (!$this->isDirectlyAccessible()) {
+            throw AccessException::typeNotDirectlyAccessible($this);
+        }
+
+        $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
+
+        return $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
+    }
+
+    /**
+     * @return T
+     *
+     * @throws AccessException          thrown if the resource type denies the currently logged in user
+     *                                  the access to the resource type needed to fulfill the request
+     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
+     */
+    public function getEntityAsReadTarget(string $id): object
+    {
+        if (!$this->isDirectlyAccessible()) {
+            throw AccessException::typeNotDirectlyAccessible($this);
+        }
+
+        return $this->getEntityByTypeIdentifier($id);
+    }
+
+    /**
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     */
+    public function getEntityCount(array $conditions): int
+    {
+        $pagination = new APIPagination();
+        $pagination->setSize(1);
+        $pagination->setNumber(1);
+        $pagination->lock();
+
+        $paginator = $this->getEntityPaginator($pagination, $conditions, []);
+
+        return $paginator->getAdapter()->getNbResults();
+    }
+
+    /**
+     * @return T
+     *
+     * @throws AccessException          thrown if the resource type denies the currently logged in user
+     *                                  the access to the resource type needed to fulfill the request
+     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
+     */
+    public function getEntityByTypeIdentifier(string $id): object
+    {
+        $entityProvider = $this->createOrmEntityProvider();
+
+        try {
+            $identifierPath = $this->getIdentifierPropertyPath();
+            $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPath);
+            $entities = $this->listTypeEntities($entityProvider, [$identifierCondition], []);
+
+            switch (count($entities)) {
+                case 0:
+                    throw AccessException::noEntityByIdentifier($this);
+                case 1:
+                    return array_pop($entities);
+                default:
+                    throw AccessException::multipleEntitiesByIdentifier($this);
+            }
+        } catch (AccessException $e) {
+            $typeName = $this::getName();
+            throw new InvalidArgumentException("Could not retrieve entity for type '$typeName' with ID '$id'.", 0, $e);
+        }
+    }
+
+    /**
+     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
+     *                                                        higher priority. I.e. a second sort method
+     *                                                        will be applied to each subset individually
+     *                                                        that resulted from the first sort method.
+     *                                                        The array keys will be ignored.
+     *
+     * @return array<int, string> the identifiers of the entities, sorted by the given $sortMethods
+     *
+     * @throws AccessException thrown if the resource type denies the currently logged in user
+     *                         the access to the resource type needed to fulfill the request
+     */
+    public function listEntityIdentifiers(
+        array $conditions,
+        array $sortMethods
+    ) {
+        if (!$this->isDirectlyAccessible()) {
+            throw AccessException::typeNotDirectlyAccessible($this);
+        }
+
+        $entityIdProperty = $this->getEntityIdentifierProperty();
+
+        $queryBuilderPreparer = new QueryBuilderPreparer(
+            $this->getEntityClass(),
+            $this->entityManager->getMetadataFactory(),
+            $this->joinFinder
+        );
+
+        $entityProvider = new DoctrineOrmPartialDTOProvider(
+            $this->entityManager,
+            $queryBuilderPreparer,
+            $entityIdProperty
+        );
+
+        $partialDtos = $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
+
+        return array_map(static fn (PartialDTO $dto): string => $dto->getProperty($entityIdProperty), $partialDtos);
+    }
+
     protected function processProperties(array $properties): array
     {
         $event = new GetPropertiesEvent($this, $properties);
@@ -401,5 +703,101 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         }
 
         return $this->messageFormatter;
+    }
+
+    /**
+     * This method determines the property within an entity that should be used as ID, as
+     * not all entities use `id` for this but some use `ident`.
+     *
+     * It can only get the identifier if it is not nested within a relationship, because
+     * support for nested IDs was not added yet.
+     *
+     * You probably want to utilize {@link SchemaPathProcessor::processPropertyPath} when
+     * you add support for paths (nested IDs).
+     *
+     * @throws NotYetImplementedException if the ID is either nested within a relationship of the resource/entity
+     */
+    protected function getEntityIdentifierProperty(): string
+    {
+        // get the resource identifier attribute
+        $resourceIdPath = $this->getIdentifierPropertyPath();
+        if (1 !== count($resourceIdPath)) {
+            throw new NotYetImplementedException('Usage of a property within a resource relationship as ID is not yet supported');
+        }
+
+        // map the resource identifier attribute to an entity property
+        $resourceIdProperty = array_pop($resourceIdPath);
+        $entityIdPath = $this->getAliases()[$resourceIdProperty] ?? [$resourceIdProperty];
+        if (1 !== count($entityIdPath)) {
+            throw new NotYetImplementedException('Usage of a property within a entity relationship as ID is not yet supported');
+        }
+
+        return array_pop($entityIdPath);
+    }
+
+    private function listTypeEntities(
+        EntityProviderInterface $entityProvider,
+        array $conditions,
+        array $sortMethods
+    ): array {
+        if (!$this->isAvailable()) {
+            throw AccessException::typeNotAvailable($this);
+        }
+
+        $conditions = $this->mapConditions($conditions);
+        $sortMethods = $this->mapSortMethods($sortMethods);
+
+        // get the actual entities
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
+
+        // get and map the actual entities
+        $entities = Iterables::asArray($entities);
+
+        return array_values($entities);
+    }
+
+    /**
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
+     */
+    private function mapConditions(array $conditions): array
+    {
+        if ([] !== $conditions && $this instanceof FilterableTypeInterface) {
+            $this->schemaPathProcessor->mapFilterConditions($this, $conditions);
+        }
+        $conditions[] = $this->schemaPathProcessor->processAccessCondition($this);
+
+        return $conditions;
+    }
+
+    /**
+     * @param list<OrderBySortMethodInterface> $sortMethods
+     *
+     * @return list<OrderBySortMethodInterface>
+     *
+     * @throws PathException
+     */
+    private function mapSortMethods(array $sortMethods): array
+    {
+        if ([] !== $sortMethods && $this instanceof SortableTypeInterface) {
+            $this->schemaPathProcessor->mapSorting($this, $sortMethods);
+        }
+        $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($this);
+
+        return array_merge($sortMethods, $defaultSortMethods);
+    }
+
+    private function createOrmEntityProvider(): DoctrineOrmEntityProvider
+    {
+        $queryBuilderPreparer = new QueryBuilderPreparer(
+            $this->getEntityClass(),
+            $this->entityManager->getMetadataFactory(),
+            $this->joinFinder
+        );
+
+        return new DoctrineOrmEntityProvider($this->entityManager, $queryBuilderPreparer);
     }
 }

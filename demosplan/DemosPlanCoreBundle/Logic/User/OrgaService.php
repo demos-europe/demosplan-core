@@ -444,7 +444,7 @@ class OrgaService extends CoreService
             ),
         ];
 
-        return $this->entityFetcher->getEntityCount($this->orgaResourceType, $conditions);
+        return $this->orgaResourceType->getEntityCount($conditions);
     }
 
     /**
@@ -774,7 +774,7 @@ class OrgaService extends CoreService
      */
     public function getInvitablePublicAgencies(): array
     {
-        return $this->entityFetcher->listEntities($this->invitablePublicAgencyResourceType, []);
+        return $this->invitablePublicAgencyResourceType->listEntities([]);
     }
 
     /**

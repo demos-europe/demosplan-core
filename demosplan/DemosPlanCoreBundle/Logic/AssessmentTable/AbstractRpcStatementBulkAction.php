@@ -55,11 +55,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     protected $currentUser;
 
     /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
-
-    /**
      * @var JsonSchemaValidator
      */
     protected $jsonValidator;
@@ -98,7 +93,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
         CurrentUserInterface $currentUser,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonValidator,
         ProcedureResourceType $procedureResourceType,
         ProcedureService $procedureService,
@@ -111,7 +105,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser;
-        $this->entityFetcher = $entityFetcher;
         $this->jsonValidator = $jsonValidator;
         $this->procedureResourceType = $procedureResourceType;
         $this->procedureService = $procedureService;
@@ -181,7 +174,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$idCondition, $procedureCondition]);
+        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
     }
 
     /**

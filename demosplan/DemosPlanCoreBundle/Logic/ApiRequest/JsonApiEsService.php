@@ -154,7 +154,7 @@ class JsonApiEsService
             // all entities corresponding to the IDs from Doctrine and re-apply the scored
             // sorting from the Elasticsearch result.
             if ($requireEntities) {
-                $entities = $this->entityFetcher->listEntities($resourceType, [$condition]);
+                $entities = $resourceType->listEntities([$condition]);
                 $entities = $this->useIdAsKey($entities);
                 $entities = self::sortAndFilterByKeys($esIds, $entities);
                 $entities = array_values($entities);
@@ -164,14 +164,14 @@ class JsonApiEsService
             // entities corresponding to the IDs from Doctrine with the requested
             // sorting. The sorting of the Elasticsearch result doesn't matter.
             if ($requireEntities) {
-                $entities = $this->entityFetcher->listEntities($resourceType, [$condition], $sortMethods);
+                $entities = $resourceType->listEntities([$condition], $sortMethods);
             }
         } else {
             // With pagination but without scored sorting, we need to fetch all
             // entities corresponding to the IDs of that page from Doctrine with
             // the requested sorting in a paginated manner.
             // The sorting of the Elasticsearch result doesn't matter.
-            $paginator = $this->entityFetcher->getEntityPaginator($resourceType, $pagination, [$condition], $sortMethods);
+            $paginator = $resourceType->getEntityPaginator($pagination, [$condition], $sortMethods);
             if ($requireEntities) {
                 $entities = Iterables::asArray($paginator->getCurrentPageResults());
             }

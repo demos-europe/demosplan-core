@@ -411,7 +411,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
     Doctrine\ORM\EntityManager:

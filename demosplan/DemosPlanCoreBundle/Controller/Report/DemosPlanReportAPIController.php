@@ -47,7 +47,6 @@ class DemosPlanReportAPIController extends APIController
     #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
-        EntityFetcher $entityFetcher,
         PaginatorFactory $paginatorFactory,
         $group = null
     ): APIResponse {
@@ -75,7 +74,7 @@ class DemosPlanReportAPIController extends APIController
         );
 
         try {
-            $paginator = $entityFetcher->getEntityPaginator($resourceType, $pagination, []);
+            $paginator = $resourceType->getEntityPaginator($pagination, []);
             $transformer = $resourceType->getTransformer();
             $collection = new Collection($paginator, $transformer, ReportEntryResourceType::getName());
             $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);

@@ -672,10 +672,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->getEntityCount(
-            $this->statementResourceType,
-            [$procedureCondition]
-        );
+        return $this->statementResourceType->getEntityCount([$procedureCondition]);
     }
 
     public function getMovedStatementData(Procedure $procedure): ?MovedStatementData
@@ -4583,7 +4580,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$condition]);
+        return $this->statementResourceType->listEntities([$condition]);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

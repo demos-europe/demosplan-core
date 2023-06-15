@@ -784,7 +784,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             );
 
         /** @var Elements[] $elements */
-        $elements = $this->entityFetcher->listEntities($this->elementResourceType, [$condition]);
+        $elements = $this->elementResourceType->listEntities([$condition]);
 
         foreach ($elements as $element) {
             $element->setDesignatedSwitchDate($designatedSwitchDateTime);

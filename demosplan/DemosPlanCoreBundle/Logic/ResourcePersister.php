@@ -29,25 +29,6 @@ class ResourcePersister extends CoreService
     }
 
     /**
-     * @param array<string,mixed> $properties
-     *
-     * @throws ResourceNotFoundException
-     * @throws NonUniqueResultException
-     * @throws QueryException
-     * @throws UserNotFoundException
-     * @throws PropertyUpdateAccessException
-     */
-    public function updateBackingObject(
-        UpdatableDqlResourceTypeInterface $resourceType,
-        string $id,
-        array $properties
-    ): ResourceChange {
-        $entity = $this->entityFetcher->getEntityAsUpdateTarget($resourceType, $id);
-
-        return $this->updateBackingObjectWithEntity($resourceType, $entity, $properties);
-    }
-
-    /**
      * @template T
      *
      * @param UpdatableDqlResourceTypeInterface<T> $resourceType

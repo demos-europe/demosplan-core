@@ -61,11 +61,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     protected $conditionFactory;
 
     /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
-
-    /**
      * @var JsonSchemaValidator
      */
     protected $jsonValidator;
@@ -85,7 +80,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
 
     public function __construct(
         DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonSchemaValidator,
         private readonly PermissionsInterface $permissions,
         private readonly PlaceResourceType $placeResourceType,
@@ -95,7 +89,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         private readonly TransactionService $transactionService
     ) {
         $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
         $this->errorGenerator = $errorGenerator;
         $this->jsonValidator = $jsonSchemaValidator;
         $this->procedureService = $procedureService;
@@ -199,7 +192,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         }
 
         /** @var array<int, Place> $places */
-        $places = $this->entityFetcher->listEntities($this->placeResourceType, [$procedureCondition], [$sortMethod]);
+        $places = $this->placeResourceType->listEntities([$procedureCondition], [$sortMethod]);
 
         $result = new ArrayCollection();
         /** @var Place $place */

@@ -112,16 +112,13 @@ class PlanningDocumentCategoryTreeReorderer
             $categoryToMoveAndNewParentIds[] = $newParentId;
         }
 
-        $categoryToMoveAndNewParent = $this->entityFetcher->listEntities(
-            $this->categoryResourceType,
-            [
-                $this->getProcedureCondition($procedureId),
-                $this->conditionFactory->propertyHasAnyOfValues(
-                    $categoryToMoveAndNewParentIds,
-                    $this->categoryResourceType->id
-                ),
-            ]
-        );
+        $categoryToMoveAndNewParent = $this->categoryResourceType->listEntities([
+            $this->getProcedureCondition($procedureId),
+            $this->conditionFactory->propertyHasAnyOfValues(
+                $categoryToMoveAndNewParentIds,
+                $this->categoryResourceType->id
+            ),
+        ]);
 
         $categoryToMoveAndNewParent = array_column(
             array_map(static fn (Elements $category): array => [$category->getId(), $category], $categoryToMoveAndNewParent),
