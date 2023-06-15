@@ -59,6 +59,7 @@ php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
 phpoffice/phpword: LGPL-3.0
 phpspec/prophecy: MIT
+phpspec/prophecy-phpunit: MIT
 phpstan/phpstan: MIT
 phpstan/phpstan-symfony: MIT
 phpunit/phpunit: BSD-3-Clause
@@ -129,4 +130,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 
-As of 12.06.2023 07:03
+As of 14.06.2023 07:03
