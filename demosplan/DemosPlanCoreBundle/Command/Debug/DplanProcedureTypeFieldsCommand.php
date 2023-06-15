@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Debug;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use Exception;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;

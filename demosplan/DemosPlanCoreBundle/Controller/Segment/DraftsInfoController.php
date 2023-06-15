@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -96,7 +96,7 @@ class DraftsInfoController extends BaseController
             $procedureName = $statement->getProcedure()->getName();
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_split_statement.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_split_statement.html.twig',
                 [
                     'statementId'       => $statementId,
                     'statementExternId' => $statement->getExternId(),

@@ -5,14 +5,12 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
-
-use function array_key_exists;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
@@ -20,6 +18,7 @@ use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorIn
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
@@ -31,6 +30,8 @@ use EDT\Querying\Utilities\ConditionEvaluator;
 use InvalidArgumentException;
 use Ramsey\Uuid\Type\TypeInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
 
 /**
  * @phpstan-import-type DrupalFilterGroup from DrupalFilterParser
@@ -67,7 +68,8 @@ class PermissionResolver implements PermissionFilterValidatorInterface
 
     public function __construct(
         ConditionEvaluator $conditionEvaluator,
-        DqlConditionFactory $conditionFactory,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
         ValidatorInterface $validator
     ) {
         $this->conditionEvaluator = $conditionEvaluator;
@@ -147,13 +149,15 @@ class PermissionResolver implements PermissionFilterValidatorInterface
             return [] === $conditions;
         }
 
-        foreach ($conditions as $condition) {
-            if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
-                return false;
-            }
-        }
+        $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
 
-        return true;
+        return [] !== $this->entityFetcher->listEntitiesUnrestricted(
+            $evaluationTarget::class,
+            $conditions,
+            [],
+            0,
+            1
+        );
     }
 
     /**

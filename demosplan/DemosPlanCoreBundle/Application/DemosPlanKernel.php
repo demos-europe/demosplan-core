@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 use function array_merge;
 use function file_exists;
@@ -105,12 +105,12 @@ class DemosPlanKernel extends Kernel
         yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $coreConfigPath = DemosPlanPath::getConfigPath();
 
-        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
+        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS,  'glob');
 
         $routesConfig = DemosPlanPath::getProjectPath('app/config/routing.yml');
 
@@ -278,7 +278,9 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new RpcMethodSolverPass());
         $container->addCompilerPass(new MenusLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        if ('test' !== $this->getEnvironment()) {
+            $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        }
     }
 
     public function getActiveProject(): string

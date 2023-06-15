@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -25,51 +26,6 @@ use Doctrine\ORM\Mapping as ORM;
 class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
 {
     /**
-     * AHB = Anhörungsbehörde = hearing authority.
-     *
-     * @const string Denotes a hearing authority agency
-     */
-    public const HEARING_AUTHORITY_AGENCY = 'OHAUTH';
-
-    /**
-     * @const string Denotes a public agency (Institution)
-     */
-    public const PUBLIC_AGENCY = 'OPSORG';
-
-    /**
-     * @const string Denotes a planning agency (Planungsbüro)
-     */
-    public const PLANNING_AGENCY = 'OPAUTH';
-
-    /**
-     * @const string Denotes a municipality (Fachplaner)
-     */
-    public const MUNICIPALITY = 'OLAUTH';
-
-    /**
-     * @const string Default orga type when no other fits
-     */
-    public const DEFAULT = 'OTDEFA';
-
-    public const ORGATYPE_ROLE = [
-        self::PUBLIC_AGENCY            => [
-            Role::PUBLIC_AGENCY_COORDINATION,
-            Role::PUBLIC_AGENCY_WORKER,
-        ],
-        self::MUNICIPALITY             => [
-            Role::PLANNING_AGENCY_ADMIN,
-            Role::PLANNING_AGENCY_WORKER,
-        ],
-        self::PLANNING_AGENCY          => [
-            Role::PRIVATE_PLANNING_AGENCY,
-        ],
-        self::HEARING_AUTHORITY_AGENCY => [
-            Role::HEARING_AUTHORITY_ADMIN,
-            Role::HEARING_AUTHORITY_WORKER,
-        ],
-    ];
-
-    /**
      * @var string|null
      *
      * @ORM\Column(name="_ot_id", type="string", length=36, options={"fixed":true})
@@ -83,7 +39,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
     protected $id;
 
     /**
-     * @var string things like {@link OrgaType::MUNICIPALITY}
+     * @var string things like {@link OrgaTypeInterface::MUNICIPALITY}
      *
      * @ORM\Column(name="_ot_name", type="string", length=6, nullable=false, options={"fixed":true})
      */
@@ -97,7 +53,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
     protected $label;
 
     /**
-     * @var Collection<int, OrgaStatusInCustomer>
+     * @var Collection<int, OrgaStatusInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="orgaType")
      */
@@ -150,7 +106,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
     }
 
     /**
-     * @return Collection<int, OrgaStatusInCustomer>
+     * @return Collection<int, OrgaStatusInCustomerInterface>
      */
     public function getOrgaStatusInCustomers()
     {
@@ -158,7 +114,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
     }
 
     /**
-     * @param Collection<int, OrgaStatusInCustomer> $orgaStatusInCustomers
+     * @param Collection<int, OrgaStatusInCustomerInterface> $orgaStatusInCustomers
      */
     public function setOrgaStatusInCustomers(Collection $orgaStatusInCustomers)
     {

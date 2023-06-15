@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,11 +13,20 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,7 +35,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -43,21 +52,8 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, \DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface
+class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
 {
-    /**
-     * Set hard coded anonymous user Values until refactored.
-     */
-    public const ANONYMOUS_USER_DEPARTMENT_ID = '3c77f7b4-3f07-11e4-a6a8-005056ae0004';
-    public const ANONYMOUS_USER_DEPARTMENT_NAME = 'anonym';
-    public const ANONYMOUS_USER_ID = '73830656-3e48-11e4-a6a8-005056ae0004';
-    public const ANONYMOUS_USER_LOGIN = 'anonym@bobsh.de';
-    public const ANONYMOUS_USER_NAME = 'Privatperson';
-    public const ANONYMOUS_USER_ORGA_ID = 'cdec5e4b-3f06-11e4-a6a8-005056ae0004';
-    public const ANONYMOUS_USER_ORGA_NAME = 'Privatperson';
-    public const FHHNET_PREFIX = 'FHHNET\\';
-    public const DEFAULT_ORGA_USER_NAME = 'Institution';
-
     /**
      * @var string|null
      *
@@ -256,7 +252,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * Diese Eigenschaft ist aus Legacygründen definiert, um das DB-Schema zu erhalten
      * $orga enthält die einzelne Organisation.
      *
-     * @var Collection<int,Orga>
+     * @var Collection<int,OrgaInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="users", cascade={"persist"})
      */
@@ -266,7 +262,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * Diese Eigenschaft ist aus Legacygründen definiert, um das DB-Schema zu erhalten
      * $department enthält die einzelne Abteilung.
      *
-     * @var Collection<int, Department>
+     * @var Collection<int, DepartmentInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", mappedBy="users")
      */
@@ -275,12 +271,12 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Department des Users.
      *
-     * @var Department
+     * @var DepartmentInterface
      */
     protected $department;
 
     /**
-     * @var Collection<int, UserRoleInCustomer>
+     * @var Collection<int, UserRoleInCustomerInterface>
      *
      * @Assert\All({
      *
@@ -294,7 +290,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     protected $roleInCustomers;
 
     /**
-     * @var Collection<int,Address>
+     * @var Collection<int,AddressInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
      *
@@ -306,11 +302,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     protected $addresses;
 
-    /** @var Customer */
+    /** @var CustomerInterface */
     protected $currentCustomer = null;
 
     /**
-     * @var Collection<int, SurveyVote>
+     * @var Collection<int, SurveyVoteInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
      *      mappedBy="user", cascade={"persist", "remove"})
@@ -331,7 +327,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * As one user might belong only to one organisation another "twin" user is needed to fulfill
      * this purpose.
      *
-     * @var User|null
+     * @var SecurityUserInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
      *
@@ -340,9 +336,9 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     protected $twinUser;
 
     /**
-     * The {@link Procedure} entities this user was manually authorized for.
+     * The {@link ProcedureInterface} entities this user was manually authorized for.
      *
-     * @var Collection<int, Procedure>
+     * @var Collection<int, ProcedureInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="authorizedUsers")
      */
@@ -589,7 +585,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->salt;
     }
 
-    public function setSalt(?string $salt): User
+    public function setSalt(?string $salt): AddonUserInterface
     {
         $this->salt = $salt;
 
@@ -620,9 +616,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->createdDate;
     }
 
-    /**
-     * @param DateTime $createdDate
-     */
     public function setCreatedDate(DateTimeInterface $createdDate)
     {
         $this->createdDate = $createdDate;
@@ -792,7 +785,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function isPublicUser(): bool
     {
-        return $this->hasAnyOfRoles([Role::CITIZEN, Role::GUEST]);
+        return $this->hasAnyOfRoles([RoleInterface::CITIZEN, RoleInterface::GUEST]);
     }
 
     /**
@@ -800,17 +793,17 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function isGuestOnly(): bool
     {
-        return $this->hasRole(Role::GUEST) && 1 === count($this->getRoles());
+        return $this->hasRole(RoleInterface::GUEST) && 1 === count($this->getRoles());
     }
 
     public function isPlanner(): bool
     {
         $plannerRoles = [
-            Role::PLANNING_AGENCY_ADMIN,
-            Role::PLANNING_AGENCY_WORKER,
-            Role::PRIVATE_PLANNING_AGENCY,
-            Role::HEARING_AUTHORITY_ADMIN, // very similar to PLANNING_AGENCY_ADMIN (T27236#645613)
-            Role::HEARING_AUTHORITY_WORKER, // very similar to PLANNING_AGENCY_WORKER (T27236#645613)
+            RoleInterface::PLANNING_AGENCY_ADMIN,
+            RoleInterface::PLANNING_AGENCY_WORKER,
+            RoleInterface::PRIVATE_PLANNING_AGENCY,
+            RoleInterface::HEARING_AUTHORITY_ADMIN, // very similar to PLANNING_AGENCY_ADMIN (T27236#645613)
+            RoleInterface::HEARING_AUTHORITY_WORKER, // very similar to PLANNING_AGENCY_WORKER (T27236#645613)
         ];
 
         return $this->hasAnyOfRoles($plannerRoles);
@@ -818,7 +811,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     public function isHearingAuthority(): bool
     {
-        return $this->hasAnyOfRoles([Role::HEARING_AUTHORITY_ADMIN, Role::HEARING_AUTHORITY_WORKER]);
+        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER]);
     }
 
     /**
@@ -826,19 +819,19 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function isProcedureAdmin(): bool
     {
-        return $this->hasAnyOfRoles([Role::HEARING_AUTHORITY_ADMIN, Role::PLANNING_AGENCY_ADMIN]);
+        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::PLANNING_AGENCY_ADMIN]);
     }
 
     public function isPlanningAgency(): bool
     {
-        return $this->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER]);
+        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER]);
     }
 
     public function isPublicAgency(): bool
     {
         $publicAgencyRoles = [
-            Role::PUBLIC_AGENCY_COORDINATION,
-            Role::PUBLIC_AGENCY_WORKER,
+            RoleInterface::PUBLIC_AGENCY_COORDINATION,
+            RoleInterface::PUBLIC_AGENCY_WORKER,
         ];
 
         return $this->hasAnyOfRoles($publicAgencyRoles);
@@ -849,7 +842,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function isCitizen(): bool
     {
-        return $this->hasRole(Role::CITIZEN);
+        return $this->hasRole(RoleInterface::CITIZEN);
     }
 
     public function getForumNotification(): bool
@@ -912,7 +905,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return $this->getFlagValue($key);
     }
 
-    public function addAuthorizedProcedure(Procedure $procedure): bool
+    public function addAuthorizedProcedure(ProcedureInterface $procedure): bool
     {
         $alreadyPresent = $this->authorizedProcedures->contains($procedure);
         if (!$alreadyPresent) {
@@ -923,7 +916,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @return Collection<int, Procedure>
+     * @return Collection<int, ProcedureInterface>
      */
     public function getAuthorizedProcedures(): Collection
     {
@@ -958,7 +951,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Organisation des Users.
      */
-    public function getOrga(): ?Orga
+    public function getOrga(): ?OrgaInterface
     {
         if ($this->orga instanceof Collection && 0 < $this->orga->count()) {
             return $this->orga->first();
@@ -992,7 +985,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getOrganisationNameLegal(): ?string
     {
-        if ($this->getOrga() instanceof Orga) {
+        if ($this->getOrga() instanceof OrgaInterface) {
             return $this->getOrga()->getNameLegal();
         }
 
@@ -1002,7 +995,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Organisation des Users hinzufügen.
      */
-    public function setOrga(Orga $orga)
+    public function setOrga(OrgaInterface $orga)
     {
         $this->orga = new ArrayCollection([$orga]);
     }
@@ -1018,11 +1011,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Department des Users.
      *
-     * @return Department|null
+     * @return DepartmentInterface|null
      */
     public function getDepartment()
     {
-        if ($this->department instanceof Department) {
+        if ($this->department instanceof DepartmentInterface) {
             return $this->department;
         }
         if ($this->departments instanceof Collection && 1 == $this->departments->count()) {
@@ -1036,7 +1029,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     public function getDepartmentId(): string
     {
-        if ($this->getDepartment() instanceof Department) {
+        if ($this->getDepartment() instanceof DepartmentInterface) {
             return $this->getDepartment()->getId();
         }
 
@@ -1055,7 +1048,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     public function getDepartmentName(): string
     {
-        if ($this->getDepartment() instanceof Department) {
+        if ($this->getDepartment() instanceof DepartmentInterface) {
             return $this->getDepartment()->getName();
         }
 
@@ -1065,7 +1058,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Department des Users.
      *
-     * @return Collection<int, Department>
+     * @return Collection<int, DepartmentInterface>
      */
     public function getDepartments()
     {
@@ -1075,7 +1068,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Add Department to User.
      */
-    public function addDepartment(Department $department)
+    public function addDepartment(DepartmentInterface $department)
     {
         if ($this->departments instanceof Collection && !$this->departments->contains($department)) {
             $this->departments->add($department);
@@ -1087,7 +1080,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Replace a Department of User.
      */
-    public function setDepartment(Department $department)
+    public function setDepartment(DepartmentInterface $department)
     {
         $this->departments = new ArrayCollection([$department]);
         $this->department = $department;
@@ -1096,7 +1089,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Remove Department from User.
      */
-    public function removeDepartment(Department $department)
+    public function removeDepartment(DepartmentInterface $department)
     {
         if ($this->departments instanceof Collection && $this->departments->contains($department)) {
             $this->departments->removeElement($department);
@@ -1111,11 +1104,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $this->department = null;
     }
 
-    public function getAddress(): ?Address
+    public function getAddress(): ?AddressInterface
     {
         if ($this->addresses instanceof Collection) {
             $firstAddress = $this->addresses->first();
-            if ($firstAddress instanceof Address) {
+            if ($firstAddress instanceof AddressInterface) {
                 return $firstAddress;
             }
         }
@@ -1124,7 +1117,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @return Collection<int, Address>
+     * @return Collection<int, AddressInterface>
      */
     public function getAddresses()
     {
@@ -1147,7 +1140,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Add Address to User.
      *
-     * @param Address $address
+     * @param AddressInterface $address
      */
     public function addAddress($address)
     {
@@ -1159,7 +1152,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Get Postalcode from associated (first) {@link Address}.
+     * Get Postalcode from associated (first) {@link AddressInterface}.
      */
     public function getPostalcode(): string
     {
@@ -1181,7 +1174,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Get City from associated (first) {@link Address}.
+     * Get City from associated (first) {@link AddressInterface}.
      */
     public function getCity(): string
     {
@@ -1203,7 +1196,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Get Street from associated (first) {@link Address}.
+     * Get Street from associated (first) {@link AddressInterface}.
      */
     public function getStreet(): string
     {
@@ -1213,7 +1206,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Get Housenumber from associated (first) {@link Address}.
+     * Get Housenumber from associated (first) {@link AddressInterface}.
      */
     public function getHouseNumber(): string
     {
@@ -1245,7 +1238,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Get State from associated (first) {@link Address}.
+     * Get State from associated (first) {@link AddressInterface}.
      */
     public function getState(): ?string
     {
@@ -1276,7 +1269,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     {
         $method = 'set'.ucfirst($key);
         $address = $this->addresses->first();
-        if (!$address instanceof Address) {
+        if (!$address instanceof AddressInterface) {
             $address = new Address();
         }
         if (method_exists($address, $method)) {
@@ -1293,7 +1286,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?User
+    public function getTwinUser(): ?SecurityUserInterface
     {
         return $this->twinUser;
     }
@@ -1303,7 +1296,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?User $twinUser): User
+    public function setTwinUser(?AddonUserInterface $twinUser): SecurityUserInterface
     {
         $this->twinUser = $twinUser;
 
@@ -1313,23 +1306,23 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Returns collection of roles the user has with a specified customer (current is default).
      *
-     * @return Collection<int, Role>
+     * @return Collection<int, RoleInterface>
      */
-    public function getDplanroles(Customer $customer = null): Collection
+    public function getDplanroles(CustomerInterface $customer = null): Collection
     {
         $roles = new ArrayCollection();
         $relations = $this->roleInCustomers->toArray();
 
         // get customer to check
-        if (!$customer instanceof Customer) {
+        if (!$customer instanceof CustomerInterface) {
             $specifiedCustomerId = $this->currentCustomer instanceof Customer ? $this->currentCustomer->getId() : '';
         } else {
             $specifiedCustomerId = $customer->getId();
         }
 
-        /** @var UserRoleInCustomer $relation */
+        /** @var UserRoleInCustomerInterface $relation */
         foreach ($relations as $relation) {
-            $relationCustomerId = $relation->getCustomer() instanceof Customer ? $relation->getCustomer()->getId() : '';
+            $relationCustomerId = $relation->getCustomer() instanceof CustomerInterface ? $relation->getCustomer()->getId() : '';
             if ($specifiedCustomerId === $relationCustomerId
                 && !$roles->contains($relation->getRole())
                 && in_array($relation->getRole()->getCode(), (array) $this->rolesAllowed, true)) {
@@ -1345,12 +1338,12 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @return string[]
      */
-    public function getDplanRolesArray(Customer $customer = null): array
+    public function getDplanRolesArray(CustomerInterface $customer = null): array
     {
         if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
             $customer = $customer ?? $this->getCurrentCustomer();
-            /** @var Role $role */
+            /** @var RoleInterface $role */
             foreach ($this->getDplanroles($customer) as $role) {
                 $this->rolesArrayCache[] = $role->getCode();
             }
@@ -1374,7 +1367,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function getDplanRoleGroupsArray()
     {
         $rolesArray = [];
-        /** @var Role $role */
+        /** @var RoleInterface $role */
         foreach ($this->getDplanroles() as $role) {
             $rolesArray[] = $role->getGroupCode();
         }
@@ -1402,7 +1395,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         }
         $rolesArray = [];
         foreach ($this->getDplanroles() as $role) {
-            /* @var Role $role */
+            /* @var RoleInterface $role */
             $rolesArray[] = $role->getCode();
         }
 
@@ -1419,7 +1412,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         }
         $rolesArray = [];
         foreach ($this->getDplanroles() as $role) {
-            /* @var Role $role */
+            /* @var RoleInterface $role */
             $rolesArray[] = $role->getGroupCode();
         }
         $rolesArray = array_unique($rolesArray);
@@ -1428,13 +1421,13 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * Sets Roles. Note that, in order to do this, {@link UserRoleInCustomer} objects are created which have a role and
+     * Sets Roles. Note that, in order to do this, {@link UserRoleInCustomerInterface} objects are created which have a role and
      * the current customer.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/ Wiki: Permissions, Roles, etc.
      *
-     * @param Role[]        $roles
-     * @param Customer|null $customer
+     * @param RoleInterface[]        $roles
+     * @param CustomerInterface|null $customer
      */
     public function setDplanroles(array $roles, $customer = null): void
     {
@@ -1444,7 +1437,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @param Collection<int,UserRoleInCustomer> $roleInCustomers
+     * @param Collection<int,UserRoleInCustomerInterface> $roleInCustomers
      */
     public function setRoleInCustomers(Collection $roleInCustomers): void
     {
@@ -1452,9 +1445,9 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @param Customer|null $customer
+     * @param CustomerInterface|null $customer
      */
-    public function addDplanrole(Role $role, $customer = null)
+    public function addDplanrole(RoleInterface $role, $customer = null)
     {
         // prevents the same role being set multiple times (if they have been set previously)
         if ($this->hasRole($role->getCode(), $customer)) {
@@ -1476,7 +1469,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @param string $role
      */
-    public function hasRole($role, Customer $customer = null): bool
+    public function hasRole($role, CustomerInterface $customer = null): bool
     {
         $customer = $customer ?? $this->getCurrentCustomer();
 
@@ -1559,12 +1552,12 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * Retrieve all customers that the user is associated with in any way.
      *
-     * @return array<int, Customer>
+     * @return array<int, CustomerInterface>
      */
     public function getCustomers(): array
     {
         return $this->roleInCustomers
-            ->map(static function (UserRoleInCustomer $roleInCustomer) {
+            ->map(static function (UserRoleInCustomerInterface $roleInCustomer) {
                 return $roleInCustomer->getCustomer();
             })->toArray();
     }
@@ -1578,7 +1571,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     {
         $customers = [];
         $relations = $this->roleInCustomers->toArray();
-        /** @var UserRoleInCustomer $relation */
+        /** @var UserRoleInCustomerInterface $relation */
         foreach ($relations as $relation) {
             $relation->getRole();
             $customers[] = $relation->getCustomer();
@@ -1594,7 +1587,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @param array $orgaType Per default, all are returned. Array of orgaType constants.
      */
-    public function getCustomersForUsersOfOrganisationsOfType(array $orgaType = [OrgaType::MUNICIPALITY, OrgaType::PLANNING_AGENCY, OrgaType::PUBLIC_AGENCY]): array
+    public function getCustomersForUsersOfOrganisationsOfType(array $orgaType = [OrgaTypeInterface::MUNICIPALITY, OrgaTypeInterface::PLANNING_AGENCY, OrgaTypeInterface::PUBLIC_AGENCY]): array
     {
         if ([] === $orgaType) {
             throw new UnexpectedValueException('Invalid OrgaType set.');
@@ -1603,10 +1596,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         // first, get all orgas
         $customers = [];
         $orgas = $this->orga->toArray();
-        /** @var Orga $orga */
+        /** @var OrgaInterface $orga */
         foreach ($orgas as $orga) {
             // each orga has customers. get all of them.
-            /** @var OrgaStatusInCustomer $orgaStatusInCustomer */
+            /** @var OrgaStatusInCustomerInterface $orgaStatusInCustomer */
             $orgaStatusInCustomers = $orga->getStatusInCustomers();
 
             foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
@@ -1627,11 +1620,11 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/ wiki: customer role user orga logic
      *
-     * @return Customer|null
+     * @return CustomerInterface|null
      */
     public function getCustomersForUsersOfOrganisationsOfTypeKommune()
     {
-        $array = $this->getCustomersForUsersOfOrganisationsOfType([OrgaType::MUNICIPALITY]);
+        $array = $this->getCustomersForUsersOfOrganisationsOfType([OrgaTypeInterface::MUNICIPALITY]);
 
         // since, per definition, there can only be one, the first element is always the right one
         if (1 === count($array) && isset($array[0])) {
@@ -1651,7 +1644,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         $ids = [];
         $customers = $this->getCustomers();
         foreach ($customers as $customer) {
-            if ($customer instanceof Customer) {
+            if ($customer instanceof CustomerInterface) {
                 $ids[] = $customer->getId();
             }
         }
@@ -1660,7 +1653,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @return Collection<int,UserRoleInCustomer>
+     * @return Collection<int,UserRoleInCustomerInterface>
      */
     public function getRoleInCustomers(): Collection
     {
@@ -1670,12 +1663,12 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     /**
      * May be null e.g. during user add.
      */
-    public function getCurrentCustomer(): ?Customer
+    public function getCurrentCustomer(): ?CustomerInterface
     {
         return $this->currentCustomer;
     }
 
-    public function setCurrentCustomer(Customer $currentCustomer): void
+    public function setCurrentCustomer(CustomerInterface $currentCustomer): void
     {
         $this->currentCustomer = $currentCustomer;
     }
@@ -1689,10 +1682,10 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function getRoleBySubdomain(string $subdomain)
     {
         $rolesInCustomers = $this->getRoleInCustomers();
-        /** @var UserRoleInCustomer $roleInCustomer */
+        /** @var UserRoleInCustomerInterface $roleInCustomer */
         foreach ($rolesInCustomers as $roleInCustomer) {
             $customer = $roleInCustomer->getCustomer();
-            if ($customer instanceof Customer && $customer->getSubdomain() === $subdomain) {
+            if ($customer instanceof CustomerInterface && $customer->getSubdomain() === $subdomain) {
                 return $roleInCustomer->getRole()->getCode();
             }
         }
@@ -1701,7 +1694,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     }
 
     /**
-     * @return Collection<int, SurveyVote>
+     * @return Collection<int, SurveyVoteInterface>
      */
     public function getSurveyVotes(): Collection
     {
@@ -1713,9 +1706,9 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *
      * @param string $surveyVoteId
      */
-    public function getSurveyVote($surveyVoteId): ?SurveyVote
+    public function getSurveyVote($surveyVoteId): ?SurveyVoteInterface
     {
-        /** @var SurveyVote $surveyVote */
+        /** @var SurveyVoteInterface $surveyVote */
         foreach ($this->surveyVotes as $surveyVote) {
             if ($surveyVote->getId() === $surveyVoteId) {
                 return $surveyVote;
@@ -1725,7 +1718,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return null;
     }
 
-    public function addSurveyVote(SurveyVote $surveyVote): void
+    public function addSurveyVote(SurveyVoteInterface $surveyVote): void
     {
         $this->surveyVotes[] = $surveyVote;
     }
@@ -1751,7 +1744,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     public function isDefaultGuestUser(): bool
     {
-        return self::ANONYMOUS_USER_ID === $this->id;
+        return AddonUserInterface::ANONYMOUS_USER_ID === $this->id;
     }
 
     public function isProvidedByIdentityProvider(): bool

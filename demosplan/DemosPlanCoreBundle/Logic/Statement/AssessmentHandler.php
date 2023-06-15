@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,13 +23,13 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;

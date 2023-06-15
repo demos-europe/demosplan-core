@@ -42,6 +42,7 @@
           <dp-button
             :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId })"
             :text="Translator.trans('reset')"
+            data-cy="reset"
             variant="outline" />
         </div>
       </div>

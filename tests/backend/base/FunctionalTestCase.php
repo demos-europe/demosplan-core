@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,8 @@
 namespace Tests\Base;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -32,10 +34,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -50,6 +56,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
 
 class FunctionalTestCase extends WebTestCase
@@ -73,8 +81,8 @@ class FunctionalTestCase extends WebTestCase
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    /** @var CurrentUserInterface */
-    protected $currentUserInterface;
+    /** @var CurrentUserService */
+    protected $currentUserService;
 
     protected function loadFixtures()
     {
@@ -84,9 +92,10 @@ class FunctionalTestCase extends WebTestCase
     {
         parent::setUp();
 
-        self::bootKernel(['environment' => 'test', 'debug' => true]);
+        self::bootKernel(['environment' => 'test', 'debug' => false]);
 
-        $this->currentUserInterface = self::$container->get(CurrentUserInterface::class);
+        $this->currentUserService = self::$container->get(CurrentUserService::class);
+        $this->entityManager = self::$container->get(EntityManagerInterface::class);
         $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
         $this->tokenStorage = self::$container->get('security.token_storage');
 
@@ -133,11 +142,12 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function logIn(UserInterface $user)
     {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')
-            ->willReturn($user);
-        $token->method('getRoleNames')
-            ->willReturn($user->getDplanRolesArray());
+        $tokenMockMethods = [
+            new MockMethodDefinition('getUser', $user),
+            new MockMethodDefinition('getRoleNames', $user->getDplanRolesArray()),
+        ];
+        $token = $this->getMock(PostAuthenticationToken::class, $tokenMockMethods);
+
         $this->tokenStorage->setToken($token);
     }
 
@@ -148,11 +158,11 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function enablePermissions(array $permissionsToEnable): void
     {
-        $this->currentUserInterface->getPermissions()->initPermissions(
+        $this->currentUserService->getPermissions()->initPermissions(
             $this->tokenStorage->getToken()->getUser()
         );
 
-        $this->currentUserInterface->getPermissions()->enablePermissions($permissionsToEnable);
+        $this->currentUserService->getPermissions()->enablePermissions($permissionsToEnable);
     }
 
     /**
@@ -160,22 +170,15 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function disablePermissions(array $permissionsToDisable): void
     {
-        $this->currentUserInterface->getPermissions()->initPermissions(
+        $this->currentUserService->getPermissions()->initPermissions(
             $this->tokenStorage->getToken()->getUser()
         );
 
-        $this->currentUserInterface->getPermissions()->disablePermissions($permissionsToDisable);
+        $this->currentUserService->getPermissions()->disablePermissions($permissionsToDisable);
     }
 
     public function getEntityManager(): EntityManager
     {
-        // lazy load entity manager
-        if (!$this->entityManager instanceof EntityManager) {
-            $this->entityManager = $this->getContainer()
-                ->get('doctrine')
-                ->getManager();
-        }
-
         return $this->entityManager;
     }
 
@@ -337,7 +340,7 @@ class FunctionalTestCase extends WebTestCase
             ->select('entity')
             ->from($entityClass, 'entity')
             ->andWhere('entity.id IN (:ids)')
-            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $ids, ArrayParameterType::STRING)
             ->getQuery()->getResult();
 
         return $result;
@@ -441,9 +444,7 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function getProcedurePhases()
     {
-        $path = DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config');
-
-        return Yaml::parseFile($path.'/procedurephases.yml');
+        return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }
 
     /**

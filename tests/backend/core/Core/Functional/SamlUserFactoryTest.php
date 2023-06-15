@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -60,6 +60,9 @@ class SamlUserFactoryTest extends FunctionalTestCase
 
     public function testCreateNewUserFromSAML(): void
     {
+        // Anonymous user Id is not set in fixtures
+        self::markSkippedForCIIntervention();
+
         $attributes = [
             'country'       => [''],
             'givenName'     => ['Hannah'],
@@ -84,6 +87,9 @@ class SamlUserFactoryTest extends FunctionalTestCase
 
     public function testCreateNewUserFromSAMLServicekonto(): void
     {
+        // Anonymous user Id is not set in fixtures
+        self::markSkippedForCIIntervention();
+
         $attributes = [
             'email'       => ['Sarah@connell.de'],
             'givenName'   => ['Sarah'],

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,9 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateGroupResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanBoilerplateAPIController extends APIController
@@ -28,6 +28,7 @@ class DemosPlanBoilerplateAPIController extends APIController
      *
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
+     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded

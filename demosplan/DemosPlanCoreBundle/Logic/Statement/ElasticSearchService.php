@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -441,9 +441,9 @@ class ElasticSearchService extends CoreService
      */
     public function addUserFilter($key, $userFilters, $boolMustFilter, $boolMustNotFilter, $nullvalue = null, $rawFields = [], $addAllAggregations = true)
     {
-        if (array_key_exists($key, $userFilters) && ($addAllAggregations || $this->hasFilterValue(
-            $userFilters[$key]
-        ))) {
+        if (array_key_exists($key, $userFilters)
+            && ($addAllAggregations || $this->hasFilterValue($userFilters[$key]))
+        ) {
             $value = \is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
             $key = \in_array($key, $rawFields, true) ? $key.'.raw' : $key;
             $count = count($value);
