@@ -6,7 +6,6 @@
  *
  * All rights reserved
  */
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
@@ -153,7 +152,7 @@ const moduleRules =
         {
           loader: 'sass-loader',
           options: {
-            implementation: require('sass'),
+            implementation: require('sass-embedded'),
             additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
             sassOptions: {
               includePaths: [
