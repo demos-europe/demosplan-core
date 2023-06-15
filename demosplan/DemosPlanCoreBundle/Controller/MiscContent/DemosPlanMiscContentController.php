@@ -469,21 +469,14 @@ class DemosPlanMiscContentController extends BaseController
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
-     *
-     * @throws Exception
      */
     public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $platformCategories = new Collection();
-        $customFaqCategories = new Collection();
-        try {
-            $platformCategories = $faqHandler->getPlatformFaqCategories();
-            $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
-        } catch (UnexpectedValueException $e) {
-            $this->logger->error('Get platformFaqCategories failed.', [$e]);
-        }
+        $platformCategories = $faqHandler->getPlatformFaqCategories();
+        $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(
+            FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY
+        );
 
-        // try
         $templateVars = [
             'list'         => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
             'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),

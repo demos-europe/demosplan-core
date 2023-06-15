@@ -114,6 +114,7 @@ class FaqService extends CoreService
      * @return FaqCategory[]
      *
      * @throws CustomerNotFoundException
+     * @throws UnexpectedValueException
      */
     public function getFaqCategoriesOfCurrentCustomer(): array
     {

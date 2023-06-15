@@ -46,24 +46,15 @@ class FaqCategoryRepository extends CoreRepository
      * Get all FaqCategories of a specific customer.
      *
      * @return FaqCategory[]
+     *
+     * @throws UnexpectedValueException
      */
     public function getFaqCategoriesByCustomer(Customer $customer): array
     {
-        try {
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('faqCategory')
-                ->from(FaqCategory::class, 'faqCategory')
-                ->where('faqCategory.customer = :customer')
-                ->setParameter('customer', $customer)
-                ->orderBy('faqCategory.title');
-
-            return $query->getQuery()->getResult();
-        } catch (NoResultException $e) {
-            $this->logger->error('Get FaqCategories failed.', [$e]);
-
-            return [];
-        }
+        return $this->findBy(
+            ['customer' => $customer->getId()],
+            ['title' => 'ASC']
+        );
     }
 
     /**

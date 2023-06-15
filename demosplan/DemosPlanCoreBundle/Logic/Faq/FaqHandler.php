@@ -343,6 +343,7 @@ class FaqHandler extends CoreHandler
      * @return FaqCategory[]
      *
      * @throws CustomerNotFoundException
+     * @throws UnexpectedValueException
      */
     public function getAllCategoriesOfCurrentCustomer(): array
     {
@@ -363,30 +364,41 @@ class FaqHandler extends CoreHandler
      * @param string[] $categoryTypeNamesToInclude
      *
      * @return Collection<Category> Collection of Category entities
-     *
-     * @throws CustomerNotFoundException
      */
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
-        $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
-        // filter: custom categories only
-        return $allFaqCategories->filter(
-            static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
-                return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
-            }
-        );
+        try {
+            $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
+            // filter: custom categories only
+            return $allFaqCategories->filter(
+                static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
+                    return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true)
+                        || $faqCategory->isCustom();
+                }
+            );
+
+        } catch (Exception $e) {
+            $this->logger->error('Get FaqCategories of customer failed.', [$e]);
+
+            return new Collection();
+        }
     }
 
     /**
      * Get all platform-faq-categories sorted alphabetically by title.
      *
      * @return Collection<PlatformFaqCategory>
-     *
-     * @throws UnexpectedValueException
      */
     public function getPlatformFaqCategories(): Collection
     {
-        return collect($this->faqService->getPlatformFaqCategories());
+        try {
+            return collect($this->faqService->getPlatformFaqCategories());
+
+        } catch (Exception $e) {
+            $this->logger->error('Get platformFaqCategories failed.', [$e]);
+
+            return new Collection();
+        }
     }
 
     /**
