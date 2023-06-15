@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
@@ -253,7 +254,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @throws Exception
      */
-    public function getSingleUser($userId)
+    public function getSingleUser($userId): ?UserInterface
     {
         return $this->userService->getSingleUser($userId);
     }
