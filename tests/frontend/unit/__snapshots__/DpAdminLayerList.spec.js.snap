@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
-"<div class=\\"position--relative\\">
+"<div class=\\"relative\\">
   <div class=\\"layout--flush u-mt\\">
     <h3 class=\\"layout__item u-1-of-3\\">
       map.overlays

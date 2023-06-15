@@ -81,7 +81,7 @@
                                             <dt class="layout__item u-1-of-6 u-1-of-3-palm u-pl-0_5-palm weight--bold{{ statement.file|isNot(' color--grey') }}">
                                                 {{ "attachments"|trans }}:
                                             </dt>
-                                            <dd class="layout__item u-1-of-3 u-2-of-3-palm u-ml-0{{ statement.file|isNot(' color--grey') }} overflow-word-break">
+                                            <dd class="layout__item u-1-of-3 u-2-of-3-palm u-ml-0{{ statement.file|isNot(' color--grey') }} break-words">
                                                 {% if statement.files|default([])|length > 0 %}
                                                     {% for file in statement.files %}
                                                         <a
@@ -147,7 +147,7 @@
                                 <span class="layout__item u-1-of-6 u-1-of-1-palm u-pl-0_5-palm u-pb-0_5-lap-up u-pb-0_25-palm weight--bold{{ statement.text|default()|isNot(' color--grey') }}">
                                     {{ "statementtext"|trans }}:
                                 </span>
-                                <span class="layout__item u-5-of-6 u-1-of-1-palm u-pl-0_5-palm u-pr-0_25-palm overflow-word-break u-pr{{ statement.text|default()|isNot(' color--grey') }}">
+                                <span class="layout__item u-5-of-6 u-1-of-1-palm u-pl-0_5-palm u-pr-0_25-palm break-words u-pr{{ statement.text|default()|isNot(' color--grey') }}">
                                     {# no JS - show whole statement text #}
                                     <div class="u-nojs-show--block">
                                         {{ statement.text|default( "<p>" ~ "notspecified"|trans ~ "</p>" )|dpObscure|wysiwyg }}

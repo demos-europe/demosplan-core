@@ -57,7 +57,7 @@
           @select="setValuesFromSelectedBlueprint" />
       </dp-form-row>
 
-      <div class="position--relative">
+      <div class="relative">
         <dp-loading
           v-if="isLoading"
           overlay />

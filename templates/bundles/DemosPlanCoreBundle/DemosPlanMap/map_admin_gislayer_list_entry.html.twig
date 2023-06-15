@@ -11,7 +11,7 @@
     {% set description = "explanation.gislayer.useas.invisible"|trans %}
 {% endif %}
 
-<tr class="o-list__item position--inherit">
+<tr class="o-list__item">
     <td>
         {# Globale Layer sollen nicht gelöscht werden können #}
         {% if gislayer.globalLayer|default(false) == false %}

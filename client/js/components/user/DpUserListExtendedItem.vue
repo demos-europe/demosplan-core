@@ -16,7 +16,7 @@
       v-slot:header="">
       <div
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
-        class="cursor--pointer"
+        class="cursor-pointer"
         @click="handleToggle">
         <div class="width-20 u-pv-0_25 display--inline-block">
           <input
@@ -32,7 +32,7 @@
           {{ user.attributes.firstname }} {{ user.attributes.lastname }}
         </div><!--
      --><div
-          class="overflow-word-break layout__item u-1-of-4 u-pv-0_25">
+          class="break-words layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes.login }}
         </div><!--
      --><div

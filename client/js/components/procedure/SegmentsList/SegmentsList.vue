@@ -12,7 +12,7 @@
     <dp-sticky-element
       border
       class="u-pv-0_5">
-      <div class="flex flex-items-start space-inline-s">
+      <div class="flex items-start space-inline-s">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -42,7 +42,7 @@
             @filter-apply="sendFilterQuery" />
         </div>
         <dp-button
-          class="flex-item-end"
+          class="ml-auto"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -218,7 +218,7 @@
 
       <dp-pager
         v-if="pagination.currentPage"
-        :class="{ 'visibility--hidden': isLoading }"
+        :class="{ 'invisible': isLoading }"
         class="u-pt-0_5 text--right u-1-of-1"
         :current-page="pagination.currentPage"
         :total-pages="pagination.totalPages"

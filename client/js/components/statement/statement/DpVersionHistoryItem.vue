@@ -31,7 +31,7 @@
         </tr>
         <tr
           @click="getContent"
-          class="o-sortablelist__item cursor--pointer">
+          class="o-sortablelist__item cursor-pointer">
           <!-- time -->
           <td
             class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
@@ -71,10 +71,10 @@
           </td>
 
           <td
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text--right cursor--pointer"
+            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text--right cursor-pointer"
             style="width: 5%">
             <i
-              class="btn-icns fa cursor--pointer"
+              class="btn-icns fa cursor-pointer"
               :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
               data-cy="toggleIcon" />
           </td>
@@ -127,7 +127,7 @@
                       <td
                         v-if="content !== null && content !== ''"
                         style="width: 79%;"
-                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 overflow-word-break display--inline-block"
+                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words display--inline-block"
                         data-cy="contentChange"
                         v-cleanhtml="content" />
                       <td

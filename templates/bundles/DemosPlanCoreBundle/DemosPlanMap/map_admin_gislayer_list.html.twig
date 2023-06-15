@@ -33,7 +33,7 @@
                         </div>
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planDrawPDF != '' %}
-                            <div class="u-mb overflow-word-break">
+                            <div class="u-mb break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -56,7 +56,7 @@
                         {{ fileupload( "r_planPDF", "drawing.explanation"|trans, null, null, null, true ) }}
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planPDF != '' %}
-                            <div class="u-mb overflow-word-break">
+                            <div class="u-mb break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"

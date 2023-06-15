@@ -76,7 +76,7 @@
                 var control = new L.Control({position:'topleft'})
                 control.onAdd = function (map) {
                     let azoom = L.DomUtil.create('div','leaflet-control-zoom leaflet-bar leaflet-control u-mt-0')
-                    azoom.innerHTML = '<a class="leaflet-control-zoom-out ' + prefixClass('u-pb-0_5 u-ph-0_25 cursor--pointer') + '" tabindex="0" title="{{ 'map.zoom.reset'|trans }}"><i class="' + prefixClass('fa fa-circle-o font-size-medium') + '" aria-hidden="true"></i></a>'
+                    azoom.innerHTML = '<a class="leaflet-control-zoom-out ' + prefixClass('u-pb-0_5 u-ph-0_25 cursor-pointer') + '" tabindex="0" title="{{ 'map.zoom.reset'|trans }}"><i class="' + prefixClass('fa fa-circle-o font-size-medium') + '" aria-hidden="true"></i></a>'
                     L.DomEvent
                         .disableClickPropagation(azoom)
                         .addListener(azoom, 'click', fitToMarkers, azoom)

@@ -11,7 +11,7 @@
   <div>
     <!-- Toggle -->
     <a
-      class="display--block cursor--pointer border--top u-pt-0_25"
+      class="display--block cursor-pointer border--top u-pt-0_25"
       @click="toggle"
       :class="{'is-active-toggle': isActive}">
       <i
@@ -42,7 +42,7 @@
         <div class="border--bottom u-mb-0_25">
           <div class="display--inline-block u-1-of-4">
             <div
-              class="u-mr display--inline-block weight--bold cursor--help"
+              class="u-mr display--inline-block weight--bold cursor-help"
               :title="Translator.trans('date')">
               {{ itemCreatedDate(item) }}
             </div>
@@ -74,7 +74,7 @@
         </div>
 
         <div
-          class="cursor--help"
+          class="cursor-help"
           v-cleanhtml="item.considerationAdvice ? item.considerationAdvice : item.consideration"
           :title="Translator.trans('fragment.consideration')">
           {{ item.consideration }}

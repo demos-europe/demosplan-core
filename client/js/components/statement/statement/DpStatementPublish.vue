@@ -18,7 +18,7 @@
           value="publication_pending"
           data-cy="publicationPending"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicCheck"
           class="display--inline weight--normal u-ml-0_25 u-valign--text-top">
@@ -34,7 +34,7 @@
           data-cy="publicationApproved"
           value="publication_approved"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicVerify"
           class="display--inline weight--normal u-ml-0_25 u-valign--text-top">
@@ -50,7 +50,7 @@
           data-cy="publicationRejected"
           value="publication_rejected"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicReject"
           class="display--inline weight--normal u-ml-0_25 u-valign--text-top">

@@ -11,7 +11,7 @@
         {% set fieldDefinitions = fieldDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
     {% endfor %}
 
-    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 position--relative cf">
+    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 relative cf">
         {{ 'adjustments.general'|trans }}
         {% block wizard_trigger %}
             <button
@@ -734,7 +734,7 @@
                                     <p class="u-mt-0_25 u-mb-0_25"><strong>{{ 'preview'|trans }}:</strong></p>
                                     <p
                                         id="shortUrl_preview"
-                                        class="display--inline-block u-mt-0 u-mb-0_25 overflow-word-break max-width-100p"
+                                        class="display--inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
                                         data-shorturl="{{ templateVars.shortUrlPath }}/">
                                         {{ templateVars.shortUrlPath }}/{{ templateVars.inData.r_shortUrl|default }}
                                     </p>
@@ -849,7 +849,7 @@
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
-                                         --><label class="layout__item u-1-of-3 cursor--pointer weight--normal">
+                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
                                         </label>

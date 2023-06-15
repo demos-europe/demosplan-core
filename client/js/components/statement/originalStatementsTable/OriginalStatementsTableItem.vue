@@ -106,7 +106,7 @@
           class="u-ml u-pr text--left border--top">
           <div
             v-if="statement.sourceAttachment !== '' || statement.files.length > 0"
-            class="overflow-word-break">
+            class="break-words">
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"

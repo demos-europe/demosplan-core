@@ -42,7 +42,7 @@
 
     <button
       :aria-label="Translator.trans('search')"
-      class="c-search__icon btn--blank position--absolute"
+      class="c-search__icon btn--blank absolute"
       :class="{ 'display--none': !changed }"
       type="button"
       @click="submit">
@@ -53,7 +53,7 @@
 
     <button
       :aria-label="Translator.trans('search.reset')"
-      class="c-search__icon c-search__icon--reset btn--blank position--absolute"
+      class="c-search__icon c-search__icon--reset btn--blank absolute"
       :class="{ 'display--none': !searchedAndNotChanged }"
       type="button"
       @click="reset">

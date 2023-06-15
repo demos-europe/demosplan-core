@@ -110,7 +110,7 @@
 
     <!-- Table -->
     <dp-data-table
-      class="width-100p font-size-5 overflow-x-hidden position--relative u-pb"
+      class="width-100p font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
       has-sticky-header
       :header-fields="headerFields"
@@ -140,9 +140,9 @@
         <div
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
-          class="whitespace--nowrap u-pr-0_5 position--relative">
+          class="whitespace--nowrap u-pr-0_5 relative">
           <button
-            class="btn--blank u-top-0 u-right-0 position--absolute"
+            class="btn--blank u-top-0 u-right-0 absolute"
             @click="setOrder(headerData.field)"
             type="button">
             <i

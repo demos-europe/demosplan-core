@@ -23,7 +23,7 @@
         </template>
         <template v-slot:content="rowData">
           <div
-            class="overflow-word-break"
+            class="break-words"
             v-cleanhtml="rowData.attributes.message" />
         </template>
         <template v-slot:user="rowData">

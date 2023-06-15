@@ -75,7 +75,7 @@
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor--pointer btn-icns display--inline-block">
+            class="cursor-pointer btn-icns display--inline-block">
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>

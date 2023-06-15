@@ -20,7 +20,7 @@
     class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
-      'cursor--pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
+      'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
     }"
     @click="setActiveState"
     @mouseover="mouseOverElement"
@@ -28,7 +28,7 @@
     :id="layer.id">
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
-        class="fa fa-bars handle width-20 cursor--grab"
+        class="fa fa-bars handle width-20 cursor-grab"
         :title="Translator.trans('move')" />
     </div><!--
  --><div
@@ -316,15 +316,15 @@ export default {
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         } else if (this.hasGroupId) {
           if (toggleMyIconInSameGroup && this.currentGroupSize <= 2) {
             return 'fa-unlink color-highlight'
           } else {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color-highlight'
+              return 'fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor--default'
+              return 'fa-link color--grey cursor-default'
             }
           }
         } else {
@@ -338,7 +338,7 @@ export default {
 
       if (this.isHovered && this.thereIsAnActiveElement === false) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
@@ -350,18 +350,18 @@ export default {
           if (this.showCurrentIconState) {
             return 'fa-link color-highlight'
           } else {
-            return 'fa-unlink  color-highlight cursor--default'
+            return 'fa-unlink  color-highlight cursor-default'
           }
         }
       }
 
       if (this.isLinkedWithCurrentlyHovered && this.thereIsAnActiveElement === false) {
-        return 'fa-link color--grey cursor--default'
+        return 'fa-link color--grey cursor-default'
       }
 
       if (this.isHovered && this.thereIsAnActiveElement === true) {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
@@ -373,7 +373,7 @@ export default {
           if (this.showCurrentIconState) {
             return 'fa-link color-highlight'
           } else {
-            return 'fa-unlink color--grey cursor--default'
+            return 'fa-unlink color--grey cursor-default'
           }
         }
       }
@@ -384,12 +384,12 @@ export default {
         } else {
           if (this.hasGroupId) {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color-highlight'
+              return 'fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor--default'
+              return 'fa-link color--grey cursor-default'
             }
           } else {
-            return 'fa-unlink color--grey cursor--default'
+            return 'fa-unlink color--grey cursor-default'
           }
         }
       }

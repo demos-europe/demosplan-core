@@ -164,7 +164,7 @@
                     {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                         <br><br>
                         <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
-                             --><label class="layout__item u-1-of-3 cursor--pointer weight--normal">
+                             --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                         {{ 'procedure.pictogram.delete'|trans }}
                         <input name="r_deletePictogram" type="checkbox" value="1">
                     </label>
