@@ -376,7 +376,6 @@ class FaqHandler extends CoreHandler
                         || $faqCategory->isCustom();
                 }
             );
-
         } catch (Exception $e) {
             $this->logger->error('Get FaqCategories of customer failed.', [$e]);
 
@@ -393,7 +392,6 @@ class FaqHandler extends CoreHandler
     {
         try {
             return collect($this->faqService->getPlatformFaqCategories());
-
         } catch (Exception $e) {
             $this->logger->error('Get platformFaqCategories failed.', [$e]);
 

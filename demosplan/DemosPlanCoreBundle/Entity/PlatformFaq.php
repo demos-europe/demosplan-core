@@ -182,9 +182,7 @@ class PlatformFaq extends CoreEntity implements FaqInterface
     public function setCategory(FaqCategoryInterface $platformFaqCategory): self
     {
         if (!$platformFaqCategory instanceof PlatformFaqCategory) {
-            throw new InvalidParameterTypeException(
-                'parameter must be of type: '.self::class.', '.$platformFaqCategory::class.' given'
-            );
+            throw new InvalidParameterTypeException('parameter must be of type: '.self::class.', '.$platformFaqCategory::class.' given');
         }
         $this->platformFaqCategory = $platformFaqCategory;
 

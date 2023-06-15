@@ -78,8 +78,6 @@ class Faq extends CoreEntity implements FaqInterface
     protected Collection $roles;
 
     /**
-     * @var FaqCategory
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\FaqCategory")
      *
      * @ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", nullable=false)
@@ -189,9 +187,7 @@ class Faq extends CoreEntity implements FaqInterface
     public function setCategory(FaqCategoryInterface $faqCategory): self
     {
         if (!$faqCategory instanceof FaqCategory) {
-            throw new InvalidParameterTypeException(
-                'parameter must be of type: '.self::class.', '.$faqCategory::class.' given'
-            );
+            throw new InvalidParameterTypeException('parameter must be of type: '.self::class.', '.$faqCategory::class.' given');
         }
         $this->faqCategory = $faqCategory;
 
