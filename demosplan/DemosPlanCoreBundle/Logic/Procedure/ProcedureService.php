@@ -2976,7 +2976,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->placeRepository->persistEntities($newPlaces);
     }
 
-    public function getMasterTemplateId()
+    public function getMasterTemplateId(): string
     {
         return $this->masterTemplateService->getMasterTemplateId();
     }
