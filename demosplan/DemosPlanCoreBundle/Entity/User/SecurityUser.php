@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -78,5 +79,10 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         }
 
         return true;
+    }
+
+    public function isLoggedIn(): bool
+    {
+        return !in_array(RoleInterface::GUEST, $this->roles, true);
     }
 }
