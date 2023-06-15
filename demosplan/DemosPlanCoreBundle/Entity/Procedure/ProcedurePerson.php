@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;

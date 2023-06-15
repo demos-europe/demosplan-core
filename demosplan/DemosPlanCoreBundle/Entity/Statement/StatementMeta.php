@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;

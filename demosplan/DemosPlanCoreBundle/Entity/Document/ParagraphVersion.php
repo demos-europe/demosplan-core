@@ -14,7 +14,6 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
