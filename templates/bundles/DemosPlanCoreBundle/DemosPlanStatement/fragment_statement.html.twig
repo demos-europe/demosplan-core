@@ -61,15 +61,12 @@
                     <p class="weight--bold">
                         {{ "statement"|trans }}
                         <dp-button
-                            class="float--right btn--blank color-main u-pr-0 font-size-medium"
-                            color="tertiary"
+                            class="float--right btn--blank color-main font-size-medium"
+                            icon="file"
+                            :text="Translator.trans('statement.copy')"
                             title="{{ 'statement.copy.to.fragment'|trans }}"
+                            variant="subtle"
                             @click="setFragmentText">
-                            <i
-                                aria-hidden="true"
-                                class="fa fa-files-o">
-                            </i>
-                            {{ 'statement.copy'|trans }}
                         </dp-button>
                     </p>
                     <div
