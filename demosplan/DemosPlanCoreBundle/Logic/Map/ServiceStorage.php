@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\MapServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
@@ -19,11 +20,12 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function parse_url;
 use function rawurlencode;
 use function str_replace;
 
-class ServiceStorage
+class ServiceStorage implements MapServiceStorageInterface
 {
     /**
      * @var GlobalConfigInterface
