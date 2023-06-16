@@ -76,7 +76,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         $this->helpers = $helpers;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $userToRegister = $this->askUserLogin($input, $output);
         if (null === $userToRegister) {

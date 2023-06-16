@@ -22,9 +22,8 @@ class APIDocumentationController extends BaseController
 {
     /**
      * @DplanPermissions("area_demosplan")
-     *
-     * @Route(path="/api/", methods={"GET", "HEAD"})
      */
+    #[Route(path: '/api/', methods: ['GET', 'HEAD'])]
     public function indexAction(): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {
@@ -36,10 +35,8 @@ class APIDocumentationController extends BaseController
 
     /**
      * @DplanPermissions("area_demosplan")
-     *
-     * @Route(path="/api/openapi.json", methods={"GET", "HEAD"}, options={"expose": true},
-     *                                  name="dplan_api_openapi_json")
      */
+    #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
     public function jsonAction(OpenAPISchemaGenerator $apiDocumentationGenerator): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {

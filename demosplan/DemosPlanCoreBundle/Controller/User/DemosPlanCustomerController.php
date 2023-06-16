@@ -35,16 +35,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanCustomerController extends BaseController
 {
     /**
-     * @Route(path="/einstellungen/plattform",
-     *        methods={"GET"},
-     *        name="dplan_user_customer_showSettingsPage",
-     *        options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/einstellungen/plattform', methods: ['GET'], name: 'dplan_user_customer_showSettingsPage', options: ['expose' => true])]
     public function showSettingsPageAction(
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
@@ -87,15 +82,11 @@ class DemosPlanCustomerController extends BaseController
     }
 
     /**
-     * @Route(path="/einstellungen/plattform",
-     *        methods={"POST"},
-     *        name="DemosPlan_user_setting_page_post",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/einstellungen/plattform', methods: ['POST'], name: 'DemosPlan_user_setting_page_post', options: ['expose' => true])]
     public function editSettingsAction(
         CustomerHandler $customerHandler,
         Request $request,
@@ -131,15 +122,11 @@ class DemosPlanCustomerController extends BaseController
     }
 
     /**
-     * @Route(path="/einstellungen/plattform/send/mail",
-     *        methods={"GET", "POST"},
-     *        name="dplan_customer_mail_send_all_users"
-     * )
-     *
      * @DplanPermissions("area_customer_send_mail_to_users")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users')]
     public function sendMailToAllCustomersAction(
         Request $request,
         TranslatorInterface $translator,

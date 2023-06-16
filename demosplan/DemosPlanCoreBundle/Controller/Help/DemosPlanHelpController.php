@@ -27,17 +27,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanHelpController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_contextual_help_list",
-     *     methods="GET|POST",
-     *     path="/contextualHelp")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
     public function listAction(
         Request $request,
         HelpHandler $helpHandler
@@ -65,17 +61,13 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_new",
-     *     methods="GET",
-     *     path="/contextualHelp/new")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
     public function newAction(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator
@@ -98,11 +90,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_create",
-     *     methods="POST",
-     *     path="/contextualHelp/create")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -110,6 +97,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
     public function createAction(
         HelpHandler $helpHandler,
         Request $request
@@ -127,11 +115,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_edit",
-     *     methods="GET",
-     *     path="/contextualHelp/{contextualHelpId}")
-     *
      * @param string|null $contextualHelpId
      *
      * @return RedirectResponse|Response
@@ -140,6 +123,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
     public function editAction(
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
@@ -171,11 +155,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_update",
-     *     methods="POST",
-     *     path="/contextualHelp/{contextualHelpId}")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -183,6 +162,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
     public function updateAction(
         Request $request,
         HelpHandler $helpHandler,

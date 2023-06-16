@@ -54,12 +54,6 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Karte zum Verwalten der Karteneigenschaften wie BoundingBox & Startkartenausschnitt.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_map",
-     *     path="/verfahren/{procedureId}/verwalten/globaleGisEinstellungen",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -68,6 +62,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
     public function mapAdminAction(
         ProcedureServiceStorage $procedureServiceStorage,
         Breadcrumb $breadcrumb,
@@ -146,11 +141,6 @@ class DemosPlanMapController extends BaseController
      * Warning: This action needs to be situated in front of DemosPlan_map_administration_gislayer_edit
      * otherwise "/neu" would be interpreted as "/{gislayerID}"
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_new",
-     *     path="/verfahren/{procedure}/verwalten/gislayer/neu"
-     * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -159,6 +149,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
     public function mapAdminGislayerNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -228,12 +219,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Editformulars.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_edit",
-     *     path="/verfahren/{procedure}/verwalten/gislayer/{gislayerID}",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -243,6 +228,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_edit', path: '/verfahren/{procedure}/verwalten/gislayer/{gislayerID}', options: ['expose' => true])]
     public function mapAdminGislayerEditAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -317,11 +303,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des LayerCategory-Newformulars.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_category_new",
-     *     path="/verfahren/{procedureId}/verwalten/gislayergroup/new-category"
-     * )
-     *
      *  @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -331,6 +312,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category')]
     public function mapAdminGislayerCategoryNewAction(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();
@@ -388,12 +370,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Kagetorie-Editformulars.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_category_edit",
-     *     path="/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -404,6 +380,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_category_edit', path: '/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit', options: ['expose' => true])]
     public function mapAdminGisLayerCategoryEditAction(MapHandler $mapHandler, Request $request, $procedureId, $gislayerCategoryId)
     {
         try {
@@ -458,12 +435,6 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Planzeichnung verwalten.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer",
-     *     path="/verfahren/{procedureId}/verwalten/gislayer",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -472,6 +443,7 @@ class DemosPlanMapController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer', path: '/verfahren/{procedureId}/verwalten/gislayer', options: ['expose' => true])]
     public function mapAdminGislayerAction(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
@@ -586,17 +558,13 @@ class DemosPlanMapController extends BaseController
     /**
      * Globale GIS-Layer vwewalten.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_global",
-     *     path="/gislayer"
-     * )
-     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_global', path: '/gislayer')]
     public function mapAdminGislayerGlobalAction(
         GetFeatureInfo $getFeatureInfo,
         Request $request,
@@ -650,17 +618,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Globale GIS-Layer bearbeiten.
      *
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_global_new",
-     *     path="/gislayer/neu",
-     *     defaults={"type": "new"},
-     * )
-     * @Route(
-     *     name="DemosPlan_map_administration_gislayer_global_edit",
-     *     path="/gislayer/{gislayerID}",
-     *     defaults={"type": "edit"},
-     * )
-     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @param string      $type
@@ -670,6 +627,8 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_map_administration_gislayer_global_new', path: '/gislayer/neu', defaults: ['type' => 'new'])]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_global_edit', path: '/gislayer/{gislayerID}', defaults: ['type' => 'edit'])]
     public function mapAdminGislayerGlobalEditAction(
         MapService $mapService,
         Request $request,
@@ -748,16 +707,11 @@ class DemosPlanMapController extends BaseController
      * Rufe die Sachdateninformationen ab.
      * Via Controller, weil per JavaScript nicht auf andere Domains zugegriffen werden darf.
      *
-     * @Route(
-     *     name="DemosPlan_map_get_feature_info",
-     *     path="/getFeatureInfo/{procedure}",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_map_participation_area")
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_map_get_feature_info', path: '/getFeatureInfo/{procedure}', options: ['expose' => true])]
     public function getFeatureInfoAjaxAction(GetFeatureInfo $getFeatureInfo, Request $request)
     {
         try {
@@ -800,18 +754,13 @@ class DemosPlanMapController extends BaseController
      * Get procedure by procedureType and clicked coordinate
      * proxy request through controller to avoid cors issues.
      *
-     * @Route(
-     *     name="DemosPlan_map_get_planning_area",
-     *     path="/getPlanningArea/{procedure}",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("feature_procedure_planning_area_match")
      *
      * @param string $procedure
      *
      * @return JsonResponse
      */
+    #[Route(name: 'DemosPlan_map_get_planning_area', path: '/getPlanningArea/{procedure}', options: ['expose' => true])]
     public function getPlanningAreaAjaxAction(GetFeatureInfo $getFeatureInfo, ProcedureHandler $procedureHandler, Request $request, TranslatorInterface $translator, $procedure)
     {
         try {
@@ -904,18 +853,13 @@ class DemosPlanMapController extends BaseController
     /**
      * Rufe die getCapabilities eines lokal gespeicherten Layers ab.
      *
-     * @Route(
-     *     name="DemosPlan_map_get_capabilities_local",
-     *     path="/getCapabilitiesLocal/{layerId}",
-     *     options={"expose": true},
-     * )
-     *
      * @deprecated Is this route used any more?
      *
      * @param string $layerId
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_map_get_capabilities_local', path: '/getCapabilitiesLocal/{layerId}', options: ['expose' => true])]
     public function getCapabilitiesLocalAjaxAction(CacheInterface $cache, MapCapabilitiesLoader $capabilitiesLoader, MapService $mapService, $layerId)
     {
         try {

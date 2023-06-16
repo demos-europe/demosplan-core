@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -236,7 +237,7 @@ class ViewRenderer
 
         if ($setRedirectLoggedInRouteCookie) {
             // save current route in cookie for later redirecting
-            $redirect->headers->setCookie(new PreviousRouteCookie($request));
+            $redirect->headers->setCookie(PreviousRouteCookie::create($request));
         }
 
         return $redirect;

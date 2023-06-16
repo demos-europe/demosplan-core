@@ -52,56 +52,49 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     private $fullName;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetName;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetNumber;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $city;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $postalCode;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
-     *
-     * @Assert\Email()
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[Assert\Email]
     private $emailAddress;
 
     /**

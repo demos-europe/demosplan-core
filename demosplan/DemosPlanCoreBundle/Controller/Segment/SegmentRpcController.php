@@ -22,15 +22,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class SegmentRpcController extends APIController
 {
     /**
-     * @Route(
-     *     path="/rpc/1.0/statementListQuery/update/{queryHash}",
-     *     name="dplan_rpc_segment_list_query_update",
-     *     options={"expose": true},
-     *     methods={"PATCH"}
-     * )
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(path: '/rpc/1.0/statementListQuery/update/{queryHash}', name: 'dplan_rpc_segment_list_query_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateSegmentListQueryAction(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
     {
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();

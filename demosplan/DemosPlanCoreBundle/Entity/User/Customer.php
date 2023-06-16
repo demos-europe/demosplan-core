@@ -176,18 +176,16 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var BrandingInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
-     *
-     * @Assert\Valid
      */
+    #[Assert\Valid]
     protected $branding;
 
     /**
      * @var string
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
-     *
-     * @Assert\Length(max=65000)
      */
+    #[Assert\Length(max: 65000)]
     protected $accessibilityExplanation = '';
 
     /**
@@ -220,9 +218,8 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      *
      * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
-     *
-     * @Assert\Length(max=65536)
      */
+    #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
     public function __construct(string $name, string $subdomain, string $mapAttribution = '')

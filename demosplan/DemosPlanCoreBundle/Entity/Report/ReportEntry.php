@@ -86,18 +86,16 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_category", type="string", length=100, nullable=false, options={"fixed":true})
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $category;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_re_group", type="string", length=100, nullable=false, options={"fixed":true})
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $group;
 
     /**
@@ -118,9 +116,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_u_name", type="string", length=255, nullable=false, options={"fixed":true})
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $userName;
 
     /**
@@ -136,18 +133,16 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier_type", type="string", length=50, nullable=false)
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $identifierType;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_re_identifier", type="string", length=36, options={"fixed":true}, nullable=false)
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $identifier;
 
     /**
@@ -163,9 +158,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string always in JSON format (a simple string is considered valid JSON)
      *
      * @ORM\Column(name="_re_message", type="text", nullable=false, length=15000000)
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $message;
 
     /**
@@ -190,9 +184,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $customer;
 
     /**

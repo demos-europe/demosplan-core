@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -50,7 +51,7 @@ class DumpCommand extends DatabaseManagementCommand
         } catch (Exception $e) {
             $output->error("Cannot write to {$file}");
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $databaseName = $this->getDatabaseName($input);
@@ -82,6 +83,6 @@ class DumpCommand extends DatabaseManagementCommand
 
         $output->success('Done.');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

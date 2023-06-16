@@ -21,24 +21,21 @@ class StatementBulkEditVO extends ValueObject
 
     // @improve T12873
     /**
-     * @Assert\Valid()
-     *
      * @var StatementIdsInProcedureVO
      */
+    #[Assert\Valid]
     protected $statementIdsInProcedure;
 
     /**
      * @var string
-     *
-     * @Assert\Length(min=1)
      */
+    #[Assert\Length(min: 1)]
     protected $recommendationAddition;
 
     /**
-     * @Assert\Length(min=36, max=36)
-     *
      * @var string
      */
+    #[Assert\Length(min: 36, max: 36)]
     protected $assigneeId;
 
     /**

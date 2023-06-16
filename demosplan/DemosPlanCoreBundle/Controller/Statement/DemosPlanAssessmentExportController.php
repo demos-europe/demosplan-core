@@ -47,24 +47,14 @@ class DemosPlanAssessmentExportController extends BaseController
      * An Assessment table export Action that can handle all types of exports
      * specified in the export options yml.
      *
-     * @Route(
-     *     name="DemosPlan_assessment_table_export",
-     *     methods={"POST", "GET"},
-     *     path="/verfahren/abwaegung/export/{procedureId}",
-     *        options={"expose": true})
-     * @Route(
-     *     name="DemosPlan_assessment_table_original_export",
-     *     path="/verfahren/abwaegung/original/export/{procedureId}",
-     *     defaults={"original": true},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_assessment_table_original_export', path: '/verfahren/abwaegung/original/export/{procedureId}', defaults: ['original' => true], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,

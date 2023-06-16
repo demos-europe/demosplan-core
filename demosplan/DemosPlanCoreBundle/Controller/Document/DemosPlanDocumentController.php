@@ -118,11 +118,6 @@ class DemosPlanDocumentController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_plandocument_administration_element",
-     *     path="/verfahren/{procedure}/verwalten/element/{elementId}",
-     * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -132,6 +127,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_plandocument_administration_element', path: '/verfahren/{procedure}/verwalten/element/{elementId}')]
     public function paragraphAdminSaveAction(
         DocumentHandler $documentHandler,
         ElementHandler $elementHandler,
@@ -287,11 +283,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Absatz Edit.
      *
-     * @Route(
-     *     name="DemosPlan_plandocument_administration_paragraph_edit",
-     *     path="/verfahren/{procedure}/verwalten/paragraph/{documentID}",
-     * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -301,6 +292,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_plandocument_administration_paragraph_edit', path: '/verfahren/{procedure}/verwalten/paragraph/{documentID}')]
     public function paragraphAdminEditAction(
         Breadcrumb $breadcrumb,
         DocumentHandler $documentHandler,
@@ -393,11 +385,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Absatz - Neu.
      *
-     * @Route(
-     *     name="DemosPlan_plandocument_administration_paragraph_new",
-     *     path="/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}",
-     * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -407,6 +394,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_plandocument_administration_paragraph_new', path: '/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}')]
     public function paragraphAdminNewAction(
         Breadcrumb $breadcrumb,
         DocumentHandler $documentHandler,
@@ -482,11 +470,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Einzeldokument Neu.
      *
-     * @Route(
-     *     name="DemosPlan_singledocument_administration_new",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}"
-     * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -497,6 +480,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_singledocument_administration_new', path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}')]
     public function singleDocumentAdminNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -560,12 +544,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Einzeldokument Edit.
      *
-     * @Route(
-     *     name="DemosPlan_singledocument_administration_edit",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -575,6 +553,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_singledocument_administration_edit', path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit', options: ['expose' => true])]
     public function singleDocumentAdminEditAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -676,12 +655,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Adminliste.
      *
-     * @Route(
-     *     name="DemosPlan_element_administration",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -690,6 +663,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_element_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen', options: ['expose' => true])]
     public function elementAdminListAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
@@ -792,11 +766,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Importer für die Planungsdokumentenkategorien und Dateien.
      *
-     * @Route(
-     *     name="DemosPlan_element_import",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen/import"
-     * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
      * @param string $procedure
@@ -805,19 +774,19 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedure}/verwalten/planunterlagen/import')]
     public function elementAdminImportAction(
         CurrentUserInterface $currentUser,
-        CurrentProcedureService $currentProcedureService,
         Request $request,
         FileUploadService $fileUploadService,
-        FileService $fileService
+        FileService $fileService,
+        string $procedureId
     ) {
         $session = $request->getSession();
         $session->remove('element_import_list');
         $fs = new DemosFilesystem();
 
         $path = DemosPlanPath::getProjectPath('web/uploads/files');
-        $procedureId = $currentProcedureService->getProcedure()->getId();
 
         // Lösche das alte Statusfile zum Importstatus
         $statusHash = md5($session->getId().$procedureId);
@@ -1075,18 +1044,13 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Admin-Edit.
      *
-     * @Route(
-     *     name="DemosPlan_elements_administration_edit",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_elements_administration_edit', path: '/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit', options: ['expose' => true])]
     public function elementAdminEditAction(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
@@ -1236,11 +1200,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Neue Kategorien anlegen.
      *
-     * @Route(
-     *     name="DemosPlan_elements_administration_new",
-     *     path="/verfahren/{procedure}/verwalten/planunterlagen/new"
-     * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_edit"})
      *
      * @param string $procedure
@@ -1249,6 +1208,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_elements_administration_new', path: '/verfahren/{procedure}/verwalten/planunterlagen/new')]
     public function elementAdminNewAction(
         Breadcrumb $breadcrumb,
         ElementHandler $elementHandler,
@@ -1360,13 +1320,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Anzeige der Begründung/Verordnung in der Beteiligungsebene.
      *
-     * @Route(
-     *     name="DemosPlan_public_plandocument_paragraph",
-     *     path="/verfahren/{procedure}/public/paragraph/{elementId}",
-     *     defaults={"category": "paragraph", "type": "all"},
-     *     options={"expose": true},
-     * )
-     *
      * @param string $procedure
      * @param string $elementId
      * @param string $category
@@ -1377,6 +1330,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_public_plandocument_paragraph', path: '/verfahren/{procedure}/public/paragraph/{elementId}', defaults: ['category' => 'paragraph', 'type' => 'all'], options: ['expose' => true])]
     public function publicParagraphListAction(
         BrandingService $brandingService,
         CountyService $countyService,
@@ -1860,18 +1814,13 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Receives an array of File entity ids, zips the correspondent files and starts the download of the zip file.
      *
-     * @Route(
-     *     name="DemosPlan_document_zip_files",
-     *     path="/verfahren/{procedureId}/planunterlagen/zipfiles",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("feature_element_export")
      *
      * @return RedirectResponse|StreamedResponse
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_document_zip_files', path: '/verfahren/{procedureId}/planunterlagen/zipfiles', options: ['expose' => true])]
     public function zipFilesAction(Request $request, TranslatorInterface $translator, string $procedureId)
     {
         try {

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -85,7 +86,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
             return -1;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

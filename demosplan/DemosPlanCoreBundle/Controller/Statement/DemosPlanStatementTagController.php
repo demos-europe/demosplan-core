@@ -33,18 +33,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Renders the admin view of a single tag.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tag",
-     *     path="/verfahren/{procedure}/tag/{tag}",
-     *     defaults={"master": false}
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false])]
     public function tagViewAction(
         ProcedureService $procedureService,
         Request $request,
@@ -108,19 +103,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * List of Tags that are being used in this procedures.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tags",
-     *     path="/verfahren/{procedure}/schlagworte",
-     *     defaults={"master": false},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListAction(
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
@@ -146,18 +135,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Edit Tags and topics that are being used in this procedures.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tags_edit",
-     *     path="/verfahren/{procedure}/schlagworte/edit",
-     *     defaults={"master": false},
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false])]
     public function tagListEditAction(
         FileUploadService $fileUploadService,
         Request $request,
