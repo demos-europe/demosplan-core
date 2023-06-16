@@ -67,9 +67,9 @@ use function substr;
 
 class AssessmentTableServiceOutput
 {
-    public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
-    public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
-    public const EXPORT_SORT_DEFAULT = 'default';
+    final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
+    final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
+    final public const EXPORT_SORT_DEFAULT = 'default';
 
     /**
      * @var StatementService
@@ -120,76 +120,45 @@ class AssessmentTableServiceOutput
     /** @var ValidatorInterface */
     protected $validator;
     /**
-     * @var ParagraphService
-     */
-    private $paragraphService;
-    /** @var PageTitleExtension */
-    private $pageTitleExtension;
-    /**
      * @var PermissionsInterface
      */
     protected $permissions;
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var DocxExporter
-     */
-    private $docxExporter;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
 
     /**
      * Construktor Ausgabefunktionsklasse.
      */
     public function __construct(
         AssessmentTableServiceStorage $assessmentTableServiceStorage,
-        CurrentUserService $currentUser,
-        DocxExporter $docxExporter,
+        private readonly CurrentUserService $currentUser,
+        private readonly DocxExporter $docxExporter,
         Environment $twig,
         FileService $serviceFiles,
         FormFactoryInterface $formFactory,
         GlobalConfigInterface $config,
         MapService $serviceMap,
         LoggerInterface $logger,
-        PageTitleExtension $pageTitleExtension,
-        ParagraphService $paragraphService,
+        private readonly PageTitleExtension $pageTitleExtension,
+        private readonly ParagraphService $paragraphService,
         ProcedureHandler $procedureHandler,
         PermissionsInterface $permissions,
         ServiceImporter $serviceImport,
-        StatementHandler $statementHandler,
+        private readonly StatementHandler $statementHandler,
         StatementService $statementService,
-        TranslatorInterface $translator,
+        private readonly TranslatorInterface $translator,
         ValidatorInterface $validator
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
-        $this->docxExporter = $docxExporter;
         $this->formFactory = $formFactory;
         $this->logger = $logger;
-        $this->pageTitleExtension = $pageTitleExtension;
-        $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->procedureHandler = $procedureHandler;
         $this->serviceFiles = $serviceFiles;
         $this->serviceImport = $serviceImport;
         $this->serviceMap = $serviceMap;
-        $this->statementHandler = $statementHandler;
         $this->statementService = $statementService;
-        $this->translator = $translator;
         $this->twig = $twig;
         $this->validator = $validator;
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -254,7 +223,7 @@ class AssessmentTableServiceOutput
             $addAllAggregations
         );
 
-        $statements = array_map([$this, 'replacePhase'], $serviceResult->getResult());
+        $statements = array_map($this->replacePhase(...), $serviceResult->getResult());
 
         $filterStatementFragments = false;
         if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original'])) ||
@@ -304,11 +273,9 @@ class AssessmentTableServiceOutput
         foreach ($statements as $statement) {
             $statementFragments = array_filter(
                 $filteredFragments,
-                function ($filteredFragment) use ($statement) {
-                    return $filteredFragment['statementId'] === $statement['id'];
-                }
+                fn($filteredFragment) => $filteredFragment['statementId'] === $statement['id']
             );
-            if (count($statement['fragments']) !== count($statementFragments)) {
+            if ((is_countable($statement['fragments']) ? count($statement['fragments']) : 0) !== count($statementFragments)) {
                 $statement['fragments'] = $statementFragments;
             }
             $filteredFragments = array_diff_key($filteredFragments, $statementFragments);
@@ -351,7 +318,7 @@ class AssessmentTableServiceOutput
 
         foreach ($rParams as $key => $value) {
             if (('' !== $value) && 'Suchbegriff eingeben' !== $value
-                && false !== strpos($key, 'search_')) {
+                && str_contains($key, 'search_')) {
                 $resParams['search'] = $value;
             }
         }
@@ -612,6 +579,7 @@ class AssessmentTableServiceOutput
      */
     protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
+        $styles = [];
         // Benutze das ausgewählte Format
         $styles['orientation'] = [];
         // im Hochformat werden für LibreOffice anderen Breiten benötigt
@@ -672,7 +640,7 @@ class AssessmentTableServiceOutput
             // Lege den Screenshot in den Tmp-Ordner
             try {
                 $file = $this->serviceFiles->getFileInfo($hash);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->logger->warning('Could not find file for hash');
 
                 return '';
@@ -742,7 +710,7 @@ class AssessmentTableServiceOutput
 
         // get Image size
         $imageInfo = getimagesize($imageFile);
-        if (2 < count($imageInfo)) {
+        if (2 < (is_countable($imageInfo) ? count($imageInfo) : 0)) {
             $width = $imageInfo[0] - $margin;
             $height = $imageInfo[1] - $margin;
         }
@@ -1079,7 +1047,7 @@ class AssessmentTableServiceOutput
             );
         }
 
-        if (0 !== count($group->getEntries())) {
+        if (0 !== (is_countable($group->getEntries()) ? count($group->getEntries()) : 0)) {
             $entriesRenderFunction($section, $group->getEntries());
         }
     }
@@ -1237,7 +1205,7 @@ class AssessmentTableServiceOutput
     {
         $dateString = '';
         // use authoredDate if set and valid timestamp. use 100000 to avoid "nearly 0" timestamps generated by ancient java service
-        if (isset($statement['authoredDate']) && 3 < strlen($statement['authoredDate']) && 100000 < $statement['authoredDate']) {
+        if (isset($statement['authoredDate']) && 3 < strlen((string) $statement['authoredDate']) && 100000 < $statement['authoredDate']) {
             // authored-dates apparently arrive in iso-format
             $date = $statement['authoredDate'];
             $date = is_string($date) ? strtotime($date) : $date;
@@ -1246,9 +1214,9 @@ class AssessmentTableServiceOutput
             $dateString = $this->translator->trans('date').': '.date('d.m.Y', $date);
         } elseif (isset($statement['submit'])) {
             $this->logger->debug('Use submitDate: '.$statement['submit']);
-            $this->logger->debug('submitDate (formatted): '.date('d.m.Y', substr($statement['submit'], 0, 10)));
+            $this->logger->debug('submitDate (formatted): '.date('d.m.Y', substr((string) $statement['submit'], 0, 10)));
             $dateString = $this->translator->trans('date').': '.
-                date('d.m.Y', substr($statement['submit'], 0, 10));
+                date('d.m.Y', substr((string) $statement['submit'], 0, 10));
         }
 
         return $leadingComma && '' !== $dateString ? ', '.$dateString : $dateString;
@@ -1261,10 +1229,10 @@ class AssessmentTableServiceOutput
         $firstCellWidth = $styles['cellWidthTotal'] - $secondCellWidth;
         $row = $table->addRow(null, ['space' => ['before' => 0, 'after' => 0]]);
         $keyCell = $row->addCell($firstCellWidth);
-        $keyCell->addText(htmlspecialchars($valuedLabel->getLabel()));
+        $keyCell->addText(htmlspecialchars((string) $valuedLabel->getLabel()));
         $valueCell = $row->addCell($secondCellWidth);
         $valueTextRun = $valueCell->addTextRun();
-        $valueTextRun->addText(htmlspecialchars($valuedLabel->getValue()), $valueFontStyle);
+        $valueTextRun->addText(htmlspecialchars((string) $valuedLabel->getValue()), $valueFontStyle);
         if (null !== $endnoteRef) {
             $valueTextRun->addText($endnoteRef, ['superScript' => true]);
         }

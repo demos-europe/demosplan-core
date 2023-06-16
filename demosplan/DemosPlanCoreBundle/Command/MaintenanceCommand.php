@@ -117,50 +117,34 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      * @var BounceChecker
      */
     protected $bounceChecker;
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-    /**
-     * @var ElementsService
-     */
-    private $elementService;
-
-    /**
-     * @var NominatimFactory
-     */
-    private $nominatim;
 
     public function __construct(
         BounceChecker $bounceChecker,
-        ElementsService $elementService,
+        private readonly ElementsService $elementService,
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LocationService $locationService,
         LoggerInterface $dplanMaintenanceLogger,
         MailService $mailService,
-        NominatimFactory $nominatim,
+        private readonly NominatimFactory $nominatim,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
         ProcedureRepository $procedureRepository,
-        ProcedureService $procedureService,
+        private readonly ProcedureService $procedureService,
         StatementService $statementService,
         $name = null
     ) {
         parent::__construct($name);
 
         $this->bounceChecker = $bounceChecker;
-        $this->elementService = $elementService;
         $this->eventDispatcher = $eventDispatcher;
         $this->globalConfig = $globalConfig;
         $this->locationService = $locationService;
         $this->logger = $dplanMaintenanceLogger;
         $this->mailService = $mailService;
-        $this->nominatim = $nominatim;
         $this->permissions = $permissions;
         $this->procedureHandler = $procedureHandler;
         $this->procedureRepository = $procedureRepository;
-        $this->procedureService = $procedureService;
         $this->statementService = $statementService;
     }
 

@@ -55,9 +55,7 @@ final class PackageInformation
 
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
-            static function (array $version): bool {
-                return self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
-            }
+            static fn(array $version): bool => self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package')
         );
     }
 

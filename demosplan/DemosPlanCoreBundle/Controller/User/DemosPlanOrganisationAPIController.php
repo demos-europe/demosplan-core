@@ -100,6 +100,7 @@ class DemosPlanOrganisationAPIController extends APIController
         SortMethodFactory $sortMethodFactory,
         JsonApiPaginationParser $paginationParser
     ) {
+        $condition = [];
         try {
             if ($permissions->hasPermission('area_organisations_view_of_customer') ||
                 $permissions->hasPermission('area_manage_orgas_all')
@@ -122,9 +123,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 if ('' !== $filterNameContains) {
                     $orgaList = array_filter(
                         $orgaList,
-                        static function (Orga $orga) use ($filterNameContains) {
-                            return false !== stripos($orga->getName(), $filterNameContains);
-                        }
+                        static fn(Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
                     );
                 }
             } else {

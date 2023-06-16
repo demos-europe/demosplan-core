@@ -48,7 +48,7 @@ class DemosPlanElementsAPIController extends APIController
 
         try {
             $elementsService->updateElementObject($elementsToUpdate);
-        } catch (HiddenElementUpdateException $e) {
+        } catch (HiddenElementUpdateException) {
             // FE tried to update hidden element, no special handling yet
         }
         $this->messageBag->add('confirm', 'confirm.all.changes.saved');

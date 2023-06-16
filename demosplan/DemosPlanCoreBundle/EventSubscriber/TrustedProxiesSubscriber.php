@@ -19,14 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class TrustedProxiesSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var GlobalConfigInterface|GlobalConfig
-     */
-    private $globalConfig;
-
-    public function __construct(GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -36,7 +30,7 @@ class TrustedProxiesSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (0 < count($this->globalConfig->getProxyTrusted())) {
+        if (0 < (is_countable($this->globalConfig->getProxyTrusted()) ? count($this->globalConfig->getProxyTrusted()) : 0)) {
             $request::setTrustedProxies(
                 array_merge($request::getTrustedProxies(), $this->globalConfig->getProxyTrusted()),
                 Request::HEADER_X_FORWARDED_ALL

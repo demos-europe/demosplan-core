@@ -19,16 +19,10 @@ use EDT\Querying\Contracts\PropertyPathInterface;
 class PropertiesUpdater
 {
     /**
-     * @var array<string,mixed>
-     */
-    private $properties;
-
-    /**
      * @param array<string,mixed> $properties
      */
-    public function __construct(array $properties)
+    public function __construct(private readonly array $properties)
     {
-        $this->properties = $properties;
     }
 
     /**

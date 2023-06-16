@@ -25,36 +25,8 @@ use InvalidArgumentException;
 
 class PlanningDocumentCategoryTreeReorderer
 {
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var PlanningDocumentCategoryResourceType
-     */
-    private $categoryResourceType;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        PlanningDocumentCategoryResourceType $categoryResourceType,
-        SortMethodFactory $sortMethodFactory
-    ) {
-        $this->entityFetcher = $entityFetcher;
-        $this->categoryResourceType = $categoryResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->sortMethodFactory = $sortMethodFactory;
+    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly PlanningDocumentCategoryResourceType $categoryResourceType, private readonly SortMethodFactory $sortMethodFactory)
+    {
     }
 
     // @improve T26005
@@ -152,9 +124,7 @@ class PlanningDocumentCategoryTreeReorderer
         );
 
         $categoryToMoveAndNewParent = array_column(
-            array_map(static function (Elements $category): array {
-                return [$category->getId(), $category];
-            }, $categoryToMoveAndNewParent),
+            array_map(static fn(Elements $category): array => [$category->getId(), $category], $categoryToMoveAndNewParent),
             1,
             0
         );
@@ -246,9 +216,7 @@ class PlanningDocumentCategoryTreeReorderer
             );
         }
 
-        $neighbors = collect($neighbors)->mapWithKeys(static function (Elements $neighbor): array {
-            return [$neighbor->getOrder() => $neighbor];
-        })->all();
+        $neighbors = collect($neighbors)->mapWithKeys(static fn(Elements $neighbor): array => [$neighbor->getOrder() => $neighbor])->all();
 
         return new ArrayCollection($neighbors);
     }

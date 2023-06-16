@@ -65,55 +65,31 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      */
     private $modificationDate;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
-     */
-    private $name;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private $enabled;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
-     */
-    private $required = true;
-
-    /**
-     * @var StatementFormDefinitionInterface
-     *
-     * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
-     *
-     * @JoinColumn(referencedColumnName="id", nullable=false)
-     */
-    private $statementFormDefinition;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="smallint", nullable=false, options={"default":0})
-     */
-    private $orderNumber;
-
     public function __construct(
-        string $fieldName,
-        StatementFormDefinition $statementFormDefinition,
-        int $orderNumber,
-        bool $enabled,
-        bool $required
-    ) {
-        $this->enabled = $enabled;
-        $this->required = $required;
-        $this->name = $fieldName;
-        $this->orderNumber = $orderNumber;
-        $this->statementFormDefinition = $statementFormDefinition;
+        /**
+         * @ORM\Column(type="string", nullable=false)
+         */
+        private string $name,
+        /**
+         *
+         * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+         * @JoinColumn(referencedColumnName="id", nullable=false)
+         */
+        private StatementFormDefinition $statementFormDefinition,
+        /**
+         * @ORM\Column(type="smallint", nullable=false, options={"default":0})
+         */
+        private int $orderNumber,
+        /**
+         * @ORM\Column(type="boolean", nullable=false)
+         */
+        private bool $enabled,
+        /**
+         * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+         */
+        private bool $required
+    )
+    {
     }
 
     public function isEnabled(): bool

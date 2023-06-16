@@ -38,16 +38,12 @@ final class JsApiResourceDefinitionBuilder
     {
         $resourceInfoList = $this->parseSpec($openApiSpec);
 
-        $resourceTypeNames = array_map(static function (string $type): string {
-            return sprintf('  %sResource', $type);
-        }, array_keys($resourceInfoList));
+        $resourceTypeNames = array_map(static fn(string $type): string => sprintf('  %sResource', $type), array_keys($resourceInfoList));
 
         // declare all available resource type objects
         $resourceDeclarations = array_reduce(
             $resourceTypeNames,
-            static function (string $list, string $typeName): string {
-                return $list.sprintf("let %s\n", trim($typeName));
-            },
+            static fn(string $list, string $typeName): string => $list.sprintf("let %s\n", trim($typeName)),
             ''
         );
 
@@ -58,19 +54,17 @@ final class JsApiResourceDefinitionBuilder
             $moduleName = lcfirst($resourceName);
 
             $relationships = 'null';
-            if (0 < count($resourceInfo[ContentField::RELATIONSHIPS])) {
+            if (0 < (is_countable($resourceInfo[ContentField::RELATIONSHIPS]) ? count($resourceInfo[ContentField::RELATIONSHIPS]) : 0)) {
                 $relationships = "{\n";
 
                 // format relationship info into readable js objects.
                 $relationships .= collect($resourceInfo[ContentField::RELATIONSHIPS])
-                    ->map(static function (string $relationshipType, string $relationshipName): string {
-                        return sprintf(
-                            "        %s: { name: '%s', type: %sResource }",
-                            $relationshipName,
-                            $relationshipName,
-                            $relationshipType
-                        );
-                    })
+                    ->map(static fn(string $relationshipType, string $relationshipName): string => sprintf(
+                        "        %s: { name: '%s', type: %sResource }",
+                        $relationshipName,
+                        $relationshipName,
+                        $relationshipType
+                    ))
                     ->implode(",\n");
 
                 $relationships .= "\n    }";
@@ -135,9 +129,7 @@ RESOURCE_MAP_HEADER;
         // skip all prefixed schema types as those aren't Resources
         $typeSchemas = array_filter(
             $openApiSpec->components->schemas,
-            static function (string $type): bool {
-                return -1 > strpos($type, ':');
-            },
+            static fn(string $type): bool => -1 > strpos($type, ':'),
             ARRAY_FILTER_USE_KEY
         );
 
@@ -145,9 +137,7 @@ RESOURCE_MAP_HEADER;
             $resourceInfo = ['name' => $type];
 
             $resourceInfo[ContentField::RELATIONSHIPS] = collect($schema->properties)
-                ->filter(static function (SpecObjectInterface $property) {
-                    return $property instanceof Reference;
-                })
+                ->filter(static fn(SpecObjectInterface $property) => $property instanceof Reference)
                 ->mapWithKeys(static function (Reference $relationship, string $relationshipName): array {
                     $referencePath = $relationship->getJsonReference()->getJsonPointer()->getPath();
 
@@ -156,7 +146,7 @@ RESOURCE_MAP_HEADER;
                 ->all();
 
             if (array_key_exists($type, $resourceInfoList)) {
-                $resourceInfo = array_merge($resourceInfoList[$type], $resourceInfo);
+                $resourceInfo = [...$resourceInfoList[$type], ...$resourceInfo];
             }
 
             $resourceInfoList[$type] = $resourceInfo;

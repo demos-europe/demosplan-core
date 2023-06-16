@@ -32,15 +32,9 @@ class UserListCommand extends CoreCommand
     protected static $defaultName = 'dplan:user:list';
     protected static $defaultDescription = 'List users with roles';
 
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(ParameterBagInterface $parameterBag, UserService $userService, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly UserService $userService, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-        $this->userService = $userService;
     }
 
     public function configure(): void
@@ -56,9 +50,7 @@ class UserListCommand extends CoreCommand
             ->map(
                 function (User $user) {
                     $roles = collect($user->getDplanroles())->map(
-                        function (Role $role) {
-                            return $role->getName();
-                        }
+                        fn(Role $role) => $role->getName()
                     )->implode(',');
 
                     return [
@@ -93,9 +85,7 @@ class UserListCommand extends CoreCommand
     public function outputDataAsHTMLTable(OutputInterface $output, array $headers, Collection $data)
     {
         $headerHTML = "<tr>\n".collect($headers)->map(
-            function ($header) {
-                return "<th>{$header}</th>";
-            }
+            fn($header) => "<th>{$header}</th>"
         )->implode("\n").'</tr>';
 
         $contentHTML = '';

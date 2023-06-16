@@ -63,8 +63,6 @@ class ViolationsException extends InvalidArgumentException implements Violations
     public function getViolationsAsStrings(): array
     {
         return collect($this->getViolations())
-            ->map(static function (ConstraintViolationInterface $violation): string {
-                return $violation->getMessage();
-            })->all();
+            ->map(static fn(ConstraintViolationInterface $violation): string => $violation->getMessage())->all();
     }
 }

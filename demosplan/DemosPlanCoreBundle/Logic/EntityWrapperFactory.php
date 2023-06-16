@@ -28,20 +28,11 @@ use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
  */
 class EntityWrapperFactory extends WrapperObjectFactory
 {
-    protected PropertyAccessorInterface $propertyAccessor;
-
-    protected PropertyReader $propertyReader;
-
-    protected ConditionEvaluator $conditionEvaluator;
-
     public function __construct(
-        CachingPropertyReader $propertyReader,
-        ConditionEvaluator $conditionEvaluator,
-        ProxyPropertyAccessor $propertyAccessor
+        protected PropertyReader $propertyReader,
+        protected ConditionEvaluator $conditionEvaluator,
+        protected PropertyAccessorInterface $propertyAccessor
     ) {
-        $this->propertyReader = $propertyReader;
-        $this->conditionEvaluator = $conditionEvaluator;
-        $this->propertyAccessor = $propertyAccessor;
         parent::__construct(
             $this->propertyReader,
             $this->propertyAccessor,

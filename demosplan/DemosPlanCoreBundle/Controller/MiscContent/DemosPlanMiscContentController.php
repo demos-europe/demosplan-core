@@ -52,6 +52,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(path: '/barrierefreiheit', name: 'DemosPlan_misccontent_static_accessibility_explanation')]
     public function showAccessibilityExplanationAction(CustomerService $customerService): Response
     {
+        $templateVars = [];
         $accessibilityExplanation = $customerService->getCurrentCustomer()->getAccessibilityExplanation();
 
         $templateVars['accessibilityExplanation'] = $accessibilityExplanation;
@@ -73,6 +74,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_sign_language', path: '/gebaerdensprache')]
     public function showSignLanguagePageAction(CustomerService $customerService): Response
     {
+        $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(
@@ -102,7 +104,7 @@ class DemosPlanMiscContentController extends BaseController
         try {
             $customerImprint = $customer->getImprint();
             $templateVars['customerImprint'] = $customerImprint;
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $templateVars['customerImprint'] = '';
         }
 
@@ -139,7 +141,7 @@ class DemosPlanMiscContentController extends BaseController
         $customer = $customerService->getCurrentCustomer();
         try {
             $templateVars['customer'] = $customer;
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $templateVars['customer'] = '';
         }
 
@@ -200,12 +202,12 @@ class DemosPlanMiscContentController extends BaseController
                     'confirm',
                     $translator->trans('confirm.email.sent')
                 );
-            } catch (ContentMandatoryFieldsException $e) {
+            } catch (ContentMandatoryFieldsException) {
                 $messageBag->add(
                     'warning',
                     $translator->trans('error.mandatoryfields')
                 );
-            } catch (ContentEmailMismatchException $e) {
+            } catch (ContentEmailMismatchException) {
                 $messageBag->add(
                     'warning',
                     $translator->trans('error.email.repeated')
@@ -327,6 +329,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_terms', path: '/nutzungsbedingungen', options: ['expose' => true])]
     public function termsAction(CustomerService $customerService, TranslatorInterface $translator)
     {
+        $templateVars = [];
         $customer = $customerService->getCurrentCustomer();
         $templateVars['customer'] = $customer;
 
@@ -456,6 +459,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_simple_language', path: '/leichte-sprache')]
     public function showSimpleLanguagePageAction(CustomerService $customerService): Response
     {
+        $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(

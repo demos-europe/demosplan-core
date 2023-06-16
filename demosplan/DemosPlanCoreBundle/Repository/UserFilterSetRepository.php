@@ -28,7 +28,7 @@ class UserFilterSetRepository extends CoreRepository
     {
         try {
             return $this->find($entityId);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

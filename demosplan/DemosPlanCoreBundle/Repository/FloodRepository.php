@@ -121,7 +121,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
                 ->setParameter('now', new DateTime('NOW'));
 
             $query->getQuery()->execute();
-        } catch (Exception $e) {
+        } catch (Exception) {
             // do not use monolog as this function is called by maintenance task
             // this may lead to excessive logfile sizes
         }

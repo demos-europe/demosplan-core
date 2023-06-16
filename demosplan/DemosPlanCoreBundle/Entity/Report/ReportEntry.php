@@ -37,37 +37,37 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class ReportEntry extends CoreEntity implements UuidEntityInterface
 {
-    public const GROUP_PROCEDURE = 'procedure';
-    public const GROUP_STATEMENT = 'statement';
-    public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
-    public const GROUP_ORGA = 'orga';
+    final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_STATEMENT = 'statement';
+    final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
+    final public const GROUP_ORGA = 'orga';
 
-    public const CATEGORY_ADD = 'add';
-    public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
-    public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
-    public const CATEGORY_CHANGE_PHASES = 'changePhases';
-    public const CATEGORY_COPY = 'copy';
-    public const CATEGORY_DELETE = 'delete';
-    public const CATEGORY_DELETE_ATTACHMENTS = 'deleteAttachments';
-    public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
-    public const CATEGORY_FINAL_MAIL = 'finalMail';
-    public const CATEGORY_INVITATION = 'invitation';
-    public const CATEGORY_MERGE = 'merge';
-    public const CATEGORY_MOVE = 'move';
-    public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
-    public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
-    public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
-    public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
-    public const CATEGORY_UPDATE = 'update';
-    public const CATEGORY_VIEW = 'view';
+    final public const CATEGORY_ADD = 'add';
+    final public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
+    final public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
+    final public const CATEGORY_CHANGE_PHASES = 'changePhases';
+    final public const CATEGORY_COPY = 'copy';
+    final public const CATEGORY_DELETE = 'delete';
+    final public const CATEGORY_DELETE_ATTACHMENTS = 'deleteAttachments';
+    final public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
+    final public const CATEGORY_FINAL_MAIL = 'finalMail';
+    final public const CATEGORY_INVITATION = 'invitation';
+    final public const CATEGORY_MERGE = 'merge';
+    final public const CATEGORY_MOVE = 'move';
+    final public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
+    final public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
+    final public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
+    final public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
+    final public const CATEGORY_UPDATE = 'update';
+    final public const CATEGORY_VIEW = 'view';
 
-    public const LEVEL_INFO = 'INFO';
+    final public const LEVEL_INFO = 'INFO';
 
-    public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
-    public const IDENTIFIER_TYPE_STATEMENT = 'statement';
-    public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
-    public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
-    public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
+    final public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
+    final public const IDENTIFIER_TYPE_STATEMENT = 'statement';
+    final public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
+    final public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
+    final public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
 
     /**
      * @var string|null
@@ -201,7 +201,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -594,7 +594,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
 
         try {
             $decoded = Json::decodeToArray($message);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $decoded = [];
         }
 

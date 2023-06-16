@@ -21,19 +21,8 @@ use Throwable;
 
 class ConfigParametersDataCollector extends DataCollector
 {
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-    /**
-     * @var SubdomainHandlerInterface
-     */
-    private $subdomainHandler;
-
-    public function __construct(ParameterBagInterface $parameterBag, SubdomainHandlerInterface $subdomainHandler)
+    public function __construct(private readonly ParameterBagInterface $parameterBag, private readonly SubdomainHandlerInterface $subdomainHandler)
     {
-        $this->parameterBag = $parameterBag;
-        $this->subdomainHandler = $subdomainHandler;
     }
 
     public function collect(
@@ -41,9 +30,7 @@ class ConfigParametersDataCollector extends DataCollector
         Response $response,
         Throwable $exception = null
     ) {
-        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static function ($item) {
-            return $item['url'];
-        })->toArray();
+        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static fn($item) => $item['url'])->toArray();
 
         $this->data = [
             'database_host'        => $this->parameterBag->get('database_host'),

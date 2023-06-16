@@ -58,56 +58,27 @@ class MailService extends CoreService
      * @var MailerInterface
      */
     protected $mailer;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var MailRepository
-     */
-    private $mailRepository;
     /**
      * @var GlobalConfigInterface
      */
     private $globalConfig;
 
     public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MailerInterface $mailer,
-        MailRepository $mailRepository,
-        SortMethodFactory $sortMethodFactory,
-        TranslatorInterface $translator
+        private readonly MailRepository $mailRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly TranslatorInterface $translator
     ) {
-        $this->conditionFactory = $conditionFactory;
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
         $this->emailSystem = $globalConfig->getEmailSystem();
-        $this->entityFetcher = $entityFetcher;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->mailer = $mailer;
-        $this->mailRepository = $mailRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->translator = $translator;
     }
 
     /**
@@ -183,7 +154,7 @@ class MailService extends CoreService
                 continue;
             }
 
-            if (preg_match("/^\w:/", $filename)) {
+            if (preg_match("/^\w:/", (string) $filename)) {
                 $this->logger->warning("Ignoring attachment created on a Windows™ system: $filename");
             } else {
                 $attachment = $this->mailRepository->createAttachment($filename);
@@ -313,7 +284,7 @@ class MailService extends CoreService
                     $isValidFromAddress = preg_match(
                         '/'.$this->globalConfig
                             ->getEmailFromDomainValidRegex().'/',
-                        $fromInitial[0]
+                        (string) $fromInitial[0]
                     );
                     if (1 === $isValidFromAddress) {
                         $from = $fromInitial[0];
@@ -534,8 +505,8 @@ class MailService extends CoreService
                 return '';
             }
 
-            if (false !== strpos($field, ',')) {
-                return $this->checkEMailField(explode(',', $field), $addEmailAsName);
+            if (str_contains((string) $field, ',')) {
+                return $this->checkEMailField(explode(',', (string) $field), $addEmailAsName);
             }
 
             $checkResult = $this->checkEMail($field);

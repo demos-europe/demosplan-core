@@ -43,18 +43,12 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Number of seconds to cache the login list in dev mode.
      */
-    public const LOGIN_LIST_CACHE_DURATION = 43200; // 12 hours
+    final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
-
-    public function __construct(CacheInterface $cache, ManagerRegistry $registry, string $entityClass)
+    public function __construct(// 12 hours
+    private readonly CacheInterface $cache, ManagerRegistry $registry, string $entityClass)
     {
         parent::__construct($registry, $entityClass);
-
-        $this->cache = $cache;
     }
 
     /**
@@ -179,7 +173,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             try {
                 $user = $this->get($entityId);
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $user = null;
             }
             // this is where the magical mapping happens
@@ -237,7 +231,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
         $this->setUserEntityFieldsOnFieldCollection($commonEntityFields, $entity, $data);
 
-        if (array_key_exists('password', $data) && 0 < strlen($data['password'])) {
+        if (array_key_exists('password', $data) && 0 < strlen((string) $data['password'])) {
             $entity->setPassword($data['password']);
             $entity->setAlternativeLoginPassword($data['password']);
         }
@@ -248,7 +242,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         return $entity;
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -424,7 +418,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @return bool
      */
-    public function delete($userId)
+    public function delete($userId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -439,7 +433,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

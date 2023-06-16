@@ -42,37 +42,18 @@ class FloodControlService extends CoreService
      *
      * @var int
      */
-    public const IP_FLOOD_THRESHOLD = 50;
+    final public const IP_FLOOD_THRESHOLD = 50;
 
     /**
      * Cookie key to use for floodrelated tasks.
      */
-    public const COOKIE_KEY = 'dplan-flood';
+    final public const COOKIE_KEY = 'dplan-flood';
 
     /**
-     * @var int
+     * @param int $ipFloodThreshold
      */
-    protected $ipFloodThreshold;
-
-    protected GlobalConfigInterface $globalConfig;
-
-    protected Environment $twig;
-
-    private FloodRepository $floodRepository;
-    private MessageBagInterface $messageBag;
-
-    public function __construct(
-        Environment $twig,
-        FloodRepository $floodRepository,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        $ipFloodThreshold = self::IP_FLOOD_THRESHOLD
-    ) {
-        $this->floodRepository = $floodRepository;
-        $this->ipFloodThreshold = $ipFloodThreshold;
-        $this->globalConfig = $globalConfig;
-        $this->twig = $twig;
-        $this->messageBag = $messageBag;
+    public function __construct(protected Environment $twig, private readonly FloodRepository $floodRepository, protected GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, protected $ipFloodThreshold = self::IP_FLOOD_THRESHOLD)
+    {
     }
 
     /**

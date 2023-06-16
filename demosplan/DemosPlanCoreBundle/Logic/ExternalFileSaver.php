@@ -27,29 +27,8 @@ use function uniqid;
 
 class ExternalFileSaver implements ExternalFileSaverInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var HttpClientInterface
-     */
-    private $httpClient;
-
-    public function __construct(
-        FileService $fileService,
-        HttpClientInterface $httpClient,
-        LoggerInterface $logger
-    ) {
-        $this->fileService = $fileService;
-        $this->logger = $logger;
-        $this->httpClient = $httpClient;
+    public function __construct(private readonly FileService $fileService, private readonly HttpClientInterface $httpClient, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
@@ -60,7 +39,7 @@ class ExternalFileSaver implements ExternalFileSaverInterface
         $response = $this->httpClient->request('GET', $url);
         $imageContent = $response->getContent();
 
-        if (0 !== strpos($imageContent, "\x89\x50\x4e\x47")) {
+        if (!str_starts_with($imageContent, "\x89\x50\x4e\x47")) {
             $this->logger->info('Could not identify data as png', [bin2hex(substr($imageContent, 0, 4))]);
             throw new RuntimeException('Could not identify data as png');
         }

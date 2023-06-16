@@ -76,8 +76,8 @@ class EntitySyncLink implements UuidEntityInterface
      */
     public function __construct(UuidEntityInterface $source, UuidEntityInterface $target)
     {
-        $this->class = get_class($source);
-        if (get_class($target) !== $this->class) {
+        $this->class = $source::class;
+        if ($target::class !== $this->class) {
             throw new InvalidArgumentException('Class of source and target does not match.');
         }
 

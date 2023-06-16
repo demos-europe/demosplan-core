@@ -156,12 +156,12 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_create', $requestPost)
             && \array_key_exists('r_newTopic', $requestPost)
         ) {
-            if (0 < \strlen(\trim($requestPost['r_newTopic']))) {
+            if (0 < \strlen(\trim((string) $requestPost['r_newTopic']))) {
                 try {
                     $result = $statementHandler->createTopic($requestPost['r_newTopic'], $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.topic.created');
                     $anchor = $result->getId();
-                } catch (DuplicatedTagTopicTitleException $exception) {
+                } catch (DuplicatedTagTopicTitleException) {
                     $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
                 }
             } else {
@@ -175,12 +175,12 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             && \array_key_exists('r_newtags', $requestPost[$requestPost['r_createtags']])
         ) {
             $newTag = $requestPost[$requestPost['r_createtags']]['r_newtags'];
-            if (0 < \strlen(\trim($newTag))) {
+            if (0 < \strlen(\trim((string) $newTag))) {
                 try {
                     $result = $statementHandler->createTagFromTopicId($requestPost['r_createtags'], $newTag, $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.tag.created');
                     $anchor = $result->getId();
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->getMessageBag()->add('warning', 'warning.tag.created');
                 }
             } else {
@@ -208,7 +208,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_renametag', $requestPost)
             && \array_key_exists($requestPost['r_renametag'], $requestPost)
             && \array_key_exists('r_tag_newname', $requestPost[$requestPost['r_renametag']])
-            && 0 < \strlen(\trim($requestPost[$requestPost['r_renametag']]['r_tag_newname']))
+            && 0 < \strlen(\trim((string) $requestPost[$requestPost['r_renametag']]['r_tag_newname']))
         ) {
             $result = $statementHandler->renameTag($requestPost['r_renametag'], $requestPost[$requestPost['r_renametag']]['r_tag_newname']);
             if ($result instanceof Tag) {
@@ -231,7 +231,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 } else {
                     $result = $statementHandler->deleteTag($requestPost['r_deletetag']);
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add('error', 'warning.tag.deleted', ['tagname' => $tagname]);
             }
 
@@ -255,10 +255,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                             } else {
                                 $result = $statementHandler->deleteTag($key);
                             }
-                        } catch (InvalidArgumentException $e) {
+                        } catch (InvalidArgumentException) {
                             // Tag may be deleted already if topic is deleted before
                             $result = true;
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             $this->getMessageBag()->add('error', 'warning.tag.deleted', ['tagname' => $val['r_tag_newname']]);
                             $success = false;
                             continue;
@@ -270,7 +270,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                             } else {
                                 $result = $statementHandler->deleteTopic($key);
                             }
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             $this->getMessageBag()->add('error', 'warning.topic.deleted', ['topicname' => $val['r_rename']]);
                             $success = false;
                             continue;

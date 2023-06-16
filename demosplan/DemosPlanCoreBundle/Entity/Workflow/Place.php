@@ -32,30 +32,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Place extends CoreEntity implements SortableInterface, PlaceInterface
 {
     /**
-     * @var string|null `null` if this instance was not persisted yet
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     */
-    private $id;
-
-    /**
-     * The displayed name of this instance.
-     *
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
-    #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
-    private $name;
-
-    /**
      * The displayed description of this instance.
      *
      * @var string
@@ -66,30 +42,42 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     #[Assert\Length(min: 0, max: 255, normalizer: 'trim')]
     private $description = '';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
-     */
-    #[Assert\NotNull]
-    private $sortIndex;
-
-    /**
-     * @var ProcedureInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
-     */
-    #[Assert\NotNull]
-    private $procedure;
-
-    public function __construct(Procedure $procedure, string $name = '', int $sortIndex = 0, string $id = null)
+    public function __construct(
+        /**
+         *
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
+         * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
+         */
+        #[Assert\NotNull]
+        private Procedure $procedure,
+        /**
+         * The displayed name of this instance.
+         *
+         *
+         * @ORM\Column(type="string", length=255, nullable=false)
+         */
+        #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
+        private string $name = '',
+        /**
+         * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
+         */
+        #[Assert\NotNull]
+        private int $sortIndex = 0,
+        /**
+         * @var string|null `null` if this instance was not persisted yet
+         *
+         * @ORM\Id
+         *
+         * @ORM\GeneratedValue(strategy="CUSTOM")
+         *
+         * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+         *
+         * @ORM\Column(type="string", length=36, options={"fixed":true})
+         */
+        private ?string $id = null
+    )
     {
-        $this->procedure = $procedure;
-        $this->name = $name;
-        $this->sortIndex = $sortIndex;
-        $this->id = $id;
     }
 
     public function getId(): ?string

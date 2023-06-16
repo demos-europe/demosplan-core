@@ -27,28 +27,16 @@ class ExceptionListener
     protected $logger;
 
     /**
-     * @var ExceptionService
-     */
-    private $exceptionService;
-
-    /**
-     * @var bool
-     */
-    private $debug;
-
-    /**
      * @var callable
      */
     private $currentController;
 
     public function __construct(
         LoggerInterface $logger,
-        ExceptionService $exceptionService,
-        bool $debug = false
+        private readonly ExceptionService $exceptionService,
+        private readonly bool $debug = false
     ) {
         $this->logger = $logger;
-        $this->exceptionService = $exceptionService;
-        $this->debug = $debug;
     }
 
     public function trackController(ControllerEvent $controllerEvent): void

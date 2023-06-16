@@ -133,6 +133,7 @@ class SubmitterExporter extends XlsxExporter
     private function groupStatements(array $statements): Collection
     {
         return collect($statements)->mapToGroups(function (Statement $statement): array {
+            $statementData = [];
             $key = $statement->getOrgaPostalCode()
                 .$statement->getOrgaCity()
                 .$statement->getOrgaStreet()

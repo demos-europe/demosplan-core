@@ -66,16 +66,6 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     private $modificationDate;
 
     /**
-     * This column have to have a fixed length to allow uniqueness.
-     *
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, options={"fixed":true}, nullable=false, unique=true)
-     */
-    #[Assert\NotBlank]
-    private $name;
-
-    /**
      * @var Collection<int, ProcedureInterface>
      *                                          One procedureType has many procedures. This is the inverse side.
      *
@@ -86,59 +76,42 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     private $procedures;
 
     /**
-     * @var StatementFormDefinitionInterface
-     *
-     * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
-     */
-    private $statementFormDefinition;
-
-    /**
-     * @var ProcedureBehaviorDefinitionInterface
-     *
-     * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
-     */
-    private $procedureBehaviorDefinition;
-
-    /**
-     * @var ProcedureUiDefinitionInterface
-     *
-     * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
-     */
-    private $procedureUiDefinition;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
-     */
-    private $description;
-
-    /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
     public function __construct(
-        string $name,
-        string $description,
-        StatementFormDefinition $statementFormDefinition,
-        ProcedureBehaviorDefinition $procedureBehaviorDefinition,
-        ProcedureUiDefinition $procedureUiDefinition
+        /**
+         * This column have to have a fixed length to allow uniqueness.
+         *
+         *
+         * @ORM\Column(type="string", length=255, options={"fixed":true}, nullable=false, unique=true)
+         */
+        #[Assert\NotBlank]
+        private string $name,
+        /**
+         * @ORM\Column(type="text", nullable=false)
+         */
+        private string $description,
+        /**
+         *
+         * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
+         */
+        private StatementFormDefinition $statementFormDefinition,
+        /**
+         *
+         * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
+         */
+        private ProcedureBehaviorDefinition $procedureBehaviorDefinition,
+        /**
+         *
+         * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
+         */
+        private ProcedureUiDefinition $procedureUiDefinition
     ) {
-        $this->name = $name;
-        $this->description = $description;
-
-        $this->statementFormDefinition = $statementFormDefinition;
         $statementFormDefinition->setProcedureType($this);
-
-        $this->procedureBehaviorDefinition = $procedureBehaviorDefinition;
         $procedureBehaviorDefinition->setProcedureType($this);
-
-        $this->procedureUiDefinition = $procedureUiDefinition;
         $procedureUiDefinition->setProcedureType($this);
 
         $this->procedures = new ArrayCollection();

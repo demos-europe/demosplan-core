@@ -556,7 +556,7 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function anonymizeStatementMiscData(?array $miscData): ?string
     {
-        if (0 === count($miscData)) {
+        if (0 === count((array) $miscData)) {
             return null;
         }
 
@@ -582,7 +582,7 @@ class RemoveUserDataCommand extends CoreCommand
                 $userName = $this->map($parts[0], $this->faker->name);
                 $organisationName = $this->map($parts[1], $this->faker->company);
                 $userRole = $this->map($parts[2], 'FachplanerAdmin');
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $userName = $this->faker->name;
                 $organisationName = $this->faker->company;
                 $userRole = 'FachplanerAdmin';
@@ -768,7 +768,7 @@ class RemoveUserDataCommand extends CoreCommand
                     $statementFragment->setArchivedOrgaName($this->map($statementFragment->getArchivedOrgaName(), $this->faker->company));
                     $statementFragment->setArchivedDepartmentName($this->map($statementFragment->getArchivedDepartmentName(), $this->faker->colorName));
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $relatedDepartment = null; // related Department is not existing getDepartment() leads to exception
             }
 

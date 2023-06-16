@@ -149,58 +149,19 @@ class DemosPlanProcedureController extends BaseController
      */
     protected $procedureServiceOutput;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var AssessmentHandler
-     */
-    private $assessmentHandler;
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-    /**
-     * @var ProcedureTypeResourceType
-     */
-    private $procedureTypeResourceType;
-
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     public function __construct(
-        EntityFetcher $entityFetcher,
-        AssessmentHandler $assessmentHandler,
-        Environment $twig,
-        PermissionsInterface $permissions,
-        ProcedureHandler $procedureHandler,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly AssessmentHandler $assessmentHandler,
+        private readonly Environment $twig,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureHandler $procedureHandler,
         ProcedureService $procedureService,
         ProcedureServiceOutput $procedureServiceOutput,
-        ProcedureTypeResourceType $procedureTypeResourceType,
-        SortMethodFactory $sortMethodFactory
+        private readonly ProcedureTypeResourceType $procedureTypeResourceType,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->entityFetcher = $entityFetcher;
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
-        $this->procedureTypeResourceType = $procedureTypeResourceType;
-        $this->twig = $twig;
-        $this->assessmentHandler = $assessmentHandler;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->procedureHandler = $procedureHandler;
-        $this->permissions = $permissions;
     }
 
     /**
@@ -246,7 +207,7 @@ class DemosPlanProcedureController extends BaseController
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
             return $this->redirectToRoute($redirectRoute, ['procedure' => $procedure->getId()]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
             return $this->redirectToRoute('core_home');
@@ -276,6 +237,7 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         string $procedure
     ) {
+        $templateVars = [];
         $procedureId = $procedure;
         $procedureService = $this->procedureService;
         $procedureObject = $procedureService->getProcedure($procedureId);
@@ -588,6 +550,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function getBucketEmptyData($formOptionsKey, $translator)
     {
+        $data = [];
         $params = $this->getFormParameter($formOptionsKey);
         $data[] = [
             'key'   => 'Keine Zuordnung',
@@ -762,6 +725,7 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
+        $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
         $breadcrumb->addItem(
             [
@@ -863,6 +827,7 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
+        $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
         $breadcrumb->addItem(
             [
@@ -1343,7 +1308,7 @@ class DemosPlanProcedureController extends BaseController
                 ) {
                     $inData['r_emailTitle'] = str_ireplace(
                         $procedureObject->getName(),
-                        $inData['r_name'],
+                        (string) $inData['r_name'],
                         $procedureObject->getSettings()->getEmailTitle());
                 }
 
@@ -1402,7 +1367,7 @@ class DemosPlanProcedureController extends BaseController
             $procedureAsArray['externalDesc'] = \preg_replace(
                 '|<br />|s',
                 "\n",
-                $procedureAsArray['externalDesc']
+                (string) $procedureAsArray['externalDesc']
             );
             $templateVars = ['proceduresettings' => $procedureAsArray];
 
@@ -1449,9 +1414,9 @@ class DemosPlanProcedureController extends BaseController
                     true,
                     false
                 )->sort(static function (User $userA, User $userB): int {
-                    $lastNameCmpResult = strcmp($userA->getLastname(), $userB->getLastname());
+                    $lastNameCmpResult = strcmp((string) $userA->getLastname(), (string) $userB->getLastname());
                     if (0 === $lastNameCmpResult) {
-                        return strcmp($userA->getName(), $userB->getName());
+                        return strcmp((string) $userA->getName(), (string) $userB->getName());
                     }
 
                     return $lastNameCmpResult;
@@ -1574,6 +1539,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function sendProcedureSubscriptionEmail(MailService $mailService, $translator, $procedure)
     {
+        $vars = [];
         if (!isset($procedure['locationPostCode']) || '' === $procedure['locationPostCode']) {
             // @todo im Service abfangen
             return;
@@ -1741,7 +1707,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['isSubmitted'] = true;
 
                 // Wenn der User eine E-Mail-Adresse angegeben hat, schicke eine Bestätigungsmail
-                if ($request->request->has('r_email') && 0 < \strlen($requestPost['r_email'])) {
+                if ($request->request->has('r_email') && 0 < \strlen((string) $requestPost['r_email'])) {
                     $fullEmailAddress = $requestPost['r_email'];
                     $gdprConsentRevokeToken = isset($savedStatement)
                         ? $gdprConsentRevokeTokenService->maybeCreateGdprConsentRevokeToken(
@@ -1780,7 +1746,7 @@ class DemosPlanProcedureController extends BaseController
             false
         );
 
-        $layerGroupsAlternateVisibility = (1 === count($settings)) ? $settings[0]->getContent() : false;
+        $layerGroupsAlternateVisibility = (1 === count((array) $settings)) ? $settings[0]->getContent() : false;
         if (false === \is_bool($layerGroupsAlternateVisibility)) {
             $layerGroupsAlternateVisibility = \filter_var($layerGroupsAlternateVisibility, \FILTER_VALIDATE_BOOLEAN);
         }
@@ -2005,6 +1971,7 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_list_data_input_orga_procedures', path: '/verfahren/datainput/list')]
     public function dataInputOrgaChooseProcedureAction(CurrentUserService $currentUser): Response
     {
+        $templateVars = [];
         $organisationId = $currentUser->getUser()->getOrganisationId();
         $templateVars['allowedProcedures'] = null === $organisationId
             ? []
@@ -2035,7 +2002,7 @@ class DemosPlanProcedureController extends BaseController
         // Überprüfe, ob PLZ und Orte für Benachrichtigungen eingegeben wurden
         if (\array_key_exists('newSubscription', $requestPost)) {
             $postalCode = $requestPost['r_postalCode'];
-            if (5 != \strlen($postalCode)) {
+            if (5 != \strlen((string) $postalCode)) {
                 /* In BOB-SH's area_subscriptions feature the postal code is sent by the FE only if
                  * one of the dropdown entries is selected, otherwise (eg. even when a valid postal
                  * code is entered into the search field) `r_postalCode` will be sent by the FE
@@ -2059,12 +2026,12 @@ class DemosPlanProcedureController extends BaseController
 
         // Lösche gegebenenfalls Benachrichtigungen
         if (\array_key_exists('deleteSubscription', $requestPost)) {
-            if (!isset($requestPost['region_selected']) || 0 === count($requestPost['region_selected'])) {
+            if (!isset($requestPost['region_selected']) || 0 === (is_countable($requestPost['region_selected']) ? count($requestPost['region_selected']) : 0)) {
                 $this->getMessageBag()->add('error', 'explanation.entries.noneselected');
             } else {
                 $deleteNotifications = $requestPost['region_selected'];
                 $actuallyDeletedCount = $this->procedureHandler->deleteSubscriptions($deleteNotifications);
-                if (count($deleteNotifications) === $actuallyDeletedCount) {
+                if ((is_countable($deleteNotifications) ? count($deleteNotifications) : 0) === $actuallyDeletedCount) {
                     $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
                 }
 
@@ -2125,7 +2092,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         if (\array_key_exists('delete_orga_action', $requestPost)) {
-            if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
+            if (!isset($requestPost['orga_selected']) || 0 === (is_countable($requestPost['orga_selected']) ? count($requestPost['orga_selected']) : 0)) {
                 $this->getMessageBag()->add('error', 'explanation.invitable_institutions.noneselected');
             } else {
                 $deleteorga = $requestPost['orga_selected'];
@@ -2180,7 +2147,7 @@ class DemosPlanProcedureController extends BaseController
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
         if (\array_key_exists('sendInvitationEmail', $requestPost)) {
-            if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
+            if (!isset($requestPost['orga_selected']) || 0 === (is_countable($requestPost['orga_selected']) ? count($requestPost['orga_selected']) : 0)) {
                 $this->getMessageBag()->add(
                     'error',
                     'explanation.invitable_institutions.noneselected',
@@ -2224,7 +2191,7 @@ class DemosPlanProcedureController extends BaseController
                             ['procedure' => $procedure]
                         )
                     );
-                } catch (NoRecipientsWithEmailException $e) {
+                } catch (NoRecipientsWithEmailException) {
                     // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
                     $this->getMessageBag()->add(
                         'error',
@@ -2233,14 +2200,14 @@ class DemosPlanProcedureController extends BaseController
                     );
 
                     return $this->redirectBack($request);
-                } catch (MissingDataException $e) {
+                } catch (MissingDataException) {
                     $this->getMessageBag()->add(
                         'error',
                         'error.missing.subject.or.text'
                     );
 
                     return $this->redirectBack($request);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->getMessageBag()->add(
                         'error',
                         'error.email.invitation.send',
@@ -2312,6 +2279,7 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         string $procedure
     ) {
+        $templateVars = [];
         $requestPost = $request->request->all();
 
         if (\array_key_exists('orga_add', $requestPost)) {
@@ -2416,7 +2384,7 @@ class DemosPlanProcedureController extends BaseController
                     'confirm.boilerplate.group.created',
                     ['title' => $createdGroup->getTitle()]
                 );
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'error.boilerplate.group.not.created',
@@ -2819,9 +2787,7 @@ class DemosPlanProcedureController extends BaseController
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
-        $procedureTypeResources = array_map(function (object $entity) use ($wrapperFactory) {
-            return $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType);
-        }, $entities);
+        $procedureTypeResources = array_map(fn(object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
 
         $templateVars['procedureTypes'] = $procedureTypeResources;
 
@@ -2837,14 +2803,14 @@ class DemosPlanProcedureController extends BaseController
         $error = false;
         if (
             \array_key_exists('r_publicParticipationContact', $input)
-            && \strlen($input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
+            && \strlen((string) $input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.participation.maxlength');
             $error = true;
         }
         if (
             \array_key_exists('r_externalDesc', $input)
-            && \strlen($input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
+            && \strlen((string) $input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.procedure.description.maxlength');
             $error = true;

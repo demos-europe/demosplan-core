@@ -22,14 +22,13 @@ class GetOriginalFileFromAnnotatedStatementEvent
      */
     private $file = null;
 
-    /**
-     * @param Statement
-     */
-    private $statement;
-
-    public function __construct(Statement $statement)
+    public function __construct(
+        /**
+         * @param Statement
+         */
+        private readonly Statement $statement
+    )
     {
-        $this->statement = $statement;
     }
 
     public function getStatement(): Statement

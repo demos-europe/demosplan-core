@@ -58,20 +58,8 @@ use function strpos;
  */
 class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessmentController
 {
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(PermissionsInterface $permissions, StatementHandler $statementHandler)
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly StatementHandler $statementHandler)
     {
-        $this->permissions = $permissions;
-        $this->statementHandler = $statementHandler;
         parent::__construct($permissions);
     }
 
@@ -196,7 +184,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $result = $statementHandler->getStatementFragmentsDepartmentArchive($departmentId);
 
         $templateVars['list'] = $result;
-        $templateVars['totalResults'] = count($result);
+        $templateVars['totalResults'] = count((array) $result);
         $templateVars['isArchive'] = true;
 
         $templateVars['adviceValues'] = $this->getFormParameter('statement_fragment_advice_values');
@@ -226,10 +214,9 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         foreach ($filters as $activeFilters) {
             foreach ($activeFilters as $activeFilter) {
                 $activeInterfaceFilter = collect($interfaceFilters)->filter(
-                    function ($interfaceFilter) use ($activeFilter) {
+                    fn($interfaceFilter) =>
                         /* @var FilterDisplay $interfaceFilter */
-                        return $interfaceFilter->getName() == $activeFilter->getField();
-                    }
+                        $interfaceFilter->getName() == $activeFilter->getField()
                 )->first();
                 if ($activeInterfaceFilter instanceof FilterDisplay) {
                     $filterSet[] = $activeInterfaceFilter->getTitleKey();
@@ -283,14 +270,14 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
         // Replacing '_' with '.' to get valid filter names
         foreach ($requestPost as $filterName => $value) {
-            $requestPost[str_replace('_', '.', $filterName)] = $value;
+            $requestPost[str_replace('_', '.', (string) $filterName)] = $value;
         }
 
         $statementHandler->setRequestValues($requestPost);
         $result = $statementHandler->getStatementFragmentsDepartment($departmentId);
 
         $templateVars['list'] = $result;
-        $templateVars['totalResults'] = count($result);
+        $templateVars['totalResults'] = count((array) $result);
         /* There is no paginator right now. Limit is set to 3000 in FragmentElasicsearchRepository->getResult() */
         $templateVars['limitResults'] = 3000;
 
@@ -327,10 +314,9 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         foreach ($filters as $activeFilters) {
             foreach ($activeFilters as $activeFilter) {
                 $activeInterfaceFilter = collect($interfaceFilters)->filter(
-                    function ($interfaceFilter) use ($activeFilter) {
+                    fn($interfaceFilter) =>
                         /* @var FilterDisplay $interfaceFilter */
-                        return $interfaceFilter->getName() === $activeFilter->getField();
-                    }
+                        $interfaceFilter->getName() === $activeFilter->getField()
                 )->first();
                 if ($activeInterfaceFilter instanceof FilterDisplay) {
                     $filterSet[] = $activeInterfaceFilter->getTitleKey();
@@ -433,12 +419,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             try {
                 $deleted = $this->statementHandler->deleteStatementFragment($fragmentId);
                 $returnCode = 200;
-            } catch (EntityIdNotFoundException $e) {
+            } catch (EntityIdNotFoundException) {
                 $this->getMessageBag()->add('warning', 'warning.fragment.notfound');
-            } catch (LockedByAssignmentException $e) {
+            } catch (LockedByAssignmentException) {
                 $this->getMessageBag()->add(
                     'warning', 'warning.delete.fragment.because.of.assignment');
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $deleted = false;
                 $returnCode = 100;
             }
@@ -501,12 +487,12 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             // get fragment considerations
             $considerations = collect($fragments->getResult())
-                ->map(function ($item) { // reduce array for considerations
-                    return $item['consideration'];
-                })
-                ->filter(function ($item) { // values should not be empty
-                    return 0 < strlen($item);
-                })
+                ->map(fn($item) =>
+                    // reduce array for considerations
+                    $item['consideration'])
+                ->filter(fn($item) =>
+                    // values should not be empty
+                    0 < strlen($item))
                 ->values()
                 ->toArray();
 
@@ -542,12 +528,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         try {
             $postRequest = $request->request;
 
-            $returnResponse = function ($procedure, $statementId) {
-                return $this->redirectToRoute('DemosPlan_statement_fragment', [
-                    'procedure'   => $procedure,
-                    'statementId' => $statementId,
-                ]);
-            };
+            $returnResponse = fn($procedure, $statementId) => $this->redirectToRoute('DemosPlan_statement_fragment', [
+                'procedure'   => $procedure,
+                'statementId' => $statementId,
+            ]);
 
             $statement = $statementHandler->getStatement($statementId);
 
@@ -783,13 +767,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $isArchive = array_key_exists('isArchive', $vars);
         $filter = [];
         foreach ($vars as $key => $value) {
-            if (0 === strpos($key, 'filter_')) {
-                $filter[preg_replace('/^filter_/', '', $key)] = $value;
+            if (str_starts_with((string) $key, 'filter_')) {
+                $filter[preg_replace('/^filter_/', '', (string) $key)] = $value;
             }
         }
 
         $departmentId = $currentUser->getUser()->getDepartmentId();
-        $pdf = $this->statementHandler->generateFragmentPdf($fragmentIds, null, $departmentId, $isArchive, $filter);
+        $pdf = $this->statementHandler->generateFragmentPdf($fragmentIds, null, $departmentId, $isArchive);
 
         $response = new Response($pdf->getContent(), 200);
         $response->headers->set('Pragma', 'public');

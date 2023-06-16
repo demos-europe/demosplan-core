@@ -23,23 +23,11 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
 {
     protected $type = 'EntityContentChangeComparison';
 
-    /**
-     * @var EntityContentChangeDisplayService
-     */
-    private $entityContentChangeDisplayService;
-
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
     public function __construct(
-        EntityContentChangeDisplayService $entityContentChangeDisplayService,
-        EntityContentChangeService $entityContentChangeService
+        private readonly EntityContentChangeDisplayService $entityContentChangeDisplayService,
+        private readonly EntityContentChangeService $entityContentChangeService
     ) {
         parent::__construct();
-        $this->entityContentChangeDisplayService = $entityContentChangeDisplayService;
-        $this->entityContentChangeService = $entityContentChangeService;
     }
 
     /**
@@ -48,7 +36,7 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
     public function transform(array $instanceChangeArray): array
     {
         $data = collect($instanceChangeArray)
-            ->filter([$this, 'isFieldNameWhitelistedForEntityContentChangeComponent'])
+            ->filter($this->isFieldNameWhitelistedForEntityContentChangeComponent(...))
             ->mapWithKeys(function (EntityContentChange $entityContentChange): array {
                 $translationKey = $this->entityContentChangeService->getMappingValue(
                     $entityContentChange->getEntityField(),

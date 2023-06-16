@@ -32,19 +32,12 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
     protected static $defaultName = 'dplan:debug:procedure-type-fields';
     protected static $defaultDescription = 'Shows info regarding the fields for the different ProcedureTypes';
 
-    /**
-     * @var ProcedureTypeService
-     */
-    private $procedureTypeService;
-
     public function __construct(
-        ProcedureTypeService $procedureTypeService,
+        private readonly ProcedureTypeService $procedureTypeService,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-
-        $this->procedureTypeService = $procedureTypeService;
     }
 
     protected function configure(): void
@@ -82,7 +75,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
             } else {
                 $this->printProcedureTypesInfo($input, $output, $this->procedureTypeService->findAll());
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             return -1;
         }
 

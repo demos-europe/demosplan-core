@@ -42,7 +42,7 @@ class DoctrineUserListener
             $customer = $this->customerService->getCurrentCustomer();
             $user->setCurrentCustomer($customer);
             $user->setRolesAllowed($this->rolesAllowed);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // bad luck :-(
         }
     }

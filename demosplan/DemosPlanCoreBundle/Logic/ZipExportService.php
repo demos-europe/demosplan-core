@@ -36,20 +36,8 @@ class ZipExportService
      */
     private $filesAdded = [];
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(FileService $fileService, LoggerInterface $logger)
+    public function __construct(private readonly FileService $fileService, private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
-        $this->fileService = $fileService;
     }
 
     /**
@@ -72,7 +60,7 @@ class ZipExportService
             // set maximum filesize to load into memory to 120 MB
             $options->setLargeFileSize(120 * 1024 * 1024);
             // do not compress large files. Store should be default but somehow isn't if not set
-            $options->setLargeFileMethod(Method::STORE());
+            $options->setLargeFileMethod(Method::STORE);
 
             $zip = new ZipStream($name, $options);
             $fillZipFunction($zip);
@@ -84,7 +72,7 @@ class ZipExportService
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
         $fileOptions = new File();
-        $fileOptions->setMethod(Method::STORE());
+        $fileOptions->setMethod(Method::STORE);
         $zip->addFileFromPath($zipPath, $filePath, $fileOptions);
 
         $this->logger->info('Added File to Zip');
@@ -97,7 +85,7 @@ class ZipExportService
         string $fileNamePrefix
     ): void {
         $path = Utf8::toAscii($folderPath.$fileNamePrefix.$fileInfo->getFileName());
-        $pathHash = md5($path);
+        $pathHash = md5((string) $path);
         if (in_array($pathHash, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
 
@@ -171,7 +159,7 @@ class ZipExportService
                 }
 
                 $this->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->logger->warning('Could not add file to Zip',
                     [
                         'fileString' => $fileString ?? '',
@@ -216,7 +204,7 @@ class ZipExportService
     private function checkIfSavable(object $writer): void
     {
         if (!($writer instanceof WriterInterface || $writer instanceof PDF)) {
-            throw InvalidParameterTypeException::fromTypes(get_class($writer), [WriterInterface::class, PDF::class]);
+            throw InvalidParameterTypeException::fromTypes($writer::class, [WriterInterface::class, PDF::class]);
         }
     }
 }

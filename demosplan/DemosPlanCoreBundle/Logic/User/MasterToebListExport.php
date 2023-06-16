@@ -21,15 +21,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MasterToebListExport extends XlsxExporter
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(PermissionsInterface $permissions, TranslatorInterface $translator)
+    public function __construct(private readonly PermissionsInterface $permissions, TranslatorInterface $translator)
     {
         parent::__construct($translator);
-        $this->permissions = $permissions;
     }
 
     /**
@@ -65,9 +59,7 @@ class MasterToebListExport extends XlsxExporter
     private function setHeaderRow(array $headingFields): void
     {
         // Besorge die gültigen Klarnamen der Felder
-        $headings = array_map(function (string $field) {
-            return $this->translator->trans($field, [], 'master-toeb-list');
-        }, $headingFields);
+        $headings = array_map(fn(string $field) => $this->translator->trans($field, [], 'master-toeb-list'), $headingFields);
 
         $this->spreadsheet->getActiveSheet()->fromArray($headings);
     }

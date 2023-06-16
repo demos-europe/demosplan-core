@@ -1538,7 +1538,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

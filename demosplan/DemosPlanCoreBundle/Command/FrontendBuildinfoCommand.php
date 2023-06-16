@@ -44,7 +44,7 @@ class FrontendBuildinfoCommand extends CoreCommand
 
         try {
             $output->writeln(Json::encode($data));
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $output->writeln('Error: Parameter dump failed');
 
             return Command::FAILURE;

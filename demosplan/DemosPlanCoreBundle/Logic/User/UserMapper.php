@@ -24,16 +24,10 @@ class UserMapper implements UserMapperInterface
      */
     protected $userService;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
     public function __construct(
-        RequestStack $requestStack,
+        private RequestStack $requestStack,
         UserService $userService
     ) {
-        $this->requestStack = $requestStack;
         $this->userService = $userService;
     }
 

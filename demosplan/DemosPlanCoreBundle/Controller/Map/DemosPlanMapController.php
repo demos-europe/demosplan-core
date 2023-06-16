@@ -75,6 +75,7 @@ class DemosPlanMapController extends BaseController
         TranslatorInterface $translator,
         $procedureId
     ) {
+        $templateVars = [];
         $inData = $this->prepareIncomingData($request, 'mapglobals');
         // Wenn das Formular abgeschickt wurde, wird editStatementAction erneut aufgerufen, handlet die Daten und leitet dann auf die passende Liste weiter.
 
@@ -97,7 +98,7 @@ class DemosPlanMapController extends BaseController
         // globale Sachdatenabfrage hinzufügen
         $templateVars['mapglobals']['featureInfoUrl'] = $getFeatureInfo;
         //  to be interpreted as json, the string begins with '[' and ends with ']'; those have to be removed first
-        $scales = str_replace(['[', ']'], '', $this->globalConfig->getMapPublicAvailableScales());
+        $scales = str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales());
         $templateVars['availableScales'] = explode(',', $scales);
 
         // reichere die breadcrumb mit extraItem an
@@ -118,7 +119,7 @@ class DemosPlanMapController extends BaseController
             false
         );
 
-        $layerGroupsAlternateVisibility = (1 === count($settings)) ? $settings[0]->getContent() : false;
+        $layerGroupsAlternateVisibility = (1 === count((array) $settings)) ? $settings[0]->getContent() : false;
         if (false === is_bool($layerGroupsAlternateVisibility)) {
             $layerGroupsAlternateVisibility = filter_var($layerGroupsAlternateVisibility, FILTER_VALIDATE_BOOLEAN);
         }
@@ -158,6 +159,7 @@ class DemosPlanMapController extends BaseController
         TranslatorInterface $translator,
         $procedure
     ) {
+        $templateVars = [];
         try {
             $templateVars['procedure'] = $procedure;
             $requestPost = $request->request;
@@ -207,7 +209,7 @@ class DemosPlanMapController extends BaseController
                     'title'        => $title,
                 ]
             );
-        } catch (MapValidationException $e) {
+        } catch (MapValidationException) {
             $this->getMessageBag()->add('error', 'error.save');
 
             return $this->redirect($request->headers->get('referer'));
@@ -291,7 +293,7 @@ class DemosPlanMapController extends BaseController
                     'title'        => 'drawing.admin.gis.layer.edit',
                 ]
             );
-        } catch (MapValidationException $e) {
+        } catch (MapValidationException) {
             $this->getMessageBag()->add('error', 'error.save');
 
             return $this->redirect($request->headers->get('referer'));
@@ -343,7 +345,7 @@ class DemosPlanMapController extends BaseController
                         ['procedureId' => $procedureId]
                     );
                 }
-            } catch (InvalidArgumentException $exception) {
+            } catch (InvalidArgumentException) {
                 $this->messageBag->warning('warning', 'error.name');
             }
         }
@@ -385,7 +387,7 @@ class DemosPlanMapController extends BaseController
     {
         try {
             $currentCategory = $mapHandler->getGisLayerCategory($gislayerCategoryId);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add('error', 'error.gislayerCategory.get');
 
             return $this->redirectToRoute(
@@ -408,7 +410,7 @@ class DemosPlanMapController extends BaseController
                     'DemosPlan_map_administration_gislayer',
                     ['procedureId' => $procedureId]
                 );
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add('error', 'error.gislayerCategory.update');
             }
         }
@@ -592,7 +594,7 @@ class DemosPlanMapController extends BaseController
                 $this->getMessageBag()->add('confirm', 'confirm.featureinfourl.global.updated');
 
                 return $this->redirectToRoute('DemosPlan_map_administration_gislayer_global');
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 // Fehlermeldung
                 $this->getMessageBag()->add('error', 'error.featureinfourl.global.updated');
             }
@@ -638,6 +640,7 @@ class DemosPlanMapController extends BaseController
         $type = 'edit',
         $gislayerID = null
     ) {
+        $templateVars = [];
         try {
             $requestPost = $request->request;
 
@@ -694,7 +697,7 @@ class DemosPlanMapController extends BaseController
                     'title'        => 'drawing.admin.gis.layer.global.edit',
                 ]
             );
-        } catch (MapValidationException $e) {
+        } catch (MapValidationException) {
             $this->getMessageBag()->add('error', 'error.save');
 
             return $this->redirect($request->headers->get('referer'));
@@ -797,7 +800,7 @@ class DemosPlanMapController extends BaseController
             $this->profilerStop($profilerName);
 
             $planningArea = 'all';
-            if (200 == $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
+            if (200 == $response['responseCode'] && false === stripos('<ExceptionReport', (string) $response['body'])) {
                 $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
                 $xml->registerXPathNamespace('wfs', 'http://www.opengis.net/wfs');
                 $xml->registerXPathNamespace('gml', 'http://www.opengis.net/gml');

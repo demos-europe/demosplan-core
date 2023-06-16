@@ -30,9 +30,7 @@ class MenusLoaderPass implements CompilerPassInterface
         ]);
 
         $configs = collect($fileLocator->locate('menus.yml', null, false))
-            ->map(static function ($configFile) {
-                return Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT);
-            })
+            ->map(static fn($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
             ->toArray();
 
         $configuration = new MenusTreeBuilder();

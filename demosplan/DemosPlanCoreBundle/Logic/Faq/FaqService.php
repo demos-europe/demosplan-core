@@ -37,54 +37,8 @@ use UnexpectedValueException;
 
 class FaqService extends CoreService
 {
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var ManualListSorter
-     */
-    private $manualListSorter;
-    /**
-     * @var FaqCategoryRepository
-     */
-    private $faqCategoryRepository;
-    /**
-     * @var FaqRepository
-     */
-    private $faqRepository;
-
-    public function __construct(
-        CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        FaqCategoryRepository $faqCategoryRepository,
-        FaqRepository $faqRepository,
-        ManualListSorter $manualListSorter,
-        SortMethodFactory $sortMethodFactory
-    ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->customerHandler = $customerHandler;
-        $this->entityFetcher = $entityFetcher;
-        $this->faqCategoryRepository = $faqCategoryRepository;
-        $this->faqRepository = $faqRepository;
-        $this->manualListSorter = $manualListSorter;
-        $this->sortMethodFactory = $sortMethodFactory;
+    public function __construct(private readonly CustomerHandler $customerHandler, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly FaqCategoryRepository $faqCategoryRepository, private readonly FaqRepository $faqRepository, private readonly ManualListSorter $manualListSorter, private readonly SortMethodFactory $sortMethodFactory)
+    {
     }
 
     /**
@@ -263,6 +217,7 @@ class FaqService extends CoreService
 
     public function findFaqCategoryByType(string $type): FaqCategory
     {
+        $criteria = [];
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $criteria['customer'] = $currentCustomer->getId();
         $criteria['type'] = $type;

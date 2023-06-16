@@ -37,75 +37,8 @@ use Twig\Error\SyntaxError;
 
 class StatementSubmissionNotifier
 {
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var Environment
-     */
-    private $twig;
-    /**
-     * @var MailService
-     */
-    private $mailService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var ContentService
-     */
-    private $contentService;
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
-        Environment $twig,
-        LoggerInterface $logger,
-        MailService $mailService,
-        MessageBagInterface $messageBag,
-        TranslatorInterface $translator,
-        DraftStatementService $draftStatementService,
-        OrgaService $orgaService,
-        ContentService $contentService,
-        ConsultationTokenService $consultationTokenService
-    ) {
-        $this->currentProcedureService = $currentProcedureService;
-        $this->currentUser = $currentUser;
-        $this->logger = $logger;
-        $this->mailService = $mailService;
-        $this->messageBag = $messageBag;
-        $this->translator = $translator;
-        $this->twig = $twig;
-        $this->draftStatementService = $draftStatementService;
-        $this->orgaService = $orgaService;
-        $this->contentService = $contentService;
-        $this->consultationTokenService = $consultationTokenService;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserInterface $currentUser, private readonly Environment $twig, private readonly LoggerInterface $logger, private readonly MailService $mailService, private readonly MessageBagInterface $messageBag, private readonly TranslatorInterface $translator, private readonly DraftStatementService $draftStatementService, private readonly OrgaService $orgaService, private readonly ContentService $contentService, private readonly ConsultationTokenService $consultationTokenService)
+    {
     }
 
     /**
@@ -117,6 +50,7 @@ class StatementSubmissionNotifier
      */
     public function sendConfirmationMails(array $submittedStatements)
     {
+        $vars = [];
         $mailData = $this->prepareConfirmationMailData(
             $submittedStatements,
             $this->currentProcedureService->getProcedureWithCertainty()->getId()
@@ -374,7 +308,7 @@ class StatementSubmissionNotifier
                     break;
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Key emailNotificationNewStatement für Settings nicht vorhanden');
         }
 
@@ -392,6 +326,7 @@ class StatementSubmissionNotifier
      */
     protected function sendNewStatementNotification($procedureName, $subjectTransKey, $emailText, $recipients, $ccs)
     {
+        $vars = [];
         $from = '';
         $scope = 'extern';
         $vars['mailsubject'] = $this->translator->trans(
@@ -437,6 +372,8 @@ class StatementSubmissionNotifier
         $number = null,
         GdprConsentRevokeToken $gdprConsentRevokeToken = null
     ): void {
+        $mailTemplateVars = [];
+        $vars = [];
         $procedureDetails = $this->currentProcedureService->getProcedureArray();
         $mailTemplateVars['procedure'] = $procedureDetails;
         $orga = $this->orgaService->getOrga($procedureDetails['orgaId']);

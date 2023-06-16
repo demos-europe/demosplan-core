@@ -53,30 +53,15 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
 {
-    private EntityManager $entityManager;
-
-    private DqlConditionFactory $conditionFactory;
-
-    private SchemaPathProcessor $schemaPathProcessor;
-
-    private ConditionEvaluator $conditionEvaluator;
-
-    private Sorter $sorter;
-
-    private JoinFinder $joinFinder;
+    private readonly JoinFinder $joinFinder;
 
     public function __construct(
-        ConditionEvaluator $conditionEvaluator,
-        DqlConditionFactory $conditionFactory,
-        EntityManager $entityManager,
-        SchemaPathProcessor $schemaPathProcessor,
-        Sorter $sorter
+        private readonly ConditionEvaluator $conditionEvaluator,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityManager $entityManager,
+        private readonly SchemaPathProcessor $schemaPathProcessor,
+        private readonly Sorter $sorter
     ) {
-        $this->entityManager = $entityManager;
-        $this->conditionFactory = $conditionFactory;
-        $this->schemaPathProcessor = $schemaPathProcessor;
-        $this->conditionEvaluator = $conditionEvaluator;
-        $this->sorter = $sorter;
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
     }
 
@@ -408,9 +393,7 @@ class EntityFetcher implements EntityFetcherInterface
 
         $partialDtos = $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
 
-        return array_map(static function (PartialDTO $dto) use ($entityIdProperty): string {
-            return $dto->getProperty($entityIdProperty);
-        }, $partialDtos);
+        return array_map(static fn(PartialDTO $dto): string => $dto->getProperty($entityIdProperty), $partialDtos);
     }
 
     /**
@@ -478,7 +461,7 @@ class EntityFetcher implements EntityFetcherInterface
         // map the resource identifier attribute to an entity property
         $resourceIdProperty = array_pop($resourceIdPath);
         $entityIdPath = $type->getAliases()[$resourceIdProperty] ?? [$resourceIdProperty];
-        if (1 !== count($entityIdPath)) {
+        if (1 !== (is_countable($entityIdPath) ? count($entityIdPath) : 0)) {
             throw new NotYetImplementedException('Usage of a property within a entity relationship as ID is not yet supported');
         }
 
@@ -583,6 +566,6 @@ class EntityFetcher implements EntityFetcherInterface
         }
         $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($type);
 
-        return array_merge($sortMethods, $defaultSortMethods);
+        return [...$sortMethods, ...$defaultSortMethods];
     }
 }

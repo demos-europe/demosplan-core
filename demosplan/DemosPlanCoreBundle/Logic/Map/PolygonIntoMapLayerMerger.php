@@ -104,7 +104,7 @@ class PolygonIntoMapLayerMerger
                     imagesetthickness($image, $style['strokeWidth'] * $this->resFactor);
 
                     $pts = $geometry->getPoints();
-                    $numPoints = count($pts);
+                    $numPoints = is_countable($pts) ? count($pts) : 0;
                     foreach ($pts as $i => $pt) {
                         $dst_x = $pt->getX();
                         $dst_y = $pt->getY();
@@ -189,13 +189,13 @@ class PolygonIntoMapLayerMerger
     private function html2rgb($color)
     {
         if ('#' == $color[0]) {
-            $color = substr($color, 1);
+            $color = substr((string) $color, 1);
         }
 
-        if (6 === strlen($color)) {
+        if (6 === strlen((string) $color)) {
             [$r, $g, $b] = [$color[0].$color[1],
                 $color[2].$color[3], $color[4].$color[5], ];
-        } elseif (3 === strlen($color)) {
+        } elseif (3 === strlen((string) $color)) {
             [$r, $g, $b] = [$color[0].$color[0],
                 $color[1].$color[1], $color[2].$color[2], ];
         } else {

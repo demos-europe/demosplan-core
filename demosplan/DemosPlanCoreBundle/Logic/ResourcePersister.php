@@ -24,25 +24,8 @@ use Doctrine\ORM\Query\QueryException;
 
 class ResourcePersister extends CoreService
 {
-    /**
-     * @var ResourceTypeService
-     */
-    private $resourceTypeService;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var RepositoryHelper
-     */
-    private $repositoryHelper;
-
-    public function __construct(EntityFetcher $entityFetcher, RepositoryHelper $repositoryHelper, ResourceTypeService $resourceTypeService)
+    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly RepositoryHelper $repositoryHelper, private readonly ResourceTypeService $resourceTypeService)
     {
-        $this->entityFetcher = $entityFetcher;
-        $this->repositoryHelper = $repositoryHelper;
-        $this->resourceTypeService = $resourceTypeService;
     }
 
     /**
@@ -100,12 +83,8 @@ class ResourcePersister extends CoreService
         }
         /** @var ResourceChange $firstResourceChange */
         $firstResourceChange = $resourceChanges[0];
-        $entitiesToPersist = array_merge(...array_map(static function (ResourceChange $resourceChanges) {
-            return $resourceChanges->getEntitiesToPersist();
-        }, $resourceChanges));
-        $entitiesToDelete = array_merge(...array_map(static function (ResourceChange $resourceChanges) {
-            return $resourceChanges->getEntitiesToDelete();
-        }, $resourceChanges));
+        $entitiesToPersist = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToPersist(), $resourceChanges));
+        $entitiesToDelete = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToDelete(), $resourceChanges));
 
         // We use the repository of the resource type for all resource types as it doesn't matter
         // which one we use and can wrap all changes in a single transaction this way.

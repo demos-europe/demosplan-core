@@ -127,6 +127,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     #[Route(name: 'DemosPlan_forum_development_release_edit', path: '/development/{releaseId}/edit')]
     public function editReleaseAction(Request $request, $releaseId)
     {
+        $storageResult = [];
         // Anlegen eines neuen release
         if ($request->request->has('updateRelease')) {
             $requestPost = $request->request->all();
@@ -203,6 +204,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     #[Route(name: 'DemosPlan_forum_development_release_list', path: '/development/release/list')]
     public function releaseListAction()
     {
+        $templateVars = [];
         $storageResult = $this->forumHandler->getReleases();
 
         // Namen für ReleasePhasen
@@ -236,6 +238,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     #[Route(name: 'DemosPlan_forum_development_release_detail', path: '/development/{releaseId}')]
     public function releaseDetailAction(CurrentUserInterface $currentUser, $releaseId)
     {
+        $templateVars = [];
         $storageResult = $this->forumHandler->getUserStoriesForRelease($releaseId);
 
         // Own Votes
@@ -417,6 +420,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     #[Route(name: 'DemosPlan_forum_development_userstory_edit', path: '/development/{releaseId}/story/edit/{storyId}')]
     public function editUserStoryAction(Request $request, $releaseId, $storyId)
     {
+        $templateVars = [];
         // Anlegen eines neuen release
         if ($request->request->has('saveUserStory')) {
             $requestPost = $request->request->all();
@@ -499,6 +503,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     #[Route(name: 'DemosPlan_forum_development_userstory_detail', path: '/development/story/{storyId}')]
     public function userStoryDetailAction(CurrentUserInterface $currentUser, $storyId)
     {
+        $templateVars = [];
         $userId = $currentUser->getUser()->getId();
 
         // Get all info about user story and its voting
@@ -530,7 +535,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             }
             // Speicher den Rollen-String in einem array ab
             if (isset($threadEntry['userRoles'])) {
-                $threadEntry['userRoles'] = explode(',', $threadEntry['userRoles']);
+                $threadEntry['userRoles'] = explode(',', (string) $threadEntry['userRoles']);
             }
 
             $threadEntry['editable'] = false;
@@ -580,6 +585,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         FileUploadService $fileUploadService,
         $storyId
     ) {
+        $templateVars = [];
         $storageResultStory = $this->forumHandler->getUserStory($storyId);
 
         // Phasenrechte überprüfen
@@ -802,7 +808,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         foreach ($storageResult['userStories'] as $key => $userStory) {
             // bereinige die Variablen von html-Tags
             if (isset($userStory['description'])) {
-                $userStory['description'] = strip_tags($userStory['description']);
+                $userStory['description'] = strip_tags((string) $userStory['description']);
                 $storageResult['userStories'][$key]['description'] = $userStory['description'];
             }
             // Variable für Gesamtsumme der Votes
@@ -824,9 +830,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['exportDate'] = date('d.m.Y');
 
         // set csv Escaper
-        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', function ($twigEnv, $string, $charset) {
-            return str_replace('"', '""', $string);
-        });
+        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', fn($twigEnv, $string, $charset) => str_replace('"', '""', $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_export.csv.twig', [
             'templateVars' => $templateVars,

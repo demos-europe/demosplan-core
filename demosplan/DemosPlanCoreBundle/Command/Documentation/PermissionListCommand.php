@@ -47,7 +47,7 @@ class PermissionListCommand extends CoreCommand
 
         try {
             $output->writeln(Json::encode($data, \JSON_PRETTY_PRINT));
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $output->writeln('{"error": "Permission export failed."}');
 
             return (int) Command::FAILURE;
@@ -67,23 +67,21 @@ class PermissionListCommand extends CoreCommand
                 static function ($permission, $name) {
                     $permission['name'] = $name;
 
-                    preg_match('/^([a-z]+)_\w*?$/', $permission['name'], $permissionTypeMatches);
+                    preg_match('/^([a-z]+)_\w*?$/', (string) $permission['name'], $permissionTypeMatches);
                     $permission['type'] = $permissionTypeMatches[1];
 
                     if (array_key_exists('description', $permission)) {
                         $permission['description'] = preg_replace(
                             '/T\d+/',
                             '[$0](https://yaits.demos-deutschland.de/$0)',
-                            $permission['description']
+                            (string) $permission['description']
                         );
                     }
 
                     return $permission;
                 }
             )->sort(
-                static function (array $permissionA, array $permissionB) {
-                    return strcmp($permissionA['name'], $permissionB['name']);
-                }
+                static fn(array $permissionA, array $permissionB) => strcmp((string) $permissionA['name'], (string) $permissionB['name'])
             )
             ->groupBy('type');
     }
@@ -161,7 +159,7 @@ class PermissionListCommand extends CoreCommand
             $projectPermissionsProcess->mustRun();
 
             return $projectPermissionsProcess->getOutput();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -182,7 +180,7 @@ class PermissionListCommand extends CoreCommand
             $projectRolesProcess->mustRun();
 
             return Yaml::parse($projectRolesProcess->getOutput());
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }

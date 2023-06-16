@@ -31,19 +31,12 @@ use function collect;
 
 class ProjectPermissionsDocumentationCommand extends CoreCommand
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     protected static $defaultName = 'dplan:documentation:project-permissions';
     protected static $defaultDescription = 'Extend the permissions documentation with project information';
 
-    public function __construct(ParameterBagInterface $parameterBag, PermissionsInterface $permissions, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-
-        $this->permissions = $permissions;
     }
 
     public function configure(): void
@@ -88,14 +81,12 @@ class ProjectPermissionsDocumentationCommand extends CoreCommand
         $enabledPermissions = collect($this->permissions->getPermissions())
             ->filter->isEnabled()
             ->map(
-                static function (Permission $permission) {
-                    return [
-                        'name'          => $permission->getName(),
-                        'label'         => $permission->getLabel(),
-                        'expose'        => $permission->isExposed(),
-                        'loginRequired' => $permission->isLoginRequired(),
-                    ];
-                }
+                static fn(Permission $permission) => [
+                    'name'          => $permission->getName(),
+                    'label'         => $permission->getLabel(),
+                    'expose'        => $permission->isExposed(),
+                    'loginRequired' => $permission->isLoginRequired(),
+                ]
             )
             ->toArray();
 

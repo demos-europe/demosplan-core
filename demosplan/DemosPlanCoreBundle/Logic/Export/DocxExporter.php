@@ -58,9 +58,9 @@ class DocxExporter
 {
     use RequiresTranslatorTrait;
 
-    public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
-    public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
-    public const EXPORT_SORT_DEFAULT = 'default';
+    final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
+    final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
+    final public const EXPORT_SORT_DEFAULT = 'default';
     /**
      * @var array Style, wie Tabelle im gesamten aussehen soll
      */
@@ -126,50 +126,28 @@ class DocxExporter
     /** @var ValidatorInterface */
     protected $validator;
     /**
-     * @var EditorService
-     */
-    private $editorService;
-    /**
      * @var PermissionsInterface
      */
     protected $permissions;
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var FieldDecider
-     */
-    private $exportFieldDecider;
-
-    /**
-     * @var StatementFragmentService
-     */
-    private $statementFragmentService;
 
     public function __construct(
-        EditorService $editorService,
-        FieldDecider $exportFieldDecider,
+        private readonly EditorService $editorService,
+        private readonly FieldDecider $exportFieldDecider,
         FileService $fileService,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
         PermissionsInterface $permissions,
-        StatementFragmentService $statementFragmentService,
-        StatementHandler $statementHandler,
+        private readonly StatementFragmentService $statementFragmentService,
+        private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         TranslatorInterface $translator
     ) {
         $this->config = $config;
-        $this->editorService = $editorService;
-        $this->exportFieldDecider = $exportFieldDecider;
         $this->fileService = $fileService;
         $this->statementService = $statementService;
         $this->translator = $translator;
         $this->permissions = $permissions;
-        $this->statementHandler = $statementHandler;
-        $this->statementFragmentService = $statementFragmentService;
         $this->logger = $logger;
     }
 
@@ -202,12 +180,11 @@ class DocxExporter
                     $includeFragmentsInStatementExport = 'statementsAndFragments' === $exportType;
                     $incomingNonOriginalStatements = array_filter(
                         $incomingStatements,
-                        static function (array $statement) {
+                        static fn(array $statement) =>
                             // True if the given statement is not an original statement.
                             // False otherwise.
                             // Original statements are non-moved statements without a parentId.
-                            return isset($statement['movedFromProcedureId']) || isset($statement['parentId']);
-                        }
+                            isset($statement['movedFromProcedureId']) || isset($statement['parentId'])
                     );
                     $relevantFragmentIds = $includeFragmentsInStatementExport
                         // if fragments are to be included in the export then get their IDs from the statements
@@ -218,9 +195,7 @@ class DocxExporter
                         // if fragments are to be included in the export then only export statements without fragments
                         ? array_filter(
                             $incomingNonOriginalStatements,
-                            static function (array $statement) {
-                                return 0 === count($statement['fragments']);
-                            }
+                            static fn(array $statement) => 0 === (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)
                         )
                         // otherwise include all statements
                         : $incomingNonOriginalStatements;
@@ -282,17 +257,13 @@ class DocxExporter
                 case self::EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY:
                     $relevantFragmentIds = $this->getSelectedFragmentIdsOfStatements($incomingStatements);
                     // 'items' may contain IDs of statements and/or fragments, get the fragment ones only
-                    $selections = array_filter($requestPost['items'], function (string $id) {
-                        return null === $this->statementHandler->getStatement($id);
-                    });
+                    $selections = array_filter($requestPost['items'], fn(string $id) => null === $this->statementHandler->getStatement($id));
                     // if specific fragments were selected use these only
-                    if (0 !== count($selections)) {
+                    if (0 !== count((array) $selections)) {
                         // create a mapping from ID to ID
                         $selections = array_combine($selections, $selections);
                         // filter out non-selected items
-                        $relevantFragmentIds = array_filter($relevantFragmentIds, static function (string $fragmentId) use ($selections) {
-                            return array_key_exists($fragmentId, $selections);
-                        });
+                        $relevantFragmentIds = array_filter($relevantFragmentIds, static fn(string $fragmentId) => array_key_exists($fragmentId, $selections));
                     }
                     $groupStructure = $this->statementService->createElementsGroupStructure(
                         $procedure->getId(),
@@ -513,7 +484,7 @@ class DocxExporter
     {
         return collect($statements)
             ->pluck('fragments')
-            ->flatMap([$this->statementFragmentService, 'sortFragmentArraysBySortIndex'])
+            ->flatMap($this->statementFragmentService->sortFragmentArraysBySortIndex(...))
             ->pluck('id')
             ->unique()
             ->all();
@@ -524,6 +495,7 @@ class DocxExporter
      */
     protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
+        $styles = [];
         // Benutze das ausgewählte Format
         $styles['orientation'] = [];
         // im Hochformat werden für LibreOffice anderen Breiten benötigt
@@ -690,7 +662,7 @@ class DocxExporter
 
         if (null === $item['movedToProcedureName']) {
             // Stellungnahme oder Datensatz und Erwiderung
-            if ('statementsAndFragments' === $exportType && 0 < count($item['fragments'])) {
+            if ('statementsAndFragments' === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
                 $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
             } else {
                 $assessmentTable->addRow();
@@ -747,11 +719,11 @@ class DocxExporter
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
                 // Abteilung
-                if (0 < strlen($item['orgaDepartmentName'])) {
+                if (0 < strlen((string) $item['orgaDepartmentName'])) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
                 if (false == $anonymous) {
-                    $institutionData .= 0 < strlen($item['submitName']) ? ': '.$item['submitName'] : '';
+                    $institutionData .= 0 < strlen((string) $item['submitName']) ? ': '.$item['submitName'] : '';
                 }
                 $metaInfoCell->addText(
                     $institutionData,
@@ -1019,12 +991,12 @@ class DocxExporter
         $frontPageSection->addTextBreak(3);
 
         // Verfahrensname
-        $frontPageSection->addText(htmlspecialchars($procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
+        $frontPageSection->addText(htmlspecialchars((string) $procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
         $phaseName = $procedure->getPhaseName();
         if (null !== $phaseName) {
-            $frontPageSection->addText(htmlspecialchars($phaseName), $coverHeadingStyle, $coverParagraphStyle);
+            $frontPageSection->addText(htmlspecialchars((string) $phaseName), $coverHeadingStyle, $coverParagraphStyle);
         }
 
         $frontPageSection->addTextBreak(3);
@@ -1054,7 +1026,7 @@ class DocxExporter
             );
         }
 
-        if (0 !== count($group->getEntries())) {
+        if (0 !== (is_countable($group->getEntries()) ? count($group->getEntries()) : 0)) {
             $entriesRenderFunction($section, $group->getEntries());
         }
     }
@@ -1087,20 +1059,17 @@ class DocxExporter
                 $item = $this->formatStatementArray($statement);
 
                 // if there are fragments and fragment export was selected
-                if ('statementsAndFragments' === $exportType && 0 < count($statement['fragments'])) {
+                if ('statementsAndFragments' === $exportType && 0 < (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)) {
                     // change type of entry (used for name of column)
                     $item['type'] = 'fragments';
                     $item['fragments'] = collect($statement['fragments'])
-                        ->filter(static function (array $fragment) use ($statement, $requestPost): bool {
+                        ->filter(static fn(array $fragment): bool =>
                             // if some items are selected, then only export the selected ones
                             // if no items are selected, export all
-                            return 0 === count($requestPost['items'])
-                                || in_array($fragment['id'], $requestPost['items'], true)
-                                || in_array($statement['id'], $requestPost['items'], true);
-                        })
-                        ->map(function (array $fragment) use ($statement): array {
-                            return $this->formatFragmentArray($statement, $fragment);
-                        })
+                            0 === (is_countable($requestPost['items']) ? count($requestPost['items']) : 0)
+                            || in_array($fragment['id'], $requestPost['items'], true)
+                            || in_array($statement['id'], $requestPost['items'], true))
+                        ->map(fn(array $fragment): array => $this->formatFragmentArray($statement, $fragment))
                         ->sortBy('sortIndex')
                         ->values();
                 }
@@ -1366,7 +1335,7 @@ class DocxExporter
 
                 if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_ORGA_NAME, $exportConfig, $statement)) {
                     $cell2->addText(
-                        htmlspecialchars($citizenDetails['orgaName']),
+                        htmlspecialchars((string) $citizenDetails['orgaName']),
                         null,
                         $cellHCentered
                     );
@@ -1381,7 +1350,7 @@ class DocxExporter
                 )) {
                     // Name
                     $cell2->addText(
-                        htmlspecialchars($citizenDetails['submitName']),
+                        htmlspecialchars((string) $citizenDetails['submitName']),
                         null,
                         $cellHCentered
                     );
@@ -1390,7 +1359,7 @@ class DocxExporter
                 if ($this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
                     // Adresse
                     $cell2->addText(
-                        htmlspecialchars($citizenDetails['postalAddressPartsOfAuthor']),
+                        htmlspecialchars((string) $citizenDetails['postalAddressPartsOfAuthor']),
                         null,
                         $cellHCentered
                     );
@@ -1404,7 +1373,7 @@ class DocxExporter
                     $anonym
                 )) {
                     $cell2->addText(
-                        htmlspecialchars($citizenDetails['email']),
+                        htmlspecialchars((string) $citizenDetails['email']),
                         null,
                         $cellHCentered
                     );
@@ -1418,7 +1387,7 @@ class DocxExporter
                 )) {
                     // Adresse
                     $cell2->addText(
-                        htmlspecialchars($citizenDetails['phoneNumber']),
+                        htmlspecialchars((string) $citizenDetails['phoneNumber']),
                         null,
                         $cellHCentered
                     );
@@ -1473,7 +1442,7 @@ class DocxExporter
                     if ($fileString instanceof File) {
                         $fileName = $fileString->getFilename();
                     } else {
-                        $file = explode(':', $fileString);
+                        $file = explode(':', (string) $fileString);
                         $fileName = $file[0] ?? '';
                     }
                     if ($anonym) {
@@ -1486,9 +1455,7 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_ATTACHMENTS, $exportConfig, $statement)) {
                 // Source statement
                 collect($statement->getAttachments())
-                    ->filter(static function (StatementAttachment $attachment): bool {
-                        return StatementAttachment::SOURCE_STATEMENT === $attachment->getType();
-                    })->each(function (StatementAttachment $attachment) use ($cell2AddText, $anonym) {
+                    ->filter(static fn(StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->each(function (StatementAttachment $attachment) use ($cell2AddText, $anonym) {
                         $displayValue = $anonym
                             ? $this->getTranslator()->trans('file.attached')
                             : $attachment->getFile()->getName();
@@ -1501,7 +1468,7 @@ class DocxExporter
                 $textRun2 = $cell2->addTextRun($cellHCentered);
                 $textRun2AddText = $this->containerAddTextFunctionConstructor($textRun2, null, null);
                 $textRun2AddText('priority', '');
-                $textRun2->addText(htmlspecialchars($statement->getPriority()));
+                $textRun2->addText(htmlspecialchars((string) $statement->getPriority()));
             }
 
             // TODO: implement a configuration system to set which templates should export which data to remove the
@@ -1602,7 +1569,7 @@ class DocxExporter
 
         // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
-            if (0 < strlen($statement->getMeta()->getOrgaStreet())) {
+            if (0 < strlen((string) $statement->getMeta()->getOrgaStreet())) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
             }
             // @improve this special cases should not be mixed with this permission check
@@ -1733,7 +1700,7 @@ class DocxExporter
 
         // get Image size
         $imageInfo = getimagesize($imageFile);
-        if (2 < count($imageInfo)) {
+        if (2 < (is_countable($imageInfo) ? count($imageInfo) : 0)) {
             $width = $imageInfo[0] - $margin;
             $height = $imageInfo[1] - $margin;
         }
@@ -1765,7 +1732,7 @@ class DocxExporter
             // Lege den Screenshot in den Tmp-Ordner
             try {
                 $file = $this->fileService->getFileInfo($hash);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getLogger()->warning('Could not find file for hash');
 
                 return '';
@@ -1865,7 +1832,7 @@ class DocxExporter
             );
         }
         // add an empty line after the table containing statements
-        if (0 !== count($groupStructure->getEntries())) {
+        if (0 !== (is_countable($groupStructure->getEntries()) ? count($groupStructure->getEntries()) : 0)) {
             $section->addTextBreak();
         }
     }

@@ -43,82 +43,24 @@ class ForumService extends CoreService
     private $currentUser;
 
     /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var DevelopmentReleaseRepository
-     */
-    private $developmentReleaseRepository;
-    /**
-     * @var DevelopmentUserStoryRepository
-     */
-    private $developmentUserStoryRepository;
-    /**
-     * @var DevelopmentUserStoryVoteRepository
-     */
-    private $developmentUserStoryVoteRepository;
-    /**
-     * @var ForumEntryFileRepository
-     */
-    private $forumEntryFileRepository;
-    /**
-     * @var ForumEntryRepository
-     */
-    private $forumEntryRepository;
-    /**
-     * @var ForumThreadRepository
-     */
-    private $forumThreadRepository;
-
-    /**
      * @throws UserNotFoundException This can be thrown since we really should
      *                               always have at least the AnonymousUser
      */
     public function __construct(
         CurrentUserInterface $currentUser,
-        DateHelper $dateHelper,
-        DevelopmentReleaseRepository $developmentReleaseRepository,
-        DevelopmentUserStoryRepository $developmentUserStoryRepository,
-        DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        ForumEntryFileRepository $forumEntryFileRepository,
-        ForumEntryRepository $forumEntryRepository,
-        ForumThreadRepository $forumThreadRepository,
-        SortMethodFactory $sortMethodFactory
+        private readonly DateHelper $dateHelper,
+        private readonly DevelopmentReleaseRepository $developmentReleaseRepository,
+        private readonly DevelopmentUserStoryRepository $developmentUserStoryRepository,
+        private readonly DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly EntityHelper $entityHelper,
+        private readonly ForumEntryFileRepository $forumEntryFileRepository,
+        private readonly ForumEntryRepository $forumEntryRepository,
+        private readonly ForumThreadRepository $forumThreadRepository,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser->getUser();
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->developmentReleaseRepository = $developmentReleaseRepository;
-        $this->developmentUserStoryRepository = $developmentUserStoryRepository;
-        $this->developmentUserStoryVoteRepository = $developmentUserStoryVoteRepository;
-        $this->forumEntryFileRepository = $forumEntryFileRepository;
-        $this->forumEntryRepository = $forumEntryRepository;
-        $this->forumThreadRepository = $forumThreadRepository;
     }
 
     /**
@@ -341,6 +283,7 @@ class ForumService extends CoreService
      */
     public function newRelease($data)
     {
+        $result = [];
         try {
             $addedRelease = $this->developmentReleaseRepository->add($data);
 
@@ -457,6 +400,7 @@ class ForumService extends CoreService
      */
     public function newUserStory($releaseId, $data)
     {
+        $result = [];
         try {
             $data['releaseId'] = $releaseId;
             $addedRelease = $this->developmentUserStoryRepository->add($data);
@@ -483,6 +427,7 @@ class ForumService extends CoreService
      */
     public function updateUserStory($storyId, $data)
     {
+        $response = [];
         try {
             $this->developmentUserStoryRepository->update($storyId, $data);
 
@@ -595,6 +540,8 @@ class ForumService extends CoreService
      */
     public function saveVotes($releaseId, $votes)
     {
+        $data = [];
+        $result = [];
         try {
             $data['releaseId'] = $releaseId;
             $data['userId'] = $this->currentUser->getId();
@@ -631,7 +578,7 @@ class ForumService extends CoreService
             [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );
 
-        $votes = array_map([__CLASS__, 'convertToLegacy'], $votesObjects);
+        $votes = array_map([self::class, 'convertToLegacy'], $votesObjects);
 
         return [
             'userStory' => $userStory,
@@ -650,6 +597,7 @@ class ForumService extends CoreService
      */
     protected function convertToLegacy($object)
     {
+        $user = [];
         if ($object instanceof User) {
             $user['ident'] = $object->getId();
             $user['utitle'] = $object->getTitle();

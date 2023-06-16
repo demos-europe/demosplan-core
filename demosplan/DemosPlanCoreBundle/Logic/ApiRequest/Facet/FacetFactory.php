@@ -27,24 +27,8 @@ use Tightenco\Collect\Support\Collection;
 
 class FacetFactory
 {
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var PrefilledResourceTypeProvider
-     */
-    private $resourceTypeProvider;
-
-    public function __construct(EntityFetcher $entityFetcher, PrefilledResourceTypeProvider $resourceTypeProvider, TranslatorInterface $translator)
+    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly PrefilledResourceTypeProvider $resourceTypeProvider, private readonly TranslatorInterface $translator)
     {
-        $this->entityFetcher = $entityFetcher;
-        $this->translator = $translator;
-        $this->resourceTypeProvider = $resourceTypeProvider;
     }
 
     /**
@@ -139,9 +123,7 @@ class FacetFactory
      */
     private function createItemCountMapping(array $bucket): array
     {
-        return collect($bucket)->mapWithKeys(static function (array $item): array {
-            return [$item['value'] => $item['count']];
-        })->all();
+        return collect($bucket)->mapWithKeys(static fn(array $item): array => [$item['value'] => $item['count']])->all();
     }
 
     /**
@@ -155,9 +137,7 @@ class FacetFactory
      */
     private function determineSelections(FacetInterface $facetDefinition, array $rawFilter, Collection $items): array
     {
-        return $items->unique(static function (object $item) use ($facetDefinition): string {
-            return $facetDefinition->getItemIdentifier($item);
-        })->mapWithKeys(function (object $item) use ($facetDefinition, $rawFilter): array {
+        return $items->unique(static fn(object $item): string => $facetDefinition->getItemIdentifier($item))->mapWithKeys(function (object $item) use ($facetDefinition, $rawFilter): array {
             $itemId = $facetDefinition->getItemIdentifier($item);
             $selected = $this->isItemSelected($itemId, $rawFilter);
 

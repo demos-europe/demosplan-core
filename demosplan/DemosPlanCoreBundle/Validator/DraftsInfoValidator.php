@@ -22,20 +22,8 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class DraftsInfoValidator
 {
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonValidator;
-
-    /**
-     * @var string
-     */
-    private $schemaFilePath;
-
-    public function __construct(JsonSchemaValidator $jsonValidator, string $schemaFilePath)
+    public function __construct(private readonly JsonSchemaValidator $jsonValidator, private readonly string $schemaFilePath)
     {
-        $this->jsonValidator = $jsonValidator;
-        $this->schemaFilePath = $schemaFilePath;
     }
 
     /**

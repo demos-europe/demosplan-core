@@ -30,41 +30,15 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentService extends CoreService
 {
-    // @improve T13447
-
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var ManualListSorter
-     */
-    private $manualListSorter;
-    /**
-     * @var ContentRepository
-     */
-    private $contentRepository;
-    /**
-     * @var SettingRepository
-     */
-    private $settingRepository;
-
     public function __construct(
-        ContentRepository $contentRepository,
-        DateHelper $dateHelper,
-        EntityHelper $entityHelper,
-        ManualListSorter $manualListSorter,
-        SettingRepository $settingRepository
-    ) {
-        $this->contentRepository = $contentRepository;
-        $this->dateHelper = $dateHelper;
-        $this->entityHelper = $entityHelper;
-        $this->manualListSorter = $manualListSorter;
-        $this->settingRepository = $settingRepository;
+        private readonly ContentRepository $contentRepository,
+        private readonly DateHelper $dateHelper,
+        // @improve T13447
+        private readonly EntityHelper $entityHelper,
+        private readonly ManualListSorter $manualListSorter,
+        private readonly SettingRepository $settingRepository
+    )
+    {
     }
 
     /**
@@ -85,7 +59,7 @@ class ContentService extends CoreService
 
         // Legacy Arrays
         // @improve T13447
-        $result = array_map([$this, 'convertToLegacy'], $globalContentEntries);
+        $result = array_map($this->convertToLegacy(...), $globalContentEntries);
         $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
         $result = $sorted['list'];
         // Is a limit given?
@@ -114,7 +88,7 @@ class ContentService extends CoreService
         $globalContentEntries = $category->getGlobalContents()->toArray();
 
         // Legacy Arrays
-        $result = array_map([$this, 'convertToLegacy'], $globalContentEntries);
+        $result = array_map($this->convertToLegacy(...), $globalContentEntries);
         $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
 
         return $sorted['list'];
@@ -653,7 +627,7 @@ class ContentService extends CoreService
         }
 
         // convert each role and each category entity into an array of fields
-        $toArrayClosure = Closure::fromCallable([$this->entityHelper, 'toArray']);
+        $toArrayClosure = Closure::fromCallable($this->entityHelper->toArray(...));
         $rolesAsArray = $singleGlobalContent->getRoles()->map($toArrayClosure)->getValues();
         $categoriesAsArray = $singleGlobalContent->getCategories()->map($toArrayClosure)->getValues();
 
@@ -681,7 +655,7 @@ class ContentService extends CoreService
             foreach ($settings as $setting) {
                 $this->settingRepository->delete($setting);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Remove settings of user failed');
 
             return false;
@@ -704,7 +678,7 @@ class ContentService extends CoreService
             foreach ($settings as $setting) {
                 $this->settingRepository->delete($setting);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Remove settings of organisation failed');
 
             return false;

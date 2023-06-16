@@ -20,23 +20,8 @@ use Exception;
 
 class SurveyCreateHandler
 {
-    /** @var string */
-    private $schemaFilePath;
-
-    /** @var SurveyValidator */
-    private $surveyValidator;
-
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    public function __construct(
-        string $schemaFilePath,
-        SurveyValidator $surveyValidator,
-        ProcedureHandler $procedureHandler
-    ) {
-        $this->schemaFilePath = $schemaFilePath;
-        $this->surveyValidator = $surveyValidator;
-        $this->procedureHandler = $procedureHandler;
+    public function __construct(private readonly string $schemaFilePath, private readonly SurveyValidator $surveyValidator, private readonly ProcedureHandler $procedureHandler)
+    {
     }
 
     /**

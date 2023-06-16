@@ -41,7 +41,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
         $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
         $outputResult = $this->assessmentHandler->prepareOutputResult($procedureId, $original, $parameters);
         try {
-            $viewOrientation = false !== \strpos($parameters['template'], 'landscape')
+            $viewOrientation = str_contains((string) $parameters['template'], 'landscape')
                 ? ViewOrientation::createLandscape()
                 : ViewOrientation::createPortrait();
             $objWriter = $this->assessmentTableOutput->generateDocx(

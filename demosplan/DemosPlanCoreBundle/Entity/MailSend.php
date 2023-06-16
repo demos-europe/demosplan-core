@@ -22,7 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MailSend implements IntegerIdEntityInterface
 {
-    public const MAIL_SCOPE_EXTERN = 'extern';
+    final public const MAIL_SCOPE_EXTERN = 'extern';
 
     /**
      * @var int|null

@@ -289,14 +289,11 @@ class Setting extends CoreEntity implements UuidEntityInterface
     public function getContentBool()
     {
         $return = null;
-        switch ($this->getContent()) {
-            case 'true':
-                $return = true;
-                break;
-            case 'false':
-                $return = false;
-                break;
-        }
+        $return = match ($this->getContent()) {
+            'true' => true,
+            'false' => false,
+            default => $return,
+        };
 
         return $return;
     }

@@ -81,46 +81,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      * @var TranslatorInterface
      */
     protected $translator;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
 
     public function __construct(
         ContentService $contentService,
-        CurrentUserService $currentUser,
-        EntityManagerInterface $entityManager,
+        private readonly CurrentUserService $currentUser,
+        private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
         MessageBag $messageBag,
-        OrgaService $orgaService,
-        PermissionsInterface $permissions,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        ProcedureService $procedureService,
+        private readonly OrgaService $orgaService,
+        private readonly PermissionsInterface $permissions,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureService $procedureService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
@@ -129,19 +101,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
-        $this->entityManager = $entityManager;
         $this->esQueryProcedure = $esQueryProcedure;
         $this->mailService = $mailService;
-        $this->orgaService = $orgaService;
-        $this->permissions = $permissions;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
-        $this->procedureService = $procedureService;
         $this->publicAffairsAgentHandler = $publicAffairsAgentHandler;
         $this->serviceOutput = $serviceOutput;
         $this->serviceStorage = $serviceStorage;
         $this->translator = $translator;
         $this->twig = $twig;
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -155,6 +121,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function getProcedureList(): array
     {
+        $templatefilters = [];
+        $returnVars = [];
         $requestValues = $this->getRequestValues();
 
         // initialize storage and output
@@ -215,9 +183,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $orga = $this->orgaService->findOrgaBySlug($requestValues['orgaSlug']);
             $orgaId = $orga->getId();
 
-            $outputResult = array_filter($outputResult, static function (array $procedure) use ($orgaId): bool {
-                return $procedure['orgaId'] === $orgaId;
-            });
+            $outputResult = array_filter($outputResult, static fn(array $procedure): bool => $procedure['orgaId'] === $orgaId);
         }
 
         // sorting by end date is a special case and requires extra steps
@@ -258,10 +224,10 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     public function sortProceduresByParticipationEndDateIfSelected(string $sort): ProcedureSorterInterface
     {
         // these checks ensure that both "key" and "keyTimestamp" are accepted
-        if (false !== strpos('endDateTimestamp', $sort)) {
+        if (str_contains('endDateTimestamp', $sort)) {
             return new EndDateSorter();
         }
-        if (false !== strpos('publicParticipationEndDateTimestamp', $sort)) {
+        if (str_contains('publicParticipationEndDateTimestamp', $sort)) {
             return new PublicParticipationEndDateSorter();
         }
 
@@ -286,7 +252,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
                 // this check ensures that both "key" and "keyTimestamp" are accepted
                 // but kills possible keys as externalName and externalNameDesc
-                if (false !== strpos($selectedSort, $option->getName())) {
+                if (str_contains((string) $selectedSort, $option->getName())) {
                     $option->setSelected(true);
                 }
             }
@@ -381,7 +347,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function deleteSubscriptions(array $idents): int
     {
-        return count(array_filter($idents, [$this->procedureService, 'deleteSubscription']));
+        return count(array_filter($idents, $this->procedureService->deleteSubscription(...)));
     }
 
     /**
@@ -403,11 +369,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $providedEmailTitle = $request['r_emailTitle'] ?? '';
         $providedEmailText = $request['r_emailText'] ?? '';
 
-        if ('' === trim($providedEmailTitle)) {
+        if ('' === trim((string) $providedEmailTitle)) {
             throw new MissingDataException('Emailsubject is missing');
         }
 
-        if ('' === trim($providedEmailText)) {
+        if ('' === trim((string) $providedEmailText)) {
             throw new MissingDataException('Emailtext is missing');
         }
 
@@ -502,12 +468,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function sendMailToAddresses(Procedure $procedure, array $recipientEmailAddresses, $data): void
     {
+        $vars = [];
         $vars['mailsubject'] = $data['r_emailTitle'];
         $vars['mailbody'] = $data['r_emailText'];
         $from = $procedure->getAgencyMainEmailAddress();
         $userEmail = $this->currentUser->getUser()->getEmail();
 
-        $data['r_emailCc'] = array_key_exists('r_emailCc', $data) ? explode(', ', $data['r_emailCc']) : [];
+        $data['r_emailCc'] = array_key_exists('r_emailCc', $data) ? explode(', ', (string) $data['r_emailCc']) : [];
         // fill cc field:
         $cc = $data['r_emailCc'];
         $cc[] = $from;
@@ -545,8 +512,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         if ($this->permissions->hasPermission('feature_procedure_external_desc_crop')) {
             foreach ($templateVars['list']['procedurelist'] as $key => $procedure) {
                 // Wenn die Beschreibung länger ist als 285 zeichen, dann kürze sie
-                if (strlen($procedure['externalDesc']) > 285) {
-                    $teaserExternalDesc = substr($procedure['externalDesc'], 0, 285).'...';
+                if (strlen((string) $procedure['externalDesc']) > 285) {
+                    $teaserExternalDesc = substr((string) $procedure['externalDesc'], 0, 285).'...';
                     // Schneide sie hinter einem Wort ab
                     $teaserExternalDesc_end = strrchr($teaserExternalDesc, ' ');
                     // Ersetze die ungekürzte TemplateVariable mit der gekürzten
@@ -628,7 +595,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                             $scope,
                             $vars
                         );
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         // error notice, something went wrong:-)
                         $this->logger->error('Notification Mail For Ending Phase could not be sent', [$procedure]);
                     }
@@ -656,7 +623,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         try {
             // Fetch all procedure with soon ending phases
             $procedures = $this->procedureService->getListOfProceduresEndingSoon($exactlyDaysToGo, $internal);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getLogger()->error('Could not get procedureList with soon ending phases');
         }
 
@@ -727,7 +694,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($boilerplates as $boilerplateId) {
             try {
                 $this->procedureService->deleteBoilerplate($boilerplateId);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $allBoilerplatesDeleted = false;
             }
         }
@@ -845,12 +812,10 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function convertProceduresForTwigAdminList(array $procedures): array
     {
-        return array_map(static function (Procedure $procedure): array {
-            return [
-                'id'   => $procedure->getId(),
-                'name' => $procedure->getName(),
-            ];
-        }, $procedures);
+        return array_map(static fn(Procedure $procedure): array => [
+            'id'   => $procedure->getId(),
+            'name' => $procedure->getName(),
+        ], $procedures);
     }
 
     /**
@@ -964,12 +929,12 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
         // All additional agency mails
         foreach ($procedure['agencyExtraEmailAddresses'] ?? '' as $additionalAddress) {
-            $ccEmailAddresses->add(trim($additionalAddress));
+            $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
         if (0 < count($formEmailCC)) {
             foreach ($formEmailCC as $mailAddress) {
-                $ccEmailAddresses->add(trim($mailAddress));
+                $ccEmailAddresses->add(trim((string) $mailAddress));
             }
         }
 
@@ -1016,6 +981,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         string $emailText,
         string $emailTextAdded
     ): void {
+        $vars = [];
         try {
             $vars['mailsubject'] = $emailTitle;
             $vars['mailbody'] =

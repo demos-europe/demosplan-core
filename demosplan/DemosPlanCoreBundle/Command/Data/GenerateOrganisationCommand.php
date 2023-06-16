@@ -55,10 +55,6 @@ class GenerateOrganisationCommand extends DataProviderCommand
      * @var ObjectManager
      */
     protected $em;
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
 
     protected function configure(): void
     {
@@ -90,13 +86,12 @@ class GenerateOrganisationCommand extends DataProviderCommand
      */
     public function __construct(
         ManagerRegistry $registry,
-        CustomerHandler $customerHandler,
+        private readonly CustomerHandler $customerHandler,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->em = $registry->getManager();
-        $this->customerHandler = $customerHandler;
         $this->faker = Factory::create('de_DE');
     }
 

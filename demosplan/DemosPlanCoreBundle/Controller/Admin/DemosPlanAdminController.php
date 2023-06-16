@@ -75,11 +75,11 @@ class DemosPlanAdminController extends BaseController
                 $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
 
                 // speichere die Anzahl der Phasen zwischen
-                if (0 < strlen($procedureData['phase'])) {
+                if (0 < strlen((string) $procedureData['phase'])) {
                     // Wenn der key num noch nicht vorhanden ist, lege ihn an
                     isset($internalPhases[$procedureData['phase']]['num']) ? $internalPhases[$procedureData['phase']]['num']++ : $internalPhases[$procedureData['phase']]['num'] = 1;
                 }
-                if (0 < strlen($procedureData['publicParticipationPhase'])) {
+                if (0 < strlen((string) $procedureData['publicParticipationPhase'])) {
                     isset($externalPhases[$procedureData['publicParticipationPhase']]['num'])
                         ? $externalPhases[$procedureData['publicParticipationPhase']]['num']++
                         : $externalPhases[$procedureData['publicParticipationPhase']]['num'] = 1;
@@ -106,9 +106,7 @@ class DemosPlanAdminController extends BaseController
         }
 
         // set csv Escaper
-        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', function ($twigEnv, $string, $charset) {
-            return str_replace('"', '""', $string);
-        });
+        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', fn($twigEnv, $string, $charset) => str_replace('"', '""', $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,

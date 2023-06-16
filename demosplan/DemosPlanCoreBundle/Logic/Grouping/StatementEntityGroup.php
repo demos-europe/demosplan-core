@@ -35,9 +35,7 @@ class StatementEntityGroup extends AbstractEntityGroup implements JsonSerializab
             'level'     => $this->getLevel(),
             'subgroups' => array_values($this->getSubgroups()),
             'entries'   => array_values(
-                array_map(static function (Statement $statement) {
-                    return $statement->getId();
-                }, $this->getEntries())
+                array_map(static fn(Statement $statement) => $statement->getId(), $this->getEntries())
             ),
             'total'     => $this->getTotal(),
         ];

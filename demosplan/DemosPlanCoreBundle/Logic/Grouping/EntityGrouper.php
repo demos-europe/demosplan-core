@@ -28,15 +28,10 @@ use function reset;
  */
 abstract class EntityGrouper
 {
-    public const MISSING_GROUP_KEY = 'missing';
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    final public const MISSING_GROUP_KEY = 'missing';
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(private readonly TranslatorInterface $translator)
     {
-        $this->translator = $translator;
     }
 
     /**
@@ -195,8 +190,7 @@ abstract class EntityGrouper
         }
 
         $missingTitle = $this->translator->trans('filter.noAssignment');
-        reset($entityFieldsToUse);
-        $entityKey = key($entityFieldsToUse);
+        $entityKey = array_key_first($entityFieldsToUse);
         $groupTitleKey = array_shift($entityFieldsToUse);
         // this entity value will be used to get the grouping key(s)
         $entityValue = $entity->$entityKey();

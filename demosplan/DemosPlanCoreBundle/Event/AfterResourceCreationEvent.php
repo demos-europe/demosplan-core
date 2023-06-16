@@ -19,16 +19,10 @@ use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 class AfterResourceCreationEvent extends DPlanEvent implements AfterResourceCreationEventInterface
 {
     /**
-     * @var ResourceChange<O>
-     */
-    private $resourceChange;
-
-    /**
      * @param ResourceChange<O> $resourceChange
      */
-    public function __construct(ResourceChange $resourceChange)
+    public function __construct(private readonly ResourceChange $resourceChange)
     {
-        $this->resourceChange = $resourceChange;
     }
 
     /**

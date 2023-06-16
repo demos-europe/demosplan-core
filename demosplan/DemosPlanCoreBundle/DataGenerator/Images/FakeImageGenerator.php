@@ -71,7 +71,7 @@ abstract class FakeImageGenerator implements DataGeneratorInterface
 
         call_user_func_array(
             $this->getRenderFunction(),
-            array_merge([$gd, null], $this->getRenderArgs())
+            [$gd, null, ...$this->getRenderArgs()]
         );
 
         return ob_get_clean();

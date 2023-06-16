@@ -65,13 +65,8 @@ use function is_int;
 
 class DemosPlanStatementAPIController extends APIController
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     public function __construct(
-        PermissionsInterface $permissions,
+        private readonly PermissionsInterface $permissions,
         LoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -91,7 +86,6 @@ class DemosPlanStatementAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->permissions = $permissions;
     }
 
     // @improve T12984
@@ -336,7 +330,7 @@ class DemosPlanStatementAPIController extends APIController
                 throw new BadRequestException("Access to invalid attributes: $invalidAttributesString");
             }
 
-            $supportedRelationships = array_merge($supportedToOneRelationships, $supportedToManyRelationships);
+            $supportedRelationships = [...$supportedToOneRelationships, ...$supportedToManyRelationships];
             $invalidRelationships = array_diff_key($relationships, array_flip($supportedRelationships));
             if ([] !== $invalidRelationships) {
                 $invalidRelationshipsString = implode(', ', array_keys($invalidRelationships));
@@ -362,15 +356,9 @@ class DemosPlanStatementAPIController extends APIController
                 unset($relationships['paragraph']);
             }
 
-            $updateFields = array_merge($updateFields, array_map(static function (array $toOneRelationship): ?string {
-                return $toOneRelationship['data']['id'] ?? null;
-            }, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn(array $toOneRelationship): ?string => $toOneRelationship['data']['id'] ?? null, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
 
-            $updateFields = array_merge($updateFields, array_map(static function (array $toManyRelationship): array {
-                return array_map(static function (array $relationship): string {
-                    return $relationship['id'];
-                }, $toManyRelationship['data']);
-            }, array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn(array $toManyRelationship): array => array_map(static fn(array $relationship): string => $relationship['id'], $toManyRelationship['data']), array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
 
             $statement = $statementService->updateStatement($updateFields);
 
@@ -592,7 +580,7 @@ class DemosPlanStatementAPIController extends APIController
             $statementTargetIds = array_keys($statementBulkEditResourceObject['statements']);
             $targetStatementCount = count($statementTargetIds);
             $unmovedStatementTargetIds = $statementService->removePlaceholderStatementIds($statementTargetIds);
-            $movedStatementCount = $targetStatementCount - count($unmovedStatementTargetIds);
+            $movedStatementCount = $targetStatementCount - (is_countable($unmovedStatementTargetIds) ? count($unmovedStatementTargetIds) : 0);
 
             // $markedStatementsCount must be a positive integer
             $markedStatementsCount = $statementBulkEditResourceObject['attributes.markedStatementsCount'];
@@ -612,7 +600,7 @@ class DemosPlanStatementAPIController extends APIController
                 );
             }
 
-            $unmovedStatementTargetIdsCount = count($unmovedStatementTargetIds);
+            $unmovedStatementTargetIdsCount = is_countable($unmovedStatementTargetIds) ? count($unmovedStatementTargetIds) : 0;
             if (0 !== $unmovedStatementTargetIdsCount) {
                 try {
                     $statementBulkEditId = $statementBulkEditResourceObject['id'];
@@ -635,7 +623,7 @@ class DemosPlanStatementAPIController extends APIController
                         }
                     }
                     $violations = $validator->validate($statementBulkEditVo);
-                    if (0 === count($violations)) {
+                    if (0 === (is_countable($violations) ? count($violations) : 0)) {
                         $statementService->bulkEditStatementsAddData($statementBulkEditVo);
                         $this->messageBag->addChoice(
                             'confirm',

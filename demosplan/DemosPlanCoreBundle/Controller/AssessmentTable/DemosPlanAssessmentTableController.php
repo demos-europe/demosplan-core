@@ -75,71 +75,8 @@ class DemosPlanAssessmentTableController extends BaseController
     private const HASH_TYPE_ASSESSMENT = 'assessment';
     private const HASH_TYPE_ORIGINAL = 'original';
 
-    /**
-     * @var Breadcrumb
-     */
-    private $breadcrumb;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var CountyService
-     */
-    private $countyService;
-
-    /**
-     * @var MunicipalityService
-     */
-    private $municipalityService;
-
-    /**
-     * @var PriorityAreaService
-     */
-    private $priorityAreaService;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
-     * @var IndexManager
-     */
-    private $indexManager;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        Breadcrumb $breadcrumb,
-        CountyService $countyService,
-        IndexManager $indexManager,
-        MunicipalityService $municipalityService,
-        PermissionsInterface $permissions,
-        PriorityAreaService $priorityAreaService,
-        ProcedureService $procedureService,
-        StatementHandler $statementHandler,
-        UserService $userService
-    ) {
-        $this->breadcrumb = $breadcrumb;
-        $this->countyService = $countyService;
-        $this->indexManager = $indexManager;
-        $this->municipalityService = $municipalityService;
-        $this->priorityAreaService = $priorityAreaService;
-        $this->procedureService = $procedureService;
-        $this->statementHandler = $statementHandler;
-        $this->userService = $userService;
-        $this->permissions = $permissions;
+    public function __construct(private readonly Breadcrumb $breadcrumb, private readonly CountyService $countyService, private readonly IndexManager $indexManager, private readonly MunicipalityService $municipalityService, private readonly PermissionsInterface $permissions, private readonly PriorityAreaService $priorityAreaService, private readonly ProcedureService $procedureService, private readonly StatementHandler $statementHandler, private readonly UserService $userService)
+    {
     }
 
     /**
@@ -660,6 +597,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $title,
         $isCluster = false
     ) {
+        $fParams = [];
         $statementId = $statement;
 
         $rParams = $assessmentHandler->getFormValues($request->request->all());
@@ -694,7 +632,7 @@ class DemosPlanAssessmentTableController extends BaseController
             );
 
             return $this->redirectToRoute($exceptionRedirectRoute, $exceptionRedirectRouteParams);
-        } catch (InvalidDataException $e) {
+        } catch (InvalidDataException) {
             $this->getMessageBag()->add('error', 'error.statement.final.send.syntax.email.cc');
 
             return $this->redirectToRoute($exceptionRedirectRoute, $exceptionRedirectRouteParams);
@@ -705,7 +643,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $session = $request->getSession();
 
-        if (0 === count($statementAsArray)) {
+        if (0 === (is_countable($statementAsArray) ? count($statementAsArray) : 0)) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
 
             $redirectReturn = $this->redirectToRoute(
@@ -723,7 +661,7 @@ class DemosPlanAssessmentTableController extends BaseController
         ) {
             $routeParameters = ['procedure' => $procedureId, 'statementId' => $statementId];
 
-            $redirectReturn = $redirectReturn ?? $this->redirectToRoute('DemosPlan_cluster_single_statement_view', $routeParameters);
+            $redirectReturn ??= $this->redirectToRoute('DemosPlan_cluster_single_statement_view', $routeParameters);
         }
 
         // refresh elasticsearch indexes to ensure that changes are shown immediately
@@ -810,7 +748,7 @@ class DemosPlanAssessmentTableController extends BaseController
     {
         try {
             $result = $statementService->copyStatementWithinProcedure($statement);
-        } catch (CopyException|ClusterStatementCopyNotImplementedException $e) {
+        } catch (CopyException|ClusterStatementCopyNotImplementedException) {
             $result = false;
         }
 
@@ -866,7 +804,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 [
                     'code'    => 100,
                     'success' => true,
-                    'body'    => nl2br($boilerplate->getText()),
+                    'body'    => nl2br((string) $boilerplate->getText()),
                 ]
             );
         } catch (Exception $e) {
@@ -1038,6 +976,7 @@ class DemosPlanAssessmentTableController extends BaseController
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_action', path: '/verfahren/{procedureId}/bulk-edit', methods: ['GET'], options: ['expose' => true])]
     public function statementBulkEditAction(FormFactoryInterface $formFactory, Request $request, string $procedureId)
     {
+        $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
             $procedureId
@@ -1074,6 +1013,7 @@ class DemosPlanAssessmentTableController extends BaseController
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_fragment_bulk_edit', path: '/verfahren/{procedureId}/fragment-bulk-edit', methods: ['GET'], options: ['expose' => true])]
     public function statementFragmentBulkEditAction(Request $request, $procedureId)
     {
+        $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
             $procedureId
@@ -1127,7 +1067,7 @@ class DemosPlanAssessmentTableController extends BaseController
             // füge ggf. einen gelöschten Absatz hinzu, der dem Statement zugewiesen ist
             // Ist das Statement einem Absatz zugewiesen?
             $hasParagraph = isset($statementAsArray['paragraph']) &&
-                0 < count($statementAsArray['paragraph']);
+                0 < (is_countable($statementAsArray['paragraph']) ? count($statementAsArray['paragraph']) : 0);
             if ($hasParagraph) {
                 $paragraphElementId = $statementAsArray['paragraph']['elementId'];
                 // Hat das Element Kapitel?
@@ -1195,7 +1135,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         // falls angegeben, gebe die eingetragenen E-Mail-Adressen im CC-Feld aus
-        $templateVars['emailsCC'] = isset($rParamsRequest['send_emailCC']) && 0 < strlen($rParamsRequest['send_emailCC'])
+        $templateVars['emailsCC'] = isset($rParamsRequest['send_emailCC']) && 0 < strlen((string) $rParamsRequest['send_emailCC'])
             ? $rParamsRequest['send_emailCC']
             : '';
         $templateVars['email2'] = '';
@@ -1209,7 +1149,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 // normale TöB-Stellungnahme
                 $templateVars['email2'] = $orgaOfSubmitter->getEmail2();
             }
-        } elseif (0 < strlen($templateVars['table']['statement']['meta']['orgaEmail'])) {
+        } elseif (0 < strlen((string) $templateVars['table']['statement']['meta']['orgaEmail'])) {
             // manuelle Stellungnahme
             $templateVars['email2'] = $templateVars['table']['statement']['meta']['orgaEmail'];
         }
@@ -1250,7 +1190,7 @@ class DemosPlanAssessmentTableController extends BaseController
         if ($this->permissions->hasPermission('feature_statements_fragment_consideration')) {
             $templateVars['table']['statement']['fragmentConsiderations'] = false;
             foreach ($templateVars['table']['statement']['fragments'] as $fragment) {
-                if (0 < strlen($fragment->getConsideration())) {
+                if (0 < strlen((string) $fragment->getConsideration())) {
                     $templateVars['table']['statement']['fragmentConsiderations'] = true;
                     break;
                 }

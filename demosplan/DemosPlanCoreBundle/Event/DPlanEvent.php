@@ -21,6 +21,6 @@ class DPlanEvent extends Event
      */
     public function getSubject()
     {
-        return get_class($this);
+        return static::class;
     }
 }

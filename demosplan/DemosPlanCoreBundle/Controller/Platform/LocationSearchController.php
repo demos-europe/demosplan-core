@@ -42,7 +42,7 @@ class LocationSearchController extends BaseController
             $result = $restResponse['body'] ?? [];
 
             $suggestions = [];
-            $maxSuggestions = $query['maxResults'] ?? count($result);
+            $maxSuggestions = $query['maxResults'] ?? (is_countable($result) ? count($result) : 0);
 
             for ($i = 0; $i < $maxSuggestions; ++$i) {
                 if (isset($result[$i])) {

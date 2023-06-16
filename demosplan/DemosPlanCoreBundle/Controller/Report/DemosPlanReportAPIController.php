@@ -51,29 +51,15 @@ class DemosPlanReportAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         $group = null
     ): APIResponse {
-        switch ($group) {
-            case 'general':
-                $resourceTypeName = GeneralReportEntryResourceType::getName();
-                break;
-            case 'statements':
-                $resourceTypeName = StatementReportEntryResourceType::getName();
-                break;
-            case 'publicPhase':
-                $resourceTypeName = PublicPhaseReportEntryResourceType::getName();
-                break;
-            case 'invitations':
-                $resourceTypeName = InvitationReportEntryResourceType::getName();
-                break;
-            case 'registerInvitations':
-                $resourceTypeName = RegisterInvitationReportEntryResourceType::getName();
-                break;
-            case 'finalMails':
-                $resourceTypeName = FinalMailReportEntryResourceType::getName();
-                break;
-            default:
-                $resourceTypeName = ReportEntryResourceType::getName();
-                break;
-        }
+        $resourceTypeName = match ($group) {
+            'general' => GeneralReportEntryResourceType::getName(),
+            'statements' => StatementReportEntryResourceType::getName(),
+            'publicPhase' => PublicPhaseReportEntryResourceType::getName(),
+            'invitations' => InvitationReportEntryResourceType::getName(),
+            'registerInvitations' => RegisterInvitationReportEntryResourceType::getName(),
+            'finalMails' => FinalMailReportEntryResourceType::getName(),
+            default => ReportEntryResourceType::getName(),
+        };
 
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
