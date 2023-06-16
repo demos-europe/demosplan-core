@@ -475,7 +475,7 @@
         </a>
       </dp-item-row>
 
-      <!-- statement text->
+      <!-- statement text -->
       <dp-item-row
         icon="fa-comment"
         title="statement.text"
