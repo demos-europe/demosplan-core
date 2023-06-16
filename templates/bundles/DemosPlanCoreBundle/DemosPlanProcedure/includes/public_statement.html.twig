@@ -163,7 +163,7 @@
             <ul class="{{ 'o-list u-mb-0_5'|prefixClass }}">
                 {% for fileContainer in statement.fileContainers|filter(fileContainer => fileContainer.publicAllowed == true) %}
                     {% set file = fileContainer.fileString %}
-                    <li class="{{ 'u-pv-0_25 border--top clear-both'|prefixClass }}">
+                    <li class="{{ 'u-pv-0_25 border--top flow-root'|prefixClass }}">
                         <a
                             class="{{ 'u-ml-0_25 u-mb-0_25 inline-block'|prefixClass }}"
                             target="_blank"

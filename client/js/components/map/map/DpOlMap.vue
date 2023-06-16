@@ -62,7 +62,7 @@
       <!-- Components that depend on OpenLayers instance are mounted after map is initialized -->
       <div v-if="Boolean(map)">
         <!-- Controls -->
-        <div :class="prefixClass('c-ol-map__controls clear-both')">
+        <div :class="prefixClass('c-ol-map__controls flow-root')">
           <slot
             :map="map"
             name="controls" />

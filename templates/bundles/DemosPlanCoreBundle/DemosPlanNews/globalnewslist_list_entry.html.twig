@@ -19,7 +19,7 @@
         {% endif %}
     {% endif %}
 
-    <div class="clear-both">
+    <div class="flow-root">
         {% if news.picture is defined and news.picture != "" %}
             <img class="c-image c-image--thumb float--left" src="{{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }}">
         {% endif %}

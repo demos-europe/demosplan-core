@@ -69,7 +69,7 @@
             {% endif %}
 
             {% if hasProcedureUserRestrictedAccess %}
-                <div class="u-mb clear-both">
+                <div class="u-mb flow-root">
                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
                         {{ "authorized.users"|trans }}
                     </label>
@@ -108,7 +108,7 @@
                 <textarea class="height-60" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
             </label>
 
-            <div class="u-mb clear-both">
+            <div class="u-mb flow-root">
                 <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
                     {{ "email.procedure.agency"|trans }}
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -128,7 +128,7 @@
                    class="layout__item" type="email">
             </div>
 
-            <div class="u-mb clear-both">
+            <div class="u-mb flow-root">
                 <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                     {{ "email.address.more"|trans }}
                     <p class="lbl__hint weight--normal">
@@ -153,7 +153,7 @@
             </div>
 
             {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                <div class="u-mb clear-both">
+                <div class="u-mb flow-root">
                     <label class="inline-block u-mb-0" for="r_pictogram">
                         {{ 'procedure.pictogram'|trans }}
                     </label>
@@ -232,7 +232,7 @@
                     </label>
                 </div>
 
-                <div class="u-mv clear-both">
+                <div class="u-mv flow-root">
                     <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                         {{ "procedure.notifyCountry.setEmails"|trans }}
                     </div>

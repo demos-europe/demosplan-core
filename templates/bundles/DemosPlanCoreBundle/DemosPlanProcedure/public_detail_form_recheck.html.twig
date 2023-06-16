@@ -21,7 +21,7 @@
         </p>
 
         {% if hasPermission('field_statement_public_allowed') %}
-            <div class="{{ 'clear-both'|prefixClass }}" data-statement-check="r_makePublic">
+            <div class="{{ 'flow-root'|prefixClass }}" data-statement-check="r_makePublic">
                 <span data-statement-check-value="false" id="explanationStatementDontPublish">
                     {{ "explanation.statement.dont.publish"|trans|wysiwyg }}
                 </span>
@@ -37,7 +37,7 @@
             hasPermission('field_statement_user_organisation') or
             (hasPermission('field_statement_user_position') and templateVars.formOptions.userPosition)
         %}
-            <div class="clear-both {% if hasPermission('field_statement_public_allowed') %}border--top u-pv-0_25{% endif %}" data-statement-check="r_" id="personalData">
+            <div class="flow-root {% if hasPermission('field_statement_public_allowed') %}border--top u-pv-0_25{% endif %}" data-statement-check="r_" id="personalData">
                 <span>
                     {% apply spaceless %}
                         <span class="{{ 'layout__item u-1-of-4-desk-up u-pl-0'|prefixClass }}">
@@ -62,7 +62,7 @@
             </div>
         {% endif %}
 
-        <div class="{{ 'clear-both border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_useName" id="useNameText">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_useName" id="useNameText">
             <span data-statement-check-value="0">
                 {{ 'statement.detail.form.personal.post_anonymously'|trans }}
             </span>
@@ -94,7 +94,7 @@
             </span>
         </div>
 
-        <div class="{{ 'clear-both border--top u-pt-0_25'|prefixClass }}">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}">
 
             {% if hasPermission('feature_statements_feedback_postal') %}
 
@@ -132,9 +132,9 @@
             <span class="{{ 'hidden'|prefixClass }}" aria-hidden="true" id="inputDataChange">{{ "statement.form.input.change"|trans }}</span>
         </div>
 
-        <div class="{{ 'clear-both border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_text">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_text">
 
-            <span class="{{ 'clear-both'|prefixClass }}">
+            <span class="{{ 'flow-root'|prefixClass }}">
                 <em>{{ "statement.my"|trans }}: </em>
             </span>
 

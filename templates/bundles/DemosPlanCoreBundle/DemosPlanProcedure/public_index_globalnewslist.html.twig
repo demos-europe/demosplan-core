@@ -28,7 +28,7 @@
                     </h3>
 
                     {# meta #}
-                    <div class="{{ 'clear-both u-mb-0_25'|prefixClass }}">
+                    <div class="{{ 'flow-root u-mb-0_25'|prefixClass }}">
 
                         {# creation date #}
                         {% if newsItem.createDate is defined %}
@@ -65,7 +65,7 @@
                     </div>
 
                     {# wrap floating content elements in clearfix #}
-                    <div class="{{ 'clear-both relative'|prefixClass }}">
+                    <div class="{{ 'flow-root relative'|prefixClass }}">
 
                         {# image is represented as css background image to keep square proportions in fluid context #}
                         {% if newsItem.picture is defined and newsItem.picture != "" %}

@@ -37,7 +37,7 @@
 
     <div
       v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled"
-      :class="prefixClass('clear-both')">
+      :class="prefixClass('flow-root')">
       <span
         v-if="statement.r_makePublic === 'on'"
         v-cleanhtml="Translator.trans('explanation.statement.public', { projectName: dplan.projectName })" />
@@ -58,7 +58,7 @@
 
     <div
       v-if="statement.r_useName === '1'"
-      :class="prefixClass('clear-both border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       <div :class="prefixClass('layout--flush')">
         <span :class="prefixClass('layout__item u-1-of-1')">
           {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
@@ -138,7 +138,7 @@
     </div>
     <div
       v-else
-      :class="prefixClass('clear-both border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       {{ Translator.trans('statement.detail.form.personal.post_anonymously') }}
       <button
         type="button"
@@ -154,7 +154,7 @@
 
     <div
       v-if="statementFeedbackDefinitions.length > 0"
-      :class="prefixClass('clear-both border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       <p
         v-if="hasPermission('feature_statements_feedback_postal')"
         :class="prefixClass('inline-block u-mb-0_25')">
@@ -202,8 +202,8 @@
       </button>
     </div>
 
-    <div :class="prefixClass('clear-both border--top u-pt-0_25')">
-      <span :class="prefixClass('clear-both')">
+    <div :class="prefixClass('flow-root border--top u-pt-0_25')">
+      <span :class="prefixClass('flow-root')">
         <em>{{ Translator.trans('statement.my') }}: </em>
         <button
           type="button"

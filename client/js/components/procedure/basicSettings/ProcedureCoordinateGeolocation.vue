@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="block u-mb-0_5 u-pv-0_5 border--top border--bottom clear-both">
+  <div class="block u-mb-0_5 u-pv-0_5 border--top border--bottom flow-root">
     <p class="lbl__hint">
       {{ Translator.trans('explanation.geolocation') }}
     </p>

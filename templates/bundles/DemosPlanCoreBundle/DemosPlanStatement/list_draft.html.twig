@@ -36,7 +36,7 @@
     {% endblock %}
 
     <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
-        <form class="{{ 'layout clear-both'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
+        <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
 
             {#  filter fieldsets  #}
             {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
@@ -55,7 +55,7 @@
             data-dp-validate="draftForm"
             novalidate>
 
-            <fieldset class="{{ 'u-ml u-pb-0_5 clear-both'|prefixClass }}">
+            <fieldset class="{{ 'u-ml u-pb-0_5 flow-root'|prefixClass }}">
 
                 {% if templateVars.list.statementlist|length > 0 %}
                     {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}

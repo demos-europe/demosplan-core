@@ -49,7 +49,7 @@
     } %}
 
     {% if element is not empty and permissions.feature_admin_element_create_subelement.enabled == true %}
-        <div class="clear-both u-mb-0_5">
+        <div class="flow-root u-mb-0_5">
             <a class="btn btn--primary float--right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
                 {{ "elements.create.subcategory"|trans }}
             </a>

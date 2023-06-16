@@ -55,7 +55,7 @@
                     {{ "user.details"|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 clear-both">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
                     {% apply spaceless %}
 
                         <dp-autofill-submitter-data
@@ -166,7 +166,7 @@
                     {{ 'statement'|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 clear-both">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
 
                     {% apply spaceless -%}{# start row #}
                         {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
@@ -556,7 +556,7 @@
                         <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
                             <statement-voter
                                 id="dp-new-statement-voter"
-                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 clear-both"
+                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
                                 readonly="{{ readonly|default('') }}"
                                 is-manual="true"
                             ></statement-voter>

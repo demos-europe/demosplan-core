@@ -47,7 +47,7 @@
         </div>
 
         {# item header #}
-        <div class="border--bottom layout--flush u-pt-0_25 u-ph-0_5 clear-both">
+        <div class="border--bottom layout--flush u-pt-0_25 u-ph-0_5 flow-root">
             {% apply spaceless -%}
 
                 {# id #}
@@ -88,7 +88,7 @@
         <div class="">
 
             {# statement tab #}
-            <div class="is-active clear-both u-ph u-pt-0_5" data-toggle-id="{{ statement.ident|default(0) }}_statement">
+            <div class="is-active flow-root u-ph u-pt-0_5" data-toggle-id="{{ statement.ident|default(0) }}_statement">
 
                 {# Einreicher #}
                 {% if hasPermission('field_statement_meta_orga_name') and formDefinitions.citizenXorOrgaAndOrgaName.enabled == true %}

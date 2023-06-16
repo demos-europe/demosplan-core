@@ -400,7 +400,7 @@
                 {# Map #}
                 {% if isMapEnabled %}
                 <section
-                    class="{{ 'c-map c-tabs__panel u-nojs-hide--block clear-both bg-color--white'|prefixClass }}"
+                    class="{{ 'c-map c-tabs__panel u-nojs-hide--block flow-root bg-color--white'|prefixClass }}"
                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsMap'}"
                     id="procedureDetailsMap"
                     :hidden="Boolean(activeTab !== '#procedureDetailsMap')"

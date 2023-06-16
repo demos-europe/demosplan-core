@@ -28,7 +28,7 @@
             data-dp-validate="releaseForm"
             novalidate
             id="sortform"
-            class="layout clear-both"
+            class="layout flow-root"
             id="submitStatementsForm"
             action="{{ path('DemosPlan_statement_list_released_group', {'procedure': procedure}) }}"
             method="post">
@@ -43,7 +43,7 @@
                         'show_filter_sort_option_department'    : true } %}
 
             {# form controls above entry table #}
-            <fieldset class="{{ 'u-ml u-pb-0_5 clear-both'|prefixClass }}">
+            <fieldset class="{{ 'u-ml u-pb-0_5 flow-root'|prefixClass }}">
                 <input type="hidden" name="action" value="" id="js__action">
 
                 {% if templateVars.list.statementlist|length > 0 %}
