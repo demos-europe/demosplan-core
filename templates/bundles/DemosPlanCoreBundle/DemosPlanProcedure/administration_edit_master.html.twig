@@ -147,7 +147,7 @@
 
 
                 <dp-email-list
-                    class="{{ (form.agencyMainEmailAddress.vars.value.fullAddress|length > 0) ? '' : 'opacity-7 pointer-events-none' }}"
+                    class="{{ (form.agencyMainEmailAddress.vars.value.fullAddress|length > 0) ? '' : 'opacity-70 pointer-events-none' }}"
                     :init-emails="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')">
                 </dp-email-list>
             </div>

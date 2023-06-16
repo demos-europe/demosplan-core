@@ -91,7 +91,7 @@
         <dp-email-list
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-7 pointer-events-none' : '' } u-mt-0_25`"
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
           :init-emails="emailAddresses" />
 
         <dp-text-area
