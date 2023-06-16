@@ -9,7 +9,14 @@
 
 <template>
   <div>
-    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex')">
+    <dp-tooltip-test
+      content="Here is a content"
+      placement="top">
+      <button class="test-button">
+        Click me
+      </button>
+    </dp-tooltip-test>
+    <div :class="prefixClass(' layout__item display--flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
         data-cy="procedureSearch"
@@ -218,6 +225,7 @@
 </template>
 <script>
 import { dpApi, DpAutocomplete, DpInput, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import DpTooltipTest from './DpTooltipTest'
 import proj4 from 'proj4'
 import qs from 'qs'
 
@@ -227,7 +235,8 @@ export default {
   components: {
     DpAutocomplete,
     DpInput,
-    DpLoading
+    DpLoading,
+    DpTooltipTest
   },
 
   mixins: [prefixClassMixin],

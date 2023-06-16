@@ -256,3 +256,20 @@
         }
     }
 }
+.test-button {
+ background-color: red;
+ color: white;
+ padding: 10px;
+}
+.test-tooltip {
+    z-index: 50;
+    background-color: grey;
+    color: white;
+    padding: 2px;
+}
+.test-triangle {
+    background-color: grey;
+    height: 8px;
+    width: 8px;
+    rotate: 45deg;
+}
