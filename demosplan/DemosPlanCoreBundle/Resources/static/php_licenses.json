@@ -306,6 +306,11 @@
     },
     {
         "license": "MIT",
+        "package": "phpspec/prophecy-phpunit",
+        "website": "https://github.com/phpspec/prophecy-phpunit"
+    },
+    {
+        "license": "MIT",
         "package": "phpstan/phpstan",
         "website": "https://github.com/phpstan/phpstan"
     },

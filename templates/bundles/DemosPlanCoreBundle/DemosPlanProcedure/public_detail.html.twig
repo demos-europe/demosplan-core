@@ -618,9 +618,3 @@
         }
     </script>
 {% endblock javascripts %}
-
-{% block base_side -%}
-    {% if app.user.loggedIn == true %}
-        {{- parent() -}}
-    {% endif %}
-{%- endblock %}
