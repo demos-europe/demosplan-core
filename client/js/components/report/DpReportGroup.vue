@@ -43,7 +43,7 @@
      --><div class="layout__item u-1-of-2">
         <dp-loading
           v-if="isLoading"
-          class="u-mt-0_5 float--right" />
+          class="u-mt-0_5 float-right" />
         </div>
       </div>
     </template>

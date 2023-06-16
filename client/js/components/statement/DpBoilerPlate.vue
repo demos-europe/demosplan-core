@@ -13,7 +13,7 @@
     <div class="u-pb-0_25">
       <label class="u-mb-0_5">
         <i
-          class="fa fa-question-circle float--right u-mt-0_125"
+          class="fa fa-question-circle float-right u-mt-0_125"
           :aria-label="Translator.trans('contextual.help')"
           v-tooltip="tooltipContent" />
         {{ title }}

@@ -54,7 +54,7 @@
           class="flash flash-warning flow-root"
           v-if="(selectedStatementsWithoutGroups.length === 0) && ('consolidateStatements' === consolidationMethod)">
           <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float--left"
+            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
             aria-hidden="true" />
           <div class="u-ml">
             <p
@@ -67,7 +67,7 @@
           class="flash flash-warning flow-root"
           v-else-if="selectionHasGroups">
           <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float--left"
+            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
             aria-hidden="true" />
           <div class="u-ml">
             <p
@@ -197,7 +197,7 @@
           ref="clusterSelect" />
       </fieldset>
       <dp-button
-        class="float--right-lap-up"
+        class="float-right-lap-up"
         :busy="isLoading"
         :text="Translator.trans('send')"
         @click.prevent="submitCluster" />

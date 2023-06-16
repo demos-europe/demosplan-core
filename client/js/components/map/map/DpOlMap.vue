@@ -66,7 +66,7 @@
           <slot
             :map="map"
             name="controls" />
-          <div :class="prefixClass('float--right')">
+          <div :class="prefixClass('float-right')">
             <dp-autocomplete
               :class="prefixClass('u-mb inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"

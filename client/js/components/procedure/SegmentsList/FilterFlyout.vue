@@ -123,7 +123,7 @@
         </h3>
         <button
           v-if="currentQuery.length"
-          class="o-link--default btn--blank font-size-small u-m-0_5 float--right"
+          class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
           @click="resetAndApply">
           {{ Translator.trans('filter.active.remove') }}
         </button>
@@ -142,11 +142,11 @@
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
-          class="float--left"
+          class="float-left"
           :text="Translator.trans('apply')"
           @click="apply" />
         <dp-button
-          class="float--right"
+          class="float-right"
           color="secondary"
           :text="Translator.trans('abort')"
           @click="close" />

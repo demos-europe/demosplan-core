@@ -28,7 +28,7 @@
           <div
             class="flash flash-warning flow-root"
             v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
+            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
             <div class="u-ml">
               <p
                 class="u-mb-0"
@@ -77,7 +77,7 @@
           <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
           <button
             type="button"
-            class="btn btn--primary float--right"
+            class="btn btn--primary float-right"
             @click.prevent.stop="copyStatement"
             :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
             {{ Translator.trans('statement.copy.to.procedure.action') }}

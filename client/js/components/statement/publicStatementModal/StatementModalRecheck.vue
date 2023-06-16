@@ -47,7 +47,7 @@
       <button
         type="button"
         @click="$emit('edit-input', 'r_makePublic')"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="statementDetailFormPersonalPublish inputDataChange">
         <i
@@ -64,7 +64,7 @@
           {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
           <button
             type="button"
-            :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+            :class="prefixClass('o-link--default btn-icns u-ml float-right')"
             @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
             aria-labelledby="useNameText inputDataChange">
@@ -142,7 +142,7 @@
       {{ Translator.trans('statement.detail.form.personal.post_anonymously') }}
       <button
         type="button"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="useNameText inputDataChange">
@@ -192,7 +192,7 @@
       </span>
       <button
         type="button"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="getFeedbackText inputDataChange">
@@ -207,7 +207,7 @@
         <em>{{ Translator.trans('statement.my') }}: </em>
         <button
           type="button"
-          :class="prefixClass('o-link--default btn-icns float--right')"
+          :class="prefixClass('o-link--default btn-icns float-right')"
           @click="$emit('edit-input', 'r_text')"
           :title="Translator.trans('statement.alter')"
           :aria-label="Translator.trans('statement.alter')">

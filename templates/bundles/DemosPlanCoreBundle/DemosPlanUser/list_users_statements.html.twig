@@ -44,7 +44,7 @@
                                     </div>
 
                                     {% if hasPermission('feature_statement_gdpr_consent_may_revoke') %}
-                                        <div class="inline-block float--right-lap-up u-mt-0_5-lap-up u-1-of-1-palm">
+                                        <div class="inline-block float-right-lap-up u-mt-0_5-lap-up u-1-of-1-palm">
                                             <a class="u-pr-0_5 gdpr_revoke"
                                                @click="() => confirm(Translator.trans('gdpr.revoke.confirm'))"
                                                href="{{ path('DemosPlan_revoke_statement', {'statementId': statement.id}) }}"
@@ -162,7 +162,7 @@
                                                  <div id="text--short__{{ statement.id }}">
                                                      {{ statement.text|slice(0, 3000)|wysiwyg }} ...
                                                     <button
-                                                        class="btn--blank o-link--default float--right u-mv show-more"
+                                                        class="btn--blank o-link--default float-right u-mv show-more"
                                                         @Click="() => toggleStatement('{{ statement.id }}')"
                                                         aria-label="{{ 'show.more'|trans }} {{ 'statement.id'|trans }}:{{ statement.externId }}, {{ 'procedure'|trans }}:{{ statement.procedure.name }}"
                                                         aria-expanded="false">
@@ -172,7 +172,7 @@
                                                  <div id="text--full__{{ statement.id }}" class="hidden">
                                                      {{ statement.text|wysiwyg }}
                                                     <button
-                                                        class="btn--blank o-link--default float--right u-mv show-less"
+                                                        class="btn--blank o-link--default float-right u-mv show-less"
                                                         @Click="toggleStatement('{{ statement.id }}')"
                                                         aria-label="{{ 'show.less'|trans }} {{ 'statement.id'|trans }}:{{ statement.externId }}, {{ 'procedure'|trans }}:{{ statement.procedure.name }}"
                                                         aria-expanded="true">

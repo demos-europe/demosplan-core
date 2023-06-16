@@ -18,7 +18,7 @@
       </p>
     </label>
     <i
-      class="fa fa-question-circle u-pt-0_25 inline-block float--right"
+      class="fa fa-question-circle u-pt-0_25 inline-block float-right"
       v-tooltip="Translator.trans('survey.status.explanation')" />
     <select
       id="status"
@@ -42,7 +42,7 @@
         </p>
       </label>
       <i
-        class="fa fa-question-circle u-pt-0_25 inline-block float--right"
+        class="fa fa-question-circle u-pt-0_25 inline-block float-right"
         v-tooltip="Translator.trans('survey.date.explanation')" />
       <div class="block u-mb-2">
         <datepicker

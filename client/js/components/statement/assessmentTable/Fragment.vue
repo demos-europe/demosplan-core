@@ -52,7 +52,7 @@ useful info about the component:
 
         <!-- Navigation for fragment history, delete, assign to other user -->
         <table-card-flyout-menu
-          class="float--right"
+          class="float-right"
           :current-user-id="currentUserId"
           entity="fragment"
           :entity-id="fragment.id"
@@ -98,7 +98,7 @@ useful info about the component:
               :editable="isClaimed && fragment.voteAdvice === null"
               :label-grid-cols="5" />
             <div
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float--right"
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float-right"
               v-if="reviewerEditing">
               <input
                 id="notifyOrga"
@@ -211,7 +211,7 @@ useful info about the component:
             :label-grid-cols="2" />
 
             <div
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float--right"
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float-right"
               v-if="tagsEditing && hasPermission('feature_optional_tag_propagation')">
               <label
                 class="inline-block u-mb-0_25"

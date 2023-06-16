@@ -4,7 +4,7 @@
     {% if currentUser.loggedin %}
 
         {# loggedin state of userbox #}
-        <div class="{{ 'c-nav__flyout c-flyout float--right text--right'|prefixClass }}" data-actionmenu>
+        <div class="{{ 'c-nav__flyout c-flyout float-right text--right'|prefixClass }}" data-actionmenu>
 
             {# button which displays the name of current user and acts as the flyout trigger #}
             <a
@@ -44,7 +44,7 @@
 
                 {# display roles of current user #}
                 <div class="{{ 'c-flyout__item u-mt-0_5'|prefixClass }}">
-                    <i class="{{ 'fa fa-shield float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                    <i class="{{ 'fa fa-shield float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                     <span class="{{ 'block u-ml'|prefixClass }}">
                         {{- "roles"|trans -}}
                     </span>
@@ -110,7 +110,7 @@
                             class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
                             data-actionmenu-menuitem>
-                            <i class="{{ 'fa fa-building-o float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                            <i class="{{ 'fa fa-building-o float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="orgaName">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
@@ -120,7 +120,7 @@
                         </a>
                     {% else %}
                         <span class="{{ 'c-flyout__item flow-root'|prefixClass }}">
-                            <i class="{{ 'fa fa-building-o float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                            <i class="{{ 'fa fa-building-o float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'block u-ml'|prefixClass }}">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
@@ -137,7 +137,7 @@
                         class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                         href="{{ path("DemosPlan_procedure_list_subscriptions") }}"
                         data-actionmenu-menuitem>
-                        <i class="{{ 'fa fa-bell float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <i class="{{ 'fa fa-bell float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         <span class="{{ 'block u-ml'|prefixClass }}">
                              {{ "notifications"|trans }}
                         </span>
@@ -149,7 +149,7 @@
                     class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                     href="{{ path("DemosPlan_user_portal") }}"
                     data-actionmenu-menuitem>
-                    <i class="{{ 'fa fa-cog float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                    <i class="{{ 'fa fa-cog float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                     <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="userProfile">
                         {{ "profile"|trans }}
                     </span>
@@ -177,7 +177,7 @@
                         class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                         href="{{ path('core_home_loggedin') }}"
                         data-actionmenu-menuitem>
-                        <i class="{{ 'fa fa-wrench float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <i class="{{ 'fa fa-wrench float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="administer">
                             {{ "administer"|trans }}
                         </span>
@@ -190,7 +190,7 @@
                         class="{{ 'c-flyout__item c-flyout__item--btn u-mt-0_5 flow-root'|prefixClass }}"
                         href="{{ path('DemosPlan_user_switch_orga') }}"
                         data-actionmenu-menuitem>
-                        <i class="{{ 'fa fa-exchange float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <i class="{{ 'fa fa-exchange float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         <span class="{{ 'block u-ml'|prefixClass }}">
                             {{- "organisation.switch"|trans -}}
                         </span>
@@ -204,7 +204,7 @@
                         data-actionmenu-menuitem
                         data-extern-dataport="logout"
                         href="{{ path("DemosPlan_user_logout") }}">
-                        <i class="{{ 'fa fa-sign-out float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <i class="{{ 'fa fa-sign-out float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         {{ "logout"|trans }}
                     </a>
                 {% endblock logoutButton %}
@@ -216,7 +216,7 @@
     {% else %}
 
         {# loggedout state of userbox #}
-        <div class="{{ 'c-nav__flyout c-flyout float--right text--right'|prefixClass }}" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
+        <div class="{{ 'c-nav__flyout c-flyout float-right text--right'|prefixClass }}" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
             {% if projectType == 'gateway' %}
 
                 <a

@@ -83,7 +83,7 @@
                       content: Translator.trans('annotator.modify.explanation'),
                       classes: 'u-z-super'
                     }"
-                    class="fa fa-question-circle float--right u-mt-0_125" />
+                    class="fa fa-question-circle float-right u-mt-0_125" />
                 </p>
                 <div>
                   <button

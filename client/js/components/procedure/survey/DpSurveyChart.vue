@@ -18,7 +18,7 @@
     </dd>
 
     <dd
-      :class="prefixClass('survey-chart__bar u-m-0 float--left relative')"
+      :class="prefixClass('survey-chart__bar u-m-0 float-left relative')"
       :style="{ 'width': `calc(${votes.percentagePositive}% - 1px)` }">
       <span
         :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-left-0 whitespace--nowrap')">
@@ -27,7 +27,7 @@
     </dd>
 
     <dd
-      :class="prefixClass('survey-chart__bar u-m-0 float--right relative')"
+      :class="prefixClass('survey-chart__bar u-m-0 float-right relative')"
       :style="{ 'width': `${votes.percentageNegative}%` }">
       <span
         :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-right-0 whitespace--nowrap')">

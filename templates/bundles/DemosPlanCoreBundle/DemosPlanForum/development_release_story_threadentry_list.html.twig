@@ -15,7 +15,7 @@
             </a>
 
             {% if templateVars.phasePermissions is defined and templateVars.phasePermissions.new_threadEntry == true %}
-                <a class="btn btn--primary float--right" href="{{ path('DemosPlan_forum_development_userstory_threadentry_new', { 'storyId': templateVars.userStory.ident }) }}">
+                <a class="btn btn--primary float-right" href="{{ path('DemosPlan_forum_development_userstory_threadentry_new', { 'storyId': templateVars.userStory.ident }) }}">
                     Neuen Beitrag schreiben
                 </a>
             {% endif %}

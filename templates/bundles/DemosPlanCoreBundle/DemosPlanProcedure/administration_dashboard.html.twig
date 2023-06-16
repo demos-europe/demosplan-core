@@ -125,7 +125,7 @@
                             {% if templateVars.statementsTotal|default(0) > 0 %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
                                     <p class="weight--bold">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.status'|trans({ count: 0 }) }}
                                     </p>
                                     <div
@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm">
                                     <p class="weight--bold u-pb">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.priority'|trans({ count: 0 }) }}
                                     </p>
                                     <div id="pieChart" class="c-chart__svg-wrapper"></div>
@@ -150,7 +150,7 @@
                                     <p class="weight--bold">{{ 'statements'|trans }}</p>
                                     {{ 'statements.none'|trans }}
                                     {% if hasPermission('feature_statement_data_input_orga') %}
-                                        <a class="btn-icns u-m-0 float--right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
+                                        <a class="btn-icns u-m-0 float-right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
                                             <i class="fa fa-plus" aria-hidden="true"></i>
                                             {{ 'statement.new'|trans }}
                                         </a>
@@ -294,7 +294,7 @@
                                 {% if templateVars.surveyStatistics.votes.sum > 0 %}
                                     <dp-survey-chart title="{{ survey.title }}" :votes="JSON.parse('{{ votes|json_encode|e('js', 'utf-8') }}')"></dp-survey-chart>
 
-                                    <a class="o-link--icon u-m-0 float--left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                    <a class="o-link--icon u-m-0 float-left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
                                         <i class="fa fa-pencil" aria-hidden="true"></i>
                                         {{ 'survey.comments.moderate'|trans }}
                                     </a>
@@ -304,14 +304,14 @@
                                         </span>
                                     {% endif %}
                                 {% endif %}
-                                <a class="o-link--icon u-m-0 float--right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                <a class="o-link--icon u-m-0 float-right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                     {{ 'survey.edit'|trans }}
                                 </a>
                             </div>
                         {% else %}
                             <p>{{ 'survey.none'|trans }}</p>
-                            <a class="btn-icns u-m-0 float--right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
+                            <a class="btn-icns u-m-0 float-right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                 {{ 'survey.new'|trans }}
                             </a>

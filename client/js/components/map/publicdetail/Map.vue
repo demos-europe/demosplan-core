@@ -1010,12 +1010,12 @@ export default {
                         /*
                          * Roll back to this one when we can handle procedure versions
                          * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                         *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                         *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                          *     Translator.trans('procedure.goto') +
                          *     '</a>';
                          */
                         const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                         Translator.trans('procedures.all.show') +
                         '</a>'
                         this.showPopup('contentPopup', {
@@ -1343,12 +1343,12 @@ export default {
                     /*
                      * Roll back to this one when we can handle procedure versions
                      * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                     *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                      *     Translator.trans('procedure.goto') +
                      *     '</a>';
                      */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                       Translator.trans('procedures.all.show') +
                       '</a>'
                       this.showPopup('contentPopup', {

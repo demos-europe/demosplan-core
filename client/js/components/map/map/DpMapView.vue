@@ -50,7 +50,7 @@
             data-cy="boundsApply"
             translation-key="bounds.apply" />
           <i
-            class="fa fa-question-circle float--right"
+            class="fa fa-question-circle float-right"
             :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }" />
         </div>
@@ -85,7 +85,7 @@
             @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
           <i
-            class="fa fa-question-circle float--right"
+            class="fa fa-question-circle float-right"
             :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{
               content: Translator.trans('explanation.territory.desc'),
@@ -108,7 +108,7 @@
             :features="procedureCoordinatesFeature"
             @layerFeatures:changed="updateCoordinates" />
           <i
-            class="fa fa-question-circle float--right"
+            class="fa fa-question-circle float-right"
             :aria-label="Translator.trans('contextual.help')"
             v-tooltip="{
               content: Translator.trans('text.mapsection.hint'),

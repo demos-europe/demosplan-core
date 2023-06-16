@@ -12,7 +12,7 @@
     <div class="relative border--bottom u-pb-0_5">
       {{ Translator.trans(editable ? 'statement.info.edit' : 'statement.info') }}
       <button
-        class="btn--blank o-link--default float--right"
+        class="btn--blank o-link--default float-right"
         @click="close">
         <dp-icon icon="close" />
       </button>

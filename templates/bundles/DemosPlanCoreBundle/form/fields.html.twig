@@ -54,7 +54,7 @@
 {%- block submit_widget -%}
     {%- set type = type|default('submit') -%}
     {# Setze die Standardklasse des Labels #}
-    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' float--right')|trim}) %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' float-right')|trim}) %}
     {%- if label is empty -%}
         {% set label = 'save' %}
     {%- endif -%}

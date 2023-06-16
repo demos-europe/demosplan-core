@@ -65,7 +65,7 @@
         @search="searchVal => handleSearch(searchVal)"
         @reset="resetSearch" />
       <dp-checkbox-group
-        class="inline-block u-pv-0_5 float--right"
+        class="inline-block u-pv-0_5 float-right"
         :label="filterLabel"
         :options="filterItems"
         inline

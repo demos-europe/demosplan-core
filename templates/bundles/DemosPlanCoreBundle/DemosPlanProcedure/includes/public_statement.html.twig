@@ -18,10 +18,10 @@
                     {% endfor %}
 
                     {% if hasVoted %}
-                        <strong class="{{ 'float--right color--grey'|prefixClass }}">{{ 'statement.is.voted'|trans }}</strong>
+                        <strong class="{{ 'float-right color--grey'|prefixClass }}">{{ 'statement.is.voted'|trans }}</strong>
                     {% else %}
                         <a
-                            class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float--right'|prefixClass }}"
+                            class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float-right'|prefixClass }}"
                             title="{{ 'statement.vote.description'|trans }}"
                             aria-label="{{ 'statement'|trans }} {{ statement.externId|default }} {{ 'statement.vote.description'|trans }}"
                             href="{{ path('DemosPlan_statement_public_vote', {'statementID': statement.ident, 'procedure': procedure}) }}">
@@ -35,10 +35,10 @@
             {# Vote for a statement aka Like (as anonymous user) #}
         {% elseif hasPermission('feature_statements_like') and hasPermission('feature_statements_like_may_like') %}
             {% if statement.id in templateVars.publicStatements.likedStatementIds|default([]) %}
-                <p class="{{ 'flash flash-info u-mt-0 font-size-smaller float--right'|prefixClass }}">{{ 'statement.is.liked'|trans }}</p>
+                <p class="{{ 'flash flash-info u-mt-0 font-size-smaller float-right'|prefixClass }}">{{ 'statement.is.liked'|trans }}</p>
             {% else %}
                 <form action="{{ path('DemosPlan_statement_public_like', {'statementId': statement.ident, 'procedure': procedure})  ~ '#_procedureDetailsStatementsPublic' }}" method="post">
-                    <button class="{{ 'btn btn--primary float--right'|prefixClass }}" type="submit" title="{{ 'statement.like.description'|trans }}">
+                    <button class="{{ 'btn btn--primary float-right'|prefixClass }}" type="submit" title="{{ 'statement.like.description'|trans }}">
                         <i class="{{ 'fa fa-chevron-circle-up'|prefixClass }}" aria-hidden="true"></i>
                         {{ 'statement.like'|trans }}
                     </button>
@@ -98,14 +98,14 @@
         {% if ownsProcedure(proceduresettings) and hasPermission('feature_statements_vote')%}
 
             {% if ('hidden' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external')) %}
-                <div class="{{ 'text--left float--left'|prefixClass }}">
+                <div class="{{ 'text--left float-left'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution.public.config"|trans }}
                     </p>
                 </div>
 
             {% elseif ('hidden' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')) %}
-                <div class="{{ 'text--right float--right'|prefixClass }}">
+                <div class="{{ 'text--right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.public"|trans }}
                     </p>
@@ -115,7 +115,7 @@
             {% elseif ('write' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external'))
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float--right'|prefixClass }}">
+                <div class="{{ 'text--right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution"|trans }}
                     </p>
@@ -126,7 +126,7 @@
             {% if 'write' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float--right'|prefixClass }}">
+                <div class="{{ 'text--right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution.public"|trans }}
                     </p>
@@ -136,13 +136,13 @@
             {% elseif 'write' == getProcedurePermissionset('internal') and 'read' == getProcedurePermissionset('external')
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float--right'|prefixClass }}">
+                <div class="{{ 'text--right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution"|trans }}
                     </p>
                 </div>
             {% elseif 'read' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
-                <div class="{{ 'text--right float--right'|prefixClass }}">
+                <div class="{{ 'text--right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.public"|trans }}
                     </p>
@@ -177,7 +177,7 @@
                         </a>
 
                         <a
-                            class="{{ 'btn btn--secondary float--right u-ml-0_125'|prefixClass }}"
+                            class="{{ 'btn btn--secondary float-right u-ml-0_125'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
                             href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">

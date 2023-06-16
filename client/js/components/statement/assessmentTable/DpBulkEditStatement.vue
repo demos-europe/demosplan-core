@@ -125,7 +125,7 @@
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -175,7 +175,7 @@
           @click.once="submitData" />
 
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           @click.prevent="toggleMode('edit')">
           <i class="fa fa-angle-left u-pr-0_25" />

@@ -53,7 +53,7 @@
             </button>
           </div>
         </div>
-        <ul class="float--right u-m-0 space-inline-s flex">
+        <ul class="float-right u-m-0 space-inline-s flex">
           <li class="inline-block">
             <dp-claim
               v-if="!statement.attributes.synchronized"

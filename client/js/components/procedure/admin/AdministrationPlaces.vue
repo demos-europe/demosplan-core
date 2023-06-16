@@ -83,7 +83,7 @@
           v-model="rowData.description" />
       </template>
       <template v-slot:flyout="rowData">
-        <div class="float--right">
+        <div class="float-right">
           <template v-if="!rowData.edit">
             <button
               :aria-label="Translator.trans('item.edit')"

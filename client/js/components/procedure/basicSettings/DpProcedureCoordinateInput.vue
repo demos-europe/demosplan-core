@@ -39,7 +39,7 @@
       @click.prevent="addMarker"
       :disabled="!isCoordinatesValid"
       ref="myBtnCoordinates"
-      class="btn btn--primary float--right">
+      class="btn btn--primary float-right">
       {{ Translator.trans('coordinate.location.submite') }}
     </button>
   </div>

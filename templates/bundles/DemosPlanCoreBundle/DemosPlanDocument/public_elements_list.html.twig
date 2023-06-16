@@ -39,7 +39,7 @@
                     {# Link to detail view of element, if it contains paragraphs #}
                     {% if element.paragraphDocs == true and element.hasParagraphs %}
                         <a
-                            class="{{ 'elements__button btn btn--primary float--right u-mt-0_25-lap-down u-1-of-1-lap-down'|prefixClass }}"
+                            class="{{ 'elements__button btn btn--primary float-right u-mt-0_25-lap-down u-1-of-1-lap-down'|prefixClass }}"
                             href="{{ link }}"
                             title="{{ element.title }}"
                             aria-label="{{ 'document'|trans }}: {{ element.title }}, {{- (hasPermission('feature_documents_new_statement') ? 'document.open.and.assessment' : 'document.open')|trans -}}">
@@ -164,7 +164,7 @@
                                                         r_paragraph_id: '',
                                                         r_paragraph_title: ''
                                                     }, { draftStatementId: '{{ templateVars.draftStatementId|default }}' })"
-                                                class="{{ 'elements__button btn btn--primary btn--outline u-mb-0_25-lap-down u-1-of-1-lap-down' ~ (isVideo ? ' u-mt-0_5 float--right')|prefixClass }}"
+                                                class="{{ 'elements__button btn btn--primary btn--outline u-mb-0_25-lap-down u-1-of-1-lap-down' ~ (isVideo ? ' u-mt-0_5 float-right')|prefixClass }}"
                                                 type="button"
                                                 aria-label="{{ 'plandocument'|trans }}: {{ document.title }}, {{ 'statement.form.add.relation'|trans }}">
                                                 <i class="{{ 'fa fa-comment u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>

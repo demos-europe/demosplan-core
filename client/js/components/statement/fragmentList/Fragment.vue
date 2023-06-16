@@ -89,7 +89,7 @@
       </dp-fragment-status>
 
       <!-- Tabs -->
-      <div class="text--right float--right">
+      <div class="text--right float-right">
         <a
           class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_25 u-ph-0_5"
           :class="{'is-active-toggle': tab==='fragment'}"

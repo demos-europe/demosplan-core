@@ -22,7 +22,7 @@
           :href="sanitizedReturnLink"
           :text="Translator.trans('bulk.edit.actions.back.to.list')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :disabled="!valid"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
@@ -40,7 +40,7 @@
           :text="Translator.trans('bulk.edit.actions.edit')"
           @click="$emit('edit')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :busy="busy"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"

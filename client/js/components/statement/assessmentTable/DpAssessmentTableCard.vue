@@ -231,7 +231,7 @@
           </div><!--
 
        --><div
-            class="inline-block u-pt-0_25 text--right float--right">
+            class="inline-block u-pt-0_25 text--right float-right">
             <!-- Votes -->
             <span
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"
@@ -594,7 +594,7 @@
                     <i
                       v-tooltip="Translator.trans('recommendation.publicly.visible')"
                       tabindex="0"
-                      class="fa fa-question-circle float--right u-pt-0_125"
+                      class="fa fa-question-circle float-right u-pt-0_125"
                       aria-hidden="true" />
                   </template>
                 </tiptap-edit-text>
@@ -715,7 +715,7 @@
           </label>
           <div
             v-if="accessibleProcedureIds.findIndex(el => el === statement.movedToProcedureId) >= 0"
-            class="float--right u-mt-0_5 u-mb-0_75 u-mr"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
             <a
               :href="Routing.generate('dm_plan_assessment_single_view', { statement: statement.movedStatementId, procedureId: statement.movedToProcedureId })"
@@ -725,7 +725,7 @@
           </div>
           <div
             v-else
-            class="float--right u-mt-0_5 u-mb-0_75 u-mr"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
             {{ Translator.trans('movedTo') }}: {{ statement.movedToProcedureName.slice(0,55) }}{{ (statement.movedToProcedureName.length > 55) ? '...' : '' }} ({{ Translator.trans('inaccessible') }})
           </div>

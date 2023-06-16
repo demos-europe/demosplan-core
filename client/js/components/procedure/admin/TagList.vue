@@ -26,7 +26,7 @@
         <div class="relative u-pb-0_5 font-size-large">
           {{ Translator.trans('tag.new') }}
           <button
-            class="btn--blank o-link--default float--right"
+            class="btn--blank o-link--default float-right"
             @click="closeNewTagForm()">
             <dp-icon icon="close" />
           </button>
@@ -65,7 +65,7 @@
           v-model="rowData.label" />
       </template>
       <template v-slot:action="rowData">
-        <div class="float--right">
+        <div class="float-right">
           <template v-if="!rowData.edit">
             <button
               :aria-label="Translator.trans('item.edit')"

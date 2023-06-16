@@ -61,7 +61,7 @@
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
         <i
-          class="fa fa-question-circle float--right"
+          class="fa fa-question-circle float-right"
           :aria-label="Translator.trans('contextual.help')"
           v-tooltip="autoFillLabel" />
       </label>

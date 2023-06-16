@@ -12,14 +12,14 @@
 
         {# creation date #}
         {% if news.createDate is defined %}
-            <span class="{{ 'font-size-smaller float--left'|prefixClass }}">
+            <span class="{{ 'font-size-smaller float-left'|prefixClass }}">
                 {{ news.createDate|default|dplanDateAnnotated }}
             </span>
         {% endif %}
 
         {# label 'press' if press category found #}
         {% if news.categoryTypes is defined and 'press' in news.categoryTypes %}
-            <span class="{{ 'font-size-smaller float--left'|prefixClass }}">
+            <span class="{{ 'font-size-smaller float-left'|prefixClass }}">
                 Pressebericht
             </span>
         {% endif %}
@@ -27,7 +27,7 @@
         {# pdf attachment #}
         {% if news.pdf is defined and news.pdf != '' %}
             <a
-                class="{{ 'font-size-smaller float--right max-width-100p'|prefixClass }}"
+                class="{{ 'font-size-smaller float-right max-width-100p'|prefixClass }}"
                 target="_blank"
                 rel="noopener"
                 href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}"

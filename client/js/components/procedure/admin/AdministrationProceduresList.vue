@@ -136,7 +136,7 @@
 
       <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
         <div
-          class="float--left u-m-0">
+          class="float-left u-m-0">
           <span v-text="internalPhase" />
           <div v-text="internalStartDate + ' - ' + internalEndDate" />
         </div>

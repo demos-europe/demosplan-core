@@ -41,7 +41,7 @@
           </dp-multiselect>
         </div>
         <dp-button
-          class="u-mt float--right"
+          class="u-mt float-right"
           :busy="loading"
           :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
           @click="assignEntity" />

@@ -260,7 +260,7 @@
                     target="_blank">
                     {{ file.name }}
                   </a>
-                  <label :class="prefixClass('lbl--text float--right')">
+                  <label :class="prefixClass('lbl--text float-right')">
                     <input
                       :value="file.hash"
                       name="delete_file[]"
@@ -613,7 +613,7 @@
               {{ Translator.trans('pdf.download') }}
             </a>
 
-            <span :class="prefixClass('float--right text--right u-1-of-1-palm u-mt-0_5-palm')">
+            <span :class="prefixClass('float-right text--right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"

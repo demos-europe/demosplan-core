@@ -60,7 +60,7 @@
         v-show="actions.anonymizeStatementText"
         class="u-ml">
         <dp-tooltip-icon
-          icon="fa-question-circle float--right"
+          icon="fa-question-circle float-right"
           :text="Translator.trans('statement.anonymize.text.editor.hint')" />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
@@ -89,7 +89,7 @@
           })"
           :text="Translator.trans('back.to.statements.original')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :disabled="isInvalid()"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
@@ -140,7 +140,7 @@
           :text="Translator.trans('bulk.edit.actions.edit')"
           @click="back" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :busy="busy"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"
@@ -156,7 +156,7 @@
           :class="{'u-mb-0_5': actions.deleteStatementTextHistory}"
           class="flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.meta.success') }}
@@ -167,7 +167,7 @@
           v-if="actions.deleteStatementTextHistory"
           class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.history.success') }}
@@ -177,7 +177,7 @@
           v-if="actions.deleteStatementAttachments"
           class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.attachments.success') }}
@@ -187,7 +187,7 @@
           v-if="actions.anonymizeStatementText"
           class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.success') }}
@@ -199,7 +199,7 @@
         class="flash flash-warning u-mb">
         <p class="flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle"
             aria-hidden="true" />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.children.not.affected') }}
