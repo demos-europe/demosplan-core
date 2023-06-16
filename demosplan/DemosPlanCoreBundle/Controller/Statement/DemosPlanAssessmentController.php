@@ -197,6 +197,10 @@ class DemosPlanAssessmentController extends BaseController
                 }
 
                 if ($newStatement instanceof Statement) {
+                    $this->getMessageBag()->add(
+                        'confirm', 'confirm.statement.new', ['externId' => $newStatement->getExternId()]
+                    );
+
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
                         ['procedureId' => $procedureId]
