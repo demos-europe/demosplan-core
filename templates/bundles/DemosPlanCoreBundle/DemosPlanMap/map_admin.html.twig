@@ -14,7 +14,7 @@
     <dp-map-admin
         inline-template
         :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
-        <form class="layout u-pt cf" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
+        <form class="layout u-pt clear-both" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
 
             {# Select available scales for procedure #}

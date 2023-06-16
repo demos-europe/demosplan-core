@@ -57,7 +57,7 @@
       v-if="currentRoleHasSelect">
 <!-- Label & contextual help -->
       <label
-        class="u-mb-0_25 cf"
+        class="u-mb-0_25 clear-both"
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
         <i

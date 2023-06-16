@@ -10,7 +10,7 @@
 
     {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') or canEditMapHint %}
         <form
-            class="cf border--bottom u-pb-0_5 u-mb"
+            class="clear-both border--bottom u-pb-0_5 u-mb"
             name="planform"
             action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}"
             method="post"

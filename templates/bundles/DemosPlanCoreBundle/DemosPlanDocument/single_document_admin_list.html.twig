@@ -4,7 +4,7 @@
 
     <hr class="u-mv border--top width-100p">
 
-    <form class="cf" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
+    <form class="clear-both" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
 
         <input type="hidden" name="r_action" value="singledocumentdelete">
         <input type="hidden" value="{{ element.ident }}" name="r_elementIdent">

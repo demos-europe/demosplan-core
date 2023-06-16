@@ -34,7 +34,7 @@
     <!--  item header  -->
     <div v-if="statement.movedToProcedureId === ''">
       <div
-        class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 cf"
+        class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 clear-both"
         data-add-animation>
         <!--  id, date created, assignment  -->
         <div class="c-at-item__row-icon layout__item">
@@ -307,7 +307,7 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-light cf"
+          class="bg-color-light clear-both"
           v-show="tab === 'statement'">
           <!--  status / priorities  -->
           <dp-item-row
@@ -639,7 +639,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light cf"
+          class="bg-color-light clear-both"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -665,7 +665,7 @@
     <!-- Item that has been moved to procedure. minimal item header  -->
     <div
       v-else-if="statement.movedToProcedureId !== ''"
-      class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 cf"
+      class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 clear-both"
       data-add-animation>
       <!--  id, date created, assignment  -->
       <div class="c-at-item__row-icon layout__item">

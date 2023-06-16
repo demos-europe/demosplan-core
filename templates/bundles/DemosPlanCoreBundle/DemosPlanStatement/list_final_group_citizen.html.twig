@@ -59,7 +59,7 @@
 
         <div id="myStatementsList" class="{{ 'c-tabs__panel u-p-0 is-active-tab'|prefixClass }}">
 
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+            <form class="{{ 'layout clear-both'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
 
                 {#  filter fieldsets  #}
                 {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
@@ -68,7 +68,7 @@
 
 
                 {# form controls above entry table (check all, print, email) #}
-                <fieldset class="{{ 'layout__item u-pb-0 cf'|prefixClass }}">
+                <fieldset class="{{ 'layout__item u-pb-0 clear-both'|prefixClass }}">
 
                     <input type="hidden" name="action" value="statementPublish">
 
@@ -92,10 +92,10 @@
             </form>
          </div>
         <div id="votedStatementsList" class="{{ 'c-tabs__panel'|prefixClass }}">
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+            <form class="{{ 'layout clear-both'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
 
                 {# form controls above entry table (check all, print, email) #}
-                <fieldset class="{{ 'cf layout__item u-pb-0'|prefixClass }}">
+                <fieldset class="{{ 'clear-both layout__item u-pb-0'|prefixClass }}">
 
                     <input type="hidden" name="action" value="statementPublish">
 

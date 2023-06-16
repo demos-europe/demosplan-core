@@ -51,7 +51,7 @@
         </label>
         <!-- display if the user has selected group statements and NO other statements -->
         <div
-          class="flash flash-warning cf"
+          class="flash flash-warning clear-both"
           v-if="(selectedStatementsWithoutGroups.length === 0) && ('consolidateStatements' === consolidationMethod)">
           <i
             class="fa fa-exclamation-triangle u-mt-0_125 float--left"
@@ -64,7 +64,7 @@
         </div>
         <!-- display if the user has selected group statements -->
         <div
-          class="flash flash-warning cf"
+          class="flash flash-warning clear-both"
           v-else-if="selectionHasGroups">
           <i
             class="fa fa-exclamation-triangle u-mt-0_125 float--left"

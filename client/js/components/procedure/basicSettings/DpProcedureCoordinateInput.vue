@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="block u-mb-0_5 u-pv-0_5 border--top cf">
+  <div class="block u-mb-0_5 u-pv-0_5 border--top clear-both">
     <label
       class="inline-block u-m-0"
       for="customLatitude">

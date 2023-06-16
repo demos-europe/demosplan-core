@@ -6,7 +6,7 @@
         heading: 'tag.administration_single' |trans
     } %}
 
-    <form class="layout--flush cf" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
+    <form class="layout--flush clear-both" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
 
         {{ uiComponent('form.row', {
             elements: [

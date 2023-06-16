@@ -116,7 +116,7 @@
       </div>
       <div
         v-if="itemsSelected.length > 0"
-        class="cf">
+        class="clear-both">
         <h3
           class="inline-block font-size-small weight--normal u-m-0_5">
           {{ Translator.trans('filter.active') }}
@@ -140,7 +140,7 @@
           instance="itemsSelected"
           :key="`itemsSelected_${item.id}}`" />
       </ul>
-      <div class="cf u-p-0_5 u-pt-0">
+      <div class="clear-both u-p-0_5 u-pt-0">
         <dp-button
           class="float--left"
           :text="Translator.trans('apply')"

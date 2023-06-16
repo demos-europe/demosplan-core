@@ -307,7 +307,7 @@
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text--right u-mv-0_5 cf u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text--right u-mv-0_5 clear-both u-mt-0_5 space-inline-s')">
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
@@ -601,7 +601,7 @@
 
             <p v-cleanhtml="Translator.trans('confirm.statement.submitted.public.mailsent')" />
           </span>
-          <p :class="prefixClass('cf')">
+          <p :class="prefixClass('clear-both')">
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"

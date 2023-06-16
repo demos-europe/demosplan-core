@@ -12,7 +12,7 @@
         :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
         <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
             <form
-                class="layout cf"
+                class="layout clear-both"
                 name="xsubmititem"
                 action='{{ path('DemosPlan_procedure_boilerplate_edit',{'procedure': procedure, 'boilerplateId': form.vars.value.id|default('new') }) }}'
                 method="post"

@@ -80,7 +80,7 @@
           text: Translator.trans('statement.anonymize.delete.attachments.label')
         }" />
 
-      <div class="cf">
+      <div class="clear-both">
         <dp-button
           color="secondary"
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
@@ -133,7 +133,7 @@
         </p>
       </div>
 
-      <div class="cf">
+      <div class="clear-both">
         <dp-button
           color="secondary"
           icon="chevron-left"
@@ -154,7 +154,7 @@
         <p
           v-if="actions.anonymizeStatementMeta"
           :class="{'u-mb-0_5': actions.deleteStatementTextHistory}"
-          class="cf">
+          class="clear-both">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
@@ -165,7 +165,7 @@
 
         <p
           v-if="actions.deleteStatementTextHistory"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 clear-both">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
@@ -175,7 +175,7 @@
         </p>
         <p
           v-if="actions.deleteStatementAttachments"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 clear-both">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
@@ -185,7 +185,7 @@
         </p>
         <p
           v-if="actions.anonymizeStatementText"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 clear-both">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
@@ -197,7 +197,7 @@
       <div
         v-if="actions.anonymizeStatementText"
         class="flash flash-warning u-mb">
-        <p class="cf">
+        <p class="clear-both">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle"
             aria-hidden="true" />
@@ -218,7 +218,7 @@
         </p>
       </div>
 
-      <div class="cf">
+      <div class="clear-both">
         <dp-button
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
             procedureId: procedureId,

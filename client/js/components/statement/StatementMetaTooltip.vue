@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="c-statement-meta-tooltip cf">
+  <div class="c-statement-meta-tooltip clear-both">
     <button
       v-if="toggleButton"
       class="btn--blank o-link--default float--right"

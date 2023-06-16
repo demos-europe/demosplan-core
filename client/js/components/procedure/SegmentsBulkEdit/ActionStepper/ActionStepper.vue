@@ -16,7 +16,7 @@
     <template v-if="step === 1">
       <slot name="step-1" />
 
-      <div class="u-mt cf">
+      <div class="u-mt clear-both">
         <dp-button
           color="secondary"
           :href="sanitizedReturnLink"
@@ -33,7 +33,7 @@
     <template v-if="step === 2">
       <slot name="step-2" />
 
-      <div class="u-mt cf">
+      <div class="u-mt clear-both">
         <dp-button
           color="secondary"
           icon="chevron-left"

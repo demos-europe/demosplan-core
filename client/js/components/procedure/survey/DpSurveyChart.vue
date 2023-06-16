@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <dl :class="prefixClass(`survey-chart ${ branded ? 'survey-chart--branded' : null } border relative u-ml-0 cf`)">
+  <dl :class="prefixClass(`survey-chart ${ branded ? 'survey-chart--branded' : null } border relative u-ml-0 clear-both`)">
     <dt
       v-text="title"
       :class="prefixClass('hide-visually')" />

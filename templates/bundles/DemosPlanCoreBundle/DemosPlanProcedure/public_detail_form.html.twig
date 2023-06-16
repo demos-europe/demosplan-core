@@ -45,7 +45,7 @@
         <input type="hidden" name="r_location_geometry" value="">
     {% endif %}
 
-    <header class="{{ 'c-statement__header cf'|prefixClass }}" role="banner">
+    <header class="{{ 'c-statement__header clear-both'|prefixClass }}" role="banner">
 
         {# dialog title #}
         <h2
@@ -70,7 +70,7 @@
     {# should be used with |raw Filter in this special case as html-tags are returned #}
     {{ extensionPointMarkup('formExtraFields')|raw }}
 
-    <div class="{{ 'u-mv-0_5 space-inline-s cf'|prefixClass }}" data-statement-state-submit>
+    <div class="{{ 'u-mv-0_5 space-inline-s clear-both'|prefixClass }}" data-statement-state-submit>
         {% if loggedin %}
             <button
                 type="reset"

@@ -29,7 +29,7 @@
     </dp-slidebar>
 
     <dp-sticky-element>
-      <header class="border--bottom u-pv-0_5 cf">
+      <header class="border--bottom u-pv-0_5 clear-both">
         <div class="inline-flex space-inline-m">
           <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
             {{ Translator.trans('statement') }} #{{ statementExternId }}

@@ -8,7 +8,7 @@
     </h3>
 
     {# meta #}
-    <div class="{{ 'cf u-mv-0_25 o-hellip'|prefixClass }}">
+    <div class="{{ 'clear-both u-mv-0_25 o-hellip'|prefixClass }}">
 
         {# creation date #}
         {% if news.createDate is defined %}
@@ -40,7 +40,7 @@
     </div>
 
     {# wrap floating content elements in clearfix #}
-    <div class="{{ 'cf u-pb-0_5 relative'|prefixClass }}">
+    <div class="{{ 'clear-both u-pb-0_5 relative'|prefixClass }}">
 
         {# image is represented as css background image to keep square proportions in fluid context #}
         {% if news.picture is defined and news.picture != "" %}

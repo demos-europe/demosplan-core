@@ -24,7 +24,7 @@
           v-if="isLoading"
           class="u-pv-0_5" />
         <template v-else>
-          <div class="flash flash-warning cf">
+          <div class="flash flash-warning clear-both">
             <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
             <div class="u-ml">
               <p
@@ -39,7 +39,7 @@
 
           <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
           <div
-            class="flash flash-warning cf"
+            class="flash flash-warning clear-both"
             v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
             <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
             <div class="u-ml">

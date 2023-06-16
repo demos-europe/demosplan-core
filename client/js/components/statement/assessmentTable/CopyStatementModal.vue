@@ -26,7 +26,7 @@
         <template v-else>
           <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
           <div
-            class="flash flash-warning cf"
+            class="flash flash-warning clear-both"
             v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
             <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
             <div class="u-ml">

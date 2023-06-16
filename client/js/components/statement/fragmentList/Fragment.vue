@@ -16,7 +16,7 @@
     :data-fragment-id="fragment.id || 0"
     :data-fragment-vote-advice="fragment.voteAdvice === null ? '' : fragment.voteAdvice">
     <!-- header -->
-    <div class="c-at-item__header can-animate cf">
+    <div class="c-at-item__header can-animate clear-both">
       <!-- claim, id, date created -->
       <div class="layout--flush weight--bold inline-block u-mv-0_25 u-mh-0_5 u-mr">
         <dp-claim

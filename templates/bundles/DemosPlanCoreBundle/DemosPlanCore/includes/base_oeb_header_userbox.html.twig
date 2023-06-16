@@ -107,7 +107,7 @@
                 {% if currentUser.organisationNameLegal is defined %}
                     {% if hasPermission("area_manage_orgadata") %}
                         <a
-                            class="{{ 'c-flyout__item cf'|prefixClass }}"
+                            class="{{ 'c-flyout__item clear-both'|prefixClass }}"
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
                             data-actionmenu-menuitem>
                             <i class="{{ 'fa fa-building-o float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
@@ -119,7 +119,7 @@
                             </span>
                         </a>
                     {% else %}
-                        <span class="{{ 'c-flyout__item cf'|prefixClass }}">
+                        <span class="{{ 'c-flyout__item clear-both'|prefixClass }}">
                             <i class="{{ 'fa fa-building-o float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'block u-ml'|prefixClass }}">
                                 {{ currentUser.organisationNameLegal }}
@@ -134,7 +134,7 @@
                 {# subscribe to notifications #}
                 {% if hasPermission('area_subscriptions') %}
                     <a
-                        class="{{ 'c-flyout__item cf'|prefixClass }}"
+                        class="{{ 'c-flyout__item clear-both'|prefixClass }}"
                         href="{{ path("DemosPlan_procedure_list_subscriptions") }}"
                         data-actionmenu-menuitem>
                         <i class="{{ 'fa fa-bell float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
@@ -146,7 +146,7 @@
 
                 {# edit own profile #}
                 <a
-                    class="{{ 'c-flyout__item cf'|prefixClass }}"
+                    class="{{ 'c-flyout__item clear-both'|prefixClass }}"
                     href="{{ path("DemosPlan_user_portal") }}"
                     data-actionmenu-menuitem>
                     <i class="{{ 'fa fa-cog float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
@@ -174,7 +174,7 @@
                     or hasPermission('area_platformtools')
                 %}
                     <a
-                        class="{{ 'c-flyout__item cf'|prefixClass }}"
+                        class="{{ 'c-flyout__item clear-both'|prefixClass }}"
                         href="{{ path('core_home_loggedin') }}"
                         data-actionmenu-menuitem>
                         <i class="{{ 'fa fa-wrench float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
@@ -187,7 +187,7 @@
                 {# allow user to switch between two sessions - bobhh permission #}
                 {% if hasOrgaSwitcher %}
                     <a
-                        class="{{ 'c-flyout__item c-flyout__item--btn u-mt-0_5 cf'|prefixClass }}"
+                        class="{{ 'c-flyout__item c-flyout__item--btn u-mt-0_5 clear-both'|prefixClass }}"
                         href="{{ path('DemosPlan_user_switch_orga') }}"
                         data-actionmenu-menuitem>
                         <i class="{{ 'fa fa-exchange float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
@@ -200,7 +200,7 @@
                 {# logout button #}
                 {% block logoutButton %}
                     <a
-                        class="{{ 'c-flyout__item c-flyout__item--btn cf'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
+                        class="{{ 'c-flyout__item c-flyout__item--btn clear-both'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
                         data-actionmenu-menuitem
                         data-extern-dataport="logout"
                         href="{{ path("DemosPlan_user_logout") }}">

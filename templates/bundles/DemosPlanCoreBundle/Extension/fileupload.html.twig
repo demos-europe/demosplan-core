@@ -23,7 +23,7 @@
     {%  set omitPrefix = omit_css_class_prefix ?? true %}
 
     {% if field_label != "hide" %}
-        <label class="{{ 'u-mb-0 cf'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
+        <label class="{{ 'u-mb-0 clear-both'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
             {% autoescape false %}
                 <span class="{{ 'block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
             {% endautoescape %}

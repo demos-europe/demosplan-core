@@ -11,7 +11,7 @@
         {% set fieldDefinitions = fieldDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
     {% endfor %}
 
-    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 relative cf">
+    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 relative clear-both">
         {{ 'adjustments.general'|trans }}
         {% block wizard_trigger %}
             <button
@@ -150,10 +150,10 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="internal" class="o-wizard__content cf">
+                    <div data-toggle-id="internal" class="o-wizard__content clear-both">
                         <div class="o-wizard__main">
                             {% if hasPermission('field_procedure_adjustments_planning_agency') %}
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <label class="inline-block u-mb-0" for="r_agency">
                                         {{ "planningagency"|trans }}
                                     </label>
@@ -186,7 +186,7 @@
                                 </div>
                             {% endif %}
 
-                            <div class="u-mb cf">
+                            <div class="u-mb clear-both">
                                 <label class="inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
                                     {{ "email.procedure.agency"|trans }}*
                                     <p class="weight--normal">
@@ -207,7 +207,7 @@
                                        required>
                             </div>
 
-                            <div class="u-mb cf">
+                            <div class="u-mb clear-both">
                                 <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                                     {{ "email.address.more"|trans }}
                                     <p class="weight--normal">
@@ -229,7 +229,7 @@
                             </div>
 
                             {% if hasPermission('feature_use_data_input_orga') %}
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
                                         {{ "data.input.orga"|trans }}
                                     </label>
@@ -261,7 +261,7 @@
                             {% endif %}
 
                             {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <label class="inline-block u-mb-0" for="r_authorizedUsers">
                                         {{ "authorized.users"|trans }}
                                     </label>
@@ -299,7 +299,7 @@
                             {# The procedure type is set only once, when creating a procedure.
                                It can't nbe changed afterwards. Anyhow, the user is informed here which type
                                the procedure was created with. #}
-                            <div class="u-mb cf">
+                            <div class="u-mb clear-both">
                                 <p class="weight--bold u-mb-0">
                                     {{ "text.procedures.type"|trans }}
                                 </p>
@@ -313,7 +313,7 @@
                                 </p>
                             </div>
 
-                            <div class="u-mb-0_5 cf">
+                            <div class="u-mb-0_5 clear-both">
                                 <label class="inline-block u-mb-0" for="r_desc">
                                     {{ "internalnote"|trans }}
                                 </label>
@@ -371,11 +371,11 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content clear-both">
                             <div class="o-wizard__main">
 
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="r_phase">
                                             {{ "procedure.phase.institutions"|trans }}*
                                         </label>
@@ -416,7 +416,7 @@
                                 {% endif %}
 
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="r_legalNotice">
                                             {{ "procedure.legalNotice"|trans }}
                                         </label>
@@ -439,7 +439,7 @@
                                     </div>
                                 {% endif %}
 
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <label class="inline-block u-9-of-10 u-mb-0" for="r_startdate">
                                         {{ "period.institutions"|trans }}*
                                     </label>
@@ -520,12 +520,12 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content clear-both">
                             <div class="o-wizard__main space-stack-m">
 
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="cf">
+                                    <div class="clear-both">
                                         <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
                                             {{ "procedure.public.phase"|trans }}*
                                         </label>
@@ -563,7 +563,7 @@
                                 {% endif %}
 
                                 {# start/end date for public participation #}
-                                <div class="cf">
+                                <div class="clear-both">
                                     <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
                                         {{ "period.public"|trans }}*
                                     </label>
@@ -654,12 +654,12 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="nameAddress" class="o-wizard__content cf">
+                    <div data-toggle-id="nameAddress" class="o-wizard__content clear-both">
                         <div class="o-wizard__main">
 
                             {% if hasPermission('feature_institution_participation') %}
                                 {% block procedurename %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="counter_input">
                                             {{ "procedure.name"|trans }}
                                         </label>
@@ -685,7 +685,7 @@
                             {% endif %}
 
                             {% if hasPermission('area_public_participation') %}
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <label class="inline-block u-mb-0" for="counter_oeb_input">
                                         {{ "procedure.name.public"|trans }}
                                     </label>
@@ -710,7 +710,7 @@
                             {% endif %}
 
                             {% if hasPermission('feature_short_url') %}
-                                <div class="cf">
+                                <div class="clear-both">
                                     <label class="inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
                                         {{ "procedure.url.public"|trans }}
                                     </label>
@@ -784,12 +784,12 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="procedureInfo" class="o-wizard__content cf">
+                        <div data-toggle-id="procedureInfo" class="o-wizard__content clear-both">
                             <div class="o-wizard__main">
 
                                 {% if hasPermission('field_procedure_description') %}
                                     {% block oeb_desc %}
-                                        <div class="u-mb cf">
+                                        <div class="u-mb clear-both">
                                             <label class="inline-block u-mb-0" for="counter_oeb_desc_input">
                                                 {{ "procedure.description.public"|trans }}
                                             </label>
@@ -812,7 +812,7 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_contact_person') %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="r_publicParticipationContact">
                                             {{ 'public.participation.contact'|trans }}
                                         </label>
@@ -837,7 +837,7 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="r_pictogram">
                                             {{ 'procedure.pictogram'|trans }}
                                         </label>
@@ -905,7 +905,7 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_linkbox') %}
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <label class="inline-block u-mb-0" for="r_links">
                                             {{ "linkbox"|trans }}
                                         </label>
@@ -963,13 +963,13 @@
 
                             <div
                                 data-toggle-id="procedureLocation"
-                                class="o-wizard__content cf"
+                                class="o-wizard__content clear-both"
                             >
                                 <div class="o-wizard__main">
 
                                     {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
                                         {% block location %}
-                                            <div class="u-mb cf">
+                                            <div class="u-mb clear-both">
                                                 <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                                     {{ "public.participation.relation"|trans }}
                                                 </div>
@@ -1005,7 +1005,7 @@
                                         {% endblock location %}
                                     {% endif %}
 
-                                    <div class="u-mb cf">
+                                    <div class="u-mb clear-both">
                                         <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                             {{ "public.participation.relation.map"|trans }}*
                                         </div>
@@ -1076,9 +1076,9 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                    <div data-toggle-id="phasesParticipation" class="o-wizard__content clear-both">
                         <div class="o-wizard__main">
-                            <div class="cf">
+                            <div class="clear-both">
                                 <export-settings
                                     :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
                                     :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
@@ -1120,10 +1120,10 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="procedureAdditional" class="o-wizard__content cf">
+                        <div data-toggle-id="procedureAdditional" class="o-wizard__content clear-both">
                             <div class="o-wizard__main">
 
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry"|trans }}
                                     </div>
@@ -1140,11 +1140,11 @@
                                     </div>
                                 </div>
 
-                                <div class="u-mb cf">
+                                <div class="u-mb clear-both">
                                     <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry.setEmails"|trans }}
                                     </div>
-                                    <p class="flash flash-warning u-mt-0_5 cf">
+                                    <p class="flash flash-warning u-mt-0_5 clear-both">
                                         <i class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle" aria-hidden="true"></i>
                                         <span class="u-ml block">
                                         {{ 'text.procedure.edit.additional.notifyCounty.setEmails.hint'|trans }}
@@ -1195,7 +1195,7 @@
 
                 {# wizard item: Done #}
                 <fieldset data-wizard-topic="{{ 'wizard.topic.done'|trans }}" class="o-wizard">
-                    <div class="o-wizard__content cf">
+                    <div class="o-wizard__content clear-both">
                         <div class="o-wizard__main">
                             {# There is a bunch of Html in here. In a future iteration, "next step" content could be shown
                                based on features, whereas entity naming differences would be resolved using placeholders. #}

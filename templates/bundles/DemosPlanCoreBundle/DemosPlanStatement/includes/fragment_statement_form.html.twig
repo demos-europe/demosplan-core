@@ -26,7 +26,7 @@
     <div class="layout__item u-1-of-2 u-pl-0">
 
         {% if hasPermission('feature_statements_fragment_add') %}
-            <label class="u-mb-0_25 cf" for="r_tags[]">
+            <label class="u-mb-0_25 clear-both" for="r_tags[]">
                 {{ "tags.assigned"|trans }}
 
                 <button
@@ -96,7 +96,7 @@
 
         {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
             {% if hasPermission('field_statement_county') %}
-                <label class="u-mb-0_25 u-mt cf" for="r_counties[]">
+                <label class="u-mb-0_25 u-mt clear-both" for="r_counties[]">
                     {{ "counties"|trans }}
 
                     <button
@@ -137,7 +137,7 @@
             {% endif %}
 
             {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_municipalities[]">
+                <label class="u-mb-0_25 u-mt clear-both" for="r_municipalities[]">
                 {{ "municipalities"|trans }}
 
                 <button
@@ -180,7 +180,7 @@
             {% endif %}
 
             {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_priorityAreas[]">
+                <label class="u-mb-0_25 u-mt clear-both" for="r_priorityAreas[]">
                 {{ "priorityAreas.all"|trans }}
 
                 <button

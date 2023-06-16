@@ -17,7 +17,7 @@
 
 <template>
   <div class="c-edit-field">
-    <p class="relative cf">
+    <p class="relative clear-both">
       <span class="weight--bold">
         {{ Translator.trans(title) }}
       </span>

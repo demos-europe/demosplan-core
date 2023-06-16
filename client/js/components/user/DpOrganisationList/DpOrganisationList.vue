@@ -59,7 +59,7 @@
     </template>
 
     <!-- list header -->
-    <div class="cf">
+    <div class="clear-both">
       <dp-search-field
         class="inline-block u-pv-0_5"
         @search="searchVal => handleSearch(searchVal)"

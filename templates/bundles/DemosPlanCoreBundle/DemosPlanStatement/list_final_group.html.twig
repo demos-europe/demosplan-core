@@ -60,7 +60,7 @@
 
         <div id="myStatementsList" class="{{ 'c-tabs__panel u-mh-0_5 is-active-tab'|prefixClass }}">
 
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
+            <form class="{{ 'layout clear-both'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
                   method="post">
 
                 {# filter fieldsets  #}
@@ -74,7 +74,7 @@
                 {% if templateVars.list.statementlist|length > 0 %}
                     {# save / revert sorting of table entries #}
                     {% if hasPermission('feature_statements_manualsort') %}
-                        <fieldset class="{{ 'cf layout__item u-pb-0_5'|prefixClass }}">
+                        <fieldset class="{{ 'clear-both layout__item u-pb-0_5'|prefixClass }}">
 
                             <div
                                 class="layout--flush flash u-p-0_5-palm flash-{% if ( templateVars.list.manuallySorted == true ) %}warning{% else %}info{% endif %}"
@@ -116,7 +116,7 @@
                     {% endif %}
 
                     {# form controls above entry table (check all, print, email) #}
-                    <fieldset class="{{ 'layout__item u-pb-0 cf'|prefixClass }}">
+                    <fieldset class="{{ 'layout__item u-pb-0 clear-both'|prefixClass }}">
 
                         <input type="hidden" name="action" value="statementPublish">
 
@@ -144,10 +144,10 @@
 
         <div id="votedStatementsList" class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}">
 
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+            <form class="{{ 'layout clear-both'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
 
                 {# form controls above entry table (check all, print, email) #}
-                <fieldset class="{{ 'cf layout__item u-pb-0'|prefixClass }}">
+                <fieldset class="{{ 'clear-both layout__item u-pb-0'|prefixClass }}">
 
                     <input type="hidden" name="action" value="statementPublish">
 

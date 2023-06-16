@@ -37,7 +37,7 @@
         initCenter: center
       }">
       <template v-slot:controls>
-        <div class="border--bottom u-pv-0_5 cf">
+        <div class="border--bottom u-pv-0_5 clear-both">
           <i
             class="fa fa-map u-ml-0_25 color--grey-light"
             aria-hidden="true" />
@@ -56,7 +56,7 @@
         </div>
 
         <div
-          class="border--bottom u-pv-0_5 cf"
+          class="border--bottom u-pv-0_5 clear-both"
           v-if="hasPermission('feature_map_use_territory')">
           <i
             class="fa fa-pencil u-ml-0_25 color--grey-light"
@@ -94,7 +94,7 @@
         </div>
 
         <div
-          class="border--bottom u-pv-0_5 u-mb-0_5 cf"
+          class="border--bottom u-pv-0_5 u-mb-0_5 clear-both"
           v-if="hasPermission('area_procedure_adjustments_general_location')">
           <i
             class="fa fa-map-marker u-ml-0_25 color--grey-light"

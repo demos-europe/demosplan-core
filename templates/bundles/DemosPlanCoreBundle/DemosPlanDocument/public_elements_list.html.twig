@@ -20,7 +20,7 @@
         {% if displayCategory == true %}
             <article class="{{ 'elements' ~ (firstItem == false ? ' border--top')|prefixClass }}">
 
-                <h2 class="{{ 'elements__header elements__grid cf'|prefixClass }}">
+                <h2 class="{{ 'elements__header elements__grid clear-both'|prefixClass }}">
                     <span
                         class="{{ 'elements__grid-grow inline-block' ~ (element.iconTitle|default != '' ? ' cursor-help')|prefixClass }}"
                         {# In bobhh and bobsh, element.iconTitle contains a category-based help text. #}
@@ -73,7 +73,7 @@
                         {% if element.category == 'paragraph' %}
 
                             {% if element.file is defined and element.file != '' %}
-                                <li class="{{ 'elements__file elements__grid u-pv-0_25 cf'|prefixClass }}">
+                                <li class="{{ 'elements__file elements__grid u-pv-0_25 clear-both'|prefixClass }}">
                                     {% if element.file|getFile('mimeType') in videoFormats %}
                                         <dp-video-player
                                             class="{{ 'box-shadow-1'|prefixClass }}"
@@ -124,7 +124,7 @@
                                 {% set mimeType = document.document|getFile('mimeType') %}
                                 {% set isVideo = mimeType in videoFormats %}
 
-                                <li class="{{ 'elements__file cf'|prefixClass }}">
+                                <li class="{{ 'elements__file clear-both'|prefixClass }}">
                                     <div class="{{ (not isVideo ? 'elements__grid')|prefixClass }}">
                                         {% if isVideo %}
                                             <dp-video-player
