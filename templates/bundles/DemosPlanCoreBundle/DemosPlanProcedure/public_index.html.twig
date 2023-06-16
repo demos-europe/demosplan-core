@@ -74,7 +74,7 @@
                                 {% include '@DemosPlanCore/DemosPlanProcedure/public_index_list.html.twig' %}
                             {% endif %}
                         </ul>
-                        <div class="{{ 'display--none u-pl border--top u-pt'|prefixClass }}" aria-hidden="true" id="noProcedureNotification">
+                        <div class="{{ 'hidden u-pl border--top u-pt'|prefixClass }}" aria-hidden="true" id="noProcedureNotification">
                             {{ 'filter.procedures.map.noResults'|trans }}
                         </div>
                     {% endblock list %}

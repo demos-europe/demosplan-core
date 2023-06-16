@@ -84,7 +84,7 @@
 
               <template v-slot:popover>
                 <span
-                  class="display--none"
+                  class="hidden"
                   :class="{'display--inline-block': assessmentBaseLoaded}">
                   <!-- should work in Vue when -->
                   <template v-if="statement.authoredDate > 0">
@@ -165,7 +165,7 @@
                     v-if="hasOwnProp(statement, 'initialOrganisationName')"
                      v-slot:popover>
                     <div
-                      class="whitespace--normal display--none"
+                      class="whitespace--normal hidden"
                       :class="{'display--inline-block': assessmentBaseLoaded}">
                       <!--  see (#1)  -->
                       <template
@@ -694,7 +694,7 @@
 
               <template v-slot:popover>
                 <span
-                  class="display--none"
+                  class="hidden"
                   :class="{'display--inline-block': assessmentBaseLoaded}">
                   <template v-if="statement.authoredDate > 0">
                     <!-- remove comment when in vue to show the date -->

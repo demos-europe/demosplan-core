@@ -169,7 +169,7 @@
                                                         {{ 'show.more'|trans }}
                                                     </button>
                                                  </div>
-                                                 <div id="text--full__{{ statement.id }}" class="display--none">
+                                                 <div id="text--full__{{ statement.id }}" class="hidden">
                                                      {{ statement.text|wysiwyg }}
                                                     <button
                                                         class="btn--blank o-link--default float--right u-mv show-less"
@@ -204,8 +204,8 @@
             let shortText = document.getElementById(`text--short__${statementId}`)
             let fullText = document.getElementById(`text--full__${statementId}`)
 
-            shortText.classList.toggle('display--none')
-            fullText.classList.toggle('display--none')
+            shortText.classList.toggle('hidden')
+            fullText.classList.toggle('hidden')
         }
 
     </script>

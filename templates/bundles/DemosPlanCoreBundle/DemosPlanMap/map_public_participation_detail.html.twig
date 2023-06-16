@@ -171,7 +171,7 @@
 
                             <button
                                 type="button"
-                                class="{{ 'c-actionbox__title--button u-mt-0_5 display--none'|prefixClass }}"
+                                class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
                                 id="saveStatementButton"
                                 title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
                                 {{ "statement.map.draw_to_map"|trans }}
@@ -384,7 +384,7 @@
         {% endblock callToActionLayerSwitcherButtons %}
 
         {#  markup templates used in map popups #}
-        <div class="{{ 'display--none'|prefixClass }}">
+        <div class="{{ 'hidden'|prefixClass }}">
 
             <div id="popup" class="{{ 'c-map__popup'|prefixClass }}">
                 <a href="#" id="popupCloser" class="{{ 'c-map__popup__button-close'|prefixClass }}"></a>
@@ -501,11 +501,11 @@
             </a>
         {% else %}
             {# needed to have aria-describedby for map element even if map hint is not activated #}
-            <span id="mapHintContent" class="{{ 'display--none'|prefixClass }}">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault) }}</span>
+            <span id="mapHintContent" class="{{ 'hidden'|prefixClass }}">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault) }}</span>
         {% endif %}
 
         {#  these blocks are needed to make it possible to set colors in _map.scss which then are grabbed by map script #}
-        <div class="{{ 'display--none'|prefixClass }}">
+        <div class="{{ 'hidden'|prefixClass }}">
             <span class="{{ 'c-map__draw-fill'|prefixClass }}"></span>
             <span class="{{ 'c-map__draw-stroke'|prefixClass }}"></span>
             <span class="{{ 'c-map__draw-image'|prefixClass }}"></span>

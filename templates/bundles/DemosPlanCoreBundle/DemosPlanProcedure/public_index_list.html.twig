@@ -17,10 +17,10 @@
             data-phase-key="{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}">
             {% if hasPermission('field_procedure_phase_filter') %}
                 {# span added so items can be filtered by procedure phase, is not displayed #}
-                <span class="{{ 'phase display--none'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}</span>
+                <span class="{{ 'phase hidden'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}</span>
                 {# if fachplaner, also filter by public phases, but only if fachplaner owns the procedure #}
                 {% if templateVars.useInternalFields and ownsProcedure(publicProcedure) %}
-                    <span class="{{ 'phaseExt display--none'|prefixClass }}">{{ publicProcedure['publicParticipationPhase'] }}</span>
+                    <span class="{{ 'phaseExt hidden'|prefixClass }}">{{ publicProcedure['publicParticipationPhase'] }}</span>
                 {% endif %}
             {% endif %}
 

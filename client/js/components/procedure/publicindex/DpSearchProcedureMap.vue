@@ -80,7 +80,7 @@
     </div>
 
     <!-- Sorting -->
-    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'display--block' : 'display--none'))">
+    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'display--block' : 'hidden'))">
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"
@@ -430,8 +430,8 @@ export default {
       if (mapVars.length === 0) {
         // If there are no procedures found, don't show the info that there are no procedures in the shown bounding box - the hint, that there are no procedures for the filter/search is below the filters
         const noProcedureNotification = document.getElementById('noProcedureNotification')
-        if (noProcedureNotification.classList.contains(this.prefixClass('display--none')) === false) {
-          noProcedureNotification.classList.add(this.prefixClass('display--none'))
+        if (noProcedureNotification.classList.contains(this.prefixClass('hidden')) === false) {
+          noProcedureNotification.classList.add(this.prefixClass('hidden'))
         }
       }
 

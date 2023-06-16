@@ -6,7 +6,7 @@
                 {{ "statement.recheck"|trans }}
             </span>
         </p>
-        <p id="c-statement-hint-recheck" class="{{ 'flash-error c-statement__formhint display--none'|prefixClass }}">
+        <p id="c-statement-hint-recheck" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
             <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
                 {{ "error.mandatoryfields"|trans }}
@@ -129,7 +129,7 @@
             {% endif %}
 
             {#this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern'#}
-            <span class="{{ 'display--none'|prefixClass }}" aria-hidden="true" id="inputDataChange">{{ "statement.form.input.change"|trans }}</span>
+            <span class="{{ 'hidden'|prefixClass }}" aria-hidden="true" id="inputDataChange">{{ "statement.form.input.change"|trans }}</span>
         </div>
 
         <div class="{{ 'cf border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_text">

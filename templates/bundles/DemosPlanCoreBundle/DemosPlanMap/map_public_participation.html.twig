@@ -153,8 +153,8 @@
                         // show notification only if there are procedures visible in other parts of the map.
                         // If the filter/search did not find any procedures, there is a hint below filters, that nothing was found.
                         allProcedures.length > 0 && visibleMarkers.length === 0 ?
-                            noProcedureNotification.classList.remove(prefixClass('display--none')) :
-                            noProcedureNotification.classList.add(prefixClass('display--none'))
+                            noProcedureNotification.classList.remove(prefixClass('hidden')) :
+                            noProcedureNotification.classList.add(prefixClass('hidden'))
                     }
                 }
 

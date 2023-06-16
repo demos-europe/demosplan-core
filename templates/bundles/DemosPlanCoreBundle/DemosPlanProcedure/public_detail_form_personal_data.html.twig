@@ -8,7 +8,7 @@
         {% block extra_personal_hint %}{% endblock %}
     </div>
 
-    <p id="c-statement-hint-personal-data" class="{{ 'c-statement__formhint flash-error display--none'|prefixClass }}" tabindex="0">
+    <p id="c-statement-hint-personal-data" class="{{ 'c-statement__formhint flash-error hidden'|prefixClass }}" tabindex="0">
         <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
         <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
             {{ "error.mandatoryfields.no_asterisk"|trans }}

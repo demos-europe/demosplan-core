@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'display--none': isMobile }">
+  <div :class="{ 'hidden': isMobile }">
     <div :class="prefixClass('c-map__group')">
       <div :class="prefixClass('relative')">
         <button

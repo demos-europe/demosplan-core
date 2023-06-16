@@ -61,7 +61,7 @@
 
             {% endif %}
 
-            <p id="c-statement-hint-statement" class="{{ 'flash-error c-statement__formhint display--none'|prefixClass }}" role="alert" aria-live="assertive">
+            <p id="c-statement-hint-statement" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}" role="alert" aria-live="assertive">
                 <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
                 <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
                     {{ "error.mandatoryfields"|trans }}
@@ -163,7 +163,7 @@
                             {{ "attachments" |trans }}
                         </p>
 
-                        <div class="{{ 'display--none o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file', {'hash': '---hash---'}) }}">
+                        <div class="{{ 'hidden o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file', {'hash': '---hash---'}) }}">
                             <a href="#" target="_blank"></a>
                             <label class="{{ 'lbl--text display--inline-block u-mb-0_25 u-ml'|prefixClass }}">
                                 <input value="---hash---" name="delete_file[]" type="checkbox">

@@ -185,7 +185,7 @@
 
       <!-- this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern' -->
       <span
-        :class="prefixClass('display--none')"
+        :class="prefixClass('hidden')"
         aria-hidden="true"
         id="inputDataChange">
         {{ Translator.trans('statement.form.input.change') }}

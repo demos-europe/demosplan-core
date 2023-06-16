@@ -115,7 +115,7 @@
       <!-- These blocks make it possible to set colors in _map.scss which then are read by map script -->
       <div
         ref="mapDrawStyles"
-        :class="prefixClass('display--none')">
+        :class="prefixClass('hidden')">
         <span :class="prefixClass('c-map__draw-fill')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-stroke')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-image')">&nbsp;</span>
