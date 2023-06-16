@@ -48,7 +48,7 @@
           data-cy="originalStatementHeader">
           <tr>
             <td>
-              <label class="whitespace--nowrap u-m-0">
+              <label class="whitespace-nowrap u-m-0">
                 <input
                   type="checkbox"
                   name="item_check[]"

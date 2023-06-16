@@ -140,7 +140,7 @@
         <div
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
-          class="whitespace--nowrap u-pr-0_5 relative">
+          class="whitespace-nowrap u-pr-0_5 relative">
           <button
             class="btn--blank u-top-0 u-right-0 absolute"
             @click="setOrder(headerData.field)"

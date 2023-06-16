@@ -221,7 +221,7 @@
                   <dd>{{ formattedAuthoredDate }}</dd>
                   <dt>{{ Translator.trans('statement.date.submitted') }}:</dt>
                   <dd>{{ formattedSubmitDate }}</dd>
-                  <dt class="whitespace--nowrap">
+                  <dt class="whitespace-nowrap">
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>

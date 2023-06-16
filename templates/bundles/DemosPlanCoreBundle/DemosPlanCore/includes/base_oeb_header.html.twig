@@ -35,7 +35,7 @@
                             {% for project in projects %}
                                 {% if project.current == true %}
                                     <a
-                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        class="c-actionmenu__menuitem whitespace-normal"
                                         data-actionmenu-menuitem
                                         data-actionmenu-current
                                         aria-disabled="true"
@@ -46,7 +46,7 @@
                                     <a
                                         href="{{ project.url }}"
                                         data-actionmenu-menuitem
-                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        class="c-actionmenu__menuitem whitespace-normal"
                                         aria-label="{{ project.ariaName }}"
                                         role="menuitem">{{ project.name|wysiwyg }}</a>
                                 {% endif %}

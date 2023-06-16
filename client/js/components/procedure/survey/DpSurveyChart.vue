@@ -21,7 +21,7 @@
       :class="prefixClass('survey-chart__bar u-m-0 float-left relative')"
       :style="{ 'width': `calc(${votes.percentagePositive}% - 1px)` }">
       <span
-        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-left-0 whitespace--nowrap')">
+        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-left-0 whitespace-nowrap')">
         {{ Translator.trans('affirmative') }}: <strong>{{ votes.nPositive }}</strong> ({{ votes.percentagePositive }}%)
       </span>
     </dd>
@@ -30,7 +30,7 @@
       :class="prefixClass('survey-chart__bar u-m-0 float-right relative')"
       :style="{ 'width': `${votes.percentageNegative}%` }">
       <span
-        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-right-0 whitespace--nowrap')">
+        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-right-0 whitespace-nowrap')">
         {{ Translator.trans('negative') }}: <strong>{{ votes.nNegative }}</strong> ({{ votes.percentageNegative }}%)
       </span>
     </dd>

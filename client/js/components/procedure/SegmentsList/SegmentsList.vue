@@ -91,7 +91,7 @@
         :should-be-selected-items="currentlySelectedItems">
         <template v-slot:externId="rowData">
           <v-popover>
-            <div class="whitespace--nowrap">
+            <div class="whitespace-nowrap">
               {{ rowData.attributes.externId }}
             </div>
             <template v-slot:popover>

@@ -90,20 +90,6 @@ $text-directions: (
     }
 }
 
-.whitespace {
-    &--normal {
-        white-space: normal !important;
-    }
-
-    &--nowrap {
-        white-space: nowrap;
-    }
-
-    &--preline {
-        white-space: pre-line;
-    }
-}
-
 .line-clamp-3 {
     // Base line-height is derived from $inuit-base-spacing-unit,
     // so this sets max-height to 3 lines of text.

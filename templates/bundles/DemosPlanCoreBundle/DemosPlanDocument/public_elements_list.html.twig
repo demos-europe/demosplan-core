@@ -93,7 +93,7 @@
                                                 <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                 {{ element.title }}
                                                 {% if (element.file|getFile('size', 'MB')|length > 0) %}
-                                                    <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                    <span class="{{ 'whitespace-nowrap'|prefixClass }}">
                                                         ({{ element.file|getFile('mimeType') }} {{ element.file|getFile('size', 'MB') }})
                                                     </span>
                                                 {% endif %}
@@ -145,7 +145,7 @@
                                                     <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                     {{ document.title }}
                                                     {% if document.document|getFile('size')|length > 0 %}
-                                                        <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                        <span class="{{ 'whitespace-nowrap'|prefixClass }}">
                                                             ({{ document.document|getFile('mimeType') }} {{ document.document|getFile('size', 'MB') }})
                                                         </span>
                                                     {% endif %}

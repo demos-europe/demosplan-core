@@ -165,7 +165,7 @@
                     v-if="hasOwnProp(statement, 'initialOrganisationName')"
                      v-slot:popover>
                     <div
-                      class="whitespace--normal hidden"
+                      class="whitespace-normal hidden"
                       :class="{'inline-block': assessmentBaseLoaded}">
                       <!--  see (#1)  -->
                       <template
