@@ -47,7 +47,7 @@ class ModifyTestuserDefaultPasswordCommand extends CoreCommand
         $this->userService = $userService;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $defaultPassword = $this->askDefaultPassword($input, $output);
         $passwordToSet = $this->askNewDefaultPassword($input, $output);

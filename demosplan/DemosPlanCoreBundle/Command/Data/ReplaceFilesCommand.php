@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -104,7 +105,7 @@ class ReplaceFilesCommand extends CoreCommand
             $this->generateDummyForFile($file, $slot, $output, $dryRun, $directory);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

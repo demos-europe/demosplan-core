@@ -43,45 +43,40 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
      * @var string|null
      *
      * @ORM\Column(name="_a_code", type="string", length=10, nullable=true)
-     *
-     * @Assert\Length(min=0, max=10)
      */
+    #[Assert\Length(min: 0, max: 10)]
     protected $code;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_street", type="string", length=100, nullable=true)
-     *
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $street;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_street_1", type="string", length=100, nullable=true)
-     *
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $street1;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_postalcode", type="string", length=10, nullable=true)
-     *
-     * @Assert\Length(min=5, max=5)
      */
+    #[Assert\Length(min: 5, max: 5)]
     protected $postalcode;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_city", type="string", length=100, nullable=true)
-     *
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $city = '';
 
     /**
@@ -123,18 +118,16 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
      * @var string|null
      *
      * @ORM\Column(name="_a_email", type="string", length=364, nullable=true)
-     *
-     * @Assert\Email(message="email.address.invalid")
      */
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $email;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_url", type="string", length=364, nullable=true)
-     *
-     * @Assert\Url
      */
+    #[Assert\Url]
     protected $url;
 
     /**

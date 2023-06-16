@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use Doctrine\ORM\EntityNotFoundException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -148,7 +149,7 @@ class ExceptionService
 
         if ($setRedirectLoggedInRouteCookie) {
             // save current route in cookie for later redirecting
-            $redirect->headers->setCookie(new PreviousRouteCookie($request));
+            $redirect->headers->setCookie(PreviousRouteCookie::create($request));
         }
 
         return $redirect;

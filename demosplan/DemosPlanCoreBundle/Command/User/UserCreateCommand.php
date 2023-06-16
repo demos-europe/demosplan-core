@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -63,7 +64,7 @@ class UserCreateCommand extends CoreCommand
         $this->helpers = $helpers;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $firstName = $this->askFirstname($input, $output);
         $lastName = $this->askLastname($input, $output);
@@ -94,7 +95,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 0;
+            return Command::SUCCESS;
         } catch (Exception $e) {
             // Print Exception
             $output->writeln(
@@ -102,7 +103,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 1;
+            return Command::FAILURE;
         }
     }
 

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use GuzzleHttp\Client;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -61,7 +62,7 @@ class VendorlistUpdateCommand extends CoreCommand
         $this->fetchPHPDependencyLicenses();
         $this->fetchNodeDependencyLicenses();
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function fetchPHPDependencyLicenses(): void

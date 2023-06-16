@@ -71,9 +71,8 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
      * @var string
      *
      * @ORM\Column(type="string", length=255, options={"fixed":true}, nullable=false, unique=true)
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     private $name;
 
     /**

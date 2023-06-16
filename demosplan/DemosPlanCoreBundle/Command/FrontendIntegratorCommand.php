@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
@@ -95,7 +96,7 @@ class FrontendIntegratorCommand extends CoreCommand
             $output->writeln('Error: Additional data load failed');
             $output->writeln($e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         try {
@@ -103,10 +104,10 @@ class FrontendIntegratorCommand extends CoreCommand
         } catch (JsonException $e) {
             $output->writeln('Error: Parameter dump failed');
 
-            return 1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getParameters(): array

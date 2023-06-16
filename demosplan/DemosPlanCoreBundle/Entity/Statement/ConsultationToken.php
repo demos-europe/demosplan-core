@@ -39,7 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * created.
  *
  * @ORM\Entity(repositoryClass=ConsultationTokenRepository::class)
+ *
  * @ORM\Table(uniqueConstraints={
+ *
  *        @ORM\UniqueConstraint(name="unique_consultation_token", columns={"token"})
  * })
  *
@@ -53,8 +55,11 @@ class ConsultationToken
      * @var string|null `null` if this instance was not persisted yet
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     private $id;
@@ -81,9 +86,9 @@ class ConsultationToken
      *
      * @var string
      *
-     * @Assert\NotNull
      * @ORM\Column(type="string", length=1024, nullable=false)
      */
+    #[Assert\NotNull]
     private $note = '';
 
     /**
@@ -94,10 +99,10 @@ class ConsultationToken
      *
      * @var string
      *
-     * @Assert\NotBlank()
-     * @Assert\Regex("/^\w{8}$/")
      * @ORM\Column(type="string", length=8, nullable=false)
      */
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^\w{8}$/')]
     private $token = '';
 
     /**
@@ -113,6 +118,7 @@ class ConsultationToken
      * @IsNotOriginalStatementConstraint
      *
      * @ORM\OneToOne(targetEntity=Statement::class)
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
      */
     private $statement;
@@ -130,13 +136,13 @@ class ConsultationToken
      * @var Statement the original statement of the {@link ConsultationToken::$statement}, as
      *                original statements can not be deleted this property will never become `null`
      *
-     * @Assert\NotBlank
-     *
      * @IsOriginalStatementConstraint
      *
      * @ORM\OneToOne(targetEntity=Statement::class)
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      */
+    #[Assert\NotBlank]
     private $originalStatement;
 
     /**
@@ -146,6 +152,7 @@ class ConsultationToken
      * @var MailSend|null
      *
      * @ORM\OneToOne(targetEntity=MailSend::class)
+     *
      * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true)
      */
     private $sentEmail = null;
@@ -154,6 +161,7 @@ class ConsultationToken
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -162,6 +170,7 @@ class ConsultationToken
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;

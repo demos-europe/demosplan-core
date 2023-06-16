@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Contracts\Service\Attribute\Required;
 use Throwable;
 
 use function is_array;
@@ -91,9 +92,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
     {
         $this->globalConfig = $globalConfig;
@@ -101,9 +101,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
@@ -111,9 +110,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setMessageBag(MessageBagInterface $messageBag): void
     {
         $this->messageBag = $messageBag;
@@ -121,9 +119,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setViewRenderer(ViewRenderer $viewRenderer): void
     {
         $this->viewRenderer = $viewRenderer;
@@ -131,9 +128,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setInitializeService(InitializeService $initializeService): void
     {
         $this->initializeService = $initializeService;

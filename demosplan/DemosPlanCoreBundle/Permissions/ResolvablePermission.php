@@ -51,25 +51,21 @@ class ResolvablePermission
 
     /**
      * @var non-empty-string
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false)
-     * @Assert\Type(type="string")
-     * @Assert\Regex(pattern="/^[a-z]+(_[a-z]+)*$/")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    #[Assert\Type(type: 'string')]
+    #[Assert\Regex(pattern: '/^[a-z]+(_[a-z]+)*$/')]
     private string $name;
 
     /**
      * @var non-empty-string
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false)
-     * @Assert\Type(type="string")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    #[Assert\Type(type: 'string')]
     private string $label;
 
-    /**
-     * @Assert\NotNull()
-     * @Assert\Type(type="string")
-     */
+    #[Assert\NotNull]
+    #[Assert\Type(type: 'string')]
     private string $description;
 
     private bool $exposed;

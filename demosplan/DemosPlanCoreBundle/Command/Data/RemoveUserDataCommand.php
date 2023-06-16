@@ -41,6 +41,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -158,7 +159,7 @@ class RemoveUserDataCommand extends CoreCommand
             // in case of this command should be workable for HH too.
             // _master_toeb
             // _master_toeb_versions
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         // #1: independent::
@@ -196,7 +197,7 @@ class RemoveUserDataCommand extends CoreCommand
         // depended on draftstatements:
         $this->removeUserDataFromDraftStatementVersions();
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function removeUserDataFromUsers(): void

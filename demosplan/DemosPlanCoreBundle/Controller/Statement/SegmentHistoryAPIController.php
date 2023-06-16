@@ -25,14 +25,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class SegmentHistoryAPIController extends APIController
 {
     /**
-     * @Route("/api/1.0/SegmentHistory/{segmentId}",
-     *     methods={"GET"},
-     *     name="dplan_api_segment_history_get",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
+    #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', methods: ['GET'], name: 'dplan_api_segment_history_get', options: ['expose' => true])]
     public function getAction(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,

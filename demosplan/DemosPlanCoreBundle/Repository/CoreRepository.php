@@ -27,6 +27,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -51,10 +52,9 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
-     *
      * @return $this
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -65,10 +65,9 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
-     *
      * @return $this
      */
+    #[Required]
     public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
