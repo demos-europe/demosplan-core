@@ -106,7 +106,7 @@ class DemosPlanAdminController extends BaseController
         }
 
         // set csv Escaper
-        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', $string));
+        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,

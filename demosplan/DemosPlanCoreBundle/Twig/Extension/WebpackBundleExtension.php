@@ -212,7 +212,7 @@ ERR);
         return collect($this->$manifest)
             ->keys()
             ->filter(
-                static fn($possibleBundleName) => str_contains($possibleBundleName, $bundleName)
+                static fn($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
             )
             ->map(
                 fn($relatedBundleName) => $this->{$manifest}[$relatedBundleName]

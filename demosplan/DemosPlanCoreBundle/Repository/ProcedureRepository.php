@@ -490,7 +490,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // return unique and not empty values
         return collect($filesToDelete)
             ->unique()
-            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen($value))
+            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen((string) $value))
             ->toArray();
     }
 

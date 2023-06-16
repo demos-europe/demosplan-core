@@ -491,7 +491,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                     $item['consideration'])
                 ->filter(fn ($item) =>
                     // values should not be empty
-                    0 < strlen($item))
+                    0 < strlen((string) $item))
                 ->values()
                 ->toArray();
 

@@ -18,7 +18,7 @@ class JsonDecodeExtension extends ExtensionBase
     {
         return [
             new TwigFilter(
-                'json_decode', fn($json, $assoc = false, $depth = 512, $options = 0) => json_decode($json, $assoc, $depth, $options)
+                'json_decode', fn($json, $assoc = false, $depth = 512, $options = 0) => json_decode((string) $json, $assoc, $depth, $options)
             ),
         ];
     }

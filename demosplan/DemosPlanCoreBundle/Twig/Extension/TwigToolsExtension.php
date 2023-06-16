@@ -76,7 +76,7 @@ class TwigToolsExtension extends ExtensionBase
 
         if ('asc' === strtolower($sortDirection)) {
             $options = $options->sort(
-                fn($val1, $val2) => strcasecmp($val1, $val2)
+                fn($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
             );
         }
 
