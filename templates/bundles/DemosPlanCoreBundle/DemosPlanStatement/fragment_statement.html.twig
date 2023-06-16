@@ -61,7 +61,7 @@
                     <p class="weight--bold">
                         {{ "statement"|trans }}
                         <dp-button
-                            class="float--right font-size-medium"
+                            class="float-right font-size-medium"
                             icon="copy"
                             :text="Translator.trans('statement.copy')"
                             title="{{ 'statement.copy.to.fragment'|trans }}"
@@ -98,7 +98,7 @@
 
                                             <button
                                                 type="button"
-                                                class="btn--blank o-link--default u-mt-0_25 float--right fa fa-trash"
+                                                class="btn--blank o-link--default u-mt-0_25 float-right fa fa-trash"
                                                 {% if currentUser.ident == fragment.assignee.id|default('') or (fragment.assignee.id|default('') == '' and fragment.departmentId is null) %}
                                                     data-target-id="{{ fragment.id }}"
                                                     data-post-delete="{{ path('DemosPlan_statement_fragment_delete_ajax', {'procedureId': fragment.procedureId|default, 'statementId': fragment.statementId|default, 'fragmentId': fragment.id|default}) }}"
@@ -126,7 +126,7 @@
                                                 {% block tooltip %}
                                                     {% for tag in fragment.tags|default([]) %}
                                                         <li class="o-list__item">
-                                                            <strong class="display--block">{{ tag.topicTitle }}</strong>
+                                                            <strong class="block">{{ tag.topicTitle }}</strong>
                                                             {{- tag.title -}}
                                                         </li>
                                                     {% endfor %}

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'display--none': isMobile }">
+  <div :class="{ 'hidden': isMobile }">
     <div :class="prefixClass('c-map__group')">
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"

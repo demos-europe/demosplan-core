@@ -81,7 +81,7 @@ uiComponent('layout.table', {
     <thead>
         <tr>
             {% for col in cols %}
-                <th class="text--{{ col.direction|default('left') }}">{{ col.title|trans }}</th>
+                <th class="text-{{ col.direction|default('left') }}">{{ col.title|trans }}</th>
             {% endfor %}
             {% if actions is defined %}
                 <th class="width-40">{{ 'actions'|trans }}</th>
@@ -104,7 +104,7 @@ uiComponent('layout.table', {
                     } %}
                     {% set omitPrefix  = omitCssPrefix ?? true %}
                     {% set elementWidth = widthVars[col.size|default('none')] %}
-                    {% set textDirection = ' text--' ~ col.direction|default('left') %}
+                    {% set textDirection = ' text-' ~ col.direction|default('left') %}
                     {% set textWeight = '' %}
                     {% if col.primary is defined and col.primary == true %}
                         {% set textWeight = ' weight--bold' %}
@@ -130,7 +130,7 @@ uiComponent('layout.table', {
                 {% endfor %}
                 {% if actions is defined %}
                     {# show linked icons #}
-                    <td class="{{ 'width-40 text--center'|prefixClass(omitPrefix) }}">
+                    <td class="{{ 'width-40 text-center'|prefixClass(omitPrefix) }}">
                         {% for action in actions %}
                             {{ uiComponent('link', {
                                 text: "<i class=\"fa " ~ action.icon ~ "\" title=\"" ~ action.title|trans ~ "\"></i>",

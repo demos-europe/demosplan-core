@@ -16,14 +16,14 @@
       type="info" />
     <div
       v-if="!addNewPlace"
-      class="text--right">
+      class="text-right">
       <dp-button
         @click="addNewPlace = true"
         :text="Translator.trans('places.addPlace')" />
     </div>
     <div
       v-if="addNewPlace"
-      class="position--relative"
+      class="relative"
       data-dp-validate="addNewPlaceForm">
       <dp-loading
         v-if="isLoading"
@@ -83,7 +83,7 @@
           v-model="rowData.description" />
       </template>
       <template v-slot:flyout="rowData">
-        <div class="float--right">
+        <div class="float-right">
           <template v-if="!rowData.edit">
             <button
               :aria-label="Translator.trans('item.edit')"

@@ -8,7 +8,7 @@
     </h1>
 
     <form method="post" action="{{ path('dplan_contextual_help_list') }}" name="contextualHelpForm">
-        <div class="cf">
+        <div class="flow-root">
             <button
                 class="btn-icns"
                 name="delete"
@@ -22,7 +22,7 @@
                 href: path('dplan_contextual_help_new'),
                 attributes: ['data-cy=contextualHelpNew'],
                 text: 'contextual.help.new'|trans,
-                classes: ['float--right']
+                classes: ['float-right']
             }) }}
         </div>
 
@@ -36,7 +36,7 @@
             <thead>
                 <tr>
                     <th class="width-20">
-                        <label class="display--inline-block u-mb-0 u-mr-0_5">
+                        <label class="inline-block u-mb-0 u-mr-0_5">
                             <input
                                 id="select_all"
                                 type="checkbox"

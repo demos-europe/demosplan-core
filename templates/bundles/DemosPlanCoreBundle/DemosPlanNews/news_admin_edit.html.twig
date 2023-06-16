@@ -47,7 +47,7 @@
     <h1>{{ "news.edit"|trans }}</h1>
 
     <form
-        class="cf"
+        class="flow-root"
         action="{{ actionPath }}"
         method="post"
         enctype="multipart/form-data"
@@ -339,7 +339,7 @@
 
                 <a
                     id="news_pdf"
-                    class="o-hellip overflow-word-break u-mb-0_25"
+                    class="o-hellip break-words u-mb-0_25"
                     target="_blank"
                     rel="noopener"
                     href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">

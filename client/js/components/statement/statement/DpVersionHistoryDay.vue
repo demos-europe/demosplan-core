@@ -13,7 +13,7 @@
 </documentation>
 
 <template>
-  <tbody class="o-accordion u-valign--top">
+  <tbody class="o-accordion align-top">
     <tr>
       <td colspan="4">
         <h3 class="border--bottom u-pb-0_5 u-mb-0_5 u-mt">

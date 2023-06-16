@@ -14,7 +14,7 @@
     <dp-map-admin
         inline-template
         :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
-        <form class="layout u-pt cf" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
+        <form class="layout u-pt flow-root" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
 
             {# Select available scales for procedure #}
@@ -49,7 +49,7 @@
                 {{ "boundingbox"|trans }}
             </label><!--
          --><p
-                class="display--inline-block u-3-of-4"
+                class="inline-block u-3-of-4"
                 data-cy="boundingBox"
                 data-coordinates="bbox_of_project_epsg25832">
                 {% if mapOptions.procedureMaxExtent == mapOptions.procedureDefaultMaxExtent %}
@@ -71,7 +71,7 @@
                 {{ 'clipping'|trans }}
             </label><!--
          --><p
-                class="display--inline-block u-3-of-4"
+                class="inline-block u-3-of-4"
                 data-cy="mapExtend"
                 data-coordinates="mapExtend_of_project_epsg25832">
                 {% if mapOptions.procedureInitialExtent == mapOptions.procedureDefaultInitialExtent %}
@@ -126,8 +126,8 @@
 
             {% if hasPermission('feature_layer_groups_alternate_visibility') %}
                 {# Activate feature to show only layers from one category simultaneously #}
-                <div class="u-1-of-4 display--inline-block"></div>
-                <label for="r_enable_layer_groups_alternate_visibility" class="display--inline-block">
+                <div class="u-1-of-4 inline-block"></div>
+                <label for="r_enable_layer_groups_alternate_visibility" class="inline-block">
                     <input
                         id="r_enable_layer_groups_alternate_visibility"
                         type="checkbox"
@@ -137,7 +137,7 @@
                     >
                     {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility'|trans }}
                 </label>
-                <div class="o-tooltip o-tooltip--question-circle display--inline-block">
+                <div class="o-tooltip o-tooltip--question-circle inline-block">
                     <div class="o-tooltip__content" aria-hidden="true">
                         {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}
                     </div>
@@ -163,7 +163,7 @@
                     </dp-map-view>
                 </div>
 
-                <div class="text--right u-mt-0_5 space-inline-s">
+                <div class="text-right u-mt-0_5 space-inline-s">
                     <input class="btn btn--primary" type="submit" name="saveConfig" value="{{ "save"|trans }}">
                     <input class="btn btn--primary" type="submit" name="submit_item_return_button" value="{{ "save.and.return.to.list"|trans }}">
                     <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">

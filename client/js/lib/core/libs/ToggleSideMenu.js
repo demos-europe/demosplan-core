@@ -25,7 +25,7 @@ class ToggleSideMenu {
     this.css = {
       iconMenuOpen: 'fa-chevron-right',
       iconMenuClosed: 'fa-chevron-left',
-      hide: 'display--none',
+      hide: 'hidden',
       isExpanded: 'is-expanded'
     }
 

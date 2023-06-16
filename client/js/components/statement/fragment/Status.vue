@@ -11,7 +11,7 @@
   <div>
     <!-- If component is used with :tooltip="false" -->
     <div
-      class="cursor--help"
+      class="cursor-help"
       :class="{'c-at-item__badge': badge}"
       :title="voteString"
       v-if="!tooltip">

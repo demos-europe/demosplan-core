@@ -1,6 +1,6 @@
-<footer class="c-footer o-page__padded {{ cssClassesFooter|default }} cf" role="contentinfo">
+<footer class="c-footer o-page__padded {{ cssClassesFooter|default }} flow-root" role="contentinfo">
 
-    <nav class="display--inline-block"
+    <nav class="inline-block"
          aria-label="{{ 'menu.footer'|trans }}"
          role="navigation">
         {% apply spaceless %}
@@ -66,7 +66,7 @@
         {% endapply %}
     </nav>
 
-    <div class=" version-number c-footer__version u-pt-0_25-palm u-pr-0_5 float--right"
+    <div class=" version-number c-footer__version u-pt-0_25-palm u-pr-0_5 float-right"
          aria-label="{{ 'system.version_info'|trans }}">
           v{{ projectVersion }}
     </div>
