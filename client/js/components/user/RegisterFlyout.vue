@@ -23,11 +23,11 @@ All rights reserved
 
     <div class="space-stack-s">
       <a
-        class="display--block"
+        class="block"
         :href="Routing.generate('DemosPlan_citizen_registration_form')"
         v-text="Translator.trans('register')" />
       <a
-        class="display--block"
+        class="block"
         :href="Routing.generate('DemosPlan_orga_register_form')"
         v-text="Translator.trans('register.orga')" />
     </div>

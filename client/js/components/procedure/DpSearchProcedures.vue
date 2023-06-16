@@ -34,7 +34,7 @@
             v-model="searchIn">
           <label
             for="searchall"
-            class="display--inline">
+            class="inline">
             {{ Translator.trans('search.all.procedures') }}
           </label>
         </div>
@@ -47,7 +47,7 @@
           v-model="searchIn">
         <label
           for="searchselected"
-          class="display--inline align-text-bottom">
+          class="inline align-text-bottom">
           {{ Translator.trans('select.procedures.search') }}
         </label>
       </fieldset><!--
@@ -56,11 +56,11 @@
         v-if="searchIn === 'selected'">
         <label
           for="procedureselect"
-          class="display--inline u-mr">
+          class="inline u-mr">
           {{ Translator.trans('select.procedures.search.chose') }}
         </label><!--
      --><dp-multiselect
-          class="display--inline-block u-2-of-3 align-text-top"
+          class="inline-block u-2-of-3 align-text-top"
           id="procedureselect"
           :options="searchableProcedures"
           track-by="id"

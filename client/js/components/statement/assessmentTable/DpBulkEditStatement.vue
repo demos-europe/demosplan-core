@@ -44,7 +44,7 @@
           v-model="options.newAssignee.checked">
         <label
           for="r_new_assignee"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('statements.assign.other') }}
         </label>
 
@@ -82,7 +82,7 @@
           v-model="options.recommendation.checked">
         <label
           for="r_recommendation"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div

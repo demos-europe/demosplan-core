@@ -51,7 +51,7 @@
           <br>
           <!-- Claim -->
           <dp-claim
-            class="c-at-item__row-icon display--inline-block"
+            class="c-at-item__row-icon inline-block"
             entity-type="statement"
             :assigned-id="(statement.assignee.id || '')"
             :assigned-name="(statement.assignee.name || '')"
@@ -78,14 +78,14 @@
                 class="fa fa-exchange"
                 aria-hidden="true" />
 
-              <span class="weight--normal display--block">
+              <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
 
               <template v-slot:popover>
                 <span
                   class="hidden"
-                  :class="{'display--inline-block': assessmentBaseLoaded}">
+                  :class="{'inline-block': assessmentBaseLoaded}">
                   <!-- should work in Vue when -->
                   <template v-if="statement.authoredDate > 0">
                       <!-- remove comment when in vue to sow the date -->
@@ -166,7 +166,7 @@
                      v-slot:popover>
                     <div
                       class="whitespace--normal hidden"
-                      :class="{'display--inline-block': assessmentBaseLoaded}">
+                      :class="{'inline-block': assessmentBaseLoaded}">
                       <!--  see (#1)  -->
                       <template
                         v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
@@ -231,7 +231,7 @@
           </div><!--
 
        --><div
-            class="display--inline-block u-pt-0_25 text--right float--right">
+            class="inline-block u-pt-0_25 text--right float--right">
             <!-- Votes -->
             <span
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"
@@ -681,21 +681,21 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover class="display--inline-block">
+            <v-popover class="inline-block">
               {{ extid }}
 
               <i
                 class="fa fa-exchange"
                 aria-hidden="true" />
 
-              <span class="weight--normal display--block">
+              <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
 
               <template v-slot:popover>
                 <span
                   class="hidden"
-                  :class="{'display--inline-block': assessmentBaseLoaded}">
+                  :class="{'inline-block': assessmentBaseLoaded}">
                   <template v-if="statement.authoredDate > 0">
                     <!-- remove comment when in vue to show the date -->
                     {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }} <br>

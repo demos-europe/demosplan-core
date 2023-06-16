@@ -22,14 +22,14 @@
 } %}
 
 {% if tooltip|default %}
-    {% set class = class|default ~ ' u-pr display--inline-block' %}
+    {% set class = class|default ~ ' u-pr inline-block' %}
 {% endif %}
 
 {% set width = widthVars[size|default('full')] %}
 {% set class = class|default ~ ' o-form__label ' ~ width|default %}
 
 {% if style|default == 'inline' %}
-    {% set class = class ~ ' display--inline' %}
+    {% set class = class ~ ' inline' %}
 {% endif %}
 
 <label
@@ -40,7 +40,7 @@
         <p class="{{ 'lbl__hint'|prefixClass(omitPrefix)}} {% if dataCounterHint|default %}{{ 'u-mb-0'|prefixClass(omitPrefix) }}{% endif %}">
             {{ hint|trans|wysiwyg }}
             {% if hintVar|default %}
-                <span class="{{ 'display--inline-block'|prefixClass(omitPrefix) }}">
+                <span class="{{ 'inline-block'|prefixClass(omitPrefix) }}">
                     {{ hintVar }}
                 </span>
             {% endif %}

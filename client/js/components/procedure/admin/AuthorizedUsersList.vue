@@ -103,7 +103,7 @@
         {{ Translator.trans('export') }}
       </a>
       <i
-        class="fa fa-question-circle display--inline-block align-top u-ml-0_25 u-mt-0_125"
+        class="fa fa-question-circle inline-block align-top u-ml-0_25 u-mt-0_125"
         :aria-label="Translator.trans('contextual.help')"
         v-tooltip="Translator.trans('consultation.export.bulk.letter.explanation')" />
     </div>
@@ -148,7 +148,7 @@
         <div
           v-tooltip="user(rowData.tokenId).note"
           class="o-hellip__wrapper max-width-90p">
-          <span class="o-hellip--nowrap display--block">
+          <span class="o-hellip--nowrap block">
             {{ user(rowData.tokenId).note }}
           </span>
         </div>

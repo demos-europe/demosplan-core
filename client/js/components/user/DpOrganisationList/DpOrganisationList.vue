@@ -61,18 +61,18 @@
     <!-- list header -->
     <div class="cf">
       <dp-search-field
-        class="display--inline-block u-pv-0_5"
+        class="inline-block u-pv-0_5"
         @search="searchVal => handleSearch(searchVal)"
         @reset="resetSearch" />
       <dp-checkbox-group
-        class="display--inline-block u-pv-0_5 float--right"
+        class="inline-block u-pv-0_5 float--right"
         :label="filterLabel"
         :options="filterItems"
         inline
         @update="selected => handleFilter(selected)" />
 
       <div
-        class="display--block u-mb"
+        class="block u-mb"
         v-if="hasPermission('feature_orga_delete')">
         <div
           class="layout__item u-3-of-7 u-mt u-pl-0_5">

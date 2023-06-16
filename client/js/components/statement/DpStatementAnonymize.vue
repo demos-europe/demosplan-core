@@ -158,7 +158,7 @@
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.meta.success') }}
           </span>
         </p>
@@ -169,7 +169,7 @@
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.history.success') }}
           </span>
         </p>
@@ -179,7 +179,7 @@
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.attachments.success') }}
           </span>
         </p>
@@ -189,7 +189,7 @@
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.success') }}
           </span>
         </p>
@@ -201,7 +201,7 @@
           <i
             class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.children.not.affected') }}
           </span>
         </p>

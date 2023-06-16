@@ -70,7 +70,7 @@
 
             {% if hasProcedureUserRestrictedAccess %}
                 <div class="u-mb cf">
-                    <label class="display--inline-block u-mb-0" for="r_dataInputOrga">
+                    <label class="inline-block u-mb-0" for="r_dataInputOrga">
                         {{ "authorized.users"|trans }}
                     </label>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -109,7 +109,7 @@
             </label>
 
             <div class="u-mb cf">
-                <label class="display--inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
+                <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
                     {{ "email.procedure.agency"|trans }}
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'email.procedure.agency.help'|trans,
@@ -129,7 +129,7 @@
             </div>
 
             <div class="u-mb cf">
-                <label class="display--inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
+                <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                     {{ "email.address.more"|trans }}
                     <p class="lbl__hint weight--normal">
                         {{ "email.address.more.explanation"|trans|wysiwyg }}
@@ -154,7 +154,7 @@
 
             {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
                 <div class="u-mb cf">
-                    <label class="display--inline-block u-mb-0" for="r_pictogram">
+                    <label class="inline-block u-mb-0" for="r_pictogram">
                         {{ 'procedure.pictogram'|trans }}
                     </label>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -218,7 +218,7 @@
             {% endif %}
 
             {% if hasPermission('feature_statement_notify_counties') %}
-                <div class="display--inline-block weight--bold u-mb-0">
+                <div class="inline-block weight--bold u-mb-0">
                     {{ "procedure.notifyCountry"|trans }}
                 </div>
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -227,13 +227,13 @@
                 } %}
                 <div class="layout__item u-pl-0">
                     <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
-                    <label for="sendMailsToCounties" class="u-mb-0 display--inline-block weight--normal">
+                    <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                         {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                     </label>
                 </div>
 
                 <div class="u-mv cf">
-                    <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                    <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                         {{ "procedure.notifyCountry.setEmails"|trans }}
                     </div>
                     <p class="flash flash-warning u-mt-0_5">

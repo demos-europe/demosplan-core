@@ -22,7 +22,7 @@
         ref="listComponent">
         <!-- List of voters -->
         <template v-slot:list="{entry, index}">
-          <ul class="o-list o-list--csv display--inline">
+          <ul class="o-list o-list--csv inline">
             <input
               type="hidden"
               :name="preFix(index) + '[id]'"
@@ -201,10 +201,10 @@
 
       <!-- Anonymous voters -->
       <div v-if="editable">
-        <p class="lbl display--inline-block">
+        <p class="lbl inline-block">
           {{ Translator.trans('more') }}
         </p>
-        <label class="lbl--text display--inline-block">
+        <label class="lbl--text inline-block">
           <input
             id="r_voters_anonym"
             name="r_voters_anonym"

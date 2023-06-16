@@ -9,7 +9,7 @@
 
 <template>
   <a
-    class="c-at-item__tab-trigger o-link--icon display--inline-block u-ph"
+    class="c-at-item__tab-trigger o-link--icon inline-block u-ph"
     :class="{
       'u-pv-0_5': !showFragmentsCount,
       'c-at-item__fragment-hits': showFragmentsCount,
@@ -24,7 +24,7 @@
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
-      class="font-size-smaller text--center display--block"
+      class="font-size-smaller text--center block"
       style="margin-top: -4px;">
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>

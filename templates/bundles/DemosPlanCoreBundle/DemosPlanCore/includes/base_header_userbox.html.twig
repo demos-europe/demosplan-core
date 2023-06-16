@@ -45,7 +45,7 @@
                 {# display roles of current user #}
                 <div class="c-flyout__item u-mt-0_5">
                     <i class="fa fa-shield float--left u-mt-0_125" aria-hidden="true"></i>
-                    <span class="display--block u-ml">
+                    <span class="block u-ml">
                         {{- "roles"|trans -}}
                     </span>
                     <ul class="u-m-0 u-ml" data-cy="userRoles" data-extern-dataport="userRoles">
@@ -121,20 +121,20 @@
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
                             data-actionmenu-menuitem>
                             <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
-                            <span class="display--block u-ml" data-extern-dataport="orgaName">
+                            <span class="block u-ml" data-extern-dataport="orgaName">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
-                            <span class="display--block font-size-smaller u-ml">
+                            <span class="block font-size-smaller u-ml">
                                 {{ currentUser.departmentNameLegal }}
                             </span>
                         </a>
                     {% else %}
                         <span class="c-flyout__item cf">
                             <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
-                            <span class="display--block u-ml">
+                            <span class="block u-ml">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
-                            <span class="display--block font-size-smaller u-ml">
+                            <span class="block font-size-smaller u-ml">
                                 {{ currentUser.departmentNameLegal }}
                             </span>
                         </span>
@@ -148,7 +148,7 @@
                         href="{{ path("DemosPlan_procedure_list_subscriptions") }}"
                         data-actionmenu-menuitem>
                         <i class="fa fa-bell float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml">
+                        <span class="block u-ml">
                              {{ "notifications"|trans }}
                         </span>
                     </a>
@@ -160,7 +160,7 @@
                     href="{{ path("DemosPlan_user_portal") }}"
                     data-actionmenu-menuitem>
                     <i class="fa fa-cog float--left u-mt-0_125" aria-hidden="true"></i>
-                    <span class="display--block u-ml" data-extern-dataport="userProfile">
+                    <span class="block u-ml" data-extern-dataport="userProfile">
                         {{ "profile"|trans }}
                     </span>
                 </a>
@@ -188,7 +188,7 @@
                         href="{{ path('core_home_loggedin') }}"
                         data-actionmenu-menuitem>
                         <i class="fa fa-wrench float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml" data-extern-dataport="administer">
+                        <span class="block u-ml" data-extern-dataport="administer">
                             {{ "administer"|trans }}
                         </span>
                     </a>
@@ -201,7 +201,7 @@
                         href="{{ path('DemosPlan_user_switch_orga') }}"
                         data-actionmenu-menuitem>
                         <i class="fa fa-exchange float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml">
+                        <span class="block u-ml">
                             {{- "organisation.switch"|trans -}}
                         </span>
                     </a>

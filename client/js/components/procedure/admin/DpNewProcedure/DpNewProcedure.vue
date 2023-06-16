@@ -102,7 +102,7 @@
           required />
         <dp-multiselect
           v-model="currentProcedureType"
-          class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
+          class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
           label="name"
           :options="procedureTypes"
           required

@@ -42,13 +42,13 @@
         </a>
         <!-- responsible for adding new master toeb organisations, should only be displayed if a user may edit organisations -->
         <dp-new-master-toeb
-          class="display--inline"
+          class="inline"
           v-if="isEditable"
           :fields="filteredFields"
           :bool-to-string-fields="boolToStringFields"
           @orga-added="insertOrga" /><!--
      --><dp-invite-master-toeb
-          class="display--inline"
+          class="inline"
           v-if="isEditable === false"
           :selected-toeb-ids="selectedItems"
           :procedure-id="procedureId" />
@@ -64,7 +64,7 @@
         <dp-filter-master-toeb
           v-if="isEditable === false"
           @items-filtered="setFilteredItems"
-          class="display--inline"
+          class="inline"
           :items="currentItems"
           :fields="fields" />
         <!-- dropdown to select cols to be shown/hidden -->
@@ -176,12 +176,12 @@
       <div class="u-mv-0_5 text--right">
         <sliding-pagination
           v-if="totalPages > 1"
-          class="display--inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
+          class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
           :current="currentPage"
           :total="totalPages"
           @page-change="handlePageChange" />
         <dp-select-page-item-count
-          class="display--inline"
+          class="inline"
           @changed-count="setPageItemCount"
           :page-count-options="itemsPerPageOptions"
           :current-item-count="itemsPerPage"

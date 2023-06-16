@@ -19,7 +19,7 @@
       <i
         :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
         aria-hidden="true" />
-      <span :class="prefixClass('display--block u-ml')">
+      <span :class="prefixClass('block u-ml')">
         {{ Translator.trans('statement.recheck') }}
       </span>
     </p>
@@ -31,7 +31,7 @@
         :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
         aria-hidden="true" />
       <span
-        :class="prefixClass('display--block u-ml')"
+        :class="prefixClass('block u-ml')"
         v-cleanhtml="statementFormHintRecheck" />
     </p>
 
@@ -157,7 +157,7 @@
       :class="prefixClass('cf border--top u-pt-0_25')">
       <p
         v-if="hasPermission('feature_statements_feedback_postal')"
-        :class="prefixClass('display--inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')">
         <template v-if="statement.r_getFeedback === 'on'">
           <span
             v-if="statement.r_getEvaluation === 'email'"
@@ -173,7 +173,7 @@
 
       <p
         v-else
-        :class="prefixClass('display--inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')">
         <template v-if="statement.r_getFeedback === 'on'">
           {{ Translator.trans('statement.detail.form.personal.feedback') }}<br>
           <em>{{ Translator.trans('email.address') }}:</em> {{ statement.r_email }}

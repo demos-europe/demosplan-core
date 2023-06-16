@@ -62,14 +62,14 @@
     demosplan\DemosPlanCoreBundle\Resources\views\DemosPlanCore\includes\pageheader.html.twig
 #}
 <header class="border--bottom {{ flush|default == true ? '' : 'u-mb' }} u-pb-0_5 cf">
-    <h1 class="font-size-h1 align-bottom display--inline-block u-m-0">
+    <h1 class="font-size-h1 align-bottom inline-block u-m-0">
         {{ heading|responsive }}
     </h1>
 
     {% if subnav is defined and subnav|length > 0 %}
         <ul class="float--right u-pt-0_5 u-m-0">
             {% for item in subnav %}
-                <li class="display--inline-block {{ loop.last ?: 'u-mr-0_5' }}">
+                <li class="inline-block {{ loop.last ?: 'u-mr-0_5' }}">
                     <a
                         class="{{ item.current|default == true  ? 'o-link--active' : 'o-link--default' }} whitespace--nowrap"
                         href="{{ item.href }}"

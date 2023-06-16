@@ -37,7 +37,7 @@
             :id="`r_role_${role.value}`"
             v-model="currentRole"><!--
        --><label
-            class="lbl--text display--inline-block u-mb-0_5 u-pr u-ml-0_25"
+            class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
             :for="`r_role_${role.value}`">
             {{ Translator.trans(role.label) }}
           </label>

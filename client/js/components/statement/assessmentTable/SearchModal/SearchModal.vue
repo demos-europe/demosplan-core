@@ -38,7 +38,7 @@
       data-cy="searchAdvanced"
       @click.prevent="toggleModal"
       :class="{'color-highlight':true === highlighted}"
-      class="btn--blank o-link--default display--inline-block u-m-0 u-p-0 u-ml-0_5">
+      class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">
       {{ Translator.trans('search.advanced') }}
     </button>
 

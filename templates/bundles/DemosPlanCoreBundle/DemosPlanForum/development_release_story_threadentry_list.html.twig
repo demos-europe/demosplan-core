@@ -40,7 +40,7 @@
                                 {{ templateVars.userStory.offlineVotes|default() }} Offline-Punkte,
                             {% endif %}
                             {% if templateVars.userStory.onlineVotes is defined and 0 < templateVars.userStory.onlineVotes %}
-                                <v-popover class="display--inline-block">
+                                <v-popover class="inline-block">
                                     <button type="button" class="btn--blank o-link--default weight--bold">
                                         <i class="fa fa-caret-right"></i>
                                         {% if 1 == templateVars.userStory.onlineVotes|default() %}
@@ -79,7 +79,7 @@
                         <dp-accordion title="{{ 'moderate'|trans }}" id="moderation-beitragsID{{ templateVars.userStory.ident|default() }}">
                             <div class="border u-p-0_5 u-mt-0_5">
                                 <a
-                                    class="btn-icns u-m-0 display--block"
+                                    class="btn-icns u-m-0 block"
                                     href="{{ path('DemosPlan_forum_development_userstory_edit', {'releaseId': templateVars.userStory.releaseId, 'storyId': templateVars.userStory.ident }) }}">
                                     <i class="fa fa-pencil btn-icns-icon" aria-hidden="true"></i>
                                     {{ 'userStory.edit'|trans }}

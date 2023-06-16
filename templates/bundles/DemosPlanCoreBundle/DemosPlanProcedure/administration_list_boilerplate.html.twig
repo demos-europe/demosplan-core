@@ -14,7 +14,7 @@
         <input type="hidden" name="manualsort" value="">
 
         {# mark all #}
-        <label class="u-mb-0 u-mh-0_75 display--inline-block">
+        <label class="u-mb-0 u-mh-0_75 inline-block">
             <input
                 class="u-mr-0"
                 type="checkbox"
@@ -36,7 +36,7 @@
 
         <dp-split-button
             data-cy="addNewBoilerplate"
-            class="display--inline-block float--right">
+            class="inline-block float--right">
             <a
                class="btn btn--primary has-dropdown u-m-0"
                data-cy="generateBoilerplate"
@@ -95,7 +95,7 @@
                         </td>
                         <td class="o-hellip--td">
                             <label
-                                class="lbl--text display--inline o-hellip"
+                                class="lbl--text inline o-hellip"
                                 for="boilerplate_delete:{{ boilerplate.ident|default('') }}">
                                 {{ boilerplate.title|default('Titel') }}
                             </label>
@@ -160,7 +160,7 @@
                             </i>
                         {% endif %}
                         <label
-                            class="lbl--text display--inline-block u-mb-0 o-hellip max-width-90p align-middle"
+                            class="lbl--text inline-block u-mb-0 o-hellip max-width-90p align-middle"
                             for="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}">
                             {{ boilerplateGroup.title }}
                         </label>

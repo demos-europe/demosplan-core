@@ -51,7 +51,7 @@
 
           <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
           <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
-            <label class="u-mb-0_5 display--inline-block">
+            <label class="u-mb-0_5 inline-block">
               <input
                 type="radio"
                 name="procedure_permissions"
@@ -59,7 +59,7 @@
                 value="accessibleProcedures"
                 required> {{ Translator.trans('procedure.accessible') }}
             </label>
-            <label class="u-mb-0_5 u-ml display--inline-block">
+            <label class="u-mb-0_5 u-ml inline-block">
               <input
                 type="radio"
                 name="procedure_permissions"
@@ -96,7 +96,7 @@
               aria-describedby="deleteHistoryDesc">
             <label
               for="deleteVersionHistory"
-              class="display--inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
+              class="inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
             <p
               class="lbl__hint"
               id="deleteHistoryDesc">

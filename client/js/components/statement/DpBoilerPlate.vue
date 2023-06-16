@@ -20,7 +20,7 @@
       </label>
       <dp-multiselect
         v-model="selectedBoilerPlate"
-        class="display--inline-block"
+        class="inline-block"
         :group-label="groupLabel"
         :group-select="groupSelect"
         :group-values="groupValues"

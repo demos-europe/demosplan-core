@@ -75,7 +75,7 @@
             aria-hidden="true"
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
           <span
-            :class="prefixClass('display--block u-ml')">
+            :class="prefixClass('block u-ml')">
             <p v-cleanhtml="statementFormHintStatement" />
             {{ Translator.trans('error.mandatoryfields') }}
           </span>
@@ -169,12 +169,12 @@
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
             aria-hidden="true"
-            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold display--inline-block')">
+            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
           </p>
           <p
             aria-hidden="true"
-            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
+            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
                 @click="gotoTab('procedureDetailsDocumentlist')"
@@ -311,7 +311,7 @@
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('align-text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             v-if="displayEditSubmit"
@@ -373,7 +373,7 @@
           :class="prefixClass('text--right u-mt-0_5 space-inline-s')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('align-text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             type="reset"
@@ -403,7 +403,7 @@
           <i
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
             aria-hidden="true" />
-          <span :class="prefixClass('display--block u-ml')">
+          <span :class="prefixClass('block u-ml')">
             <p v-cleanhtml="statementFormHintPersonalData" />
             {{ Translator.trans('error.mandatoryfields') }}
           </span>
@@ -412,7 +412,7 @@
             <i
               :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
               aria-hidden="true" />
-            <span :class="prefixClass('display--block u-ml')">
+            <span :class="prefixClass('block u-ml')">
               {{ extraPersonalHint }}
             </span>
           </template>
@@ -560,7 +560,7 @@
         <div :class="prefixClass('text--right')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('align-text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             type="button"

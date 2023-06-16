@@ -257,7 +257,7 @@
             aria-hidden="true" />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker display--block absolute u-ml u-n-mt">
+            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt">
             {{ commentCount }}
           </span>
         </button>

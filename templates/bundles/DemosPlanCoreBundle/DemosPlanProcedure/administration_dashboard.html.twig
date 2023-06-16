@@ -22,7 +22,7 @@
                 <div class="layout__item u-1-of-5">
                     {% if hasPermission('area_admin_boilerplates') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="boilerplates"
                             href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
                             {{ 'boilerplates'|trans }}
@@ -30,7 +30,7 @@
                     {% endif %}
                     {% if hasPermission('area_admin_statements_tag') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="tagAdministration"
                             href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}">
                             {{ 'tag.administration'|trans }}
@@ -38,7 +38,7 @@
                     {% endif %}
                     {% if hasPermission('area_manage_segment_places') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="places"
                             href="{{ path('DemosPlan_procedure_places_list', { 'procedureId': procedure}) }}"
                         >
@@ -47,7 +47,7 @@
                     {% endif %}
                     {% if hasPermission('area_admin_protocol') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="protocol"
                             href="{{ path('dm_plan_report_table_view', {'procedureId': procedure}) }}"
                         >
@@ -284,7 +284,7 @@
                     {% endif %}
 
                     <div class="box-shadow-1 space-inset-m">
-                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}display--inline-block{% endif %}">{{ 'survey'|trans }}</p>
+                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}inline-block{% endif %}">{{ 'survey'|trans }}</p>
                         {% if templateVars.procedureHasSurveys == true and survey.id is defined %}
                             <span class="u-ml-1_5 o-badge--light font-size-small" style="border-radius: 3px; padding: 1px 6px 3px 1px;">
                                 {{ survey.status|trans }}

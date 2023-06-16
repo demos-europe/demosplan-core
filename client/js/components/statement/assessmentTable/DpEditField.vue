@@ -39,7 +39,7 @@
         <!-- Edit Trigger -->
         <div
           class="c-edit-field__trigger"
-          :class="{ 'display--block': persistIcons }">
+          :class="{ 'block': persistIcons }">
           <dp-loading
             v-if="loading"
             hide-label />

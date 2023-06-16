@@ -33,19 +33,19 @@
           v-model="consolidationMethod"
           checked="checked">
         <label
-          class="u-mb-0 display--inline-block"
+          class="u-mb-0 inline-block"
           for="consolidateStatements">
           {{ Translator.trans('statement.cluster.create') }}
         </label>
         <input
           type="radio"
-          class="u-ml display--inline-block"
+          class="u-ml inline-block"
           id="mergeIntoCluster"
           name="consolidationMethod"
           value="mergeIntoCluster"
           v-model="consolidationMethod">
         <label
-          class="u-mb-0 display--inline-block"
+          class="u-mb-0 inline-block"
           for="mergeIntoCluster">
           {{ Translator.trans('cluster.add.statements') }}
         </label>
@@ -102,12 +102,12 @@
               aria-hidden="true"
               class="multiselect__tag-icon"
               tabindex="1"
-              @click="props.remove(props.option)"/>
+              @click="props.remove(props.option)" />
           </span>
         </template>
       </dp-multiselect>
       <div
-        class="u-mb display--inline-block"
+        class="u-mb inline-block"
         v-if="false === validations.selection && 'consolidateStatements' === consolidationMethod">
         <i
           class="fa fa-exclamation-circle color-message-severe-fill"
@@ -163,7 +163,7 @@
           </template>
         </dp-multiselect>
         <div
-          class="display--inline-block"
+          class="inline-block"
           v-if="false === validations.headStatement && 'consolidateStatements' === consolidationMethod">
           <i
             class="fa fa-exclamation-circle color-message-severe-fill"
@@ -177,9 +177,9 @@
         <legend
           class="hide-visually"
           v-text="Translator.trans('cluster.choose')" />
-        <label class="u-mt u-mb-0_25 display--inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
+        <label class="u-mt u-mb-0_25 inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
         <div
-          class="u-ml display--inline-block"
+          class="u-ml inline-block"
           v-if="false === validations.cluster && 'mergeIntoCluster' === consolidationMethod">
           <i
             class="fa fa-exclamation-circle color-message-severe-fill"

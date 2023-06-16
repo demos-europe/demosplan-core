@@ -21,7 +21,7 @@
     <div
       class="u-mt-0_5"
       data-dp-validate="statementMetaData">
-      <div class="display--inline-block u-1-of-2 align-top">
+      <div class="inline-block u-1-of-2 align-top">
         <dp-input
           id="statementSubmitter"
           v-model="localStatement.attributes.authorName"
@@ -106,7 +106,7 @@
         </div>
       </div><!--
 
-   --><div class="display--inline-block u-1-of-2 u-pl">
+   --><div class="inline-block u-1-of-2 u-pl">
         <dp-input
           id="statementInternId"
           v-model="localStatement.attributes.internId"

@@ -74,13 +74,13 @@
       <button
         type="button"
         @click.prevent="showFilter = !showFilter"
-        :class="prefixClass('btn btn--primary weight--bold display--block u-1-of-1')">
+        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')">
         Filter
       </button>
     </div>
 
     <!-- Sorting -->
-    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'display--block' : 'hidden'))">
+    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'block' : 'hidden'))">
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"

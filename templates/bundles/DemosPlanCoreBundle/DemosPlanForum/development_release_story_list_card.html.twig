@@ -25,7 +25,7 @@
                 {{ userStory.numVotes }}
             {% endif %}
             {% if hasPermission('feature_forum_dev_story_edit') and permissions.vote_offline is defined and permissions.vote_offline == true %}
-                <label class="display--inline">
+                <label class="inline">
                     <input class="layout__item u-1-of-10" type="text" name="r_offlineVotes[{{ userStory.ident|default() }}]"
                            value="{{ userStory.offlineVotes|default() }}">
                     Punkte vor Ort

@@ -17,7 +17,7 @@
       <dp-loading
         v-if="isUpdating"
         hide-label
-        class="display--inline-block u-mr-0_5" />
+        class="inline-block u-mr-0_5" />
       {{ filterItem.attributes.label }}
     </label><!--
 

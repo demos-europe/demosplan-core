@@ -48,43 +48,6 @@
 }
 
 
-// Display classes
-
-.display {
-    &--none {
-        display: none;
-    }
-
-    &--block {
-        display: block !important;
-    }
-
-    &--inline-block {
-        display: inline-block;
-    }
-
-    &--inline {
-        display: inline;
-    }
-
-    &--flex {
-        display: flex;
-        flex: 0 1 auto;
-        flex-flow: row wrap;
-    }
-
-    &--table {
-        display: table !important;
-    }
-
-    &--block-palm {
-        @include media-query('palm') {
-            display: block !important;
-        }
-    }
-}
-
-
 //  Accessibility display classes
 
 //  Hide element from being displayed while not hiding it from screen readers

@@ -61,7 +61,7 @@
               <br>
               <div
                 v-if="userDepartment !== null"
-                class="u-1-of-2 display--inline">
+                class="u-1-of-2 inline">
                 {{ Translator.trans(userDepartment.attributes.name) }}
               </div>
             </div>

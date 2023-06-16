@@ -140,7 +140,7 @@
                     {% set submittedAuthorDisabled = true %}
                 {% endif %}
 
-                <div class="u-1-of-2 display--inline-block u-pr-0_5">
+                <div class="u-1-of-2 inline-block u-pr-0_5">
                     {% block submitted_author_label %}
                         {% if statement.gdprConsent and statement.gdprConsent.consentRevoked %}
                             {% set submittedAuthorId = 'r_submit_name' %}
@@ -279,7 +279,7 @@
                 <div class="layout--flush u-mb-0_75">
                     <label
                         for="r_userState"
-                        class="layout__item u-1-of-4 display--block u-mb-0_25">
+                        class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ 'state'|trans }}
                     </label>
                     {% for userState in templateVars.formOptions.userState %}
@@ -299,7 +299,7 @@
                 <div class="layout--flush u-mb-0_75">
                     <label
                         for="r_userGroup"
-                        class="layout__item u-1-of-4 display--block u-mb-0_25">
+                        class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ 'group'|trans }}
                     </label>
                     {% for userGroup in templateVars.formOptions.userGroup|default([])|filter(userGroup => userGroup == statement.meta.miscData.userGroup|default) %}
@@ -328,7 +328,7 @@
 
             {% if hasPermission('field_statement_user_position') and templateVars.formOptions.userPosition|default %}
                 <div class="layout--flush u-mb-0_75">
-                    <label class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <label class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ 'position'|trans }}
                     </label>
                     {% for userPosition in templateVars.formOptions.userPosition %}
@@ -378,7 +378,7 @@
 
                     <div class="u-1-of-1">
                       {% if hasPermission('field_statement_meta_street') and (formDefinitions.streetAndHouseNumber.enabled == true or formDefinitions.street.enabled == true) %}
-                        <div class="u-mb-0_75 u-1-of-2 u-pr-0_5 display--inline-block">
+                        <div class="u-mb-0_75 u-1-of-2 u-pr-0_5 inline-block">
                             {{ uiComponent('form.element', {
                                 label: { text: 'street'|trans },
                                 control: { name: 'r_orga_street', value: streetValue },
@@ -403,7 +403,7 @@
                         </div>
                       {% endif %}
                     {% if formDefinitions.postalAndCity.enabled == true %}
-                        <div class="u-1-of-2 u-mb-0_5 {% if (((readonly or not manualStatement) and statement.meta.orgaStreet|default != '') or (manualStatement and not readonly and statement.meta.orgaStreet|default != '')) and hasPermission('field_statement_meta_street')%}u-pl-0_5{% else %}u-pr-0_25{% endif %} display--inline-block">
+                        <div class="u-1-of-2 u-mb-0_5 {% if (((readonly or not manualStatement) and statement.meta.orgaStreet|default != '') or (manualStatement and not readonly and statement.meta.orgaStreet|default != '')) and hasPermission('field_statement_meta_street')%}u-pl-0_5{% else %}u-pr-0_25{% endif %} inline-block">
                             {{ uiComponent('form.element', {
                                 label: { text: 'postalcode'|trans },
                                 control: { name: 'r_orga_postalcode', value: postalCodeValue, pattern: readonly or not manualStatement ? '' : '^[0-9]{4,5}$' },
@@ -487,7 +487,7 @@
 
                 {% if statement.procedure.publicParticipationPublicationEnabled %}
                     <div class="layout--flush u-mb">
-                        <label class="layout__item u-1-of-2 display--block u-mb-0_25">
+                        <label class="layout__item u-1-of-2 block u-mb-0_25">
                             {{ "publish.on.platform"|trans }}
                         </label>
                         {% if statement.publicAllowed or manualStatement %}
@@ -524,7 +524,7 @@
                     %}
 
                         <div class="layout--flush u-mb">
-                            <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                            <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                 {{ "statement.voter"|trans }}
                             </strong>
                             <div class="layout__item u-3-of-4">
@@ -549,7 +549,7 @@
 
             {% if hasPermission('feature_statements_like') %}
                 <div class="layout--flush u-mb">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "liked.by"|trans }}
                     </strong>
                     <span class="layout__item u-3-of-4">
@@ -831,7 +831,7 @@
                     {% endblock priority %}
                 </div>
 
-                <div class="display--block u-1-of-2">
+                <div class="block u-1-of-2">
                     {# intern id #}
                     {# not editable #}
                     {% if hasPermission('field_statement_intern_id') %}
@@ -852,7 +852,7 @@
                     {# Caseworker #}
                     {# not editable / always disabled #}
                     {% if hasPermission('field_statement_meta_case_worker_name') %}
-                        <div class="layout--flush {% if hasPermission('feature_statement_cluster') %}u-mb-0_75{% endif %} display--inline-block u-1-of-2">
+                        <div class="layout--flush {% if hasPermission('feature_statement_cluster') %}u-mb-0_75{% endif %} inline-block u-1-of-2">
                             {% block official_label %}
                                 {{ uiComponent('form.label', {
                                     id: 'caseWorkerName',
@@ -887,7 +887,7 @@
                 {# editable for all statements, not just manual ones #}
                 {% if hasPermission('feature_statement_cluster') %}
                     <div class="layout--flush">
-                        <strong class="layout__item display--block u-mb-0_25">
+                        <strong class="layout__item block u-mb-0_25">
                             {{ "statement.add.to.cluster"|trans }}
                         </strong>
 
@@ -929,7 +929,7 @@
                         {{ 'documents'|trans }}
                     </h4>
 
-                    <div class="u-1-of-2 display--inline-block">
+                    <div class="u-1-of-2 inline-block">
                         {% if statement.element.ident is defined %}
                                     {{ uiComponent('form.element', {
                                         label: { text: 'plandocument'|trans },
@@ -1020,7 +1020,7 @@
                         {% apply spaceless -%}
                             {% if fragmentElementsList != fragmentElementsListWrapper %}
                                 <div class="layout--flush">
-                                    <strong class="layout__item lbl u-mb-0_25 display--block">
+                                    <strong class="layout__item lbl u-mb-0_25 block">
                                         {{ "fragments.elements"|trans }}:
                                     </strong>
                                     <div class="layout__item u-mb-0_75">
@@ -1033,7 +1033,7 @@
                 {% endif %}  {# end if hasPermission('field_procedure_elements') #}
 
                 {% if not readonly %}
-                    <div class="u-1-of-2 display--inline-block u-pl-0_5 align-top">
+                    <div class="u-1-of-2 inline-block u-pl-0_5 align-top">
                         {% if hasPermission('field_procedure_elements') %}
                             {# Select new plandocument #}
                             {% set planDocumentOptions = {} %}
@@ -1139,7 +1139,7 @@
                         {% for source_stn in source_statements %}
                             <div class="layout__item u-1-of-1 u-mb-0_5">
                                 <a
-                                    class="o-hellip--nowrap u-mb-0_25 display--block"
+                                    class="o-hellip--nowrap u-mb-0_25 block"
                                     title="{{ source_stn.file.name|default }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -1200,14 +1200,14 @@
 
                     {% if statement.files|length > 0 %}
                         <div class="layout--flush">
-                            <strong class="layout__item lbl display--block u-mb-0_5">
+                            <strong class="layout__item lbl block u-mb-0_5">
                                 {{ "attachments"|trans }}
                             </strong>
                             {% apply spaceless -%}
                                 {% for file in statement.files|default([])|filter(file => file|length > 0) %}
                                     <div class="layout__item u-1-of-3 u-mb-0_5">
                                         <a
-                                            class="o-hellip--nowrap u-mb-0_25 display--block"
+                                            class="o-hellip--nowrap u-mb-0_25 block"
                                             title="{{ file|getFile('name') }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -1241,7 +1241,7 @@
 
                     {% if hasPermission('field_statement_polygon') and formDefinitions.mapAndCountyReference.enabled == true %}
                         <div class="layout--flush u-mb {% if not hasPermission('field_statement_county') and not hasPermission('field_statement_municipality') and not procedureStatementPriorityArea %}u-pb{% endif %}">
-                            <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                            <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                 {{ "location"|trans }}
                             </strong>
                             {% if statement.polygon is defined and statement.polygon != '' %}
@@ -1258,7 +1258,7 @@
 
                         {% if readonly %}
                             <div class="layout--flush u-mb-0_75">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "counties"|trans }}
                                 </strong>
                                 {% if statement.counties is defined %}
@@ -1277,12 +1277,12 @@
                             </div>
                         {% else %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "counties"|trans }}
                                 </strong>
                                 <dp-multiselect
                                     v-model="selectedCounties"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="counties"
@@ -1309,7 +1309,7 @@
 
                         {% if readonly %}
                             <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 {% if statement.municipalities is defined %}
@@ -1328,12 +1328,12 @@
                             </div>
                         {% else %}
                             <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <dp-multiselect
                                     v-model="selectedMunicipalities"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="municipalities"
@@ -1360,7 +1360,7 @@
 
                         {% if readonly %}
                             <div class="layout--flush u-pb u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 {% if statement.priorityAreas|default(false) != false %}
@@ -1379,12 +1379,12 @@
                             </div>
                         {% else %}
                             <div class="layout--flush u-pb u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
                                     v-model="selectedPriorityAreas"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="priorityAreas"

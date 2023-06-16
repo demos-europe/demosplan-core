@@ -47,7 +47,7 @@
       <template v-slot:title="{ id, pId, title }">
         <div class="o-hellip__wrapper">
           <a
-            class="o-hellip display--block"
+            class="o-hellip block"
             data-cy="newsTitleLink"
             :href="generateEditPath(id, pId)">
             {{ title }}

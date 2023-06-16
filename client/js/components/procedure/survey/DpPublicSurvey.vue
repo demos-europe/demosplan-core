@@ -51,7 +51,7 @@
 
             <dp-text-area
               :attributes="['rows=5', 'cols=10']"
-              :class="prefixClass('display--inline-block u-mv-0_5')"
+              :class="prefixClass('inline-block u-mv-0_5')"
               :hint="Translator.trans('survey.hint.public.check')"
               id="vote_comment"
               :label="Translator.trans('survey.comment.yours')"

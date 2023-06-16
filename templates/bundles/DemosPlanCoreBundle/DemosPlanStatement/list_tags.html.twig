@@ -16,7 +16,7 @@
         <div class="u-mb-0_5 cf u-nojs-hide--block">
 
             {# mark all #}
-            <label class="u-mb-0 u-mh-0_75 display--inline-block">
+            <label class="u-mb-0 u-mh-0_75 inline-block">
                 <input
                     class="u-mr-0"
                     type="checkbox"
@@ -205,7 +205,7 @@
 
                                 <td class="o-toggle u-pr-0 u-pl-0_5 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} o-hellip--td">
                                     <a
-                                        class="u-1-of-1 display--block o-hellip"
+                                        class="u-1-of-1 block o-hellip"
                                         href="{{ path('DemosPlan_statement_administration_tag', {'procedure':procedure, 'tag':tag.id}) }}"
                                         title="{{ "tag.update" |trans }}: {{ tag.title }}">
                                         {{ tag.title }}

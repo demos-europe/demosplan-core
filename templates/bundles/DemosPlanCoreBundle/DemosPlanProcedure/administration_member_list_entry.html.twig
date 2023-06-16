@@ -23,7 +23,7 @@
                 <br>
                 {% if orga.masterToeb is defined %}
                     {% for key, district in districts %}
-                        <span class="o-tooltip display--inline-block u-mr-0_25">
+                        <span class="o-tooltip inline-block u-mr-0_25">
                             <span class="font-size-smaller">{{ district.short }}</span>: {{ attribute(orga.masterToeb, key)|default('') }}
                             <span class="o-tooltip__content">{{ district.name }}</span>
                         </span>
@@ -84,33 +84,33 @@
     <td class="u-pr-0_25"></td>
     <td class="align-top u-ph-0_25 u-pv-0_5">
         <p class="u-mb-0">
-            <span class="color--grey display--block">{{ "address"|trans }}</span>
-            <span class="display--block">{{ orga.address.street|default("notspecified"|trans) }}</span>
-            <span class="display--block">{{ orga.address.postalcode|default("notspecified"|trans) }}</span>
-            <span class="u-pb-0_5 display--block">{{ orga.address.city|default("notspecified"|trans) }}</span>
+            <span class="color--grey block">{{ "address"|trans }}</span>
+            <span class="block">{{ orga.address.street|default("notspecified"|trans) }}</span>
+            <span class="block">{{ orga.address.postalcode|default("notspecified"|trans) }}</span>
+            <span class="u-pb-0_5 block">{{ orga.address.city|default("notspecified"|trans) }}</span>
             {% if hasPermission('field_organisation_phone')%}
-                <span class="color--grey display--block">{{ "phone"|trans }}</span>
-                <span class="u-pb-0_5 display--block">{{ orga.address.phone|default("notspecified"|trans) }}</span>
+                <span class="color--grey block">{{ "phone"|trans }}</span>
+                <span class="u-pb-0_5 block">{{ orga.address.phone|default("notspecified"|trans) }}</span>
             {% endif %}
-            <span class="color--grey display--block">{{ "email.participation"|trans }}</span>
-            <span class="display--block">{{ orga.email2|default('')}}</span>
+            <span class="color--grey block">{{ "email.participation"|trans }}</span>
+            <span class="block">{{ orga.email2|default('')}}</span>
             {% if hasPermission('field_organisation_email2_cc')%}
-                <span class="color--grey display--block"> {{ "email.cc.participation"|trans }}</span>
-                <span class="display--block">{{ orga.ccEmail2|default('')}}</span>
+                <span class="color--grey block"> {{ "email.cc.participation"|trans }}</span>
+                <span class="block">{{ orga.ccEmail2|default('')}}</span>
             {% endif %}
         </p>
     </td>
     <td colspan="{{ colspan }}" class="align-top u-ph-0_25 u-pv-0_5">
         <p>
             {% if hasPermission('field_organisation_competence')%}
-                <span class="color--grey u-pt-0_5 display--block">{{ "competence.explanation"|trans }}</span>
+                <span class="color--grey u-pt-0_5 block">{{ "competence.explanation"|trans }}</span>
                 {% if orga.competence is defined and orga.competence != '' %}
-                    <span class="display--block">{{ orga.competence|default('')}}</span>
+                    <span class="block">{{ orga.competence|default('')}}</span>
                 {% endif %}
             {% endif %}
             {% if hasPermission('field_organisation_contact_person')%}
-                <span class="color--grey display--block">{{ "contact.person"|trans }}</span>
-                <span class="display--block">{{ orga.contactPerson|default('')}}</span>
+                <span class="color--grey block">{{ "contact.person"|trans }}</span>
+                <span class="block">{{ orga.contactPerson|default('')}}</span>
             {% endif %}
         </p>
     </td>

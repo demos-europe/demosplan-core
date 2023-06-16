@@ -79,7 +79,7 @@
             <div class="{{ (classes ~ ' ' ~ width_css.col2|default('u-3-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down u-pr u-pl-lap-up u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
                 {# heading #}
-                <h1 class="{{ 'c-pageheader__title o-hellip display--block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
+                <h1 class="{{ 'c-pageheader__title o-hellip block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
                 >
                     {{ content_heading|wysiwyg }}
                 </h1>

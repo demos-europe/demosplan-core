@@ -11,22 +11,22 @@
   <li class="c-publicindex__list-item list-style-none">
     <a
       @click.prevent="showDetailView(procedure.id)"
-      class="display--block o-link--default cursor-pointer o-hellip"
+      class="block o-link--default cursor-pointer o-hellip"
       data-cy="zoomIn"
       href="#">
       {{ procedureName() }}
     </a>
     <span
-      class="display--block"
+      class="block"
       v-cleanhtml="procedurePeriod" />
-    <span class="display--block">
+    <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-puzzle-piece"
         aria-hidden="true"
         :title="Translator.trans('procedure.public.phase')" />
       {{ phaseName() }}
     </span>
-    <span class="display--block">
+    <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-university"
         aria-hidden="true"
@@ -34,7 +34,7 @@
       {{ procedure.owningOrganisationName }}
     </span>
     <span
-      class="display--block"
+      class="block"
       v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
       <i
         class="c-publicindex__icon-content fa fa-comment-o"

@@ -25,10 +25,10 @@
     {% if field_label != "hide" %}
         <label class="{{ 'u-mb-0 cf'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
             {% autoescape false %}
-                <span class="{{ 'display--block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
+                <span class="{{ 'block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
             {% endautoescape %}
             {% if field_hint|default != "" %}
-                <span class="{{ 'lbl__hint display--block'|prefixClass(omitPrefix) }}">{{ field_hint|trans }}</span>
+                <span class="{{ 'lbl__hint block'|prefixClass(omitPrefix) }}">{{ field_hint|trans }}</span>
             {% endif %}
         </label>
     {% endif %}

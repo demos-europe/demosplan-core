@@ -262,7 +262,7 @@
                 <dp-multiselect
                     v-model="department"
                     :allow-empty="false"
-                    class="display--inline-block"
+                    class="inline-block"
                     label="name"
                     :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
                     track-by="name">

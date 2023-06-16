@@ -118,7 +118,7 @@
         v-if="itemsSelected.length > 0"
         class="cf">
         <h3
-          class="display--inline-block font-size-small weight--normal u-m-0_5">
+          class="inline-block font-size-small weight--normal u-m-0_5">
           {{ Translator.trans('filter.active') }}
         </h3>
         <button

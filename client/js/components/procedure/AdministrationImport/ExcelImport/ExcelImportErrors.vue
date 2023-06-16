@@ -37,7 +37,7 @@
             <dp-checkbox
               :id="`error:${error.id}`"
               :checked="checkedItems[error.id]"
-              class="display--inline-block"
+              class="inline-block"
               :label="{
                 bold: true,
                 text: lineTransKey(error.lineNumber)

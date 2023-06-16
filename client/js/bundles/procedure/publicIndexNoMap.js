@@ -112,13 +112,13 @@ const filterProceduresByPhase = function () {
       if (showElement) {
         if (listElements[i].classList.contains('hidden')) {
           listElements[i].classList.remove('hidden')
-          listElements[i].classList.add('display--block')
+          listElements[i].classList.add('block')
         }
         visibleElementsCount++
       } else if (showElement === false) {
         // If phase of procedure does not match selected filter option, hide it
-        if (listElements[i].classList.contains('display--block')) {
-          listElements[i].classList.remove('display--block')
+        if (listElements[i].classList.contains('block')) {
+          listElements[i].classList.remove('block')
         }
         listElements[i].classList.add('hidden')
       }

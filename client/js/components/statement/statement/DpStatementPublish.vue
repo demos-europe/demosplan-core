@@ -21,7 +21,7 @@
           class="cursor-pointer">
         <label
           for="publicCheck"
-          class="display--inline weight--normal u-ml-0_25 align-text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.check') }}
         </label>
       </div>
@@ -37,7 +37,7 @@
           class="cursor-pointer">
         <label
           for="publicVerify"
-          class="display--inline weight--normal u-ml-0_25 align-text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.verify', { count: filesLength }) }}
         </label>
       </div>
@@ -53,7 +53,7 @@
           class="cursor-pointer">
         <label
           for="publicReject"
-          class="display--inline weight--normal u-ml-0_25 align-text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.reject') }}
         </label>
       </div>

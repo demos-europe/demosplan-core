@@ -72,8 +72,8 @@
                 {# item tags / categories #}
                 {% if hasPermission('feature_procedure_categories') and publicProcedure.procedureCategoryNames is defined and publicProcedure.procedureCategoryNames|length > 0 %}
                     <div class="{{ 'c-procedurelist__trans'|prefixClass }}">
-                        <i class="{{ 'c-procedurelist__item-icon fa fa-tag width-20 text--center u-mr-0_125 display--inline-block'|prefixClass }}"></i>
-                        <ul class="{{ 'c-procedurelist__item-text o-list o-list--csv display--inline'|prefixClass }}">
+                        <i class="{{ 'c-procedurelist__item-icon fa fa-tag width-20 text--center u-mr-0_125 inline-block'|prefixClass }}"></i>
+                        <ul class="{{ 'c-procedurelist__item-text o-list o-list--csv inline'|prefixClass }}">
                             {% for procedureCategoryName in publicProcedure.procedureCategoryNames %}
                                 <li class="{{ 'o-list__item max-width-100p'|prefixClass }}">
                                     {{- procedureCategoryName -}}
@@ -139,7 +139,7 @@
                         <i class="{{ 'c-procedurelist__item-switch-icon fa fa-lg color--grey-light-1 fa-check-circle'|prefixClass }}" aria-hidden="true"></i>
                         <div class="{{ 'c-procedurelist__item-switch-controls'|prefixClass }}">
                             <input id="markDone_{{ publicProcedure.id }}" type="checkbox" {{ is_marked_done ? ' checked="checked"' : '' }} data-done-procedure-id="{{ publicProcedure.id }}">
-                            <label class="{{ 'c-procedurelist__item-switch-label u-m-0 display--inline-block'|prefixClass }}" for="markDone_{{ publicProcedure.id }}">{{ 'done'|trans }}</label>
+                            <label class="{{ 'c-procedurelist__item-switch-label u-m-0 inline-block'|prefixClass }}" for="markDone_{{ publicProcedure.id }}">{{ 'done'|trans }}</label>
                         </div>
                     </div>
                 {% endif %}

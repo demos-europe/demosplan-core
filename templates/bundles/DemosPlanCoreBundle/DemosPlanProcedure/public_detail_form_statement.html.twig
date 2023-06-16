@@ -8,7 +8,7 @@
             {% if not loggedin %}
                 <div class="{{ 'c-statement__formhint flash-info u-mb-0_5'|prefixClass }}">
                     <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
-                    <span class="{{ 'display--block u-ml'|prefixClass }}">
+                    <span class="{{ 'block u-ml'|prefixClass }}">
                         {% if templateVars.procedureUiDefinition is defined %}
                             {{ templateVars.procedureUiDefinition.statementFormHintStatement|wysiwyg }}
                         {% else %}
@@ -29,7 +29,7 @@
                     {% if templateVars.planningDocumentsHasNegativeStatement|default == true %}
                         <div class="{{ 'layout__item u-1-of-1-palm u-ph-0 u-mv-0_75 text--right'|prefixClass }}">
 
-                            <label class="{{ 'u-m-0 display--inline-block'|prefixClass }}" for="negative_report_false">
+                            <label class="{{ 'u-m-0 inline-block'|prefixClass }}" for="negative_report_false">
                                 <input
                                     type="radio"
                                     id="negative_report_false"
@@ -39,7 +39,7 @@
                                 > {{ 'public.participation.participate'|trans }}
                             </label>
 
-                            <label class="{{ 'u-m-0 u-ml display--inline-block'|prefixClass }}" for="negative_report_true">
+                            <label class="{{ 'u-m-0 u-ml inline-block'|prefixClass }}" for="negative_report_true">
                                 <input
                                     type="radio"
                                     id="negative_report_true"
@@ -63,7 +63,7 @@
 
             <p id="c-statement-hint-statement" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}" role="alert" aria-live="assertive">
                 <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-                <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
+                <a href="#" class="{{ 'block u-ml'|prefixClass }}" tabindex="0">
                     {{ "error.mandatoryfields"|trans }}
                 </a>
             </p>
@@ -165,7 +165,7 @@
 
                         <div class="{{ 'hidden o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file', {'hash': '---hash---'}) }}">
                             <a href="#" target="_blank"></a>
-                            <label class="{{ 'lbl--text display--inline-block u-mb-0_25 u-ml'|prefixClass }}">
+                            <label class="{{ 'lbl--text inline-block u-mb-0_25 u-ml'|prefixClass }}">
                                 <input value="---hash---" name="delete_file[]" type="checkbox">
                                 {{ "attachment.delete"|trans }}
                             </label>

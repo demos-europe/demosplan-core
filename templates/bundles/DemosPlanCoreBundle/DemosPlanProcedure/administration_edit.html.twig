@@ -154,7 +154,7 @@
                         <div class="o-wizard__main">
                             {% if hasPermission('field_procedure_adjustments_planning_agency') %}
                                 <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_agency">
+                                    <label class="inline-block u-mb-0" for="r_agency">
                                         {{ "planningagency"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -187,7 +187,7 @@
                             {% endif %}
 
                             <div class="u-mb cf">
-                                <label class="display--inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
+                                <label class="inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
                                     {{ "email.procedure.agency"|trans }}*
                                     <p class="weight--normal">
                                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
@@ -208,7 +208,7 @@
                             </div>
 
                             <div class="u-mb cf">
-                                <label class="display--inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
+                                <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                                     {{ "email.address.more"|trans }}
                                     <p class="weight--normal">
                                         {{ "email.address.more.explanation"|trans|wysiwyg }}
@@ -230,7 +230,7 @@
 
                             {% if hasPermission('feature_use_data_input_orga') %}
                                 <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_dataInputOrga">
+                                    <label class="inline-block u-mb-0" for="r_dataInputOrga">
                                         {{ "data.input.orga"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -262,7 +262,7 @@
 
                             {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
                                 <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_authorizedUsers">
+                                    <label class="inline-block u-mb-0" for="r_authorizedUsers">
                                         {{ "authorized.users"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -314,7 +314,7 @@
                             </div>
 
                             <div class="u-mb-0_5 cf">
-                                <label class="display--inline-block u-mb-0" for="r_desc">
+                                <label class="inline-block u-mb-0" for="r_desc">
                                     {{ "internalnote"|trans }}
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -376,7 +376,7 @@
 
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_phase">
+                                        <label class="inline-block u-mb-0" for="r_phase">
                                             {{ "procedure.phase.institutions"|trans }}*
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -417,7 +417,7 @@
 
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_legalNotice">
+                                        <label class="inline-block u-mb-0" for="r_legalNotice">
                                             {{ "procedure.legalNotice"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -440,7 +440,7 @@
                                 {% endif %}
 
                                 <div class="u-mb cf">
-                                    <label class="display--inline-block u-9-of-10 u-mb-0" for="r_startdate">
+                                    <label class="inline-block u-9-of-10 u-mb-0" for="r_startdate">
                                         {{ "period.institutions"|trans }}*
                                     </label>
                                     {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
@@ -526,7 +526,7 @@
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     <div class="cf">
-                                        <label class="display--inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
+                                        <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
                                             {{ "procedure.public.phase"|trans }}*
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -564,7 +564,7 @@
 
                                 {# start/end date for public participation #}
                                 <div class="cf">
-                                    <label class="display--inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
+                                    <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
                                         {{ "period.public"|trans }}*
                                     </label>
 
@@ -660,7 +660,7 @@
                             {% if hasPermission('feature_institution_participation') %}
                                 {% block procedurename %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="counter_input">
+                                        <label class="inline-block u-mb-0" for="counter_input">
                                             {{ "procedure.name"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -686,7 +686,7 @@
 
                             {% if hasPermission('area_public_participation') %}
                                 <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="counter_oeb_input">
+                                    <label class="inline-block u-mb-0" for="counter_oeb_input">
                                         {{ "procedure.name.public"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -711,7 +711,7 @@
 
                             {% if hasPermission('feature_short_url') %}
                                 <div class="cf">
-                                    <label class="display--inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
+                                    <label class="inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
                                         {{ "procedure.url.public"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -734,7 +734,7 @@
                                     <p class="u-mt-0_25 u-mb-0_25"><strong>{{ 'preview'|trans }}:</strong></p>
                                     <p
                                         id="shortUrl_preview"
-                                        class="display--inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
+                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
                                         data-shorturl="{{ templateVars.shortUrlPath }}/">
                                         {{ templateVars.shortUrlPath }}/{{ templateVars.inData.r_shortUrl|default }}
                                     </p>
@@ -790,7 +790,7 @@
                                 {% if hasPermission('field_procedure_description') %}
                                     {% block oeb_desc %}
                                         <div class="u-mb cf">
-                                            <label class="display--inline-block u-mb-0" for="counter_oeb_desc_input">
+                                            <label class="inline-block u-mb-0" for="counter_oeb_desc_input">
                                                 {{ "procedure.description.public"|trans }}
                                             </label>
                                             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -813,7 +813,7 @@
 
                                 {% if hasPermission('field_procedure_contact_person') %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_publicParticipationContact">
+                                        <label class="inline-block u-mb-0" for="r_publicParticipationContact">
                                             {{ 'public.participation.contact'|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -838,7 +838,7 @@
 
                                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_pictogram">
+                                        <label class="inline-block u-mb-0" for="r_pictogram">
                                             {{ 'procedure.pictogram'|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -906,7 +906,7 @@
 
                                 {% if hasPermission('field_procedure_linkbox') %}
                                     <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_links">
+                                        <label class="inline-block u-mb-0" for="r_links">
                                             {{ "linkbox"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -970,7 +970,7 @@
                                     {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
                                         {% block location %}
                                             <div class="u-mb cf">
-                                                <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                                <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                                     {{ "public.participation.relation"|trans }}
                                                 </div>
                                                 {# different wording if autocomplete via openGeoDb is enabled #}
@@ -1006,7 +1006,7 @@
                                     {% endif %}
 
                                     <div class="u-mb cf">
-                                        <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                        <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                             {{ "public.participation.relation.map"|trans }}*
                                         </div>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -1124,7 +1124,7 @@
                             <div class="o-wizard__main">
 
                                 <div class="u-mb cf">
-                                    <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                    <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry"|trans }}
                                     </div>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
@@ -1134,19 +1134,19 @@
                                     } %}
                                     <div class="layout__item u-pl-0">
                                         <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
-                                        <label for="sendMailsToCounties" class="u-mb-0 display--inline-block weight--normal">
+                                        <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                                         </label>
                                     </div>
                                 </div>
 
                                 <div class="u-mb cf">
-                                    <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                    <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry.setEmails"|trans }}
                                     </div>
                                     <p class="flash flash-warning u-mt-0_5 cf">
                                         <i class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <span class="u-ml display--block">
+                                        <span class="u-ml block">
                                         {{ 'text.procedure.edit.additional.notifyCounty.setEmails.hint'|trans }}
                                     </span>
                                     </p>

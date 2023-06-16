@@ -89,7 +89,7 @@
                         {{ 'procedures.phase.overview'|trans }}
                     </h2>
                     <div>
-                        <div class="u-5-of-12 u-1-of-1-palm u-mr display--inline-block">
+                        <div class="u-5-of-12 u-1-of-1-palm u-mr inline-block">
                             <h4 class="text--left weight--bold">
                                 {{ 'procedure.by.phase.invitable_institutions'|trans({ count: 0 }) }}
                             </h4>
@@ -107,7 +107,7 @@
                             </div>
                             <div id="procedurePhasesPublicAgenciesLegend" class="text--left"></div>
                         </div>
-                        <div class="u-5-of-12 u-1-of-1-palm u-ml display--inline-block">
+                        <div class="u-5-of-12 u-1-of-1-palm u-ml inline-block">
                             <h4 class="text--left weight--bold">
                                 {{ 'procedure.by.phase.public'|trans({ count: 0 }) }}
                             </h4>
@@ -174,7 +174,7 @@
 
                 {% if statementsAmountTotal > 0 %}
                     <div>
-                        <div class="u-1-of-3 u-1-of-1-palm u-mr-2 display--inline-block">
+                        <div class="u-1-of-3 u-1-of-1-palm u-mr-2 inline-block">
                             <h4 class="text--left weight--bold">
                                 {{ 'procedures.in.all'|trans }}
                             </h4>
@@ -191,7 +191,7 @@
                             </div>
                             <div id="statementsAmountChartLegend" class="text--left"></div>
                         </div>
-                        <div class="u-ml-2 u-1-of-3 u-1-of-1-palm display--inline-block">
+                        <div class="u-ml-2 u-1-of-3 u-1-of-1-palm inline-block">
                             <h4 class="text--left weight--bold">
                                 {{ 'average.per.procedure'|trans }}
                             </h4>
@@ -218,7 +218,7 @@
         </div>
 
         <div>
-            <h2 class="u-mt-2 display--inline-block u-mr-0_5">{{ "procedures.list"|trans }}</h2>
+            <h2 class="u-mt-2 inline-block u-mr-0_5">{{ "procedures.list"|trans }}</h2>
             {% if hasPermission('feature_statement_move_to_procedure') %}
                 <p>{{ 'explanation.statistics.moved.statements'|trans }}</p>
             {% endif %}

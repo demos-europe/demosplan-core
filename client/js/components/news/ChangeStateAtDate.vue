@@ -50,7 +50,7 @@ All rights reserved
             @click="toggleCheckbox">
           <label
             :for="checkSwitchId"
-            class="o-form__label display--inline-block">
+            class="o-form__label inline-block">
             {{ Translator.trans('change.state.at.date') }}
           </label>
         </span>

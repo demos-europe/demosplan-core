@@ -46,9 +46,9 @@
       v-if="false === isLoading">
       <div class="u-mt">
       <!--Button row --><!--
-     --><div class="text--right float--right display--inline-block u-4-of-7 u-mb-0_5">
+     --><div class="text--right float--right inline-block u-4-of-7 u-mb-0_5">
           <button
-            class="btn btn--primary display--inline"
+            class="btn btn--primary inline"
             value="inviteSelected"
             name="manageUsers"
             type="submit">
@@ -57,7 +57,7 @@
 
           <button
             v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning display--inline"
+            class="btn btn--warning inline"
             type="button"
             data-cy="deleteSelectedItems"
             @click="deleteItems(selectedItems)">
@@ -65,7 +65,7 @@
           </button>
         </div><!--
    --><!-- 'Select all'-Checkbox --><!--
-     --><div class="layout__item u-3-of-7 display--inline-block">
+     --><div class="layout__item u-3-of-7 inline-block">
           <input
             type="checkbox"
             id="select_all"
@@ -75,7 +75,7 @@
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor-pointer btn-icns display--inline-block">
+            class="cursor-pointer btn-icns inline-block">
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>

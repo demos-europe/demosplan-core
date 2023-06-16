@@ -1951,7 +1951,7 @@ export default {
             .replace(/___id___/g, content.key)
           // Specialcase priorityArea with key 'Sonderregel' should not have an html view
           if (content.key === 'Sonderregel') {
-            $('#popupContent').find('a').first().removeClass(this.prefixClass('display--block')).hide()
+            $('#popupContent').find('a').first().removeClass(this.prefixClass('block')).hide()
           }
         } else if (templateId === 'miscPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)

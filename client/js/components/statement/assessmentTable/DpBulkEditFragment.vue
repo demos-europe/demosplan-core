@@ -43,7 +43,7 @@
           v-model="options.newAssignee.checked">
         <label
           for="r_new_assignee"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('fragments.assign.other') }}
         </label>
 
@@ -81,7 +81,7 @@
           v-model="options.consideration.checked">
         <label
           for="r_consideration"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('consideration.text.add') }}
         </label>
         <div

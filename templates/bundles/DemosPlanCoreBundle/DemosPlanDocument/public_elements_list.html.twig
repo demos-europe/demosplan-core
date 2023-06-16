@@ -22,7 +22,7 @@
 
                 <h2 class="{{ 'elements__header elements__grid cf'|prefixClass }}">
                     <span
-                        class="{{ 'elements__grid-grow display--inline-block' ~ (element.iconTitle|default != '' ? ' cursor-help')|prefixClass }}"
+                        class="{{ 'elements__grid-grow inline-block' ~ (element.iconTitle|default != '' ? ' cursor-help')|prefixClass }}"
                         {# In bobhh and bobsh, element.iconTitle contains a category-based help text. #}
                         {% if element.iconTitle|default != '' %}
                             title="{{ element.iconTitle|trans({ title: element.title }) }}"
@@ -31,7 +31,7 @@
                         <i
                             class="{{ 'elements__header-icon absolute fa ' ~ (element.icon|default|length > 0 ? element.icon : 'fa-file-text')|prefixClass }}"
                             aria-hidden="true"></i>
-                        <span class="{{ 'elements__title display--inline-block'|prefixClass }}">
+                        <span class="{{ 'elements__title inline-block'|prefixClass }}">
                             {{ element.title }}
                         </span>
                     </span>

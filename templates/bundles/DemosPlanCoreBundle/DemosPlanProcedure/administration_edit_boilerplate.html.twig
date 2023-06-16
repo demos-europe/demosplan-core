@@ -56,7 +56,7 @@
                             value="{{ cat.id }}"
                             name="r_boilerplateCategory[][id]"
                             {% if cat.id in form.vars.value.categories|map(x => x.id) %}checked{% endif %}/>
-                        <label for="{{ cat.id }}" class="display--inline-block u-mr">{{ cat.title|trans }}</label>
+                        <label for="{{ cat.id }}" class="inline-block u-mr">{{ cat.title|trans }}</label>
                     {% endfor %}
                 </div><!-- Textbausteine in Gruppe
 
@@ -70,7 +70,7 @@
                     <dp-multiselect
                         v-model="boilerplateGroup"
                         :allow-empty="false"
-                        class="display--inline-block align-middle u-mb"
+                        class="inline-block align-middle u-mb"
                         data-cy="selectBoilerplateGroup"
                         label="title"
                         :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"

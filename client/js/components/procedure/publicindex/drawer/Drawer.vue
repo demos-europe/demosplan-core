@@ -23,7 +23,7 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            class="display--inline-block"
+            class="inline-block"
             data-cy="participationProcedures">
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
           </strong>

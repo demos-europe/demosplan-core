@@ -129,7 +129,7 @@
 <hr class="{{ 'border--top u-mh u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}" />
 
 {% if show_rejected is defined and statement.rejectedReason is defined and statement.rejectedReason != '' %}
-    <strong class="{{ 'flash-warning display--block u-mh u-mb-0_5 u-ph-0_5 u-pv-0_25 u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}">
+    <strong class="{{ 'flash-warning block u-mh u-mb-0_5 u-ph-0_5 u-pv-0_25 u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}">
         {{ "confirm.statement.rejected.reason"|trans }} "{{ statement.rejectedReason }}"
     </strong>
 {% endif %}

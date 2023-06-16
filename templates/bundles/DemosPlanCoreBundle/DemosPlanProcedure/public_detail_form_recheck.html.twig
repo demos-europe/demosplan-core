@@ -2,20 +2,20 @@
     <div class="{{ 'u-nojs-hide--block'|prefixClass }}">
         <p class="{{ 'c-statement__formhint flash-warning'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-            <span class="{{ 'display--block u-ml'|prefixClass }}">
+            <span class="{{ 'block u-ml'|prefixClass }}">
                 {{ "statement.recheck"|trans }}
             </span>
         </p>
         <p id="c-statement-hint-recheck" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-            <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
+            <a href="#" class="{{ 'block u-ml'|prefixClass }}" tabindex="0">
                 {{ "error.mandatoryfields"|trans }}
             </a>
         </p>
 
         <p class="{{ 'c-statement__formhint flash-info'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
-            <span class="{{ 'display--block u-ml'|prefixClass }}">
+            <span class="{{ 'block u-ml'|prefixClass }}">
                 {{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}
             </span>
         </p>
@@ -68,7 +68,7 @@
             </span>
             <span data-statement-check-value="1">
                 {{ 'statement.detail.form.personal.post_publicly'|trans }}
-                <span class="{{ 'display--block'|prefixClass }}">
+                <span class="{{ 'block'|prefixClass }}">
                     {% apply spaceless %}
                         <span class="{{ 'layout__item u-1-of-4-desk-up u-pl-0'|prefixClass }}">
                             <em>Vorname: </em> <span data-statement-check-content="r_firstname"></span><br>
@@ -98,7 +98,7 @@
 
             {% if hasPermission('feature_statements_feedback_postal') %}
 
-                <p class="{{ 'display--inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
+                <p class="{{ 'inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
                     <span data-statement-check-value="true">
                         <span data-statement-check="r_getEvaluation">
                             <span data-statement-check-value="email">
@@ -116,7 +116,7 @@
 
             {% else %}
 
-                <p class="{{ 'display--inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
+                <p class="{{ 'inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
                     <span data-statement-check-value="true">
                         {{ 'statement.detail.form.personal.feedback'|trans }}<br>
                         <em>E-Mail-Adresse:</em> <span data-statement-check-content="r_email"></span>
@@ -138,7 +138,7 @@
                 <em>{{ "statement.my"|trans }}: </em>
             </span>
 
-            <span class="{{ 'display--block height-130 height-auto-palm overflow-auto'|prefixClass }}" data-statement-check-content="r_text"></span>
+            <span class="{{ 'block height-130 height-auto-palm overflow-auto'|prefixClass }}" data-statement-check-content="r_text"></span>
 
         </div>
     </div>

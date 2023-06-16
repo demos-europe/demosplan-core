@@ -23,7 +23,7 @@
       @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
       ref="listComponent">
       <template v-slot:list="{ entry, index }">
-        <ul class="o-list o-list--csv display--inline">
+        <ul class="o-list o-list--csv inline">
           <template v-if="isRequestFormPost">
             <input
               type="hidden"
