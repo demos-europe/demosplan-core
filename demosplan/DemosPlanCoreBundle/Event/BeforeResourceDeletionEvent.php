@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class BeforeResourceDeletionEvent extends DPlanEvent
 {

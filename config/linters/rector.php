@@ -51,8 +51,8 @@ return static function (RectorConfig $rectorConfig): void {
     );
     $rectorConfig->autoloadPaths([__DIR__.'/../../vendor/autoload.php']);
     $rectorConfig->importNames();
-    // $rectorConfig->disableParallel();
-    $rectorConfig->parallel(seconds: 180, jobSize: 10);
+    $rectorConfig->disableParallel();
+    //$rectorConfig->parallel(seconds: 180, jobSize: 10);
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
     $rectorConfig->phpstanConfig(__DIR__.'/../../vendor/phpstan/phpstan-symfony/extension.neon');
 };

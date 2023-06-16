@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository")
  *
- * @template T of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template T of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class EntitySyncLink implements UuidEntityInterface
 {

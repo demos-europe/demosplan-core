@@ -76,7 +76,7 @@ class EntityFetcher implements EntityFetcherInterface
      *  {@link FilterableTypeInterface::getFilterableProperties() filtering}/
      *  {@link SortableTypeInterface::getSortableProperties() sorting}
      *
-     * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+     * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
      *
      * @param TransferableTypeInterface<O>       $type
      * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter

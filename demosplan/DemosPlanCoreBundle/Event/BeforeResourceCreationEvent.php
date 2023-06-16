@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class BeforeResourceCreationEvent extends DPlanEvent
 {
