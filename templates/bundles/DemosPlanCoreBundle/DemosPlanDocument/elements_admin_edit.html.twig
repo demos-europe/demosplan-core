@@ -49,8 +49,8 @@
     } %}
 
     {% if element is not empty and permissions.feature_admin_element_create_subelement.enabled == true %}
-        <div class="cf u-mb-0_5">
-            <a class="btn btn--primary float--right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
+        <div class="flow-root u-mb-0_5">
+            <a class="btn btn--primary float-right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
                 {{ "elements.create.subcategory"|trans }}
             </a>
         </div>
@@ -193,7 +193,7 @@
                         {{ 'visibility.category'|trans }}
                     </label>
                     <div class="u-mb-0_75">
-                        <label class="lbl--text display--block u-mb-0_25">
+                        <label class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -206,7 +206,7 @@
                             >
                             {{ "visibility.category.for.unlimited"|trans }}
                         </label>
-                        <label  class="lbl--text display--block u-mb-0_25">
+                        <label  class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -219,7 +219,7 @@
                             >
                             {{ "visibility.category.for.invitable_institution"|trans }}
                         </label>
-                        <label class="lbl--text display--block u-mb-0_25">
+                        <label class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -266,7 +266,7 @@
                     </dp-multiselect>
                 {% endif %}
 
-                <div class="text--right space-inline-s">
+                <div class="text-right space-inline-s">
                     <input
                         class="btn btn--primary"
                         type="submit"

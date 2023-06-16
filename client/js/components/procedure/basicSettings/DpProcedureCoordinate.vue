@@ -37,7 +37,7 @@
           :location="procedureLocation"
           v-if="hasPermission('feature_procedures_located_by_maintenance_service')" />
 
-        <div :class="prefixClass('display--inline-block')">
+        <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
             target="procedureCoordinateDrawer"

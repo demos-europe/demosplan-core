@@ -24,11 +24,11 @@
             <p><strong>{{ news.modifydate|default()|dplanDate }}</strong></p>
             {% if news.picture is defined and news.picture != "" %}
                 <img class="u-pr" src="{{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }}">
-                <p class="font-size-smaller overflow-word-break">{{ news.pictitle }}</p>
+                <p class="font-size-smaller break-words">{{ news.pictitle }}</p>
             {% endif %}
         </aside><!--
 
-     --><section class="layout__item width-map-canvas u-p-0_5 u-pl-0-lap-up overflow-word-break">
+     --><section class="layout__item width-map-canvas u-p-0_5 u-pl-0-lap-up break-words">
 
             <h2>{{ news.title }}</h2>
 

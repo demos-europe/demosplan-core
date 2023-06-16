@@ -49,7 +49,7 @@
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}
 
-                <div class="{{ 'layout__item width-map-toolbar u-p-0_5 u-pr-0_5-lap-up position--relative'|prefixClass }}">
+                <div class="{{ 'layout__item width-map-toolbar u-p-0_5 u-pr-0_5-lap-up relative'|prefixClass }}">
 
                     {% block actionbox %}
 
@@ -79,11 +79,11 @@
              --><section class="{{ 'layout__item width-map-canvas u-p-0_5'|prefixClass }}">
 
                     {# title of document #}
-                    <h2 class="{{ 'layout__item font-size-h2 u-pv-0_25 u-pl-0 border--bottom cf'|prefixClass }}" id="elementTitle">
+                    <h2 class="{{ 'layout__item font-size-h2 u-pv-0_25 u-pl-0 border--bottom flow-root'|prefixClass }}" id="elementTitle">
 
                         <i class="{{ 'fa fa-file-text u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ templateVars.element.title }}
 
-                        <div class="{{ 'display--inline-block float--right'|prefixClass }}">
+                        <div class="{{ 'inline-block float-right'|prefixClass }}">
                             {% apply spaceless %}
                                 {% if hasPermission('feature_documents_new_statement') and hasPermission('feature_statement_to_entire_document') %}
                                     <button
@@ -133,7 +133,7 @@
 
                     {# loop paragraphs #}
                     {% for document in templateVars.list.documentlist|default([]) %}
-                        <article class="{{ 'u-mb overflow-word-break'|prefixClass }}">
+                        <article class="{{ 'u-mb break-words'|prefixClass }}">
 
                             <header class="elements__grid">
                                 {# Paragraph title #}
@@ -180,7 +180,7 @@
                             {% endif %}
 
                             {# Paragraph content #}
-                            <div class="{{ 'c-styled-html u-1-of-1 overflow-x-auto overflow-word-break'|prefixClass }}" data-table-wrapper="overflow-x-auto">
+                            <div class="{{ 'c-styled-html u-1-of-1 overflow-x-auto break-words'|prefixClass }}" data-table-wrapper="overflow-x-auto">
                                 {{ document.text|wysiwyg(['img', 'ins', 'del']) }}
                             </div>
 

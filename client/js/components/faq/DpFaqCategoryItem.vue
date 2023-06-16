@@ -12,7 +12,7 @@
     <div class="layout__item u-10-of-12 weight--bold o-hellip">
       {{ faqCategoryItem.attributes.title }}
     </div><!--
- --><div class="layout__item u-2-of-12 text--center">
+ --><div class="layout__item u-2-of-12 text-center">
       <a
         class="btn--blank o-link--default u-mh-0_25"
         :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: this.faqCategoryItem.id})"

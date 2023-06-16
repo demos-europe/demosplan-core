@@ -15,7 +15,7 @@
         	{% if procedure.name is defined %}{{ procedure.name }}{% else %}{{ "notspecified"|trans }}{% endif %}
         </a>
         {% if procedure.isCustomerMasterBlueprint is defined and procedure.isCustomerMasterBlueprint == true %}
-            <span class="float--right u-mr u-mt-0_5">
+            <span class="float-right u-mr u-mt-0_5">
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'explanation.customer.masterblueprint'|trans,
                     cssClasses:'o-tooltip--exclamation-circle'

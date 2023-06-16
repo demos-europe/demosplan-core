@@ -5,7 +5,7 @@
             <h2 class="{{ 'layout__item u-1-of-2 u-pl-0'|prefixClass }}">
                 {{ "news.announcements"|trans }}
             </h2>
-            <a class="{{ 'layout__item u-1-of-2 text--right u-mb-0_5 u-pl-0'|prefixClass }}" href="{{ path('DemosPlan_globalnews_news') }}">
+            <a class="{{ 'layout__item u-1-of-2 text-right u-mb-0_5 u-pl-0'|prefixClass }}" href="{{ path('DemosPlan_globalnews_news') }}">
                 <span>
                     {{ "news.see.all"|trans }}
                 </span>
@@ -28,7 +28,7 @@
                     </h3>
 
                     {# meta #}
-                    <div class="{{ 'cf u-mb-0_25'|prefixClass }}">
+                    <div class="{{ 'flow-root u-mb-0_25'|prefixClass }}">
 
                         {# creation date #}
                         {% if newsItem.createDate is defined %}
@@ -65,7 +65,7 @@
                     </div>
 
                     {# wrap floating content elements in clearfix #}
-                    <div class="{{ 'cf position--relative'|prefixClass }}">
+                    <div class="{{ 'flow-root relative'|prefixClass }}">
 
                         {# image is represented as css background image to keep square proportions in fluid context #}
                         {% if newsItem.picture is defined and newsItem.picture != "" %}

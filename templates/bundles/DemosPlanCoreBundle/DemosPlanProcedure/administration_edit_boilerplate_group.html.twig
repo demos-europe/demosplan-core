@@ -10,7 +10,7 @@
 
     {# Form to create new text module group #}
     <form
-        class="cf u-mt-1_5"
+        class="flow-root u-mt-1_5"
         name="groupsForm"
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': form.vars.value.id|default('new')}) }}"
@@ -35,7 +35,7 @@
             <input name="id" type="hidden" value="{{ form.vars.value.id }}">
         </label><!--
 
-        --><div class="layout__item u-1-of-3 u-m-0 u-mt text--right space-inline-s">
+        --><div class="layout__item u-1-of-3 u-m-0 u-mt text-right space-inline-s">
             {% if  form.vars.value.id is defined  and form.vars.value.id != '' %}
                 <button class="btn btn--primary" name="r_editGroup" type="submit">{{ "save"|trans }}</button>
                 <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">

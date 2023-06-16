@@ -5,8 +5,8 @@
 
         <div class="{{ 'c-callout__box u-p'|prefixClass }}">
             <h1>
-                <span class="{{ 'c-callout__subclaim display--block'|prefixClass }}">{{ "public.participation.header"|trans }}</span>
-                <span class="{{ 'c-callout__claim display--block'|prefixClass }}">{{ "public.participation.subheader"|trans }}</span>
+                <span class="{{ 'c-callout__subclaim block'|prefixClass }}">{{ "public.participation.header"|trans }}</span>
+                <span class="{{ 'c-callout__claim block'|prefixClass }}">{{ "public.participation.subheader"|trans }}</span>
             </h1>
 
             {# override in bobhh #}
@@ -14,7 +14,7 @@
                 <p class="{{ 'u-mb-0-palm'|prefixClass }}">
                     {{ "public.participation.introduction"|trans }}
 
-                    <span class="{{ 'display--inline-block'|prefixClass }}">
+                    <span class="{{ 'inline-block'|prefixClass }}">
                         {{ 'public.participation.faq.label'|trans }}
                     </span>
                     <a class="{{ 'weight--bold u-ml-0_25'|prefixClass }}" href="{{ path('DemosPlan_faq') }}">
@@ -25,21 +25,21 @@
 
             <ul class="{{ 'layout show-lap-up-ib'|prefixClass }}">
                 <li class="{{ 'layout__item u-1-of-1 u-1-of-3-wide'|prefixClass }}">
-                    <span class="{{ 'u-mb-0_25 display--block weight--bold color-highlight'|prefixClass }}">
+                    <span class="{{ 'u-mb-0_25 block weight--bold color-highlight'|prefixClass }}">
                         <i class="{{ 'fa fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
                         {{ "public.participation.inform"|trans }}
                     </span>
                     {{ "public.participation.inspect_planning"|trans }}
                 </li>
                 <li class="{{ 'layout__item u-1-of-1 u-1-of-3-wide u-mt-0_5-desk-down'|prefixClass }}">
-                    <span class="{{ 'u-mb-0_25 display--block weight--bold color-highlight'|prefixClass }}">
+                    <span class="{{ 'u-mb-0_25 block weight--bold color-highlight'|prefixClass }}">
                         <i class="{{ 'fa fa-comment'|prefixClass }}" aria-hidden="true"></i>
                         {{ "public.participation.contribute"|trans }}
                     </span>
                     {{ "public.participation.submit_your_statement"|trans }}
                 </li>
                 <li class="{{ 'layout__item u-1-of-1 u-1-of-3-wide u-mt-0_5-desk-down'|prefixClass }}">
-                    <span class="{{ 'u-mb-0_25 display--block weight--bold color-highlight'|prefixClass }}">
+                    <span class="{{ 'u-mb-0_25 block weight--bold color-highlight'|prefixClass }}">
                         <i class="{{ 'fa fa-envelope'|prefixClass }}" aria-hidden="true"></i>
                         {{ "public.participation.follow"|trans }}
                     </span>

@@ -44,7 +44,7 @@
             id: 'r_email_send',
             required: true
         }) }}
-        <div class="u-mt text--right">
+        <div class="u-mt text-right">
             <input
                 class="btn btn--primary"
                 type="submit"
@@ -53,7 +53,7 @@
                 data-dp-validate-transkey="{{ 'procedure.mail.submitters.send.confirm.alert'|trans({ count: templateVars.mailsCount }) }}"
             >
             <a
-                class="btn btn--secondary float--left"
+                class="btn btn--secondary float-left"
                 role="button"
                 href="{{ path('dplan_procedure_mail_send_all_submitters_view', {'procedureId':templateVars.procedureId}) }}"
             >

@@ -117,8 +117,8 @@
                 <div class="{{ 'border--bottom'|prefixClass }}"><!--
                     {# procedure phase #}
                     {% if hasPermission('field_procedure_phase') %}
-                     --><div class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down position--relative'|prefixClass }}">
-                            <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                     --><div class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-puzzle-piece u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.public.phase'|trans }}
                             </h3>
 
@@ -141,10 +141,10 @@
 
                     {# period this procedure is running #}
                  --><div
-                        class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down position--relative'|prefixClass }}"
+                        class="{{ 'c-infolist__item c-infolist__item--bordered layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}"
                         aria-describedby="helpPublicDetailTimelimit"
                     >
-                        <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-calendar u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'period'|trans }}
                         </h3>
                         <span id="helpPublicDetailTimelimit">
@@ -156,11 +156,11 @@
                     {# procedure categories #}
                     {% if hasPermission('feature_procedure_categories') %}
                      --><div
-                            class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down position--relative'|prefixClass }}">
-                            <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                            class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-tag u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'categories'|trans }}
                             </h3>
-                            <ul class="{{ 'o-list o-list--csv display--inline-block'|prefixClass }}">
+                            <ul class="{{ 'o-list o-list--csv inline-block'|prefixClass }}">
                                 {% for procedureCategory in templateVars.procedureCategories %}
                                     <li class="{{ 'o-list__item'|prefixClass }}">
                                         {{- procedureCategory.name -}}
@@ -173,9 +173,9 @@
                     {# institution which administers procedure #}
                     {% if hasPermission('field_procedure_administration') %}
                      --><div
-                            class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down position--relative'|prefixClass }}"
+                            class="{{ 'c-infolist__item layout__item u-1-of-3 u-1-of-1-lap-down relative'|prefixClass }}"
                             aria-describedby="helpPublicDetailAdministration">
-                            <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                            <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                                 <i class="{{ 'fa fa-university u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'administration.alt'|trans }}
                             </h3>
                             {{ proceduresettings.orgaName }}
@@ -189,7 +189,7 @@
                 {# short info about procedure #}
                 {% if hasPermission('field_procedure_description') %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-file-text-o u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'information.short'|trans -}}
                             <button
@@ -205,7 +205,7 @@
                             </button>
                         </h3>
                         <div
-                            class="{{ 'c-infolist__content c-styled-html o-toggle__target overflow-word-break u-pb-0_5'|prefixClass }}"
+                            class="{{ 'c-infolist__content c-styled-html o-toggle__target break-words u-pb-0_5'|prefixClass }}"
                             data-toggle-id="metaDescription"
                             id="infolistContentMetaDescription">
                             {{ proceduresettings.externalDesc|wysiwyg }}
@@ -216,7 +216,7 @@
                 {# links with related content #}
                 {% if hasPermission('field_procedure_linkbox') and ( templateVars.linkbox is defined and templateVars.linkbox  != ''  ) %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-external-link u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'links'|trans -}}
                             <button
@@ -232,7 +232,7 @@
                             </button>
                         </h3>
                         <div
-                            class="{{ 'c-infolist__content c-styled-html o-toggle__target overflow-word-break u-pb-0_5'|prefixClass }}"
+                            class="{{ 'c-infolist__content c-styled-html o-toggle__target break-words u-pb-0_5'|prefixClass }}"
                             data-toggle-id="metaLinks"
                             id="infolistContentMetaLinks">
                             {{ templateVars.linkbox|wysiwyg }}
@@ -243,7 +243,7 @@
                 {# contact #}
                 {% if hasPermission('field_procedure_contact_person') %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-envelope-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
                             {{- 'public.participation.contact'|trans -}}
                             <button
@@ -259,7 +259,7 @@
                             </button>
                         </h3>
                         <div
-                            class="{{ 'c-infolist__content c-styled-html o-toggle__target overflow-word-break u-pb-0_5'|prefixClass }}"
+                            class="{{ 'c-infolist__content c-styled-html o-toggle__target break-words u-pb-0_5'|prefixClass }}"
                             data-toggle-id="contactPerson"
                             id="infolistContentContactPerson">
                             {{ proceduresettings.publicParticipationContact|default( 'contact.person.noname'|trans )|wysiwyg }}
@@ -270,7 +270,7 @@
                 {# list with latest news published with the procedure #}
                 {% if templateVars.newsList is defined and templateVars.newsList|default(0)|length > 0 and hasPermission("area_news") %}
                  --><div class="{{ 'o-toggle o-toggle--not-animated layout__item u-1-of-3-lap-up u-1-of-1-palm u-pr-palm u-pr-0_5-lap-up'|prefixClass }}">
-                        <h3 class="{{ 'c-infolist__title caps font-size-medium u-mb-0 display--block'|prefixClass }}">
+                        <h3 class="{{ 'c-infolist__title uppercase font-size-medium u-mb-0 block'|prefixClass }}">
                             <i class="{{ 'fa fa-info u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'show-desk-up-i'|prefixClass }}">{{ 'news.notes'|trans }}</span>
                             <span class="{{ 'hide-desk-up-i'|prefixClass }}" aria-hidden="true">{{ 'news'|trans }}</span>
@@ -287,7 +287,7 @@
                             </button>
                         </h3>
                         <div
-                            class="{{ 'c-infolist__content o-toggle__target overflow-word-break u-pb-0_5'|prefixClass }}"
+                            class="{{ 'c-infolist__content o-toggle__target break-words u-pb-0_5'|prefixClass }}"
                             data-toggle-id="news"
                             id="infolistContentNews">
                             {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_newslist.html.twig' %}
@@ -306,7 +306,7 @@
                     {% apply spaceless %}
 
                         <ul
-                            class="{{ ('c-tabs__titles u-m-0 u-pt-0_5 text--right ' ~ ['c-tabs__titles--1', 'c-tabs__titles--2', 'c-tabs__titles--3']|filter((value, key) => key + 1 == tabCount|default(1))|first)|prefixClass }}"
+                            class="{{ ('c-tabs__titles u-m-0 u-pt-0_5 text-right ' ~ ['c-tabs__titles--1', 'c-tabs__titles--2', 'c-tabs__titles--3']|filter((value, key) => key + 1 == tabCount|default(1))|first)|prefixClass }}"
                             role="tablist">
 
                             {# Map #}
@@ -400,7 +400,7 @@
                 {# Map #}
                 {% if isMapEnabled %}
                 <section
-                    class="{{ 'c-map c-tabs__panel u-nojs-hide--block cf bg-color--white'|prefixClass }}"
+                    class="{{ 'c-map c-tabs__panel u-nojs-hide--block flow-root bg-color--white'|prefixClass }}"
                     :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsMap'}"
                     id="procedureDetailsMap"
                     :hidden="Boolean(activeTab !== '#procedureDetailsMap')"

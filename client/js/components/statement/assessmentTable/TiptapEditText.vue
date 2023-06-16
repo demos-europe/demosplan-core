@@ -17,7 +17,7 @@
 
 <template>
   <div class="c-edit-field">
-    <p class="position--relative cf">
+    <p class="relative flow-root">
       <span class="weight--bold">
         {{ Translator.trans(title) }}
       </span>
@@ -59,7 +59,7 @@
           </button>
         </template>
       </dp-editor>
-      <div class="text--right space-inline-s">
+      <div class="text-right space-inline-s">
         <dp-button
           :busy="loading"
           data-cy="tipTapSave"
@@ -75,7 +75,7 @@
     </div>
 
     <div
-      class="position--relative u-pr"
+      class="relative u-pr"
       v-else>
       <template v-if="shortText !== ''">
         <dp-height-limit

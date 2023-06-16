@@ -15,7 +15,7 @@
       <h3>{{ Translator.trans('segment.recommendation.insert.similar') }}</h3>
       <div class="layout u-mb">
         <div class="layout__item u-1-of-3">
-          <span class="display--block weight--bold">
+          <span class="block weight--bold">
             {{ Translator.trans('segment.tags') }}
           </span>
           <div class="bg-color--grey-light-2 u-p-0_25">

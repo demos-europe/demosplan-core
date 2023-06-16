@@ -32,7 +32,7 @@
                                     :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
                                 </dp-editor>
                             {% else %}
-                                <span class="c-styled-html overflow-word-break">
+                                <span class="c-styled-html break-words">
                                     {{- statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? ['dp-obscure'] : []) -}}
                                 </span>
                             {% endif %}
@@ -79,7 +79,7 @@
 
                 <div class="layout__item u-1-of-2">
                     {% if hasPermission('field_statement_recommendation') %}
-                        <label class="o-form__label cf" for="r_recommendation">
+                        <label class="o-form__label flow-root" for="r_recommendation">
                             {{ "recommendation"|trans }}
 
                             {% if (
@@ -91,7 +91,7 @@
                                 </span>
 
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                    cssClasses: 'float--right',
+                                    cssClasses: 'float-right',
                                     helpText: 'recommendation.publicly.visible'|trans
                                 } %}
                             {% endif %}
@@ -127,13 +127,13 @@
                                 </template>
                             </dp-editor>
                         {% else %}
-                            <span class="overflow-word-break">
+                            <span class="break-words">
                                 {{- statement.recommendation|default('<p>n/a</p>')|wysiwyg -}}
                             </span>
                         {% endif %}
 
                         {% if hasPermission('feature_statements_fragment_consideration') and not readonly  %}
-                            <div class="text--right">
+                            <div class="text-right">
                                 <dp-button
                                     :busy="busyCopyFromFragments"
                                     class="u-mb-0_5"
@@ -148,8 +148,8 @@
                         {% set versionsCountString = (templateVars.table.version.total) ? '(' ~ templateVars.table.version.total ~ ')' : '' %}
                         <dp-accordion
                           title="{{ "recommendation.versions"|trans }} {{ versionsCountString }}"
-                          button-class="text--left">
-                            <div class="overflow-word-break">
+                          button-class="text-left">
+                            <div class="break-words">
                                 {% if templateVars.table.version.total == 0 %}
                                     <p>{{ "recommendation.versions.none"|trans }}</p>
                                 {% else %}
@@ -159,17 +159,17 @@
                                             <div class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
                                                 <div class="border--bottom u-mb-0_25">
 
-                                                    <div class="o-hellip--nowrap u-1-of-5 u-pr display--inline-block weight--bold cursor--help" title="{{ "date"|trans }}: {{ version.created|default()|dplanDate('d.m.Y H:i') }}">
+                                                    <div class="o-hellip--nowrap u-1-of-5 u-pr inline-block weight--bold cursor-help" title="{{ "date"|trans }}: {{ version.created|default()|dplanDate('d.m.Y H:i') }}">
                                                         {{ version.created|default()|dplanDate('d.m.Y H:i') }}
                                                     </div><!--
 
-                                                 --><div class="o-hellip--nowrap u-4-of-5 display--inline-block cursor--help" title="{{ "official"|trans }}: {{ version.userName|default('') }}">
+                                                 --><div class="o-hellip--nowrap u-4-of-5 inline-block cursor-help" title="{{ "official"|trans }}: {{ version.userName|default('') }}">
                                                         {{ version.userName|default('') }}
                                                     </div>
 
                                                 </div>
 
-                                                <div class="cursor--help" title="{{ "recommendation"|trans }}">
+                                                <div class="cursor-help" title="{{ "recommendation"|trans }}">
                                                     {{ version.value|default|wysiwyg }}
                                                 </div>
                                             </div>

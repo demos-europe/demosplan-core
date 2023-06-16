@@ -11,7 +11,7 @@
         {% set fieldDefinitions = fieldDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
     {% endfor %}
 
-    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 position--relative cf">
+    <h1 class="font-size-h1 border--bottom u-mb u-pb-0_5 relative flow-root">
         {{ 'adjustments.general'|trans }}
         {% block wizard_trigger %}
             <button
@@ -150,16 +150,16 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="internal" class="o-wizard__content cf">
+                    <div data-toggle-id="internal" class="o-wizard__content flow-root">
                         <div class="o-wizard__main">
                             {% if hasPermission('field_procedure_adjustments_planning_agency') %}
-                                <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_agency">
+                                <div class="u-mb flow-root">
+                                    <label class="inline-block u-mb-0" for="r_agency">
                                         {{ "planningagency"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.planning_agency'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
 
@@ -186,8 +186,8 @@
                                 </div>
                             {% endif %}
 
-                            <div class="u-mb cf">
-                                <label class="display--inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
+                            <div class="u-mb flow-root">
+                                <label class="inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
                                     {{ "email.procedure.agency"|trans }}*
                                     <p class="weight--normal">
                                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
@@ -195,7 +195,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.procedure.agency.help'|trans,
-                                    cssClasses:'float--right u-mt-0_125',
+                                    cssClasses:'float-right u-mt-0_125',
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
@@ -207,8 +207,8 @@
                                        required>
                             </div>
 
-                            <div class="u-mb cf">
-                                <label class="display--inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
+                            <div class="u-mb flow-root">
+                                <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                                     {{ "email.address.more"|trans }}
                                     <p class="weight--normal">
                                         {{ "email.address.more.explanation"|trans|wysiwyg }}
@@ -216,7 +216,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.address.more.explanation.help'|trans,
-                                    cssClasses:'float--right u-mt-0_125',
+                                    cssClasses:'float-right u-mt-0_125',
                                     showPlainHint: true
                                 } %}
 
@@ -229,13 +229,13 @@
                             </div>
 
                             {% if hasPermission('feature_use_data_input_orga') %}
-                                <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_dataInputOrga">
+                                <div class="u-mb flow-root">
+                                    <label class="inline-block u-mb-0" for="r_dataInputOrga">
                                         {{ "data.input.orga"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.data_input_orgas'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
 
@@ -261,13 +261,13 @@
                             {% endif %}
 
                             {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
-                                <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="r_authorizedUsers">
+                                <div class="u-mb flow-root">
+                                    <label class="inline-block u-mb-0" for="r_authorizedUsers">
                                         {{ "authorized.users"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.authorized.users'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
 
@@ -299,7 +299,7 @@
                             {# The procedure type is set only once, when creating a procedure.
                                It can't nbe changed afterwards. Anyhow, the user is informed here which type
                                the procedure was created with. #}
-                            <div class="u-mb cf">
+                            <div class="u-mb flow-root">
                                 <p class="weight--bold u-mb-0">
                                     {{ "text.procedures.type"|trans }}
                                 </p>
@@ -313,13 +313,13 @@
                                 </p>
                             </div>
 
-                            <div class="u-mb-0_5 cf">
-                                <label class="display--inline-block u-mb-0" for="r_desc">
+                            <div class="u-mb-0_5 flow-root">
+                                <label class="inline-block u-mb-0" for="r_desc">
                                     {{ "internalnote"|trans }}
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'text.procedure.edit.note'|trans,
-                                    cssClasses:'float--right u-mt-0_125',
+                                    cssClasses:'float-right u-mt-0_125',
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
@@ -352,7 +352,7 @@
                         type="button"
                         data-cy="wizardNext"
                         data-dp-validate-capture-click
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                         {{ "wizard.next"|trans }}
                     </button>
                 </fieldset>
@@ -371,17 +371,17 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content flow-root">
                             <div class="o-wizard__main">
 
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_phase">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="r_phase">
                                             {{ "procedure.phase.institutions"|trans }}*
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.internal.change_phase'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <select
@@ -416,13 +416,13 @@
                                 {% endif %}
 
                                 {% if hasPermission('feature_procedure_legal_notice_read') %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_legalNotice">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="r_legalNotice">
                                             {{ "procedure.legalNotice"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.internal.legalNotice'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -439,8 +439,8 @@
                                     </div>
                                 {% endif %}
 
-                                <div class="u-mb cf">
-                                    <label class="display--inline-block u-9-of-10 u-mb-0" for="r_startdate">
+                                <div class="u-mb flow-root">
+                                    <label class="inline-block u-9-of-10 u-mb-0" for="r_startdate">
                                         {{ "period.institutions"|trans }}*
                                     </label>
                                     {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
@@ -449,7 +449,7 @@
                                     {% endif %}
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextInternalStartDate|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
 
@@ -499,7 +499,7 @@
                             type="button"
                             data-cy="wizardNext"
                             data-dp-validate-capture-click
-                            class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                             {{ "wizard.next"|trans }}
                         </button>
                     </fieldset>
@@ -520,18 +520,18 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content flow-root">
                             <div class="o-wizard__main space-stack-m">
 
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="cf">
-                                        <label class="display--inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
+                                    <div class="flow-root">
+                                        <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
                                             {{ "procedure.public.phase"|trans }}*
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.change_phase'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <select
@@ -563,8 +563,8 @@
                                 {% endif %}
 
                                 {# start/end date for public participation #}
-                                <div class="cf">
-                                    <label class="display--inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
+                                <div class="flow-root">
+                                    <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
                                         {{ "period.public"|trans }}*
                                     </label>
 
@@ -575,7 +575,7 @@
 
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextExternalStartDate|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
                                     <dp-date-range-picker
@@ -634,7 +634,7 @@
                             type="button"
                             data-cy="wizardNext"
                             data-dp-validate-capture-click
-                            class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                             {{ "wizard.next"|trans }}
                         </button>
                     </fieldset>
@@ -654,18 +654,18 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="nameAddress" class="o-wizard__content cf">
+                    <div data-toggle-id="nameAddress" class="o-wizard__content flow-root">
                         <div class="o-wizard__main">
 
                             {% if hasPermission('feature_institution_participation') %}
                                 {% block procedurename %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="counter_input">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="counter_input">
                                             {{ "procedure.name"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.name'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -685,13 +685,13 @@
                             {% endif %}
 
                             {% if hasPermission('area_public_participation') %}
-                                <div class="u-mb cf">
-                                    <label class="display--inline-block u-mb-0" for="counter_oeb_input">
+                                <div class="u-mb flow-root">
+                                    <label class="inline-block u-mb-0" for="counter_oeb_input">
                                         {{ "procedure.name.public"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.name.public'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -710,13 +710,13 @@
                             {% endif %}
 
                             {% if hasPermission('feature_short_url') %}
-                                <div class="cf">
-                                    <label class="display--inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
+                                <div class="flow-root">
+                                    <label class="inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
                                         {{ "procedure.url.public"|trans }}
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'explanation.shorturl'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -734,7 +734,7 @@
                                     <p class="u-mt-0_25 u-mb-0_25"><strong>{{ 'preview'|trans }}:</strong></p>
                                     <p
                                         id="shortUrl_preview"
-                                        class="display--inline-block u-mt-0 u-mb-0_25 overflow-word-break max-width-100p"
+                                        class="inline-block u-mt-0 u-mb-0_25 break-words max-width-100p"
                                         data-shorturl="{{ templateVars.shortUrlPath }}/">
                                         {{ templateVars.shortUrlPath }}/{{ templateVars.inData.r_shortUrl|default }}
                                     </p>
@@ -759,7 +759,7 @@
                         type="button"
                         data-cy="wizardNext"
                         data-dp-validate-capture-click
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                         {{ "wizard.next"|trans }}
                     </button>
                 </fieldset>
@@ -784,18 +784,18 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="procedureInfo" class="o-wizard__content cf">
+                        <div data-toggle-id="procedureInfo" class="o-wizard__content flow-root">
                             <div class="o-wizard__main">
 
                                 {% if hasPermission('field_procedure_description') %}
                                     {% block oeb_desc %}
-                                        <div class="u-mb cf">
-                                            <label class="display--inline-block u-mb-0" for="counter_oeb_desc_input">
+                                        <div class="u-mb flow-root">
+                                            <label class="inline-block u-mb-0" for="counter_oeb_desc_input">
                                                 {{ "procedure.description.public"|trans }}
                                             </label>
                                             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                 helpText: 'text.procedure.description.wizard'|trans,
-                                                cssClasses:'float--right u-mt-0_125',
+                                                cssClasses:'float-right u-mt-0_125',
                                                 showPlainHint: true
                                             } %}
 
@@ -812,13 +812,13 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_contact_person') %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_publicParticipationContact">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="r_publicParticipationContact">
                                             {{ 'public.participation.contact'|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -837,19 +837,19 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_pictogram">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="r_pictogram">
                                             {{ 'procedure.pictogram'|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.pictogram'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
-                                         --><label class="layout__item u-1-of-3 cursor--pointer weight--normal">
+                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
                                         </label>
@@ -905,13 +905,13 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_linkbox') %}
-                                    <div class="u-mb cf">
-                                        <label class="display--inline-block u-mb-0" for="r_links">
+                                    <div class="u-mb flow-root">
+                                        <label class="inline-block u-mb-0" for="r_links">
                                             {{ "linkbox"|trans }}
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.link_box'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <dp-editor
@@ -939,7 +939,7 @@
                             type="button"
                             data-cy="wizardNext"
                             data-dp-validate-capture-click
-                            class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                             {{ "wizard.next"|trans }}
                         </button>
                     </fieldset>
@@ -963,14 +963,14 @@
 
                             <div
                                 data-toggle-id="procedureLocation"
-                                class="o-wizard__content cf"
+                                class="o-wizard__content flow-root"
                             >
                                 <div class="o-wizard__main">
 
                                     {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
                                         {% block location %}
-                                            <div class="u-mb cf">
-                                                <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                            <div class="u-mb flow-root">
+                                                <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                                     {{ "public.participation.relation"|trans }}
                                                 </div>
                                                 {# different wording if autocomplete via openGeoDb is enabled #}
@@ -981,7 +981,7 @@
                                                 {% endif %}
                                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                     helpText: location_name_trans_help,
-                                                    cssClasses:'float--right u-mt-0_125',
+                                                    cssClasses:'float-right u-mt-0_125',
                                                     showPlainHint: true
                                                 } %}
                                                 <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
@@ -1005,13 +1005,13 @@
                                         {% endblock location %}
                                     {% endif %}
 
-                                    <div class="u-mb cf">
-                                        <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                    <div class="u-mb flow-root">
+                                        <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                             {{ "public.participation.relation.map"|trans }}*
                                         </div>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.coordinates'|trans,
-                                            cssClasses:'float--right u-mt-0_125',
+                                            cssClasses:'float-right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -1057,7 +1057,7 @@
                                 type="button"
                                 data-cy="wizardNext"
                                 data-dp-validate-capture-click
-                                class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                                class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                                 {{ "wizard.next"|trans }}
                             </button>
                         </fieldset>
@@ -1076,9 +1076,9 @@
                         <i class="fa fa-check"></i>
                     </legend>
 
-                    <div data-toggle-id="phasesParticipation" class="o-wizard__content cf">
+                    <div data-toggle-id="phasesParticipation" class="o-wizard__content flow-root">
                         <div class="o-wizard__main">
-                            <div class="cf">
+                            <div class="flow-root">
                                 <export-settings
                                     :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
                                     :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
@@ -1101,7 +1101,7 @@
                         type="button"
                         data-cy="wizardNext"
                         data-dp-validate-capture-click
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                         {{ "wizard.next"|trans }}
                     </button>
                 </fieldset>
@@ -1120,33 +1120,33 @@
                             <i class="fa fa-check"></i>
                         </legend>
 
-                        <div data-toggle-id="procedureAdditional" class="o-wizard__content cf">
+                        <div data-toggle-id="procedureAdditional" class="o-wizard__content flow-root">
                             <div class="o-wizard__main">
 
-                                <div class="u-mb cf">
-                                    <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                <div class="u-mb flow-root">
+                                    <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry"|trans }}
                                     </div>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
+                                        cssClasses:'float-right u-mt-0_125',
                                         showPlainHint: true
                                     } %}
                                     <div class="layout__item u-pl-0">
                                         <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
-                                        <label for="sendMailsToCounties" class="u-mb-0 display--inline-block weight--normal">
+                                        <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                                         </label>
                                     </div>
                                 </div>
 
-                                <div class="u-mb cf">
-                                    <div class="display--inline-block weight--bold u-9-of-10 u-mb-0">
+                                <div class="u-mb flow-root">
+                                    <div class="inline-block weight--bold u-9-of-10 u-mb-0">
                                         {{ "procedure.notifyCountry.setEmails"|trans }}
                                     </div>
-                                    <p class="flash flash-warning u-mt-0_5 cf">
-                                        <i class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle" aria-hidden="true"></i>
-                                        <span class="u-ml display--block">
+                                    <p class="flash flash-warning u-mt-0_5 flow-root">
+                                        <i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>
+                                        <span class="u-ml block">
                                         {{ 'text.procedure.edit.additional.notifyCounty.setEmails.hint'|trans }}
                                     </span>
                                     </p>
@@ -1185,7 +1185,7 @@
                             type="button"
                             data-cy="wizardNext"
                             data-dp-validate-capture-click
-                            class="btn btn--primary o-wizard__btn o-wizard__btn--next display--none submit">
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
                             {{ "wizard.next"|trans }}
                         </button>
                     </fieldset>
@@ -1195,7 +1195,7 @@
 
                 {# wizard item: Done #}
                 <fieldset data-wizard-topic="{{ 'wizard.topic.done'|trans }}" class="o-wizard">
-                    <div class="o-wizard__content cf">
+                    <div class="o-wizard__content flow-root">
                         <div class="o-wizard__main">
                             {# There is a bunch of Html in here. In a future iteration, "next step" content could be shown
                                based on features, whereas entity naming differences would be resolved using placeholders. #}
@@ -1207,7 +1207,7 @@
 
 
                 {# wizard template #}
-                <div class="o-wizard__additional-elements display--none float--left" aria-hidden="true">
+                <div class="o-wizard__additional-elements hidden float-left" aria-hidden="true">
                     <h2 class="o-wizard__header">{{ "adjustments.general"|trans }}</h2>
                     <div class="o-wizard__close">
                         <i class="fa fa-times" data-wizard-action="close"></i>
@@ -1224,7 +1224,7 @@
                     <button
                         type="button"
                         data-cy="wizardDone"
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--done display--none">
+                        class="btn btn--primary o-wizard__btn o-wizard__btn--done hidden">
                         {{ "wizard.done"|trans }}
                     </button>
                 </div>
@@ -1235,7 +1235,7 @@
 
 
             {# form controls when not in wizard mode #}
-            <div class="text--right space-inline-s">
+            <div class="text-right space-inline-s">
                 <input
                     class="btn btn--primary"
                     id="saveConfig"
