@@ -16,7 +16,7 @@
       type="info" />
     <div
       v-if="!addNewPlace"
-      class="text--right">
+      class="text-right">
       <dp-button
         @click="addNewPlace = true"
         :text="Translator.trans('places.addPlace')" />

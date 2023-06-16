@@ -134,7 +134,7 @@
           <div class="o-hellip__wrapper">
             <div
               v-tooltip="internId"
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap text-right"
               v-text="internId" />
           </div>
         </template>
@@ -259,7 +259,7 @@
       <dp-pager
         v-if="pagination.currentPage"
         :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text--right u-1-of-1"
+        class="u-pt-0_5 text-right u-1-of-1"
         :current-page="pagination.currentPage"
         :total-pages="pagination.totalPages"
         :total-items="pagination.total"

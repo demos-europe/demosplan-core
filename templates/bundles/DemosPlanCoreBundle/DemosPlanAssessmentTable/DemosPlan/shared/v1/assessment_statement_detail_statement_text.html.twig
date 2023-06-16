@@ -133,7 +133,7 @@
                         {% endif %}
 
                         {% if hasPermission('feature_statements_fragment_consideration') and not readonly  %}
-                            <div class="text--right">
+                            <div class="text-right">
                                 <dp-button
                                     :busy="busyCopyFromFragments"
                                     class="u-mb-0_5"
@@ -148,7 +148,7 @@
                         {% set versionsCountString = (templateVars.table.version.total) ? '(' ~ templateVars.table.version.total ~ ')' : '' %}
                         <dp-accordion
                           title="{{ "recommendation.versions"|trans }} {{ versionsCountString }}"
-                          button-class="text--left">
+                          button-class="text-left">
                             <div class="break-words">
                                 {% if templateVars.table.version.total == 0 %}
                                     <p>{{ "recommendation.versions.none"|trans }}</p>

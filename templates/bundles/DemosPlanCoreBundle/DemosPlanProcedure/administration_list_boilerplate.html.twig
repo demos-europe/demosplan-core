@@ -71,7 +71,7 @@
                     <th>
                         {{ "area.category.show" |trans }}
                     </th>
-                    <th class="text--center">
+                    <th class="text-center">
                         {{ "actions" |trans }}
                     </th>
                     <th></th>
@@ -105,7 +105,7 @@
                                 {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
                             {% endfor %}
                         </td>
-                        <td class="text--center">
+                        <td class="text-center">
                             <a
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
                                 class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything">
@@ -166,7 +166,7 @@
                         </label>
                     </td>
                     <td></td>
-                    <td class="text--center">
+                    <td class="text-center">
                         <dp-flyout>
                             <a href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}">
                                 {{ 'boilerplate.generate' |trans }}
@@ -187,7 +187,7 @@
                     <td>
                         {% if boilerplateGroup.boilerplates|length > 0 %}
                             <div
-                                class="text--right u-pr-0_5 o-toggle__trigger js__toggleAnything is-active-toggle"
+                                class="text-right u-pr-0_5 o-toggle__trigger js__toggleAnything is-active-toggle"
                                 data-toggle="#{{ boilerplateGroup.id|default }}">
                                 <i class="fa o-toggle__icon--angle" aria-hidden="true"></i>
                             </div>

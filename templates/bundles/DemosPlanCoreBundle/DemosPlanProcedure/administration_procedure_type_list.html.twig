@@ -9,7 +9,7 @@
         {{ 'text.procedures.types.hint'|trans }} {{ 'text.procedure.types.edit.and.create'|trans }}
     </p>
 
-    <div class="text--right u-mv">
+    <div class="text-right u-mv">
         {{ uiComponent('button', {
             style: 'primary',
             text: 'procedure.type.new'|trans,
@@ -23,7 +23,7 @@
                 <p><strong>{{ procedureType.name }}</strong></p>
                 <p>{{ procedureType.description }}</p>
             </div><!--
-        --><div class="layout__item u-1-of-6 text--right">
+        --><div class="layout__item u-1-of-6 text-right">
                 <a
                     class="o-link--default"
                     href="{{ path('DemosPlan_procedureType_edit', { procedureTypeId: procedureType.id }) }}">

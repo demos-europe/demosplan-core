@@ -39,7 +39,7 @@
         class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
           {{ user.attributes.email }}
         </div><!--
-      --><div class="text--right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
+      --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
             <button
               type="button"
               title="Löschen"

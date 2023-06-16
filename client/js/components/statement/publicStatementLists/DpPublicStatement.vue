@@ -45,7 +45,7 @@
             </button>
           </div>
         </div><!--
-     --><div class="layout__item u-1-of-12 u-3-of-4-desk-up u-pl-0 text--right">
+     --><div class="layout__item u-1-of-12 u-3-of-4-desk-up u-pl-0 text-right">
           <div class="show-desk-up-i">
             <div
               v-for="item in menuItems"

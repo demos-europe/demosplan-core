@@ -116,7 +116,7 @@
       </div>
 
       <!-- 'Continue' and 'Back to consideration table' buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <a
           class="btn btn--primary"
           role="button"
@@ -167,7 +167,7 @@
       </div>
 
       <!-- Back to edit and apply buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <dp-button
           :busy="isLoading"
           icon-after="chevron-right"

@@ -6,7 +6,7 @@ exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
     <h3 class=\\"layout__item u-1-of-3\\">
       map.overlays
     </h3>
-    <div class=\\"layout__item u-2-of-3 text--right\\"><button class=\\"btn--blank o-link--default\\">
+    <div class=\\"layout__item u-2-of-3 text-right\\"><button class=\\"btn--blank o-link--default\\">
         map.set.order.tree
       </button> <button class=\\"btn--blank o-link--default u-ml\\">
         map.set.order.map
@@ -18,9 +18,9 @@ exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
       <div class=\\"layout__item u-9-of-12\\">
         description
       </div>
-      <div class=\\"layout__item u-1-of-12 text--right\\"><i class=\\"fa fa-link u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text--right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text--right\\">
+      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-link u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+      <div class=\\"layout__item u-1-of-12 text-right\\">
         edit
       </div>
     </div>
@@ -37,8 +37,8 @@ exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
       <div class=\\"layout__item u-10-of-12 u-pl-0_5\\">
         description
       </div>
-      <div class=\\"layout__item u-1-of-12 text--right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text--right\\">
+      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
+      <div class=\\"layout__item u-1-of-12 text-right\\">
         edit
       </div>
     </div>

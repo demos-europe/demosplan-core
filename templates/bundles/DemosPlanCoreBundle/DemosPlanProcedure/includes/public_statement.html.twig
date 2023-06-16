@@ -98,14 +98,14 @@
         {% if ownsProcedure(proceduresettings) and hasPermission('feature_statements_vote')%}
 
             {% if ('hidden' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external')) %}
-                <div class="{{ 'text--left float-left'|prefixClass }}">
+                <div class="{{ 'text-left float-left'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution.public.config"|trans }}
                     </p>
                 </div>
 
             {% elseif ('hidden' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')) %}
-                <div class="{{ 'text--right float-right'|prefixClass }}">
+                <div class="{{ 'text-right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.public"|trans }}
                     </p>
@@ -115,7 +115,7 @@
             {% elseif ('write' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external'))
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float-right'|prefixClass }}">
+                <div class="{{ 'text-right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution"|trans }}
                     </p>
@@ -126,7 +126,7 @@
             {% if 'write' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float-right'|prefixClass }}">
+                <div class="{{ 'text-right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution.public"|trans }}
                     </p>
@@ -136,13 +136,13 @@
             {% elseif 'write' == getProcedurePermissionset('internal') and 'read' == getProcedurePermissionset('external')
                 and false == hasPermission('feature_statements_vote_may_vote')
             %}
-                <div class="{{ 'text--right float-right'|prefixClass }}">
+                <div class="{{ 'text-right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.invitable_institution"|trans }}
                     </p>
                 </div>
             {% elseif 'read' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
-                <div class="{{ 'text--right float-right'|prefixClass }}">
+                <div class="{{ 'text-right float-right'|prefixClass }}">
                     <p class="{{ 'flash flash-info'|prefixClass }}">
                         {{ "explanation.statement.cosign.public"|trans }}
                     </p>

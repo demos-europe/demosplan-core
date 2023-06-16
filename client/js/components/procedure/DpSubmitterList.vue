@@ -61,7 +61,7 @@
             class="o-hellip__wrapper">
             <div
               v-text="internId"
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap text-right"
               v-tooltip="internId"
               dir="rtl" />
           </div>

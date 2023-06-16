@@ -92,7 +92,7 @@
           </div>
         </div><!--
      --><div
-          class="layout__item text--right u-4-of-7 u-mt u-mb-0_5">
+          class="layout__item text-right u-4-of-7 u-mt u-mb-0_5">
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"

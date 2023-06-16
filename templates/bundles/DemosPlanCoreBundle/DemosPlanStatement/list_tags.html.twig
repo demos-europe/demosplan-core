@@ -59,7 +59,7 @@
                     <th>
                         {{ "boilerplate" |trans }}
                     </th>
-                    <th class="text--center">
+                    <th class="text-center">
                         {{ "actions" |trans }}
                     </th>
                 </tr>
@@ -71,7 +71,7 @@
 
                 <tr>
 
-                    <td colspan="4" class="u-p-0 text--left flow-root">
+                    <td colspan="4" class="u-p-0 text-left flow-root">
 
                         <table class="c-table u-mb-0">
 
@@ -95,7 +95,7 @@
                                 class="o-animate--bg-color">
 
                                 <input type="hidden" name="{{ topic.id }}:r_itemtype" value="topic">
-                                <td class="checkbox u-ph-0 u-pb-0_25 u-pt-0_5 text--center">
+                                <td class="checkbox u-ph-0 u-pb-0_25 u-pt-0_5 text-center">
                                     <label class="u-m-0">
                                         <input type="checkbox" name="{{ topic.id }}:r_selected" data-checkable-item>
                                     </label>
@@ -154,7 +154,7 @@
 
                                 <td></td>
 
-                                <td class="u-pb-0_25 u-pt-0_5 text--right">
+                                <td class="u-pb-0_25 u-pt-0_5 text-right">
                                     <a
                                         href="#"
                                         data-cy="addNewTag"
@@ -197,7 +197,7 @@
                                 class="o-animate--bg-color">
 
                                 <input type="hidden" name="{{ tag.id }}:r_itemtype" value="tag">
-                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--center">
+                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     <label class="u-m-0">
                                         <input type="checkbox" name="{{ tag.id }}:r_selected" data-checkable-item>
                                     </label>
@@ -255,7 +255,7 @@
 
                                 </td>
 
-                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--center">
+                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     {% if tag.boilerplate %}
                                         <dp-tooltip-icon
                                             class="color--grey"
@@ -265,7 +265,7 @@
                                     {% endif %}
                                 </td>
 
-                                <td class="{{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--right">
+                                <td class="{{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-right">
                                     <a
                                         href="#"
                                         data-cy="moveTag"
@@ -304,7 +304,7 @@
                             {% else %}
                                 <tr>
                                     <td></td>
-                                    <td colspan="3" class="u-ph-0 u-pl-0_5 u-pv-0_25 text--left">
+                                    <td colspan="3" class="u-ph-0 u-pl-0_5 u-pv-0_25 text-left">
                                         {{ "topic.noentries" |trans }}
                                         <br>
                                         <a
@@ -326,7 +326,7 @@
 
             {% else %}
                 <tr>
-                    <td colspan="4" class="u-ph-0 u-pl-0_5 u-pv-0_25 text--left">
+                    <td colspan="4" class="u-ph-0 u-pl-0_5 u-pv-0_25 text-left">
                         {{ "tags.noentries"|trans }}
                     </td>
                 </tr>

@@ -9,7 +9,7 @@
 
 <template>
   <button
-    class="o-link--default text--left btn--blank weight--bold block u-1-of-1"
+    class="o-link--default text-left btn--blank weight--bold block u-1-of-1"
     type="button"
     @click="$emit('input', 'DpList')">
     {{ Translator.trans('back.to.results.list') }}

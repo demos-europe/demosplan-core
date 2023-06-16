@@ -46,7 +46,7 @@
       v-if="false === isLoading">
       <div class="u-mt">
       <!--Button row --><!--
-     --><div class="text--right float-right inline-block u-4-of-7 u-mb-0_5">
+     --><div class="text-right float-right inline-block u-4-of-7 u-mb-0_5">
           <button
             class="btn btn--primary inline"
             value="inviteSelected"

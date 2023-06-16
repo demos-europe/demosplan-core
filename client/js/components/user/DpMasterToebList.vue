@@ -19,7 +19,7 @@
       :observe-context="false"
       :class="{'u-1-of-1': isFullscreen}">
       <div
-        class="text--right"
+        class="text-right"
         :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}">
         <button
           class="btn--blank color-main u-mt-0_125 u-mr-0_75"
@@ -173,7 +173,7 @@
       </div>
 
       <!-- Pager & "Items per page" control -->
-      <div class="u-mv-0_5 text--right">
+      <div class="u-mv-0_5 text-right">
         <sliding-pagination
           v-if="totalPages > 1"
           class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"

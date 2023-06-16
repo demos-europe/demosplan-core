@@ -29,7 +29,7 @@
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div><!--
-       --><div class="u-2-of-3 text--right inline-block space-inline-s">
+       --><div class="u-2-of-3 text-right inline-block space-inline-s">
             <dp-button
               data-cy="addPublicAgency"
               :text="Translator.trans('invitable_institution.add')"

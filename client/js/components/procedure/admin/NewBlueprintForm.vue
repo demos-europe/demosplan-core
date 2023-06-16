@@ -118,7 +118,7 @@
           {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
         </p>
 
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
           <input
             class="btn btn--primary"
             type="submit"

@@ -198,7 +198,7 @@
             <button
               v-else
               @click="gotoTab('procedureDetailsDocumentlist')"
-              :class="prefixClass('btn--blank o-link--default text--left')">
+              :class="prefixClass('btn--blank o-link--default text-left')">
               <i
                 aria-hidden="true"
                 :class="prefixClass('fa fa-plus')" />
@@ -307,7 +307,7 @@
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text--right u-mv-0_5 flow-root u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right u-mv-0_5 flow-root u-mt-0_5 space-inline-s')">
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
@@ -370,7 +370,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text--right u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right u-mt-0_5 space-inline-s')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -493,7 +493,7 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text--right u-mt-0_5')">
+        <div :class="prefixClass('text-right u-mt-0_5')">
           <button
             type="button"
             data-cy="submitterForm"
@@ -557,7 +557,7 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('text--right')">
+        <div :class="prefixClass('text-right')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -613,7 +613,7 @@
               {{ Translator.trans('pdf.download') }}
             </a>
 
-            <span :class="prefixClass('float-right text--right u-1-of-1-palm u-mt-0_5-palm')">
+            <span :class="prefixClass('float-right text-right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"

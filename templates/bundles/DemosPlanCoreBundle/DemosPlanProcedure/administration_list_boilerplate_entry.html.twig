@@ -24,7 +24,7 @@
             {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
         {% endfor %}
     </td>
-    <td class="text--center">
+    <td class="text-center">
         <a
          href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
          data-cy="procedureBoilerplateEdit"

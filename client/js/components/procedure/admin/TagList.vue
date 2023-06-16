@@ -11,7 +11,7 @@
   <div class="u-mt-0_5">
     <div
       v-if="!addNewTag"
-      class="text--right">
+      class="text-right">
       <dp-button
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm()" />

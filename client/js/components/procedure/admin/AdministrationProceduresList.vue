@@ -15,7 +15,7 @@
 
       <div
         v-if="hasPermission('feature_admin_new_procedure')"
-        class="text--right">
+        class="text-right">
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
@@ -131,7 +131,7 @@
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
           v-text="statementsCount"
-          class="text--center" />
+          class="text-center" />
       </template>
 
       <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">

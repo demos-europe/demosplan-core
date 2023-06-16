@@ -24,7 +24,7 @@
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
-      class="font-size-smaller text--center block"
+      class="font-size-smaller text-center block"
       style="margin-top: -4px;">
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>

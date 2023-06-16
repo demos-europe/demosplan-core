@@ -179,7 +179,7 @@
         </div>
 
         <!-- Button row -->
-        <div class="text--right">
+        <div class="text-right">
           <button
             class="btn btn--primary u-mr"
             type="button"

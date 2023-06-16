@@ -99,7 +99,7 @@
                             {% endif %}
 
                             {% if statementIdToBeSplit is defined and statementIdToBeSplit is not null %}
-                                <div class="u-mt text--right">
+                                <div class="u-mt text-right">
                                     <form method="post" action="{{ path('dplan_drafts_list_claim', {'statementId':statementIdToBeSplit, 'procedureId': procedure}) }}">
                                         {{ uiComponent('button', {
                                             type: 'submit',
@@ -236,7 +236,7 @@
                                                 <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
                                                     {{ procedure.title }}
                                                 </td>
-                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                <td data-selector="legendFreq" class="u-1-of-12 text-right">
                                                     {{ procedure.value }}
                                                 </td>
                                             </tr>
@@ -255,7 +255,7 @@
                                                 <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
                                                     {{ procedure.title }}
                                                 </td>
-                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                <td data-selector="legendFreq" class="u-1-of-12 text-right">
                                                     {{ procedure.value }}
                                                 </td>
                                             </tr>

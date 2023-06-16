@@ -59,7 +59,7 @@
           </button>
         </template>
       </dp-editor>
-      <div class="text--right space-inline-s">
+      <div class="text-right space-inline-s">
         <dp-button
           :busy="loading"
           data-cy="tipTapSave"

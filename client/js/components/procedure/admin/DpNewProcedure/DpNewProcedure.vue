@@ -185,7 +185,7 @@
         <couple-token-input :token-length="tokenLength" />
       </div>
 
-      <div class="space-inline-s text--right">
+      <div class="space-inline-s text-right">
         <dp-button
           id="saveBtn"
           :text="Translator.trans('save')"

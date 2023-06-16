@@ -88,7 +88,7 @@
    --><template
         v-if="(layer.type === 'GisLayer')">
 <!--
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
           <a
             v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
             @click.stop.prevent="toggleVisibilityGroup"
@@ -98,7 +98,7 @@
             <i :class="[iconClass,showGroupableIcon]" />
           </a>
         </div><!--
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
           <input
             type="checkbox"
             :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
@@ -111,7 +111,7 @@
             Show this Stuff for 'special category that looks like an Layer and hides all his children'
    --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
 <!--
-     --><div class="layout__item u-2-of-12 text--right">
+     --><div class="layout__item u-2-of-12 text-right">
           <input
             type="checkbox"
             @change.prevent="toggleHasDefaultVisibility"
@@ -122,10 +122,10 @@
 </template><!--
    --><div
         v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-        class="layout__item u-2-of-12 text--right">
+        class="layout__item u-2-of-12 text-right">
         <!-- spacer for groups -->
       </div><!--
-   --><div class="layout__item u-1-of-12 text--right">
+   --><div class="layout__item u-1-of-12 text-right">
         <a
           :href="editLink"
           data-cy="editLink">

@@ -59,12 +59,6 @@ $text-directions: (
 );
 
 @each $direction in $text-directions {
-    .text--#{$direction} {
-        text-align: #{$direction} !important;
-    }
-}
-
-@each $direction in $text-directions {
 
     // Loop over breakpoints defined in _settings.responsive.scss
     @each $breakpoint in $breakpoints {
@@ -74,7 +68,7 @@ $text-directions: (
 
         @include media-query($alias) {
 
-            .text--#{$direction}-#{$alias} {
+            .text-#{$direction}-#{$alias} {
                 text-align: #{$direction} !important;
             }
         }

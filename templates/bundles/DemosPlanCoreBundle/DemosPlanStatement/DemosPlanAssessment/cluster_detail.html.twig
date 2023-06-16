@@ -112,12 +112,12 @@
 
                                             <thead>
                                                 <tr class="color--grey u-1-of-1">
-                                                    <th class="text--left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'id'|trans }}</th>
+                                                    <th class="text-left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'id'|trans }}</th>
                                                     {% if hasPermission('field_statement_intern_id') %}
-                                                        <th class="text--left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'internId'|trans }}</th>
+                                                        <th class="text-left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'internId'|trans }}</th>
                                                     {% endif %}
                                                     {% if formDefinitions.name.enabled == true %}
-                                                        <th class="text--left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'submitter.name'|trans }}</th>
+                                                        <th class="text-left u-pr-2 u-pb-0_5 lbl color--grey-dark">{{ 'submitter.name'|trans }}</th>
                                                     {% endif %}
                                                 </tr>
                                             </thead>
@@ -189,7 +189,7 @@
 
                 {# button row #}
                 {% if not readonly %}
-                    <div class="text--right space-inline-s u-pv-0_5 bg-color--white">
+                    <div class="text-right space-inline-s u-pv-0_5 bg-color--white">
                         <input class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down" type="submit" name="submit_item_button" value="{{ "save"|trans }}">
                         <input class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down" type="submit" name="submit_item_return_button" v-save-and-return value="{{ "save.and.return.to.list"|trans }}">
                         <a class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down" role="button"

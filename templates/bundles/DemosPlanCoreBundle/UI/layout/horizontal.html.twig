@@ -14,7 +14,7 @@
 
 {% set omitPrefix  = omitCssPrefix ?? true %}
 
-{% set aligningClass = align|default('left') == 'right' ? 'text--right'|prefixClass(omitPrefix) : '' %}
+{% set aligningClass = align|default('left') == 'right' ? 'text-right'|prefixClass(omitPrefix) : '' %}
 
 {% set outer = [classes|default]|merge([aligningClass]) %}
 

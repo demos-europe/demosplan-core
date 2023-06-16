@@ -93,7 +93,7 @@
           id="planstatus"
           :disabled="!isPlanStatusEditing"
           :calendars-before="2" /><!--
-       --><div class="inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -141,7 +141,7 @@
             :disabled="!isMapStatusEditing"
             v-model="isMapEnabled" />
         </div><!--
-       --><div class="inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -194,7 +194,7 @@
               {{ Translator.trans(option.label) }}
             </option>
           </select><!--
-       --><div class="inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"

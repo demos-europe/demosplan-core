@@ -231,7 +231,7 @@
           </div><!--
 
        --><div
-            class="inline-block u-pt-0_25 text--right float-right">
+            class="inline-block u-pt-0_25 text-right float-right">
             <!-- Votes -->
             <span
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"

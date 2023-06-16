@@ -37,7 +37,7 @@
     </td>
    {% if hasPermission('field_organisation_paper_copy_spec') %}
        {% set colspan = colspan - 1 %}
-        <td class="text--left u-pb-0_25 u-pt-0_25" title="{{ "copies.kind"|trans }}">
+        <td class="text-left u-pb-0_25 u-pt-0_25" title="{{ "copies.kind"|trans }}">
             {% if orga.paperCopySpec is defined %}
                 {{ orga.paperCopySpec }}
             {% else %}
@@ -47,7 +47,7 @@
     {% endif %}
     {% if hasPermission('field_organisation_paper_copy') %}
         {% set colspan = colspan - 1 %}
-        <td class="text--center" title="{{ 'copies'|trans }}">
+        <td class="text-center" title="{{ 'copies'|trans }}">
             {% if orga.paperCopy is defined %}
                 {{ orga.paperCopy }}
             {% else %}
@@ -55,14 +55,14 @@
             {% endif %}
         </td>
     {% endif %}
-    <td class="u-pl-0_5 text--center" title="{{ 'statement'|trans }}">
+    <td class="u-pl-0_5 text-center" title="{{ 'statement'|trans }}">
         {% if templateVars.orgaStatements[orga.id] is defined %}
             {{ templateVars.orgaStatements[orga.id]}}
         {% else %}
             -
         {% endif %}
     </td>
-    <td class="u-pl-2 text--center" title="{{ 'invitation'|trans }}">
+    <td class="u-pl-2 text-center" title="{{ 'invitation'|trans }}">
         {% if orga.ident in templateVars.orgaInvitationemailSent|default([]) %}
             <i class="fa fa-check-circle" style="color: #4c8b22" aria-hidden="true"></i>
         {% endif %}

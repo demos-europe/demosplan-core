@@ -193,7 +193,7 @@
         @primary-action="save"
         @secondary-action="abort" />
     </div>
-    <div class="segment-list-col--m text--right shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">

@@ -48,7 +48,7 @@
             </div>
           </div><!--
 
-       --><div class="inline-block text--right u-3-of-4">
+       --><div class="inline-block text-right u-3-of-4">
             <dp-fragment-status
               v-if="hasPermission('feature_statements_fragment_advice')"
               :status="item.voteAdvice === null ? '' : fixCompoundVotes(item.voteAdvice)"

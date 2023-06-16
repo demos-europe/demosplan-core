@@ -60,7 +60,7 @@
           @click.prevent="handleBulkEdit"
           :text="Translator.trans('segments.bulk.edit')" />
       </dp-bulk-edit-header>
-      <div class="u-mt text--right">
+      <div class="u-mt text-right">
         <dp-column-selector
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
@@ -106,7 +106,7 @@
         <template v-slot:internId="rowData">
           <div class="o-hellip__wrapper">
             <div
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap text-right"
               v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
               dir="rtl">
               {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
@@ -219,7 +219,7 @@
       <dp-pager
         v-if="pagination.currentPage"
         :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text--right u-1-of-1"
+        class="u-pt-0_5 text-right u-1-of-1"
         :current-page="pagination.currentPage"
         :total-pages="pagination.totalPages"
         :total-items="pagination.total"

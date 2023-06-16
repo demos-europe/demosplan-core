@@ -71,7 +71,7 @@
           </td>
 
           <td
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text--right cursor-pointer"
+            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
             style="width: 5%">
             <i
               class="btn-icns fa cursor-pointer"

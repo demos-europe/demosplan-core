@@ -274,7 +274,7 @@
                 @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })" />
               <div
                 v-else
-                class="text--right">
+                class="text-right">
                 <dp-button
                   :text="Translator.trans('edit')"
                   @click="toggleIsRowEditable({ id: rowData.tokenId })" />

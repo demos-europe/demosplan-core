@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="text--right u-pv-0_5">
+    <div class="text-right u-pv-0_5">
       <a
         class="btn btn--primary"
         :href="pathForNewsCreation"
