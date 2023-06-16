@@ -322,7 +322,7 @@ useful info about the component:
       <!--TEXT and CONSIDERATION / considerationAdvice - either consideration field or considerationAdvice field is displayed, depending on permissions -->
       <div class="layout--flush">
 <!--
-     --><div class="display--flex">
+     --><div class="flex">
           <tiptap-edit-text
             title="fragment.text"
             class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right"

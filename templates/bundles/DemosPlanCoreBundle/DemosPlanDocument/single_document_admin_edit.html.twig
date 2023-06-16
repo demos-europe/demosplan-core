@@ -22,7 +22,7 @@
     >
         <input type="hidden" value="singledocumentedit" name="r_action">
 
-        <fieldset class="display--flex u-pb-0">
+        <fieldset class="flex u-pb-0">
             <legend class="font-size-medium u-mb-0_25">{{ 'status'|trans }}</legend>
             <dp-radio
                 id="visbility_true"
@@ -76,7 +76,7 @@
         } %}
 
         {% if hasPermission('feature_single_document_statement') %}
-            <fieldset class="display--flex u-pb-0">
+            <fieldset class="flex u-pb-0">
                 <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
                 <dp-radio
                     id="statement_enabled_true"

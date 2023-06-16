@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex')">
+    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
         data-cy="procedureSearch"

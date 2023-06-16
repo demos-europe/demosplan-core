@@ -155,9 +155,9 @@
       </template>
       <template v-slot:expandedContent="rowData">
         <span data-dp-validate="saveEditAuthorisedUser">
-          <div class="display--flex">
+          <div class="flex">
             <div class="align-top u-1-of-3">
-              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 display--flex width-160">
+              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 flex width-160">
                 <p
                   :id="`userToken:${rowData.tokenId}`"
                   class="u-m-0">

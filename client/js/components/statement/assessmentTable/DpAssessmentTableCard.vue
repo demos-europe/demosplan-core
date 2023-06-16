@@ -545,7 +545,7 @@
             title="statement.text"
             class="u-pb-0 u-pt-0"
             :border-bottom="(statement.files.length > 0)">
-            <dl class="display--flex">
+            <dl class="flex">
               <!--
                   Statement text
                   With tiptap we can set obscure as prop always when the obscure button should be visible in the field,

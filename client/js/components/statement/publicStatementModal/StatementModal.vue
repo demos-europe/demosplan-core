@@ -97,7 +97,7 @@
         </div>
 
         <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
-          <div class="display--flex">
+          <div class="flex">
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_false"
