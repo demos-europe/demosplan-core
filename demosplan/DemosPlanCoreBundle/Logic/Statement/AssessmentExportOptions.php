@@ -38,10 +38,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      */
     protected $translator;
 
-    /**
-     * @var Collection
-     */
-    protected $options;
+    protected Collection $options;
 
     /**
      * Site areas with exports.
@@ -151,7 +148,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @throws AssessmentExportOptionsException if unmergable
      */
-    public function mergeOptions(array $options)
+    public function mergeOptions(array $options): Collection
     {
         if (!array_key_exists('defaults', $options)) {
             throw AssessmentExportOptionsException::noDefaultsException();
@@ -262,10 +259,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         return $this->options[$section];
     }
 
-    /**
-     * @return mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): Collection
     {
         return $this->options;
     }

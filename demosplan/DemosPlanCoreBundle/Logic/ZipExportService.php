@@ -142,8 +142,8 @@ class ZipExportService
         DemosFilesystem $fs,
         string $fileFolderPath,
         ZipStream $zip,
-        string ...$fileStrings): void
-    {
+        string ...$fileStrings
+    ): void {
         foreach ($fileStrings as $fileString) {
             try {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($fileString);
@@ -162,7 +162,7 @@ class ZipExportService
             } catch (Exception) {
                 $this->logger->warning('Could not add file to Zip',
                     [
-                        'fileString' => $fileString ?? '',
+                        'fileString' => $fileString,
                         'path'       => '',
                     ]
                 );
