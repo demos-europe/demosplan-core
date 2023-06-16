@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "293b89653c407f66e4a0fde4e577fe01",
+    "content-hash": "8f903773e78e38aeef0d212b8721af85",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1289,16 +1289,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-main",
+            "version": "v0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "bbf598bc1ba43dbf8ee730894c7769759cd201f8"
+                "reference": "c624202898a41a64b9e8bb7bb50e1d3ca95c50df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/bbf598bc1ba43dbf8ee730894c7769759cd201f8",
-                "reference": "bbf598bc1ba43dbf8ee730894c7769759cd201f8",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/c624202898a41a64b9e8bb7bb50e1d3ca95c50df",
+                "reference": "c624202898a41a64b9e8bb7bb50e1d3ca95c50df",
                 "shasum": ""
             },
             "require": {
@@ -1322,7 +1322,6 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
-            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1335,9 +1334,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.0.4"
             },
-            "time": "2023-05-17T12:29:11+00:00"
+            "time": "2023-06-05T07:35:13+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -22159,9 +22158,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "demos-europe/demosplan-addon": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
