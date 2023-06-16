@@ -9,6 +9,8 @@
 
 //  Utility classes: float
 
+// @TODO when refactoring to tailwind, we must first define breakpoints in Tailwind.
+
 .float-right-lap-up {
     @include media-query('lap-up') {
         float: right;
