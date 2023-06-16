@@ -67,7 +67,7 @@
         {% endif %}
 
         {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}
-            <dp-change-state-at-date
+            <change-state-at-date
                 class="u-mb-0_75"
                 regular-dropdown-id="r_enable"
                 delayed-switch-dropdown-id="r_designatedState"
@@ -79,7 +79,7 @@
                 :status-options="JSON.parse('{{ statusOptions|json_encode }}')"
                 default-current-state="{{ currentState }}"
                 default-new-state="{{ templateVars.news.designatedState|default == true ? '1' : '0' }}"
-                init-status="{{ currentState }}"></dp-change-state-at-date>
+                init-status="{{ currentState }}"></change-state-at-date>
         {% else %}
             {{ uiComponent('form.row', {
                 elements: [
