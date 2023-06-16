@@ -15,7 +15,7 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Doctrine\Set\DoctrineSetList;
-use Rector\Php80\Rector\FunctionLike\UnionTypesRector;
+use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
 use Rector\PHPUnit\Set\PHPUnitLevelSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
@@ -40,7 +40,7 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
     $rectorConfig->skip([
         TypedPropertyFromAssignsRector::class,
-        UnionTypesRector::class,
+        MixedTypeRector::class,
         __DIR__.'/../../config/bundles.php',
     ]);
     // $rectorConfig->paths([__DIR__ . '/../../demosplan']);
@@ -50,7 +50,7 @@ return static function (RectorConfig $rectorConfig): void {
         '/tmp/diplanbau/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
     );
     $rectorConfig->autoloadPaths([__DIR__.'/../../vendor/autoload.php']);
-    // $rectorConfig->importNames();
+    $rectorConfig->importNames();
     // $rectorConfig->disableParallel();
     $rectorConfig->parallel(seconds: 180, jobSize: 10);
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
