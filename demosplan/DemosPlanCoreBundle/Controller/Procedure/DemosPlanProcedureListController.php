@@ -63,21 +63,17 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * Public procedure search.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_list_search",
-     *     path="/verfahren/suche",
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
-     * @param string $title Must be empty instead of null to allow
-     *                      URL generation without $orgaSlug somewhere
-     *                      else in the application
+     * @param string $orgaSlug Must be empty instead of null to allow
+     *                         URL generation without $orgaSlug somewhere
+     *                         else in the application
      *
      * @return RedirectResponse|Response|null
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_list_search', path: '/verfahren/suche')]
     public function publicProcedureSearchAction(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -137,21 +133,17 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * Orga branded index page.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_public_orga_index",
-     *     path="/plaene/{orgaSlug}"
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
-     * @param string $title Must be empty instead of null to allow
-     *                      URL generation without $orgaSlug somewhere
-     *                      else in the application
+     * @param string $orgaSlug Must be empty instead of null to allow
+     *                         URL generation without $orgaSlug somewhere
+     *                         else in the application
      *
      * @return RedirectResponse|Response|null
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_public_orga_index', path: '/plaene/{orgaSlug}')]
     public function publicOrgaIndexAction(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -211,17 +203,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     * @Route(
-     *     path="/verfahren/suche/stellungnahmen",
-     *     methods={"GET"},
-     *     name="DemosPlan_procedure_search_statements")
-     *
      * @DplanPermissions("area_admin_procedures", "area_search_submitter_in_procedures")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(path: '/verfahren/suche/stellungnahmen', methods: ['GET'], name: 'DemosPlan_procedure_search_statements')]
     public function findProceduresByStatementAuthorViewAction(ProcedureHandler $procedureHandler)
     {
         $procedures = $procedureHandler->getProceduresForAdmin();
@@ -237,17 +225,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedures_delete",
-     *     path="/verfahren/delete",
-     *     methods={"POST"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedures_delete', path: '/verfahren/delete', methods: ['POST'], options: ['expose' => true])]
     public function deleteProceduresAction(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -256,17 +238,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedure_templates_delete",
-     *     path="/verfahren/blaupausen/delete",
-     *     methods={"POST"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_templates_delete', path: '/verfahren/blaupausen/delete', methods: ['POST'], options: ['expose' => true])]
     public function deleteMasterProceduresAction(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -275,19 +251,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedures_export",
-     *     path="/verfahren/export",
-     *     methods={"GET"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @return StreamedResponse|RedirectResponse
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedures_export', path: '/verfahren/export', methods: ['GET'], options: ['expose' => true])]
     public function exportProceduresAction(ExportService $exportService, Request $request): Response
     {
         $selectedProcedures = $this->getSelectedItems($request);
@@ -303,22 +273,12 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * Liste der Verfahren, die der User administriert.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_administration_post",
-     *     path="/verfahren/verwalten",
-     *     methods={"POST"},
-     * )
-     * @Route(
-     *     name="DemosPlan_procedure_administration_get",
-     *     path="/verfahren/verwalten",
-     *     methods={"GET"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_administration_post', path: '/verfahren/verwalten', methods: ['POST'])]
+    #[Route(name: 'DemosPlan_procedure_administration_get', path: '/verfahren/verwalten', methods: ['GET'], options: ['expose' => true])]
     public function proceduresListAction(ProcedureListService $procedureListService): Response
     {
         $title = 'procedure.admin.list';
@@ -336,17 +296,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * Liste der Verfahrens-Vorlagen, die der User administriert.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_templates_list",
-     *     path="/verfahren/blaupausen",
-     *     methods={"GET"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_templates_list', path: '/verfahren/blaupausen', methods: ['GET'], options: ['expose' => true])]
     public function proceduresMasterListAction(
         PermissionsInterface $permissions,
         ProcedureListService $procedureListService,
@@ -378,18 +332,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * JSON-String der Verfahren in der öffentlichen Beteiligung.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_public_list_json",
-     *     path="/list/json",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_public_list_json', path: '/list/json', options: ['expose' => true])]
     public function publicProcedureListJsonAction(
         CurrentUserInterface $currentUser,
         ContentService $contentService,
@@ -504,16 +453,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * (Umkreis-)Suche nach Verfahren in der öffentlichen Beteiligung.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_public_suggest_procedure_location_json",
-     *     path="/suggest/procedureLocation/json",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_procedure_public_suggest_procedure_location_json', path: '/suggest/procedureLocation/json', options: ['expose' => true])]
     public function searchProcedureJsonAction(
         Request $request,
         CurrentProcedureService $currentProcedureService,
@@ -602,17 +546,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     /**
      * Redirects to procedure filtering by orga slug.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_public_orga_id_index",
-     *     path="/oid/{orgaId}"
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_public_orga_id_index', path: '/oid/{orgaId}')]
     public function publicOrgaIdIndexAction(OrgaHandler $orgaHandler, string $orgaId)
     {
         try {

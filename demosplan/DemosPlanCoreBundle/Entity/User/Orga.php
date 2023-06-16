@@ -130,9 +130,8 @@ class Orga extends SluggedEntity implements OrgaInterface
      * @var string|null
      *
      * @ORM\Column(name="_o_email_reviewer_admin", type="string", length=4096, nullable=true)
-     *
-     * @Assert\Email(message="email.address.invalid")
      */
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $emailReviewerAdmin;
 
     /**
@@ -179,9 +178,8 @@ class Orga extends SluggedEntity implements OrgaInterface
      * @var string|null
      *
      * @ORM\Column(name="_o_email2", type="string", length=364, nullable=true)
-     *
-     * @Assert\Email(message="email.address.invalid")
      */
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $email2;
 
     /**
@@ -218,12 +216,9 @@ class Orga extends SluggedEntity implements OrgaInterface
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
      * )
-     *
-     * @Assert\All({
-     *
-     *     @Assert\Type(type="demosplan\DemosPlanCoreBundle\Entity\User\Address")
-     * })
      */
+    #[Assert\All([new Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')])]
+    #[Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')]
     protected $addresses;
 
     /**

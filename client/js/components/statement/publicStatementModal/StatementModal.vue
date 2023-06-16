@@ -1265,7 +1265,7 @@ export default {
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one
            */
-          if (response.statusText === 'OK') {
+          if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
             this.updateInitialFilesAfterSave()

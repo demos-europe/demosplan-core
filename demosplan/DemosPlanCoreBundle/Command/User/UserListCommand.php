@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -86,7 +87,7 @@ class UserListCommand extends CoreCommand
             $this->outputDataAsTextTable($output, $headers, $data);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     public function outputDataAsHTMLTable(OutputInterface $output, array $headers, Collection $data)

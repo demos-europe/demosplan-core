@@ -72,10 +72,9 @@ class EntrypointController extends BaseController
      * role combination. Guests that end up here will be redirected to
      * the platform's external start page.
      *
-     * @Route(path="/loggedin", name="core_home_loggedin")
-     *
      * @DplanPermissions("area_demosplan")
      */
+    #[Route(path: '/loggedin', name: 'core_home_loggedin')]
     public function loggedInIndexEntrypointAction(Request $request): Response
     {
         // check whether user tried to call route before login
@@ -150,14 +149,13 @@ class EntrypointController extends BaseController
      * ends up at this page, they may need to be re-routed to
      * their designated logged-in index page.
      *
-     * @Route(path="/", name="core_home", options={"expose": true})
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(path: '/', name: 'core_home', options: ['expose' => true])]
     public function indexAction(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,

@@ -17,9 +17,8 @@ class BoilerplateCategoryVO extends ValueObject
 {
     /**
      * @var string
-     *
-     * @Assert\NotBlank(message = "Der Name der Kategorie darf nicht leer sein")
      */
+    #[Assert\NotBlank(message: 'Der Name der Kategorie darf nicht leer sein')]
     protected $id;
 
     /**

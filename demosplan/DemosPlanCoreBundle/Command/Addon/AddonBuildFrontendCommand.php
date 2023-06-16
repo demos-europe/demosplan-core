@@ -22,7 +22,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class AddonBuildFrontendCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:build-frontend';
-
     private AddonRegistry $registry;
 
     public function __construct(AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)

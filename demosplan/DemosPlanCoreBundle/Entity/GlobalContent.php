@@ -64,33 +64,27 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_title", type="string", length=255, nullable=false, options={"default":""})
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
     protected $title = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_pc_description", type="text", length=65535, nullable=true)
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
-     *
-     * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
-     *
-     * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     protected $description = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_pc_text", type="text", length=65535, nullable=true)
-     *
-     * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
-     *
-     * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     protected $text = '';
 
     /**
@@ -125,9 +119,8 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_pc_enabled", type="boolean", nullable=false, options={"default":false })
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
     protected $enabled = false;
 
     /**
@@ -174,9 +167,8 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      *     joinColumns={@ORM\JoinColumn(name="_pc_id", referencedColumnName="_pc_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
-     *
-     * @Assert\Count(min=1, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, minMessage="error.mandatoryfield.visibility")
      */
+    #[Assert\Count(min: 1, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], minMessage: 'error.mandatoryfield.visibility')]
     protected $roles;
 
     // todo: why is this a n:m relation?

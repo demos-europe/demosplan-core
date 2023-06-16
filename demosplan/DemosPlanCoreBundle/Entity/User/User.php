@@ -278,15 +278,14 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @Assert\All({
-     *
-     *     @Assert\NotNull(),
-     *
      *     @RoleAllowedConstraint()
      * })
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
+    #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
+    #[Assert\NotNull]
     protected $roleInCustomers;
 
     /**

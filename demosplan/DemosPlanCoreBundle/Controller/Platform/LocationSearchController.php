@@ -25,13 +25,8 @@ class LocationSearchController extends BaseController
      * Suggest locations.
      *
      * @DplanPermissions("area_demosplan")
-     *
-     * @Route(
-     *     path="/suggest/location/json",
-     *     name="core_suggest_location_json",
-     *     options={"expose": true}
-     * )
      */
+    #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
     public function searchLocationJsonAction(Request $request, LocationService $locationService): Response
     {
         try {

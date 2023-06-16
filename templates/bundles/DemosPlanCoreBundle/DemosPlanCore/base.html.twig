@@ -31,7 +31,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundle('style.css') }}
+            {{ webpackBundles(['demosplan-ui.css', 'style.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}

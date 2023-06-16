@@ -18,6 +18,7 @@ use EFrane\ConsoleAdditions\Batch\Action;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\ShellAction;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -76,7 +77,7 @@ EOT
             && $this->getApplication()->getKernel()->isLocalContainer()) {
             $output->writeln('Will not run in your container to prevent damage.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         // setup log filename
@@ -173,7 +174,7 @@ EOT
 
         $this->clearUpdateLock($fs, $updateLockFile);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

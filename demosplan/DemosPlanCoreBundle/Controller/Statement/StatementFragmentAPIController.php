@@ -30,16 +30,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class StatementFragmentAPIController extends APIController
 {
     /**
-     * @Route("/api/1.0/statement-fragment/{statementFragmentId}/edit",
-     *     methods={"PATCH"},
-     *     name="dplan_api_statement_fragment_edit",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return JsonResponse
      */
+    #[Route(path: '/api/1.0/statement-fragment/{statementFragmentId}/edit', methods: ['PATCH'], name: 'dplan_api_statement_fragment_edit', options: ['expose' => true])]
     public function updateAction(PermissionsInterface $permissions, Request $request, StatementHandler $statementHandler, string $statementFragmentId)
     {
         if (!($this->requestData instanceof TopLevel)) {
