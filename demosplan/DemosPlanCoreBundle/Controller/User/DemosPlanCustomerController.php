@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
@@ -128,16 +129,16 @@ class DemosPlanCustomerController extends BaseController
      */
     #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users')]
     public function sendMailToAllCustomersAction(
+        CustomerHandler $customerHandler,
+        HTMLSanitizer $HTMLSanitizer,
+        MailService $mailService,
         Request $request,
         TranslatorInterface $translator,
-        MailService $mailService,
-        CustomerHandler $customerHandler,
-        HTMLSanitizer $HTMLSanitizer
+        UserService $userService
     ): Response {
         try {
             $currentCustomer = $customerHandler->getCurrentCustomer();
-            $emailAddresses = $currentCustomer->getEmailsOfUsersOfOrgas();
-
+            $emailAddresses = $userService->getEmailsOfUsersOfOrgas($currentCustomer);
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
                 return $this->renderTemplate(

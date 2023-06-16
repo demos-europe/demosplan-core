@@ -213,7 +213,7 @@
 
         <button
           v-if="isAssignedToMe"
-          class="segment-list-toolbar__button btn btn--primary"
+          class="segment-list-toolbar__button btn btn--primary icon-only"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           v-tooltip="{

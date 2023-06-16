@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -1682,5 +1683,28 @@ class UserService extends CoreService implements UserServiceInterface
         }
 
         return $string;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getEmailsOfUsersOfOrgas(Customer $customer): array
+    {
+        $mailAddresses = [];
+        /** @var Orga $orga */
+        foreach ($customer->getOrgas([OrgaStatusInCustomer::STATUS_ACCEPTED]) as $orga) {
+            /** @var User $user */
+            foreach ($orga->getUsers() as $user) {
+                // ensure that user is registered in current customer
+                // avoids that citizens of other customers are notified
+                if ($user->isDeleted() || !in_array($customer->getId(), $user->getCustomersIds(), true)) {
+                    continue;
+                }
+
+                $mailAddresses[] = $user->getEmail();
+            }
+        }
+
+        return $mailAddresses;
     }
 }
