@@ -123,7 +123,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 if ('' !== $filterNameContains) {
                     $orgaList = array_filter(
                         $orgaList,
-                        static fn(Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                        static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
                     );
                 }
             } else {

@@ -10,14 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use Stringable;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
@@ -25,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -191,6 +190,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      */
     #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
+
     public function __construct(/**
      * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
      */
@@ -205,14 +205,17 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->signLanguageOverviewVideos = new ArrayCollection();
         $this->customerCounties = new ArrayCollection();
     }
+
     public function getId(): ?string
     {
         return $this->id;
     }
+
     public function setId(string $id)
     {
         $this->id = $id;
     }
+
     /**
      * @return Collection<int, CustomerCountyInterface>
      */
@@ -220,6 +223,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->customerCounties;
     }
+
     /**
      * @param Collection<int, CustomerCountyInterface> $customerCounties
      */
@@ -227,22 +231,27 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         $this->customerCounties = $customerCounties;
     }
+
     public function getName(): string
     {
         return $this->name;
     }
+
     public function setName(string $name)
     {
         $this->name = $name;
     }
+
     public function getSubdomain(): string
     {
         return $this->subdomain;
     }
+
     public function setSubdomain(string $subdomain)
     {
         $this->subdomain = $subdomain;
     }
+
     /**
      * @return OrgaStatusInCustomerInterface[]
      */
@@ -250,6 +259,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->orgaStatuses;
     }
+
     /**
      * @param Collection<int, OrgaStatusInCustomerInterface> $orgaStatuses
      */
@@ -257,9 +267,11 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         $this->orgaStatuses = $orgaStatuses;
     }
+
     /**
      * @param array<int,string> $statuses if null, all orga statuses will be returned
      *                                    will be applied as or condition
+     *
      * @return Collection<int, Orga>
      */
     public function getOrgas(array $statuses = []): Collection
@@ -279,6 +291,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 
         return $orgas;
     }
+
     /**
      * @param Collection<int, OrgaInterface> $orgas
      */
@@ -289,6 +302,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
             $this->addOrga($orga);
         }
     }
+
     /**
      * @return Collection<int, UserRoleInCustomerInterface>
      */
@@ -296,6 +310,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->userRoles;
     }
+
     public function addOrga(OrgaInterface $orga): bool
     {
         if (!$this->orgas->contains($orga)) {
@@ -306,33 +321,37 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 
         return false;
     }
+
     public function removeOrga(OrgaInterface $orga)
     {
         $this->orgas->removeElement($orga);
     }
-    /**
-     * @return string
-     */
+
     public function __toString(): string
     {
         return $this->id ?? '';
     }
+
     public function getImprint(): string
     {
         return $this->imprint;
     }
+
     public function setImprint(string $imprint)
     {
         $this->imprint = $imprint;
     }
+
     public function getDataProtection(): string
     {
         return $this->dataProtection;
     }
+
     public function setDataProtection(string $dataProtection)
     {
         $this->dataProtection = $dataProtection;
     }
+
     /**
      * Set terms of use.
      */
@@ -340,6 +359,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->termsOfUse;
     }
+
     /**
      * Get terms of use.
      */
@@ -347,14 +367,17 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         $this->termsOfUse = $termsOfUse;
     }
+
     public function getXplanning(): string
     {
         return $this->xplanning;
     }
+
     public function setXplanning(string $xplanning)
     {
         $this->xplanning = $xplanning;
     }
+
     /**
      * @return ProcedureInterface|null
      */
@@ -362,6 +385,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->defaultProcedureBlueprint;
     }
+
     /**
      * @param ProcedureInterface|null $defaultProcedureBlueprint
      */
@@ -369,46 +393,57 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         $this->defaultProcedureBlueprint = $defaultProcedureBlueprint;
     }
+
     public function setMapAttribution(string $mapAttribution): void
     {
         $this->mapAttribution = $mapAttribution;
     }
+
     public function getMapAttribution(): string
     {
         return $this->mapAttribution;
     }
+
     public function setBaseLayerUrl(string $baseLayerUrl): void
     {
         $this->baseLayerUrl = $baseLayerUrl;
     }
+
     public function getBaseLayerUrl(): string
     {
         return $this->baseLayerUrl;
     }
+
     public function getBaseLayerLayers(): string
     {
         return $this->baseLayerLayers;
     }
+
     public function setBaseLayerLayers(string $baseLayerLayers): void
     {
         $this->baseLayerLayers = $baseLayerLayers;
     }
+
     public function getBranding(): ?BrandingInterface
     {
         return $this->branding;
     }
+
     public function setBranding(?BrandingInterface $branding): void
     {
         $this->branding = $branding;
     }
+
     public function getAccessibilityExplanation(): string
     {
         return $this->accessibilityExplanation;
     }
+
     public function setAccessibilityExplanation(string $accessibilityExplanation): void
     {
         $this->accessibilityExplanation = $accessibilityExplanation;
     }
+
     /**
      * @return Collection<int, VideoInterface>
      */
@@ -416,6 +451,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     {
         return $this->signLanguageOverviewVideos;
     }
+
     public function addSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         if (!$this->signLanguageOverviewVideos->contains($signLanguageOverviewVideo)) {
@@ -424,26 +460,31 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 
         return $this;
     }
+
     public function removeSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         $this->signLanguageOverviewVideos->removeElement($signLanguageOverviewVideo);
 
         return $this;
     }
+
     public function setSignLanguageOverviewDescription(string $signLanguageOverviewDescription): self
     {
         $this->signLanguageOverviewDescription = $signLanguageOverviewDescription;
 
         return $this;
     }
+
     public function getSignLanguageOverviewDescription(): string
     {
         return $this->signLanguageOverviewDescription;
     }
+
     public function getOverviewDescriptionInSimpleLanguage(): string
     {
         return $this->overviewDescriptionInSimpleLanguage;
     }
+
     public function setOverviewDescriptionInSimpleLanguage(string $overviewDescriptionInSimpleLanguage): self
     {
         $this->overviewDescriptionInSimpleLanguage = $overviewDescriptionInSimpleLanguage;

@@ -105,8 +105,8 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     private string $fullName, /**
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
     private Procedure $procedure)

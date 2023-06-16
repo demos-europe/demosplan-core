@@ -323,7 +323,7 @@ class FaqHandler extends CoreHandler
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
         // filter: custom categories only
         return $allFaqCategories->filter(
-            static fn(FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()
+            static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()
         );
     }
 
@@ -503,13 +503,13 @@ class FaqHandler extends CoreHandler
             ]);
             $currentRoles = $faqEntity->getRoles();
             foreach ($groupRoles as $role) {
-                $present = $currentRoles->exists(static fn(int $index, Role $currentRole): bool => $currentRole->getId() === $role->getId());
+                $present = $currentRoles->exists(static fn (int $index, Role $currentRole): bool => $currentRole->getId() === $role->getId());
                 if ($setVisible) {
                     if (!$present) {
                         $currentRoles->add($role);
                     }
                 } elseif ($present) {
-                    $currentRoles = $currentRoles->filter(static fn(Role $currentRole): bool => $currentRole->getId() !== $role->getId());
+                    $currentRoles = $currentRoles->filter(static fn (Role $currentRole): bool => $currentRole->getId() !== $role->getId());
                 }
             }
             $faqEntity->setRoles($currentRoles->getValues());

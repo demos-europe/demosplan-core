@@ -4028,7 +4028,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function isSubmitterAndAuthorMetaDataAnonymized(): bool
     {
-        return $this->getAnonymizations()->exists(static fn(int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isSubmitterAndAuthorMetaDataAnonymized());
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isSubmitterAndAuthorMetaDataAnonymized());
     }
 
     /**
@@ -4038,7 +4038,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function isTextPassagesAnonymized(): bool
     {
-        return $this->getAnonymizations()->exists(static fn(int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isTextPassagesAnonymized());
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isTextPassagesAnonymized());
     }
 
     /**
@@ -4047,7 +4047,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function isAttachmentsDeleted(): bool
     {
-        return $this->getAnonymizations()->exists(static fn(int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isAttachmentsDeleted());
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isAttachmentsDeleted());
     }
 
     public function getSegmentationPiRetries(): int

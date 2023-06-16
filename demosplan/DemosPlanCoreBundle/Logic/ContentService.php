@@ -37,8 +37,7 @@ class ContentService extends CoreService
         private readonly EntityHelper $entityHelper,
         private readonly ManualListSorter $manualListSorter,
         private readonly SettingRepository $settingRepository
-    )
-    {
+    ) {
     }
 
     /**

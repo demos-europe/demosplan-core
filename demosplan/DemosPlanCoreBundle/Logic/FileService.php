@@ -884,11 +884,11 @@ class FileService extends CoreService implements FileServiceInterface
     public function convertSize(string $scale, int $value): string
     {
         $returnValue = match ($scale) {
-            'B' => $value,
-            'KB' => $value / 1024,
-            'MB' => $value / 1_048_576,
-            'GB' => $value / 1_073_741_824,
-            'TB' => $value / 1_099_511_627_776,
+            'B'     => $value,
+            'KB'    => $value / 1024,
+            'MB'    => $value / 1_048_576,
+            'GB'    => $value / 1_073_741_824,
+            'TB'    => $value / 1_099_511_627_776,
             default => throw new InvalidArgumentException("Unsupported scale: {$scale}"),
         };
 
@@ -1001,7 +1001,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function getFilesFromSingleDocuments(array $singleDocuments)
     {
         return array_map(
-            fn($singleDocument) => $this->getFileIdFromSingleDocument($singleDocument),
+            fn ($singleDocument) => $this->getFileIdFromSingleDocument($singleDocument),
             $singleDocuments);
     }
 

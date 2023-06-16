@@ -2159,7 +2159,7 @@ class DemosPlanStatementController extends BaseController
             );
             throw new InvalidArgumentException('missing email address');
         }
-        $to = \array_filter($to, fn($emailTo) => filter_var($emailTo, FILTER_VALIDATE_EMAIL));
+        $to = \array_filter($to, fn ($emailTo) => filter_var($emailTo, FILTER_VALIDATE_EMAIL));
         if (0 === count($to)) {
             $this->getMessageBag()->add(
                 'error',

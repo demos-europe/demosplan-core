@@ -101,7 +101,7 @@ class CheckPermissionListener
                 // could be thrown in dev mode only
             }
 
-            $event->setController(static fn() => $redirectResponse);
+            $event->setController(static fn () => $redirectResponse);
         }
     }
 }

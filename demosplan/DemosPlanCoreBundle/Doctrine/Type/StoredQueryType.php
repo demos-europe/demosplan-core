@@ -60,7 +60,7 @@ class StoredQueryType extends JsonType
                 }
             )
             ->filter(
-                static fn(StoredQueryInterface $query) => $query->getFormat() === $queryFormat
+                static fn (StoredQueryInterface $query) => $query->getFormat() === $queryFormat
             )
             ->map(
                 static function (StoredQueryInterface $query) use (

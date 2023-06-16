@@ -46,10 +46,9 @@ use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 use function is_array;
-
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
 {
@@ -393,7 +392,7 @@ class EntityFetcher implements EntityFetcherInterface
 
         $partialDtos = $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
 
-        return array_map(static fn(PartialDTO $dto): string => $dto->getProperty($entityIdProperty), $partialDtos);
+        return array_map(static fn (PartialDTO $dto): string => $dto->getProperty($entityIdProperty), $partialDtos);
     }
 
     /**

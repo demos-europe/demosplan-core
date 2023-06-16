@@ -50,7 +50,7 @@ class UserListCommand extends CoreCommand
             ->map(
                 function (User $user) {
                     $roles = collect($user->getDplanroles())->map(
-                        fn(Role $role) => $role->getName()
+                        fn (Role $role) => $role->getName()
                     )->implode(',');
 
                     return [
@@ -85,7 +85,7 @@ class UserListCommand extends CoreCommand
     public function outputDataAsHTMLTable(OutputInterface $output, array $headers, Collection $data)
     {
         $headerHTML = "<tr>\n".collect($headers)->map(
-            fn($header) => "<th>{$header}</th>"
+            fn ($header) => "<th>{$header}</th>"
         )->implode("\n").'</tr>';
 
         $contentHTML = '';

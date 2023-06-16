@@ -780,7 +780,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      */
     public function getFiles(): array
     {
-        return $this->files->map(static fn(DraftStatementFileInterface $draftStatementFile): ?string => $draftStatementFile->getFileString())->toArray();
+        return $this->files->map(static fn (DraftStatementFileInterface $draftStatementFile): ?string => $draftStatementFile->getFileString())->toArray();
     }
 
     public function addFile(DraftStatementFileInterface $draftStatementFile): self

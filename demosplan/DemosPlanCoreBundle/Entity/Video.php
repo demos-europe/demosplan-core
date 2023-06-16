@@ -72,16 +72,16 @@ class Video implements UuidEntityInterface, VideoInterface
          * logged-in users. However, the property can still be `null` as  the referenced {@link UserInterface}
          * may be deleted.
          *
-         *
          * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+         *
          * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
          */
         private User $uploader,
         /**
          * Identifies the customer/domain within which the video was uploaded.
          *
-         *
          * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+         *
          * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
          */
         #[Assert\NotNull]
@@ -89,17 +89,16 @@ class Video implements UuidEntityInterface, VideoInterface
         /**
          * The actual video file.
          *
-         *
          * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
          *
          * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
+         *
          * @VideoFileConstraint()
          */
         #[Assert\NotNull]
         private File $file,
         /**
          * The title shown for the video.
-         *
          *
          * @ORM\Column(type="string", length=255, nullable=false)
          */
@@ -109,14 +108,12 @@ class Video implements UuidEntityInterface, VideoInterface
         /**
          * The description shown for the video.
          *
-         *
          * @ORM\Column(type="text", nullable=false)
          */
         #[Assert\NotNull]
         #[Assert\Length(max: 65535, normalizer: 'trim')]
         private $description = ''
-    )
-    {
+    ) {
     }
 
     public function getId(): ?string

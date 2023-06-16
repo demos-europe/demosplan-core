@@ -138,7 +138,7 @@ class UserCreateCommand extends CoreCommand
             }
             // Check if orga is active in customer
             $customers = $orga->getCustomers();
-            $filteredCustomers = $customers->filter(fn(Customer $customer) => $customerId === $customer->getId());
+            $filteredCustomers = $customers->filter(fn (Customer $customer) => $customerId === $customer->getId());
             $isOrgaMissingInCustomer = $filteredCustomers->isEmpty();
             if ($isOrgaMissingInCustomer) {
                 throw new RuntimeException('Given orga is not active in the chosen customer.');
@@ -153,10 +153,10 @@ class UserCreateCommand extends CoreCommand
     private function askDepartment(string $orgaId, InputInterface $input, OutputInterface $output): Department
     {
         $availableDepartments = $this->orgaRepository->get($orgaId)->getDepartments();
-        $departmentSelection = $availableDepartments->map(fn(Department $department) => $department->getName())->toArray();
+        $departmentSelection = $availableDepartments->map(fn (Department $department) => $department->getName())->toArray();
         $questionDepartment = new ChoiceQuestion('Please select a department: ', $departmentSelection);
         $answer = $this->helper->ask($input, $output, $questionDepartment);
 
-        return $availableDepartments->first(fn(Department $department) => $answer === $department->getName());
+        return $availableDepartments->first(fn (Department $department) => $answer === $department->getName());
     }
 }

@@ -11,12 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface;
-
-use function implode;
-
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Throwable;
+
+use function implode;
 
 class ViolationsException extends InvalidArgumentException implements ViolationsExceptionInterface
 {
@@ -63,6 +62,6 @@ class ViolationsException extends InvalidArgumentException implements Violations
     public function getViolationsAsStrings(): array
     {
         return collect($this->getViolations())
-            ->map(static fn(ConstraintViolationInterface $violation): string => $violation->getMessage())->all();
+            ->map(static fn (ConstraintViolationInterface $violation): string => $violation->getMessage())->all();
     }
 }

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use Stringable;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 
 /**
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/
@@ -71,19 +71,20 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="role")
      */
     protected $userRoleInCustomers;
+
     public function __construct()
     {
         $this->userRoleInCustomers = new ArrayCollection();
     }
+
     /**
      * Some methods need this. For example, array_unique().
-     *
-     * @return string
      */
     public function __toString(): string
     {
         return $this->ident ?? '';
     }
+
     /**
      * @deprecated use {@link RoleInterface::getId()} instead
      */
@@ -91,10 +92,12 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->getId();
     }
+
     public function getId(): ?string
     {
         return $this->ident;
     }
+
     /**
      * Set code.
      *
@@ -108,6 +111,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
 
         return $this;
     }
+
     /**
      * Get code.
      *
@@ -117,6 +121,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->code;
     }
+
     /**
      * Set Name.
      *
@@ -130,6 +135,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
 
         return $this;
     }
+
     /**
      * Get Name.
      *
@@ -139,6 +145,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->name;
     }
+
     /**
      * Set GroupCode.
      *
@@ -152,6 +159,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
 
         return $this;
     }
+
     /**
      * Get GroupCode.
      *
@@ -161,6 +169,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->groupCode;
     }
+
     /**
      * Set GroupName.
      *
@@ -174,6 +183,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
 
         return $this;
     }
+
     /**
      * Get groupName.
      *

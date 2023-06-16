@@ -42,7 +42,7 @@ class SegmentValidator
         }
         $filteredByProcedureSegments = array_filter(
             $segments,
-            fn(Segment $segment) => $segment->getProcedureId() === $procedureId
+            fn (Segment $segment) => $segment->getProcedureId() === $procedureId
         );
         if (count($filteredByProcedureSegments) !== count($segments)) {
             $this->logger->error(

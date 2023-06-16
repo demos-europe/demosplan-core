@@ -50,7 +50,6 @@ use function http_build_query;
 use function is_array;
 use function str_replace;
 use function strlen;
-use function strpos;
 
 /**
  * Class DemosPlanAssessmentStatementFragmentController
@@ -214,7 +213,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         foreach ($filters as $activeFilters) {
             foreach ($activeFilters as $activeFilter) {
                 $activeInterfaceFilter = collect($interfaceFilters)->filter(
-                    fn($interfaceFilter) =>
+                    fn ($interfaceFilter) =>
                         /* @var FilterDisplay $interfaceFilter */
                         $interfaceFilter->getName() == $activeFilter->getField()
                 )->first();
@@ -314,7 +313,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         foreach ($filters as $activeFilters) {
             foreach ($activeFilters as $activeFilter) {
                 $activeInterfaceFilter = collect($interfaceFilters)->filter(
-                    fn($interfaceFilter) =>
+                    fn ($interfaceFilter) =>
                         /* @var FilterDisplay $interfaceFilter */
                         $interfaceFilter->getName() === $activeFilter->getField()
                 )->first();
@@ -487,10 +486,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             // get fragment considerations
             $considerations = collect($fragments->getResult())
-                ->map(fn($item) =>
+                ->map(fn ($item) =>
                     // reduce array for considerations
                     $item['consideration'])
-                ->filter(fn($item) =>
+                ->filter(fn ($item) =>
                     // values should not be empty
                     0 < strlen($item))
                 ->values()
@@ -528,7 +527,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         try {
             $postRequest = $request->request;
 
-            $returnResponse = fn($procedure, $statementId) => $this->redirectToRoute('DemosPlan_statement_fragment', [
+            $returnResponse = fn ($procedure, $statementId) => $this->redirectToRoute('DemosPlan_statement_fragment', [
                 'procedure'   => $procedure,
                 'statementId' => $statementId,
             ]);

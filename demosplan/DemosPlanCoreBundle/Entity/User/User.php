@@ -1556,7 +1556,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     public function getCustomers(): array
     {
         return $this->roleInCustomers
-            ->map(static fn(UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
     }
 
     /**

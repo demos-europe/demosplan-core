@@ -356,9 +356,9 @@ class DemosPlanStatementAPIController extends APIController
                 unset($relationships['paragraph']);
             }
 
-            $updateFields = array_merge($updateFields, array_map(static fn(array $toOneRelationship): ?string => $toOneRelationship['data']['id'] ?? null, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn (array $toOneRelationship): ?string => $toOneRelationship['data']['id'] ?? null, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
 
-            $updateFields = array_merge($updateFields, array_map(static fn(array $toManyRelationship): array => array_map(static fn(array $relationship): string => $relationship['id'], $toManyRelationship['data']), array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn (array $toManyRelationship): array => array_map(static fn (array $relationship): string => $relationship['id'], $toManyRelationship['data']), array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
 
             $statement = $statementService->updateStatement($updateFields);
 

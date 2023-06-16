@@ -236,9 +236,9 @@ class ConsultationTokenService
     {
         $sortProperty = match ($sortParams['key']) {
             'submitterEmailAddress' => $this->consultationTokenResourceType->statement->initialOrganisationEmail,
-            'token' => $this->consultationTokenResourceType->token,
-            'note' => $this->consultationTokenResourceType->note,
-            default => $this->consultationTokenResourceType->statement->submitName,
+            'token'                 => $this->consultationTokenResourceType->token,
+            'note'                  => $this->consultationTokenResourceType->note,
+            default                 => $this->consultationTokenResourceType->statement->submitName,
         };
         if ('1' === $sortParams['direction']) {
             return $this->sortMethodFactory->propertyAscending($sortProperty);

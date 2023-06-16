@@ -84,6 +84,6 @@ class Helpers
         );
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
-        return $availableCustomers->first(fn(Customer $customer) => $answer === $customer->getSubdomain());
+        return $availableCustomers->first(fn (Customer $customer) => $answer === $customer->getSubdomain());
     }
 }

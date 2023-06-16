@@ -158,7 +158,7 @@ class StatementFactory extends FactoryBase
 
             // Only use valid Orgas with departments
             $orgas = $allOrgas->filter(
-                static fn(Orga $value) => $value->getDepartments()->count() > 0
+                static fn (Orga $value) => $value->getDepartments()->count() > 0
             );
 
             $organisation = $orgas->random();

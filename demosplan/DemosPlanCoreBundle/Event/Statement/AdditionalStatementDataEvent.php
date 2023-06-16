@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 /**
@@ -24,13 +23,11 @@ class AdditionalStatementDataEvent extends DPlanEvent
     public function __construct(
         private Statement $statement,
         /**
-        * The array containing all the data to update a given statement.
+         * The array containing all the data to update a given statement.
         Subscribers need to check for the existence of relevant keys.
-        *
-        */
+         */
         private array $data
-    )
-    {
+    ) {
     }
 
     public function getStatement(): Statement

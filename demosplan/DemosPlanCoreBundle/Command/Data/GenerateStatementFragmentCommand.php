@@ -144,7 +144,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
             if (!empty($procedureId)) {
                 $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
                 $statements = $procedure->getStatements()->filter(
-                    static fn(Statement $statement) => !$statement->isOriginal() && null === $statement->getMovedToProcedureId()
+                    static fn (Statement $statement) => !$statement->isOriginal() && null === $statement->getMovedToProcedureId()
                         && null === $statement->getHeadStatement()
                 );
 

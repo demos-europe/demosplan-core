@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;

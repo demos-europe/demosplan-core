@@ -214,7 +214,7 @@ class JsonApiEsService
         // kick out entries in $sortedKeys that have no equivalent in $arrayValuesToSort
         $sortedKeys = array_intersect($sortedKeys, array_keys($arrayValuesToSort));
 
-        return array_map(static fn($key) => $arrayValuesToSort[$key], $sortedKeys);
+        return array_map(static fn ($key) => $arrayValuesToSort[$key], $sortedKeys);
     }
 
     /**
@@ -227,7 +227,7 @@ class JsonApiEsService
     private function useIdAsKey(array $entities): array
     {
         return collect($entities)
-            ->mapWithKeys(static fn(UuidEntityInterface $entity): array => [$entity->getId() => $entity])
+            ->mapWithKeys(static fn (UuidEntityInterface $entity): array => [$entity->getId() => $entity])
             ->all();
     }
 }

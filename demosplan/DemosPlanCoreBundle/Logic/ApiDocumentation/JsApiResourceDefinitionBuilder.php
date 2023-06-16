@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation;
 
-use const ARRAY_FILTER_USE_KEY;
-
-use function array_key_exists;
-use function array_pop;
-use function array_reduce;
-
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\SpecObjectInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\Schema\ContentField;
+
+use function array_key_exists;
+use function array_pop;
+use function array_reduce;
+
+use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Generate a JS File with resource definitions for demosplans' {json:api}.
@@ -38,12 +38,12 @@ final class JsApiResourceDefinitionBuilder
     {
         $resourceInfoList = $this->parseSpec($openApiSpec);
 
-        $resourceTypeNames = array_map(static fn(string $type): string => sprintf('  %sResource', $type), array_keys($resourceInfoList));
+        $resourceTypeNames = array_map(static fn (string $type): string => sprintf('  %sResource', $type), array_keys($resourceInfoList));
 
         // declare all available resource type objects
         $resourceDeclarations = array_reduce(
             $resourceTypeNames,
-            static fn(string $list, string $typeName): string => $list.sprintf("let %s\n", trim($typeName)),
+            static fn (string $list, string $typeName): string => $list.sprintf("let %s\n", trim($typeName)),
             ''
         );
 
@@ -59,7 +59,7 @@ final class JsApiResourceDefinitionBuilder
 
                 // format relationship info into readable js objects.
                 $relationships .= collect($resourceInfo[ContentField::RELATIONSHIPS])
-                    ->map(static fn(string $relationshipType, string $relationshipName): string => sprintf(
+                    ->map(static fn (string $relationshipType, string $relationshipName): string => sprintf(
                         "        %s: { name: '%s', type: %sResource }",
                         $relationshipName,
                         $relationshipName,
@@ -129,7 +129,7 @@ RESOURCE_MAP_HEADER;
         // skip all prefixed schema types as those aren't Resources
         $typeSchemas = array_filter(
             $openApiSpec->components->schemas,
-            static fn(string $type): bool => -1 > strpos($type, ':'),
+            static fn (string $type): bool => -1 > strpos($type, ':'),
             ARRAY_FILTER_USE_KEY
         );
 
@@ -137,7 +137,7 @@ RESOURCE_MAP_HEADER;
             $resourceInfo = ['name' => $type];
 
             $resourceInfo[ContentField::RELATIONSHIPS] = collect($schema->properties)
-                ->filter(static fn(SpecObjectInterface $property) => $property instanceof Reference)
+                ->filter(static fn (SpecObjectInterface $property) => $property instanceof Reference)
                 ->mapWithKeys(static function (Reference $relationship, string $relationshipName): array {
                     $referencePath = $relationship->getJsonReference()->getJsonPointer()->getPath();
 

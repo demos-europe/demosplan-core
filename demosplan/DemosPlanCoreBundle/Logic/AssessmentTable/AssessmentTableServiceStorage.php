@@ -514,7 +514,7 @@ class AssessmentTableServiceStorage
                 }
             )
             ->filter(
-                static fn($item) => 0 < (is_countable($item) ? count($item) : 0)
+                static fn ($item) => 0 < (is_countable($item) ? count($item) : 0)
             )
             ->flatten()
             ->unique();

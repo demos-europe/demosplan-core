@@ -70,7 +70,7 @@ class ElementHandler extends CoreHandler
         $elements = $this->elementService->getElementsByEnabledStatus($procedureId, $enabled);
 
         return array_map(
-            static fn(Elements $element) => $element->getId(),
+            static fn (Elements $element) => $element->getId(),
             $elements
         );
     }
@@ -84,7 +84,7 @@ class ElementHandler extends CoreHandler
     public function getFileNamedPath(array $elementIds, string $fileName): string
     {
         $elements = $this->elementService->getElementsByIds($elementIds, ['order' => 'asc']);
-        $fileNamedPathArray = array_map(fn(Elements $element) => $element->getTitle(), $elements);
+        $fileNamedPathArray = array_map(fn (Elements $element) => $element->getTitle(), $elements);
 
         return implode('/', $fileNamedPathArray).'/'.$fileName;
     }

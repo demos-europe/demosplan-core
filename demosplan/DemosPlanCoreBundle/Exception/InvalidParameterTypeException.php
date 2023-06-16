@@ -20,7 +20,7 @@ class InvalidParameterTypeException extends InvalidArgumentException
      */
     public static function fromTypes(string $actualType, array $allowedTypes): self
     {
-        $allowedTypes = array_map(static fn(string $allowedType): string => "'$allowedType'", $allowedTypes);
+        $allowedTypes = array_map(static fn (string $allowedType): string => "'$allowedType'", $allowedTypes);
         $allowedTypesString = implode(', ', $allowedTypes);
 
         return new self("Invalid parameter type '$actualType' given, expected one of the following: $allowedTypesString.");

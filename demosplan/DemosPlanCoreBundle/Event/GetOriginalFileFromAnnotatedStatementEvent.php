@@ -27,8 +27,7 @@ class GetOriginalFileFromAnnotatedStatementEvent
          * @param Statement
          */
         private readonly Statement $statement
-    )
-    {
+    ) {
     }
 
     public function getStatement(): Statement

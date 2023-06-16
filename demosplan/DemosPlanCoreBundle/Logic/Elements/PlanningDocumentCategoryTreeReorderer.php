@@ -124,7 +124,7 @@ class PlanningDocumentCategoryTreeReorderer
         );
 
         $categoryToMoveAndNewParent = array_column(
-            array_map(static fn(Elements $category): array => [$category->getId(), $category], $categoryToMoveAndNewParent),
+            array_map(static fn (Elements $category): array => [$category->getId(), $category], $categoryToMoveAndNewParent),
             1,
             0
         );
@@ -216,7 +216,7 @@ class PlanningDocumentCategoryTreeReorderer
             );
         }
 
-        $neighbors = collect($neighbors)->mapWithKeys(static fn(Elements $neighbor): array => [$neighbor->getOrder() => $neighbor])->all();
+        $neighbors = collect($neighbors)->mapWithKeys(static fn (Elements $neighbor): array => [$neighbor->getOrder() => $neighbor])->all();
 
         return new ArrayCollection($neighbors);
     }

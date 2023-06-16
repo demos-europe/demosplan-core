@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
-use function collect;
-
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
@@ -24,6 +22,8 @@ use EDT\Wrapping\Contracts\AccessException;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
+
+use function collect;
 
 class FacetFactory
 {
@@ -123,7 +123,7 @@ class FacetFactory
      */
     private function createItemCountMapping(array $bucket): array
     {
-        return collect($bucket)->mapWithKeys(static fn(array $item): array => [$item['value'] => $item['count']])->all();
+        return collect($bucket)->mapWithKeys(static fn (array $item): array => [$item['value'] => $item['count']])->all();
     }
 
     /**
@@ -137,7 +137,7 @@ class FacetFactory
      */
     private function determineSelections(FacetInterface $facetDefinition, array $rawFilter, Collection $items): array
     {
-        return $items->unique(static fn(object $item): string => $facetDefinition->getItemIdentifier($item))->mapWithKeys(function (object $item) use ($facetDefinition, $rawFilter): array {
+        return $items->unique(static fn (object $item): string => $facetDefinition->getItemIdentifier($item))->mapWithKeys(function (object $item) use ($facetDefinition, $rawFilter): array {
             $itemId = $facetDefinition->getItemIdentifier($item);
             $selected = $this->isItemSelected($itemId, $rawFilter);
 

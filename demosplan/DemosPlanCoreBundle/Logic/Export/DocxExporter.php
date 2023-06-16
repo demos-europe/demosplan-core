@@ -180,7 +180,7 @@ class DocxExporter
                     $includeFragmentsInStatementExport = 'statementsAndFragments' === $exportType;
                     $incomingNonOriginalStatements = array_filter(
                         $incomingStatements,
-                        static fn(array $statement) =>
+                        static fn (array $statement) =>
                             // True if the given statement is not an original statement.
                             // False otherwise.
                             // Original statements are non-moved statements without a parentId.
@@ -195,7 +195,7 @@ class DocxExporter
                         // if fragments are to be included in the export then only export statements without fragments
                         ? array_filter(
                             $incomingNonOriginalStatements,
-                            static fn(array $statement) => 0 === (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)
+                            static fn (array $statement) => 0 === (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)
                         )
                         // otherwise include all statements
                         : $incomingNonOriginalStatements;
@@ -257,13 +257,13 @@ class DocxExporter
                 case self::EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY:
                     $relevantFragmentIds = $this->getSelectedFragmentIdsOfStatements($incomingStatements);
                     // 'items' may contain IDs of statements and/or fragments, get the fragment ones only
-                    $selections = array_filter($requestPost['items'], fn(string $id) => null === $this->statementHandler->getStatement($id));
+                    $selections = array_filter($requestPost['items'], fn (string $id) => null === $this->statementHandler->getStatement($id));
                     // if specific fragments were selected use these only
                     if (0 !== count((array) $selections)) {
                         // create a mapping from ID to ID
                         $selections = array_combine($selections, $selections);
                         // filter out non-selected items
-                        $relevantFragmentIds = array_filter($relevantFragmentIds, static fn(string $fragmentId) => array_key_exists($fragmentId, $selections));
+                        $relevantFragmentIds = array_filter($relevantFragmentIds, static fn (string $fragmentId) => array_key_exists($fragmentId, $selections));
                     }
                     $groupStructure = $this->statementService->createElementsGroupStructure(
                         $procedure->getId(),
@@ -1063,13 +1063,13 @@ class DocxExporter
                     // change type of entry (used for name of column)
                     $item['type'] = 'fragments';
                     $item['fragments'] = collect($statement['fragments'])
-                        ->filter(static fn(array $fragment): bool =>
+                        ->filter(static fn (array $fragment): bool =>
                             // if some items are selected, then only export the selected ones
                             // if no items are selected, export all
                             0 === (is_countable($requestPost['items']) ? count($requestPost['items']) : 0)
                             || in_array($fragment['id'], $requestPost['items'], true)
                             || in_array($statement['id'], $requestPost['items'], true))
-                        ->map(fn(array $fragment): array => $this->formatFragmentArray($statement, $fragment))
+                        ->map(fn (array $fragment): array => $this->formatFragmentArray($statement, $fragment))
                         ->sortBy('sortIndex')
                         ->values();
                 }
@@ -1455,7 +1455,7 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_ATTACHMENTS, $exportConfig, $statement)) {
                 // Source statement
                 collect($statement->getAttachments())
-                    ->filter(static fn(StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->each(function (StatementAttachment $attachment) use ($cell2AddText, $anonym) {
+                    ->filter(static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->each(function (StatementAttachment $attachment) use ($cell2AddText, $anonym) {
                         $displayValue = $anonym
                             ? $this->getTranslator()->trans('file.attached')
                             : $attachment->getFile()->getName();

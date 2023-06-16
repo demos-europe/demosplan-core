@@ -405,7 +405,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             // Bereite die Daten für die Aktualisierung der Karte auf
             $mapVars = [];
 
-            $dateConvert = static fn($date) => is_string($date)
+            $dateConvert = static fn ($date) => is_string($date)
                 ? date('d.m.Y', substr($date, 0, -3))
                 : date('d.m.Y', $date);
             foreach ($serviceOutput['list']['procedurelist'] as $procedure) {

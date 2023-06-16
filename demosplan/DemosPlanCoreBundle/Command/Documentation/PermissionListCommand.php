@@ -81,7 +81,7 @@ class PermissionListCommand extends CoreCommand
                     return $permission;
                 }
             )->sort(
-                static fn(array $permissionA, array $permissionB) => strcmp((string) $permissionA['name'], (string) $permissionB['name'])
+                static fn (array $permissionA, array $permissionB) => strcmp((string) $permissionA['name'], (string) $permissionB['name'])
             )
             ->groupBy('type');
     }

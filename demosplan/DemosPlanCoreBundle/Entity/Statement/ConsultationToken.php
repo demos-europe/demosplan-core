@@ -136,7 +136,6 @@ class ConsultationToken
      *
      * The value of this property should be considered final.
      *
-     *
      * @ORM\Column(type="string", length=8, nullable=false)
      */
     #[Assert\NotBlank]
@@ -163,7 +162,6 @@ class ConsultationToken
      * via an {@link DPlanEvent} when a statement was submitted.
      *
      * The value of this property should be considered final.
-     *
      *
      * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */

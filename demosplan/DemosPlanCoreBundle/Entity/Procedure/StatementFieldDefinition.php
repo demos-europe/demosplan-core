@@ -71,8 +71,8 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
          */
         private string $name,
         /**
-         *
          * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+         *
          * @JoinColumn(referencedColumnName="id", nullable=false)
          */
         private StatementFormDefinition $statementFormDefinition,
@@ -88,8 +88,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
          * @ORM\Column(type="boolean", nullable=false, options={"default":true})
          */
         private bool $required
-    )
-    {
+    ) {
     }
 
     public function isEnabled(): bool

@@ -208,7 +208,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         $path->setParent($this->statementResourceType);
         $path->setParentPropertyName(self::SYNCHRONIZED_PROPERTY);
         $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
-        $property->readable(false, fn(Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
+        $property->readable(false, fn (Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
             'sourceId' => $statement->getId(),
             'class'    => Statement::class,
         ]));

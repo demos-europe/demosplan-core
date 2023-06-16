@@ -72,9 +72,9 @@ class FilterUiDataProvider
     {
         return collect($filter->getGroupedConditions())
             ->flatMap(
-                static fn(array $conditionGroup): array => $conditionGroup
+                static fn (array $conditionGroup): array => $conditionGroup
             )->filter(
-                static fn(array $condition) => array_key_exists('path', $condition)
+                static fn (array $condition) => array_key_exists('path', $condition)
             )->pluck('path')->containsStrict($path);
     }
 }

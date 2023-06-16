@@ -205,9 +205,9 @@ class EntityContentChangeDisplayService extends CoreService
         );
 
         // decode html in array
-        $array = array_map(static fn($change) => array_map(static function ($changeStep) {
+        $array = array_map(static fn ($change) => array_map(static function ($changeStep) {
             foreach (['new', 'old'] as $changeStatus) {
-                $changeStep[$changeStatus]['lines'] = array_map(static fn($line) => html_entity_decode($line), $changeStep[$changeStatus]['lines']);
+                $changeStep[$changeStatus]['lines'] = array_map(static fn ($line) => html_entity_decode($line), $changeStep[$changeStatus]['lines']);
             }
 
             return $changeStep;

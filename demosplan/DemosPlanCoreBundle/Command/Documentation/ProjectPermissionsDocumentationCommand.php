@@ -81,7 +81,7 @@ class ProjectPermissionsDocumentationCommand extends CoreCommand
         $enabledPermissions = collect($this->permissions->getPermissions())
             ->filter->isEnabled()
             ->map(
-                static fn(Permission $permission) => [
+                static fn (Permission $permission) => [
                     'name'          => $permission->getName(),
                     'label'         => $permission->getLabel(),
                     'expose'        => $permission->isExposed(),

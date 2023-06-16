@@ -44,15 +44,14 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
 
     public function __construct(
         /**
-         *
          * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
+         *
          * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
          */
         #[Assert\NotNull]
         private Procedure $procedure,
         /**
          * The displayed name of this instance.
-         *
          *
          * @ORM\Column(type="string", length=255, nullable=false)
          */
@@ -76,8 +75,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
          * @ORM\Column(type="string", length=36, options={"fixed":true})
          */
         private ?string $id = null
-    )
-    {
+    ) {
     }
 
     public function getId(): ?string

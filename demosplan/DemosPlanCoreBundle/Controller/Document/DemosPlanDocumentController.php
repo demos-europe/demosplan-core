@@ -1765,7 +1765,7 @@ class DemosPlanDocumentController extends BaseController
         $elementsHandler = $this->elementHandler;
         $enabledElementIds = $elementsHandler->getElementIdsByEnabledStatus($procedureId, true);
         $elementsToZip = array_map(
-            static fn($fileInfo) => $fileInfo['path'],
+            static fn ($fileInfo) => $fileInfo['path'],
             $filesInfo
         );
         $elementsToZip = array_unique(array_merge([], ...$elementsToZip));

@@ -2787,7 +2787,7 @@ class DemosPlanProcedureController extends BaseController
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
-        $procedureTypeResources = array_map(fn(object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
+        $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
 
         $templateVars['procedureTypes'] = $procedureTypeResources;
 

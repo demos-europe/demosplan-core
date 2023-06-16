@@ -152,7 +152,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     public function getEnabledFieldDefinitions(): Collection
     {
         return $this->fieldDefinitions->filter(
-            fn(StatementFieldDefinition $fieldDefinition) => $fieldDefinition->isEnabled()
+            fn (StatementFieldDefinition $fieldDefinition) => $fieldDefinition->isEnabled()
         );
     }
 

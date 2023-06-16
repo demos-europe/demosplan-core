@@ -95,7 +95,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
     private function askUserLogin(InputInterface $input, OutputInterface $output): ?User
     {
         $questionUser = new Question('Please enter the login of the user to be registered: ');
-        $questionUser->setValidator(fn($answer) => $this->userRepository->findOneBy(['login' => $answer]));
+        $questionUser->setValidator(fn ($answer) => $this->userRepository->findOneBy(['login' => $answer]));
 
         return $this->helper->ask($input, $output, $questionUser);
     }

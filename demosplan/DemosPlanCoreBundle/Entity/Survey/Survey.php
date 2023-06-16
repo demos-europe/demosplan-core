@@ -201,21 +201,21 @@ class Survey extends CoreEntity implements UuidEntityInterface, SurveyInterface
     public function getPositiveVotes(): Collection
     {
         return $this->votes->filter(
-            static fn(SurveyVoteInterface $vote) => $vote->isAgreed()
+            static fn (SurveyVoteInterface $vote) => $vote->isAgreed()
         );
     }
 
     public function getNegativeVotes(): Collection
     {
         return $this->votes->filter(
-            static fn(SurveyVoteInterface $vote) => !$vote->isAgreed()
+            static fn (SurveyVoteInterface $vote) => !$vote->isAgreed()
         );
     }
 
     public function getReviewRequiredVotes(): Collection
     {
         return $this->votes->filter(
-            static fn(SurveyVoteInterface $vote) => $vote->isReviewRequired()
+            static fn (SurveyVoteInterface $vote) => $vote->isReviewRequired()
         );
     }
 }

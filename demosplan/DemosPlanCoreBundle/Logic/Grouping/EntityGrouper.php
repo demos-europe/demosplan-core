@@ -21,7 +21,6 @@ use function array_shift;
 use function count;
 use function is_countable;
 use function key;
-use function reset;
 
 /**
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\CoreEntity

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use Stringable;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -35,6 +34,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 use Tightenco\Collect\Support\Collection as TightencoCollection;
 
@@ -362,6 +362,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * @ORM\OrderBy({"label" = "ASC"})
      */
     protected $ownInstitutionTags;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -377,16 +378,19 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         $this->assignedTags = new ArrayCollection();
         $this->ownInstitutionTags = new ArrayCollection();
     }
+
     public function getId(): ?string
     {
         return $this->id;
     }
+
     public function setId(string $id): self
     {
         $this->id = $id;
 
         return $this;
     }
+
     /**
      * @deprecated use {@link Orga::getId()} instead
      */
@@ -394,40 +398,48 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->getId();
     }
+
     public function setName(?string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
+
     public function getName(): ?string
     {
         return $this->name;
     }
+
     public function getNameLegal(): ?string
     {
         return $this->getName();
     }
+
     public function getGatewayName(): ?string
     {
         return $this->gatewayName;
     }
+
     public function setGatewayName(?string $gatewayName): self
     {
         $this->gatewayName = $gatewayName;
 
         return $this;
     }
+
     public function setCode(?string $code): self
     {
         $this->code = $code;
 
         return $this;
     }
+
     public function getCode(): ?string
     {
         return $this->code;
     }
+
     /**
      * @param DateTime|DateTimeImmutable $createdDate
      */
@@ -437,6 +449,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * @return DateTime|DateTimeImmutable
      */
@@ -444,6 +457,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->createdDate;
     }
+
     /**
      * @param DateTime|DateTimeImmutable $modifiedDate
      */
@@ -453,6 +467,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * @return DateTime|DateTimeImmutable
      */
@@ -460,98 +475,118 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->modifiedDate;
     }
+
     public function getCcEmail2(): ?string
     {
         return $this->ccEmail2;
     }
+
     public function setCcEmail2(?string $ccEmail2): self
     {
         $this->ccEmail2 = $ccEmail2;
 
         return $this;
     }
+
     public function getEmailReviewerAdmin(): ?string
     {
         return $this->emailReviewerAdmin;
     }
+
     public function setEmailReviewerAdmin(?string $emailReviewerAdmin): self
     {
         $this->emailReviewerAdmin = $emailReviewerAdmin;
 
         return $this;
     }
+
     public function setDeleted(bool $deleted): self
     {
         $this->deleted = $deleted;
 
         return $this;
     }
+
     public function getDeleted(): bool
     {
         return $this->deleted;
     }
+
     public function isDeleted(): bool
     {
         return $this->getDeleted();
     }
+
     public function setShowname(bool $showname): self
     {
         $this->showname = $showname;
 
         return $this;
     }
+
     public function getShowname(): bool
     {
         return $this->showname;
     }
+
     public function isShowname(): bool
     {
         return $this->getShowname();
     }
+
     public function setShowlist(bool $showlist): self
     {
         $this->showlist = $showlist;
 
         return $this;
     }
+
     public function getShowlist(): bool
     {
         return $this->showlist;
     }
+
     public function isShowlist(): bool
     {
         return $this->getShowlist();
     }
+
     public function setGwId(?string $gwId): self
     {
         $this->gwId = $gwId;
 
         return $this;
     }
+
     public function getGwId(): ?string
     {
         return $this->gwId;
     }
+
     public function setCompetence(?string $competence): self
     {
         $this->competence = $competence;
 
         return $this;
     }
+
     public function getCompetence(): ?string
     {
         return $this->competence;
     }
+
     public function setEmail2(?string $email2): self
     {
         $this->email2 = $email2;
 
         return $this;
     }
+
     public function getEmail2(): ?string
     {
         return $this->email2;
     }
+
     /**
      * todo: Please note that, ideally, if a string is returned, it should be a valid
      *       email address. However, currently, this is not the case. It may be an empty
@@ -562,40 +597,48 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->getEmail2();
     }
+
     public function setParticipationEmail(string $emailAddress): self
     {
         return $this->setEmail2($emailAddress);
     }
+
     public function getContactPerson(): ?string
     {
         return $this->contactPerson;
     }
+
     public function setContactPerson(?string $contactPerson): self
     {
         $this->contactPerson = $contactPerson;
 
         return $this;
     }
+
     public function setPaperCopy(int $paperCopy): self
     {
         $this->paperCopy = $paperCopy;
 
         return $this;
     }
+
     public function getPaperCopy(): ?int
     {
         return $this->paperCopy;
     }
+
     public function setPaperCopySpec(?string $paperCopySpec): self
     {
         $this->paperCopySpec = $paperCopySpec;
 
         return $this;
     }
+
     public function getPaperCopySpec(): ?string
     {
         return $this->paperCopySpec;
     }
+
     /**
      * @param string $subdomain
      *
@@ -617,6 +660,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $orgaTypes;
     }
+
     /**
      * @param string $subdomain
      *
@@ -634,6 +678,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $orgaTypeNames;
     }
+
     /**
      * @return Collection<int, Address>
      */
@@ -641,6 +686,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->addresses;
     }
+
     /**
      * @param AddressInterface[] $addresses
      */
@@ -651,6 +697,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * @return Address|false note that the return types of first() are the object or false
      */
@@ -658,12 +705,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->addresses->first();
     }
+
     public function addAddress(AddressInterface $address): self
     {
         $this->addresses->add($address);
 
         return $this;
     }
+
     /**
      * @return string can be street (string) or empty string
      */
@@ -675,12 +724,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     public function setStreet($street): self
     {
         $this->setAddressValue('street', $street);
 
         return $this;
     }
+
     public function getHouseNumber(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -689,12 +740,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     public function setHouseNumber($houseNumber): self
     {
         $this->setAddressValue('houseNumber', $houseNumber);
 
         return $this;
     }
+
     public function getState(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -703,12 +756,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     public function setState($state): self
     {
         $this->setAddressValue('state', $state);
 
         return $this;
     }
+
     public function getFax()
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -717,6 +772,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     /**
      * @param string $fax
      */
@@ -726,6 +782,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getPostalcode(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -734,6 +791,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     /**
      * @param string $postalcode
      */
@@ -743,6 +801,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getCity()
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -751,6 +810,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     /**
      * @param string $city
      */
@@ -760,6 +820,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getPhone(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -768,6 +829,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return '';
     }
+
     /**
      * @param string $phone
      */
@@ -777,26 +839,31 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getDataProtection(): string
     {
         return $this->dataProtection;
     }
+
     public function setDataProtection(string $dataProtection): self
     {
         $this->dataProtection = $dataProtection;
 
         return $this;
     }
+
     public function getImprint(): string
     {
         return $this->imprint;
     }
+
     public function setImprint(string $imprint): self
     {
         $this->imprint = $imprint;
 
         return $this;
     }
+
     public function addAdministratableProcedure(ProcedureInterface $procedure): bool
     {
         $alreadyPresent = $this->administratableProcedures->contains($procedure);
@@ -806,6 +873,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return !$alreadyPresent;
     }
+
     /**
      * @return Collection<int, Procedure>
      */
@@ -813,6 +881,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->administratableProcedures;
     }
+
     /**
      * Save single Value in associated Address.
      */
@@ -830,6 +899,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getNotifications()
     {
         if ($this->notifications instanceof Collection) {
@@ -838,6 +908,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return [];
     }
+
     /**
      * @param array $notifications
      */
@@ -847,12 +918,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function addNotification($notification): self
     {
         $this->notifications->add($notification);
 
         return $this;
     }
+
     /**
      * @return ArrayCollection|TightencoCollection
      */
@@ -860,6 +933,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->users;
     }
+
     public function getUsers(): TightencoCollection
     {
         /** @var User[] $allUser */
@@ -874,6 +948,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $notDeletedUser;
     }
+
     /**
      * @param array<int,UserInterface> $users
      */
@@ -883,6 +958,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function addUser(UserInterface $user): self
     {
         if ($this->users instanceof Collection) {
@@ -896,6 +972,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function removeUser(UserInterface $user): self
     {
         if ($this->users instanceof Collection) {
@@ -905,10 +982,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getDepartments(): TightencoCollection
     {
         $nonDeletedDepartments = $this->departments->filter(
-            static fn(Department $department) => !$department->isDeleted()
+            static fn (Department $department) => !$department->isDeleted()
         );
         // reset keys to start from 0
         $nonDeletedDepartments = array_values($nonDeletedDepartments->toArray());
@@ -918,6 +996,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         // where necessary
         return collect($nonDeletedDepartments);
     }
+
     /**
      * @param array<int,DepartmentInterface> $departments
      */
@@ -927,6 +1006,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * Add department to this Organisation.
      */
@@ -944,26 +1024,31 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getProcedures()
     {
         return $this->procedures;
     }
+
     public function setProcedures($procedures): self
     {
         $this->procedures = $procedures;
 
         return $this;
     }
+
     public function getSubmissionType(): string
     {
         return $this->submissionType;
     }
+
     public function setSubmissionType(string $submissionType): self
     {
         $this->submissionType = $submissionType;
 
         return $this;
     }
+
     // @improve T12377
     /**
      * @return TightencoCollection[User]
@@ -983,10 +1068,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $users->unique();
     }
+
     public function getAddressBookEntries()
     {
         return $this->addressBookEntries;
     }
+
     /**
      * @param AddressBookEntryInterface[] $addressBookEntries
      */
@@ -996,6 +1083,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function addAddressBookEntry(AddressBookEntryInterface $addressBookEntry): bool
     {
         if (!$this->addressBookEntries->contains($addressBookEntry)) {
@@ -1007,6 +1095,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return false;
     }
+
     public function removeAddressBookEntry(AddressBookEntryInterface $addressBookEntry): self
     {
         if ($this->addressBookEntries->contains($addressBookEntry)) {
@@ -1016,6 +1105,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function getLogo(): ?File
     {
         $branding = $this->getBranding();
@@ -1025,6 +1115,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return null;
     }
+
     public function setLogo(?FileInterface $logo): self
     {
         $branding = $this->getBranding();
@@ -1042,6 +1133,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * @return Collection<int, Customer>
      */
@@ -1059,6 +1151,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $customers;
     }
+
     public function addCustomerAndOrgaType(
         CustomerInterface $customer,
         OrgaTypeInterface $orgaType,
@@ -1092,6 +1185,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     /**
      * @return Collection<int, OrgaStatusInCustomer>
      */
@@ -1099,6 +1193,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->statusInCustomers;
     }
+
     /**
      * @param Collection<int, OrgaStatusInCustomerInterface> $statusInCustomers
      */
@@ -1108,12 +1203,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function addStatusInCustomer(OrgaStatusInCustomerInterface $orgaStatusInCustomer): self
     {
         $this->statusInCustomers->add($orgaStatusInCustomer);
 
         return $this;
     }
+
     public function addCustomer(CustomerInterface $customer): bool
     {
         if (null === $this->customers) {
@@ -1127,6 +1224,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return false;
     }
+
     /**
      * @param CustomerInterface[] $customers
      */
@@ -1138,16 +1236,19 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $this;
     }
+
     public function removeCustomer(CustomerInterface $customer): self
     {
         $this->customers->removeElement($customer);
 
         return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->getId();
     }
+
     public function isRegisteredInSubdomain($subdomain): bool
     {
         $customers = $this->getCustomers();
@@ -1160,6 +1261,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return false;
     }
+
     public function getMainCustomer()
     {
         /** @var OrgaStatusInCustomer $customerOrgaTypes */
@@ -1173,6 +1275,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return null;
     }
+
     /**
      * @return Customer[]
      */
@@ -1191,6 +1294,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
         return $customers;
     }
+
     public function getMasterUser(string $subdomain): ?User
     {
         $users = $this->getUsers();
@@ -1204,34 +1308,41 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
             ? $this->getUsers()->first()
             : null;
     }
+
     public function getMasterToeb(): ?MasterToeb
     {
         return $this->masterToeb;
     }
+
     public function setMasterToeb(?MasterToebInterface $masterToeb): self
     {
         $this->masterToeb = $masterToeb;
 
         return $this;
     }
+
     public function hasType(string $orgaType, string $currentSubdomain): bool
     {
         return in_array($orgaType, $this->getTypes($currentSubdomain), true);
     }
+
     public function isDefaultCitizenOrganisation(): bool
     {
         return User::ANONYMOUS_USER_ORGA_ID === $this->id;
     }
+
     public function getBranding(): ?Branding
     {
         return $this->branding;
     }
+
     public function setBranding(?BrandingInterface $branding): self
     {
         $this->branding = $branding;
 
         return $this;
     }
+
     /**
      * @return Collection<int, InstitutionTag>
      */
@@ -1239,6 +1350,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->assignedTags;
     }
+
     public function addAssignedTag(InstitutionTagInterface $tag): void
     {
         if (!$this->assignedTags->contains($tag)) {
@@ -1246,6 +1358,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
             $tag->addTaggedInstitution($this);
         }
     }
+
     public function removeAssignedTag(InstitutionTagInterface $tag): void
     {
         if ($this->assignedTags->contains($tag)) {
@@ -1253,10 +1366,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
             $tag->getTaggedInstitutions()->removeElement($this);
         }
     }
+
     public function addOwnInstitutionTag(InstitutionTagInterface $tag): void
     {
         $this->ownInstitutionTags->add($tag);
     }
+
     /**
      * @return Collection<int, InstitutionTag>
      */
@@ -1264,6 +1379,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return $this->ownInstitutionTags;
     }
+
     public function removeOwnInstitutionTag(InstitutionTagInterface $tag): void
     {
         if ($this->ownInstitutionTags->contains($tag)) {

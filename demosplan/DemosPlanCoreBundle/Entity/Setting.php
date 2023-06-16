@@ -20,6 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_settings", indexes={@ORM\Index(name="_s_key", columns={"_s_key"})})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SettingRepository")
  */
 class Setting extends CoreEntity implements UuidEntityInterface
@@ -28,8 +29,11 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     *
      * @ORM\Column(name="_s_id", type="string", length=36, options={"fixed":true})
      */
     protected $ident;
@@ -38,6 +42,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_s_procedure_id", referencedColumnName="_p_id", onDelete="CASCADE")
      */
     protected $procedure;
@@ -53,6 +58,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_s_user_id", referencedColumnName="_u_id", onDelete="RESTRICT")
      */
     protected $user;
@@ -68,6 +74,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_s_orga_id", referencedColumnName="_o_id", onDelete="RESTRICT")
      */
     protected $orga;
@@ -101,6 +108,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_s_create_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -111,6 +119,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_s_modified_date", type="datetime", nullable=false)
      */
     protected $modified;
@@ -290,7 +299,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
     {
         $return = null;
         $return = match ($this->getContent()) {
-            'true' => true,
+            'true'  => true,
             'false' => false,
             default => $return,
         };

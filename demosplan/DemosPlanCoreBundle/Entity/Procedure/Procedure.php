@@ -1687,7 +1687,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function hasOrganisation($orgaId)
     {
         if ($this->organisation instanceof Collection) {
-            $existingOrga = $this->organisation->filter(fn($entry) => $entry->getId() == $orgaId);
+            $existingOrga = $this->organisation->filter(fn ($entry) => $entry->getId() == $orgaId);
             if (0 < $existingOrga->count()) {
                 return true;
             }
@@ -1749,7 +1749,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function setPlanningOffices($planningOffices): self
     {
         $this->planningOffices = new ArrayCollection($planningOffices);
-        $this->planningOffices->forAll(fn($key, OrgaInterface $planningOffice): bool => $planningOffice->addAdministratableProcedure($this));
+        $this->planningOffices->forAll(fn ($key, OrgaInterface $planningOffice): bool => $planningOffice->addAdministratableProcedure($this));
 
         return $this;
     }
@@ -1834,7 +1834,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         }
 
         $this->authorizedUsers = $authorizedUsers;
-        $this->authorizedUsers->forAll(fn($key, User $user): bool => $user->addAuthorizedProcedure($this));
+        $this->authorizedUsers->forAll(fn ($key, User $user): bool => $user->addAuthorizedProcedure($this));
 
         return $this;
     }
@@ -1963,7 +1963,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getOrgaSlugs()
     {
-        $slugsArray = $this->getOrga()->getSlugs()->map(fn(Slug $slug) => $slug->getName())->toArray();
+        $slugsArray = $this->getOrga()->getSlugs()->map(fn (Slug $slug) => $slug->getName())->toArray();
 
         return implode(' ', $slugsArray);
     }
@@ -2079,7 +2079,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     {
         if ($this->procedureCategories instanceof Collection) {
             $existingProcedureCategory = $this->procedureCategories->filter(
-                static fn(ProcedureCategory $entry) => $entry->getId() === $procedureCategory->getId()
+                static fn (ProcedureCategory $entry) => $entry->getId() === $procedureCategory->getId()
             );
             if (0 < $existingProcedureCategory->count()) {
                 return true;

@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
-use function array_map;
-
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use JsonSerializable;
+
+use function array_map;
 
 /**
  * Entity groups for statements.
@@ -35,7 +35,7 @@ class StatementEntityGroup extends AbstractEntityGroup implements JsonSerializab
             'level'     => $this->getLevel(),
             'subgroups' => array_values($this->getSubgroups()),
             'entries'   => array_values(
-                array_map(static fn(Statement $statement) => $statement->getId(), $this->getEntries())
+                array_map(static fn (Statement $statement) => $statement->getId(), $this->getEntries())
             ),
             'total'     => $this->getTotal(),
         ];

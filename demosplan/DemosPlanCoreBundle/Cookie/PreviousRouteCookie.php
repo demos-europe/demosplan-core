@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 use function str_replace;
-use function strpos;
 
 /**
  * Class PreviousRouteCookie.

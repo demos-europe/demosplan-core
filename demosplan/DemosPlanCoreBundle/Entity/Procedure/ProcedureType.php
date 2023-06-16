@@ -82,7 +82,6 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
         /**
          * This column have to have a fixed length to allow uniqueness.
          *
-         *
          * @ORM\Column(type="string", length=255, options={"fixed":true}, nullable=false, unique=true)
          */
         #[Assert\NotBlank]
@@ -92,20 +91,20 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
          */
         private string $description,
         /**
-         *
          * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
         private StatementFormDefinition $statementFormDefinition,
         /**
-         *
          * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
         private ProcedureBehaviorDefinition $procedureBehaviorDefinition,
         /**
-         *
          * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
         private ProcedureUiDefinition $procedureUiDefinition

@@ -28,7 +28,7 @@ class TitleGroupsSorter implements ArraySorterInterface
     {
         uasort(
             $array,
-            static fn(EntityGroupInterface $a, EntityGroupInterface $b) => strcasecmp($a->getTitle(), $b->getTitle())
+            static fn (EntityGroupInterface $a, EntityGroupInterface $b) => strcasecmp($a->getTitle(), $b->getTitle())
         );
 
         return $array;

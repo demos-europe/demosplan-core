@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -23,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
@@ -400,7 +400,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $procedureSingleDocs = $this->singleDocumentRepository->getSingleDocumentsByProcedureId($procedureId);
         $procedureSingleDocIds = array_map(
-            static fn(SingleDocument $singleDocument) => $singleDocument->getId(),
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
 
@@ -423,7 +423,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         $procedureSingleDocs = $this->getProcedureDocumentsByVisibleStatus($procedureId, $visible);
 
         return array_map(
-            static fn(SingleDocument $singleDocument) => $singleDocument->getId(),
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
     }

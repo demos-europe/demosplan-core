@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -50,9 +49,9 @@ class DefaultTwigVariablesService
                 }
             }
         )->filter(
-            static fn(Permission $permission) => $permission->isEnabled() && $permission->isExposed()
+            static fn (Permission $permission) => $permission->isEnabled() && $permission->isExposed()
         )->flatMap(
-            static fn(Permission $permission) => [$permission->getName() => true]
+            static fn (Permission $permission) => [$permission->getName() => true]
         );
     }
 

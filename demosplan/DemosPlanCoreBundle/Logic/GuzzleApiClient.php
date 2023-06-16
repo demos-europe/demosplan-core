@@ -74,7 +74,7 @@ class GuzzleApiClient implements ApiClientInterface
         }
 
         $stack = HandlerStack::create();
-        $stack->push(Middleware::mapRequest(static fn(RequestInterface $request) => $request));
+        $stack->push(Middleware::mapRequest(static fn (RequestInterface $request) => $request));
 
         $config['handler'] = $stack;
 

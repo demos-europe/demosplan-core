@@ -534,9 +534,9 @@ class DemosPlanAssessmentController extends BaseController
             $postalCode = $meta->getOrgaPostalCode();
             $city = $meta->getOrgaCity();
             $countyIds = collect($statement->getCounties())
-                ->transform(static fn(County $county) => $county->getId())->unique()->toArray();
+                ->transform(static fn (County $county) => $county->getId())->unique()->toArray();
             $municipalityIds = collect($statement->getMunicipalities())
-                ->transform(static fn(Municipality $municipality) => $municipality->getId())->unique()->toArray();
+                ->transform(static fn (Municipality $municipality) => $municipality->getId())->unique()->toArray();
 
             if (null !== $statement->getOrganisation()
                 && !$statement->getOrganisation()->isDefaultCitizenOrganisation()) {

@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
-use Stringable;
 use JsonSerializable;
+use Stringable;
 
 final class AssessmentTableViewMode implements JsonSerializable, Stringable
 {
@@ -23,6 +23,7 @@ final class AssessmentTableViewMode implements JsonSerializable, Stringable
     public const ELEMENTS_VIEW = 'view_mode_elements';
     /** @var string */
     private $viewMode;
+
     // @improve T16793
     public function __construct(string $viewMode)
     {
@@ -39,11 +40,13 @@ final class AssessmentTableViewMode implements JsonSerializable, Stringable
 
         $this->viewMode = $viewMode;
     }
+
     // @improve T16793
     public static function create(string $viewMode): AssessmentTableViewMode
     {
         return new self($viewMode);
     }
+
     /**
      * @param string|AssessmentTableViewMode $otherViewMode
      */
@@ -55,6 +58,7 @@ final class AssessmentTableViewMode implements JsonSerializable, Stringable
 
         return 0 === strcmp($this->viewMode, $otherViewMode);
     }
+
     /**
      * @param string|AssessmentTableViewMode $otherViewMode
      */
@@ -62,13 +66,12 @@ final class AssessmentTableViewMode implements JsonSerializable, Stringable
     {
         return !$this->is($otherViewMode);
     }
-    /**
-     * @return string
-     */
+
     public function __toString(): string
     {
         return $this->viewMode;
     }
+
     public function jsonSerialize(): array
     {
         return [

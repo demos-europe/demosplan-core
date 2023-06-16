@@ -39,7 +39,7 @@ class TagValidator
         }
         $filteredByProcedureTags = array_filter(
             $tags,
-            fn(Tag $tag) => $tag->getProcedure()->getId() === $procedureId
+            fn (Tag $tag) => $tag->getProcedure()->getId() === $procedureId
         );
         if (count($filteredByProcedureTags) !== count($tags)) {
             $this->logger->error(

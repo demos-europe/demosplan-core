@@ -102,7 +102,7 @@ class AbstractEntityGroup implements EntityGroupInterface
 
     public function getTotal(): int
     {
-        return array_reduce($this->subgroups, static fn(int $carry, EntityGroupInterface $group): int => $carry + $group->getTotal(), count($this->entries));
+        return array_reduce($this->subgroups, static fn (int $carry, EntityGroupInterface $group): int => $carry + $group->getTotal(), count($this->entries));
     }
 
     public function getLevel(): int

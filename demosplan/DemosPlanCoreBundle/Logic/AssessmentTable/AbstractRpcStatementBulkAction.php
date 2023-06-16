@@ -139,7 +139,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     public function execute(?Procedure $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            fn(): array => $this->prepareAction($procedure->getId(), $rpcRequests));
+            fn (): array => $this->prepareAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool

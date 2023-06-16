@@ -124,7 +124,7 @@ abstract class AbstractProcedureFormType extends AbstractType
 
         return collect($allowableSegmentAccessProcedures)
             ->mapWithKeys(
-                static fn(Procedure $allowedProcedure): array => [$allowedProcedure->getName() => $allowedProcedure->getId()]
+                static fn (Procedure $allowedProcedure): array => [$allowedProcedure->getName() => $allowedProcedure->getId()]
             )
             ->all();
     }

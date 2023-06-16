@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
@@ -62,7 +61,7 @@ class EntrypointController extends BaseController
                 $redirectPath = $request->cookies->get(PreviousRouteCookie::NAME);
                 $routeInfo = $this->router->match($redirectPath);
 
-                $parameters = array_filter($routeInfo, static fn(string $key) =>
+                $parameters = array_filter($routeInfo, static fn (string $key) =>
                     // filter out non-parameter info keys
                     '_' !== $key[0], ARRAY_FILTER_USE_KEY);
 

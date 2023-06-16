@@ -39,7 +39,7 @@ class OptionsLoaderPass implements CompilerPassInterface
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {
             $configs = collect($fileLocator->locate($overridableConfig, null, false))
-                ->map(static fn($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
+                ->map(static fn ($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
                 ->toArray();
 
             $configuration = new $configClassName();

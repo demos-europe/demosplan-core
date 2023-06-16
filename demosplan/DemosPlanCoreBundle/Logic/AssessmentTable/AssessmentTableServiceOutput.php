@@ -273,7 +273,7 @@ class AssessmentTableServiceOutput
         foreach ($statements as $statement) {
             $statementFragments = array_filter(
                 $filteredFragments,
-                fn($filteredFragment) => $filteredFragment['statementId'] === $statement['id']
+                fn ($filteredFragment) => $filteredFragment['statementId'] === $statement['id']
             );
             if ((is_countable($statement['fragments']) ? count($statement['fragments']) : 0) !== count($statementFragments)) {
                 $statement['fragments'] = $statementFragments;

@@ -18,8 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
-use function get_class;
-
 /**
  * @ORM\Table (uniqueConstraints={
  *

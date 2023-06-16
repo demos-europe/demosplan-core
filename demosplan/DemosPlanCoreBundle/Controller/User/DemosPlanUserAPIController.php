@@ -262,7 +262,7 @@ class DemosPlanUserAPIController extends APIController
                 switch ($relationshipName) {
                     case 'roles':
                         $userData['roles'] = array_map(
-                            static fn($relObject) => $relObject['id'],
+                            static fn ($relObject) => $relObject['id'],
                             $relationship['data']
                         );
                         break;

@@ -192,7 +192,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
-            fn($element) =>
+            fn ($element) =>
                 /* @var Elements $element */
                 $element->getId()
         )->toArray();
@@ -282,7 +282,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function getEnabledFileAndParagraphElements(string $procedureId, ?string $organisationId, bool $isOwner = false): array
     {
         $elements = $this->getElementsListObjects($procedureId, $organisationId, $isOwner);
-        $elements = array_filter($elements, static fn(Elements $element) => in_array(
+        $elements = array_filter($elements, static fn (Elements $element) => in_array(
             $element->getCategory(),
             [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
             true
@@ -553,7 +553,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();

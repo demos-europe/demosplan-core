@@ -52,13 +52,13 @@ class DemosPlanReportAPIController extends APIController
         $group = null
     ): APIResponse {
         $resourceTypeName = match ($group) {
-            'general' => GeneralReportEntryResourceType::getName(),
-            'statements' => StatementReportEntryResourceType::getName(),
-            'publicPhase' => PublicPhaseReportEntryResourceType::getName(),
-            'invitations' => InvitationReportEntryResourceType::getName(),
+            'general'             => GeneralReportEntryResourceType::getName(),
+            'statements'          => StatementReportEntryResourceType::getName(),
+            'publicPhase'         => PublicPhaseReportEntryResourceType::getName(),
+            'invitations'         => InvitationReportEntryResourceType::getName(),
             'registerInvitations' => RegisterInvitationReportEntryResourceType::getName(),
-            'finalMails' => FinalMailReportEntryResourceType::getName(),
-            default => ReportEntryResourceType::getName(),
+            'finalMails'          => FinalMailReportEntryResourceType::getName(),
+            default               => ReportEntryResourceType::getName(),
         };
 
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)

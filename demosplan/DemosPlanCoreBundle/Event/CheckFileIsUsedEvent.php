@@ -22,8 +22,7 @@ class CheckFileIsUsedEvent extends DPlanEvent
          * @param string
          */
         private readonly string $fileId
-    )
-    {
+    ) {
     }
 
     public function getFileId(): string

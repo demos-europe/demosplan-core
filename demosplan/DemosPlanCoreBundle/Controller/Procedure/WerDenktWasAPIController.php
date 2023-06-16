@@ -54,7 +54,7 @@ class WerDenktWasAPIController extends BaseController
                 'type' => 'Feature',
             ];
 
-            $coordinates = array_map(static fn($coordinate) => (float) $coordinate, explode(',', (string) $procedureInfo['attributes']['coordinate']));
+            $coordinates = array_map(static fn ($coordinate) => (float) $coordinate, explode(',', (string) $procedureInfo['attributes']['coordinate']));
 
             // skip procedures without coordinates (should not happen on production)
             if ([0.0] === $coordinates) {

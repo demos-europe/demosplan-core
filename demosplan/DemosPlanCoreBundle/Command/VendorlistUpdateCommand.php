@@ -86,10 +86,10 @@ class VendorlistUpdateCommand extends CoreCommand
                     // only add license information for packages which are
                     // direct dependencies (e.g. listed in the composer.json)
                     // of demosplan
-                    static fn($_, $package): bool => 1 === count(
+                    static fn ($_, $package): bool => 1 === count(
                         (array) array_filter(
                             $directDependencies,
-                            static fn($directDependency): bool => $directDependency['name'] === $package
+                            static fn ($directDependency): bool => $directDependency['name'] === $package
                         )
                     )
                 );
@@ -118,10 +118,10 @@ class VendorlistUpdateCommand extends CoreCommand
                         return compact('license', 'package', 'website');
                     }
                 )
-                ->filter(static fn($packageInfo): bool =>
+                ->filter(static fn ($packageInfo): bool =>
                     // only output packages that do actually have license info
                     '' !== $packageInfo['license'])
-                ->filter(static fn($packageInfo): bool =>
+                ->filter(static fn ($packageInfo): bool =>
                     // we may have private packages that should be hidden
                     !in_array($packageInfo['package'], self::PHP_PACKAGE_DENYLIST, true))
                 ->values();
@@ -200,15 +200,15 @@ class VendorlistUpdateCommand extends CoreCommand
                     }
                 )
                 ->filter(
-                    static fn($item): bool =>
+                    static fn ($item): bool =>
                         // do not include items without license
                         // may occur if package could not be fetched
                         null !== $item['license']
                 )
                 ->filter(
-                    static fn($item): bool => $packageJsonDependencies->has($item['package'])
+                    static fn ($item): bool => $packageJsonDependencies->has($item['package'])
                 )
-                ->filter(static fn($packageInfo): bool =>
+                ->filter(static fn ($packageInfo): bool =>
                     // we may have private packages that should be hidden
                     !in_array($packageInfo['package'], self::JS_PACKAGE_DENYLIST, true))
                 ->unique('package')
