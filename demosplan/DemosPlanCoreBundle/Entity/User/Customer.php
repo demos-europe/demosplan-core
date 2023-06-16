@@ -295,7 +295,12 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->orgaStatuses = $orgaStatuses;
     }
 
-    public function getOrgas(): Collection
+    /**
+     * @param array<int,string> $statuses if null, all orga statuses will be returned
+     *                                    will be applied as or condition
+     * @return Collection<int, Orga>
+     */
+    public function getOrgas(array $statuses = []): Collection
     {
         $orgas = new ArrayCollection();
 
@@ -303,28 +308,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
             if (!$orgas->contains($orga)) {
-                $orgas->add($orga);
+                // filter by status
+                if ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true)) {
+                    $orgas->add($orga);
+                }
             }
         }
 
         return $orgas;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getEmailsOfUsersOfOrgas(): array
-    {
-        $mailAddresses = [];
-        /** @var OrgaInterface $orga */
-        foreach ($this->getOrgas() as $orga) {
-            /** @var UserInterface $user */
-            foreach ($orga->getUsers() as $user) {
-                $mailAddresses[] = $user->getEmail();
-            }
-        }
-
-        return $mailAddresses;
     }
 
     /**
