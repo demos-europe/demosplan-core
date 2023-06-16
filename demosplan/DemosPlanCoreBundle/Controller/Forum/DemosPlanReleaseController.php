@@ -830,7 +830,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['exportDate'] = date('d.m.Y');
 
         // set csv Escaper
-        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
+        $twig->getExtension('EscaperExtension')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_export.csv.twig', [
             'templateVars' => $templateVars,
