@@ -118,7 +118,7 @@
                       data-cy="historyItemElement">
                       <td
                         :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
-                        class="u-pt-0_5 u-pl-0_5 u-mr u-pr u-valign--top u-1-of-6 display--inline-block"
+                        class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 display--inline-block"
                         data-cy="fieldName">
                         <strong>
                           {{ Translator.trans(fieldName) }}

@@ -82,7 +82,7 @@
 {# expandable detail content #}
 <tr class="o-toggle__target table-row o-sortablelist_item" data-toggle-id="{{ orga.ident }}">
     <td class="u-pr-0_25"></td>
-    <td class="u-valign--top u-ph-0_25 u-pv-0_5">
+    <td class="align-top u-ph-0_25 u-pv-0_5">
         <p class="u-mb-0">
             <span class="color--grey display--block">{{ "address"|trans }}</span>
             <span class="display--block">{{ orga.address.street|default("notspecified"|trans) }}</span>
@@ -100,7 +100,7 @@
             {% endif %}
         </p>
     </td>
-    <td colspan="{{ colspan }}" class="u-valign--top u-ph-0_25 u-pv-0_5">
+    <td colspan="{{ colspan }}" class="align-top u-ph-0_25 u-pv-0_5">
         <p>
             {% if hasPermission('field_organisation_competence')%}
                 <span class="color--grey u-pt-0_5 display--block">{{ "competence.explanation"|trans }}</span>

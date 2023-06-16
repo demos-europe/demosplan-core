@@ -31,7 +31,7 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 cf">
         <div class="inline-flex space-inline-m">
-          <h1 :class="['font-size-larger u-valign--middle display--inline-block u-m-0']">
+          <h1 :class="['font-size-larger align-middle display--inline-block u-m-0']">
             {{ Translator.trans('statement') }} #{{ statementExternId }}
           </h1>
           <div

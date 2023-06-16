@@ -85,7 +85,7 @@
               @selected="zoomToSuggestion" />
 
             <dp-ol-map-scale-select
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 u-valign--top')"
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
               v-if="_options.scaleSelect" />
           </div>
         </div>

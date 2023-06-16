@@ -208,7 +208,7 @@
           <input
             id="r_voters_anonym"
             name="r_voters_anonym"
-            class="layout__item text--center u-valign--baseline o-form__control-input u-3-of-12 u-mr-0_125"
+            class="layout__item text--center align-baseline o-form__control-input u-3-of-12 u-mr-0_125"
             :disabled="('1' === readonly)"
             type="number"
             placeholder=""

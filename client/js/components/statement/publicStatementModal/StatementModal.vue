@@ -254,7 +254,7 @@
                   :key="`file_${idx}`"
                   :class="prefixClass('o-hellip')">
                   <a
-                    :class="prefixClass('u-valign--top')"
+                    :class="prefixClass('align-top')"
                     :href="Routing.generate('core_file', { hash: file.hash })"
                     rel="noopener"
                     target="_blank">
@@ -311,7 +311,7 @@
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom display--inline-block')"
             hide-label />
           <button
             v-if="displayEditSubmit"
@@ -373,7 +373,7 @@
           :class="prefixClass('text--right u-mt-0_5 space-inline-s')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom display--inline-block')"
             hide-label />
           <button
             type="reset"
@@ -560,7 +560,7 @@
         <div :class="prefixClass('text--right')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom display--inline-block')"
             hide-label />
           <button
             type="button"

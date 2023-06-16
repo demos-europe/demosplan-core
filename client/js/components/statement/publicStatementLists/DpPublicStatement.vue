@@ -15,7 +15,7 @@
       <div
         class="c-public-statement__header"
         :class="{'border--bottom': isOpen}">
-        <div class="layout__item u-11-of-12 u-1-of-4-desk-up u-valign--sub u-pl-0">
+        <div class="layout__item u-11-of-12 u-1-of-4-desk-up align-sub u-pl-0">
           <div class="display--inline-block u-mr-0_5">
             <input
               v-if="showCheckbox"
@@ -53,14 +53,14 @@
               class="display--inline u-mr-0_5">
               <button
                 v-if="item.type === 'button'"
-                class="btn--blank o-link--default u-valign--middle"
+                class="btn--blank o-link--default align-middle"
                 @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
                 v-bind="item.attrs">
                 {{ item.text }}
               </button>
               <a
                 v-else-if="item.type === 'link'"
-                class="o-link--default u-valign--middle"
+                class="o-link--default align-middle"
                 :href="item.url"
                 v-bind="item.attrs">
                 {{ item.text }}
@@ -68,7 +68,7 @@
               <h4
                 v-else-if="item.type === 'heading'"
                 v-bind="item.attrs"
-                class="color--grey u-mb-0 u-mt-0_25 font-size-small u-valign--middle">
+                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle">
                 {{ item.text }}
               </h4>
             </div>

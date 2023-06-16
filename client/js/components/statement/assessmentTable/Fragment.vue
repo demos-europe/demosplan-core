@@ -111,7 +111,7 @@ useful info about the component:
           </div>
         </template>
         <template v-else>
-          <div class="display--inline-block u-1-of-2 weight--bold u-pr-0_5 u-valign--top u-mt-0_25">
+          <div class="display--inline-block u-1-of-2 weight--bold u-pr-0_5 align-top u-mt-0_25">
             {{ Translator.trans('fragment.assign.reviewer') }}:
           </div><!--
          --><div class="display--inline-block u-1-of-2 lbl__hint u-ph-0_5 u-mt-0_25">
@@ -178,7 +178,7 @@ useful info about the component:
               :editable="editableVoteAdvice && fragment.archivedOrgaName === null && isClaimed"
               :label-grid-cols="2" />
             <template v-else>
-              <div class="display--inline-block u-2-of-8 weight--bold u-valign--top u-mt-0_25">
+              <div class="display--inline-block u-2-of-8 weight--bold align-top u-mt-0_25">
                 {{ Translator.trans('fragment.voteAdvice.short') }}:
               </div><!--
            --><div class="display--inline-block u-6-of-8 flash-warning lbl__hint u-ph-0_25 u-mt-0_25">

@@ -21,7 +21,7 @@
         text: Translator.trans('select.all')
       }"
       @change="toggleAll" />
-    <div class="display--inline-block u-pr u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
+    <div class="display--inline-block u-pr align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
       <p
         class="weight--bold u-mb-0_25"
         id="submitter">
@@ -38,20 +38,20 @@
       :options="metaDataFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(metaDataFields)"
-    class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
+    class="display--inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
  --><dp-checkbox-group
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
       :options="documentFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(documentFields)"
-    class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
+    class="display--inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(publicationField)"
-      class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
+      class="display--inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
   </div>
 </template>
 

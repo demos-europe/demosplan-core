@@ -34,7 +34,7 @@ statements and fragments is now in DpAssessmentTableCard.vue
     </dp-switcher>
     <div
       v-if="isFiltered && showFragmentResults"
-      class="display--inline-block u-valign--top u-pv-0_25 float--right">
+      class="display--inline-block align-top u-pv-0_25 float--right">
       <p class="display--inline-block u-mb-0 u-mr">
         {{ Translator.trans('found.fragments', {hits: filteredFragmentsLength, sum: totalFragmentsLength}) }}
       </p>

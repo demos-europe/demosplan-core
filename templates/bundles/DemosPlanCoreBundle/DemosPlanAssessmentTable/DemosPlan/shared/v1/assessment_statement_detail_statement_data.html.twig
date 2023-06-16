@@ -52,7 +52,7 @@
                             {% set orgaNameStyle = 'inline-block' %}
 
                             {% if manualStatement and readonly %}
-                                {% set orgaNameClass = orgaNameClass ~ ' u-valign--middle' %}
+                                {% set orgaNameClass = orgaNameClass ~ ' align-middle' %}
                             {% endif %}
                         {% endif %}
 
@@ -122,7 +122,7 @@
                             label: { text: 'statement.representation.checked'|trans },
                             control: { name: 'r_representationCheck', checked: representationChecked|default(false) },
                             type: 'checkbox',
-                            class: 'u-valign--top',
+                            class: 'align-top',
                             id: 'r_representationCheck',
                             elementStyle: 'inline-block',
                             elementClass: 'u-pl-0_5',
@@ -1033,7 +1033,7 @@
                 {% endif %}  {# end if hasPermission('field_procedure_elements') #}
 
                 {% if not readonly %}
-                    <div class="u-1-of-2 display--inline-block u-pl-0_5 u-valign--top">
+                    <div class="u-1-of-2 display--inline-block u-pl-0_5 align-top">
                         {% if hasPermission('field_procedure_elements') %}
                             {# Select new plandocument #}
                             {% set planDocumentOptions = {} %}

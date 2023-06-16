@@ -81,7 +81,7 @@
           {{ Translator.trans('search.in') }}
         </h3>
 
-        <div class="max-height-300 width-100p u-valign--top overflow-auto u-mb">
+        <div class="max-height-300 width-100p align-top overflow-auto u-mb">
           <div class="layout--flush">
             <dp-checkbox
               v-for="checkbox in filterCheckBoxesItems"

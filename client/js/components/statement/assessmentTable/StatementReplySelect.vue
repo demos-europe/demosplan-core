@@ -16,7 +16,7 @@
     <dp-checkbox
       id="r_replied"
       v-model="checked"
-      class="u-mb-0_5 u-1-of-2 display--inline-block u-valign--middle"
+      class="u-mb-0_5 u-1-of-2 display--inline-block align-middle"
       :disabled="readonly"
       :label="{
         text: Translator.trans('statement.in.compass.was.answered')
