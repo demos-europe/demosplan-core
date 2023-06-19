@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
@@ -28,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -46,9 +45,12 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
@@ -57,6 +59,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
+use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
@@ -464,6 +467,22 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->unassigned();
 
         return $query->getCount();
+    }
+
+    /**
+     * @return array<int, Statement|Segment>
+     */
+    public function listEntities(array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    {
+        return parent::listEntities($conditions, $sortMethods, $offset, $limit);
+    }
+
+    /**
+     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     */
+    public function listPaginatedEntities(array $conditions, int $page, int $pageSize, array $sortMethods = []): DemosPlanPaginator
+    {
+        return parent::listPaginatedEntities($conditions, $page, $pageSize, $sortMethods);
     }
 
     /**

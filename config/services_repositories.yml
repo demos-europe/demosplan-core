@@ -27,6 +27,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\FaqRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Faq'
 
+    demosplan\DemosPlanCoreBundle\Repository\PlatformFaqRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PlatformFaq'
+
     demosplan\DemosPlanCoreBundle\Repository\FileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\File'
 

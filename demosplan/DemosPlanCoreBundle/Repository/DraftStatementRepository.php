@@ -31,7 +31,7 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 
-class DraftStatementRepository extends CoreRepository implements ArrayInterface
+class DraftStatementRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Gib eine Liste der Versionen der Stellungnahme zurück.

@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\Query;
 use InvalidArgumentException;
 
-class ReportRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ReportRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Gets an ReportEntry.

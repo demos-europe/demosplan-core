@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
@@ -121,20 +122,7 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * Will return all entities matching the given condition with the specified sorting.
-     *
-     * Unlike {@link DplanResourceType::listEntities} this method won't apply any restrictions
-     * beside the provided conditions.
-     *
-     * The values in the returned array will be of the type of the given entity class.
-     *
-     * @template O of object
-     *
-     * @param class-string<O>                    $entityClass
-     * @param array<int,FunctionInterface<bool>> $conditions  will be applied in an `AND` conjunction
-     * @param array<int,SortMethodInterface>     $sortMethods will be applied in the given order
-     *
-     * @return array<int,O>
+     * @deprecated use {@link FluentRepository::listEntities()} instead
      */
     public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
@@ -146,17 +134,7 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * Will provide access to all entities matching the given condition via a paginator.
-     * The entities will be sorted by the specified sorting.
-     *
-     * Unlike {@link DplanResourceType::listEntities} this method won't apply any restrictions
-     * beside the provided conditions.
-     *
-     * The type of the entities will be of the type of the given entity class.
-     *
-     * @param class-string<object>                     $entityClass
-     * @param array<int,ClauseFunctionInterface<bool>> $conditions  will be applied in an `AND` conjunction
-     * @param array<int,OrderBySortMethodInterface>    $sortMethods will be applied in the given order
+     * @deprecated use {@link FluentRepository::listPaginatedEntities()} instead
      */
     public function listPaginatedEntitiesUnrestricted(
         string $entityClass,
