@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -49,8 +48,20 @@ class ConsultationTokenService
      */
     private const TOKEN_CHARACTERS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ';
 
-    public function __construct(private readonly ConsultationTokenRepository $consultationTokenRepository, private readonly ConsultationTokenResourceType $consultationTokenResourceType, private readonly CurrentProcedureService $currentProcedureService, private readonly DqlConditionFactory $conditionFactory, private readonly ElementsService $elementsService, private readonly EntityFetcher $entityFetcher, private readonly EventDispatcherInterface $eventDispatcher, private readonly GlobalConfigInterface $globalConfig, private readonly PermissionsInterface $permissions, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementHandler $statementHandler, private readonly StatementService $statementService, private readonly ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly ConsultationTokenRepository $consultationTokenRepository,
+        private readonly ConsultationTokenResourceType $consultationTokenResourceType,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsService $elementsService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly PermissionsInterface $permissions,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementHandler $statementHandler,
+        private readonly StatementService $statementService,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     /**

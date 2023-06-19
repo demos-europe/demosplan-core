@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
@@ -27,8 +26,10 @@ use function collect;
 
 class FacetFactory
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly PrefilledResourceTypeProvider $resourceTypeProvider, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly PrefilledResourceTypeProvider $resourceTypeProvider,
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
     /**

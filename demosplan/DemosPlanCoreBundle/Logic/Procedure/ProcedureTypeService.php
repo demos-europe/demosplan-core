@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
@@ -45,8 +44,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly EntityWrapperFactory $entityWrapperFactory, private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository, private readonly ProcedureRepository $procedureRepository, private readonly ProcedureTypeRepository $procedureTypeRepository, private readonly ProcedureTypeResourceType $procedureTypeResourceType, private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository, private readonly ResourcePersister $resourcePersister, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository)
-    {
+    public function __construct(
+        private readonly EntityWrapperFactory $entityWrapperFactory,
+        private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ProcedureTypeRepository $procedureTypeRepository,
+        private readonly ProcedureTypeResourceType $procedureTypeResourceType,
+        private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository,
+        private readonly ResourcePersister $resourcePersister,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository
+    ) {
     }
 
     public function deleteStatementFormDefinition(StatementFormDefinition $statementFormDefinition): void

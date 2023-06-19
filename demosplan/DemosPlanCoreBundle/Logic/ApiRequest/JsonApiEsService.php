@@ -32,8 +32,11 @@ class JsonApiEsService
     /**
      * @param array<string,Index> $searchTypes
      */
-    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly FacetFactory $facetFactory, private readonly array $searchTypes)
-    {
+    public function __construct(
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly FacetFactory $facetFactory,
+        private readonly array $searchTypes
+    ) {
     }
 
     /**

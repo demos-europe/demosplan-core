@@ -42,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -150,7 +149,6 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly EntityFetcher $entityFetcher,
         private readonly AssessmentHandler $assessmentHandler,
         private readonly Environment $twig,
         private readonly PermissionsInterface $permissions,

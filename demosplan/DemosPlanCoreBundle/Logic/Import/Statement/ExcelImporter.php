@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -123,7 +122,6 @@ class ExcelImporter extends CoreService
         private readonly CurrentUserInterface $currentUser,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManagerInterface $entityManager,
-        private readonly EntityFetcher $entityFetcher,
         private readonly ElementsService $elementsService,
         private readonly OrgaService $orgaService,
         private readonly PlaceService $placeService,

@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;

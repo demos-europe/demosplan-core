@@ -11,7 +11,6 @@
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;

@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -74,7 +73,6 @@ class JsonApiActionService extends AbstractApiService
 
     public function __construct(
         FilterParserInterface $filterParser,
-        private readonly EntityFetcher $entityFetcher,
         TraceableEventDispatcher $eventDispatcher,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly JsonApiPaginationParser $paginationParser,

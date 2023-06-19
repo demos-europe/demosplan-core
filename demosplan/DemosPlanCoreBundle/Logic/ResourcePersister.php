@@ -13,19 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\QueryException;
 
 class ResourcePersister extends CoreService
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly RepositoryHelper $repositoryHelper, private readonly ResourceTypeService $resourceTypeService)
-    {
+    public function __construct(
+        private readonly RepositoryHelper $repositoryHelper,
+        private readonly ResourceTypeService $resourceTypeService
+    ) {
     }
 
     /**

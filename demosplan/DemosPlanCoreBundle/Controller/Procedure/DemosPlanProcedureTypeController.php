@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
@@ -242,7 +241,6 @@ class DemosPlanProcedureTypeController extends BaseController
      */
     #[Route(name: 'DemosPlan_procedureType_create_save', path: 'verfahrenstypen/create', methods: ['POST'], options: ['expose' => false])]
     public function procedureTypeCreateSaveAction(
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,

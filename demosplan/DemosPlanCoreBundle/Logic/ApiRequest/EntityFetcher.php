@@ -12,42 +12,30 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\MappingException;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\Utilities\JoinFinder;
 use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\JsonApi\RequestHandling\EntityFetcherInterface;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Contracts\SortMethodInterface;
-use EDT\Querying\EntityProviders\EntityProviderInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
 use EDT\Querying\Utilities\ConditionEvaluator;
-use EDT\Querying\Utilities\Iterables;
 use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
-use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
@@ -58,7 +46,6 @@ class EntityFetcher implements EntityFetcherInterface
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManager $entityManager,
-        private readonly SchemaPathProcessor $schemaPathProcessor,
         private readonly Sorter $sorter
     ) {
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());

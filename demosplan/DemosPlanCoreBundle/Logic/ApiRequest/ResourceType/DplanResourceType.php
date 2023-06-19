@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DoctrineOrmPartialDTOProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PartialDTO;
@@ -34,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
@@ -161,7 +161,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     private $messageFormatter;
 
-    protected ?EntityFetcher $entityFetcher;
     protected ?EntityManager $entityManager;
     protected ?SchemaPathProcessor $schemaPathProcessor;
     protected ?ConditionEvaluator $conditionEvaluator;
@@ -301,16 +300,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     public function setEventDispatcher(TraceableEventDispatcher $eventDispatcher): void
     {
         $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setEntityFetcher(EntityFetcher $entityFetcher): void
-    {
-        $this->entityFetcher = $entityFetcher;
     }
 
     /**
@@ -483,7 +472,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     }
 
     /**
-     * Unlike {@link EntityFetcher::listPaginatedEntitiesUnrestricted} this method accepts conditions and sort methods using the
+     * Unlike {@link FluentRepository::listPaginatedEntities} this method accepts conditions and sort methods using the
      * schema of a resource type instead of the schema of the backing entity.
      *
      * It will automatically check access rights and apply aliases before creating a

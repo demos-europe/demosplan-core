@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
