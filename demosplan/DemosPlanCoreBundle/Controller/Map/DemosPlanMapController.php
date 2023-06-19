@@ -851,61 +851,6 @@ class DemosPlanMapController extends BaseController
     }
 
     /**
-     * Rufe die getCapabilities eines lokal gespeicherten Layers ab.
-     *
-     * @deprecated Is this route used any more?
-     *
-     * @param string $layerId
-     *
-     * @return Response
-     */
-    #[Route(name: 'DemosPlan_map_get_capabilities_local', path: '/getCapabilitiesLocal/{layerId}', options: ['expose' => true])]
-    public function getCapabilitiesLocalAjaxAction(CacheInterface $cache, MapCapabilitiesLoader $capabilitiesLoader, MapService $mapService, $layerId)
-    {
-        try {
-            // may be initialized without initialize(), as no private information is exposed
-            $success = true;
-            $code = 100;
-
-            // try to get Capabilities from cache
-            $result = $cache->get('capabilities_'.$layerId, function (ItemInterface $item) use ($capabilitiesLoader, $layerId, $mapService) {
-                $this->getLogger()->info('Fetch getCapabilities from Geoserver');
-                // @improve T14122
-                $layer = $mapService->getSingleGis($layerId);
-                $this->getLogger()->info('Fetch getCapabilities from Geoserver URL', [$layer['url']]);
-                $response = $capabilitiesLoader->sendGetCapabilitiesRequest($layer['url']);
-                $this->getLogger()->info('Fetch getCapabilities got Response', [$response]);
-                if (is_array($response) && (array_key_exists('responseCode', $response)
-                        && 200 === $response['responseCode'])) {
-                    $this->getLogger()->info('Fetch getCapabilities succeeded');
-
-                    $response = $response['body'] ?? '';
-                    $item->expiresAfter(86400);
-
-                    return $response;
-                }
-
-                return false;
-            });
-
-            if (false === $result) {
-                $success = false;
-                $code = 500;
-            }
-
-            // prepare the response
-            $response = [
-                'code'    => $code,
-                'success' => $success,
-                'body'    => $result, ];
-            // return result as JSON
-            return new JsonResponse($response);
-        } catch (Exception $e) {
-            return $this->handleAjaxError($e);
-        }
-    }
-
-    /**
      * @param string $action
      */
     protected function prepareIncomingData(Request $request, $action): array
