@@ -85,6 +85,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         Request $request,
         string $orgaSlug = '')
     {
+        $templateVars = [];
         try {
             if (!$permissions->hasPermission('feature_orga_slug')
                 && 'DemosPlan_procedure_public_orga_index' === $request->get('_route')) {
@@ -306,6 +307,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         ProcedureListService $procedureListService,
         Request $request
     ): Response {
+        $templateVars = [];
         $title = 'procedure.master.admin';
         $search = $request->get('search_word');
 
@@ -315,7 +317,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
 
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars['list'] = $this->procedureServiceOutput->procedureTemplateAdminListHandler($filters, $search);
-        $templateVars['list']['procedures'] = $templateVars['list']['procedures'] ?? [];
+        $templateVars['list']['procedures'] ??= [];
         $templateVars['search'] = $search;
 
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars($templateVars, $title);
@@ -403,15 +405,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             // Bereite die Daten für die Aktualisierung der Karte auf
             $mapVars = [];
 
-            $dateConvert = static function ($date) {
-                return is_string($date)
-                    ? date('d.m.Y', substr($date, 0, -3))
-                    : date('d.m.Y', $date);
-            };
+            $dateConvert = static fn ($date) => is_string($date)
+                ? date('d.m.Y', substr($date, 0, -3))
+                : date('d.m.Y', $date);
             foreach ($serviceOutput['list']['procedurelist'] as $procedure) {
                 $coordinates = explode(
                     ',',
-                    $procedure['settings']['coordinate']
+                    (string) $procedure['settings']['coordinate']
                 );
                 // es wurde keine Koordinate eingetragen
                 if (2 !== count($coordinates)) {
@@ -440,7 +440,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 'success'        => true,
                 'mapVars'        => $mapVars,
                 'responseHtml'   => $htmlContent,
-                'procedureCount' => count($serviceOutput['list']['procedurelist']),
+                'procedureCount' => is_countable($serviceOutput['list']['procedurelist']) ? count($serviceOutput['list']['procedurelist']) : 0,
             ];
 
             // return result as JSON
@@ -490,10 +490,10 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
 
             $result = $locationResponse['body'];
 
-            $maxSuggestions = $requestGet['maxResults'] ?? count($result);
+            $maxSuggestions = $requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0);
             // Es gibt Ergebnisse, aber weniger als maxResults
-            if (count($result) < $maxSuggestions) {
-                $maxSuggestions = count($result);
+            if ((is_countable($result) ? count($result) : 0) < $maxSuggestions) {
+                $maxSuggestions = is_countable($result) ? count($result) : 0;
             }
             $this->profilerStart('Proj4Profiler');
 
@@ -591,7 +591,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 }
 
                 return $orga;
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 throw $this->createNotFoundException('The orga does not exist');
             }
         }
@@ -614,7 +614,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 $this->procedureService->deleteProcedure($selectedProcedures);
                 $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add('error', 'error.procedure.deleted');
         }
     }

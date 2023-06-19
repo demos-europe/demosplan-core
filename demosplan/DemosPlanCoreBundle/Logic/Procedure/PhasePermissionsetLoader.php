@@ -16,14 +16,8 @@ use function array_key_exists;
 
 class PhasePermissionsetLoader
 {
-    /**
-     * @var GlobalConfig
-     */
-    private $globalConfig;
-
-    public function __construct(GlobalConfig $globalConfig)
+    public function __construct(private readonly GlobalConfig $globalConfig)
     {
-        $this->globalConfig = $globalConfig;
     }
 
     public function loadPhasePermissionsets(Procedure $procedure): Procedure

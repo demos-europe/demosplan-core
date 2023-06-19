@@ -31,33 +31,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class RpcProcedureAnalytics implements RpcMethodSolverInterface
 {
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-    /**
-     * @var MatomoApi
-     */
-    private $matomoApi;
-
-    public function __construct(
-        JsonSchemaValidator $jsonSchemaValidator,
-        MatomoApi $matomoApi,
-        PermissionsInterface $permissions,
-        RpcErrorGenerator $errorGenerator
-    ) {
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
-        $this->permissions = $permissions;
-        $this->errorGenerator = $errorGenerator;
-        $this->matomoApi = $matomoApi;
+    public function __construct(private readonly JsonSchemaValidator $jsonSchemaValidator, private readonly MatomoApi $matomoApi, private readonly PermissionsInterface $permissions, private readonly RpcErrorGenerator $errorGenerator)
+    {
     }
 
     public function supports(string $method): bool
@@ -95,9 +70,9 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
                 $responseData = $this->matomoApi->getProcedureStatistics($procedureId);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $responseData);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (\demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException $e) {
+            } catch (\demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
             }
         }

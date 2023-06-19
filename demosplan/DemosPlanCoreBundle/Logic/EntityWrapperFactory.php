@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
-use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
@@ -28,20 +26,11 @@ use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
  */
 class EntityWrapperFactory extends WrapperObjectFactory
 {
-    protected PropertyAccessorInterface $propertyAccessor;
-
-    protected PropertyReader $propertyReader;
-
-    protected ConditionEvaluator $conditionEvaluator;
-
     public function __construct(
-        CachingPropertyReader $propertyReader,
-        ConditionEvaluator $conditionEvaluator,
-        ProxyPropertyAccessor $propertyAccessor
+        protected PropertyReader $propertyReader,
+        protected ConditionEvaluator $conditionEvaluator,
+        protected PropertyAccessorInterface $propertyAccessor
     ) {
-        $this->propertyReader = $propertyReader;
-        $this->conditionEvaluator = $conditionEvaluator;
-        $this->propertyAccessor = $propertyAccessor;
         parent::__construct(
             $this->propertyReader,
             $this->propertyAccessor,

@@ -23,39 +23,22 @@ use Twig\TwigFunction;
 class PageTitleExtension extends ExtensionBase
 {
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ProcedureExtension
-     */
-    private $procedureExtension;
-
-    /**
      * @var GlobalConfig
      */
     protected $globalConfig;
 
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    public function __construct(ContainerInterface $container, GlobalConfigInterface $globalConfig, TranslatorInterface $translator, CurrentProcedureService $currentProcedureService, ProcedureExtension $procedureExtension)
+    public function __construct(ContainerInterface $container, GlobalConfigInterface $globalConfig, private readonly TranslatorInterface $translator, private readonly CurrentProcedureService $currentProcedureService, private readonly ProcedureExtension $procedureExtension)
     {
         parent::__construct($container);
 
         $this->globalConfig = $globalConfig;
-        $this->translator = $translator;
-        $this->procedureExtension = $procedureExtension;
-        $this->currentProcedureService = $currentProcedureService;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('pageTitle', [$this, 'pageTitle']),
-            new TwigFunction('breadcrumbTitle', [$this, 'breadcrumbTitle']),
+            new TwigFunction('pageTitle', $this->pageTitle(...)),
+            new TwigFunction('breadcrumbTitle', $this->breadcrumbTitle(...)),
         ];
     }
 

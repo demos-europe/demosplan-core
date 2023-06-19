@@ -38,6 +38,7 @@ class DemosPlanHelpController extends BaseController
         Request $request,
         HelpHandler $helpHandler
     ): Response {
+        $templateVars = [];
         $requestPost = $request->request->all();
         if (array_key_exists('delete', $requestPost)) {
             if (empty($request->get('r_delete'))) {
@@ -107,7 +108,7 @@ class DemosPlanHelpController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.contextual.help.saved');
 
             return new RedirectResponse($this->generateUrl('dplan_contextual_help_list'));
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $this->getMessageBag()->add('error', 'error.missing.required.info');
 
             return $this->redirectToRoute('dplan_contextual_help_create');
@@ -147,7 +148,7 @@ class DemosPlanHelpController extends BaseController
                     'title'          => 'help.contextualHelp.edit',
                 ]
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->getMessageBag()->add('warning', 'error.entry.missing.database');
 
             return $this->redirectToRoute('dplan_contextual_help_list');
@@ -173,14 +174,14 @@ class DemosPlanHelpController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.contextual.help.saved');
 
             return new RedirectResponse($this->generateUrl('dplan_contextual_help_list'));
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $this->getMessageBag()->add('error', 'error.missing.required.info');
 
             return $this->redirectToRoute(
                 'dplan_contextual_help_edit',
                 ['contextualHelpId' => $contextualHelpId]
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->getMessageBag()->add('warning', 'error.entry.missing.database');
 
             return $this->redirectToRoute('dplan_contextual_help_list');

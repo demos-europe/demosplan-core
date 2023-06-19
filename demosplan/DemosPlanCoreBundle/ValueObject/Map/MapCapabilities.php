@@ -25,27 +25,27 @@ class MapCapabilities extends ValueObject
     /**
      * @const string
      */
-    public const TYPE_WMS = 'wms';
+    final public const TYPE_WMS = 'wms';
 
     /**
      * @const string
      */
-    public const TYPE_WMS_XMLNS = 'http://www.opengis.net/wms';
+    final public const TYPE_WMS_XMLNS = 'http://www.opengis.net/wms';
 
     /**
      * @const string
      */
-    public const TYPE_WMTS = 'wmts';
+    final public const TYPE_WMTS = 'wmts';
 
     /**
      * @const string
      */
-    public const TYPE_WMTS_XMLNS = 'http://www.opengis.net/wmts/1.0';
+    final public const TYPE_WMTS_XMLNS = 'http://www.opengis.net/wmts/1.0';
 
     /**
      * @const string
      */
-    public const TYPE_UNKNOWN = 'unknown';
+    final public const TYPE_UNKNOWN = 'unknown';
 
     /**
      * @var string

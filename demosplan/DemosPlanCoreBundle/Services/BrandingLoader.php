@@ -30,31 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BrandingLoader
 {
-    /** @var OrgaService */
-    private $orgaService;
-    /** @var ProcedureService */
-    private $procedureService;
-    /** @var CustomerHandler */
-    private $customerHandler;
-    /** @var GlobalConfigInterface */
-    private $globalConfig;
-    /**
-     * @var BrandingProvider
-     */
-    private $brandingProvider;
-
-    public function __construct(
-        BrandingProvider $brandingProvider,
-        CustomerHandler $customerHandler,
-        GlobalConfigInterface $globalConfig,
-        OrgaService $orgaService,
-        ProcedureService $procedureService)
+    public function __construct(private readonly BrandingProvider $brandingProvider, private readonly CustomerHandler $customerHandler, private readonly GlobalConfigInterface $globalConfig, private readonly OrgaService $orgaService, private readonly ProcedureService $procedureService)
     {
-        $this->orgaService = $orgaService;
-        $this->procedureService = $procedureService;
-        $this->customerHandler = $customerHandler;
-        $this->globalConfig = $globalConfig;
-        $this->brandingProvider = $brandingProvider;
     }
 
     /**
@@ -65,13 +42,13 @@ class BrandingLoader
         $brandingContainer = new BrandingValueObject();
         try {
             $brandingContainer = $this->setCustomerBranding($brandingContainer);
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             // no customer, no customer branding
         }
 
         try {
             $orga = $this->getOrga($request);
-        } catch (NoResultException|NonUniqueResultException|Exception $e) {
+        } catch (NoResultException|NonUniqueResultException|Exception) {
             $orga = null;
         }
 

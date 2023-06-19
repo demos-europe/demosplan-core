@@ -37,48 +37,18 @@ class Xplanbox
      */
     protected $xplanboxUrl;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $config;
-
-    /**
-     * @var MapProjectionConverter
-     */
-    private $mapProjectionConverter;
-
     public function __construct(
         Environment $twig,
-        GlobalConfigInterface $config,
+        private readonly GlobalConfigInterface $config,
         HttpCall $httpCall,
-        LoggerInterface $logger,
-        MapProjectionConverter $mapProjectionConverter,
-        MessageBagInterface $messageBag,
-        TranslatorInterface $translator
+        private readonly LoggerInterface $logger,
+        private readonly MapProjectionConverter $mapProjectionConverter,
+        private readonly MessageBagInterface $messageBag,
+        private readonly TranslatorInterface $translator
     ) {
-        $this->config = $config;
         $this->httpCall = $httpCall;
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
-        $this->translator = $translator;
         $this->twig = $twig;
         $this->xplanboxUrl = $config->getLgvXplanboxBaseUrl();
-        $this->mapProjectionConverter = $mapProjectionConverter;
     }
 
     /**
@@ -97,7 +67,7 @@ class Xplanbox
 
         // alle anderen Resposecodes außer 200 verwerfen
         // Prüfung, ob ein WFS-Fehler aufgetreten ist
-        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
+        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', (string) $response['body'])) {
             $procedure = [];
             $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('xplan', 'http://www.deegree.org/xplanung/1/0');
@@ -194,13 +164,11 @@ class Xplanbox
         $targetProjection = new Proj($this->config->getMapDefaultProjection()['label'], $proj4);
 
         return array_map(
-            function (array $coordinate) use ($sourceProjection, $targetProjection) {
-                return $this->mapProjectionConverter->convertPoint(
-                    $coordinate,
-                    $sourceProjection,
-                    $targetProjection
-                );
-            },
+            fn(array $coordinate) => $this->mapProjectionConverter->convertPoint(
+                $coordinate,
+                $sourceProjection,
+                $targetProjection
+            ),
             $boundsFromPolygon
         );
     }

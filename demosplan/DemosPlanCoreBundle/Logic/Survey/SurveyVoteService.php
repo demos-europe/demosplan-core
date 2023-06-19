@@ -20,14 +20,8 @@ use UnexpectedValueException;
 
 class SurveyVoteService extends CoreService
 {
-    /**
-     * @var SurveyVoteRepository
-     */
-    private $surveyVoteRepository;
-
-    public function __construct(SurveyVoteRepository $surveyVoteRepository)
+    public function __construct(private readonly SurveyVoteRepository $surveyVoteRepository)
     {
-        $this->surveyVoteRepository = $surveyVoteRepository;
     }
 
     public function findById(string $id): SurveyVote

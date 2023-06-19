@@ -29,8 +29,6 @@ class AssessmentTableFilterTransformer extends BaseTransformer
 
         $filterItem['options'] = array_values($filterItem['options']);
 
-        return array_merge($filterItem, [
-            'id' => hash('sha256', $filterItem['name'].$filterItem['type']),
-        ]);
+        return [...$filterItem, 'id' => hash('sha256', $filterItem['name'].$filterItem['type'])];
     }
 }

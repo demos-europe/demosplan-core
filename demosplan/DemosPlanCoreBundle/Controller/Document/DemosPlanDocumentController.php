@@ -81,40 +81,8 @@ use function set_time_limit;
  */
 class DemosPlanDocumentController extends BaseController
 {
-    /**
-     * @var SingleDocumentService
-     */
-    private $singleDocumentService;
-    /**
-     * @var FileService
-     */
-    private $fileService;
-    /**
-     * @var ElementHandler
-     */
-    private $elementHandler;
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        ElementHandler $elementHandler,
-        ElementsService $elementsService,
-        FileService $fileService,
-        PermissionsInterface $permissions,
-        SingleDocumentService $singleDocumentService
-    ) {
-        $this->singleDocumentService = $singleDocumentService;
-        $this->fileService = $fileService;
-        $this->elementHandler = $elementHandler;
-        $this->elementsService = $elementsService;
-        $this->permissions = $permissions;
+    public function __construct(private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService, private readonly FileService $fileService, private readonly PermissionsInterface $permissions, private readonly SingleDocumentService $singleDocumentService)
+    {
     }
 
     /**
@@ -149,7 +117,7 @@ class DemosPlanDocumentController extends BaseController
             try {
                 $uploadedFile = $fileUploadService->prepareFilesUpload($request, 'r_upload');
                 $serviceImporter->uploadImportFile($element['id'], $procedure, $uploadedFile);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // message bag has already been filled in uploadImportFile
             }
         }
@@ -186,7 +154,7 @@ class DemosPlanDocumentController extends BaseController
                     $procedure,
                     $elementId
                 );
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 $this->getMessageBag()->add('warning', 'warning.paragraph.ordering.level.mismatch');
             }
         }
@@ -221,7 +189,7 @@ class DemosPlanDocumentController extends BaseController
                 $uploadedFile = $fileUploadService->prepareFilesUpload($request, 'r_upload');
                 try {
                     $serviceImporter->uploadImportFile($element['id'], $procedure, $uploadedFile);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // message bag has already been filled in uploadImportFile
                 }
             }
@@ -317,7 +285,7 @@ class DemosPlanDocumentController extends BaseController
             $inData = $this->prepareIncomingData($request, 'documentedit');
 
             // Ersetze den Platzhalter für hochgeladene Bilder vor dem Speichern
-            $inData['r_text'] = str_replace($tmpImagePlaceholder, '', $inData['r_text']);
+            $inData['r_text'] = str_replace($tmpImagePlaceholder, '', (string) $inData['r_text']);
 
             $inData['r_text'] = $editorService->replaceAlternativeTextPlaceholderByHTMLTag($inData['r_text']);
             // Storage Formulardaten übergeben
@@ -491,6 +459,7 @@ class DemosPlanDocumentController extends BaseController
         $elementId,
         $category
     ) {
+        $templateVars = [];
         $templateVars['procedure'] = $procedure;
 
         $requestPost = $request->request->all();
@@ -564,6 +533,7 @@ class DemosPlanDocumentController extends BaseController
         $procedure,
         $documentID
     ) {
+        $templateVars = [];
         $templateVars['procedure'] = $procedure;
 
         // Formulardaten verarbeiten
@@ -676,6 +646,8 @@ class DemosPlanDocumentController extends BaseController
         EventDispatcherInterface $eventDispatcher,
         $procedure
     ) {
+        $result = [];
+        $templateVars = [];
         $session = $request->getSession();
         // setze für den Import die Max_execution_time hoch
         set_time_limit(3600);
@@ -736,7 +708,7 @@ class DemosPlanDocumentController extends BaseController
         $errorReports = $session->getFlashBag()->get('errorReports');
         $templateVars['errorReport'] = [];
 
-        if (count($errorReports) > 0) {
+        if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
             $templateVars['errorReport'] = $errorReports[0];
         }
 
@@ -753,7 +725,7 @@ class DemosPlanDocumentController extends BaseController
         // This redirect ensures that any messagesBag notifications created in events related to this action are
         // properly transformed into FlashBag messages, since the method for that is called in the
         // DemosPlanResponseListener, see bug T17790.
-        if (0 !== count($requestPost)) {
+        if (0 !== (is_countable($requestPost) ? count($requestPost) : 0)) {
             return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
         }
 
@@ -782,6 +754,7 @@ class DemosPlanDocumentController extends BaseController
         FileService $fileService,
         string $procedureId
     ) {
+        $templateVars = [];
         $session = $request->getSession();
         $session->remove('element_import_list');
         $fs = new DemosFilesystem();
@@ -792,7 +765,7 @@ class DemosPlanDocumentController extends BaseController
         $statusHash = md5($session->getId().$procedureId);
         try {
             $fs->remove($path.'/importStatus_'.$statusHash.'.json');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         $uploadedFileArray = $fileUploadService->prepareFilesUpload($request);
@@ -826,12 +799,12 @@ class DemosPlanDocumentController extends BaseController
                 $filenameOrig = $zip->getNameIndex($indexInZipFile);
 
                 // Nur Dateien müssen behandelt werden, Ordner werden automatisch angelegt
-                if ('/' === substr($filenameOrig, -1)) {
+                if (str_ends_with($filenameOrig, '/')) {
                     ++$folderCount;
                     continue;
                 }
                 // files at top level could not be imported because we need an elementId later on
-                if (false === strpos($filenameOrig, '/')) {
+                if (!str_contains($filenameOrig, '/')) {
                     $this->getMessageBag()->add('warning', 'warning.document.import.toplevel');
                     continue;
                 }
@@ -924,7 +897,7 @@ class DemosPlanDocumentController extends BaseController
             $documentlistPager->setCurrentPage(1);
         }
         $templateVars['pager'] = $documentlistPager;
-        $templateVars['totalResults'] = count($templateVars['list']['documentlist']);
+        $templateVars['totalResults'] = is_countable($templateVars['list']['documentlist']) ? count($templateVars['list']['documentlist']) : 0;
         $templateVars['limitResults'] = $documentlistPager->getMaxPerPage();
         // pass only rootlevel paragraphs to toc. It is generated recursively
         $documentlistTocRootOnly = [];
@@ -955,14 +928,14 @@ class DemosPlanDocumentController extends BaseController
                 if (0 == $paragraph->getVisible()) {
                     continue;
                 }
-                if (0 < count($paragraph->getChildren())) {
+                if (0 < (is_countable($paragraph->getChildren()) ? count($paragraph->getChildren()) : 0)) {
                     $paragraph->setChildren($this->generateTocStructure($paragraph->getChildren()));
                 }
             } else {
                 if (0 == $paragraph['visible']) {
                     continue;
                 }
-                if (0 < count($paragraph['children'])) {
+                if (0 < (is_countable($paragraph['children']) ? count($paragraph['children']) : 0)) {
                     $paragraph['children'] = $this->generateTocStructure($paragraph['children']);
                 }
             }
@@ -996,7 +969,7 @@ class DemosPlanDocumentController extends BaseController
             // der Datei geändert werden kann
 
             if ($fileInfo->isDir()) {
-                $hash = 'folder_'.random_int(1, 99999999);
+                $hash = 'folder_'.random_int(1, 99_999_999);
                 $result[] = [
                     'isDir'   => true,
                     'title'   => $fileInfo->getFilename(),
@@ -1007,7 +980,7 @@ class DemosPlanDocumentController extends BaseController
                     ),
                 ];
             } else {
-                $hash = 'file_'.random_int(1, 99999999);
+                $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
                 $filename = Utf8::filter($fileInfo->getFilename());
 
@@ -1037,7 +1010,7 @@ class DemosPlanDocumentController extends BaseController
             if (is_dir($this->getElementImportDir($procedureId, $user))) {
                 DemosPlanPath::recursiveRemovePath($this->getElementImportDir($procedureId, $user));
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
     }
 
@@ -1082,7 +1055,7 @@ class DemosPlanDocumentController extends BaseController
 
         if (!empty($requestPost['r_action']) && 'saveSort' === $requestPost['r_action'] && array_key_exists('r_sorting', $requestPost)) {
             // Storage Formulardaten übergeben
-            $sortArray = explode(', ', $requestPost['r_sorting']);
+            $sortArray = explode(', ', (string) $requestPost['r_sorting']);
             $storageResult = $singleDocumentService->sortDocuments($sortArray);
             if ($storageResult) {
                 // Erfolgsmeldung
@@ -1220,7 +1193,7 @@ class DemosPlanDocumentController extends BaseController
         $title = 'element.admin.category.new';
         $inData = $this->prepareIncomingData($request, 'elementnew');
         if (is_array($inData) && 0 < count($inData)) {
-            if (array_key_exists('r_title', $inData) && '' === trim($inData['r_title'])) {
+            if (array_key_exists('r_title', $inData) && '' === trim((string) $inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
                 return $this->renderTemplate(
@@ -1552,7 +1525,7 @@ class DemosPlanDocumentController extends BaseController
 
                 return [$sizeArray[0], $sizeArray[1]];
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             // return default value
         }
 
@@ -1584,7 +1557,7 @@ class DemosPlanDocumentController extends BaseController
                 // und suche nach einem Bild
                 preg_match_all(
                     $imageRegex,
-                    $document['text'],
+                    (string) $document['text'],
                     $matches,
                     PREG_PATTERN_ORDER
                 );
@@ -1615,7 +1588,7 @@ class DemosPlanDocumentController extends BaseController
                     $documentList[$docKey]['text'] = preg_replace(
                         '|'.$matches[0][$matchKey].'|',
                         $currentImageHtml,
-                        $documentList[$docKey]['text']
+                        (string) $documentList[$docKey]['text']
                     );
 
                     // second try to find by str_replace
@@ -1656,7 +1629,7 @@ class DemosPlanDocumentController extends BaseController
         $singleDocumentService = $this->singleDocumentService;
         $docIds = [];
         foreach ($request->request->all() as $key => $id) {
-            $keyArray = explode(':', $key);
+            $keyArray = explode(':', (string) $key);
             $type = $keyArray[0];
             if ('documentSelected' === $type) {
                 $singleDocument = $singleDocumentService->getSingleDocument($id, false);
@@ -1792,9 +1765,7 @@ class DemosPlanDocumentController extends BaseController
         $elementsHandler = $this->elementHandler;
         $enabledElementIds = $elementsHandler->getElementIdsByEnabledStatus($procedureId, true);
         $elementsToZip = array_map(
-            static function ($fileInfo) {
-                return $fileInfo['path'];
-            },
+            static fn ($fileInfo) => $fileInfo['path'],
             $filesInfo
         );
         $elementsToZip = array_unique(array_merge([], ...$elementsToZip));

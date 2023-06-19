@@ -18,16 +18,13 @@ class LocaleSubscriber extends BaseEventSubscriber
 {
     use RequiresLoggerTrait;
 
-    private $defaultLocale;
-
     private const LOCALE_REQUEST_KEY = '_locale';
 
     /**
      * @param string $defaultLocale
      */
-    public function __construct($defaultLocale = 'de')
+    public function __construct(private $defaultLocale = 'de')
     {
-        $this->defaultLocale = $defaultLocale;
     }
 
     public function onKernelRequest(RequestEvent $event): void

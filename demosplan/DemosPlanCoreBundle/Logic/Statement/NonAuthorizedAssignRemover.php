@@ -30,56 +30,20 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 class NonAuthorizedAssignRemover
 {
     /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
      * @var ObjectManager
      */
     private $entityManager;
 
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
     public function __construct(
-        EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly EntityFetcher $entityFetcher,
         ManagerRegistry $registry,
-        MessageBagInterface $messageBag,
-        DqlConditionFactory $conditionFactory,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureService $procedureService
+        private readonly MessageBagInterface $messageBag,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureService $procedureService
     ) {
         $this->entityManager = $registry->getManager();
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->procedureService = $procedureService;
-        $this->entityFetcher = $entityFetcher;
-        $this->conditionFactory = $conditionFactory;
-        $this->messageBag = $messageBag;
-        $this->entityContentChangeService = $entityContentChangeService;
     }
 
     /**
@@ -120,7 +84,7 @@ class NonAuthorizedAssignRemover
             $assigneeId = $claimable->getAssignee()->getId();
 
             $claimable->setAssignee(null);
-            $this->entityContentChangeService->saveEntityChanges($claimable, get_class($claimable));
+            $this->entityContentChangeService->saveEntityChanges($claimable, $claimable::class);
 
             return $assigneeId;
         }, $claimables);
@@ -139,9 +103,7 @@ class NonAuthorizedAssignRemover
 
         return $authorizedUsers
             ->merge($owningUsers)
-            ->map(static function (User $user): string {
-                return $user->getId();
-            })
+            ->map(static fn(User $user): string => $user->getId())
             ->unique()
             ->all();
     }

@@ -16,14 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 
 class ConsultationTokenCreatedEvent extends DPlanEvent
 {
-    /**
-     * @var ConsultationToken
-     */
-    private $consultationToken;
-
-    public function __construct(ConsultationToken $consultationToken)
+    public function __construct(private readonly ConsultationToken $consultationToken)
     {
-        $this->consultationToken = $consultationToken;
     }
 
     public function getConsultationToken(): ConsultationToken

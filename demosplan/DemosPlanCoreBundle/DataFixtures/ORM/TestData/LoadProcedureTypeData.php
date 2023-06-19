@@ -17,9 +17,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureTypeData extends TestFixture implements DependentFixtureInterface
 {
-    public const _1 = 'testProcedureType1';
-    public const BPLAN = 'testProcedureType_bplan';
-    public const BRK = 'BRK';
+    final public const _1 = 'testProcedureType1';
+    final public const BPLAN = 'testProcedureType_bplan';
+    final public const BRK = 'BRK';
 
     private $manager;
 

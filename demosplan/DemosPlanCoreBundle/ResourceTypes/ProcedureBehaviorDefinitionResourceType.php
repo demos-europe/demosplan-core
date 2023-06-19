@@ -74,19 +74,12 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->allowedToEnableMap->getAsNamesInDotNotation():
-                    $object->setAllowedToEnableMap($value);
-                    break;
-                case $this->hasPriorityArea->getAsNamesInDotNotation():
-                    $object->setHasPriorityArea($value);
-                    break;
-                case $this->participationGuestOnly->getAsNamesInDotNotation():
-                    $object->setParticipationGuestOnly($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->allowedToEnableMap->getAsNamesInDotNotation() => $object->setAllowedToEnableMap($value),
+                $this->hasPriorityArea->getAsNamesInDotNotation() => $object->setHasPriorityArea($value),
+                $this->participationGuestOnly->getAsNamesInDotNotation() => $object->setParticipationGuestOnly($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

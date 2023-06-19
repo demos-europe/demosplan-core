@@ -44,10 +44,6 @@ class SegmentsExporter
      * @var TranslatorInterface
      */
     protected $translator;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
 
     /**
      * @var Slugify
@@ -55,13 +51,12 @@ class SegmentsExporter
     protected $slugify;
 
     public function __construct(
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
         $this->translator = $translator;
         $this->initializeStyles();
-        $this->currentUser = $currentUser;
         $this->slugify = $slugify;
     }
 
@@ -173,9 +168,7 @@ class SegmentsExporter
     {
         $table = $this->addSegmentsTableHeader($section);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static function (Segment $segmentA, Segment $segmentB) {
-            return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-        });
+        uasort($sortedSegments, static fn(Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment);

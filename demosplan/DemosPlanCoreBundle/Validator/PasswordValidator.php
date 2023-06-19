@@ -34,14 +34,8 @@ class PasswordValidator
      */
     protected $passwordRequireNumbers;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(ValidatorInterface $validator, ParameterBagInterface $parameterBag)
+    public function __construct(private readonly ValidatorInterface $validator, ParameterBagInterface $parameterBag)
     {
-        $this->validator = $validator;
         $this->passwordMinLength = $parameterBag->get('password_min_length');
         $this->passwordRequireCaseDiff = $parameterBag->get('password_require_case_diff');
         $this->passwordRequireNumbers = $parameterBag->get('password_require_numbers');

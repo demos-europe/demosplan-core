@@ -23,14 +23,8 @@ class CurrentProcedureService implements CurrentProcedureServiceInterface
     /** @var array */
     protected $procedureArray = [];
 
-    /**
-     * @var ProcedureToLegacyConverter
-     */
-    private $procedureToLegacyConverter;
-
-    public function __construct(ProcedureToLegacyConverter $procedureToLegacyConverter)
+    public function __construct(private readonly ProcedureToLegacyConverter $procedureToLegacyConverter)
     {
-        $this->procedureToLegacyConverter = $procedureToLegacyConverter;
     }
 
     /**

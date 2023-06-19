@@ -21,20 +21,8 @@ use Throwable;
  */
 class UrlFileReader
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var HttpClientInterface
-     */
-    private $httpClient;
-
-    public function __construct(HttpClientInterface $httpClient, LoggerInterface $logger)
+    public function __construct(private readonly HttpClientInterface $httpClient, private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
-        $this->httpClient = $httpClient;
     }
 
     /**

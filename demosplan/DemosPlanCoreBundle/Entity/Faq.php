@@ -262,8 +262,6 @@ class Faq extends CoreEntity implements FaqInterface
 
     public function hasRoleGroupCode(string $code): bool
     {
-        return $this->roles->exists(static function (int $index, Role $role) use ($code): bool {
-            return $role->getGroupCode() === $code;
-        });
+        return $this->roles->exists(static fn (int $index, Role $role): bool => $role->getGroupCode() === $code);
     }
 }

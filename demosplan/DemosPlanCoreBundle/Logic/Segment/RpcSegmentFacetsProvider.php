@@ -31,45 +31,11 @@ use stdClass;
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
     private const FACET_LIST_METHOD = 'segments.facets.list';
-    /**
-     * @var ApiResourceService
-     */
-    private $resourceService;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-    /**
-     * @var JsonApiActionService
-     */
-    private $jsonApiActionService;
-    /**
-     * @var StatementSegmentResourceType
-     */
-    private $segmentResourceType;
-    /**
-     * @var DrupalFilterParser
-     */
-    private $filterParser;
+    private readonly DrupalFilterParser $filterParser;
 
-    public function __construct(
-        ApiResourceService $apiResourceService,
-        CurrentUserInterface $currentUser,
-        DrupalFilterParser $drupalFilterParser,
-        JsonApiActionService $jsonApiActionService,
-        RpcErrorGenerator $errorGenerator,
-        StatementSegmentResourceType $segmentResourceType
-    ) {
+    public function __construct(private readonly ApiResourceService $resourceService, private readonly CurrentUserInterface $currentUser, DrupalFilterParser $drupalFilterParser, private readonly JsonApiActionService $jsonApiActionService, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementSegmentResourceType $segmentResourceType)
+    {
         $this->filterParser = $drupalFilterParser;
-        $this->resourceService = $apiResourceService;
-        $this->jsonApiActionService = $jsonApiActionService;
-        $this->currentUser = $currentUser;
-        $this->errorGenerator = $errorGenerator;
-        $this->segmentResourceType = $segmentResourceType;
     }
 
     public function supports(string $method): bool
@@ -113,11 +79,11 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $jsonArray = $this->resourceService->getFractal()->createData($item)->toArray();
                 $jsonArray['meta']['count'] = $apiListResult->getResultCount();
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $jsonArray);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

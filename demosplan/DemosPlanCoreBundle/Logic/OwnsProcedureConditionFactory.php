@@ -22,36 +22,8 @@ use Psr\Log\LoggerInterface;
 
 class OwnsProcedureConditionFactory
 {
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var Procedure
-     */
-    private $procedure;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        ConditionFactoryInterface $conditionFactory,
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        Procedure $procedure
-    ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->procedure = $procedure;
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
+    public function __construct(private readonly ConditionFactoryInterface $conditionFactory, private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger, private readonly Procedure $procedure)
+    {
     }
 
     /**

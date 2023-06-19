@@ -22,27 +22,8 @@ use Exception;
 
 class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var StatementSubmissionNotifier
-     */
-    private $statementSubmissionNotifier;
-    /**
-     * @var GdprConsentRevokeTokenService
-     */
-    private $gdprConsentRevokeTokenService;
-
-    public function __construct(
-        PermissionsInterface $permissions,
-        StatementSubmissionNotifier $statementSubmissionNotifier,
-        GdprConsentRevokeTokenService $gdprConsentRevokeTokenService
-    ) {
-        $this->gdprConsentRevokeTokenService = $gdprConsentRevokeTokenService;
-        $this->permissions = $permissions;
-        $this->statementSubmissionNotifier = $statementSubmissionNotifier;
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly StatementSubmissionNotifier $statementSubmissionNotifier, private readonly GdprConsentRevokeTokenService $gdprConsentRevokeTokenService)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -55,7 +36,7 @@ class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
 
     public function notifyMultiple(MultipleStatementsSubmittedEvent $event): void
     {
-        if (0 < count($event->getSubmittedStatements())) {
+        if (0 < (is_countable($event->getSubmittedStatements()) ? count($event->getSubmittedStatements()) : 0)) {
             if (!$event->isPublic()) {
                 // Use Statements instead of DraftStatements because ConsultationToken is required later,
                 // which cant be found with information of the DraftStatements

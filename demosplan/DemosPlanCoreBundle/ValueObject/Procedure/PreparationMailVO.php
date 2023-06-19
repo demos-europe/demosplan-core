@@ -26,33 +26,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 class PreparationMailVO extends ValueObject
 {
     /**
-     * @var string
-     */
-    #[Assert\NotBlank(message: 'mail.subject.notblank')]
-    #[Assert\Length(max: 78, maxMessage: 'mail.subject.max.length', min: 2, minMessage: 'mail.subject.min.length')]
-    protected $mailSubject;
-    /**
-     * @var string
-     */
-    #[Assert\NotBlank(message: 'mail.body.notblank')]
-    #[Assert\Length(min: 2, max: 25000, maxMessage: 'mail.body.max.length')]
-    protected $mailBody;
-    /**
-     * @var bool
-     */
-    #[Assert\NotNull]
-    #[Assert\IsTrue(message: 'mail.send.true')]
-    protected $sendMail;
-
-    /**
      * @param string $mailSubject
      * @param string $mailBody
      * @param bool   $sendMail
      */
-    public function __construct($mailSubject = null, $mailBody = null, $sendMail = null)
+    public function __construct(#[Assert\NotBlank(message: 'mail.subject.notblank')]
+    #[Assert\Length(max: 78, maxMessage: 'mail.subject.max.length', min: 2, minMessage: 'mail.subject.min.length')]
+    protected $mailSubject = null, #[Assert\NotBlank(message: 'mail.body.notblank')]
+    #[Assert\Length(min: 2, max: 25000, maxMessage: 'mail.body.max.length')]
+    protected $mailBody = null, #[Assert\NotNull]
+    #[Assert\IsTrue(message: 'mail.send.true')]
+    protected $sendMail = null)
     {
-        $this->mailSubject = $mailSubject;
-        $this->mailBody = $mailBody;
-        $this->sendMail = $sendMail;
     }
 }

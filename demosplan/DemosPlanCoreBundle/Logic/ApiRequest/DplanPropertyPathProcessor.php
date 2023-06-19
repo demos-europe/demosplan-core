@@ -23,17 +23,11 @@ use Psr\Log\LoggerInterface;
 
 class DplanPropertyPathProcessor extends PropertyPathProcessor
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private readonly AbstractProcessorConfig $processorConfig;
 
-    private AbstractProcessorConfig $processorConfig;
-
-    public function __construct(AbstractProcessorConfig $processorConfig, LoggerInterface $logger)
+    public function __construct(AbstractProcessorConfig $processorConfig, private readonly LoggerInterface $logger)
     {
         parent::__construct($processorConfig);
-        $this->logger = $logger;
         $this->processorConfig = $processorConfig;
     }
 

@@ -25,7 +25,7 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
     /**
      * These are allowed types, independent of the role.
      */
-    public const FAQ_CATEGORY_TYPES_MANDATORY = [
+    final public const FAQ_CATEGORY_TYPES_MANDATORY = [
         'system',
         'technische_voraussetzung',
         'bedienung',
@@ -36,7 +36,7 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
     /**
      * These are role-dependent types.
      */
-    public const FAQ_CATEGORY_TYPES_OPTIONAL = 'custom_category';
+    final public const FAQ_CATEGORY_TYPES_OPTIONAL = 'custom_category';
 
     /**
      * @var string|null

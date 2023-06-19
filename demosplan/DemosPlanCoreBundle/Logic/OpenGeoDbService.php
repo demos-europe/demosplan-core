@@ -15,14 +15,8 @@ use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
 
 class OpenGeoDbService extends CoreService
 {
-    /**
-     * @var OpenGeoDbRepository
-     */
-    private $openGeoDbRepository;
-
-    public function __construct(OpenGeoDbRepository $openGeoDbRepository)
+    public function __construct(private readonly OpenGeoDbRepository $openGeoDbRepository)
     {
-        $this->openGeoDbRepository = $openGeoDbRepository;
     }
 
     /**

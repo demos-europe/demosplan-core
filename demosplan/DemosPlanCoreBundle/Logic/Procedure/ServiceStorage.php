@@ -79,123 +79,41 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      * @var ProcedureCategoryService
      */
     protected $procedureCategoryService;
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var ProcedureTypeService
-     */
-    private $procedureTypeService;
 
     /**
      * @var string
      */
     protected $masterProcedurePhase;
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var MasterTemplateService
-     */
-    private $masterTemplateService;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var ProcedureReportEntryFactory
-     */
-    private $procedureReportEntryFactory;
-
-    /**
-     * @var NotificationReceiverRepository
-     */
-    private $notificationReceiverRepository;
-
-    /**
-     * @var MessageBag
-     */
-    private $messageBag;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var LegacyFlashMessageCreator
-     */
-    private $legacyFlashMessageCreator;
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
 
     public function __construct(
-        ArrayHelper $arrayHelper,
+        private readonly ArrayHelper $arrayHelper,
         ContentService $contentService,
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         CustomerService $customerService,
         EventDispatcherInterface $eventDispatcher,
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        LegacyFlashMessageCreator $legacyFlashMessageCreator,
-        MasterTemplateService $masterTemplateService,
-        MessageBag $messageBag,
-        NotificationReceiverRepository $notificationReceiverRepository,
-        OrgaService $orgaService,
-        PermissionsInterface $permissions,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly LoggerInterface $logger,
+        private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
+        private readonly MasterTemplateService $masterTemplateService,
+        private readonly MessageBag $messageBag,
+        private readonly NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly OrgaService $orgaService,
+        private readonly PermissionsInterface $permissions,
         ProcedureCategoryService $procedureCategoryService,
         ProcedureHandler $procedureHandler,
-        ProcedureReportEntryFactory $procedureReportEntryFactory,
-        ProcedureService $procedureService,
-        ProcedureTypeService $procedureTypeService,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly ProcedureService $procedureService,
+        private readonly ProcedureTypeService $procedureTypeService,
         ParameterBagInterface $parameterBag,
-        ReportService $reportService,
-        TranslatorInterface $translator
+        private readonly ReportService $reportService,
+        private readonly TranslatorInterface $translator
     ) {
-        $this->arrayHelper = $arrayHelper;
         $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
         $this->customerService = $customerService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->globalConfig = $globalConfig;
-        $this->legacyFlashMessageCreator = $legacyFlashMessageCreator;
-        $this->logger = $logger;
         $this->masterProcedurePhase = $parameterBag->get('master_procedure_phase');
-        $this->masterTemplateService = $masterTemplateService;
-        $this->messageBag = $messageBag;
-        $this->notificationReceiverRepository = $notificationReceiverRepository;
-        $this->orgaService = $orgaService;
-        $this->permissions = $permissions;
         $this->procedureCategoryService = $procedureCategoryService;
         $this->procedureHandler = $procedureHandler;
-        $this->procedureReportEntryFactory = $procedureReportEntryFactory;
-        $this->procedureService = $procedureService;
-        $this->procedureTypeService = $procedureTypeService;
-        $this->reportService = $reportService;
-        $this->translator = $translator;
     }
 
     /**
@@ -247,14 +165,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
         foreach ($mandatoryFields as $mandatoryField) {
-            if (!array_key_exists($mandatoryField, $data) || '' === trim($data[$mandatoryField])) {
+            if (!array_key_exists($mandatoryField, $data) || '' === trim((string) $data[$mandatoryField])) {
                 throw new InvalidArgumentException(sprintf('Field %s must be set', $mandatoryField));
             }
         }
 
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
-        if (!array_key_exists('r_name', $data) || '' === trim($data['r_name'])) {
+        if (!array_key_exists('r_name', $data) || '' === trim((string) $data['r_name'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -324,7 +242,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         if (isset($procedureData['endDate'])
             && '' !== $procedureData['endDate']
-            && strtotime($procedureData['endDate']) < strtotime($procedureData['startDate'])) {
+            && strtotime((string) $procedureData['endDate']) < strtotime((string) $procedureData['startDate'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.date.endbeforestart'),
@@ -335,9 +253,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             $messages = collect($mandatoryErrors)->map(
-                function ($array) {
-                    return collect($array)->only('message');
-                })->flatten()->toArray();
+                fn($array) => collect($array)->only('message'))->flatten()->toArray();
 
             throw new ContentMandatoryFieldsException($messages, 'Mandatory fields are missing');
         }
@@ -396,7 +312,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
         if ($this->permissions->hasPermission('feature_institution_participation')) {
-            if (!array_key_exists('r_name', $data) || '' === trim($data['r_name'])) {
+            if (!array_key_exists('r_name', $data) || '' === trim((string) $data['r_name'])) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
                     'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -407,7 +323,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                     ),
                 ];
             }
-            if (!array_key_exists('r_phase', $data) || '' === trim($data['r_phase'])) {
+            if (!array_key_exists('r_phase', $data) || '' === trim((string) $data['r_phase'])) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
                     'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -514,7 +430,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         if (array_key_exists('r_externalDesc', $data)) {
             // Strippe Newlines, weil die die Javascriptausgabe in den Popups zerschiessen
-            $singleLineExternalDesc = preg_replace('/(?>\r\n|\n|\r)/s', '', nl2br($data['r_externalDesc']));
+            $singleLineExternalDesc = preg_replace('/(?>\r\n|\n|\r)/s', '', nl2br((string) $data['r_externalDesc']));
             $procedure['externalDesc'] = $singleLineExternalDesc;
         }
 
@@ -570,7 +486,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         // liegt das Enddatum vor dem Startdatum?
-        if (isset($procedure['endDate']) && strtotime($procedure['endDate']) < strtotime($procedure['startDate'])) {
+        if (isset($procedure['endDate']) && strtotime((string) $procedure['endDate']) < strtotime((string) $procedure['startDate'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.date.endbeforestart'),
@@ -578,7 +494,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         // liegt das Enddatum vor dem Startdatum der öffentlichen Beteiligung?
-        if (isset($procedure['publicParticipationEndDate']) && strtotime($procedure['publicParticipationEndDate']) < strtotime($procedure['publicParticipationStartDate'])) {
+        if (isset($procedure['publicParticipationEndDate']) && strtotime((string) $procedure['publicParticipationEndDate']) < strtotime((string) $procedure['publicParticipationStartDate'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.date.endbeforestart'),
@@ -685,7 +601,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
-        if ($checkMandatoryErrors && 0 < count($mandatoryErrors)) {
+        if ($checkMandatoryErrors && 0 < (is_countable($mandatoryErrors) ? count($mandatoryErrors) : 0)) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             return [
@@ -693,7 +609,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
         }
 
-        $data['r_agency'] = $data['r_agency'] ?? [];
+        $data['r_agency'] ??= [];
         // Überprüfe das Eingabefeld zum Planungsbüro wenn die Berechtigung gesetzt ist
         if ($this->permissions->hasPermission('field_procedure_adjustments_planning_agency')) {
             $procedure['planningOffices'] = $data['r_agency'];
@@ -833,12 +749,12 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure['ident'] = $procedureId;
 
         // check if E-Mail addresses are submitted via the CC-field
-        if (array_key_exists('r_emailCc', $data) && 0 < count($data['r_emailCc'])) {
+        if (array_key_exists('r_emailCc', $data) && 0 < (is_countable($data['r_emailCc']) ? count($data['r_emailCc']) : 0)) {
             $checkedMails = [];
             // check every given E-Mail address
             foreach ($data['r_emailCc'] as $mail) {
                 // delete potential blanks at the start/end of each string
-                $mailForCc = trim($mail);
+                $mailForCc = trim((string) $mail);
                 // check if the individual address is valid
                 if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
                     // add this valid address to the list which is going to be persisted
@@ -850,17 +766,17 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $this->procedureService->updateProcedure($procedure);
         }
         // pass on an empty string if the CC-field is empty (deletes the already saved addresses)
-        if (array_key_exists('r_emailCc', $data) && 0 === count($data['r_emailCc'])) {
+        if (array_key_exists('r_emailCc', $data) && 0 === (is_countable($data['r_emailCc']) ? count($data['r_emailCc']) : 0)) {
             $procedure['settings']['emailCc'] = '';
         }
 
         // Array auf
         if (array_key_exists('r_emailTitle', $data)) {
-            $procedure['settings']['emailTitle'] = trim($data['r_emailTitle']);
+            $procedure['settings']['emailTitle'] = trim((string) $data['r_emailTitle']);
         }
 
         if (array_key_exists('r_emailText', $data)) {
-            $procedure['settings']['emailText'] = trim($data['r_emailText']);
+            $procedure['settings']['emailText'] = trim((string) $data['r_emailText']);
         }
 
         return $this->procedureService->updateProcedure($procedure);
@@ -1009,7 +925,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $this->procedureService->addOrganisations($procedure, $organisations);
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

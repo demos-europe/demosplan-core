@@ -21,14 +21,8 @@ use Doctrine\ORM\ORMException;
 
 class StatementAttachmentService extends CoreService
 {
-    /**
-     * @var StatementAttachmentRepository
-     */
-    private $attachmentRepository;
-
-    public function __construct(StatementAttachmentRepository $attachmentRepository)
+    public function __construct(private readonly StatementAttachmentRepository $attachmentRepository)
     {
-        $this->attachmentRepository = $attachmentRepository;
     }
 
     public function createOriginalAttachment(Statement $statement, File $file): StatementAttachment

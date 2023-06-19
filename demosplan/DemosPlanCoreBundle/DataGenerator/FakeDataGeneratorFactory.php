@@ -21,7 +21,7 @@ class FakeDataGeneratorFactory
      *
      * @const array<int,string>|string[]
      */
-    public const FAKEABLE_EXTENSIONS = ['bmp', 'docx', 'jpeg', 'jpg', 'mp4', 'pdf', 'png', 'zip'];
+    final public const FAKEABLE_EXTENSIONS = ['bmp', 'docx', 'jpeg', 'jpg', 'mp4', 'pdf', 'png', 'zip'];
 
     /**
      * @var array<string,DataGeneratorInterface>|DataGeneratorInterface[]

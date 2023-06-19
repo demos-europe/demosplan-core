@@ -45,20 +45,8 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class DemosPlanOrgaController extends BaseController
 {
-    /**
-     * @var OrgaHandler
-     */
-    private $orgaHandler;
-
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
-
-    public function __construct(OrgaHandler $orgaHandler, UserHandler $userHandler)
+    public function __construct(private readonly OrgaHandler $orgaHandler, private readonly UserHandler $userHandler)
     {
-        $this->orgaHandler = $orgaHandler;
-        $this->userHandler = $userHandler;
     }
 
     /**
@@ -211,7 +199,7 @@ class DemosPlanOrgaController extends BaseController
     {
         $requestPost = $request->request;
 
-        if (0 < count($requestPost)) { // always true
+        if (0 < (is_countable($requestPost) ? count($requestPost) : 0)) { // always true
             $deleteLogo = ($requestPost->has('r_logoDelete') && 'deleteLogo' === $requestPost->get('r_logoDelete'));
             $data = $this->handleRequestForSingleOrga($requestPost);
             $data['logo'] = $fileUploadService->prepareFilesUpload($request, 'r_orgaLogo');
@@ -265,11 +253,12 @@ class DemosPlanOrgaController extends BaseController
 
     protected function handleRequestForSingleOrga(ParameterBag $requestPost): array
     {
+        $orga = [];
         $data = [];
 
         $result = $this->transformOrgaRequestVariables($requestPost->all());
 
-        if (is_array($result) && isset($result['submittedOrgas']) && 1 === count($result['submittedOrgas'])) {
+        if (is_array($result) && isset($result['submittedOrgas']) && 1 === (is_countable($result['submittedOrgas']) ? count($result['submittedOrgas']) : 0)) {
             $orga['ident'] = $result['submittedOrgas'][0];
             foreach ($result['submittedKeys'] as $key) {
                 $orga[$key] = $requestPost->get($result['submittedOrgas'][0].':'.$key);
@@ -291,6 +280,7 @@ class DemosPlanOrgaController extends BaseController
      */
     protected function transformOrgaRequestVariables(array $requestPost): array
     {
+        $result = [];
         $submittedOrgas = [];
         $submittedKeys = [];
 
@@ -317,6 +307,7 @@ class DemosPlanOrgaController extends BaseController
     #[Route(name: 'DemosPlan_orga_list', path: '/organisation/list')]
     public function listOrgasAction(): RedirectResponse|Response
     {
+        $templateVars = [];
         $templateVars['proceduresDirectlinkPrefix'] = $this->generateUrl(
             'DemosPlan_procedure_public_orga_index',
             [],

@@ -45,11 +45,11 @@ class GdprConsentRevokeTokenController extends BaseController
                 assert(2 === $request->request->count());
                 $gdprConsentRevokeTokenService->revokeConsentByTokenIdAndEmailAddress($tokenValue, $emailAddress);
                 $messageBag->add('confirm', 'gdpr.revoke.token.request.success');
-            } catch (InvalidPostDataException $e) {
+            } catch (InvalidPostDataException) {
                 $this->getMessageBag()->add('error', 'gdpr.revoke.token.request.invalid');
-            } catch (GdprConsentRevokeTokenAlreadyUsedException $e) {
+            } catch (GdprConsentRevokeTokenAlreadyUsedException) {
                 $messageBag->add('error', 'gdpr.revoke.token.already_used');
-            } catch (GdprConsentRevokeTokenNotFoundException $e) {
+            } catch (GdprConsentRevokeTokenNotFoundException) {
                 $messageBag->add('error', 'gdpr.revoke.token.request.mismatch');
             }
 

@@ -39,71 +39,8 @@ use Throwable;
 
 class MaintenanceController extends BaseController
 {
-    /**
-     * @var DraftStatementHandler
-     */
-    private $draftStatementHandler;
-
-    /**
-     * @var EmailAddressService
-     */
-    private $emailAddressService;
-
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var ProcedureNewsService
-     */
-    private $procedureNewsService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    public function __construct(
-        DraftStatementHandler $draftStatementHandler,
-        EmailAddressService $emailAddressService,
-        EntityContentChangeService $entityContentChangeService,
-        FileService $fileService,
-        MailService $mailService,
-        ParameterBagInterface $parameterBag,
-        PermissionsInterface $permissions,
-        ProcedureHandler $procedureHandler,
-        ProcedureNewsService $procedureNewsService
-    ) {
-        $this->draftStatementHandler = $draftStatementHandler;
-        $this->emailAddressService = $emailAddressService;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->fileService = $fileService;
-        $this->mailService = $mailService;
-        $this->parameterBag = $parameterBag;
-        $this->permissions = $permissions;
-        $this->procedureHandler = $procedureHandler;
-        $this->procedureNewsService = $procedureNewsService;
+    public function __construct(private readonly DraftStatementHandler $draftStatementHandler, private readonly EmailAddressService $emailAddressService, private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private readonly MailService $mailService, private readonly ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, private readonly ProcedureHandler $procedureHandler, private readonly ProcedureNewsService $procedureNewsService)
+    {
     }
 
     /**

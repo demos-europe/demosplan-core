@@ -37,43 +37,18 @@ class RegisterUserForCustomerCommand extends CoreCommand
      * @var QuestionHelper
      */
     protected $helper;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var OrgaTypeRepository
-     */
-    private $orgaTypeRepository;
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-    /**
-     * @var Helpers
-     */
-    private $helpers;
 
     public function __construct(
-        Helpers $helpers,
-        OrgaRepository $orgaRepository,
-        OrgaTypeRepository $orgaTypeRepository,
+        private readonly Helpers $helpers,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
         ParameterBagInterface $parameterBag,
-        RoleRepository $roleRepository,
-        UserRepository $userRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
-        $this->orgaRepository = $orgaRepository;
-        $this->orgaTypeRepository = $orgaTypeRepository;
-        $this->roleRepository = $roleRepository;
-        $this->userRepository = $userRepository;
-        $this->helpers = $helpers;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -120,9 +95,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
     private function askUserLogin(InputInterface $input, OutputInterface $output): ?User
     {
         $questionUser = new Question('Please enter the login of the user to be registered: ');
-        $questionUser->setValidator(function ($answer) {
-            return $this->userRepository->findOneBy(['login' => $answer]);
-        });
+        $questionUser->setValidator(fn ($answer) => $this->userRepository->findOneBy(['login' => $answer]));
 
         return $this->helper->ask($input, $output, $questionUser);
     }
@@ -134,7 +107,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
      */
     private function getOrgaTypesByRoles(array $roles): array
     {
-        $orgaTypeStrings = array_map([$this->roleRepository, 'getOrgaTypeString'], $roles);
+        $orgaTypeStrings = array_map($this->roleRepository->getOrgaTypeString(...), $roles);
 
         $orgaTypes = [];
         foreach (array_unique($orgaTypeStrings) as $orgaTypeString) {

@@ -54,78 +54,25 @@ class StatementCopier extends CoreService
     /** @var ReportService */
     protected $reportService;
 
-    /** @var StatementFragmentService */
-    private $statementFragmentService;
-
-    /** @var ElementsService */
-    private $elementService;
-
-    /** @var MessageBagInterface */
-    private $messageBag;
-
-    /** @var StatementAttachmentService */
-    private $statementAttachmentService;
-
-    /** @var FileService */
-    private $fileService;
-
-    /** @var StatementCopyAndMoveService */
-    private $statementCopyAndMoveService;
-
-    /** @var StatementService */
-    private $statementService;
-
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var AssignService */
-    private $assignService;
-
-    /** @var StatementReportEntryFactory */
-    private $statementReportEntryFactory;
-
-    /** @var CurrentUserInterface */
-    private $currentUser;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
     public function __construct(
-        AssignService $assignService,
-        CurrentUserInterface $currentUser,
-        ElementsService $elementService,
-        FileService $fileService,
+        private readonly AssignService $assignService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementService,
+        private readonly FileService $fileService,
         IndexManager $elasticsearchIndexManager,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PermissionsInterface $permissions,
         ReportService $reportService,
-        StatementAttachmentService $statementAttachmentService,
-        StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementFragmentService $statementFragmentService,
-        StatementHandler $statementHandler,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        StatementRepository $statementRepository,
-        StatementService $statementService
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
+        private readonly StatementFragmentService $statementFragmentService,
+        private readonly StatementHandler $statementHandler,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementService $statementService
     ) {
-        $this->assignService = $assignService;
-        $this->currentUser = $currentUser;
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
-        $this->elementService = $elementService;
-        $this->fileService = $fileService;
-        $this->messageBag = $messageBag;
-        $this->permissions = $permissions;
         $this->reportService = $reportService;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->statementCopyAndMoveService = $statementCopyAndMoveService;
-        $this->statementFragmentService = $statementFragmentService;
-        $this->statementHandler = $statementHandler;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->statementRepository = $statementRepository;
-        $this->statementService = $statementService;
     }
 
     /**
@@ -395,7 +342,7 @@ class StatementCopier extends CoreService
         );
         $statementToCopy->setFiles($relatedFiles);
 
-        $hasFiles = is_array($statementToCopy->getFiles()) && 0 < count($statementToCopy->getFiles());
+        $hasFiles = is_array($statementToCopy->getFiles()) && 0 < (is_countable($statementToCopy->getFiles()) ? count($statementToCopy->getFiles()) : 0);
         $hasMapFile = '' !== $statementToCopy->getMapFile() && null !== $statementToCopy->getMapFile();
 
         if (!$hasFiles && !$hasMapFile) {
@@ -408,7 +355,7 @@ class StatementCopier extends CoreService
             // filestring is written into $fileService on copy
             try {
                 $this->fileService->copyByFileString($fileString, $targetProcedureId);
-            } catch (FileNotFoundException $exception) {
+            } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
                     'error.copy.files',
@@ -428,7 +375,7 @@ class StatementCopier extends CoreService
             try {
                 // filestring is written into $fileService on copy
                 $this->fileService->copyByFileString($statementToCopy->getMapFile(), $targetProcedureId);
-            } catch (FileNotFoundException $e) {
+            } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
                     'error.copy.mapfile',

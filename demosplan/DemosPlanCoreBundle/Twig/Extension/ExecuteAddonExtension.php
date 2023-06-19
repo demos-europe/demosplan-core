@@ -25,9 +25,9 @@ class ExecuteAddonExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('executeAddonFunction', [$this, 'executeAddonFunction']),
-            new TwigFunction('extensionPointMarkup', [$this, 'extensionPointMarkup']), // Is this really secure enough?
-            new TwigFunction('extensionPointData', [$this, 'extensionPointData']),
+            new TwigFunction('executeAddonFunction', $this->executeAddonFunction(...)),
+            new TwigFunction('extensionPointMarkup', $this->extensionPointMarkup(...)), // Is this really secure enough?
+            new TwigFunction('extensionPointData', $this->extensionPointData(...)),
         ];
     }
 

@@ -22,20 +22,8 @@ use Exception;
 
 class HashedQueryService
 {
-    /**
-     * @var HashedQueryRepository
-     */
-    private $hashedQueryRepository;
-
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    public function __construct(HashedQueryRepository $hashedQueryRepository, ProcedureRepository $procedureRepository)
+    public function __construct(private readonly HashedQueryRepository $hashedQueryRepository, private readonly ProcedureRepository $procedureRepository)
     {
-        $this->hashedQueryRepository = $hashedQueryRepository;
-        $this->procedureRepository = $procedureRepository;
     }
 
     public function findHashedQueryWithHash(?string $filterSetHash): ?HashedQuery

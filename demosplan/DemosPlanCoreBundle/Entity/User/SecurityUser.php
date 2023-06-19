@@ -19,11 +19,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class SecurityUser implements UserInterface, EquatableInterface, PasswordAuthenticatedUserInterface
 {
-    private string $id;
-    private ?string $email;
-    private ?string $password;
-    private array  $roles;
-    private ?string $login;
+    private readonly string $id;
+    private readonly ?string $email;
+    private readonly ?string $password;
+    private readonly array  $roles;
+    private readonly ?string $login;
 
     public function __construct(User $user)
     {

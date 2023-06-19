@@ -56,32 +56,28 @@ class DemosPlanKernel extends Kernel
      *
      * @const string
      */
-    public const ENVIRONMENT_TEST = 'test';
+    final public const ENVIRONMENT_TEST = 'test';
 
     /**
      * String that defines dev environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_DEV = 'dev';
+    final public const ENVIRONMENT_DEV = 'dev';
 
     /**
      * String that defines production environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_PROD = 'prod';
-
-    private string $activeProject;
+    final public const ENVIRONMENT_PROD = 'prod';
 
     public function __construct(
-        string $activeProject,
+        private readonly string $activeProject,
         string $environment,
         bool $debug
     ) {
         parent::__construct($environment, $debug);
-
-        $this->activeProject = $activeProject;
 
         DemosPlanPath::setProjectPathFromConfig("projects/{$activeProject}");
     }
