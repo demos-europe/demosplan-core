@@ -13,20 +13,22 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Elements;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\CategoryReorderingData;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\FunctionInterface;
 use InvalidArgumentException;
 
 class PlanningDocumentCategoryTreeReorderer
 {
-    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly PlanningDocumentCategoryResourceType $categoryResourceType, private readonly SortMethodFactory $sortMethodFactory)
-    {
+    public function __construct(
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsRepository $elementsRepository,
+        private readonly PlanningDocumentCategoryResourceType $categoryResourceType
+    ) {
     }
 
     // @improve T26005
@@ -113,7 +115,10 @@ class PlanningDocumentCategoryTreeReorderer
         }
 
         $categoryToMoveAndNewParent = $this->categoryResourceType->listEntities([
-            $this->getProcedureCondition($procedureId),
+            $this->conditionFactory->propertyHasValue(
+                $procedureId,
+                $this->categoryResourceType->procedure->id
+            ),
             $this->conditionFactory->propertyHasAnyOfValues(
                 $categoryToMoveAndNewParentIds,
                 $this->categoryResourceType->id
@@ -189,44 +194,18 @@ class PlanningDocumentCategoryTreeReorderer
      */
     private function getNeighbors(?Elements $parent, string $procedureId): Collection
     {
-        $sortMethods = [
-            $this->sortMethodFactory->propertyAscending(
-                $this->categoryResourceType->order
-            ),
-        ];
-
-        if (null !== $parent) {
-            $neighbors = $this->entityFetcher->listPrefilteredEntitiesUnrestricted(
-                $parent->getChildren()->toArray(),
-                [],
-                $sortMethods
-            );
-        } else {
-            $rootCondition = [
-                $this->getProcedureCondition($procedureId),
-                $this->conditionFactory->propertyIsNull($this->categoryResourceType->parent),
-            ];
-            $neighbors = $this->entityFetcher->listEntitiesUnrestricted(
-                $this->categoryResourceType->getEntityClass(),
-                $rootCondition,
-                $sortMethods
-            );
-        }
+        $neighbors = null !== $parent
+            ? $parent->getChildren()
+            : $this->elementsRepository->findBy([
+                'procedure' => $procedureId,
+                'parent'    => null,
+            ], [
+                'order' => Criteria::ASC,
+            ]);
 
         $neighbors = collect($neighbors)->mapWithKeys(static fn (Elements $neighbor): array => [$neighbor->getOrder() => $neighbor])->all();
 
         return new ArrayCollection($neighbors);
-    }
-
-    /**
-     * @return FunctionInterface<bool>
-     */
-    private function getProcedureCondition(string $procedureId): FunctionInterface
-    {
-        return $this->conditionFactory->propertyHasValue(
-            $procedureId,
-            $this->categoryResourceType->procedure->id
-        );
     }
 
     /**
