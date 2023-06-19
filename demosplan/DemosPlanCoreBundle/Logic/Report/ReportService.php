@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -21,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;

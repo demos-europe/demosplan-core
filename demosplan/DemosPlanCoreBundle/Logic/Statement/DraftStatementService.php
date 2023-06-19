@@ -887,7 +887,7 @@ class DraftStatementService extends CoreService
             ? explode(',', $itemsToExport)
             : null;
 
-        $filteredStatementList = collect($draftStatementList)->filter(fn($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
+        $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
             $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
             $statement = $this->checkMapScreenshotFile($statement, $procedureId);
 
@@ -945,7 +945,7 @@ class DraftStatementService extends CoreService
     {
         return collect($statements)
             ->pluck('oId')
-            ->every(static fn(string $oId) => $oId === $organisationId);
+            ->every(static fn (string $oId) => $oId === $organisationId);
     }
 
     /**
@@ -1381,7 +1381,7 @@ class DraftStatementService extends CoreService
                 }
             }
 
-            $draftStatementIds = array_map(fn($draftStatement) => $draftStatement->getId(), $results);
+            $draftStatementIds = array_map(fn ($draftStatement) => $draftStatement->getId(), $results);
 
             // get Elasticsearch aggregations aka Userfilters
             // add user to Filter
@@ -1736,7 +1736,7 @@ class DraftStatementService extends CoreService
             }
         }
 
-        return collect($sortMethodPaths)->map(fn(array $path): SortMethodInterface => 'asc' === $sortDir
+        return collect($sortMethodPaths)->map(fn (array $path): SortMethodInterface => 'asc' === $sortDir
             ? $this->sortMethodFactory->propertyAscending($path)
             : $this->sortMethodFactory->propertyDescending($path))->all();
     }

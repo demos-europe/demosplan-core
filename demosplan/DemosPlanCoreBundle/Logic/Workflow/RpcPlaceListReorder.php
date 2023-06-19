@@ -108,7 +108,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     public function execute(?Procedure $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            fn(): array => $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests));
+            fn (): array => $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool

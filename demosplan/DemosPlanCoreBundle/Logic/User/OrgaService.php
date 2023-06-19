@@ -356,7 +356,7 @@ class OrgaService extends CoreService
     public function getOrgaCountByTypeTranslated(Customer $customerContext): array
     {
         return collect($this->getAcceptedOrgaCountByType($customerContext))
-            ->mapWithKeys(fn(int $count, string $translationKey): array => [$this->translator->trans($translationKey) => $count])
+            ->mapWithKeys(fn (int $count, string $translationKey): array => [$this->translator->trans($translationKey) => $count])
             ->sort()
             ->all();
     }
@@ -874,14 +874,14 @@ class OrgaService extends CoreService
     {
         $customerOrgas = $customer->getOrgas()->toArray();
 
-        return array_filter($customerOrgas, fn($orga) => $this->orgaRepository->isPublicAffairsAgency($orga));
+        return array_filter($customerOrgas, fn ($orga) => $this->orgaRepository->isPublicAffairsAgency($orga));
     }
 
     public function findPublicAffairsAgenciesIdsByCustomer(Customer $customer): array
     {
         $customerPublicAffairsAgencies = $this->findPublicAffairsAgenciesByCustomer($customer);
 
-        return array_map(static fn(Orga $customerPublicAffairsAgency) => $customerPublicAffairsAgency->getId(), $customerPublicAffairsAgencies);
+        return array_map(static fn (Orga $customerPublicAffairsAgency) => $customerPublicAffairsAgency->getId(), $customerPublicAffairsAgencies);
     }
 
     /**
@@ -989,7 +989,7 @@ class OrgaService extends CoreService
         $labelMap = $this->getOrgaTypeLabelMap();
 
         return array_map(
-            fn(string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
+            fn (string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
         );
     }
 

@@ -443,7 +443,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
 
-        return array_map(fn(object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
+        return array_map(fn (object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
     }
 
     public function getProcedureTypeByName(string $name): ?ProcedureType

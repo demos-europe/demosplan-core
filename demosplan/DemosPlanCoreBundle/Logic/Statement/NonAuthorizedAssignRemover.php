@@ -105,7 +105,7 @@ class NonAuthorizedAssignRemover
 
         return $authorizedUsers
             ->merge($owningUsers)
-            ->map(static fn(User $user): string => $user->getId())
+            ->map(static fn (User $user): string => $user->getId())
             ->unique()
             ->all();
     }

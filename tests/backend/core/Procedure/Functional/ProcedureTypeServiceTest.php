@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;

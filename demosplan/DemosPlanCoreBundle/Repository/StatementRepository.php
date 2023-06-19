@@ -983,11 +983,11 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $voteRepository = $this->getEntityManager()
                 ->getRepository(StatementVote::class);
 
-        $votesToDelete = $currentVotes->filter(fn($vote) => !$votesToSet->keyBy('id')->has($vote->getId()));
+        $votesToDelete = $currentVotes->filter(fn ($vote) => !$votesToSet->keyBy('id')->has($vote->getId()));
 
-        $votesToUpdate = $votesToSet->filter(fn($vote) => array_key_exists('id', $vote) && '' != $vote['id']);
+        $votesToUpdate = $votesToSet->filter(fn ($vote) => array_key_exists('id', $vote) && '' != $vote['id']);
 
-        $votesToCreate = $votesToSet->filter(fn($vote) => !array_key_exists('id', $vote) || '' == $vote['id']);
+        $votesToCreate = $votesToSet->filter(fn ($vote) => !array_key_exists('id', $vote) || '' == $vote['id']);
 
         /** @var StatementVote $voteToDelete */
         foreach ($votesToDelete as $voteToDelete) {
@@ -1360,9 +1360,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $statements = $this->getStatements($statementIds);
 
         return collect($statements)->filter(
-            static fn(Statement $statement) => $statement->isPlaceholder()
+            static fn (Statement $statement) => $statement->isPlaceholder()
         )->map(
-            static fn(Statement $statement) => $statement->getId()
+            static fn (Statement $statement) => $statement->getId()
         )->toArray();
     }
 
@@ -1471,7 +1471,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static fn(string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**
@@ -1490,7 +1490,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static fn(string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**

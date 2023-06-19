@@ -61,8 +61,8 @@ class ResourcePersister extends CoreService
         }
         /** @var ResourceChange $firstResourceChange */
         $firstResourceChange = $resourceChanges[0];
-        $entitiesToPersist = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToPersist(), $resourceChanges));
-        $entitiesToDelete = array_merge(...array_map(static fn(ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToDelete(), $resourceChanges));
+        $entitiesToPersist = array_merge(...array_map(static fn (ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToPersist(), $resourceChanges));
+        $entitiesToDelete = array_merge(...array_map(static fn (ResourceChange $resourceChanges) => $resourceChanges->getEntitiesToDelete(), $resourceChanges));
 
         // We use the repository of the resource type for all resource types as it doesn't matter
         // which one we use and can wrap all changes in a single transaction this way.

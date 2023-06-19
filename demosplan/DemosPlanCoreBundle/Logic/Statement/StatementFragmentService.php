@@ -64,7 +64,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Exception\ClientException;
@@ -342,14 +341,14 @@ class StatementFragmentService extends CoreService
         // only fields to return
         $versions = \collect($fragment['versions'])
             ->filter(
-                fn($version) => array_key_exists('modifiedByDepartmentId', $version)
+                fn ($version) => array_key_exists('modifiedByDepartmentId', $version)
                     && $version['modifiedByDepartmentId'] == $departmentId
             )->filter(
                 function ($version) use (&$currentValues) {
                     return $this->hasModifiedValues($version, $currentValues);
                 }
             )
-            ->transform(fn($fragment) => \collect($fragment)
+            ->transform(fn ($fragment) => \collect($fragment)
                 ->only($fieldsToReturn)
                 ->toArray())
             ->values()

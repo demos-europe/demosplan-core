@@ -140,8 +140,8 @@ class ProcedureAccessEvaluator
     public function filterNonOwnedProcedureIds(User $user, Procedure ...$procedures): array
     {
         return collect($procedures)
-            ->filter(fn(Procedure $procedure): bool => $this->isOwningProcedure($user, $procedure))
-            ->map(static fn(Procedure $procedure): string => $procedure->getId())
+            ->filter(fn (Procedure $procedure): bool => $this->isOwningProcedure($user, $procedure))
+            ->map(static fn (Procedure $procedure): string => $procedure->getId())
             ->all();
     }
 

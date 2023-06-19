@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -28,6 +26,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 

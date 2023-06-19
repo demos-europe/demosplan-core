@@ -59,8 +59,6 @@ use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-use function get_class;
-
 /**
  * @template-extends AbstractApiService<ClauseFunctionInterface<bool>>
  */

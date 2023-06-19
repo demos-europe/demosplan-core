@@ -32,6 +32,7 @@ use EDT\Querying\FluentQueries\SliceDefinition;
 use EDT\Querying\FluentQueries\SortDefinition;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
+
 use function is_array;
 
 /**
