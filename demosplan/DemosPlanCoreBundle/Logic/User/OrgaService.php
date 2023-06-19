@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -40,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -91,7 +91,6 @@ class OrgaService extends CoreService
         private readonly CustomerRepository $customerRepository,
         private readonly DqlConditionFactory $conditionFactory,
         MailService $mailService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
@@ -382,7 +381,7 @@ class OrgaService extends CoreService
                 $this->orgaResourceType->id
             );
             $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
-            $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
+            $orgas = $this->orgaRepository->listEntities($conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
             array_map($this->loadMissingOrgaData(...), $orgas);
@@ -821,13 +820,12 @@ class OrgaService extends CoreService
     public function getOrganisationsByIds($organisationIds)
     {
         try {
-            $conditions = [
-                $this->conditionFactory->propertyHasValue(false, ['deleted']),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
-            ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
-
-            return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
+            return $this->orgaRepository->findBy([
+                'deleted' => false,
+                'id'      => $organisationIds,
+            ], [
+                'name' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);
             throw $e;
