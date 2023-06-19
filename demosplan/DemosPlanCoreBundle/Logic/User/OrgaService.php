@@ -46,11 +46,9 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -394,6 +392,23 @@ class OrgaService extends CoreService
             $this->logger->error('Fehler bei getList Orga:', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * @return array<int, Orga>
+     */
+    public function getOrgasInCustomer(Customer $customer): array
+    {
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(
+                $customer->getId(),
+                ['statusInCustomers', 'customer']
+            ),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+        ];
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
+
+        return $this->orgaRepository->listEntities($conditions, [$sortMethod]);
     }
 
     /**
