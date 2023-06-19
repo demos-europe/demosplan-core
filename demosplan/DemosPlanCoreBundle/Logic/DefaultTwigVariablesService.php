@@ -120,7 +120,7 @@ class DefaultTwigVariablesService
          * Filter all permissions that are enabled and marked as to-be-exposed to the frontend
          * and reformat them to [permission_name => true].
          */
-        $corePermissions = collect($this->permissions->getPermissions())->each(
+        $permissions = collect($this->permissions->getPermissions())->each(
             static function ($permission, $permissionName) {
                 if (!is_a($permission, Permission::class)) {
                     throw new RuntimeException(sprintf('Permission %s is not defined in demosplan core anymore', $permissionName));
@@ -136,11 +136,10 @@ class DefaultTwigVariablesService
             }
         );
 
-        $addonPermissions = [];
         foreach ($this->permissions->getAddonPermissionCollections() as $addonName => $permissionCollection) {
-            $addonPermissions[] = collect($permissionCollection->getResolvePermissions())
+            $permissions = $permissions->merge(collect($permissionCollection->getResolvePermissions())
                 ->filter(
-                    static function (ResolvablePermission $permission) use ($addonName) {
+                    function (ResolvablePermission $permission) use ($addonName) {
                         if ($permission->isExposed()) {
                             // resolve
                             return $this->permissions->isPermissionEnabled(PermissionIdentifier::forAddon(
@@ -154,14 +153,10 @@ class DefaultTwigVariablesService
                     static function (ResolvablePermission $permission) {
                         return [$permission->getName() => true];
                     }
-                );
+                ));
         }
 
-        if (0 < count($addonPermissions)) {
-            return $corePermissions->merge(...$addonPermissions);
-        }
-
-        return $corePermissions;
+        return $permissions;
     }
 
     public function getVariables(): array

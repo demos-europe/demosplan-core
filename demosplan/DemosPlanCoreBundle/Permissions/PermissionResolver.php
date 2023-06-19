@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -147,6 +148,16 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         // fulfill.
         if (null === $evaluationTarget) {
             return [] === $conditions;
+        }
+
+        if ($evaluationTarget instanceof FunctionalUser) {
+            foreach ($conditions as $condition) {
+                if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
