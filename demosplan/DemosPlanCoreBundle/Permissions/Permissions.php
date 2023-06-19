@@ -1037,12 +1037,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             })
             ->all();
 
-        // Add addon permissions to list of core permissions. Not mixing them would be preferred,
-        // but this is currently needed to expose addon permissions to the frontend.
-        $this->permissions = collect($this->addonPermissionCollections)
-            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
-            ->merge($this->corePermissions->toArray())
-            ->all();
+        $this->permissions = $this->corePermissions->toArray();
     }
 
     /**
@@ -1336,6 +1331,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
             }
         );
+    }
+
+    /**
+     * @return ResolvablePermissionCollection[]
+     */
+    public function getAddonPermissionCollections(): array
+    {
+        return $this->addonPermissionCollections;
     }
 
     /**
