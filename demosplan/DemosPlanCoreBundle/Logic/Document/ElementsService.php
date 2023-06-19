@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -63,7 +62,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         private readonly DateHelper $dateHelper,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ElementsRepository $elementsRepository,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
@@ -112,7 +110,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
             $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-            $elements = $this->entityFetcher->listEntitiesUnrestricted(Elements::class, $conditions, [$sortMethod]);
+            $elements = $this->elementsRepository->listEntities($conditions, [$sortMethod]);
 
             return $this->getElementsRepository()->filterElementsByPermissions($elements);
         } catch (Exception $e) {
@@ -142,11 +140,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-        $result = $this->entityFetcher->listEntitiesUnrestricted(
-            Elements::class,
-            $conditions,
-            [$sortMethod]
-        );
+        $result = $this->elementsRepository->listEntities($conditions, [$sortMethod]);
 
         return $this->getElementsRepository()->filterElementsByPermissions($result);
     }
