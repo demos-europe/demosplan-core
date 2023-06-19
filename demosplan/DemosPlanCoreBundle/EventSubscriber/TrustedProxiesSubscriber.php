@@ -32,7 +32,10 @@ class TrustedProxiesSubscriber implements EventSubscriberInterface
         if (0 < (is_countable($this->globalConfig->getProxyTrusted()) ? count($this->globalConfig->getProxyTrusted()) : 0)) {
             $request::setTrustedProxies(
                 array_merge($request::getTrustedProxies(), $this->globalConfig->getProxyTrusted()),
-                Request::HEADER_X_FORWARDED_ALL
+                Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO
             );
         }
     }
