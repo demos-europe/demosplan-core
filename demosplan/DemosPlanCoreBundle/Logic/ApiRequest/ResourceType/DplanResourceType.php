@@ -728,7 +728,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         // map the resource identifier attribute to an entity property
         $resourceIdProperty = array_pop($resourceIdPath);
         $entityIdPath = $this->getAliases()[$resourceIdProperty] ?? [$resourceIdProperty];
-        if (1 !== count($entityIdPath)) {
+        if (1 !== (is_countable($entityIdPath) ? count($entityIdPath) : 0)) {
             throw new NotYetImplementedException('Usage of a property within a entity relationship as ID is not yet supported');
         }
 
@@ -787,7 +787,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         }
         $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($this);
 
-        return array_merge($sortMethods, $defaultSortMethods);
+        return [...$sortMethods, ...$defaultSortMethods];
     }
 
     private function createOrmEntityProvider(): DoctrineOrmEntityProvider
