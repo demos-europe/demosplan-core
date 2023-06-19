@@ -76,7 +76,6 @@ leaflet.markercluster: MIT
 lscache: Apache-2.0
 mini-css-extract-plugin: MIT
 node-notifier: MIT
-normalize.css: MIT
 ol: BSD-2-Clause
 plyr: MIT
 portal-vue: MIT
@@ -98,7 +97,7 @@ purgecss-webpack-plugin: MIT
 qs: BSD-3-Clause
 raf: MIT
 regenerator-runtime: MIT
-sass: MIT
+sass-embedded: MIT
 sass-loader: MIT
 source-map-loader: MIT
 source-sans-pro: OFL-1.1
@@ -132,4 +131,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 14.06.2023 07:04
+As of 19.06.2023 07:03
