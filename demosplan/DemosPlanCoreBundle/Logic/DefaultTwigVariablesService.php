@@ -12,12 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
@@ -66,7 +69,7 @@ class DefaultTwigVariablesService
      */
     private $transformMessageBagService;
     /**
-     * @var PermissionsInterface
+     * @var PermissionsInterface|Permissions
      */
     private $permissions;
     /**
@@ -117,7 +120,7 @@ class DefaultTwigVariablesService
          * Filter all permissions that are enabled and marked as to-be-exposed to the frontend
          * and reformat them to [permission_name => true].
          */
-        return collect($this->permissions->getPermissions())->each(
+        $corePermissions = collect($this->permissions->getPermissions())->each(
             static function ($permission, $permissionName) {
                 if (!is_a($permission, Permission::class)) {
                     throw new RuntimeException(sprintf('Permission %s is not defined in demosplan core anymore', $permissionName));
@@ -132,6 +135,33 @@ class DefaultTwigVariablesService
                 return [$permission->getName() => true];
             }
         );
+
+        $addonPermissions = [];
+        foreach ($this->permissions->getAddonPermissionCollections() as $addonName => $permissionCollection) {
+            $addonPermissions[] = collect($permissionCollection->getResolvePermissions())
+                ->filter(
+                    static function (ResolvablePermission $permission) use ($addonName) {
+                        if ($permission->isExposed()) {
+                            // resolve
+                            return $this->permissions->isPermissionEnabled(PermissionIdentifier::forAddon(
+                                $permission->getName(), $addonName
+                            ));
+                        }
+
+                        return false;
+                    }
+                )->flatMap(
+                    static function (ResolvablePermission $permission) {
+                        return [$permission->getName() => true];
+                    }
+                );
+        }
+
+        if (0 < count($addonPermissions)) {
+            return $corePermissions->merge(...$addonPermissions);
+        }
+
+        return $corePermissions;
     }
 
     public function getVariables(): array
