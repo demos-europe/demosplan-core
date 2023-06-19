@@ -371,7 +371,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_documents_new_statement',
                     'feature_draft_statement_add_address_to_institutions',
                     'feature_element_export',
-                    'feature_export_statement_with_datasheet',
                     'feature_gdpr_consent_revoke_by_token',
                     'feature_has_logout_landing_page',
                     'feature_institution_tag_create',
