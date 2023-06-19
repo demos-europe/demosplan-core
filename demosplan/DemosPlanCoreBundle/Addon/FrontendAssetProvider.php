@@ -65,6 +65,10 @@ final class FrontendAssetProvider
                 return [];
             }
 
+            // TODO: filter assets based on their permission to only send
+            //       usable addons to the client and relieve ourselves from outer
+            //       permission checks in addon components
+
             return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());
 
