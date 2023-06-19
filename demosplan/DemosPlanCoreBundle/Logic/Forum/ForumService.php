@@ -12,11 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
-use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -51,7 +49,6 @@ class ForumService extends CoreService
         private readonly DevelopmentUserStoryRepository $developmentUserStoryRepository,
         private readonly DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository,
         private readonly DqlConditionFactory $conditionFactory,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly ForumEntryFileRepository $forumEntryFileRepository,
         private readonly ForumEntryRepository $forumEntryRepository,
@@ -570,8 +567,7 @@ class ForumService extends CoreService
     {
         $userStory = $this->getUserStory($storyId);
 
-        $votesObjects = $this->entityFetcher->listEntitiesUnrestricted(
-            DevelopmentUserStoryVote::class,
+        $votesObjects = $this->developmentUserStoryVoteRepository->listEntities(
             [$this->conditionFactory->propertyHasValue($storyId, ['userStory'])],
             [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );
