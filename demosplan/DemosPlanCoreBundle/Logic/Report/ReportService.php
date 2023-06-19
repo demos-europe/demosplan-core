@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
@@ -41,8 +40,15 @@ class ReportService extends CoreService
      */
     protected $currentUser;
 
-    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly CustomerHandler $customerHandler, private readonly EntityFetcher $entityFetcher, private readonly ReportRepository $reportRepository, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator, private readonly ValidatorInterface $validator)
-    {
+    public function __construct(
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly CustomerHandler $customerHandler,
+        private readonly ReportRepository $reportRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     /**
@@ -118,7 +124,7 @@ class ReportService extends CoreService
 
         $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
 
-        return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9_999_999, [$sorting]);
+        return $this->reportRepository->listPaginatedEntities($conditions, 1, 9_999_999, [$sorting]);
     }
 
     /**
