@@ -19,10 +19,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -36,12 +37,13 @@ class NonAuthorizedAssignRemover
 
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
-        private readonly EntityFetcher $entityFetcher,
         ManagerRegistry $registry,
         private readonly MessageBagInterface $messageBag,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly ProcedureService $procedureService
+        private readonly ProcedureService $procedureService,
+        private readonly StatementRepository $statementRepository,
+        private readonly UserRepository $userRepository
     ) {
         $this->entityManager = $registry->getManager();
     }
@@ -99,7 +101,7 @@ class NonAuthorizedAssignRemover
     {
         $ownsProcedureCondition = $this->procedureAccessEvaluator->getOwnsProcedureCondition($procedure);
         $authorizedUsers = $this->procedureService->getAuthorizedUsers($procedure->getId());
-        $owningUsers = $this->entityFetcher->listEntitiesUnrestricted(User::class, [$ownsProcedureCondition]);
+        $owningUsers = $this->userRepository->listEntities([$ownsProcedureCondition]);
 
         return $authorizedUsers
             ->merge($owningUsers)
@@ -116,20 +118,16 @@ class NonAuthorizedAssignRemover
      */
     private function getClaimablesToUnassign(Procedure $procedure): array
     {
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            // Fetches not only statements but child classes too (i.e. segments)
-            Statement::class,
-            [
-                $this->conditionFactory->propertyIsNotNull(['assignee']),
-                $this->conditionFactory->propertyHasNotAnyOfValues(
-                    $this->getAssignableUserIds($procedure),
-                    ['assignee', 'id']
-                ),
-                $this->conditionFactory->propertyHasValue(
-                    $procedure->getId(),
-                    ['procedure', 'id']
-                ),
-            ]
-        );
+        return $this->statementRepository->listEntities([
+            $this->conditionFactory->propertyIsNotNull(['assignee']),
+            $this->conditionFactory->propertyHasNotAnyOfValues(
+                $this->getAssignableUserIds($procedure),
+                ['assignee', 'id']
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                ['procedure', 'id']
+            ),
+        ]);
     }
 }
