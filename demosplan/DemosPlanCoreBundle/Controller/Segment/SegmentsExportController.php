@@ -98,13 +98,13 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_statement_xls_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/xlsx', options: ['expose' => true])]
     public function exportByStatementsFilterXlsAction(
-        JsonApiActionService         $jsonApiActionService,
-        CsvNameService               $csvNameService,
-        ProcedureHandler             $procedureHandler,
-        Request                      $request,
+        JsonApiActionService $jsonApiActionService,
+        CsvNameService $csvNameService,
+        ProcedureHandler $procedureHandler,
+        Request $request,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType        $statementResourceType,
-        string                       $procedureId
+        StatementResourceType $statementResourceType,
+        string $procedureId
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values($jsonApiActionService->getObjectsByQueryParams($request->query, $statementResourceType)->getList());
