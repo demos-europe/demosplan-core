@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Services\PdfNameServiceInterface;
-
-class PdfNameService implements PdfNameServiceInterface
+class PdfNameService
 {
     /**
      * Generiere den Downloadfilename aus dem übergebenen Dateinamen
