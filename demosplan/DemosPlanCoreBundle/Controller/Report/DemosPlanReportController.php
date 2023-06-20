@@ -65,11 +65,11 @@ class DemosPlanReportController extends BaseController
      */
     #[Route(name: 'dplan_export_report', path: '/report/export/{procedureId}', methods: ['GET'], options: ['expose' => true])]
     public function exportProcedureReportAction(
-        ExportReportService   $reportService,
+        ExportReportService $reportService,
         ParameterBagInterface $parameterBag,
-        CsvNameService        $csvNameService,
-        PermissionsInterface  $permissions,
-        ProcedureHandler      $procedureHandler,
+        CsvNameService $csvNameService,
+        PermissionsInterface $permissions,
+        ProcedureHandler $procedureHandler,
                               $procedureId
     ): Response {
         $slugify = new Slugify();

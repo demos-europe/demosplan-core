@@ -14,9 +14,9 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -41,11 +41,11 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      */
     #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
     public function titlePageExportAction(
-        CurrentUserInterface   $currentUser,
-        PermissionsInterface   $permissions,
-        CsvNameService         $csvNameService,
+        CurrentUserInterface $currentUser,
+        PermissionsInterface $permissions,
+        CsvNameService $csvNameService,
         ProcedureServiceOutput $procedureServiceOutput,
-        TranslatorInterface    $translator,
+        TranslatorInterface $translator,
                                $procedure
     ) {
         // is the user permitted to view the procedure at all?
@@ -87,10 +87,10 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
-        ExportService           $exportService,
-        CsvNameService          $csvNameService,
-        ProcedureServiceOutput  $procedureServiceOutput,
-        Request                 $request,
+        ExportService $exportService,
+        CsvNameService $csvNameService,
+        ProcedureServiceOutput $procedureServiceOutput,
+        Request $request,
                                 $procedure
     ) {
         $requestPost = $request->request->all();

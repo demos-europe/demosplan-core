@@ -758,9 +758,9 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      */
     #[Route(name: 'DemosPlan_fragment_list_export', path: '/datensatz/liste/export', options: ['expose' => true])]
     public function exportFragmentListAction(
-        CurrentUserService  $currentUser,
-        Request             $request,
-        CsvNameService      $csvNameService,
+        CurrentUserService $currentUser,
+        Request $request,
+        CsvNameService $csvNameService,
         TranslatorInterface $translator
     ) {
         $vars = $request->request->all();
