@@ -43,24 +43,17 @@ use function is_array;
  */
 abstract class FluentRepository extends CoreRepository
 {
-    protected ConditionFactoryInterface $conditionFactory;
-
-    protected SortMethodFactoryInterface $sortMethodFactory;
-
     protected DoctrineOrmEntityProvider $objectProvider;
 
     protected JoinFinder $joinFinder;
 
     public function __construct(
-        DqlConditionFactory $dqlConditionFactory,
+        protected readonly DqlConditionFactory $conditionFactory,
         ManagerRegistry $registry,
-        SortMethodFactory $sortMethodFactory,
+        protected readonly SortMethodFactory $sortMethodFactory,
         string $entityClass
     ) {
         parent::__construct($registry, $entityClass);
-
-        $this->conditionFactory = $dqlConditionFactory;
-        $this->sortMethodFactory = $sortMethodFactory;
 
         $entityManager = $this->getEntityManager();
         $metadataFactory = $entityManager->getMetadataFactory();
