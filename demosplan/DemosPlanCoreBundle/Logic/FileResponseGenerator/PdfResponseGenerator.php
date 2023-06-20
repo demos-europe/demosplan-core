@@ -36,7 +36,7 @@ class PdfResponseGenerator extends FileResponseGeneratorAbstract
         $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
         $response->headers->set(
             'Content-Disposition',
-            $this->generateDownloadFilename($file['filename'])
+            $this->pdfNameService->generateDownloadFilename($file['filename'])
         );
 
         return $response;

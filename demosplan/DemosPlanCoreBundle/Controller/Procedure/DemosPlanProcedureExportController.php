@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -42,6 +43,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     public function titlePageExportAction(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
+        PdfNameService $pdfNameService,
         ProcedureServiceOutput $procedureServiceOutput,
         TranslatorInterface $translator,
         $procedure
@@ -66,7 +68,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($pdfName));
 
         return $response;
     }
@@ -86,6 +88,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,
+        PdfNameService $pdfNameService,
         ProcedureServiceOutput $procedureServiceOutput,
         Request $request,
         $procedure
@@ -115,7 +118,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($file, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
 
         return $response;
     }

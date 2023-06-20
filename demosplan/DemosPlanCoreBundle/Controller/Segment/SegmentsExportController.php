@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
@@ -98,6 +99,7 @@ class SegmentsExportController extends BaseController
     #[Route(name: 'dplan_statement_xls_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/xlsx', options: ['expose' => true])]
     public function exportByStatementsFilterXlsAction(
         JsonApiActionService $jsonApiActionService,
+        PdfNameService $pdfNameService,
         ProcedureHandler $procedureHandler,
         Request $request,
         SegmentsByStatementsExporter $exporter,
@@ -122,7 +124,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename(
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename(
             $exporter->getSynopseFileName($procedure, 'xlsx'))
         );
 
@@ -171,13 +173,16 @@ class SegmentsExportController extends BaseController
         );
     }
 
-    private function setResponseHeaders(StreamedResponse $response, string $filename): void
-    {
+    private function setResponseHeaders(
+        StreamedResponse $response,
+        string $filename,
+        PdfNameService $pdfNameService
+    ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
     }
 }

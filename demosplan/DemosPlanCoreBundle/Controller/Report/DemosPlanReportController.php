@@ -15,6 +15,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use Exception;
@@ -66,6 +67,7 @@ class DemosPlanReportController extends BaseController
     public function exportProcedureReportAction(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,
+        PdfNameService $pdfNameService,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
         $procedureId
@@ -94,7 +96,7 @@ class DemosPlanReportController extends BaseController
         $pdfName = $slugify->slugify($procedure->getName()).'.pdf';
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($pdfName));
 
         return $response;
     }
