@@ -46,7 +46,7 @@ class DocxResponseGenerator extends FileResponseGeneratorAbstract
         );
         $response->headers->set(
             'Content-Disposition',
-            $this->CsvNameService->generateDownloadFilename($file['filename'])
+            $this->csvNameService->generateDownloadFilename($file['filename'])
         );
 
         return $response;
