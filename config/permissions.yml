@@ -821,9 +821,6 @@ feature_export_protocol:
     label: 'Exportieren des Verfahrensprotokolls'
     loginRequired: true
     parent: area_admin_protocol
-feature_export_statement_with_datasheet:
-    label: 'Export einer Stellungnahme mit einem Datenblatt'
-    loginRequired: true
 feature_forum_dev_release_edit:
     description: 'Enables an user to edit the release entries in the development forum, which is sort of an parent entry for user-story discussions'
     label: 'edit release entry in development forum section'
