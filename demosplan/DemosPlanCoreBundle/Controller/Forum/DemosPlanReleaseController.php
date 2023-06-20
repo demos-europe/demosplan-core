@@ -15,7 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use Exception;
@@ -798,7 +798,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     public function exportReleaseAction(
         Environment $twig,
         string $releaseId,
-        PdfNameService $pdfNameService
+        CsvNameService $csvNameService
     ) {
         $storageResult = $this->forumHandler->getUserStoriesForRelease($releaseId);
 
@@ -845,7 +845,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($filename));
         $response->setCharset('UTF-8');
 
         return $response;

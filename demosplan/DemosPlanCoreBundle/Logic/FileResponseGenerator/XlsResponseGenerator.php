@@ -47,7 +47,7 @@ class XlsResponseGenerator extends FileResponseGeneratorAbstract
         );
         $response->headers->set(
             'Content-Disposition',
-            $this->pdfNameService->generateDownloadFilename($file['filename'])
+            $this->csvNameService->generateDownloadFilename($file['filename'])
         );
 
         return $response;

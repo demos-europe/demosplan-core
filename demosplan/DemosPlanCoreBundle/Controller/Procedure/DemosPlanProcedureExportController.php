@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -41,12 +41,12 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      */
     #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
     public function titlePageExportAction(
-        CurrentUserInterface $currentUser,
-        PermissionsInterface $permissions,
-        PdfNameService $pdfNameService,
+        CurrentUserInterface   $currentUser,
+        PermissionsInterface   $permissions,
+        CsvNameService         $csvNameService,
         ProcedureServiceOutput $procedureServiceOutput,
-        TranslatorInterface $translator,
-        $procedure
+        TranslatorInterface    $translator,
+                               $procedure
     ) {
         // is the user permitted to view the procedure at all?
         if (!$permissions->ownsProcedure() && (!$currentUser->getUser()->isLoggedIn() || !$permissions->hasPermissionsetRead())) {
@@ -68,7 +68,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($pdfName));
 
         return $response;
     }
@@ -87,11 +87,11 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
-        ExportService $exportService,
-        PdfNameService $pdfNameService,
-        ProcedureServiceOutput $procedureServiceOutput,
-        Request $request,
-        $procedure
+        ExportService           $exportService,
+        CsvNameService          $csvNameService,
+        ProcedureServiceOutput  $procedureServiceOutput,
+        Request                 $request,
+                                $procedure
     ) {
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->get('orga_selected', []);
@@ -118,7 +118,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($file, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($filename));
 
         return $response;
     }

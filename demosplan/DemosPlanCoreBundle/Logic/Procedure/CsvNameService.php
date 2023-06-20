@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-class PdfNameService
+class CsvNameService
 {
     /**
      * Generiere den Downloadfilename aus dem übergebenen Dateinamen

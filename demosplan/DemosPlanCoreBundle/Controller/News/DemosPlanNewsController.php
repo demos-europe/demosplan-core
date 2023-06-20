@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -749,7 +749,7 @@ class DemosPlanNewsController extends BaseController
     protected function handleNewsExport(
         string $pdfContent,
         string $pdfName,
-        PdfNameService $pdfNameService
+        CsvNameService $csvNameService
     ): Response {
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 
@@ -760,7 +760,7 @@ class DemosPlanNewsController extends BaseController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($pdfName));
 
         return $response;
     }

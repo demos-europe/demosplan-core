@@ -46,7 +46,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
@@ -114,11 +114,11 @@ class DemosPlanStatementController extends BaseController
     #[Route(name: 'DemosPlan_statement_single_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/single/pdf', defaults: ['type' => 'single'], options: ['expose' => true])]
     public function pdfAction(
         CurrentProcedureService $currentProcedureService,
-        Request $request,
-        PdfNameService $pdfNameService,
-        TranslatorInterface $translator,
-        $procedure,
-        $type
+        Request                 $request,
+        CsvNameService          $csvNameService,
+        TranslatorInterface     $translator,
+                                $procedure,
+                                $type
     ) {
         $itemsToExport = null;
         $draftStatementList = [];
@@ -149,7 +149,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($filename));
 
         return $response;
     }
@@ -1676,7 +1676,7 @@ class DemosPlanStatementController extends BaseController
         $draftStatementList, $type,
         Procedure $procedure,
         $itemsToExport = null,
-        PdfNameService $pdfNameService
+        CsvNameService $csvNameService
     ) {
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure->getId(), $itemsToExport);
 
@@ -1689,7 +1689,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $pdfNameService->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($filename));
 
         return $response;
     }

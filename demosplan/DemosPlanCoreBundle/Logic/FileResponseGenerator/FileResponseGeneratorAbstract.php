@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PdfNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,11 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 abstract class FileResponseGeneratorAbstract
 {
-    public PdfNameService $pdfNameService;
+    public CsvNameService $csvNameService;
 
-    public function __construct(PdfNameService $pdfNameService)
+    public function __construct(CsvNameService $csvNameService)
     {
-        $this->pdfNameService = $pdfNameService;
+        $this->csvNameService = $csvNameService;
     }
 
     protected $supportedTypes = [];
