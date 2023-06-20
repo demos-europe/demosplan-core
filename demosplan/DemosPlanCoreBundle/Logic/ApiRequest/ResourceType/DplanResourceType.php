@@ -472,7 +472,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     }
 
     /**
-     * Unlike {@link FluentRepository::listPaginatedEntities} this method accepts conditions and sort methods using the
+     * Unlike {@link FluentRepository::getEntitiesForPage} this method accepts conditions and sort methods using the
      * schema of a resource type instead of the schema of the backing entity.
      *
      * It will automatically check access rights and apply aliases before creating a

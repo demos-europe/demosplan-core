@@ -567,7 +567,7 @@ class ForumService extends CoreService
     {
         $userStory = $this->getUserStory($storyId);
 
-        $votesObjects = $this->developmentUserStoryVoteRepository->listEntities(
+        $votesObjects = $this->developmentUserStoryVoteRepository->getEntities(
             [$this->conditionFactory->propertyHasValue($storyId, ['userStory'])],
             [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );

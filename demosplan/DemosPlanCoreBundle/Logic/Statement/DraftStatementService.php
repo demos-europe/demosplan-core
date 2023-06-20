@@ -227,7 +227,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->draftStatementRepository->listEntities($conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             if (null !== $results) {
@@ -285,7 +285,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->draftStatementRepository->listEntities($conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             foreach ($results as $result) {

@@ -596,7 +596,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
 
-            $procedureList = $this->procedureRepository->listEntities($conditions, $sortMethods);
+            $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
             if ($toLegacy) {
                 $procedureList = \collect($procedureList)->map($this->procedureToLegacyConverter->convertToLegacy(...))->all();
@@ -2284,7 +2284,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
-        $foreignProcedures = $this->procedureRepository->listEntities($conditions, [$sortMethod]);
+        $foreignProcedures = $this->procedureRepository->getEntities($conditions, [$sortMethod]);
 
         $unauthorizedProcedures = [];
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
@@ -2314,7 +2314,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
-        return $this->procedureRepository->listEntities($conditions, [$sortMethod]);
+        return $this->procedureRepository->getEntities($conditions, [$sortMethod]);
     }
 
     /**

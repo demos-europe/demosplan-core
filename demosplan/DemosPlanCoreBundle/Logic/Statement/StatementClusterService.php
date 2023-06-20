@@ -120,6 +120,6 @@ class StatementClusterService extends CoreService
             ),
         ];
 
-        return $this->statementRepository->listEntities($conditions, $sortMethods);
+        return $this->statementRepository->getEntities($conditions, $sortMethods);
     }
 }

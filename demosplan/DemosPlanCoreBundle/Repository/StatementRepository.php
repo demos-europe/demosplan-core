@@ -58,6 +58,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
+use EDT\Querying\Pagination\PagePagination;
 use Exception;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
@@ -472,17 +473,17 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * @return array<int, Statement|Segment>
      */
-    public function listEntities(array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
     {
-        return parent::listEntities($conditions, $sortMethods, $offset, $limit);
+        return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
 
     /**
      * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
      */
-    public function listPaginatedEntities(array $conditions, int $page, int $pageSize, array $sortMethods = []): DemosPlanPaginator
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
     {
-        return parent::listPaginatedEntities($conditions, $page, $pageSize, $sortMethods);
+        return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
     }
 
     /**

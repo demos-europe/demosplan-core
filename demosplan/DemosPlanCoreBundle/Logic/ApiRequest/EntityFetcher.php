@@ -109,7 +109,7 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @deprecated use {@link FluentRepository::listEntities()} instead
+     * @deprecated use {@link FluentRepository::getEntities()} instead
      */
     public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
@@ -121,7 +121,7 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @deprecated use {@link FluentRepository::listPaginatedEntities()} instead
+     * @deprecated use {@link FluentRepository::getEntitiesForPage()} instead
      */
     public function listPaginatedEntitiesUnrestricted(
         string $entityClass,

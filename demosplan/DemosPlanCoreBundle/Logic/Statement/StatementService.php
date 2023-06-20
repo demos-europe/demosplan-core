@@ -4175,7 +4175,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $userFilters
      *
-     * @deprecated use a pre-filter approach utilizing {@link FluentRepository::listEntities()}
+     * @deprecated use a pre-filter approach utilizing {@link FluentRepository::getEntities()}
      *             instead and access the Elasticsearch index with the result
      */
     public function mapRequestFiltersToESFragmentFilters($userFilters): array

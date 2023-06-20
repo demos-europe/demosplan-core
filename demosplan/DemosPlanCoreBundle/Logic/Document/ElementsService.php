@@ -110,7 +110,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
             $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-            $elements = $this->elementsRepository->listEntities($conditions, [$sortMethod]);
+            $elements = $this->elementsRepository->getEntities($conditions, [$sortMethod]);
 
             return $this->getElementsRepository()->filterElementsByPermissions($elements);
         } catch (Exception $e) {
@@ -140,7 +140,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-        $result = $this->elementsRepository->listEntities($conditions, [$sortMethod]);
+        $result = $this->elementsRepository->getEntities($conditions, [$sortMethod]);
 
         return $this->getElementsRepository()->filterElementsByPermissions($result);
     }

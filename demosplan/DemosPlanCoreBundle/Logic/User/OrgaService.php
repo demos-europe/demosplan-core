@@ -381,7 +381,7 @@ class OrgaService extends CoreService
                 $this->orgaResourceType->id
             );
             $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
-            $orgas = $this->orgaRepository->listEntities($conditions, [$sortMethod]);
+            $orgas = $this->orgaRepository->getEntities($conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
             array_map($this->loadMissingOrgaData(...), $orgas);
@@ -407,7 +407,7 @@ class OrgaService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
-        return $this->orgaRepository->listEntities($conditions, [$sortMethod]);
+        return $this->orgaRepository->getEntities($conditions, [$sortMethod]);
     }
 
     /**

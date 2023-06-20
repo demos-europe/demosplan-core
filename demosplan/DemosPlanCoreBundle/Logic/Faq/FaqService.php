@@ -139,7 +139,7 @@ class FaqService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $repository->listEntities($conditions, [$sortMethod]);
+        return $repository->getEntities($conditions, [$sortMethod]);
     }
 
     /**

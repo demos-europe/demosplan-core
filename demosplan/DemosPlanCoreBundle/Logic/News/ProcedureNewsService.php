@@ -73,7 +73,7 @@ class ProcedureNewsService extends CoreService
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
 
-        $news = $this->newsRepository->listEntities($conditions, [$sortMethod]);
+        $news = $this->newsRepository->getEntities($conditions, [$sortMethod]);
 
         // Legacy Arrays
         $result = [];

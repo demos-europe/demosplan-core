@@ -101,7 +101,7 @@ class NonAuthorizedAssignRemover
     {
         $ownsProcedureCondition = $this->procedureAccessEvaluator->getOwnsProcedureCondition($procedure);
         $authorizedUsers = $this->procedureService->getAuthorizedUsers($procedure->getId());
-        $owningUsers = $this->userRepository->listEntities([$ownsProcedureCondition]);
+        $owningUsers = $this->userRepository->getEntities([$ownsProcedureCondition]);
 
         return $authorizedUsers
             ->merge($owningUsers)
@@ -118,7 +118,7 @@ class NonAuthorizedAssignRemover
      */
     private function getClaimablesToUnassign(Procedure $procedure): array
     {
-        return $this->statementRepository->listEntities([
+        return $this->statementRepository->getEntities([
             $this->conditionFactory->propertyIsNotNull(['assignee']),
             $this->conditionFactory->propertyHasNotAnyOfValues(
                 $this->getAssignableUserIds($procedure),
@@ -128,6 +128,6 @@ class NonAuthorizedAssignRemover
                 $procedure->getId(),
                 ['procedure', 'id']
             ),
-        ]);
+        ], []);
     }
 }

@@ -29,6 +29,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Pagination\PagePagination;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -123,8 +124,9 @@ class ReportService extends CoreService
         ];
 
         $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
+        $pagination = new PagePagination(9_999_999, 1);
 
-        return $this->reportRepository->listPaginatedEntities($conditions, 1, 9_999_999, [$sorting]);
+        return $this->reportRepository->getEntitiesForPage($conditions, [$sorting], $pagination);
     }
 
     /**

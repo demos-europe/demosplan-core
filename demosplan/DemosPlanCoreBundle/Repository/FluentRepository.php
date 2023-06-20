@@ -30,6 +30,7 @@ use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\FluentQueries\SliceDefinition;
 use EDT\Querying\FluentQueries\SortDefinition;
+use EDT\Querying\Pagination\PagePagination;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 
@@ -97,7 +98,7 @@ abstract class FluentRepository extends CoreRepository
      *
      * @return array<int,T>
      */
-    public function listEntities(array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
     {
         $entities = $this->objectProvider->getObjects($conditions, $sortMethods, $offset, $limit);
 
@@ -116,18 +117,17 @@ abstract class FluentRepository extends CoreRepository
      *
      * @return DemosPlanPaginator&Pagerfanta<T>
      */
-    public function listPaginatedEntities(
+    public function getEntitiesForPage(
         array $conditions,
-        int $page,
-        int $pageSize,
-        array $sortMethods = []
+        array $sortMethods,
+        PagePagination $pagination
     ): DemosPlanPaginator {
         $queryBuilder = $this->objectProvider->generateQueryBuilder($conditions, $sortMethods);
 
         $queryAdapter = new QueryAdapter($queryBuilder);
         $paginator = new DemosPlanPaginator($queryAdapter);
-        $paginator->setMaxPerPage($pageSize);
-        $paginator->setCurrentPage($page);
+        $paginator->setMaxPerPage($pagination->getSize());
+        $paginator->setCurrentPage($pagination->getNumber());
 
         return $paginator;
     }

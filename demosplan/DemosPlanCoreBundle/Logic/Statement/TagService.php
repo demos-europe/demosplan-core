@@ -260,7 +260,7 @@ class TagService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         ];
 
-        $tags = $this->tagRepository->listEntities($conditions);
+        $tags = $this->tagRepository->getEntities($conditions, []);
 
         $count = count($tags);
         if (1 < $count) {
