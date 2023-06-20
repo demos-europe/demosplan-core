@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class FileResponseGeneratorAbstract
 {
     public PdfNameService $pdfNameService;
+
     public function __construct(PdfNameService $pdfNameService)
     {
         $this->pdfNameService = $pdfNameService;
