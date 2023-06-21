@@ -131,6 +131,7 @@ abstract class FluentRepository extends CoreRepository
 
         return $paginator;
     }
+
     /**
      * @param list<FunctionInterface<bool>> $conditions
      *

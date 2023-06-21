@@ -24,7 +24,7 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
     public function getOrCreateEmailAddresses(array $inputEmailAddressStrings): array
     {
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
-        $foundEmailAddressStrings = array_map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
+        $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
         $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {

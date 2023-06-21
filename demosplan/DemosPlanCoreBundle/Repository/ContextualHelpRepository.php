@@ -55,7 +55,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
         $allHelpItems = $query->getResult();
 
         // exclude gislayer
-        return array_filter($allHelpItems, fn($elem) => !str_contains((string) $elem->getKey(), 'gislayer'));
+        return array_filter($allHelpItems, fn ($elem) => !str_contains((string) $elem->getKey(), 'gislayer'));
     }
 
     /**
