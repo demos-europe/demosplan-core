@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
@@ -758,9 +758,9 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      */
     #[Route(name: 'DemosPlan_fragment_list_export', path: '/datensatz/liste/export', options: ['expose' => true])]
     public function exportFragmentListAction(
-        CurrentUserService $currentUser,
-        Request $request,
-        CsvNameService $csvNameService,
+        CurrentUserService  $currentUser,
+        Request             $request,
+        NameGenerator       $nameGenerator,
         TranslatorInterface $translator
     ) {
         $vars = $request->request->all();
@@ -782,7 +782,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $response = new Response($pdf->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($translator->trans('fragments.export.pdf.file.name')));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($translator->trans('fragments.export.pdf.file.name')));
 
         return $response;
     }

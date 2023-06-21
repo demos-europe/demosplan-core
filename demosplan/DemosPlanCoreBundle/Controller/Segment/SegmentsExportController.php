@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CsvNameService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
@@ -98,13 +98,13 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_statement_xls_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/xlsx', options: ['expose' => true])]
     public function exportByStatementsFilterXlsAction(
-        JsonApiActionService $jsonApiActionService,
-        CsvNameService $csvNameService,
-        ProcedureHandler $procedureHandler,
-        Request $request,
+        JsonApiActionService         $jsonApiActionService,
+        NameGenerator                $nameGenerator,
+        ProcedureHandler             $procedureHandler,
+        Request                      $request,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
-        string $procedureId
+        StatementResourceType        $statementResourceType,
+        string                       $procedureId
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values($jsonApiActionService->getObjectsByQueryParams($request->query, $statementResourceType)->getList());
@@ -124,7 +124,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename(
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename(
             $exporter->getSynopseFileName($procedure, 'xlsx'))
         );
 
@@ -176,13 +176,13 @@ class SegmentsExportController extends BaseController
     private function setResponseHeaders(
         StreamedResponse $response,
         string $filename,
-        CsvNameService $csvNameService
+        NameGenerator $nameGenerator
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set('Content-Disposition', $csvNameService->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
     }
 }
