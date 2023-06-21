@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, dpRpc, DpSelect } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 
 export default {
@@ -395,15 +395,14 @@ export default {
       }
 
       const url = this.handleUrlParams(this.url)
+      const hasWMTSType = url.toLowerCase().includes('wmts')
       let parser = null
-      dpRpc('map.get_capabilities', { url })
+      externalApi(url)
         .then(response => {
-          this.serviceType = (response.data['0'].result.type === 'wmts') ? 'wmts' : 'wms'
+          this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
-          return response.data['0'].result.xml
-        })
-        .then(async responseData => {
-          this.currentCapabilities = await parser.read(responseData)
+          this.currentCapabilities = parser.read(response.data)
+
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
@@ -411,13 +410,15 @@ export default {
         })
         .catch(err => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
-          console.log(err)
+          if (err.code === 'ERR_NETWORK') {
+            dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error.cors.policy'))
+          }
           this.resetDropdowns()
         })
-        .then(() => {
+        .finally(() => {
           this.isLoading = false
         })
-    }, 1000),
+    }),
 
     handleUrlParams (url) {
       const upperUrl = url.toUpperCase()
