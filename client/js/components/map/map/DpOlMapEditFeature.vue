@@ -155,7 +155,7 @@ export default {
 
   computed: {
     tooltipClass () {
-      return this.zIndexSuper ? 'u-z-super' : null
+      return this.zIndexSuper ? 'u-z-super' : ''
     },
 
     map () {
@@ -210,7 +210,11 @@ export default {
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
       if (isNaN(z)) {
-        return this.getZIndex(element.parentNode)
+        if (element.nodeName !== 'HTML') {
+          return this.getZIndex(element.parentNode)
+        } else {
+          return 1
+        }
       }
 
       return z
