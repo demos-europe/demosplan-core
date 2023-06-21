@@ -1674,9 +1674,9 @@ class DemosPlanStatementController extends BaseController
      */
     protected function createPdfDraftStatement(
         $draftStatementList, $type,
+        NameGenerator $nameGenerator,
         Procedure $procedure,
-        $itemsToExport = null,
-        NameGenerator $nameGenerator
+        $itemsToExport = null
     ) {
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure->getId(), $itemsToExport);
 
