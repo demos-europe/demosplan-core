@@ -93,8 +93,17 @@ use Twig\Error\SyntaxError;
  */
 class DemosPlanStatementController extends BaseController
 {
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions)
-    {
+    private NameGenerator $nameGenerator;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService,
+                                private readonly CurrentUserService $currentUser,
+                                private readonly DraftStatementHandler $draftStatementHandler,
+                                private readonly DraftStatementService $draftStatementService,
+                                private readonly Environment $twig,
+                                private readonly MailService $mailService,
+                                private readonly PermissionsInterface $permissions,
+                                NameGenerator $nameGenerator
+    ) {
+        $this->nameGenerator = $nameGenerator;
     }
 
     /**
@@ -1673,8 +1682,8 @@ class DemosPlanStatementController extends BaseController
      * @throws Exception
      */
     protected function createPdfDraftStatement(
-        $draftStatementList, $type,
-        NameGenerator $nameGenerator,
+        $draftStatementList,
+        $type,
         Procedure $procedure,
         $itemsToExport = null
     ) {
@@ -1689,7 +1698,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
 
         return $response;
     }
