@@ -210,11 +210,7 @@ export default {
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
       if (isNaN(z)) {
-        if (element.nodeName !== 'HTML') {
-          return this.getZIndex(element.parentNode)
-        } else {
-          return 1
-        }
+        return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
 
       return z
