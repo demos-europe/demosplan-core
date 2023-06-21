@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class FileRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class FileRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Hole Infos zum File.

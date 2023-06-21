@@ -19,7 +19,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class DepartmentRepository extends CoreRepository implements ArrayInterface
+class DepartmentRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get Entity by Id.

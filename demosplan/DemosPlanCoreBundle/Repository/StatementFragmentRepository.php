@@ -37,7 +37,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Validator\Validation;
 
-class StatementFragmentRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class StatementFragmentRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

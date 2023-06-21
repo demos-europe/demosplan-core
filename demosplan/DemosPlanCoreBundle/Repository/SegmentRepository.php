@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SegmentRepository extends CoreRepository
+class SegmentRepository extends FluentRepository
 {
     /**
      * @return array<Segment>

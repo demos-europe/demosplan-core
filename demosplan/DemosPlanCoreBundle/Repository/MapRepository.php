@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
+class MapRepository extends FluentRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
     /**
      * Get single GisLayer form DB by id.

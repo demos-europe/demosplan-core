@@ -21,7 +21,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class ContextualHelpRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ContextualHelpRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Fetch all contextualHelp items from DB.

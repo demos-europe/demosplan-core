@@ -23,7 +23,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use InvalidArgumentException;
 
-class CountyRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class CountyRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Exception;
 
-class MailRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
+class MailRepository extends FluentRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
     /**
      * Get Entity by Id.

@@ -20,7 +20,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 
-class MunicipalityRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class MunicipalityRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

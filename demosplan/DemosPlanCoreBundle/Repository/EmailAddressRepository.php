@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
-class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
+class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
     /**
      * @param string[] $inputEmailAddressStrings

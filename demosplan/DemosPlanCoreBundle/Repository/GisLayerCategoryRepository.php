@@ -28,7 +28,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
+class GisLayerCategoryRepository extends FluentRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**
      * Get Entity by Id.

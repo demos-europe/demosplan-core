@@ -3,6 +3,9 @@ services:
         autowire: true
         autoconfigure: true
 
+    demosplan\DemosPlanCoreBundle\Repository\CategoryRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Category'
+
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
@@ -30,8 +33,17 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\PlatformFaqRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PlatformFaq'
 
+    demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson'
+
+    demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings'
+
     demosplan\DemosPlanCoreBundle\Repository\FileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\File'
+
+    demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer'
 
     demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization'
@@ -51,8 +63,17 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\MailRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\MailSend'
 
+    demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment'
+
     demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\StatementAttachment'
+
+    demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta'
+
+    demosplan\DemosPlanCoreBundle\Repository\VideoRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Video'
 
     demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'

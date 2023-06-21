@@ -20,7 +20,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 
-class PriorityAreaRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class PriorityAreaRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
