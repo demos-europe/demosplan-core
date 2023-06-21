@@ -94,6 +94,7 @@ use Twig\Error\SyntaxError;
 class DemosPlanStatementController extends BaseController
 {
     private NameGenerator $nameGenerator;
+
     public function __construct(private readonly CurrentProcedureService $currentProcedureService,
                                 private readonly CurrentUserService $currentUser,
                                 private readonly DraftStatementHandler $draftStatementHandler,
