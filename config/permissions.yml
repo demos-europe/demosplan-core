@@ -2701,11 +2701,6 @@ role_participant:
     description: 'I think it is more of a role than permission. It checks if the user is an institution. It is used only in login-box to display a different ''user'' icon.'
     label: 'Identify user as institution'
     loginRequired: true
-feature_create_procedure_from_XBauleitplanungMessage:
-    description: |
-        Allows creating new procedures without being logged in.
-    label: 'Verfahren verwalten'
-    loginRequired: false
 feature_read_source_statement_via_api:
     description: |
         Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
