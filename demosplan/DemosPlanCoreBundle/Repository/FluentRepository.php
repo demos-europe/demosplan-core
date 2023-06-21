@@ -12,25 +12,31 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DoctrineOrmPartialDTOProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DqlFluentQuery;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PartialDTO;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\DqlQuerying\Utilities\JoinFinder;
 use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\FluentQueries\SliceDefinition;
 use EDT\Querying\FluentQueries\SortDefinition;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Iterables;
+use InvalidArgumentException;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 
@@ -44,8 +50,9 @@ use function is_array;
 abstract class FluentRepository extends CoreRepository
 {
     protected DoctrineOrmEntityProvider $objectProvider;
-
     protected JoinFinder $joinFinder;
+    protected QueryBuilderPreparer $builderPreparer;
+    protected EntityManagerInterface $entityManager;
 
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
@@ -55,11 +62,11 @@ abstract class FluentRepository extends CoreRepository
     ) {
         parent::__construct($registry, $entityClass);
 
-        $entityManager = $this->getEntityManager();
-        $metadataFactory = $entityManager->getMetadataFactory();
+        $this->entityManager = $this->getEntityManager();
+        $metadataFactory = $this->entityManager->getMetadataFactory();
         $this->joinFinder = new JoinFinder($metadataFactory);
-        $builderPreparer = new QueryBuilderPreparer($entityClass, $metadataFactory, $this->joinFinder);
-        $this->objectProvider = new DoctrineOrmEntityProvider($entityManager, $builderPreparer);
+        $this->builderPreparer = new QueryBuilderPreparer($entityClass, $metadataFactory, $this->joinFinder);
+        $this->objectProvider = new DoctrineOrmEntityProvider($this->entityManager, $this->builderPreparer);
     }
 
     public function createFluentQuery(): FluentQuery
@@ -123,5 +130,60 @@ abstract class FluentRepository extends CoreRepository
         $paginator->setCurrentPage($pagination->getNumber());
 
         return $paginator;
+    }
+    /**
+     * @param list<FunctionInterface<bool>> $conditions
+     *
+     * @return int<0, max>
+     */
+    public function getEntityCount(array $conditions): int
+    {
+        $pagePagination = new PagePagination(1, 1);
+
+        return $this->getEntitiesForPage($conditions, [], $pagePagination)->getAdapter()->getNbResults();
+    }
+
+    /**
+     * @param non-empty-string                 $id
+     * @param list<FunctionInterface<bool>>    $conditions
+     * @param non-empty-list<non-empty-string> $identifierPropertyPath
+     *
+     * @return T
+     */
+    public function getEntityByIdentifier(string $id, array $conditions, array $identifierPropertyPath): object
+    {
+        $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPropertyPath);
+        $entities = $this->getEntities($conditions, [$identifierCondition], 0, 2);
+
+        return match (count($entities)) {
+            0       => throw new InvalidArgumentException("No matching `{$this->getEntityName()}` entity found."),
+            1       => array_pop($entities),
+            default => throw new InvalidArgumentException("Multiple matching `{$this->getEntityName()}` entities found.")
+        };
+    }
+
+    /**
+     * @param array<int,FunctionInterface<bool>> $conditions         will be applied in an `AND` conjunction
+     * @param array<int,SortMethodInterface>     $sortMethods        will be applied in the given order
+     * @param non-empty-string                   $identifierProperty
+     *
+     * @return list<non-empty-string>
+     *
+     * @throws MappingException
+     * @throws PaginationException
+     */
+    public function getEntityIdentifiers(array $conditions, array $sortMethods, string $identifierProperty): array
+    {
+        $entityProvider = new DoctrineOrmPartialDTOProvider(
+            $this->entityManager,
+            $this->builderPreparer,
+            $identifierProperty
+        );
+
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
+        $entities = Iterables::asArray($entities);
+        $partialDtos = array_values($entities);
+
+        return array_map(static fn (PartialDTO $dto): string => $dto->getProperty($identifierProperty), $partialDtos);
     }
 }

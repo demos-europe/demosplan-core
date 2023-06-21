@@ -21,10 +21,8 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DoctrineOrmPartialDTOProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PartialDTO;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
@@ -36,15 +34,13 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\DqlQuerying\Utilities\JoinFinder;
-use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
@@ -57,8 +53,8 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
-use EDT\Querying\EntityProviders\EntityProviderInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
+use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Querying\Utilities\Iterables;
 use EDT\Querying\Utilities\Sorter;
@@ -73,7 +69,6 @@ use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use IteratorAggregate;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -95,77 +90,28 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 {
     use PropertyAutoPathTrait;
 
-    /**
-     * @var CurrentUserInterface
-     */
-    protected $currentUser;
-    /**
-     * @var CurrentProcedureService
-     */
-    protected $currentProcedureService;
-    /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    protected $messageBag;
-    /**
-     * @var ResourceTypeService
-     */
-    protected $resourceTypeService;
-    /**
-     * @var TransformerLoader
-     */
-    protected $transformerLoader;
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-    /**
-     * @var CustomerService
-     */
-    protected $currentCustomerService;
-
-    protected DqlConditionFactory $conditionFactory;
-
-    private TypeProviderInterface $typeProvider;
-
-    /**
-     * @var WrapperObjectFactory
-     */
-    protected $wrapperFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    protected $sortMethodFactory;
-
-    /**
-     * @var ApiLogger
-     */
-    protected $apiLogger;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
-
-    /**
-     * @var MessageFormatter
-     */
-    private $messageFormatter;
-
-    protected ?EntityManager $entityManager;
+    protected ?CurrentUserInterface $currentUser;
+    protected ?CurrentProcedureService $currentProcedureService;
+    protected ?GlobalConfigInterface $globalConfig;
+    protected ?LoggerInterface $logger;
+    protected ?MessageBagInterface $messageBag;
+    protected ?ResourceTypeService $resourceTypeService;
+    protected ?TransformerLoader $transformerLoader;
+    protected ?TranslatorInterface $translator;
+    protected ?CustomerService $currentCustomerService;
+    protected ?DqlConditionFactory $conditionFactory;
+    protected ?TypeProviderInterface $typeProvider;
+    protected ?WrapperObjectFactory $wrapperFactory;
+    protected ?SortMethodFactoryInterface $sortMethodFactory;
+    protected ?ApiLogger $apiLogger;
+    protected ?EventDispatcherInterface $eventDispatcher;
+    protected ?MessageFormatter $messageFormatter;
+    protected ?EntityManagerInterface $entityManager;
     protected ?SchemaPathProcessor $schemaPathProcessor;
     protected ?ConditionEvaluator $conditionEvaluator;
     protected ?Sorter $sorter;
     protected ?JoinFinder $joinFinder;
+    protected ?FluentRepository $repository;
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
@@ -304,20 +250,25 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
-    public function setEntityManager(EntityManager $entityManager): void
+    #[Required]
+    public function setEntityManager(EntityManagerInterface $entityManager): void
     {
         $this->entityManager = $entityManager;
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
+
+        $repository = $entityManager->getRepository($this->getEntityClass());
+        if (!$repository instanceof FluentRepository) {
+            $fluentRepositoryClass = FluentRepository::class;
+            throw new InvalidArgumentException("No repository found extending `$fluentRepositoryClass` for entity `{$this->getEntityClass()}`.");
+        }
+        $this->repository = $repository;
     }
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setSchemaPathProcessor(SchemaPathProcessor $schemaPathProcessor): void
     {
         $this->schemaPathProcessor = $schemaPathProcessor;
@@ -325,9 +276,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setConditionEvaluator(ConditionEvaluator $conditionEvaluator): void
     {
         $this->conditionEvaluator = $conditionEvaluator;
@@ -335,9 +285,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setSorter(Sorter $sorter): void
     {
         $this->sorter = $sorter;
@@ -406,7 +355,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     /**
      * @deprecated Move the permission-checks from the overrides of this method to the
      *             {@link self::getProperties()} method of the referencing resource type instead.
-     *             Afterwards, return `true` in the override of this method.
+     *             Afterward, return `true` in the override of this method.
      */
     abstract public function isReferencable(): bool;
 
@@ -462,13 +411,12 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function listEntities(array $conditions, array $sortMethods = []): array
     {
-        if (!$this->isDirectlyAccessible()) {
-            throw AccessException::typeNotDirectlyAccessible($this);
-        }
+        $this->assertDirectlyAvailable();
 
-        $entityProvider = $this->createOrmEntityProvider();
+        $conditions = $this->mapConditions($conditions);
+        $sortMethods = $this->mapSortMethods($sortMethods);
 
-        return $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
+        return $this->repository->getEntities($conditions, $sortMethods);
     }
 
     /**
@@ -490,26 +438,13 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         array $conditions,
         array $sortMethods = []
     ): DemosPlanPaginator {
-        if (!$this->isAvailable()) {
-            throw AccessException::typeNotAvailable($this);
-        }
-
-        if (!$this->isDirectlyAccessible()) {
-            throw AccessException::typeNotDirectlyAccessible($this);
-        }
+        $this->assertDirectlyAvailable();
 
         $conditions = $this->mapConditions($conditions);
         $sortMethods = $this->mapSortMethods($sortMethods);
+        $pagePagination = new PagePagination($pagination->getSize(), $pagination->getNumber());
 
-        $entityProvider = $this->createOrmEntityProvider();
-        $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
-
-        $queryAdapter = new QueryAdapter($queryBuilder);
-        $paginator = new DemosPlanPaginator($queryAdapter);
-        $paginator->setMaxPerPage($pagination->getSize());
-        $paginator->setCurrentPage($pagination->getNumber());
-
-        return $paginator;
+        return $this->repository->getEntitiesForPage($conditions, $sortMethods, $pagePagination);
     }
 
     /**
@@ -543,13 +478,16 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         array $conditions = [],
         array $sortMethods = []
     ): array {
-        if (!$this->isDirectlyAccessible()) {
-            throw AccessException::typeNotDirectlyAccessible($this);
-        }
+        $this->assertDirectlyAvailable();
+
+        $conditions = $this->mapConditions($conditions);
+        $sortMethods = $this->mapSortMethods($sortMethods);
 
         $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
+        $entities = Iterables::asArray($entities);
 
-        return $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
+        return array_values($entities);
     }
 
     /**
@@ -573,14 +511,11 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function getEntityCount(array $conditions): int
     {
-        $pagination = new APIPagination();
-        $pagination->setSize(1);
-        $pagination->setNumber(1);
-        $pagination->lock();
+        $this->assertDirectlyAvailable();
 
-        $paginator = $this->getEntityPaginator($pagination, $conditions, []);
+        $conditions = $this->mapConditions($conditions);
 
-        return $paginator->getAdapter()->getNbResults();
+        return $this->repository->getEntityCount($conditions);
     }
 
     /**
@@ -592,21 +527,12 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function getEntityByTypeIdentifier(string $id): object
     {
-        $entityProvider = $this->createOrmEntityProvider();
+        if (!$this->isAvailable()) {
+            throw AccessException::typeNotAvailable($this);
+        }
 
         try {
-            $identifierPath = $this->getIdentifierPropertyPath();
-            $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPath);
-            $entities = $this->listTypeEntities($entityProvider, [$identifierCondition], []);
-
-            switch (count($entities)) {
-                case 0:
-                    throw AccessException::noEntityByIdentifier($this);
-                case 1:
-                    return array_pop($entities);
-                default:
-                    throw AccessException::multipleEntitiesByIdentifier($this);
-            }
+            return $this->repository->getEntityByIdentifier($id, [], $this->getIdentifierPropertyPath());
         } catch (AccessException $e) {
             $typeName = $this::getName();
             throw new InvalidArgumentException("Could not retrieve entity for type '$typeName' with ID '$id'.", 0, $e);
@@ -629,28 +555,27 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     public function listEntityIdentifiers(
         array $conditions,
         array $sortMethods
-    ) {
+    ): array {
+        $this->assertDirectlyAvailable();
+
+        $conditions = $this->mapConditions($conditions);
+        $sortMethods = $this->mapSortMethods($sortMethods);
+
+        return $this->repository->getEntityIdentifiers($conditions, $sortMethods, $this->getEntityIdentifierProperty());
+    }
+
+    /**
+     * @throws AccessException
+     */
+    protected function assertDirectlyAvailable(): void
+    {
         if (!$this->isDirectlyAccessible()) {
             throw AccessException::typeNotDirectlyAccessible($this);
         }
 
-        $entityIdProperty = $this->getEntityIdentifierProperty();
-
-        $queryBuilderPreparer = new QueryBuilderPreparer(
-            $this->getEntityClass(),
-            $this->entityManager->getMetadataFactory(),
-            $this->joinFinder
-        );
-
-        $entityProvider = new DoctrineOrmPartialDTOProvider(
-            $this->entityManager,
-            $queryBuilderPreparer,
-            $entityIdProperty
-        );
-
-        $partialDtos = $this->listTypeEntities($entityProvider, $conditions, $sortMethods);
-
-        return array_map(static fn (PartialDTO $dto): string => $dto->getProperty($entityIdProperty), $partialDtos);
+        if (!$this->isAvailable()) {
+            throw AccessException::typeNotAvailable($this);
+        }
     }
 
     protected function processProperties(array $properties): array
@@ -687,7 +612,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     protected function getMessageFormatter(): MessageFormatter
     {
-        if (null === $this->messageFormatter) {
+        if (!isset($this->messageFormatter)) {
             $this->messageFormatter = new MessageFormatter();
         }
 
@@ -724,27 +649,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return array_pop($entityIdPath);
     }
 
-    private function listTypeEntities(
-        EntityProviderInterface $entityProvider,
-        array $conditions,
-        array $sortMethods
-    ): array {
-        if (!$this->isAvailable()) {
-            throw AccessException::typeNotAvailable($this);
-        }
-
-        $conditions = $this->mapConditions($conditions);
-        $sortMethods = $this->mapSortMethods($sortMethods);
-
-        // get the actual entities
-        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
-
-        // get and map the actual entities
-        $entities = Iterables::asArray($entities);
-
-        return array_values($entities);
-    }
-
     /**
      * @param list<ClauseFunctionInterface<bool>> $conditions
      *
@@ -777,16 +681,5 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($this);
 
         return [...$sortMethods, ...$defaultSortMethods];
-    }
-
-    private function createOrmEntityProvider(): DoctrineOrmEntityProvider
-    {
-        $queryBuilderPreparer = new QueryBuilderPreparer(
-            $this->getEntityClass(),
-            $this->entityManager->getMetadataFactory(),
-            $this->joinFinder
-        );
-
-        return new DoctrineOrmEntityProvider($this->entityManager, $queryBuilderPreparer);
     }
 }
