@@ -397,6 +397,7 @@ export default {
       const url = this.handleUrlParams(this.url)
       const hasWMTSType = url.toLowerCase().includes('wmts')
       let parser = null
+
       externalApi(url)
         .then(response => {
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
