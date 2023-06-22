@@ -32,7 +32,7 @@ class Version20230601095828 extends AbstractMigration
         $fkConstraints = $this->connection->createSchemaManager()->listTableForeignKeys('_statement');
         $constraintExists = false;
         foreach ($fkConstraints as $constraint) {
-            if ($constraint->getName() === 'FK_8D47F06B84040EA6') {
+            if ('FK_8D47F06B84040EA6' === $constraint->getName()) {
                 $constraintExists = true;
                 break;
             }
