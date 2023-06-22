@@ -605,7 +605,7 @@ export default {
         const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
         externalApi(url)
           .then(response => {
-            const result = this.parser.read(response)
+            const result = this.parser.read(response.data)
             options = optionsFromCapabilities(result, {
               layer: layerArray[0] || '',
               matrixSet: layer.attributes.tileMatrixSet
