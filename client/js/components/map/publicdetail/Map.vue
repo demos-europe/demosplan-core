@@ -604,7 +604,7 @@ export default {
         const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
         const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
         externalApi(url)
-          .then((response) => {
+          .then(response => {
             const result = this.parser.read(response)
             options = optionsFromCapabilities(result, {
               layer: layerArray[0] || '',
