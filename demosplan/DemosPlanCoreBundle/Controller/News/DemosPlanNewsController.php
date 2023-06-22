@@ -39,29 +39,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DemosPlanNewsController extends BaseController
 {
-    /**
-     * @var GlobalNewsHandler
-     */
-    private $globalNewsHandler;
-
-    /**
-     * @var ProcedureNewsService
-     */
-    private $procedureNewsService;
-
-    /**
-     * @var NewsHandler
-     */
-    private $newsHandler;
-
-    public function __construct(
-        GlobalNewsHandler $globalNewsHandler,
-        NewsHandler $newsHandler,
-        ProcedureNewsService $procedureNewsService
-    ) {
-        $this->globalNewsHandler = $globalNewsHandler;
-        $this->newsHandler = $newsHandler;
-        $this->procedureNewsService = $procedureNewsService;
+    public function __construct(private readonly GlobalNewsHandler $globalNewsHandler, private readonly NewsHandler $newsHandler, private readonly ProcedureNewsService $procedureNewsService)
+    {
     }
 
     /**
@@ -681,7 +660,7 @@ class DemosPlanNewsController extends BaseController
             // determine if a news was set as enabled or not.
             $allAffectedNewsIds = explode(
                 ',',
-                str_replace(' ', '', $requestPost['manualsort'])
+                str_replace(' ', '', (string) $requestPost['manualsort'])
             );
             $enabledNewsIdsOnly = $requestPost['r_enable'] ?? [];
 
@@ -740,6 +719,7 @@ class DemosPlanNewsController extends BaseController
      */
     protected function handleNewsAdminNewGetRequest(ProcedureService $procedureService, string $title, $procedure = null): Response
     {
+        $templateVars = [];
         $templateVars['procedure'] = $procedure;
 
         // hole die Textbausteine

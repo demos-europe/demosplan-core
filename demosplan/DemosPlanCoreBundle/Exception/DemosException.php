@@ -22,15 +22,9 @@ use Exception;
  */
 class DemosException extends Exception
 {
-    /**
-     * @var string
-     */
-    private $userMsg;
-
-    public function __construct(string $userMsg, string $logMsg = '', int $code = 0)
+    public function __construct(private readonly string $userMsg, string $logMsg = '', int $code = 0)
     {
         parent::__construct($logMsg, $code);
-        $this->userMsg = $userMsg;
     }
 
     public function getUserMsg(): string

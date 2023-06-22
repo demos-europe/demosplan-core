@@ -94,11 +94,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     protected $statementCopier;
 
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
@@ -111,7 +106,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementResourceType $statementResourceType,
         StatementService $statementService,
         StatementCopier $statementCopier,
-        TransactionService $transactionService
+        private readonly TransactionService $transactionService
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -124,7 +119,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementResourceType = $statementResourceType;
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
-        $this->transactionService = $transactionService;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
@@ -145,9 +139,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     public function execute(?Procedure $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            function () use ($procedure, $rpcRequests): array {
-                return $this->prepareAction($procedure->getId(), $rpcRequests);
-            });
+            fn (): array => $this->prepareAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool
@@ -216,7 +208,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $resultResponse = [];
 
         if (!$this->checkIfAuthorized($procedureId)) {
-            return array_map([$this->errorGenerator, 'accessDenied'], $rpcRequests);
+            return array_map($this->errorGenerator->accessDenied(...), $rpcRequests);
         }
 
         foreach ($rpcRequests as $rpcRequest) {
@@ -225,7 +217,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
                 $statementIds = $rpcRequest->params->statementIds;
                 $statementEntities = $this->loadRequestedStatements($statementIds, $procedureId);
 
-                if (count($statementEntities) !== count($statementIds)) {
+                if (count($statementEntities) !== (is_countable($statementIds) ? count($statementIds) : 0)) {
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
 
                     return $resultResponse;
@@ -238,11 +230,11 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
                 }
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
-            } catch (AccessException $e) {
+            } catch (AccessException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (InvalidSchemaException|JsonException|PathException $e) {
+            } catch (InvalidSchemaException|JsonException|PathException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

@@ -25,11 +25,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FloodControlEventSubscriber implements EventSubscriberInterface
 {
-    protected FloodControlService $floodControl;
-
-    public function __construct(FloodControlService $floodControl)
+    public function __construct(protected FloodControlService $floodControl)
     {
-        $this->floodControl = $floodControl;
     }
 
     /**

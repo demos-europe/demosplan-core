@@ -37,6 +37,7 @@
                 required />
               <dp-input
                 id="r_orgaphone"
+                data-cy="orga_phone"
                 :label="{
                   bold: false,
                   text: Translator.trans('phone.call.back')
@@ -54,6 +55,7 @@
             <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group')">
               <dp-checkbox
                 id="orgatype_invitable_institution"
+                data-cy="orgatype_institution"
                 :class="prefixClass('o-form__group-item')"
                 :label="{
                   text: Translator.trans('invitable_institution')
@@ -62,6 +64,7 @@
                 value-to-send="OPSORG" />
               <dp-checkbox
                 id="orgatype_municipality"
+                data-cy="orgatype_municipality"
                 :class="prefixClass('o-form__group-item')"
                 :label="{
                   text: Translator.trans('municipality')
@@ -70,6 +73,7 @@
                 value-to-send="OLAUTH" />
               <dp-checkbox
                 id="orgatype_planningagency"
+                data-cy="orgatype_planningagency"
                 :class="prefixClass('o-form__group-item')"
                 :label="{
                   text: Translator.trans('planningagency')
@@ -87,7 +91,7 @@
               <div>
                 <dp-input
                   id="r_useremail"
-                  data-cy="username"
+                  data-cy="useremail"
                   :label="{
                     bold: false,
                     text: Translator.trans('email.address')
@@ -99,6 +103,7 @@
               <div class="flex">
                 <dp-input
                   id="r_firstname"
+                  data-cy="user_firstname"
                   :label="{
                     bold: false,
                     text: Translator.trans('name.first')
@@ -107,6 +112,7 @@
                   required />
                 <dp-input
                   id="r_lastname"
+                  data-cy="user_lastname"
                   :label="{
                     bold: false,
                     text: Translator.trans('name.last')
@@ -119,6 +125,7 @@
 
           <dp-checkbox
             id="gdpr_consent"
+            data-cy="gdpr_consent"
             :class="prefixClass('u-mb-0_5')"
             :label="{
               text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
@@ -131,7 +138,7 @@
             id="_csrf_token"
             name="_csrf_token"
             type="hidden"
-            :value="csrfToken"/>
+            :value="csrfToken" />
 
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"

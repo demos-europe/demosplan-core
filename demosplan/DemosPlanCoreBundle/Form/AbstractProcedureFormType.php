@@ -39,43 +39,8 @@ use Symfony\Component\Validator\Constraints\Valid;
  */
 abstract class AbstractProcedureFormType extends AbstractType
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedure;
-
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    public function __construct(
-        CustomerService $customerService,
-        CurrentProcedureService $currentProcedure,
-        CurrentUserInterface $currentUser,
-        PermissionsInterface $permissions,
-        ProcedureService $procedureService
-    ) {
-        $this->permissions = $permissions;
-        $this->customerService = $customerService;
-        $this->currentProcedure = $currentProcedure;
-        $this->currentUser = $currentUser;
-        $this->procedureService = $procedureService;
+    public function __construct(private readonly CustomerService $customerService, private readonly CurrentProcedureService $currentProcedure, private readonly CurrentUserInterface $currentUser, private readonly PermissionsInterface $permissions, private readonly ProcedureService $procedureService)
+    {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -159,9 +124,7 @@ abstract class AbstractProcedureFormType extends AbstractType
 
         return collect($allowableSegmentAccessProcedures)
             ->mapWithKeys(
-                static function (Procedure $allowedProcedure): array {
-                    return [$allowedProcedure->getName() => $allowedProcedure->getId()];
-                }
+                static fn (Procedure $allowedProcedure): array => [$allowedProcedure->getName() => $allowedProcedure->getId()]
             )
             ->all();
     }

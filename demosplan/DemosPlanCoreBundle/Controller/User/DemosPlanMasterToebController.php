@@ -40,14 +40,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanMasterToebController extends BaseController
 {
-    /**
-     * @var MasterToebService
-     */
-    private $masterToebService;
-
-    public function __construct(MasterToebService $masterToebService)
+    public function __construct(private readonly MasterToebService $masterToebService)
     {
-        $this->masterToebService = $masterToebService;
     }
 
     /**
@@ -131,7 +125,7 @@ class DemosPlanMasterToebController extends BaseController
                         $reportRead = $setting['content'];
                     }
                 }
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 // Most likely 404 Setting not set
             }
             $this->profilerStop('getLastRead');
@@ -285,7 +279,7 @@ class DemosPlanMasterToebController extends BaseController
                             $reportRead = $setting['content'];
                         }
                     }
-                } catch (HttpException $e) {
+                } catch (HttpException) {
                     // Most likely 404 Setting not set
                 }
                 try {
@@ -295,7 +289,7 @@ class DemosPlanMasterToebController extends BaseController
                     ];
                     // setze das aktuelle Datum als zuletzt gelesen
                     $contentService->setSetting('reportMastertoebRead', $data);
-                } catch (HttpException $e) {
+                } catch (HttpException) {
                     $this->logger->warning('Speichern der Setting reportMastertoebRead fehlgeschlagen');
                 }
             }
@@ -452,7 +446,7 @@ class DemosPlanMasterToebController extends BaseController
             $organisationId = $requestPost->get('r_orga');
             $masterToebId = $requestPost->get('r_orga_mastertoeb');
 
-            if ((0 < strlen($organisationId)) && (0 < strlen($masterToebId))) {
+            if ((0 < strlen((string) $organisationId)) && (0 < strlen((string) $masterToebId))) {
                 $mergeResult = $masterToebListService->mergeOrganisations($organisationId, $masterToebId);
                 // Generiere eine Erfolgsmeldung
                 if ($mergeResult) {

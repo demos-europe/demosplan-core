@@ -18,19 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SegmentValidator
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(LoggerInterface $logger, ValidatorInterface $validator)
+    public function __construct(private readonly LoggerInterface $logger, private readonly ValidatorInterface $validator)
     {
-        $this->logger = $logger;
-        $this->validator = $validator;
     }
 
     /**
@@ -53,9 +42,7 @@ class SegmentValidator
         }
         $filteredByProcedureSegments = array_filter(
             $segments,
-            function (Segment $segment) use ($procedureId) {
-                return $segment->getProcedureId() === $procedureId;
-            }
+            fn (Segment $segment) => $segment->getProcedureId() === $procedureId
         );
         if (count($filteredByProcedureSegments) !== count($segments)) {
             $this->logger->error(

@@ -34,45 +34,8 @@ use Throwable;
 
 class ViewRenderer
 {
-    /**
-     * @var DefaultTwigVariablesService
-     */
-    private $defaultTwigVariablesService;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-    /**
-     * @var TraceableEventDispatcher
-     */
-    private $traceableEventDispatcher;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        DefaultTwigVariablesService $defaultTwigVariablesService,
-        MessageBagInterface $messageBag,
-        RequestStack $requestStack,
-        TraceableEventDispatcher $traceableEventDispatcher,
-        RouterInterface $router,
-        LoggerInterface $logger
-    ) {
-        $this->defaultTwigVariablesService = $defaultTwigVariablesService;
-        $this->messageBag = $messageBag;
-        $this->requestStack = $requestStack;
-        $this->traceableEventDispatcher = $traceableEventDispatcher;
-        $this->router = $router;
-        $this->logger = $logger;
+    public function __construct(private readonly DefaultTwigVariablesService $defaultTwigVariablesService, private readonly MessageBagInterface $messageBag, private readonly RequestStack $requestStack, private readonly TraceableEventDispatcher $traceableEventDispatcher, private readonly RouterInterface $router, private readonly LoggerInterface $logger)
+    {
     }
 
     /**

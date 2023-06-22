@@ -145,9 +145,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             return $all[$randomKeys];
         } else {
             return array_map(
-                function ($key) use ($all) {
-                    return $all[$key];
-                },
+                fn($key) => $all[$key],
                 $randomKeys
             );
         }
@@ -337,7 +335,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFieldFromData($entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         return function ($fieldName) use ($entity, $data) {
@@ -367,7 +365,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFlagFieldFromData($entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         return function ($fieldName) use ($entity, $data) {
@@ -383,7 +381,7 @@ abstract class CoreRepository extends ServiceEntityRepository
                 $entity->$fieldSetterMethod($data[$fieldName]);
                 if ('' === $data[$fieldName] && !is_bool($data[$fieldName])) {
                     $this->getLogger()->warning(
-                        'Property should have default value. Property: '.$fieldName.' Entity '.get_class($entity)
+                        'Property should have default value. Property: '.$fieldName.' Entity '.$entity::class
                     );
                 }
             }
@@ -402,7 +400,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFieldsOnFieldCollection(Collection $fields, $entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         $fields->each($this->setEntityFieldFromData($entity, $data));
@@ -420,7 +418,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFlagFieldsOnFlagFieldCollection(Collection $fields, $entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         $fields->each($this->setEntityFlagFieldFromData($entity, $data));
@@ -481,9 +479,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             ]
         )->merge($additionalAllowedTags)
             ->flatMap(
-                function ($tagName) {
-                    return ["<{$tagName}>", "</{$tagName}>"];
-                }
+                fn($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
         return strip_tags($text, $allowedTags);

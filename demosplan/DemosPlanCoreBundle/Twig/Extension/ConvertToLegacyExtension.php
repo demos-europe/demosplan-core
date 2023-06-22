@@ -30,23 +30,11 @@ use Twig\TwigFilter;
  */
 class ConvertToLegacyExtension extends ExtensionBase
 {
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
     public function __construct(
         ContainerInterface $container,
-        DraftStatementService $draftStatementService,
-        StatementService $statementService)
+        private readonly DraftStatementService $draftStatementService,
+        private readonly StatementService $statementService)
     {
-        $this->draftStatementService = $draftStatementService;
-        $this->statementService = $statementService;
         parent::__construct($container);
     }
 
@@ -58,7 +46,7 @@ class ConvertToLegacyExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('convertToLegacy', [$this, 'convertToLegacy']),
+            new TwigFilter('convertToLegacy', $this->convertToLegacy(...)),
         ];
     }
 

@@ -18,17 +18,12 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
 use EDT\Querying\PropertyPaths\PathInfo;
 use EDT\Querying\PropertyPaths\PropertyPath;
+use Stringable;
 
-class HasSegmentsClause implements ClauseFunctionInterface
+class HasSegmentsClause implements ClauseFunctionInterface, Stringable
 {
-    /**
-     * @var string
-     */
-    private $procedureId;
-
-    public function __construct(string $procedureId)
+    public function __construct(private readonly string $procedureId)
     {
-        $this->procedureId = $procedureId;
     }
 
     public function getPropertyPaths(): array

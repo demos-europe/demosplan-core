@@ -28,19 +28,13 @@ class DoctrineStatementListener
      */
     protected $formOptions;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
-        TranslatorInterface $translator)
+        private readonly TranslatorInterface $translator)
     {
         $this->fileService = $fileService;
         $this->formOptions = $globalConfig->getFormOptions();
-        $this->translator = $translator;
     }
 
     public function postLoad(Statement $statement)
@@ -52,7 +46,7 @@ class DoctrineStatementListener
             // translate Values
             $transKey = $this->formOptions['statement_submit_types']['values'][$statement->getSubmitType()] ?? '';
             $statement->setSubmitTypeTranslated($this->translator->trans($transKey));
-        } catch (Exception $e) {
+        } catch (Exception) {
             // bad luck :-(
         }
     }

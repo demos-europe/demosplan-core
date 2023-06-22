@@ -21,27 +21,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class BounceChecker extends CoreService
 {
-    /**
-     * @var MailService
-     */
-    private $mailService;
-    /**
-     * @var MailRepository
-     */
-    private $mailRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        GlobalConfigInterface $globalConfig,
-        MailRepository $mailRepository,
-        MailService $mailService
-    ) {
-        $this->mailRepository = $mailRepository;
-        $this->mailService = $mailService;
-        $this->globalConfig = $globalConfig;
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly MailRepository $mailRepository, private readonly MailService $mailService)
+    {
     }
 
     /**
@@ -82,7 +63,7 @@ class BounceChecker extends CoreService
             // MailSend EntityId
             preg_match(
                 '/Return-Path: <'.$config->getEmailBouncePrefix().'\-(\\d+)@'.$config->getEmailBounceDomain().'>/',
-                $bounce,
+                (string) $bounce,
                 $mailEntityId
             );
             // wenn keine MailSend EntityId gefunden werden kann, gib gleich auf
@@ -114,14 +95,14 @@ class BounceChecker extends CoreService
             }
 
             // Wenn die Mail an mehr als eine Person versendet wurde, versuche die Mail aus dem Body zu bekommen
-            preg_match('/boundary=\"(.*)\"/', $bounce, $boundary);
+            preg_match('/boundary=\"(.*)\"/', (string) $bounce, $boundary);
             // wenn keine Boundary gefunden werden kann, kann die Nachricht nicht gelesen werden
             if (!isset($boundary[1])) {
                 $this->logger->error('Could not find Bouncemail Boundary '.DemosPlanTools::varExport($bounce, true));
                 continue;
             }
             // ungewöhnlicher Delimiter, weil / in den Boundaries vorkommen kann
-            $mailParts = preg_split('$--'.preg_quote($boundary[1]).'\s$', $bounce, -1, PREG_SPLIT_NO_EMPTY);
+            $mailParts = preg_split('$--'.preg_quote($boundary[1]).'\s$', (string) $bounce, -1, PREG_SPLIT_NO_EMPTY);
             // wenn keine Mailteile zu der Boundary gefunden werden können, kann die gebouncte Mail nicht erkannt werden
             if (!isset($mailParts[1])) {
                 $this->logger->error(
@@ -173,6 +154,7 @@ class BounceChecker extends CoreService
      */
     protected function sendBounceNotification($to, $bouncedAddress, $subjectBouncedMail)
     {
+        $vars = [];
         try {
             $from = $this->globalConfig->getEmailSystem();
             $vars['mailsubject'] = 'Email konnte nicht zugestellt werden';

@@ -111,7 +111,7 @@ class GdprConsentRevokeTokenRepository extends CoreRepository
             if ($statements->contains($statementWithoutToken)) {
                 return true;
             }
-        } catch (GdprConsentRevokeTokenNotFoundException $e) {
+        } catch (GdprConsentRevokeTokenNotFoundException) {
             // If the $sourceStatement does not have a token we do not need to do anything
             return false;
         }
@@ -143,7 +143,7 @@ class GdprConsentRevokeTokenRepository extends CoreRepository
             $queryBuilder->setParameter('statementId', $statementId);
 
             return $queryBuilder->getQuery()->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             throw GdprConsentRevokeTokenNotFoundException::createFromStatementId($statementId);
         }
     }
@@ -157,7 +157,7 @@ class GdprConsentRevokeTokenRepository extends CoreRepository
             $this->getGdprConsentRevokeTokenByStatementId($statementId);
 
             return true;
-        } catch (GdprConsentRevokeTokenNotFoundException $e) {
+        } catch (GdprConsentRevokeTokenNotFoundException) {
             return false;
         }
     }

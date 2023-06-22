@@ -32,19 +32,14 @@ class ModifyTestuserDefaultPasswordCommand extends CoreCommand
      * @var QuestionHelper
      */
     protected $helper;
-    /**
-     * @var UserService
-     */
-    private $userService;
 
     public function __construct(
         ParameterBagInterface $parameterBag,
-        UserService $userService,
+        private readonly UserService $userService,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
-        $this->userService = $userService;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

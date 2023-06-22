@@ -23,24 +23,12 @@ class SearchField
     protected $titleKey;
 
     /**
-     * @var int|float
-     */
-    protected $boost;
-
-    /**
-     * @var string
-     */
-    private $field;
-
-    /**
      * @param int|float $boost
      */
-    public function __construct(string $name, string $field, string $titleKey, $boost)
+    public function __construct(string $name, private string $field, string $titleKey, protected $boost)
     {
         $this->name = $name;
         $this->titleKey = $titleKey;
-        $this->boost = $boost;
-        $this->field = $field;
     }
 
     public function getField(): string

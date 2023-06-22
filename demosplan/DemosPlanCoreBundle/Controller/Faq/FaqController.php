@@ -93,6 +93,7 @@ class FaqController extends BaseController
         FaqHandler $faqHandler,
         $type
     ) {
+        $templateVars = [];
         $user = $currentUserService->getUser();
 
         $categoryTypeName = $type;
@@ -261,6 +262,7 @@ class FaqController extends BaseController
         TranslatorInterface $translator,
         string $procedure = null
     ) {
+        $templateVars = [];
         $templateVars['procedure'] = $procedure;
         $requestPost = $request->request->all();
 

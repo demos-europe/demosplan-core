@@ -203,6 +203,6 @@ class PrintLayer extends ValueObject
 
     private function isWms(): bool
     {
-        return false !== stripos($this->tiles->first()->getUrl(), 'SERVICE=WMS');
+        return false !== stripos((string) $this->tiles->first()->getUrl(), 'SERVICE=WMS');
     }
 }

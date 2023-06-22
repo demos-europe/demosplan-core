@@ -23,16 +23,10 @@ class MasterTemplateService
      *
      * @deprecated
      */
-    public const FORMER_MASTER_TEMPLATE_ID = 'ae65efdb-8414-4deb-bc81-26efdfc9560b';
+    final public const FORMER_MASTER_TEMPLATE_ID = 'ae65efdb-8414-4deb-bc81-26efdfc9560b';
 
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly ManagerRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function getMasterTemplate(): Procedure

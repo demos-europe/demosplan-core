@@ -27,33 +27,8 @@ use Throwable;
 
 class ExceptionService
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        MessageBagInterface $messageBag,
-        LoggerInterface $logger
-    ) {
-        $this->requestStack = $requestStack;
-        $this->router = $router;
-        $this->messageBag = $messageBag;
-        $this->logger = $logger;
+    public function __construct(private readonly RequestStack $requestStack, private readonly RouterInterface $router, private readonly MessageBagInterface $messageBag, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
@@ -102,7 +77,7 @@ class ExceptionService
                 if (1004 === $e->getCode()) {
                     try {
                         $this->messageBag->add('warning', 'warning.login.failed');
-                    } catch (MessageBagException $e) {
+                    } catch (MessageBagException) {
                         $this->logger->warning('Could not add Message to message bag');
                     }
 

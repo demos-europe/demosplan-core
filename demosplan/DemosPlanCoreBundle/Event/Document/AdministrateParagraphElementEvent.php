@@ -26,20 +26,12 @@ class AdministrateParagraphElementEvent extends DPlanEvent
     protected $request;
 
     /**
-     * @var string
+     * @param string $procedureId
+     * @param string $elementId
      */
-    protected $procedureId;
-
-    /**
-     * @var string
-     */
-    protected $elementId;
-
-    public function __construct(Request $request, $procedureId, $elementId)
+    public function __construct(Request $request, protected $procedureId, protected $elementId)
     {
         $this->request = $request;
-        $this->procedureId = $procedureId;
-        $this->elementId = $elementId;
     }
 
     /**

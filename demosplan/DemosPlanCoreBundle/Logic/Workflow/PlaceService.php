@@ -20,14 +20,8 @@ use Doctrine\ORM\NoResultException;
 
 class PlaceService extends CoreService implements PlaceServiceInterface
 {
-    /**
-     * @var PlaceRepository
-     */
-    private $placeRepository;
-
-    public function __construct(PlaceRepository $placeRepository)
+    public function __construct(private readonly PlaceRepository $placeRepository)
     {
-        $this->placeRepository = $placeRepository;
     }
 
     /**

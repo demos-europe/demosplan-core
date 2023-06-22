@@ -23,30 +23,12 @@ use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 class BeforeResourceUpdateEvent extends DPlanEvent
 {
     /**
-     * @var T
-     */
-    private $entity;
-
-    /**
-     * @var ResourceTypeInterface<T>
-     */
-    private $resourceType;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $properties;
-
-    /**
      * @param T                        $entity
      * @param ResourceTypeInterface<T> $resourceType
      * @param array<string, mixed>     $properties
      */
-    public function __construct(object $entity, ResourceTypeInterface $resourceType, array $properties)
+    public function __construct(private readonly object $entity, private readonly ResourceTypeInterface $resourceType, private readonly array $properties)
     {
-        $this->entity = $entity;
-        $this->resourceType = $resourceType;
-        $this->properties = $properties;
     }
 
     /**

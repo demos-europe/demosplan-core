@@ -51,10 +51,9 @@ class FormDefinitionConstraintValidator extends ConstraintValidator
         $formDefinition = $currentProcedure->getStatementFormDefinition();
         if (null !== $formDefinition) {
             collect($formDefinition->getFieldDefinitions())
-                ->filter(static function (StatementFieldDefinition $field): bool {
+                ->filter(static fn(StatementFieldDefinition $field): bool =>
                     // Check all field definitions for required ones
-                    return $field->isRequired();
-                })->each(function (StatementFieldDefinition $field) use ($value): void {
+                    $field->isRequired())->each(function (StatementFieldDefinition $field) use ($value): void {
                     // Choose the correct validation function. Can be easily expanded in the future
                     switch ($field->getName()) {
                         case 'citizenXorOrgaAndOrgaName':
@@ -79,7 +78,7 @@ class FormDefinitionConstraintValidator extends ConstraintValidator
         } elseif ($value instanceof DraftStatement) {
             $miscData = $value->getMiscData();
         } else {
-            throw new InvalidArgumentException('Expected Statement or DraftStatement, got '.get_class($value));
+            throw new InvalidArgumentException('Expected Statement or DraftStatement, got '.$value::class);
         }
 
         $submitterRole = $miscData[StatementMeta::SUBMITTER_ROLE] ?? '';

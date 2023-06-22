@@ -143,7 +143,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             }
 
             $this->getMessageBag()->add('error', 'error.email.changed');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Fehler wurden schon geloggt, generischer Fehler wird ausgegeben
         }
 
@@ -191,7 +191,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             if (!$currentUser->getUser() instanceof AnonymousUser) {
                 return $this->redirectToRoute('core_home_loggedin');
             }
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             // do nothing as this would equal default action return value
         }
 
@@ -357,7 +357,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         try {
             $user = $this->getUserWithCertainty($uId);
             $this->checkIsUserAllowedToChangePassword($user, $userHasher, $token);
-        } catch (InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException) {
             return $this->redirectToRoute('DemosPlan_user_login_alternative');
         }
 

@@ -35,12 +35,8 @@ use function array_key_exists;
  */
 class DemosPlanAssessmentExportController extends BaseController
 {
-    /** @var AssessmentHandler */
-    private $assessmentHandler;
-
-    public function __construct(AssessmentHandler $assessmentHandler)
+    public function __construct(private readonly AssessmentHandler $assessmentHandler)
     {
-        $this->assessmentHandler = $assessmentHandler;
     }
 
     /**
@@ -82,8 +78,8 @@ class DemosPlanAssessmentExportController extends BaseController
     private function getExportParameters(Request $request, string $procedureId, bool $original): array
     {
         $parameters = $this->assessmentHandler->getFormValues($request->request->all());
-        $parameters['request']['limit'] = 1000000;
-        $parameters['searchFields'] = explode(',', $request->request->get('searchFields'));
+        $parameters['request']['limit'] = 1_000_000;
+        $parameters['searchFields'] = explode(',', (string) $request->request->get('searchFields'));
         $parameters['exportFormat'] = $request->request->get('r_export_format');
         $parameters['procedureId'] = $procedureId;
         $parameters['original'] = $original;
@@ -102,7 +98,7 @@ class DemosPlanAssessmentExportController extends BaseController
             : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
         try {
             $parameters['viewMode'] = $this->getStringParameter($request, 'r_view_mode');
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $parameters['viewMode'] = AssessmentTableViewMode::DEFAULT_VIEW;
         }
         if (AssessmentTableViewMode::ELEMENTS_VIEW === $parameters['viewMode']) {

@@ -19,26 +19,16 @@ use Tightenco\Collect\Support\Collection;
 class TransformMessageBagService
 {
     /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
      * @var FlashBagInterface
      */
     private $flashBag;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
 
     public function __construct(
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         RequestStack $requestStack,
-        RouterInterface $router
+        private readonly RouterInterface $router
     ) {
-        $this->messageBag = $messageBag;
         $this->flashBag = $requestStack->getSession()->getFlashBag();
-        $this->router = $router;
     }
 
     public function transformMessageBagToFlashes(): void

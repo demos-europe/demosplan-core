@@ -17,14 +17,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexFilesListener implements EventSubscriberInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(FileService $fileService)
+    public function __construct(private readonly FileService $fileService)
     {
-        $this->fileService = $fileService;
     }
 
     /**

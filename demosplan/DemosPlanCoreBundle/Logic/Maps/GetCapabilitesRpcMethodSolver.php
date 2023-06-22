@@ -25,28 +25,10 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class GetCapabilitesRpcMethodSolver implements RpcMethodSolverInterface
 {
-    public const METHOD = 'map.get_capabilities';
+    final public const METHOD = 'map.get_capabilities';
 
-    /**
-     * @var MapCapabilitiesLoader
-     */
-    private $mapCapabilitiesLoader;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(JsonSchemaValidator $jsonSchemaValidator, MapCapabilitiesLoader $mapCapabilitiesLoader, PermissionsInterface $permissions)
+    public function __construct(private readonly JsonSchemaValidator $jsonSchemaValidator, private readonly MapCapabilitiesLoader $mapCapabilitiesLoader, private readonly PermissionsInterface $permissions)
     {
-        $this->mapCapabilitiesLoader = $mapCapabilitiesLoader;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
-        $this->permissions = $permissions;
     }
 
     public function supports(string $method): bool

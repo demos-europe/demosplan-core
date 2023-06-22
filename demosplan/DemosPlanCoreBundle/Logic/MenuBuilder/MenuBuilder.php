@@ -28,38 +28,30 @@ use function is_string;
 
 class MenuBuilder
 {
-    public const SIDE_MENU = 'sidemenu';
+    final public const SIDE_MENU = 'sidemenu';
 
     /**
      * @var array<string, array>
      */
     private $availableMenus;
     private $currentProcedure;
-    private $currentUserService;
-    private $eventDispatcher;
-    private $factory;
     private $request;
-    private $translator;
 
     private $availableRouteParameters;
 
     public function __construct(
         CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUserService,
-        EventDispatcherInterface $eventDispatcher,
-        FactoryInterface $factory,
+        private readonly CurrentUserService $currentUserService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FactoryInterface $factory,
         ParameterBagInterface $parameterBag,
         RequestStack $requestStack,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
         $this->availableMenus = $parameterBag->get('menu_definitions');
         $this->currentProcedure = $currentProcedureService->getProcedure();
-        $this->currentUserService = $currentUserService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->factory = $factory;
         $this->request = $requestStack->getCurrentRequest();
         $this->setAvailableRouteParameters($requestStack->getCurrentRequest());
-        $this->translator = $translator;
     }
 
     /**
@@ -91,7 +83,7 @@ class MenuBuilder
         try {
             $currentUser = $this->currentUserService->getUser();
             $orgaId = $currentUser->getOrganisationId();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $orgaId = null;
         }
 
@@ -137,7 +129,7 @@ class MenuBuilder
     private function addMenuEntryToMenu(ItemInterface $parent, array $menuEntry): void
     {
         if ($this->hasCurrentUserAnyOfPermissions($menuEntry)) {
-            if (null !== $this->currentProcedure && str_contains('{$procedureName}', $menuEntry['label'])) {
+            if (null !== $this->currentProcedure && str_contains('{$procedureName}', (string) $menuEntry['label'])) {
                 $menuEntry['label'] = $this->currentProcedure->getName();
             }
 

@@ -85,7 +85,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         MessageBagInterface $messageBag,
         TraceableEventDispatcher $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
-        private UserService $userService,
+        private readonly UserService $userService,
     ) {
         $this->userMapper = $authenticator;
         $this->eventDispatcher = $eventDispatcher;

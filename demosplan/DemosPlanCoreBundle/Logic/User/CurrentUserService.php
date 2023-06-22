@@ -23,23 +23,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
-        PermissionsInterface $permissions,
-        TokenStorageInterface $tokenStorage
-    ) {
-        $this->tokenStorage = $tokenStorage;
-        $this->permissions = $permissions;
+    public function __construct(private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider, private readonly PermissionsInterface $permissions, private readonly TokenStorageInterface $tokenStorage)
+    {
     }
 
     public function getUser(): User

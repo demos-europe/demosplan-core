@@ -103,7 +103,7 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $boolMustNotFilter[] = $this->getTermsQuery($filter);
             }
             if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
+                array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
             $query = new Query();

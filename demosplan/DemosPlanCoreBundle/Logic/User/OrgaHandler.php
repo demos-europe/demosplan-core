@@ -24,26 +24,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(OrgaService $orgaService, MessageBag $messageBag, TranslatorInterface $translator, CurrentUserInterface $currentUser)
+    public function __construct(private readonly OrgaService $orgaService, MessageBag $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
     {
-        $this->orgaService = $orgaService;
         parent::__construct($messageBag);
-        $this->translator = $translator;
-        $this->currentUser = $currentUser;
     }
 
     public function getOrgaService(): OrgaService
@@ -79,13 +62,13 @@ class OrgaHandler extends CoreHandler
             $mandatoryErrors[] = $this->createMandatoryErrorMessage('name');
         }
 
-        if (!array_key_exists('registrationStatuses', $data) || 0 === count($data['registrationStatuses'])) {
+        if (!array_key_exists('registrationStatuses', $data) || 0 === (is_countable($data['registrationStatuses']) ? count($data['registrationStatuses']) : 0)) {
             $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
         } else {
             $regStatus = $data['registrationStatuses'][0];
-            if (!array_key_exists('status', $regStatus) || '' === trim($regStatus['status']) ||
-                !array_key_exists('subdomain', $regStatus) || '' === trim($regStatus['subdomain']) ||
-                !array_key_exists('type', $regStatus) || '' === trim($regStatus['type'])) {
+            if (!array_key_exists('status', $regStatus) || '' === trim((string) $regStatus['status']) ||
+                !array_key_exists('subdomain', $regStatus) || '' === trim((string) $regStatus['subdomain']) ||
+                !array_key_exists('type', $regStatus) || '' === trim((string) $regStatus['type'])) {
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
             }
         }
@@ -114,7 +97,7 @@ class OrgaHandler extends CoreHandler
     {
         try {
             return $this->getOrgaService()->deleteOrga($orgaId);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add(
                 'error',
                 $this->translator->trans('error.save')
@@ -199,27 +182,7 @@ class OrgaHandler extends CoreHandler
 
         // these are writable in 'portal' mode only
         if ('portal' === $this->getDemosplanConfig()->getProjectType()) {
-            $writableAttributes = array_merge(
-                $writableAttributes,
-                [
-                    'allowedRoleIds',
-                    'competence',
-                    'contactPerson',
-                    'city',
-                    'dataProtection',
-                    'emailReviewerAdmin',
-                    'houseNumber',
-                    'imprint',
-                    'name',
-                    'paperCopy',
-                    'paperCopySpec',
-                    'phone',
-                    'postalcode',
-                    'street',
-                    'submissionType',
-                    'types',
-                ]
-            );
+            $writableAttributes = [...$writableAttributes, 'allowedRoleIds', 'competence', 'contactPerson', 'city', 'dataProtection', 'emailReviewerAdmin', 'houseNumber', 'imprint', 'name', 'paperCopy', 'paperCopySpec', 'phone', 'postalcode', 'street', 'submissionType', 'types'];
         }
 
         // use the attribute names both as keys and as values in the array

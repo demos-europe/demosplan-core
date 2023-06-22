@@ -24,26 +24,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExportReportService extends CoreService
 {
-    /** @var ReportMessageConverter */
-    private $messageConverter;
-
     /** @var array */
     private $styles;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ReportRepository
-     */
-    private $reportRepository;
 
-    public function __construct(ReportMessageConverter $messageConverter, ReportRepository $reportRepository, TranslatorInterface $translator)
+    public function __construct(private readonly ReportMessageConverter $messageConverter, private readonly ReportRepository $reportRepository, private readonly TranslatorInterface $translator)
     {
         $this->initializeStyles();
-        $this->messageConverter = $messageConverter;
-        $this->reportRepository = $reportRepository;
-        $this->translator = $translator;
     }
 
     /**
@@ -184,7 +170,7 @@ class ExportReportService extends CoreService
         $messageParts = $this->getMessageParts($reportEntry);
         $cell = $table->addCell($this->styles['descriptionCellWidth']);
         foreach ($messageParts as $messagePart) {
-            $message = strip_tags($messagePart);
+            $message = strip_tags((string) $messagePart);
             $cellText = $cell->addText($message, $this->styles['baseFont']);
             $cellText->setParagraphStyle($this->styles['paragraph']);
         }

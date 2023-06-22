@@ -60,7 +60,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
             $resultThread->setRecentActivity($recentActivity);
 
             return $resultThread;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -88,14 +88,14 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
         try {
             $result = $query->getResult();
             $recentActivity = null;
-            if (1 === count($result)) {
+            if (1 === (is_countable($result) ? count($result) : 0)) {
                 if (array_key_exists('modifyDate', $result[0])) {
                     $recentActivity = $result[0]['modifyDate']->getTimestamp();
                 }
             }
 
             return $recentActivity;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -120,7 +120,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
 
         $result = $query->getResult();
 
-        return count($result);
+        return is_countable($result) ? count($result) : 0;
     }
 
     /**
@@ -149,7 +149,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
 
         try {
             return $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -159,7 +159,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new Exception('Not possible any more');
     }
@@ -173,7 +173,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function update($threadId, array $data)
+    public function update($threadId, array $data): never
     {
         throw new Exception('Not used any more');
     }
@@ -185,7 +185,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new Exception('not used any more');
     }

@@ -27,14 +27,8 @@ class MapCapabilitiesLoader
 {
     private const REQUEST_PARAMETER = 'Request=GetCapabilities';
 
-    /**
-     * @var HttpCall
-     */
-    private $httpCall;
-
-    public function __construct(HttpCall $httpCall)
+    public function __construct(private readonly HttpCall $httpCall)
     {
-        $this->httpCall = $httpCall;
     }
 
     /**
@@ -109,9 +103,7 @@ class MapCapabilitiesLoader
             $url .= '?';
         }
 
-        $hasCapabilities = 1 === collect($parameters)->map(static function (string $parameter) {
-            return explode('=', $parameter);
-        })->filter(static function (array $parameter) {
+        $hasCapabilities = 1 === collect($parameters)->map(static fn(string $parameter) => explode('=', $parameter))->filter(static function (array $parameter) {
             [$name, $value] = $parameter;
 
             return 'request' === strtolower($name) && 'getcapabilities' === strtolower($value);

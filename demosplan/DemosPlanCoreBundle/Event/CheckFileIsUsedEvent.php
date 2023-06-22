@@ -17,14 +17,12 @@ class CheckFileIsUsedEvent extends DPlanEvent
      */
     private $isUsed = false;
 
-    /**
-     * @param string
-     */
-    private $fileId;
-
-    public function __construct(string $fileId)
-    {
-        $this->fileId = $fileId;
+    public function __construct(
+        /**
+         * @param string
+         */
+        private readonly string $fileId
+    ) {
     }
 
     public function getFileId(): string

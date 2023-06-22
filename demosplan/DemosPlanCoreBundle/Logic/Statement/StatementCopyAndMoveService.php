@@ -22,21 +22,12 @@ class StatementCopyAndMoveService extends CoreService
     /** @var ReportService */
     protected $reportService;
 
-    /** @var StatementService */
-    private $statementService;
-    /**
-     * @var StatementVoteRepository
-     */
-    private $statementVoteRepository;
-
     public function __construct(
         ReportService $reportService,
-        StatementService $statementService,
-        StatementVoteRepository $statementVoteRepository
+        private readonly StatementService $statementService,
+        private readonly StatementVoteRepository $statementVoteRepository
     ) {
         $this->reportService = $reportService;
-        $this->statementService = $statementService;
-        $this->statementVoteRepository = $statementVoteRepository;
     }
 
     /**

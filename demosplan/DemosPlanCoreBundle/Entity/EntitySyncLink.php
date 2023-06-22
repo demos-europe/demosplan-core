@@ -18,8 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
-use function get_class;
-
 /**
  * @ORM\Table (uniqueConstraints={
  *
@@ -29,7 +27,7 @@ use function get_class;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository")
  *
- * @template T of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template T of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class EntitySyncLink implements UuidEntityInterface
 {
@@ -76,8 +74,8 @@ class EntitySyncLink implements UuidEntityInterface
      */
     public function __construct(UuidEntityInterface $source, UuidEntityInterface $target)
     {
-        $this->class = get_class($source);
-        if (get_class($target) !== $this->class) {
+        $this->class = $source::class;
+        if ($target::class !== $this->class) {
             throw new InvalidArgumentException('Class of source and target does not match.');
         }
 

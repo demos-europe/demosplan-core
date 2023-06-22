@@ -45,7 +45,7 @@ class SlugRepository extends CoreRepository implements ObjectInterface
         }
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -57,7 +57,7 @@ class SlugRepository extends CoreRepository implements ObjectInterface
      *
      * @return bool
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -67,7 +67,7 @@ class SlugRepository extends CoreRepository implements ObjectInterface
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

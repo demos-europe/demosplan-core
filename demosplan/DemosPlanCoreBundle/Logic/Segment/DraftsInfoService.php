@@ -16,12 +16,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 
 class DraftsInfoService extends CoreService
 {
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    public function __construct(StatementHandler $statementHandler)
+    public function __construct(private readonly StatementHandler $statementHandler)
     {
-        $this->statementHandler = $statementHandler;
     }
 
     /**

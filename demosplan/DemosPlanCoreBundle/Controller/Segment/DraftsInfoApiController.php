@@ -185,6 +185,7 @@ class DraftsInfoApiController extends APIController
         StatementHandler $statementHandler,
         string $data
     ): JsonResponse {
+        $responseData = [];
         $draftsInfoArray = Json::decodeToArray($data);
         $procedureId = $draftsInfoHandler->extractProcedureId($draftsInfoArray);
         $nextStatement = $statementHandler->getSegmentableStatement(

@@ -38,25 +38,10 @@ use UnexpectedValueException;
 
 class DemosPlanClaimAPIController extends APIController
 {
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
     public function __construct(
-        ProcedureHandler $procedureHandler,
-        StatementHandler $statementHandler,
-        UserService $userService,
+        private readonly ProcedureHandler $procedureHandler,
+        private readonly StatementHandler $statementHandler,
+        private readonly UserService $userService,
         LoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -76,9 +61,6 @@ class DemosPlanClaimAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->procedureHandler = $procedureHandler;
-        $this->statementHandler = $statementHandler;
-        $this->userService = $userService;
     }
 
     /**

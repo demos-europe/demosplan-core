@@ -37,6 +37,7 @@ class TranslationsDumpCommand extends CoreCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $translations = [];
         $tempDir = DemosPlanPath::getTemporaryPath(uniqid('dplan_translations', true));
 
         $tempDirForBazinga = quotemeta($tempDir);
