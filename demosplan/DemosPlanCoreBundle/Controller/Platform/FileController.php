@@ -103,11 +103,6 @@ class FileController extends BaseController
 
     private function isValidProcedure(?string $procedureId, FileInfo $file): bool
     {
-        // do not check if no procedure is given
-        if (null === $procedureId) {
-            return true;
-        }
-
         // When file is bound to a procedure check it
         if ($file->getProcedure() instanceof Procedure && $file->getProcedure()->getId() !== $procedureId) {
             return false;
