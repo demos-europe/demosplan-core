@@ -411,9 +411,11 @@ export default {
         })
         .catch(err => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
+
           if (err.code === 'ERR_NETWORK') {
             dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error.cors.policy'))
           }
+
           this.resetDropdowns()
         })
         .finally(() => {
