@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -76,7 +75,7 @@ class FileController extends BaseController
         $file = $fileService->getFileInfo($hash);
 
         // ensure that procedure access check matches file procedure
-        if (!$this->isValidProcedure($procedureId, $file,$strictCheck)) {
+        if (!$this->isValidProcedure($procedureId, $file, $strictCheck)) {
             $this->getLogger()->info(
                 'Tried to access file from different Procedure: ',
                 [$file->getProcedure()->getId(), $procedureId]
