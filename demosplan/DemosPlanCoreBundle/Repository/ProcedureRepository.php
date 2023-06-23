@@ -55,6 +55,7 @@ use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
+
 use function array_key_exists;
 use function array_merge;
 use function array_unique;
@@ -1362,9 +1363,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedPublicEndDate($convertedDate);
         }
 
-        if (array_key_exists('designatedPublicSwitchDate', $data['settings'])
-            || array_key_exists('designatedPublicPhase', $data['settings'])
-            || array_key_exists('designatedPublicEndDate', $data['settings'])) {
+        if (($data['settings']['designatedPublicSwitchDate'] ?? null) !== null
+        || ($data['settings']['designatedPublicPhase'] ?? null) !== null
+        || ($data['settings']['designatedPublicEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPublicPhaseChangeUser($data['currentUser']);
         }
     }
@@ -1388,9 +1389,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedEndDate($convertedDate);
         }
 
-        if (array_key_exists('designatedSwitchDate', $data['settings'])
-            || array_key_exists('designatedPhase', $data['settings'])
-            || array_key_exists('designatedEndDate', $data['settings'])) {
+        if (($data['settings']['designatedSwitchDate'] ?? null) !== null
+            || ($data['settings']['designatedPhase'] ?? null) !== null
+            || ($data['settings']['designatedEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPhaseChangeUser($data['currentUser']);
         }
     }
