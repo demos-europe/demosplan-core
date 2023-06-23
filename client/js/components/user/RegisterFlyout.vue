@@ -13,7 +13,9 @@ All rights reserved
     class="u-ml-0_5"
     :has-menu="false">
     <template v-slot:trigger>
-      <div class="c-header__nav-item-link">
+      <div
+        data-cy="headerNav:registerAction"
+        class="c-header__nav-item-link">
         {{ Translator.trans('register.action') }}
         <i
           class="fa fa-angle-down"
@@ -24,10 +26,12 @@ All rights reserved
     <div class="space-stack-s">
       <a
         class="block"
+        data-cy="headerNav:register"
         :href="Routing.generate('DemosPlan_citizen_registration_form')"
         v-text="Translator.trans('register')" />
       <a
         class="block"
+        data-cy="headerNav:registerOrga"
         :href="Routing.generate('DemosPlan_orga_register_form')"
         v-text="Translator.trans('register.orga')" />
     </div>
