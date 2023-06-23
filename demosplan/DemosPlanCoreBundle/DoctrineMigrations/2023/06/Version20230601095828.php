@@ -29,10 +29,20 @@ class Version20230601095828 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
+        $fkConstraints = $this->connection->createSchemaManager()->listTableForeignKeys('_statement');
+        $constraintExists = false;
+        foreach ($fkConstraints as $constraint) {
+            if ('FK_8D47F06B84040EA6' === $constraint->getName()) {
+                $constraintExists = true;
+                break;
+            }
+        }
 
         $this->addSql('SET foreign_key_checks = 0');
-        $this->addSql('ALTER TABLE _statement ADD CONSTRAINT FK_8D47F06B84040EA6 FOREIGN KEY (segment_statement_fk) REFERENCES _statement (_st_id)');
-        $this->addSql('CREATE INDEX IDX_8D47F06B84040EA6 ON _statement (segment_statement_fk)');
+        if (!$constraintExists) {
+            $this->addSql('ALTER TABLE _statement ADD CONSTRAINT FK_8D47F06B84040EA6 FOREIGN KEY (segment_statement_fk) REFERENCES _statement (_st_id)');
+            $this->addSql('CREATE INDEX IDX_8D47F06B84040EA6 ON _statement (segment_statement_fk)');
+        }
         $this->addSql('SET foreign_key_checks = 1');
     }
 
