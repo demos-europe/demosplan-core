@@ -255,7 +255,7 @@
                   :class="prefixClass('o-hellip')">
                   <a
                     :class="prefixClass('u-valign--top')"
-                    :href="Routing.generate('core_file', { hash: file.hash })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
@@ -278,7 +278,7 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
-                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"

@@ -407,7 +407,7 @@ export default {
 
   methods: {
     renderAttachments (attachments) {
-      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file', { hash: a.hash })}">${a.name}</a>`)
+      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash })}">${a.name}</a>`)
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 

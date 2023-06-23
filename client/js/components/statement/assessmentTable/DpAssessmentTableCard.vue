@@ -615,7 +615,7 @@
                 <a
                   v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
-                  :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachment.original')">
@@ -626,7 +626,7 @@
                   v-for="file in statement.files"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
-                  :href="Routing.generate('core_file', { hash: file.hash })"
+                  :href="Routing.generate('core_file_procedure', { hash: file.hash })"
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachments')">

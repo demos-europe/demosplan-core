@@ -26,7 +26,7 @@
         <dp-upload-files
           allowed-file-types="img"
           id="r_customerLogo"
-          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash })"
           :max-file-size="200000"
           :max-number-of-files="1"
           needs-hidden-input
