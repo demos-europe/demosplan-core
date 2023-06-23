@@ -91,57 +91,8 @@ use Twig\Error\SyntaxError;
  */
 class DemosPlanStatementController extends BaseController
 {
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var DraftStatementHandler
-     */
-    private $draftStatementHandler;
-
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUser,
-        DraftStatementHandler $draftStatementHandler,
-        DraftStatementService $draftStatementService,
-        Environment $twig,
-        MailService $mailService,
-        PermissionsInterface $permissions
-    ) {
-        $this->currentUser = $currentUser;
-        $this->draftStatementHandler = $draftStatementHandler;
-        $this->draftStatementService = $draftStatementService;
-        $this->mailService = $mailService;
-        $this->twig = $twig;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->permissions = $permissions;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions)
+    {
     }
 
     /**
@@ -424,13 +375,13 @@ class DemosPlanStatementController extends BaseController
                 $this->getMessageBag()->addChoice(
                     'confirm',
                     'statement.submitted',
-                    ['count' => count($inData['item_check'])]
+                    ['count' => is_countable($inData['item_check']) ? count($inData['item_check']) : 0]
                 );
                 if ($showConfirmWithPublicationDelay) {
                     $this->getMessageBag()->addChoice(
                         'confirm',
                         'statement.submitted.clarity.delay',
-                        ['count' => count($inData['item_check'])]
+                        ['count' => is_countable($inData['item_check']) ? count($inData['item_check']) : 0]
                     );
                 }
 
@@ -440,7 +391,7 @@ class DemosPlanStatementController extends BaseController
             $statementsToSubmit = [];
             $statementsToSubmitIds = [];
 
-            if (isset($inData['item_check']) && 0 < count($inData['item_check'])) {
+            if (isset($inData['item_check']) && 0 < (is_countable($inData['item_check']) ? count($inData['item_check']) : 0)) {
                 foreach ($inData['item_check'] as $draftStatementId) {
                     // get draft Statement
                     $draftStatement = $draftStatementHandler->getSingleDraftStatement($draftStatementId);
@@ -603,7 +554,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // zurueckweisen verarbeiten
-        if ($requestPost->has('statement_reject') && 0 < \strlen($requestPost->get('statement_reject'))) {
+        if ($requestPost->has('statement_reject') && 0 < \strlen((string) $requestPost->get('statement_reject'))) {
             return $this->rejectStatement($request, $translator, $currentProcedure, $requestPost->get('statement_reject'), $userService);
         }
 
@@ -721,7 +672,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // add orga to be able to use short submission
             $templateVars['orga'] = $orgaHandler->getOrga($this->currentUser->getUser()->getOrganisationId());
-        } catch (Exception $e) {
+        } catch (Exception) {
             // just go on
         }
 
@@ -866,7 +817,7 @@ class DemosPlanStatementController extends BaseController
 
         try {
             $eventDispatcherPost->post($event);
-        } catch (CookieException|Exception $e) {
+        } catch (CookieException|Exception) {
             return $response;
         }
 
@@ -976,7 +927,7 @@ class DemosPlanStatementController extends BaseController
                 $statementHandler->setDisplayNotices(false);
 
                 $fullEmailAddress = '';
-                if ($request->request->has('r_email') && 0 < \strlen($requestPost['r_email'])) {
+                if ($request->request->has('r_email') && 0 < \strlen((string) $requestPost['r_email'])) {
                     $fullEmailAddress = $requestPost['r_email'];
                 }
 
@@ -1052,6 +1003,7 @@ class DemosPlanStatementController extends BaseController
         StatementService $statementService,
         string $statementID
     ) {
+        $templateVars = [];
         // Das Formular ausgeben und mit Werten befuellen
         $templateVars['statement'] = $statementService->getStatementByIdent(
             $statementID
@@ -1059,7 +1011,7 @@ class DemosPlanStatementController extends BaseController
 
         // Zähle die Zahl der Mitzeichner
         if (isset($templateVars['statement']['votes'])) {
-            $countVotes = count($templateVars['statement']['votes']);
+            $countVotes = is_countable($templateVars['statement']['votes']) ? count($templateVars['statement']['votes']) : 0;
             $templateVars['statement']['votesNum'] = $countVotes;
         }
 
@@ -1114,7 +1066,7 @@ class DemosPlanStatementController extends BaseController
                 $inData['r_paragraphID'] = '';
             }
             // Setze Zuweisungen neu
-            if (\array_key_exists('r_element_new', $requestPost) && 0 < \strlen($requestPost['r_element_new'])) {
+            if (\array_key_exists('r_element_new', $requestPost) && 0 < \strlen((string) $requestPost['r_element_new'])) {
                 $inData['r_elementID'] = $requestPost['r_element_new'];
                 $inData['r_documentID'] = '';
                 $inData['r_paragraphID'] = '';
@@ -1156,6 +1108,7 @@ class DemosPlanStatementController extends BaseController
     #[Route(name: 'DemosPlan_statement_send', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/send', options: ['expose' => true])]
     public function sendStatementAction(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
     {
+        $templateVars = [];
         try {
             // Send Statement kann von meheren Stellen aus angesprungen werden. Es muss daher der Ursprungsort mitgegeben werden und dahin zuruckgesprungen werden
             $requestPost = $request->query->all();
@@ -1243,7 +1196,7 @@ class DemosPlanStatementController extends BaseController
                 'statement_paragraph'      => $statementParagraph,
                 'statement_singleDocument' => $statementSingleDocument,
                 'statement_text'           => \html_entity_decode(
-                    \strip_tags($draftStatement['text']),
+                    \strip_tags((string) $draftStatement['text']),
                     \ENT_QUOTES,
                     'utf-8'
                 ),
@@ -1296,12 +1249,13 @@ class DemosPlanStatementController extends BaseController
         string $procedure,
         string $statementID
     ) {
+        $templateVars = [];
         $draftStatementId = $statementID; // actually ID of a DraftStatement
         try {
             $templateVars = [
                 'draftStatementVersions' => $this->draftStatementService->getVersionList($draftStatementId),
             ];
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
             $this->logger->addError(UserNotFoundException::createFromId($this->currentUser->getUser()->getId()));
         }
         $templateVars['procedureLayer'] = 'participation';
@@ -1309,7 +1263,7 @@ class DemosPlanStatementController extends BaseController
         $refererPathInfo = Request::create($request->headers->get('referer'))->getPathInfo();
 
         // Remove the scriptname
-        $refererPathInfo = str_replace($request->getScriptName(), '', $refererPathInfo);
+        $refererPathInfo = str_replace($request->getScriptName(), '', (string) $refererPathInfo);
 
         // try to match the path with routing
         $routeInfos = $router->match($refererPathInfo);
@@ -1750,7 +1704,7 @@ class DemosPlanStatementController extends BaseController
     ) {
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->get('item_check');
-        if (null !== $itemsToExport && 0 < count($itemsToExport)) {
+        if (null !== $itemsToExport && 0 < (is_countable($itemsToExport) ? count($itemsToExport) : 0)) {
             $itemsToExport = \implode(',', $itemsToExport);
         }
 
@@ -1798,7 +1752,7 @@ class DemosPlanStatementController extends BaseController
                 'confirm',
                 $translator->trans('confirm.statement.deleted')
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.delete')
@@ -1911,6 +1865,7 @@ class DemosPlanStatementController extends BaseController
      */
     protected function rejectStatement(Request $request, TranslatorInterface $translator, Procedure $procedure, $statementId, UserService $userService)
     {
+        $vars = [];
         $this->permissions->checkPermission(
             'feature_statements_released_group_reject'
         );
@@ -2061,7 +2016,7 @@ class DemosPlanStatementController extends BaseController
                     'confirm',
                     'confirm.statements.marked.numbertext',
                     ['numbers'  => $numberstring,
-                        'count' => count($statementNumbers), ]
+                        'count' => is_countable($statementNumbers) ? count($statementNumbers) : 0, ]
                 );
 
                 // is permission to send notification email enabled?
@@ -2107,7 +2062,7 @@ class DemosPlanStatementController extends BaseController
                         $this->getLogger()->warning('Could not find NotificationReceiver', ['id' => $receiverId]);
                     }
                 }
-            } catch (TimeoutException $e) {
+            } catch (TimeoutException) {
                 $this->getMessageBag()->add('error', 'error.timeout');
             } catch (Exception $e) {
                 $this->getMessageBag()->add('error', 'error.statements.marked.submitted');
@@ -2131,6 +2086,7 @@ class DemosPlanStatementController extends BaseController
      */
     protected function sendStatement(Request $request, TranslatorInterface $translator, $_route, $procedure): RedirectResponse
     {
+        $vars = [];
         $requestPost = $request->request;
 
         $this->permissions->checkPermission('feature_statements_draft_email');
@@ -2141,8 +2097,8 @@ class DemosPlanStatementController extends BaseController
         $this->permissions->checkPermission('feature_statements_final_email');
 
         try {
-            $to = $this->getEmailAddresses($translator, \explode(',', $requestPost->get('sendasemail_recipient')));
-        } catch (InvalidArgumentException $e) {
+            $to = $this->getEmailAddresses($translator, \explode(',', (string) $requestPost->get('sendasemail_recipient')));
+        } catch (InvalidArgumentException) {
             return $this->redirectToRoute(
                 'DemosPlan_statement_send',
                 [
@@ -2203,9 +2159,7 @@ class DemosPlanStatementController extends BaseController
             );
             throw new InvalidArgumentException('missing email address');
         }
-        $to = \array_filter($to, function ($emailTo) {
-            return filter_var($emailTo, FILTER_VALIDATE_EMAIL);
-        });
+        $to = \array_filter($to, fn ($emailTo) => filter_var($emailTo, FILTER_VALIDATE_EMAIL));
         if (0 === count($to)) {
             $this->getMessageBag()->add(
                 'error',
@@ -2400,7 +2354,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // recreate uploaded array
-        $uploads = \explode(',', $requestPost['uploadedFiles']);
+        $uploads = \explode(',', (string) $requestPost['uploadedFiles']);
 
         foreach ($uploads as $uploadHash) {
             $file = $fileService->getFileInfo($uploadHash);
@@ -2421,7 +2375,7 @@ class DemosPlanStatementController extends BaseController
                 }
 
                 // on success:
-                $numberOfCreatedStatements = count($importer->getCreatedStatements());
+                $numberOfCreatedStatements = is_countable($importer->getCreatedStatements()) ? count($importer->getCreatedStatements()) : 0;
                 $this->getMessageBag()->add(
                     'confirm',
                     'confirm.statements.imported.from.xlsx',
@@ -2437,7 +2391,7 @@ class DemosPlanStatementController extends BaseController
                     $route,
                     compact('procedureId')
                 );
-            } catch (MissingDataException $exception) {
+            } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['fileName' => $fileName]);
             } catch (UnexpectedWorksheetNameException $exception) {
@@ -2453,7 +2407,7 @@ class DemosPlanStatementController extends BaseController
                     $this->getMessageBag()->add('error', $error);
                 }
                 break;
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

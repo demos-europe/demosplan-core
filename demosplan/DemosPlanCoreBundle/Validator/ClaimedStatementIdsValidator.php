@@ -20,12 +20,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class ClaimedStatementIdsValidator extends ConstraintValidator
 {
-    /** @var StatementService */
-    private $statementService;
-
-    public function __construct(StatementService $statementService)
+    public function __construct(private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
     }
 
     /**

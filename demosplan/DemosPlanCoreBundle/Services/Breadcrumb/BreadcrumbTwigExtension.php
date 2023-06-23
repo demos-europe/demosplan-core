@@ -22,7 +22,7 @@ class BreadcrumbTwigExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('demosBreadcrumbRender', [$this, 'renderBreadcrumb']),
+            new TwigFunction('demosBreadcrumbRender', $this->renderBreadcrumb(...)),
         ];
     }
 

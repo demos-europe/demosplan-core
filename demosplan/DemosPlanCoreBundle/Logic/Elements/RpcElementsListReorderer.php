@@ -48,43 +48,8 @@ use stdClass;
  */
 final class RpcElementsListReorderer implements RpcMethodSolverInterface
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    /**
-     * @var ElementsRepository
-     */
-    private $elementsRepository;
-
-    /**
-     * @var PlanningDocumentCategoryTreeReorderer
-     */
-    private $categoryTreeReorderer;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    public function __construct(
-        JsonSchemaValidator $jsonSchemaValidator,
-        PermissionsInterface $permissions,
-        PlanningDocumentCategoryTreeReorderer $categoryTreeReorderer,
-        ElementsRepository $elementsRepository,
-        ElementsService $elementsService
-    ) {
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
-        $this->permissions = $permissions;
-        $this->elementsRepository = $elementsRepository;
-        $this->categoryTreeReorderer = $categoryTreeReorderer;
-        $this->elementsService = $elementsService;
+    public function __construct(private readonly JsonSchemaValidator $jsonSchemaValidator, private readonly PermissionsInterface $permissions, private readonly PlanningDocumentCategoryTreeReorderer $categoryTreeReorderer, private readonly ElementsRepository $elementsRepository, private readonly ElementsService $elementsService)
+    {
     }
 
     public function supports(string $method): bool

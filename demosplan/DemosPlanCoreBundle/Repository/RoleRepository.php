@@ -25,7 +25,7 @@ class RoleRepository extends FluentRepository implements ImmutableObjectInterfac
         return $this->find($entityId);
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

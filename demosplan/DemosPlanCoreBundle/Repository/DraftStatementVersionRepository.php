@@ -35,7 +35,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     {
         try {
             return $this->findOneBy(['draftStatement' => $statementId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -63,7 +63,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             }
 
             return $draftStatementVersion;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -262,7 +262,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @return bool
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

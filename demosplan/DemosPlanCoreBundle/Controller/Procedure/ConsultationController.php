@@ -49,7 +49,7 @@ class ConsultationController extends BaseController
         try {
             $eventDispatcherPost->post($event);
             $response = $event->getResponse();
-        } catch (CookieException|Exception $e) {
+        } catch (CookieException|Exception) {
             return $response;
         }
 

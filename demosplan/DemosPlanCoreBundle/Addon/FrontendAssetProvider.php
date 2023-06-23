@@ -16,11 +16,8 @@ use Symfony\Component\Yaml\Yaml;
 
 final class FrontendAssetProvider
 {
-    private AddonRegistry $registry;
-
-    public function __construct(AddonRegistry $registry)
+    public function __construct(private readonly AddonRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     /**
@@ -61,7 +58,7 @@ final class FrontendAssetProvider
                 if (0 === count($assetContents)) {
                     return [];
                 }
-            } catch (AddonException $e) {
+            } catch (AddonException) {
                 return [];
             }
 

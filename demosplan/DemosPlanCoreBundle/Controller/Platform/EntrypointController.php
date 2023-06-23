@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
@@ -40,29 +39,8 @@ class EntrypointController extends BaseController
      */
     private const SESSION_REDIRECT_BREAKER_NAME = 'redirected';
 
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUserService;
-
-    /**
-     * @var EntryPointDecider
-     */
-    private $entryPointDecider;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    public function __construct(
-        CurrentUserInterface $currentUserService,
-        EntryPointDeciderInterface $entryPointDeciderService,
-        RouterInterface $router
-    ) {
-        $this->currentUserService = $currentUserService;
-        $this->entryPointDecider = $entryPointDeciderService;
-        $this->router = $router;
+    public function __construct(private readonly CurrentUserInterface $currentUserService, private readonly EntryPointDeciderInterface $entryPointDecider, private readonly RouterInterface $router)
+    {
     }
 
     /**
@@ -83,10 +61,9 @@ class EntrypointController extends BaseController
                 $redirectPath = $request->cookies->get(PreviousRouteCookie::NAME);
                 $routeInfo = $this->router->match($redirectPath);
 
-                $parameters = array_filter($routeInfo, static function (string $key) {
+                $parameters = array_filter($routeInfo, static fn (string $key) =>
                     // filter out non-parameter info keys
-                    return '_' !== $key[0];
-                }, ARRAY_FILTER_USE_KEY);
+                    '_' !== $key[0], ARRAY_FILTER_USE_KEY);
 
                 $redirectToRoute = $this->redirectToRoute($routeInfo['_route'], $parameters);
                 $redirectToRoute->headers->clearCookie(PreviousRouteCookie::NAME);
@@ -94,7 +71,7 @@ class EntrypointController extends BaseController
                 $this->setIsAlreadyRedirected($request);
 
                 return $redirectToRoute;
-            } catch (ResourceNotFoundException $exception) {
+            } catch (ResourceNotFoundException) {
                 /**
                  * If no resource can be matched by the router the path in the cookie
                  * may have been tinkered with. Technically, nothing needs to happen here,

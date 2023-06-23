@@ -29,18 +29,12 @@ class InitDbCommand extends CoreCommand
 
     protected static $defaultDescription = 'Initialize a db for the project';
 
-    /**
-     * @var SessionHandlerInterface
-     */
-    private $sessionHandler;
-
     public function __construct(
         ParameterBagInterface $parameterBag,
-        SessionHandlerInterface $sessionHandler,
+        private readonly SessionHandlerInterface $sessionHandler,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-        $this->sessionHandler = $sessionHandler;
     }
 
     protected function configure(): void
@@ -83,7 +77,7 @@ class InitDbCommand extends CoreCommand
             } else {
                 $output->note('Sessions are not configured to be stored in the database, sessions table will not be created.');
             }
-        } catch (PDOException|DomainException $ex) {
+        } catch (PDOException|DomainException) {
             $sessionsTableSuccess = false;
         }
 

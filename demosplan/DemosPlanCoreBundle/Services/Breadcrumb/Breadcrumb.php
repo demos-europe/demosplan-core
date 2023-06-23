@@ -55,19 +55,14 @@ class Breadcrumb
      * @var RequestStack
      */
     protected $requestStack;
-    /**
-     * @var HelpService
-     */
-    private $helpService;
 
     public function __construct(
-        HelpService $helpService,
+        private readonly HelpService $helpService,
         RouterInterface $router,
         TranslatorInterface $translator,
         RequestStack $requestStack
     ) {
         $this->requestStack = $requestStack;
-        $this->helpService = $helpService;
         $this->router = $router;
         $this->translator = $translator;
     }
@@ -129,28 +124,18 @@ class Breadcrumb
                 }
             } else {
                 foreach ($this->userRoles as $role) {
-                    // Dear fellow developers, if your ide tells you that this switch could
-                    // be refactored into an if-else it is sort of right.
-                    // However, once we take a deeper look at what the actual after-start
-                    // pages for the different roles should be, this switch will come in handy
-                    // again. That's why I (SG) decided to keep it around.
-                    switch ($role) {
-                        case Role::PROCEDURE_DATA_INPUT:
-                            $markup .= $this->getSnippetMarkup(
-                                $this->getRouter()->generate('DemosPlan_procedure_list_data_input_orga_procedures'),
-                                $this->translator->trans('procedure'),
-                                $liCounter++
-                            );
-                            break 2;
-
-                        default:
-                            $markup .= $this->getSnippetMarkup(
-                                $this->getRouter()->generate('core_home'),
-                                $this->translator->trans('participation'),
-                                $liCounter++
-                            );
-                            break 2;
-                    }
+                    match ($role) {
+                        Role::PROCEDURE_DATA_INPUT => $markup .= $this->getSnippetMarkup(
+                            $this->getRouter()->generate('DemosPlan_procedure_list_data_input_orga_procedures'),
+                            $this->translator->trans('procedure'),
+                            $liCounter++
+                        ),
+                        default => $markup .= $this->getSnippetMarkup(
+                            $this->getRouter()->generate('core_home'),
+                            $this->translator->trans('participation'),
+                            $liCounter++
+                        ),
+                    };
                 }
             }
 
@@ -249,7 +234,7 @@ class Breadcrumb
                 $helpText = $contextualHelp->getText();
                 $helpText = str_replace(["\n", "\r", "\t"], '', $helpText);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         return $helpText;

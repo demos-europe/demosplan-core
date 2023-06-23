@@ -85,6 +85,8 @@ class DemosPlanDepartmentController extends BaseController
         UserHandler $userHandler,
         $orgaId)
     {
+        $condition = [];
+        $templateVars = [];
         $requestPost = $request->request;
         // Hole die User Entity
         $user = $currentUser->getUser();

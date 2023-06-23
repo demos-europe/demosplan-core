@@ -23,7 +23,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class OptionsLoaderPass implements CompilerPassInterface
 {
-    public const OVERRIDABLE_CONFIGS = [
+    final public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
     ];
@@ -39,9 +39,7 @@ class OptionsLoaderPass implements CompilerPassInterface
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {
             $configs = collect($fileLocator->locate($overridableConfig, null, false))
-                ->map(static function ($configFile) {
-                    return Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT);
-                })
+                ->map(static fn ($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
                 ->toArray();
 
             $configuration = new $configClassName();

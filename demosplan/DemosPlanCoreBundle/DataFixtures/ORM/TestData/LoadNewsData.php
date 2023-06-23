@@ -18,10 +18,10 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadNewsData extends TestFixture implements DependentFixtureInterface
 {
-    public const TEST_SINGLE_NEWS_1 = 'testSingleNews1';
-    public const TEST_SINGLE_NEWS_2 = 'testSingleNews2';
-    public const TEST_SINGLE_NEWS_3 = 'testSingleNews3';
-    public const TEST_SINGLE_NEWS_4 = 'testSingleNews4';
+    final public const TEST_SINGLE_NEWS_1 = 'testSingleNews1';
+    final public const TEST_SINGLE_NEWS_2 = 'testSingleNews2';
+    final public const TEST_SINGLE_NEWS_3 = 'testSingleNews3';
+    final public const TEST_SINGLE_NEWS_4 = 'testSingleNews4';
 
     public function load(ObjectManager $manager)
     {

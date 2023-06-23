@@ -27,7 +27,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
      *
      * @return CoreEntity
      */
-    public function get($entityId)
+    public function get($entityId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

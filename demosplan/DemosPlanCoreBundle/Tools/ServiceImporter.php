@@ -40,11 +40,6 @@ use Symfony\Component\Routing\RouterInterface;
 class ServiceImporter implements ServiceImporterInterface
 {
     /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
      * @var FileService
      */
     protected $fileService;
@@ -68,38 +63,20 @@ class ServiceImporter implements ServiceImporterInterface
      * @var GlobalConfigInterface
      */
     protected $globalConfig;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
 
     public function __construct(
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag,
-        ParagraphRepository $paragraphRepository,
+        private LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
-        RouterInterface $router,
+        private readonly RouterInterface $router,
         RpcClient $client
     ) {
         $this->client = $client;
-        $this->router = $router;
-        $this->messageBag = $messageBag;
         $this->fileService = $fileService;
         $this->paragraphService = $paragraphService;
-        $this->logger = $logger;
-        $this->paragraphRepository = $paragraphRepository;
         $this->globalConfig = $globalConfig;
     }
 
@@ -217,7 +194,7 @@ class ServiceImporter implements ServiceImporterInterface
 
             if ('' != $replies['import']) {
                 $this->getLogger()->info(
-                    'Incoming message size:'.strlen($replies['import']));
+                    'Incoming message size:'.strlen((string) $replies['import']));
             }
 
             return Json::decodeToArray($replies['import']);
@@ -286,7 +263,7 @@ class ServiceImporter implements ServiceImporterInterface
                          * Teil 1 = Dateiname
                          * Teil 2 = Dateiinhalt base64 encoded
                          */
-                        $ca = explode('::', $c);
+                        $ca = explode('::', (string) $c);
                         if (2 === count($ca)) {
                             $fs = new Filesystem();
                             // Speichere dekodierte Datei als temporäre Datei
@@ -330,13 +307,13 @@ class ServiceImporter implements ServiceImporterInterface
                                 ).DIRECTORY_SEPARATOR.$ca[0]
                             );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr($f, 2);
+                            $stringToReplace = '/file/'.substr((string) $f, 2);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
                                 $this->router->generate('core_file', [
                                     'hash' => $hash,
                                 ]),
-                                $paragraph['text']
+                                (string) $paragraph['text']
                             );
                         }
                     }
@@ -375,7 +352,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < count($exception->getErrorParagraphs())) {
+        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
             throw $exception;
         }
     }

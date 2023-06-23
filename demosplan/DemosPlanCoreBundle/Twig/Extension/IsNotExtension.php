@@ -22,7 +22,7 @@ class IsNotExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('isNot', [$this, 'isNotDefined']),
+            new TwigFilter('isNot', $this->isNotDefined(...)),
         ];
     }
 

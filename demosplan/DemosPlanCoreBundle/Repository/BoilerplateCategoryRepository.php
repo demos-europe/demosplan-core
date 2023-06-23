@@ -54,11 +54,11 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
         }
 
         if ($includeEmailCategory) {
-            $categories = array_merge($categories, $this->findBy(['procedure' => $procedureId, 'title' => 'email']));
+            $categories = [...$categories, ...$this->findBy(['procedure' => $procedureId, 'title' => 'email'])];
         }
 
         if ($includeConsiderationCategory) {
-            $categories = array_merge($categories, $this->findBy(['procedure' => $procedureId, 'title' => 'consideration']));
+            $categories = [...$categories, ...$this->findBy(['procedure' => $procedureId, 'title' => 'consideration'])];
         }
 
         return $categories;
@@ -75,7 +75,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     {
         try {
             return $this->findOneBy(['id' => $boilerplateCategoryId]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -91,7 +91,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     {
         try {
             return $this->findOneBy(['title' => $boilerplateCategoryTitle]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -337,7 +337,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

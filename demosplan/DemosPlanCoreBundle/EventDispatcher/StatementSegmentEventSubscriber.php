@@ -20,14 +20,8 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 
 class StatementSegmentEventSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
-    public function __construct(EntityContentChangeService $entityContentChangeService)
+    public function __construct(private readonly EntityContentChangeService $entityContentChangeService)
     {
-        $this->entityContentChangeService = $entityContentChangeService;
     }
 
     public static function getSubscribedEvents(): array

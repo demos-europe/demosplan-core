@@ -36,40 +36,17 @@ class ReportMessageConverter
      * @var GlobalConfigInterface
      */
     protected $globalConfig;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
 
     public function __construct(
         DateExtension $dateExtension,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        PermissionsInterface $permissions,
-        RouterInterface $router,
-        TranslatorInterface $translator
+        private readonly LoggerInterface $logger,
+        private readonly PermissionsInterface $permissions,
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator
     ) {
         $this->dateExtension = $dateExtension;
         $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
-        $this->permissions = $permissions;
-        $this->router = $router;
-        $this->translator = $translator;
     }
 
     public function convertMessage(ReportEntry $reportEntry): string
@@ -419,7 +396,7 @@ class ReportMessageConverter
         }
         if (array_key_exists('mapExtent', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.mapextent.changed', [
-                'mapExtent' => str_replace(',', ', ', $message['mapExtent']), // T15125
+                'mapExtent' => str_replace(',', ', ', (string) $message['mapExtent']), // T15125
             ]);
         }
         if (array_key_exists('targetProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
@@ -451,7 +428,7 @@ class ReportMessageConverter
         // only log recipients with email address
         $recipients = $entryData->getRecipients();
         foreach ($recipients as $recipient) {
-            if (isset($recipient['email2']) && 0 < strlen($recipient['email2'])) {
+            if (isset($recipient['email2']) && 0 < strlen((string) $recipient['email2'])) {
                 $invitedOrga = [
                     'ident'     => $recipient['ident'],
                     'nameLegal' => $recipient['nameLegal'],
@@ -476,7 +453,7 @@ class ReportMessageConverter
 
             foreach ($invitedOrgas as $orga) {
                 $returnMessage[] = $orga['nameLegal'] ?? ', '.$orga['email2'] ?? '';
-                if (array_key_exists('ccEmails', $orga) && 0 < count($orga['ccEmails'])) {
+                if (array_key_exists('ccEmails', $orga) && 0 < (is_countable($orga['ccEmails']) ? count($orga['ccEmails']) : 0)) {
                     $returnMessage[] = $this->translator->trans('email.cc').': '.
                         implode(', ', $orga['ccEmails']);
                 }
@@ -517,7 +494,7 @@ class ReportMessageConverter
             'count' => $entry->getReceiverCount(),
         ]);
         $returnMessage[] = $this->getSubjectLine($entry->getMailSubject());
-        $returnMessage[] = $this->translator->trans('message').': '.nl2br($entry->getMailBody());
+        $returnMessage[] = $this->translator->trans('message').': '.nl2br((string) $entry->getMailBody());
 
         return $this->toHtmlLines($returnMessage);
     }
@@ -596,13 +573,13 @@ class ReportMessageConverter
         $documents = [];
         // has publishedDocuments
         // should html be added here? use template? really?
-        if (array_key_exists('publishedDocuments', $message) && 0 < count($message['publishedDocuments'])) {
+        if (array_key_exists('publishedDocuments', $message) && 0 < (is_countable($message['publishedDocuments']) ? count($message['publishedDocuments']) : 0)) {
             foreach ($message['publishedDocuments'] as $document) {
                 $documents[] = '<strong>'.$document.'</strong>';
             }
         }
         // has categories
-        if (array_key_exists('categories', $message) && 0 < count($message['categories'])) {
+        if (array_key_exists('categories', $message) && 0 < (is_countable($message['categories']) ? count($message['categories']) : 0)) {
             foreach ($message['categories'] as $category) {
                 // category has limited orga access
                 $documents[] = '<strong>'.$category['name'].'</strong>';
@@ -610,7 +587,7 @@ class ReportMessageConverter
                     $documents[] = $translator->trans('access.for').' '.
                         implode(', ', $category['access']);
                 }
-                if (array_key_exists('documents', $category) && 0 < count($category['documents'])) {
+                if (array_key_exists('documents', $category) && 0 < (is_countable($category['documents']) ? count($category['documents']) : 0)) {
                     $categoryDocumentsString = '';
                     foreach ($category['documents'] as $categoryDocument) {
                         $categoryDocumentsString .= '<li>'.
@@ -619,7 +596,7 @@ class ReportMessageConverter
                     $documents[] = '<ul>'.$categoryDocumentsString.'</ul>';
                 }
 
-                if (array_key_exists('existingParagraphs', $category) && 0 < count($category['existingParagraphs'])) {
+                if (array_key_exists('existingParagraphs', $category) && 0 < (is_countable($category['existingParagraphs']) ? count($category['existingParagraphs']) : 0)) {
                     $categoryParagraphsString = '';
 
                     foreach ($category['existingParagraphs'] as $categoryParagraph) {
@@ -629,7 +606,7 @@ class ReportMessageConverter
                     $documents[] = '<ul>'.$categoryParagraphsString.'</ul>';
                 }
             }
-        } elseif (array_key_exists('elements', $message) && 0 < count($message['elements'])) {
+        } elseif (array_key_exists('elements', $message) && 0 < (is_countable($message['elements']) ? count($message['elements']) : 0)) {
             foreach ($message['elements'] as $elementTitle => $element) {
                 $documents[] = '<strong>'.$elementTitle.'</strong>';
                 $fileTitles = '';
@@ -715,7 +692,7 @@ class ReportMessageConverter
 
                     // Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
                     foreach ($element['files'] as $fileKey => $document) {
-                        $documentParts = explode(':', $document);
+                        $documentParts = explode(':', (string) $document);
                         // report messages format changed over time
                         if (is_int($fileKey)) {
                             $documentsOfElement[$fileNumber]['name'] = $documentParts[0];
@@ -740,7 +717,7 @@ class ReportMessageConverter
 
                     // Dokumente durchgehen, den (Anzeige-)Namen extrahieren und im Array $documentsOfElement ablegen.
                     foreach ($element as $document) {
-                        $documentParts = explode(':', $document);
+                        $documentParts = explode(':', (string) $document);
                         $documentsOfElement[$fileNumber]['name'] = $documentParts[0];
                         $documentsOfElement[$fileNumber]['fileName'] = $documentParts[1];
                         ++$fileNumber;
@@ -755,7 +732,7 @@ class ReportMessageConverter
             }
         }
 
-        if (array_key_exists('paragraphs', $message) && 0 < count($message['paragraphs'])) {
+        if (array_key_exists('paragraphs', $message) && 0 < (is_countable($message['paragraphs']) ? count($message['paragraphs']) : 0)) {
             foreach ($message['paragraphs'] as $elementTitle => $element) {
                 $category = [];
                 $category['name'] = $elementTitle;

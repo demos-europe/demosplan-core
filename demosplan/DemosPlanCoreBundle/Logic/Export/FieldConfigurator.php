@@ -19,20 +19,8 @@ use Exception;
 
 class FieldConfigurator
 {
-    /**
-     * @var ExportFieldsConfigurationRepository
-     */
-    private $fieldsConfigRepo;
-
-    /**
-     * @var EntityPreparator
-     */
-    private $entityPreparator;
-
-    public function __construct(EntityPreparator $entityPreparator, ExportFieldsConfigurationRepository $fieldsConfigRepo)
+    public function __construct(private readonly EntityPreparator $entityPreparator, private readonly ExportFieldsConfigurationRepository $fieldsConfigRepo)
     {
-        $this->entityPreparator = $entityPreparator;
-        $this->fieldsConfigRepo = $fieldsConfigRepo;
     }
 
     public function add(ExportFieldsConfiguration $fieldsConfiguration): ExportFieldsConfiguration

@@ -200,6 +200,9 @@
             "php-http/discovery": false
         }
     },
+    "platform": {
+      "php": "8.1"
+    },
     "conflict": {
       "twig/twig": "<2.10"
     }

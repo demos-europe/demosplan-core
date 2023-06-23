@@ -147,7 +147,7 @@ class FileController extends BaseController
             }
 
             $response = new BinaryFileDownload($file->getAbsolutePath(), $file->getFileName());
-        } catch (Exception $e) {
+        } catch (Exception) {
             // gib ein Standardbild zurück
             $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '');
         }

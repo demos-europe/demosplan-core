@@ -40,6 +40,7 @@ class DemosPlanUserListController extends DemosPlanUserController
     #[Route(name: 'DemosPlan_informationen_teilnehmende', path: '/teilnehmende')]
     public function showParticipantsAction(OrgaService $orgaService)
     {
+        $templateVars = [];
         // Teilnehmende Organisationen (öffentliche Liste)
         $templateVars['orgas'] = $orgaService->getParticipants();
 
@@ -84,6 +85,7 @@ class DemosPlanUserListController extends DemosPlanUserController
     #[Route(name: 'DemosPlan_get_address_book_entries', path: '/organisation/adressen/liste/{organisationId}', methods: ['GET'])]
     public function getAddressBookEntriesAction(AddressBookEntryService $addressBookEntryService, Request $request, string $organisationId)
     {
+        $templateVars = [];
         $checkResult = $this->checkUserOrganisation($organisationId, 'DemosPlan_get_address_book_entries');
         if ($request instanceof RedirectResponse) {
             return $checkResult;

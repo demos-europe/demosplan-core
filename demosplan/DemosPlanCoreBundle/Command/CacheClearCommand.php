@@ -28,7 +28,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class CacheClearCommand extends CoreCommand
 {
-    public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
+    final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
 
     protected static $defaultName = 'dplan:cache:clear';
     protected static $defaultDescription = 'Clear apcu and op caches';
@@ -60,7 +60,7 @@ class CacheClearCommand extends CoreCommand
 
             DemosPlanTools::cacheClear();
             $output->success('Cleared CLI APCu and OpCache');
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->error('Failed to clear CLI APCu and OpCache, aborting');
 
             return (int) Command::FAILURE;
@@ -86,7 +86,7 @@ class CacheClearCommand extends CoreCommand
 
         // in case of our dev servers the file would be put into src folder,
         // but needs to be in the htdocs web/uploads folder
-        if (false !== strpos($file, 'src/projects')) {
+        if (str_contains($file, 'src/projects')) {
             $file = str_replace('src/projects', 'htdocs/projects', $file);
             $output->writeln('Recognized dev server environment. Adjust path for scheduled file');
             $output->writeln('Filepath: '.$file);

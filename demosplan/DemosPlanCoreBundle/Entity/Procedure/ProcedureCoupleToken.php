@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class ProcedureCoupleToken implements UuidEntityInterface
 {
-    public const TOKEN_LENGTH = 12;
+    final public const TOKEN_LENGTH = 12;
 
     /**
      * @var string|null

@@ -72,7 +72,7 @@ class ProcedureProposalController extends BaseController
     {
         try {
             $procedureProposal = $this->procedureProposalService->getProcedureProposal($procedureProposalId);
-        } catch (ProcedureProposalNotFound $e) {
+        } catch (ProcedureProposalNotFound) {
             $this->getMessageBag()->add('warning', 'warning.procedure.proposal.notfound');
 
             return $this->redirectToRoute('core_home');
@@ -100,6 +100,7 @@ class ProcedureProposalController extends BaseController
     #[Route(path: '/procedure_proposal_create', name: 'dplan_procedure_proposals_create')]
     public function addProcedureProposalAction(Request $request, ProcedureProposalHandler $procedureProposalHandler): Response
     {
+        $templateVars = [];
         $requestPost = $request->request->all();
 
         $templateVars['mapOptions'] = $procedureProposalHandler->transformedMapOptions();

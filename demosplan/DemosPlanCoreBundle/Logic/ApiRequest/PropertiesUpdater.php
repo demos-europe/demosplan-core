@@ -12,23 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use function array_key_exists;
-
 use EDT\Querying\Contracts\PropertyPathInterface;
+
+use function array_key_exists;
 
 class PropertiesUpdater
 {
     /**
-     * @var array<string,mixed>
-     */
-    private $properties;
-
-    /**
      * @param array<string,mixed> $properties
      */
-    public function __construct(array $properties)
+    public function __construct(private readonly array $properties)
     {
-        $this->properties = $properties;
     }
 
     /**

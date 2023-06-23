@@ -16,21 +16,15 @@ use Twig\TwigFilter;
 
 class DatasheetNumberFormatExtension extends ExtensionBase
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(ContainerInterface $container, Environment $twig)
+    public function __construct(ContainerInterface $container, private readonly Environment $twig)
     {
         parent::__construct($container);
-        $this->twig = $twig;
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('datasheet_number_format', [&$this, 'numberFormatFilter']),
+            new TwigFilter('datasheet_number_format', $this->numberFormatFilter(...)),
         ];
     }
 

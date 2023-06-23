@@ -24,27 +24,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class DraftStatementResult extends ValueObject
 {
-    protected $manuallySorted = false;
-
-    protected $result;
-
-    protected $filterSet;
-
-    protected $sortingSet;
-
-    protected $total;
-
-    protected $search;
-
-    public function __construct($result, $filterSet, $sortingSet, $total, $search, $manuallySorted)
+    public function __construct(protected $result, protected $filterSet, protected $sortingSet, protected $total, protected $search, protected $manuallySorted)
     {
-        $this->result = $result;
-        $this->filterSet = $filterSet;
-        $this->sortingSet = $sortingSet;
-        $this->total = $total;
-        $this->search = $search;
-        $this->manuallySorted = $manuallySorted;
-
         $this->lock();
     }
 }

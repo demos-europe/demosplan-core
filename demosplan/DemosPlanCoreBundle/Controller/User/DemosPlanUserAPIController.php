@@ -192,7 +192,7 @@ class DemosPlanUserAPIController extends APIController
 
             $resourceObject = $this->requestData->getObjectToCreate();
 
-            if ('User' !== ucfirst($resourceObject['type'])) {
+            if ('User' !== ucfirst((string) $resourceObject['type'])) {
                 throw new BadRequestException('Invalid resource object type');
             }
 
@@ -202,7 +202,7 @@ class DemosPlanUserAPIController extends APIController
                 try {
                     $userHandler->inviteUser($user);
                     $this->messageBag->add('confirm', 'confirm.email.invitation.sent');
-                } catch (SendMailException $e) {
+                } catch (SendMailException) {
                     $this->messageBag->add('error', 'error.email.invitation.send.to.user');
                 }
 
@@ -262,9 +262,7 @@ class DemosPlanUserAPIController extends APIController
                 switch ($relationshipName) {
                     case 'roles':
                         $userData['roles'] = array_map(
-                            static function ($relObject) {
-                                return $relObject['id'];
-                            },
+                            static fn ($relObject) => $relObject['id'],
                             $relationship['data']
                         );
                         break;
@@ -281,7 +279,7 @@ class DemosPlanUserAPIController extends APIController
                         throw new LogicException("Unexpected relationship {$relationship}");
                 }
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             // nothing to do here, we just don't have changed relationships
         }
 

@@ -29,11 +29,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class GlobalContent extends CoreEntity implements UuidEntityInterface
 {
-    public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
-    public const TYPE_NEWS = 'news';
-    public const PROCEDURE_ID_GLOBAL = 'global';
-    public const CONTEXT_GLOBAL_NEWS = 'global:news';
-    public const NAMESPACE_NEWS = 'content:news';
+    final public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
+    final public const TYPE_NEWS = 'news';
+    final public const PROCEDURE_ID_GLOBAL = 'global';
+    final public const CONTEXT_GLOBAL_NEWS = 'global:news';
+    final public const NAMESPACE_NEWS = 'content:news';
 
     /**
      * @var string|null
