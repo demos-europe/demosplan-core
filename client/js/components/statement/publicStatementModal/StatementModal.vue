@@ -158,6 +158,7 @@
           <dp-checkbox
             v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled && hasPermission('feature_statement_public_allowed_needs_verification')"
             id="r_makePublic"
+            data-cy="make_public"
             :checked="formData.r_makePublic === 'on'"
             :label="{
               text: makePublicLabel
