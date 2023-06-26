@@ -118,7 +118,7 @@
               rel="noopener"
               class="o-hellip"
               :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
-              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedure: procedureId })">
+              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })">
               {{ statement.sourceAttachment.filename }}
             </a>
 
@@ -129,7 +129,7 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedure: procedureId })">
+              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })">
               {{ file.filename }}
             </a>
           </div>

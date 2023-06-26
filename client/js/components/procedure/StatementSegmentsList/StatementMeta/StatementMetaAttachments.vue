@@ -38,7 +38,7 @@
         v-text="Translator.trans('none')" />
       <template v-if="editable">
         <dp-upload-files
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedure: procedureId })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           ref="uploadStatementAttachment"
           id="uploadStatementAttachment"
           name="uploadStatementAttachment"
