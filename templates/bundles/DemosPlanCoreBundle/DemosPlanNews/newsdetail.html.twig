@@ -41,3 +41,8 @@
     {% endembed %}
 
 {% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}
