@@ -52,7 +52,7 @@
             <a
               :class="prefixClass('c-map__group-item display--block')"
               target="_blank"
-              :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash })"
+              :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedure: procedureId })"
               :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
               {{ layer.name }}
             </a>
@@ -81,14 +81,15 @@ export default {
       type: Array,
       default: () => []
     },
-    procedureId: {
-      type: String,
-      required: true
-    },
 
     planPdf: {
       type: Object,
       default: () => ({})
+    },
+
+    procedureId: {
+      type: String,
+      required: true
     }
   },
 

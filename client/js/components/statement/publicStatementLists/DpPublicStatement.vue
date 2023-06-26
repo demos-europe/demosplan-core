@@ -261,105 +261,131 @@ export default {
       required: false,
       default: () => ([])
     },
+
     county: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
       default: null
     },
+
     createdDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
       default: null
     },
+
     department: {
       type: String,
       required: true
     },
+
     document: {
       type: String,
       required: false,
       default: () => Translator.trans('none')
     },
+
     elementId: {
       type: String,
       required: false,
       default: ''
     },
+
     id: {
       type: String,
       required: true
     },
+
     isPublished: {
       type: Boolean,
       required: false,
       default: () => false
     },
+
     menuItemsGenerator: {
       type: Function,
       required: true
     },
+
     number: {
       type: Number,
       required: false,
       default: 0
     },
+
     organisation: {
       type: String,
       required: true
     },
+
     paragraph: {
       type: String,
       required: false,
       default: () => Translator.trans('none')
     },
+
     paragraphId: {
       type: String,
       required: false,
       default: ''
     },
+
     phase: {
       type: String,
       required: true
     },
+
     polygon: {
       type: Object,
       required: false,
       default: () => ({})
     },
+
     priorityAreas: {
       type: [String, null, Array],
       required: false,
       validator: (val) => typeof val === 'string' || Array.isArray(val) || val === null,
       default: null
     },
+
+    procedureId: {
+      type: String,
+      required: true
+    },
+
     rejectedReason: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
       default: null
     },
+
     showAuthor: {
       type: Boolean,
       required: false,
       default: false
     },
+
     showCheckbox: {
       type: Boolean,
       required: false,
       default: false
     },
+
     submittedDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
       default: null
     },
+
     text: {
       type: String,
       required: true
     },
+
     user: {
       type: String,
       required: true
@@ -407,7 +433,7 @@ export default {
 
   methods: {
     renderAttachments (attachments) {
-      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash })}">${a.name}</a>`)
+      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash, procedure: this.procedureId })}">${a.name}</a>`)
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 

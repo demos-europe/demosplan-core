@@ -468,7 +468,7 @@
           v-for="file in statementFiles"
           :key="file.hash"
           class="o-hellip u-pr-0_5"
-          :href="Routing.generate('core_file_procedure', { hash: file.hash })"
+          :href="Routing.generate('core_file_procedure', { hash: file.hash, procedure: fragment.procedureId })"
           rel="noopener"
           target="_blank">
           {{ file.name }}

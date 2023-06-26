@@ -311,7 +311,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedure: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -328,7 +328,7 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
-        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash })"
+        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedure: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input

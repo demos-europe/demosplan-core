@@ -93,17 +93,19 @@
                 <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
                   <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
-                    class="display--block whitespace--normal u-mr-0_75"
                     v-if="originalAttachment.hash"
-                    :attachment="originalAttachment" />
+                    :attachment="originalAttachment"
+                    class="display--block whitespace--normal u-mr-0_75"
+                    :procedure-id="procedureId" />
                   <span
                     v-if="additionalAttachments.length > 0"
                     class="display--block weight--bold">{{ Translator.trans('more.attachments') }}</span>
                   <statement-meta-attachments-link
-                    class="display--block whitespace--normal u-mr-0_75"
                     v-for="attachment in additionalAttachments"
                     :key="attachment.hash"
-                    :attachment="attachment" />
+                    :attachment="attachment"
+                    class="display--block whitespace--normal u-mr-0_75"
+                    :procedure-id="procedureId" />
                 </div>
               </template>
             </dp-flyout>
