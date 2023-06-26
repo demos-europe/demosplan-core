@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\NewProcedureAdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureUpdatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -1079,6 +1080,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
 
             $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
@@ -1125,6 +1127,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure->setSettings($sourceProcedureSettings);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
+            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
 
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
@@ -1165,6 +1168,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
+
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
             if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
