@@ -255,7 +255,7 @@
                   :class="prefixClass('o-hellip')">
                   <a
                     :class="prefixClass('u-valign--top')"
-                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedure: procedureId })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
