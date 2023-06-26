@@ -33,14 +33,13 @@ class DocxImporterRabbitmq implements DocxImporterInterface
     }
 
     /**
-     * Importiere ein docx-Dokument mittels RabbitMQ Instanz.
+     * Import docx via RabbitMQ
      *
      * @throws Exception
      */
     public function importDocx(File $file, string $elementId, string $procedure, string $category): array
     {
         try {
-            // Generiere Message
             $msg = Json::encode([
                 'procedure' => $procedure,
                 'category'  => $category,
@@ -53,7 +52,6 @@ class DocxImporterRabbitmq implements DocxImporterInterface
                 $routingKey = '';
             }
 
-            // Füge Message zum Request hinzu
             $this->logger->debug(
                 'Import docx with RabbitMQ, with routingKey: '.$routingKey
             );
@@ -64,7 +62,6 @@ class DocxImporterRabbitmq implements DocxImporterInterface
                 $routingKey,
                 300
             );
-            // Anfrage absenden
             $replies = $this->client->getReplies();
 
             if ('' != $replies['import']) {
@@ -76,13 +73,13 @@ class DocxImporterRabbitmq implements DocxImporterInterface
             return Json::decodeToArray($replies['import']);
         } catch (AMQPTimeoutException $e) {
             $this->logger->error(
-                'Fehler in ImportConsumer:',
+                'Error in ImportConsumer:',
                 [$e]
             );
             throw new TimeoutException($e->getMessage());
         } catch (Exception $e) {
             $this->logger->error(
-                'Fehler in ImportConsumer:',
+                'Error in ImportConsumer:',
                 [$e]
             );
             throw $e;

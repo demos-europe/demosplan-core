@@ -52,7 +52,7 @@ class DocxImporterHttp implements DocxImporterInterface
                 'paragraphs' => Json::decodeToArray($response->getContent()),
             ];
         } catch (Exception $e) {
-            $this->logger->error('Error while creating pdf with http: '.$e->getMessage());
+            $this->logger->error('Error while creating docx with http: '.$e->getMessage());
             throw $e;
         }
 
