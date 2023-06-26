@@ -278,7 +278,7 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
-                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedure: procedureId })"
+                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
