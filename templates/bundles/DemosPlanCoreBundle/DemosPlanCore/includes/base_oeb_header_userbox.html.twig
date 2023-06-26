@@ -256,10 +256,10 @@
             {% elseif projectType == 'portal' %}
 
                 <a
+                    id="loginLink"
                     class="{{ 'c-flyout__trigger'|prefixClass }}"
-                    href="{{ path('DemosPlan_user_login_alternative') }}"
                     data-cy="headerNav:login"
-                    id="loginLink">
+                    href="{{ path('DemosPlan_user_login_alternative') }}">
 
                     {%  block loginButton %}
                         <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
