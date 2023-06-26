@@ -1289,7 +1289,7 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-main",
+            "version": "v0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
@@ -1322,7 +1322,6 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
-            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1335,7 +1334,7 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.0.4"
             },
             "time": "2023-06-09T10:45:24+00:00"
         },
@@ -22148,13 +22147,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "demos-europe/demosplan-addon": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "8.1.*",
+        "php": "^8.1 || ^8.2",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
