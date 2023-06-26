@@ -11,7 +11,7 @@
  * This is the entrypoint for public_detail.html.twig  !! only loaded when a Map is enabled !!
  * See core-publicdetail.js for the entrypoint loaded when there is no Map
  */
-import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
@@ -23,7 +23,6 @@ import layers from '@DpJs/store/map/Layers'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
@@ -44,7 +43,7 @@ const components = {
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components, stores).then(() => {

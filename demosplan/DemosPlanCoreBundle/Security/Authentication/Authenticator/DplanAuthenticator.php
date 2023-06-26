@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
@@ -141,13 +140,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)
-        $publicAgencyUserId = $request->getSession()->get('session2UserId');
-        $publicAgencyUser = null;
-        try {
-            $publicAgencyUser = $this->userService->getSingleUser($publicAgencyUserId);
-        } catch (Exception) {
-            // no public agency user found
-        }
+        $publicAgencyUser = $request->getSession()->get('session2User');
         if ($publicAgencyUser instanceof User) {
             $this->logger->info('User has multiple users');
 

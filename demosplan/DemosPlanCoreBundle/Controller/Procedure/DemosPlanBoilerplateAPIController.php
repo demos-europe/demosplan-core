@@ -13,9 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateGroupResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateResourceType;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanBoilerplateAPIController extends APIController

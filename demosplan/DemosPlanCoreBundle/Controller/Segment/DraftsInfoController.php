@@ -85,7 +85,7 @@ class DraftsInfoController extends BaseController
             $procedureName = $statement->getProcedure()->getName();
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/administration_split_statement.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/administration_split_statement.html.twig',
                 [
                     'statementId'       => $statementId,
                     'statementExternId' => $statement->getExternId(),

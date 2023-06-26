@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Debug;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;

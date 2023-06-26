@@ -95,7 +95,6 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
-          :attributions="options?.defaultAttribution"
           :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"

@@ -19,11 +19,11 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -446,10 +446,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $explodedParts = explode('.', (string) $attributeKey);
             switch (count($explodedParts)) {
                 case 2:
-                    if ('authoredDate' === $explodedParts[1]) {
-                        $timestamp = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                        $statementArray[$explodedParts[0]][$explodedParts[1]] = date('d-m-Y', $timestamp);
-                    }
                     $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
                     break;
                 case 3:

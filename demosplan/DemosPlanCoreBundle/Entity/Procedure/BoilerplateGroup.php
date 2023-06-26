@@ -23,8 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository")
  */
 class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, BoilerplateGroupInterface
 {
@@ -32,11 +31,8 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -52,7 +48,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createDate;
@@ -61,7 +56,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
      * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="Procedure")
-     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -70,7 +64,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
      * @var Collection<int, BoilerplateInterface
      *
      * @ORM\OneToMany(targetEntity = "Boilerplate", mappedBy = "group")
-     *
      * @ORM\OrderBy({"title" = "ASC"})
      */
     protected $boilerplates;

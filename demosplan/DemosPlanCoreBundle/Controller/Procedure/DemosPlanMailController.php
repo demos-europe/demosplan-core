@@ -12,10 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Form\PreparationMailType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
+use demosplan\DemosPlanProcedureBundle\Form\PreparationMailType;
+use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -100,7 +100,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_send_email.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send',
@@ -175,7 +175,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_send_email_confirm.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email_confirm.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send.confirm',

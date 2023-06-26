@@ -20,9 +20,9 @@ use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TagTopicAPIController extends APIController

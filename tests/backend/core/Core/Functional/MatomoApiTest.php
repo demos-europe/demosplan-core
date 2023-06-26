@@ -12,7 +12,7 @@ namespace Tests\Core\Core\Functional;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Logic\Statistics\MatomoApi;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpClient\MockHttpClient;

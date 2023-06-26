@@ -28,9 +28,9 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
@@ -1019,12 +1019,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             })
             ->all();
 
-        // Add addon permissions to list of core permissions. Not mixing them would be preferred,
-        // but this is currently needed to expose addon permissions to the frontend.
-        $this->permissions = collect($this->addonPermissionCollections)
-            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
-            ->merge($this->corePermissions->toArray())
-            ->all();
+        $this->permissions = $this->corePermissions->toArray();
     }
 
     /**
@@ -1309,6 +1304,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
             }
         );
+    }
+
+    /**
+     * @return ResolvablePermissionCollection[]
+     */
+    public function getAddonPermissionCollections(): array
+    {
+        return $this->addonPermissionCollections;
     }
 
     /**

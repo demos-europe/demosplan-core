@@ -25,12 +25,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Defines the availability of a customizable fields on a statement (participation).
  *
  * @ORM\Table(uniqueConstraints={
- *
  *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
  *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
  * })
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository")
  */
 class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface, StatementFieldDefinitionInterface
 {
@@ -38,11 +36,8 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -51,7 +46,6 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -60,7 +54,6 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
@@ -87,7 +80,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         /**
          * @ORM\Column(type="boolean", nullable=false, options={"default":true})
          */
-        private bool $required
+        private bool $required = true
     ) {
     }
 

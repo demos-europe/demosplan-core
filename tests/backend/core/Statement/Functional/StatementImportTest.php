@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementImportTest extends FunctionalTestCase

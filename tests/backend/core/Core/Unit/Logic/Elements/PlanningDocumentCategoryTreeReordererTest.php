@@ -14,7 +14,7 @@ namespace Tests\Core\Core\Unit\Logic\Elements;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
 use demosplan\DemosPlanCoreBundle\Logic\Elements\PlanningDocumentCategoryTreeReorderer;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Tests\Base\FunctionalTestCase;
 

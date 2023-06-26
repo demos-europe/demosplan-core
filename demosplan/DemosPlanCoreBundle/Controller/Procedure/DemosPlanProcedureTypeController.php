@@ -22,13 +22,13 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\QueryException;
@@ -56,7 +56,7 @@ class DemosPlanProcedureTypeController extends BaseController
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
+            '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
                     'procedureTypes' => $procedureTypeResources,
@@ -81,7 +81,7 @@ class DemosPlanProcedureTypeController extends BaseController
         ProcedureTypeService $procedureTypeService,
         TranslatorInterface $translator
     ): Response {
-        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
 
         $form = $this->getForm(
@@ -143,7 +143,7 @@ class DemosPlanProcedureTypeController extends BaseController
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
-        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
@@ -201,7 +201,7 @@ class DemosPlanProcedureTypeController extends BaseController
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
-        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
@@ -338,7 +338,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $this->logger->error($e->getMessage());
         }
 
-        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $procedureTypes = $entityFetcher->listEntities($procedureTypeResourceType, []);
 
         // in case of invalid data or an exception
@@ -465,7 +465,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $this->logger->error($e->getMessage());
         }
 
-        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
 
         // in case of invalid data or an exception
         return $this->renderTemplate(

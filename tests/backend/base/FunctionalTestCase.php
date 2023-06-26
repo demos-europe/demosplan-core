@@ -444,7 +444,9 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function getProcedurePhases()
     {
-        return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
+        $path = DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config');
+
+        return Yaml::parseFile($path.'/procedurephases.yml');
     }
 
     /**

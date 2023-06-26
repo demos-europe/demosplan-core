@@ -1717,6 +1717,7 @@ export default {
     },
 
     handleZoom (delta, duration) {
+      const map = this.map
       const view = this.map.getView()
       if (!view) {
         return

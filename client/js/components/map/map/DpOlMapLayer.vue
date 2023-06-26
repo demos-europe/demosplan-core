@@ -23,7 +23,9 @@ export default {
     attributions: {
       required: false,
       type: String,
-      default: ''
+      default: () => {
+        return Translator.trans('map.attribution.default', { link: Routing.generate('DemosPlan_misccontent_static_imprint') })
+      }
     },
 
     layers: {
@@ -55,12 +57,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      source: null
-    }
-  },
-
   computed: {
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
@@ -80,20 +76,14 @@ export default {
     }
   },
 
-  watch: {
-    defaultAttributions () {
-      this.source.setAttributions(this.defaultAttributions)
-    }
-  },
-
   methods: {
     addLayer () {
       if (this.map === null) {
         return
       }
 
-      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
-      const layer = createTileLayer(this.title, this.name, this.source)
+      const source = createSourceTileWMS(this.url, this.layers, this.projection, this.attributions, this.map)
+      const layer = createTileLayer(this.title, this.name, source)
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(0, layer)

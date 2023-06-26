@@ -25,8 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_predefined_texts")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository")
  */
 class Boilerplate extends CoreEntity implements UuidEntityInterface, BoilerplateInterface
 {
@@ -36,11 +35,8 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var string|null
      *
      * @ORM\Column(name="_pt_id", type="string", length=36, options={"fixed":true})
-     *
      * @ORM\Id
-     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -49,7 +45,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -61,7 +56,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var Collection<int,BoilerplateCategoryInterface>
      *
      * @ORM\ManyToMany(targetEntity="BoilerplateCategory", mappedBy="boilerplates")
-     *
      * @ORM\JoinTable(
      *     name="predefined_texts_categories",
      *     joinColumns={@ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id")},
@@ -78,7 +72,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * This Class/Entity is the owning side
      *
      * @ORM\ManyToOne(targetEntity="BoilerplateGroup", inversedBy="boilerplates")
-     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable = true)
      */
     protected $group;
@@ -108,7 +101,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_pt_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -117,7 +109,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_pt_modify_date",type="datetime", nullable=false)
      */
     protected $modifyDate;

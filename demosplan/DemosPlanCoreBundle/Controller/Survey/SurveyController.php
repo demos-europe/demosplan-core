@@ -15,12 +15,12 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,7 +61,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'surveyStatuses'     => $surveyStatuses,
                     'procedure'          => $procedureId,
@@ -139,7 +139,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'survey'             => $survey,
                     'surveyStatuses'     => $surveyStatuses,
@@ -210,7 +210,7 @@ class SurveyController extends BaseController
             $survey = $surveyHandler->getProcedureSurvey($procedureId, $surveyId);
 
             return $this->renderTemplate(
-                '@DemosPlanCore/DemosPlanProcedure/administration_list_survey_comments.html.twig',
+                '@DemosPlanProcedure/DemosPlanProcedure/administration_list_survey_comments.html.twig',
                 [
                     'survey'    => $survey,
                     'procedure' => $procedureId,

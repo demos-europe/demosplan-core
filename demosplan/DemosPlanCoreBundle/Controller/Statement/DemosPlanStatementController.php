@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use BadMethodCallException;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -45,8 +46,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
@@ -61,12 +60,13 @@ use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use Exception;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -461,8 +461,8 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         CountyService $countyService,
         CurrentProcedureService $currentProcedureService,
-        DatasheetService $datasheetService,
         ElementsService $elementsService,
+        GlobalConfigInterface $globalConfig,
         NotificationReceiverRepository $notificationReceiverRepository,
         OrgaHandler $orgaHandler,
         PermissionsInterface $permissions,
@@ -682,7 +682,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['orgaBranding'] = $orgaBranding;
         }
 
-        $datasheetVersion = $datasheetService->getDatasheetVersion($procedure);
+        $datasheetVersion = $globalConfig->getDatasheetVersion($procedure);
 
         $templateVars['htmlAvailable'] = 1 === $datasheetVersion || 2 === $datasheetVersion;
         $templateVars['procedureUiDefinition'] = $currentProcedure->getProcedureUiDefinition();
@@ -905,7 +905,7 @@ class DemosPlanStatementController extends BaseController
 
                 $draftStatementId = $draftStatement['id'];
                 $draftStatementNumber = $draftStatement['number'];
-                $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation_loggedin.html.twig';
+                $template = '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_confirmation_loggedin.html.twig';
             } else {
                 $event = new RequestValidationWeakEvent(
                     $request,
@@ -953,7 +953,7 @@ class DemosPlanStatementController extends BaseController
 
                     return $this->renderJson($errorResponse);
                 }
-                $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
+                $template = '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
             }
 
             $responseHtml = $this->renderTemplate(
@@ -2364,7 +2364,7 @@ class DemosPlanStatementController extends BaseController
 
                 if ($importer->hasErrors()) {
                     return $this->renderTemplate(
-                        '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
+                        '@DemosPlanProcedure/DemosPlanProcedure/administration_excel_import_errors.html.twig',
                         [
                             'procedure'  => $procedureId,
                             'context'    => 'statements',
