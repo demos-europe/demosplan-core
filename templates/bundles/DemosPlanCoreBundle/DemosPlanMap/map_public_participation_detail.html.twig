@@ -327,7 +327,8 @@
                 <dp-layer-legend
                     v-show="Boolean({{ display_legend_box }})"
                     :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
+                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
+                    procedure-id="{{ procedure|default('') }}">
                 </dp-layer-legend>
 
                 {# Zoom to extend, measure length + area #}

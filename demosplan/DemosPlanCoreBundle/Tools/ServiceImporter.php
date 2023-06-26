@@ -333,6 +333,7 @@ class ServiceImporter implements ServiceImporterInterface
                                 $stringToReplace,
                                 $this->router->generate('core_file_procedure', [
                                     'hash' => $hash,
+                                    'procedureId' => $procedureId
                                 ]),
                                 $paragraph['text']
                             );

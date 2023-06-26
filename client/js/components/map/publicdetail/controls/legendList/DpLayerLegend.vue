@@ -29,7 +29,7 @@
           <a
             :class="prefixClass('c-map__group-item display--block')"
             target="_blank"
-            :href="Routing.generate('core_file_procedure', { hash: planPdf.hash })"
+            :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedure: procedureId})"
             :title="planPdfTitle">
             <i
               :class="prefixClass('fa fa-download')"
@@ -80,6 +80,10 @@ export default {
     layersWithLegendFiles: {
       type: Array,
       default: () => []
+    },
+    procedureId: {
+      type: String,
+      required: true
     },
 
     planPdf: {
