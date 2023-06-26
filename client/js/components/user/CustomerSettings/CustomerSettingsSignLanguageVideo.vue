@@ -48,7 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
-        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash })"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
