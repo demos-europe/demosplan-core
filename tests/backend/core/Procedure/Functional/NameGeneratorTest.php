@@ -30,7 +30,6 @@ class NameGeneratorTest extends FunctionalTestCase
     public function testGenerateDownloadFilename()
     {
         $fileName = 'TestFi leN-am"eString.pdf';
-        $result = $this->sut->generateDownloadFilename($fileName);
         $expectedFileName = 'attachment;filename="TestFi leN-am\"eString.pdf"; filename*=UTF-8\'\'TestFi_leN-am%22eString.pdf';
         self::assertSame($expectedFileName, $this->sut->generateDownloadFilename($fileName));
     }
