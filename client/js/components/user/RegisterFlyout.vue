@@ -14,8 +14,8 @@ All rights reserved
     :has-menu="false">
     <template v-slot:trigger>
       <div
-        data-cy="headerNav:registerAction"
-        class="c-header__nav-item-link">
+        class="c-header__nav-item-link"
+        data-cy="headerNav:registerAction">
         {{ Translator.trans('register.action') }}
         <i
           class="fa fa-angle-down"
