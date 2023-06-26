@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,22 +15,21 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
@@ -71,11 +70,6 @@ class FileService extends CoreService implements FileServiceInterface
      * @var string
      */
     protected $fileString;
-
-    /**
-     * @var RpcClient
-     */
-    protected $client;
 
     /**
      * @var RequestStack
@@ -134,7 +128,8 @@ class FileService extends CoreService implements FileServiceInterface
         MessageBagInterface $messageBag,
         RequestStack $requestStack,
         SingleDocumentRepository $singleDocumentRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        protected RpcClient $client
     ) {
         $this->currentProcedureService = $currentProcedureService;
         $this->entityManager = $entityManager;
@@ -1038,14 +1033,6 @@ class FileService extends CoreService implements FileServiceInterface
         }
 
         return $mimeTypeReadable;
-    }
-
-    /**
-     * @param RpcClient $client
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
     }
 
     /**

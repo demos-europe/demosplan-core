@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -95,6 +95,7 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
+          :attributions="options?.defaultAttribution"
           :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
@@ -353,7 +354,6 @@ export default {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
           html.classList.toggle(this.prefixClass('fullscreen-mode'))
-          this.updateMapInstance()
         }, false)
       })
     },

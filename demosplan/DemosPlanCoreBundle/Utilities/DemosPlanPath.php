@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -42,6 +42,11 @@ class DemosPlanPath
     public static function getRootPath($path = ''): string
     {
         return dirname(__FILE__, 4).DIRECTORY_SEPARATOR.$path;
+    }
+
+    public static function getConfigPath(string $path = ''): string
+    {
+        return self::getRootPath('config'.('' !== $path ? "/{$path}" : ''));
     }
 
     /**

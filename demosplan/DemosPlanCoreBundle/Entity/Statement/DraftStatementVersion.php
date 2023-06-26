@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -27,7 +28,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement_versions", indexes={@ORM\Index(name="_ds_id", columns={"_ds_id"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository")
  */
 class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
 {
@@ -35,16 +37,20 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_dsv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement
+     * @var DraftStatement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="versions", )
+     *
      * @ORM\JoinColumn(name="_ds_id", referencedColumnName="_ds_id", nullable=false, onDelete="CASCADE")
      */
     protected $draftStatement;
@@ -60,6 +66,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -94,6 +101,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -109,6 +117,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -134,6 +143,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -155,7 +165,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     protected $file = '';
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\FileContainer
+     * @var FileContainer
      *                                                          No doctrine connection because of multiple inheritance. Real inheritance mapping as described in
      *                                                          http://doctrine-orm.readthedocs.io/en/latest/reference/inheritance-mapping.html
      *                                                          is not possible atm, because primary keys are named differently across entities
@@ -176,6 +186,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
     protected $organisation;
@@ -205,6 +216,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=false, onDelete="RESTRICT")
      **/
     protected $department;
@@ -220,6 +232,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")
      */
     protected $user;
@@ -371,6 +384,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_ds_version_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $versionDate;
@@ -717,7 +731,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return ArrayCollection
      */
     public function getFiles()
     {
@@ -725,7 +739,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \Doctrine\Common\Collections\ArrayCollection $files
+     * @param ArrayCollection $files
      */
     public function setFiles($files)
     {

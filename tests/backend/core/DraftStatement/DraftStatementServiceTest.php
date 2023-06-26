@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,10 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -49,7 +49,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanDocumentBundle\Logic\ElementsService|object|null
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
      */
     protected $elementsService;
 

@@ -3,13 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -26,7 +28,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumThread
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function get($entityId)
     {
@@ -58,7 +60,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
             $resultThread->setRecentActivity($recentActivity);
 
             return $resultThread;
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -93,7 +95,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
             }
 
             return $recentActivity;
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }
@@ -128,7 +130,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry|null beitrag, mit dem ein besitmmter Thread eröffnet wurde
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     private function getInitialEntry($thread)
     {
@@ -147,7 +149,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
 
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             return null;
         }
     }

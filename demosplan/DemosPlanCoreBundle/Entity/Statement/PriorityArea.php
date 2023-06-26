@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,7 +19,8 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Table(name="_priority_area",uniqueConstraints={@UniqueConstraint(name="key_idx", columns={"_pa_key"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\PriorityAreaRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository")
  */
 class PriorityArea extends CoreEntity implements UuidEntityInterface
 {
@@ -27,8 +28,11 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_pa_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -51,6 +55,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Statement>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="priorityAreas")
+     *
      * @ORM\JoinTable(
      *     name="_statement_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},
@@ -63,6 +68,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, StatementFragment>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="priorityAreas", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},

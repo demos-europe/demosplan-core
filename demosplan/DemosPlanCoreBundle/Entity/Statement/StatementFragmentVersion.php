@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,7 +27,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Statement Fragment Versions are part of the assessment process
  *
  * @ORM\Table(name="statement_fragment_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository")
  */
 class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 {
@@ -35,8 +36,11 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="sfv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -47,6 +51,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * todo: should be nullable = false? will not working with onDelete="SET NULL"
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", inversedBy="versions")
+     *
      * @ORM\JoinColumn(name="statement_fragment_id", referencedColumnName="sf_id", nullable=true, onDelete="SET NULL")
      */
     protected $statementFragment;
@@ -73,9 +78,10 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $tagAndTopicNames;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -98,6 +104,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -175,9 +182,10 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * User who triggered this Version.
      *
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="sfv_modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $modifiedByUser;
@@ -188,6 +196,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var Department
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="sfv_modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
     protected $modifiedByDepartment;
@@ -210,6 +219,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var ParagraphVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -218,6 +228,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -502,7 +513,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param Procedure $procedure
      */
     public function setProcedure($procedure)
     {
@@ -574,7 +585,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @return User
      */
     public function getModifiedByUser()
     {
@@ -604,7 +615,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\Department
+     * @return Department
      */
     public function getModifiedByDepartment()
     {
@@ -624,7 +635,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\User\Department $modifiedByDepartment
+     * @param Department $modifiedByDepartment
      */
     public function setModifiedByDepartment($modifiedByDepartment)
     {

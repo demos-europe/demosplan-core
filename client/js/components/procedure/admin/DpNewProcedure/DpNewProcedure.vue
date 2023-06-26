@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -107,7 +107,7 @@
           :options="procedureTypes"
           required
           track-by="id">
-          <template v-slot:option="props">
+          <template v-slot:option="{ props }">
             {{ props.option.name }}<br>
             <span class="font-size-small">{{ props.option.description }}</span>
           </template>
@@ -150,7 +150,7 @@
         <dp-label
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :text="Translator.trans('period')" />
 
         <dp-date-range-picker
@@ -159,7 +159,7 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
 

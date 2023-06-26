@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,7 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Procedure category.
  *
  * @ORM\Table(name="procedure_category")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository")
  */
 class ProcedureCategory extends CoreEntity implements UuidEntityInterface
 {
@@ -26,8 +27,11 @@ class ProcedureCategory extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="procedure_category_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

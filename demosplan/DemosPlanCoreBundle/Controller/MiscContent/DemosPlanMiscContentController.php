@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,21 +20,23 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Exception\ContentEmailMismatchException;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MiscContent\ServiceStorage;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection;
+use UnexpectedValueException;
 
 /**
  * Ausgabe Newseiten und andere Einzelseiten.
@@ -461,6 +463,9 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/informationen"
      * )
      *
+     * The faq are a combination of Platform-faq (platformList) which are customer independent
+     * and the customer-specific-faq (list)
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -469,9 +474,19 @@ class DemosPlanMiscContentController extends BaseController
      */
     public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $platformCategories = new Collection();
+        $customFaqCategories = new Collection();
+        try {
+            $platformCategories = $faqHandler->getPlatformFaqCategories();
+            $customFaqCategories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        } catch (UnexpectedValueException $e) {
+            $this->logger->error('Get platformFaqCategories failed.', [$e]);
+        }
+
+        // try
         $templateVars = [
-            'list' => $faqHandler->convertIntoTwigFormat($categories, $userProvider->getUser()),
+            'list'         => $faqHandler->convertIntoTwigFormat($customFaqCategories, $userProvider->getUser()),
+            'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),
         ];
 
         return $this->renderTemplate(

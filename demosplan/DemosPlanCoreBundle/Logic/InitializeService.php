@@ -3,74 +3,63 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 
-/**
- * This service uses Dependency Injection to use private services
- * Class InitializeService.
- */
 class InitializeService implements InitializeServiceInterface
 {
     use IsProfilableTrait;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    protected $messageBag;
-    /**
-     * @var RequestStack
-     */
-    protected $requestStack;
-    /**
-     * @var SessionHandler
-     */
-    protected $sessionHandler;
-
     public function __construct(
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag,
-        RequestStack $requestStack,
-        SessionHandler $sessionHandler
+        private readonly CurrentUserService $currentUserService,
+        private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PermissionsInterface $permissions,
+        private readonly RequestStack $requestStack,
     ) {
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
-        $this->requestStack = $requestStack;
-        $this->sessionHandler = $sessionHandler;
     }
 
     public function initialize(array $context): void
     {
-        $profilerName = 'Initialize';
-        $this->profilerStart($profilerName);
-
         try {
-            $this->sessionHandler->initialize($context);
-            $this->profilerStop($profilerName);
+            $request = $this->requestStack->getCurrentRequest();
+
+            if (!$request instanceof Request) {
+                return;
+            }
+
+            $user = $this->currentUserService->getUser();
+            $this->permissions->initPermissions($user, $context);
+            $this->permissions->checkProcedurePermission();
+            $this->permissions->checkPermissions($context);
         } catch (AccessDeniedException $e) {
-            $this->profilerStop($profilerName);
+            // Wenn der User vorher keine Session hatte, ist eher die Session abgelaufen,
+            // als dass es ein echtes AccessDenied ist
+            if (null === $request->getSession()->getId()) {
+                $this->logger->info('Access Denied nach nicht vorhandener Session: ', [$e]);
+                throw new AccessDeniedGuestException();
+            }
             throw $e;
         } catch (Exception $e) {
-            $this->profilerStop($profilerName);
-            $this->logger->error('Initialize not successful', [$e]);
-            throw new SessionUnavailableException('Initialization not successful: '.$e->getMessage(), 666666);
+            $this->logger->error('Session Initialization not successful', [$e]);
+            throw new SessionUnavailableException('Session Initialization not successful: '.$e);
         }
     }
 }

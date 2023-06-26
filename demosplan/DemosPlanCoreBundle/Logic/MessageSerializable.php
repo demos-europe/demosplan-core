@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -107,10 +107,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
         $this->textParameters = $textParameters;
     }
 
-    /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return ['message' => $this->text, 'severity' => $this->severity];
     }

@@ -1,0 +1,57 @@
+<section class="{{ 'c-statement__feedback'|prefixClass }}">
+
+    <h2 class="{{ 'color-highlight'|prefixClass }}" id="statementModalTitle" data-title="confirmation" tabindex="0" aria-describedby="successConfirmation">
+        <i class="{{ 'fa fa-comment'|prefixClass }}" aria-hidden="true"></i>
+        Vielen Dank für Ihre Beteiligung!
+    </h2>
+
+    <span id="successConfirmation" class="{{ 'u-mb'|prefixClass }}">
+        <p class="{{ 'flash-confirm c-statement__formhint'|prefixClass }}">
+        <i class="{{ 'fa fa-check fa-lg'|prefixClass }}" aria-hidden="true"></i>
+             {{ "confirm.statement.submitted.public"|trans({ externId: templateVars.number }) }}
+        </p>
+        {% if 0 < templateVars.confirmationText|default|length %}
+            <div class="{{ 'c-statement__formhint flash-info u-mv-0_75 u-p-0_5'|prefixClass }}">
+                <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'display--block u-ml'|prefixClass }}">
+                    {{ templateVars.confirmationText|default|wysiwyg }}
+                </span>
+            </div>
+        {% endif %}
+        <p id="c-statement-hint-confirm" class="{{ 'flash-error c-statement__formhint display--none'|prefixClass }}" tabindex="0">
+        <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
+        <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
+            {{ "error.mandatoryfields"|trans }}
+        </a>
+    </p>
+
+    <p>
+        {{ 'confirm.statement.submitted.public.mailsent'|trans|wysiwyg }}
+    </p>
+    </span>
+
+    <p class="{{ 'u-mt cf'|prefixClass }}">
+      {% set draftStatementIdent = templateVars.draftStatementIdent is defined ? templateVars.draftStatementIdent : 'statement_ident' %}
+
+        <a
+            class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}"
+            data-cy="pdfStatementDownload"
+            href="{{ path('DemosPlan_statement_single_export_pdf',{ sId: draftStatementIdent, procedure: procedure }) }}"
+            name="pdfStatement"
+            target="_blank">
+            <i class="{{ 'fa fa-file'|prefixClass }}" aria-hidden="true"></i>
+            {{ "pdf.download"|trans }}
+        </a>
+
+        <span class="{{ 'float--right text--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}">
+            <a
+                class="{{ 'btn btn--secondary'|prefixClass }}"
+                data-cy="statementFormClose"
+                href="{{ path('DemosPlan_procedure_public_detail', { procedure: procedure }) }}">
+                {{ "close"|trans }}
+            </a>
+        </span>
+
+    </p>
+
+</section>

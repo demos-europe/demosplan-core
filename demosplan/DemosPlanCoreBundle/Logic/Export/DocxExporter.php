@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,27 +13,28 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
@@ -42,9 +43,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\Style\Language;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -94,11 +93,6 @@ class DocxExporter
      * @var FileService
      */
     protected $fileService;
-
-    /**
-     * @var MapService
-     */
-    protected $serviceMap;
 
     /**
      * @var ServiceImporter
@@ -159,6 +153,7 @@ class DocxExporter
         FileService $fileService,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
+        protected readonly MapService $mapService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementHandler $statementHandler,
@@ -196,7 +191,7 @@ class DocxExporter
          * Therefore this workaround with similar but project specific creation of
          * documents.
          */
-        $phpWord = $this->initializePhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         $incomingStatements = $outputResult->getStatements();
         $procedure = $this->getProcedureHandler()->getProcedureWithCertainty($outputResult->getProcedure()['id']);
@@ -521,21 +516,6 @@ class DocxExporter
             ->pluck('id')
             ->unique()
             ->all();
-    }
-
-    protected function initializePhpWord(): PhpWord
-    {
-        $phpWord = new PhpWord();
-        // avoid problems with < in statementTexts T3921
-        Settings::setOutputEscapingEnabled(true);
-        // https://stackoverflow.com/questions/33267654/
-        $phpWord->getSettings()->setUpdateFields(true);
-        $phpWord->getSettings()->setThemeFontLang(new Language(Language::DE_DE));
-
-        // http://phpword.readthedocs.org/en/latest/index.html
-        // https://github.com/PHPOffice/PHPWord
-
-        return $phpWord;
     }
 
     /**
@@ -1038,7 +1018,7 @@ class DocxExporter
         $frontPageSection->addTextBreak(3);
 
         // Verfahrensname
-        $frontPageSection->addText(htmlspecialchars($procedure->getName()), $coverHeadingStyle, $coverParagraphStyle);
+        $frontPageSection->addText(htmlspecialchars($procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
         $phaseName = $procedure->getPhaseName();
@@ -1724,12 +1704,12 @@ class DocxExporter
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
                 Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
             }
-            $cell2->addText($statement->getProcedure()->getSettings()->getCopyright());
+            $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
     }
 
     /**
-     * Generate Html imagetag to be used in PhphWord Html::addHtml().
+     * Generate Html imagetag to be used in PhpWord Html::addHtml().
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel
@@ -1822,7 +1802,8 @@ class DocxExporter
             $cell->addText(
                 htmlspecialchars(
                     $this->getTranslator()->trans($transKey)
-                    .$delimiter.$concatValue
+                    .$delimiter.$concatValue,
+                    ENT_NOQUOTES
                 ),
                 $fStyle,
                 $pStyle);

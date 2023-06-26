@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -647,7 +647,7 @@ class ContentService extends CoreService
     protected function convertToLegacy($singleGlobalContent): array
     {
         // returnValue, if globalContent doesn't exist
-        if (!$singleGlobalContent instanceof Entity\GlobalContent) {
+        if (!$singleGlobalContent instanceof GlobalContent) {
             // Legacy returnvalues if no globalContent found
             return [];
         }

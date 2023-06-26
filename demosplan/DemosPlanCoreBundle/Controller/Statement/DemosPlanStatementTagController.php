@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +38,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/tag/{tag}",
      *     defaults={"master": false}
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -94,7 +95,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/edit_tag.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'tag.administration_single',
@@ -113,6 +114,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     defaults={"master": false},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -132,7 +134,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $title = $translator->trans('tag.administration');
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_tags.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -149,6 +151,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/schlagworte/edit",
      *     defaults={"master": false},
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response

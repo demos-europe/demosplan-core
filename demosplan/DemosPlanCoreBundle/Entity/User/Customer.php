@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Table(name="customer")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
 {
@@ -135,7 +135,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * T16986
      * Will be used to store licence information about used map by customer.
-     * e.g. "© basemap.de BKG"
+     * e.g. "© basemap.de BKG".
      *
      * @var string
      *

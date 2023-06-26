@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -267,7 +267,10 @@ export default function ToggleAnything () {
           }
 
           //  Vue Components may listen to this
-          window.Bus.emit('toggleAnything:clicked', el.data('toggle-id'))
+          const toggleAnythingClicked = new CustomEvent("toggleAnything:clicked", { data: el.data('toggle-id') })
+
+          //  Vue Components may listen to this
+          document.dispatchEvent(toggleAnythingClicked)
         })
       }
     }

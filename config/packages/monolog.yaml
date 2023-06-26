@@ -1,0 +1,102 @@
+monolog:
+    use_microseconds: false
+    channels:
+        - 'dplan'
+        - 'dplan_cockpit'
+        - 'dplan_export'
+        - 'dplan_gateway'
+        - 'dplan_importer'
+        - 'dplan_mail'
+        - 'dplan_maintenance'
+        - 'dplan_plugin'
+        - 'dplan_request'
+        - 'dplan_404'
+        - 'dplan_csp'
+        - 'lgv'
+    handlers:
+        applog:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            level: error
+            handler: file
+        main:
+            type: fingers_crossed
+            action_level: "%symfony_loglevel%"
+            handler: file
+            channels: ["!event"]
+        sentry:
+            type: service
+            id: demosplan\DemosPlanCoreBundle\Monolog\SentryHandler
+            dsn: "%sentry_dsn%"
+            level: "%sentry_loglevel%"
+            release: "%project_version%"
+        deprecations:
+            type: stream
+            level: INFO
+            path: '%kernel.logs_dir%/php_info.log'
+            channels: [php]
+        file:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            level: "%symfony_loglevel%"
+        console:
+            type: console
+            process_psr_3_messages: false
+        dplan.main:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+            level: "%frontend_loglevel%"
+            channels: ["dplan"]
+        dplan.plugin:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+            level: "%frontend_loglevel%"
+            channels: ["dplan_plugin"]
+        dplan.gateway:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/%demosplan_call_logfile%"
+            level: "%gatewayservice_loglevel%"
+            channels: ["dplan_gateway"]
+        dplan.request:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/%demosplan_request_logfile%"
+            level: "%frontend_loglevel%"
+            channels: ["dplan_request"]
+        dplan.mail:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/%demosplan_mail_logfile%"
+            level: "%mailservice_loglevel%"
+            channels: ["dplan_mail"]
+        dplan.maintenance:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/dplanmaintenance.log"
+            level: "%frontend_loglevel%"
+            channels: ["dplan_maintenance"]
+        dplan.importer:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            level: "%importer_loglevel%"
+            channels: ["dplan_importer"]
+        dplan.404:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/404.log"
+            level: "%frontend_loglevel%"
+            channels: ["dplan_404"]
+        dplan.csp:
+            type: "%logging_strategy%"
+            max_files: "%logging_max_files%"
+            path: "%kernel.logs_dir%/csp.log"
+            level: "notice"
+            channels: ["dplan_csp"]
+        lgv:
+            type: "%logging_strategy%"
+            path: "%kernel.logs_dir%/%lgv_logfile%"
+            level: "%lgv_local_debug%"
+            channels: ["lgv"]

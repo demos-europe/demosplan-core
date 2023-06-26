@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -128,7 +128,7 @@ class FloodControlService extends CoreService
     /**
      * Check, whether Cookie has been set to prevent multiple submissions.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CookieException
+     * @throws CookieException
      */
     public function checkCookie(RequestValidationEvent $event)
     {

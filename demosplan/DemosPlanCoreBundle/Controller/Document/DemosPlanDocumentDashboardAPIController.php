@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -20,15 +21,14 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer;
-use demosplan\DemosPlanMapBundle\Logic\MapHandler;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -75,6 +75,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"GET"},
      *        name="dp_api_documents_dashboard_get",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      *
      * Manages the display of the dashboard on load.
@@ -139,6 +140,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_dashboard_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      *
      * Manages some updates performed from the dashboard.

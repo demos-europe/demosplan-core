@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,7 +29,7 @@ class ParametersProviderSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            'DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent' => 'processParameters',
+            ParameterProviderEventInterface::class => 'processParameters',
         ];
     }
 

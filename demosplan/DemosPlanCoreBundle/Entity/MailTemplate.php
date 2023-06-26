@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_mail_templates")
+ *
  * @ORM\Entity
  */
 class MailTemplate implements IntegerIdEntityInterface
@@ -22,7 +23,9 @@ class MailTemplate implements IntegerIdEntityInterface
      * @var int|null
      *
      * @ORM\Column(name="_mt_id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;

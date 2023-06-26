@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -17,14 +18,13 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHasher;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -188,7 +188,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
+            '@DemosPlanCore/DemosPlanUser/password_recover.html.twig',
             [
                 'title'        => 'user.password.recover',
                 'templateVars' => [],
@@ -298,7 +298,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
+            '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
@@ -386,7 +386,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 return $this->redirectToRoute('core_home');
             }
 
-            return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/logout_success.html.twig');
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
         } catch (Exception $e) {
             return $this->handleError($e);
         }
@@ -414,7 +414,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
+            '@DemosPlanCore/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,
                 'uId'   => $uId,

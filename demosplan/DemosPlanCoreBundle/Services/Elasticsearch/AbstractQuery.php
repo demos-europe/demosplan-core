@@ -3,26 +3,24 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Elastica\Query\AbstractQuery as AbstractQueryES;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
 use function in_array;
 use function is_array;
-
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractQuery
 {

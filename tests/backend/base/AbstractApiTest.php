@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -57,8 +57,8 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function initializeUser(User $user): string
     {
         $token = $this->tokenManager->create($user);
-        $demosToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
-        $this->tokenStorage->setToken($demosToken);
+        $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
+        $this->tokenStorage->setToken($userToken);
 
         return $token;
     }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,7 @@ namespace Tests\Core\Document\Functional;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use Tests\Base\FunctionalTestCase;
 
 class ParagraphServiceTest extends FunctionalTestCase

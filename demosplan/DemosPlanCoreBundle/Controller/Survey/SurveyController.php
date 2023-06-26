@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,13 +14,13 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyCreateHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyNewHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyUpdateHandler;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +34,7 @@ class SurveyController extends BaseController
      *     name="dplan_survey_new",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/neu")
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -64,7 +65,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'surveyStatuses'     => $surveyStatuses,
                     'procedure'          => $procedureId,
@@ -85,6 +86,7 @@ class SurveyController extends BaseController
      *     name="dplan_survey_create",
      *     methods="POST",
      *     path="/verfahren/{procedureId}/umfrage/create")
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -129,6 +131,7 @@ class SurveyController extends BaseController
      *     name="dplan_survey_edit",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}/edit")
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -148,7 +151,7 @@ class SurveyController extends BaseController
             $procedureStartDate = $procedure->getPublicParticipationStartDate();
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_survey_form.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_survey_form.html.twig',
                 [
                     'survey'             => $survey,
                     'surveyStatuses'     => $surveyStatuses,
@@ -170,6 +173,7 @@ class SurveyController extends BaseController
      *     name="dplan_survey_update",
      *     methods="POST",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}/update")
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -211,6 +215,7 @@ class SurveyController extends BaseController
      *     name="dplan_survey_show",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}")
+     *
      * @DplanPermissions("area_survey")
      *
      * @throws MessageBagException
@@ -225,7 +230,7 @@ class SurveyController extends BaseController
             $survey = $surveyHandler->getProcedureSurvey($procedureId, $surveyId);
 
             return $this->renderTemplate(
-                '@DemosPlanProcedure/DemosPlanProcedure/administration_list_survey_comments.html.twig',
+                '@DemosPlanCore/DemosPlanProcedure/administration_list_survey_comments.html.twig',
                 [
                     'survey'    => $survey,
                     'procedure' => $procedureId,

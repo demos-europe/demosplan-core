@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -19,11 +20,10 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
@@ -40,6 +40,7 @@ class DemosPlanCustomerController extends BaseController
      *        name="dplan_user_customer_showSettingsPage",
      *        options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -69,7 +70,7 @@ class DemosPlanCustomerController extends BaseController
             ];
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/customer_settings.html.twig',
+                '@DemosPlanCore/DemosPlanUser/customer_settings.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => $translator->trans('customer.settings'),
@@ -90,6 +91,7 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"POST"},
      *        name="DemosPlan_user_setting_page_post",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -133,6 +135,7 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"GET", "POST"},
      *        name="dplan_customer_mail_send_all_users"
      * )
+     *
      * @DplanPermissions("area_customer_send_mail_to_users")
      *
      * @throws MessageBagException
@@ -151,7 +154,7 @@ class DemosPlanCustomerController extends BaseController
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
                 return $this->renderTemplate(
-                    '@DemosPlanUser/DemosPlanUser/customer_settings_update_mail.html.twig',
+                    '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                     [
                         'templateVars' => $templateVars,
                         'title'        => $translator->trans('customer.settings.update.mail.title'),
@@ -175,7 +178,7 @@ class DemosPlanCustomerController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.email.sent');
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/customer_settings_update_mail.html.twig',
+                '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'title'        => $translator->trans('customer.settings.update.mail.title'),

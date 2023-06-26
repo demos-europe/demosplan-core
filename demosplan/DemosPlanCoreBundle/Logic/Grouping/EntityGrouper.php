@@ -5,25 +5,23 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
-use function array_shift;
-use function count;
-
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ArraySorterInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ArraySorterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_shift;
+use function count;
 use function is_countable;
 use function key;
 use function reset;
-
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\CoreEntity

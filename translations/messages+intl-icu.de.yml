@@ -240,7 +240,6 @@ branding.styling.details.description: |
     link: "#123456"<br />
     link-hover: "#123456"<br />
     link-active: "#123456"<br />
-    link-alt: "#123456"<br />
     Aktive und sichtbar fokussierte Elemente:<br />
     highlight: "#123456"<br />
     "Reden Sie mit!"-Box, Suchfeld auf Startseite:<br />
@@ -717,8 +716,6 @@ copies: "Exemplare"
 copy: "Kopieren"
 copy.to.procedure: "In ein anderes Verfahren kopieren"
 copyof: "Kopie von"
-copyright.source: "Copyright-Vermerk"
-copyright.sh: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 counties: "Kreise"
 counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
@@ -1946,9 +1943,12 @@ logo.of.bundesland: "Logo-Bild des Bundeslandes"
 logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
-map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{link}\">Impressum</a>"
+# map.attribution.default supports both {linkImprint} and {currentYear} placeholders.
+map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{linkImprint}\">Impressum</a>"
+map.attribution.exports: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 map.attribution: "Copyright-Vermerk"
 map.attribution.hint: "Der Copyright-Vermerk bzw. die Quellengabe wird in einer Leiste unterhalb der Karte angezeigt."
+map.attribution.placeholder: "Um das aktuelle Jahr darzustellen, nutzen Sie diesen Platzhalter: <strong>'{currentYear'}</strong>"
 map.base: "Grundkarte"
 map.base.url: "URL der Grundkarte"
 map.base.url.hint: "Geben Sie hier die Web-Adresse für einen Web-Map-Service (WMS) ein. Die in der Adresse angegebene Kartenebene wird auf der Startseite als Grundkarte angezeigt. Die Kartenebene muss die Projektion EPSG:3857 (Web Mercator) unterstützen."
@@ -2047,6 +2047,7 @@ memo: "Notiz"
 memo.unset: "Keine Notiz vorhanden"
 menu.currentPage: "Aktuelle Seite"
 menu.footer: "Fußleistenmenü"
+menu.nav.toggle: "Hauptnavigation ein-/ausblenden"
 menu.primary: "Hauptmenü"
 menu.stepnav: "Schrittnavigation im Formular"
 menu.sub: "Untermenü des Bereiches {section}"
@@ -3341,8 +3342,8 @@ statements.selected: |
     }
 statements.splittable.now: |
     {count, plural,
-        =1 { <span class="weight--bold color--system-info">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
-        other { <span class="weight--bold color--system-info">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
+        =1 { <span class="weight--bold color-message-info-text">1</span> Stellungnahme kann jetzt aufgeteilt werden.}
+        other { <span class="weight--bold color-message-info-text">#</span> Stellungnahmen können jetzt aufgeteilt werden.}
     }
 statements.submitted: "eingereichte Stellungnahmen"
 statements.submitted.heading: "Eingereichte Stellungnahmen"
@@ -3511,7 +3512,7 @@ text.master.new: "Im folgenden Formular können Sie eine neue Blaupause anlegen.
 text.masters.list: "In der Listenansicht sehen Sie alle Blaupausen Ihrer Organisation."
 text.mydata.citizen: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind. Möchten Sie Ihre Daten ändern, tun Sie dies bitte unter \"Meine Daten\"."
 text.mydata: "Hier können Sie Ihre Daten einsehen, mit denen Sie bei der Bauleitplanung registriert sind. Möchten Sie Ihre Daten editieren, tun Sie dies bitte unter \"Meine Daten\". Hier können Sie sich für den Newsletter an- bzw. abmelden."
-text.notifications.new.procedures: "Möchten Sie über neue Verfahren (frühzeitige Beteiligungen und öffentliche Auslegungen) informiert werden? Erstellen Sie hier Ihre Benachrichtigungen. Sobald Verfahren mit einer Ihrer Postleitzahlen (+Umkreis) in die Beteiligung gehen, werden Sie per E-Mail darüber informiert. Ihre E-Mail-Adresse finden Sie unter <a class=\"text-decoration-underline color-brand-alt-contrast\" href=\"{link}\">Meine Daten</a>."
+text.notifications.new.procedures: "Möchten Sie über neue Verfahren (frühzeitige Beteiligungen und öffentliche Auslegungen) informiert werden? Erstellen Sie hier Ihre Benachrichtigungen. Sobald Verfahren mit einer Ihrer Postleitzahlen (+Umkreis) in die Beteiligung gehen, werden Sie per E-Mail darüber informiert. Ihre E-Mail-Adresse finden Sie unter <a class=\"text-decoration-underline color-alt-contrast\" href=\"{link}\">Meine Daten</a>."
 text.organisation.edit.self.portal: "Hier können Sie die Daten einsehen und bearbeiten, mit denen Ihre Organisation bei <strong>{projectName}</strong> registriert ist."
 text.organisation.edit.self.gateway: "Hier können Sie die Daten einsehen, mit denen Ihre Organisation bei <strong>{projectName}</strong> registriert ist. Möchten Sie diese Daten editieren, tun Sie dies bitte im Gateway. Hier können Sie lediglich einige wenige Zusatzinformationen bearbeiten."
 text.organisation.edit: "Hier können Sie die Daten einer Organisation bearbeiten. Über \"Abteilungen verwalten\" können Sie eine oder mehrere Abteilungen bzw. Organisationseinheiten anlegen. Die Zuordnung einzelner Nutzenden zu einer Abteilung kann auf der Seite \"Nutzerverwaltung\" vorgenommen werden."
@@ -3702,6 +3703,7 @@ user.password.recovery_vague: "Falls die eingegebene E-Mail-Adresse {email} eine
 user.password.set: "Ihr Passwort wurde erfolgreich gesetzt."
 user.registration.completed: "Registrierung abgeschlossen"
 user.registration.fail: "Registrierung fehlgeschlagen."
+user.registration.invalid.csrf: "Das Formular war ungültig. Bitte versuchen Sie es erneut."
 user.registration.confirmed: "Zugangsdaten gesendet"
 user.registration.invitation.outstanding: "Nutzer*in wurde noch nicht per E-Mail eingeladen!"
 user.registration.invitation.sent: "Nutzer*in per E-Mail eingeladen"
@@ -3824,6 +3826,7 @@ warning.isolated.tag: "Der Stellungnahme {parentStatementExternalId} ist (weiter
 warning.limited.input.field: "Das Eingabefeld  \"{fieldname}\" ist auf {limit} Zeichen begrenzt."
 warning.local.participant.confirm: "Bitte bestätigen Sie, dass Sie in der/einer Gemeinde wohnen, die dieses Thema betrifft."
 warning.login.failed: "Der Login war nicht erfolgreich. Bitte versuchen Sie es erneut."
+warning.login.welcomepage.failed: "Der Login war nicht erfolgreich. Die Vollständigkeit der Daten Ihrer Organisation konnte nicht erfolgreich geprüft werden."
 warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht möglich."
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
 warning.orgadata.missing: "Die Daten Ihrer Organisation wurden noch nicht vollständig hinterlegt. Zunächst muss sich die Institutions-Koordination oder die/der Fachplaner-Admin Ihrer Organisation anmelden und diese vervollständigen. Danach können Sie demosplan nutzen."

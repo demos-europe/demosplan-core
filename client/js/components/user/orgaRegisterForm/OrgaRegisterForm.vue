@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -126,6 +126,13 @@
             name="gdpr_consent"
             required
             value-to-send="on" />
+
+          <dp-input
+            id="_csrf_token"
+            name="_csrf_token"
+            type="hidden"
+            :value="csrfToken"/>
+
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
@@ -184,6 +191,10 @@ export default {
 
   props: {
     customer: {
+      type: String,
+      required: true
+    },
+    csrfToken: {
       type: String,
       required: true
     }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,10 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerCategoryResourceType;
-use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryTreeTooDeepException;
-use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,6 +36,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * get params: type.
      *
      * @Route(methods={"GET"}, name="list")
+     *
      * @DplanPermissions("area_map_participation_area")
      */
     public function layersListAction(MapHandler $mapHandler, string $procedureId): APIResponse
@@ -48,6 +49,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
 
     /**
      * @Route(methods={"POST", "PATCH"}, name="update")
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @throws MessageBagException
@@ -80,6 +82,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * Delete a specific GisLayer.
      *
      * @Route(path="{layerId}", methods={"DELETE"}, name="delete")
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse

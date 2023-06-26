@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -31,10 +31,10 @@ class OptionsLoaderPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $fileLocator = new FileLocator([
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config'),
+            DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
-            DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config'),
-            DemosPlanPath::getProjectPath('app/Resources/DemosPlanProcedureBundle/config'),
+            DemosPlanPath::getConfigPath('procedure'),
+            DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config/procedure'),
         ]);
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {

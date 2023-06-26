@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,12 +19,10 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -52,11 +50,6 @@ class XlsxStatementImport
      * @var EventDispatcherPostInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
 
     /**
      * @var StatementRepository
@@ -88,7 +81,6 @@ class XlsxStatementImport
         EventDispatcherPostInterface $eventDispatcher,
         ExcelImporter $xlsxStatementImporter,
         LoggerInterface $logger,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementRepository $statementRepository,
         StatementService $statementService,
         EntityManagerInterface $entityManager,
@@ -98,7 +90,6 @@ class XlsxStatementImport
         $this->statementService = $statementService;
         $this->logger = $logger;
         $this->eventDispatcher = $eventDispatcher;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->statementRepository = $statementRepository;
         $this->entityManager = $entityManager;
         $this->permissions = $permissions;
@@ -139,8 +130,7 @@ class XlsxStatementImport
             }
 
             foreach ($generatedStatements as $statement) {
-                $createdStatement = $this->statementRepository->addObject($statement);
-                $this->searchIndexTaskService->addIndexTask(Statement::class, $createdStatement->getId());
+                $this->statementRepository->addObject($statement);
 
                 try {
                     $statementArray = $this->statementService->convertToLegacy($statement);

@@ -3,38 +3,37 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -87,7 +86,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -161,7 +160,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/fragment_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -251,7 +250,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments_archive.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list.archive',
@@ -271,7 +270,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      *
@@ -357,7 +356,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list',
@@ -382,12 +381,11 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function editStatementFragmentAjaxAction(
         CurrentUserService $currentUser,
         Request $request,
-        SearchIndexTaskService $searchIndexTaskService,
         StatementFragmentService $statementFragmentService,
         string $fragmentId,
         bool $isReviewer = false)
@@ -423,10 +421,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $returnCode = 200;
             $success = true;
 
-            // as fragments are fetched from ES later on to get current structure
-            // ES needs to be indexed beforehand
-            $searchIndexTaskService->refreshIndex(StatementFragment::class);
-
             if (false === ($updatedStatementFragment instanceof StatementFragment)) {
                 $this->getLogger()->error(
                     "Failed updating statement-fragment {$fragmentId}"
@@ -457,7 +451,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param string $fragmentId
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function deleteFragmentStatementAjaxAction(Request $request, $fragmentId)
     {
@@ -578,7 +572,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/verfahren/{procedure}/fragment/{statementId}/add"
      * )
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -672,7 +666,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param bool $isReviewer
      *
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -838,7 +832,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *
      * @param Request $request ;
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      *
      * @throws MessageBagException
      */

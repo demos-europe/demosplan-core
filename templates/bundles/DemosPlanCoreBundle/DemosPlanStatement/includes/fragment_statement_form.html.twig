@@ -1,0 +1,307 @@
+{# edit fragment #}
+<form
+    class=""
+    data-dp-validate
+    action="{{ path('DemosPlan_statement_fragment_add', {'procedure': procedure, 'statementId': templateVars.statement.id|default(0)} ) }}"
+    method="post">
+    <input name="action" type="hidden" value="save">
+
+
+    {# fragment text #}
+    <label class="u-mb-0" for="r_text">
+        {{ "fragment"|trans }}
+    </label>
+    <dp-editor
+        class="u-mb"
+        hidden-input="r_text"
+        :toolbar-items="{
+            strikethrough: true,
+            mark: true,
+            obscure: hasPermission('feature_obscure_text')
+         }"
+        v-model="fragmentText">
+    </dp-editor>
+
+    {# meta #}
+    <div class="layout__item u-1-of-2 u-pl-0">
+
+        {% if hasPermission('feature_statements_fragment_add') %}
+            <label class="u-mb-0_25 cf" for="r_tags[]">
+                {{ "tags.assigned"|trans }}
+
+                <button
+                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    type="button"
+                    title="{{ "field.empty"|trans }}"
+                    aria-label="{{ "field.empty"|trans }}"
+                    data-cy="tagsEmpty"
+                    @click.prevent="resetSelectMenu('tags')">
+                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                </button>
+
+                {% set tags = []  %}
+                {% set groups = []  %}
+                {% set tagArray = [] %}
+
+                {% for topicGroup in templateVars.topics|default([]) %}
+                    {% for tag in topicGroup.tags|default([]) %}
+                        {% set tagArray = tagArray|merge([{id: tag.id, title: tag.title}]) %}
+                    {% endfor %}
+
+                    {% set groups = groups|merge([{id: topicGroup.id, groupName: topicGroup.title, tags: tagArray }]) %}
+                    {% set tagArray = [] %}
+                {% endfor %}
+                <dp-multiselect
+                    id="r_tags[]"
+                    v-model="tags"
+                    class="u-mt-0_25 weight--normal"
+                    data-cy="fragmentTopicsTags"
+                    group-label="groupName"
+                    :group-select="false"
+                    group-values="tags"
+                    label="title"
+                    multiple
+                    :options="JSON.parse('{{ groups|default([])|json_encode|e('js', 'utf-8') }}')"
+                    track-by="id">
+                    <template v-slot:option="{ props }">
+                        <strong v-if="props.option.$isLabel">
+                            {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
+                        </strong>
+                        <span v-else>
+                            {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                        </span>
+                    </template>
+                    <template v-slot:tag="{ props }">
+                        <span class="multiselect__tag">
+                            {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.id" name="r_tags[]"/>
+                        </span>
+                    </template>
+                </dp-multiselect>
+
+            </label>
+        {% endif %}
+
+        {% if hasPermission('feature_optional_tag_propagation') %}
+            <label class="u-mb u-pl-0_5 u-pt-0_25 lbl--text" for="r_forwardTagsToStatements">
+                <input
+                    type="checkbox"
+                    name="r_forwardTagsToStatements"
+                    id="r_forwardTagsToStatements"
+                    data-cy="forwardTagsToStatements"/>
+                {{ "forward.tags.to.statements"|trans }}
+            </label>
+        {% endif %}
+
+        {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
+            {% if hasPermission('field_statement_county') %}
+                <label class="u-mb-0_25 u-mt cf" for="r_counties[]">
+                    {{ "counties"|trans }}
+
+                    <button
+                        class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                        type="button"
+                        title="{{ "field.empty"|trans }}"
+                        aria-label="{{ "field.empty"|trans }}"
+                        data-cy="countiesEmpty"
+                        @click.prevent="resetSelectMenu('counties')">
+                        <i class="fa fa-times-circle" aria-hidden="true"></i>
+                    </button>
+
+                    {% set counties = [] %}
+                    {% for county in templateVars.availableCounties %}
+                        {% set counties = counties|merge([{id: county.id, name: county.name}]) %}
+                    {% endfor %}
+                    <dp-multiselect
+                        id="r_counties[]"
+                        v-model="counties"
+                        class="u-mt-0_25 weight--normal"
+                        data-cy="fragmentCounties"
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                        <span class="multiselect__tag">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.id" name="r_counties[]"/>
+                        </span>
+                        </template>
+                    </dp-multiselect>
+                </label>
+            {% endif %}
+
+            {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled %}
+                <label class="u-mb-0_25 u-mt cf" for="r_municipalities[]">
+                {{ "municipalities"|trans }}
+
+                <button
+                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    type="button"
+                    title="{{ "field.empty"|trans }}"
+                    aria-label="{{ "field.empty"|trans }}"
+                    data-cy="municipalitiesEmpty"
+                    @click.prevent="resetSelectMenu('municipalities')">
+                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                </button>
+
+                {% if fragment.municipalities is defined %}
+                    {% set municipalities = [] %}
+                    {% for municipality in templateVars.availableMunicipalities %}
+                        {% set municipalities = municipalities|merge([{id: municipality.id, name: municipality.name}]) %}
+                    {% endfor %}
+                    <dp-multiselect
+                        id="r_municipalities[]"
+                        v-model="municipalities"
+                        class="u-mt-0_25 weight--normal"
+                        data-cy="fragmentMunicipalities"
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                        <span class="multiselect__tag">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.id" name="r_municipalities[]"/>
+                        </span>
+                        </template>
+                    </dp-multiselect>
+                    </label>
+                {% endif %}
+            {% endif %}
+
+            {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled %}
+                <label class="u-mb-0_25 u-mt cf" for="r_priorityAreas[]">
+                {{ "priorityAreas.all"|trans }}
+
+                <button
+                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    type="button"
+                    title="{{ "field.empty"|trans }}"
+                    aria-label="{{ "field.empty"|trans }}"
+                    data-cy="priorityAreasEmpty"
+                    @click.prevent="resetSelectMenu('priorityAreas')">
+                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                </button>
+
+                {% if fragment.priorityAreas is defined %}
+                    {% set priorityAreas = [] %}
+                    {% for priorityArea in templateVars.availablePriorityAreas %}
+                        {% set priorityAreas = priorityAreas|merge([{id: priorityArea.id, name: priorityArea.name}]) %}
+                    {% endfor %}
+                    <dp-multiselect
+                        id="r_priorityAreas[]"
+                        v-model="priorityAreas"
+                        class="u-mt-0_25 weight--normal"
+                        data-cy="fragmentPriorityAreas"
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                        <span class="multiselect__tag">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                        </span>
+                        </template>
+                    </dp-multiselect>
+                    </label>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+    </div><!--
+
+
+        {# assign to reviewer, vote / consideration  #}
+     --><div class="layout__item u-1-of-2">
+
+        {% if hasPermission('field_procedure_elements') %}
+            <dp-select-document
+                class="u-mb"
+                :elements="JSON.parse('{{ templateVars.elements|default([])|json_encode|e('js', 'utf-8') }}')"
+                :paragraphs="JSON.parse('{{ templateVars.paragraph|default({})|json_encode|e('js', 'utf-8') }}')"
+                :documents="JSON.parse('{{ templateVars.documents|default({})|json_encode|e('js', 'utf-8') }}')"
+                selected-element-id="{{ templateVars.statement.elementId|default('') }}"
+                selected-element-title="{{ templateVars.statement.elementTitle|default('') }}"
+                selected-paragraph-id="{{ templateVars.statement.paragraphParentId|default('') }}"
+                selected-paragraph-title="{{ templateVars.statement.paragraphTitle|default('') }}"
+                selectbox-wrapper-classes="u-mv-0_25"
+            >
+            </dp-select-document>
+        {%  endif  %}
+
+
+        {# assign fragment to orga #}
+        {% if hasPermission('feature_statements_fragment_add_reviewer') %}
+
+            <label class="u-mb-0_25" for="r_reviewer">
+                {{ "fragment.assign.reviewer"|trans}}
+            </label>
+
+            {# assignment only possible if no advice given yet or a reviewer has set a voteAdvice but not reassigned the fragment#}
+            {% if fragment.voteAdvice|default is empty or fragment.departmentId|default is not null %}
+
+                {% set agencies = [{id: '', name:  'no.assignment'|trans  }] %}
+                {% for departmentId, department in templateVars.statementFragmentAgencies|default([]) %}
+                    {% set agencies = agencies|merge([{ id: departmentId, name: department.orga.name ~ ', ' ~ department.name }]) %}
+                {% endfor %}
+                <dp-multiselect
+                    v-model="department"
+                    :allow-empty="false"
+                    class="display--inline-block"
+                    label="name"
+                    :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
+                    track-by="name">
+                    <template v-slot:option="{ props }">
+                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                    </template>
+                </dp-multiselect>
+                <input type="hidden" :value="department.id" name="r_reviewer" id="r_reviewer"/>
+
+
+
+                <label class="u-mb u-pl-0_5 u-pt-0_25 lbl--text">
+                    <input type="checkbox" name="r_notify" checked/>
+                    {{ "fragment.notify.reviewer"|trans}}
+                </label>
+
+            {% else %}
+
+                <p class="u-mb u-pl-0_5 u-pt-0_25">
+                    {{ "fragment.voteAdvice.given"|trans}}
+                </p>
+
+            {% endif %}
+
+        {% endif %}
+
+        {# form actions #}
+        <div class="text--right u-mt space-inline-s">
+
+            <button id="fragmentSubmitButton" type="submit" class="btn btn--primary" name="save" data-cy="submitButton">
+                {{ 'fragment.create'|trans }}
+            </button>
+
+            <button type="reset" class="btn btn--secondary">
+                {{ "abort"|trans }}
+            </button>
+
+        </div>
+
+    </div>
+
+</form>

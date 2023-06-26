@@ -3,16 +3,12 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
-
-use function array_filter;
-
-use const ARRAY_FILTER_USE_KEY;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -22,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +28,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
+
+use function array_filter;
+
+use const ARRAY_FILTER_USE_KEY;
 
 class EntrypointController extends BaseController
 {
@@ -73,6 +73,7 @@ class EntrypointController extends BaseController
      * the platform's external start page.
      *
      * @Route(path="/loggedin", name="core_home_loggedin")
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function loggedInIndexEntrypointAction(Request $request): Response
@@ -150,6 +151,7 @@ class EntrypointController extends BaseController
      * their designated logged-in index page.
      *
      * @Route(path="/", name="core_home", options={"expose": true})
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -245,7 +247,7 @@ class EntrypointController extends BaseController
         $templateVars['publicAgency'] = $user->isPublicAgency();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.public.participation',

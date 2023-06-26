@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,7 +22,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
  *
  * @ORM\Table(name="survey")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanSurveyBundle\Repository\SurveyRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyRepository")
  */
 class Survey extends CoreEntity implements UuidEntityInterface
 {
@@ -35,8 +36,11 @@ class Survey extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -81,6 +85,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure",
      *     cascade={"persist"}, inversedBy="surveys")
+     *
      * @ORM\JoinColumn(name="p_id", referencedColumnName="_p_id", nullable=false,
      *     onDelete="CASCADE")
      */

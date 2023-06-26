@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,7 +36,8 @@ use Doctrine\ORM\Mapping as ORM;
  * results in an additional one-to-many relationship between DraftStatements and GdprConsent).
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository")
  */
 class GdprConsent extends CoreEntity implements UuidEntityInterface
 {
@@ -44,8 +45,11 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -58,6 +62,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * @var Statement
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="gdprConsent")
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id")
      */
     protected $statement;
@@ -112,6 +117,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $consentee;

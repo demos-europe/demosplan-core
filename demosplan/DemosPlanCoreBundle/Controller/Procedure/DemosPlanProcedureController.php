@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,6 +14,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -29,72 +30,72 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoade
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\NoRecipientsWithEmailException;
+use demosplan\DemosPlanCoreBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Form\BoilerplateGroupType;
+use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
+use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
+use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
+use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateGroupVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedureFormData;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
-use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
-use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Form\BoilerplateGroupType;
-use demosplan\DemosPlanProcedureBundle\Form\BoilerplateType;
-use demosplan\DemosPlanProcedureBundle\Form\ProcedureFormType;
-use demosplan\DemosPlanProcedureBundle\Form\ProcedureTemplateFormType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureCategoryService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureServiceOutput;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage;
-use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
-use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
-use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NoResultException;
@@ -121,8 +122,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-
-use function collect;
 
 /**
  * Seitenausgabe Planverfahren.
@@ -363,7 +362,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_dashboard.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_dashboard.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,
@@ -823,7 +822,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_new.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_new.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $translator->trans('procedure.new', [], 'page-title'),
@@ -929,7 +928,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_new_master.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_new_master.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $translator->trans('procedure.master.new', [], 'page-title'),
@@ -995,7 +994,7 @@ class DemosPlanProcedureController extends BaseController
             }
         }
 
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_new_member_list_mastertoeblist.html.twig';
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_new_member_list_mastertoeblist.html.twig';
 
         return $this->renderTemplate(
             $template,
@@ -1076,7 +1075,7 @@ class DemosPlanProcedureController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_unregistered_publicagency_email.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_unregistered_publicagency_email.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedureId'  => $procedureId,
@@ -1127,7 +1126,7 @@ class DemosPlanProcedureController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_unregistered_publicagency_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_unregistered_publicagency_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -1138,8 +1137,6 @@ class DemosPlanProcedureController extends BaseController
 
     /**
      * Administrate the E-Mail to send to invited and registered toeb/public agencies/members.
-     *
-     * This route is redirected to in demosplan/DemosPlanProcedureBundle/Controller/DemosPlanProcedureController.php:2373
      *
      * @Route(
      *     name="DemosPlan_admin_member_email",
@@ -1184,7 +1181,7 @@ class DemosPlanProcedureController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_member_email.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_member_email.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedureId'  => $procedureId,
@@ -1198,9 +1195,9 @@ class DemosPlanProcedureController extends BaseController
      * Helper method to creates an defined text to attach to an Email.
      *
      * @throws Throwable
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private function generateAdditionalEmailText(Procedure $procedure, array $selectedOrganisations): string
     {
@@ -1237,7 +1234,7 @@ class DemosPlanProcedureController extends BaseController
         ];
 
         return $this->twig
-            ->load('@DemosPlanProcedure/DemosPlanProcedure/administration_send_invitation_email.html.twig')
+            ->load('@DemosPlanCore/DemosPlanProcedure/administration_send_invitation_email.html.twig')
             ->renderBlock('body_plain', $context);
     }
 
@@ -1450,10 +1447,10 @@ class DemosPlanProcedureController extends BaseController
 
             // Template auswählen
             if (true === $isMaster) {
-                $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_edit_master.html.twig';
+                $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit_master.html.twig';
                 $title = 'procedure.master.adjustments';
             } else {
-                $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_edit.html.twig';
+                $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
             }
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
@@ -1588,7 +1585,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_import.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_import.html.twig',
             [
                 'currentUserId' => $currentUserId,
                 'procedureId'   => $procedureId,
@@ -1625,7 +1622,7 @@ class DemosPlanProcedureController extends BaseController
                 $vars['mailsubject'] = $translator->trans('email.subject.procedure.subscription');
                 $vars['mailbody'] = $this->twig
                     ->load(
-                        '@DemosPlanProcedure/DemosPlanProcedure/subscriptions_email.html.twig'
+                        '@DemosPlanCore/DemosPlanProcedure/subscriptions_email.html.twig'
                     )
                     ->renderBlock(
                         'body_plain',
@@ -1681,6 +1678,7 @@ class DemosPlanProcedureController extends BaseController
         CountyService $countyService,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
+        DatasheetService $datasheetService,
         DocumentHandler $documentHandler,
         DraftStatementHandler $draftStatementHandler,
         DraftStatementService $draftStatementService,
@@ -1689,7 +1687,6 @@ class DemosPlanProcedureController extends BaseController
         FileUploadService $fileUploadService,
         GdprConsentRevokeTokenService $gdprConsentRevokeTokenService,
         GetFeatureInfo $getFeatureInfo,
-        GlobalConfigInterface $globalConfig,
         MapService $mapService,
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
@@ -1989,7 +1986,7 @@ class DemosPlanProcedureController extends BaseController
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2
-        $templateVars['htmlAvailable'] = \in_array($globalConfig->getDatasheetVersion($procedureId), [1, 2], true);
+        $templateVars['htmlAvailable'] = \in_array($datasheetService->getDatasheetVersion($procedureId), [1, 2], true);
 
         // orga Branding
         if ($this->permissions->hasPermission('area_orga_display')) {
@@ -2022,7 +2019,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['fallbackStatementReplyUrl'] = $this->globalConfig->getFallbackStatementReplyUrl(); // move this into event?
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_detail.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_detail.html.twig',
             [
                 'tabCount'     => $tabCount,
                 'procedure'    => $procedureId,
@@ -2053,7 +2050,7 @@ class DemosPlanProcedureController extends BaseController
         $title = 'procedure.admin.list';
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/list_data_input_orga_procedures.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/list_data_input_orga_procedures.html.twig',
             \compact('templateVars', 'title')
         );
     }
@@ -2124,7 +2121,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/list_subscriptions.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/list_subscriptions.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.notifications',
@@ -2336,7 +2333,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_member_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_member_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,
@@ -2411,7 +2408,7 @@ class DemosPlanProcedureController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_new_member_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_new_member_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.public.agency.add',
@@ -2491,7 +2488,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedureId);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_boilerplate.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.boilerplates',
@@ -2516,7 +2513,7 @@ class DemosPlanProcedureController extends BaseController
      */
     public function showProcedurePlacesAction(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanProcedure/DemosPlanProcedure/administration_places.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
     }
@@ -2625,7 +2622,7 @@ class DemosPlanProcedureController extends BaseController
         $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
             [
                 'form'                         => $form->createView(),
                 'boilerplateCategories'        => $boilerplateCategories,
@@ -2745,7 +2742,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_edit_boilerplate_group.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate_group.html.twig',
             [
                 'form'      => $form->createView(),
                 'title'     => 'procedure.boilerplateGroup.edit',
@@ -2780,7 +2777,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @param string $boilerplateId - Identifies the Boilerplate to delete
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplate(string $boilerplateId)
     {
@@ -2801,7 +2798,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroup and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroup(
         string $boilerplateGroupId
@@ -2852,7 +2849,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Deletes the given boilerplateGroups and create message for user.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     protected function handleDeleteBoilerplateGroups(
         array $boilerplateGroupIds

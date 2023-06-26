@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,6 +38,7 @@ class SlugDraftApiController extends APIController
      * However, that changes if the route starts to support an
      * "is-slug-already-taken"-functionality, in this case adjust the permissions
      * accordingly.
+     *
      * @DplanPermissions("feature_short_url")
      *
      * @return APIResponse|JsonResponse

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,7 +19,7 @@ import {
   DpMultiselect,
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
-import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 
@@ -27,8 +27,8 @@ export default {
   name: 'DpBasicSettings',
 
   components: {
+    AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
-    DpAllowedSenderEmailList,
     DpButton,
     DpDateRangePicker,
     DpDatetimePicker,

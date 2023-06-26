@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -200,6 +200,7 @@
         class="u-mt-0_5"
         primary
         secondary
+        :secondary-text="Translator.trans('discard.changes')"
         @primary-action="dpValidateAction('statementMetaData', save, false)"
         @secondary-action="reset" />
     </div>

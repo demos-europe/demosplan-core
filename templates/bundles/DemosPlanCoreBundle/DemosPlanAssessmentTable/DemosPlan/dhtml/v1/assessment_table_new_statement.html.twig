@@ -1,0 +1,612 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
+{% endblock javascripts %}
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
+        area: 'assessment_table_back',
+        heading: 'statement.new'|trans,
+    } %}
+
+    {% set form_action = templateVars.formAction|default(path("DemosPlan_statement_new_submitted", {'procedureId': templateVars.table.procedure.ident})) %}
+    {% set abort_path = templateVars.abortPath|default(path("dplan_assessmenttable_view_original_table", { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% set user = currentUser %}
+    {% set username = user.firstName ~ ' ' ~ user.lastName %}
+
+    {% set formDefinitions = {} %}
+    {% for definition in templateVars.table.procedure.statementFormDefinition.fieldDefinitions %}
+        {% set formDefinitions = formDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required:definition.required } }) %}
+    {% endfor %}
+    {% set participationGuestOnly = templateVars.table.procedure.procedureBehaviorDefinition.participationGuestOnly ? true : false %}
+
+    <dp-new-statement
+        inline-template
+        procedure-id="{{ templateVars.table.procedure.ident }}"
+        default-submit-type="{{ getFormOption('statement_submit_types.default')|first }}"
+        current-external-phase="{{ templateVars.table.procedure.publicParticipationPhase|default }}"
+        current-internal-phase="{{  templateVars.table.procedure.phase|default }}"
+        :internal-phases="JSON.parse('{{ templateVars.internalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
+        :external-phases="JSON.parse('{{ templateVars.externalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
+        request-text="{{ app.request.get('r_text')|default('') }}"
+        request-head-statement="{{ app.request.get('r_head_statement')|default('') }}"
+        :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
+        :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
+        :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
+    >
+        <form
+            id="bpform"
+            name="bpform"
+            action="{{ form_action }}"
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+            data-dp-validate="newStatementForm"
+        >
+            <input type="hidden" name="r_ident" value="{{ templateVars.table.procedure.ident }}">
+            <input type="hidden" name="r_action" value="new">
+
+            <fieldset class="u-pb-0 u-mv">
+                <legend>
+                    {{ "user.details"|trans }}
+                </legend>
+
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+                    {% apply spaceless %}
+
+                        <dp-autofill-submitter-data
+                            :request='{"role":"{{ app.request.get('r_role') }}","organisation":"{{ app.request.get('r_orga_name') }}","department":"{{ app.request.get('r_orga_department_name') }}","name":"{{ app.request.get('r_author_name') }}","email":"{{ app.request.get('r_orga_email') }}","street":"{{ app.request.get('r_orga_street') }}","nr":"{{ app.request.get('r_houseNumber') }}", "postalCode":"{{ app.request.get('r_orga_postalcode') }}","city":"{{ app.request.get('r_orga_city') }}"}'
+                            :submitters="JSON.parse('{{ templateVars.submitters|default|e('js', 'utf-8') }}')"
+                            procedure-id="{{ templateVars.table.procedure.id|default }}"
+                            :init-submitter="values.submitter"
+                            ref="submitter"
+                            @submitter:chosen="addLocationPrompt"
+                            @role-changed="handleRoleChange"
+                            :form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
+                            :participation-guest-only="JSON.parse('{{ participationGuestOnly|json_encode|e('js', 'utf-8') }}')"
+                        ></dp-autofill-submitter-data>
+
+
+                        {#
+                            Additional user fields: userState, userGroup, userOrganisation, userPosition.
+                            These fields are not part of <dp-autofill-submitter-data> because they shared no behavior
+                            with it when first being implemented. However, now some of the fields interact with
+                            <dp-autofill-submitter-data> via @role-changed.
+                        #}
+                        <div class="layout">
+                            {% if hasPermission('field_statement_user_state') and templateVars.formOptions.userState %}
+                                {% set stateOptions = [ { label: '---', value: '' } ] %}
+                                {% for userState in templateVars.formOptions.userState %}
+                                    {% set stateOptions = stateOptions|merge([{ label: userState, value: userState, selected: userState == app.request.get('r_userState') }]) %}
+                                {% endfor %}
+                                <dp-select
+                                    id="r_userState"
+                                    class="layout__item u-1-of-2 u-mb-0_75"
+                                    :label="{
+                                        text: Translator.trans('state')
+                                    }"
+                                    name="r_userState"
+                                    :options="JSON.parse('{{ stateOptions|json_encode|e('js') }}')"
+                                    required></dp-select>
+                            {% endif %}
+
+                            {% if hasPermission('field_statement_user_group') and templateVars.formOptions.userGroup %}
+                                {% set groupOptions = [ { label: '---', value: '' } ] %}
+                                {% for userGroup in templateVars.formOptions.userGroup %}
+                                    {% set groupOptions = groupOptions|merge([{ label: userGroup, value: userGroup, selected: userGroup == templateVars.draftStatement.userGroup|default }]) %}
+                                {% endfor %}
+                                <dp-select
+                                    id="r_userGroup"
+                                    class="layout__item u-1-of-2 u-mb-0_75"
+                                    :label="{
+                                        text: Translator.trans('organisation')
+                                    }"
+                                    name="r_userGroup"
+                                    :options="JSON.parse('{{ groupOptions|json_encode|e('js') }}')"
+                                    required></dp-select>
+                            {% endif %}
+                        </div>
+
+                        <div class="layout">
+                            {% if hasPermission('field_statement_user_organisation') and formDefinitions.citizenXorOrgaAndOrgaName.enabled == true %}
+                                <dp-input
+                                    id="r_userOrganisation"
+                                    class="layout__item u-1-of-2 u-mb-0_75"
+                                    :label="{
+                                        text: Translator.trans('organisation.name')
+                                    }"
+                                    name="r_userOrganisation"
+                                    :required="institutionSelected"
+                                    value="{{ templateVars.request.r_userOrganisation|default }}">
+                                </dp-input>
+                            {% endif %}
+
+                            {% if hasPermission('field_statement_user_position') %}
+                                {% set positionOptions = [ { label: '---', value: '' } ] %}
+                                {% for position in templateVars.formOptions.userPosition %}
+                                    {% set positionOptions = positionOptions|merge([{ label: position, value: position, selected: position == templateVars.draftStatement.userPosition|default }]) %}
+                                {% endfor %}
+                                <dp-select
+                                    id="r_userPosition"
+                                    class="layout__item u-1-of-2 u-mb-0_75"
+                                    :label="{
+                                        text: Translator.trans('position')
+                                    }"
+                                    name="r_userPosition"
+                                    :options="JSON.parse('{{ positionOptions|json_encode|e('js') }}')"></dp-select>
+                            {% endif %}
+                        </div>
+
+                        {% block statement_feedback_postal %}
+                            {% if hasPermission('field_statement_feedback') %}
+                                {{ uiComponent('form.row', {
+                                    elements: [
+                                        {
+                                            label: { text: 'statement.final.send.postal'|trans },
+                                            control: { name: 'r_feedback', value: 'snailmail'},
+                                            type: 'checkbox',
+                                            id: 'r_feedback',
+                                            elementClass: 'u-ml u-mt'
+                                        }
+                                    ]
+                                }) }}
+                            {% endif %}
+                        {% endblock statement_feedback_postal %}
+
+                    {% endapply -%}
+                </div>
+            </fieldset>
+
+            <fieldset class="u-pb-0 u-mv">
+                <legend>
+                    {{ 'statement'|trans }}
+                </legend>
+
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+
+                    {% apply spaceless -%}{# start row #}
+                        {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
+                            {% set submitTypeOptions = [] %}
+                            {% set selectedSubmitType = 'unknown' %}
+                            {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+                                {% if key == getFormOption('statement_submit_types.default')|first or key == app.request.get('r_submit_type') %}
+                                    {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
+                                    {% set selectedSubmitType = key %}
+                                {% else %}
+                                    {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% set usedInternIds = [] %}
+                        {% if hasPermission('field_statement_intern_id') %}
+                            {% set usedInternIds = templateVars.table.usedInternIds|default([]) %}
+                        {% endif %}
+
+                        <div class="layout u-mb-0_75">
+                            <div class="u-1-of-4 layout__item">
+                                <dp-label
+                                    text="{{ 'statement.date.submitted'|trans }}"
+                                    tooltip="{{ 'explanation.statement.date'|trans }}"
+                                    for="r_submitted_date"></dp-label>
+                                <dp-datepicker
+                                    class="o-form__control-wrapper"
+                                    name="r_submitted_date"
+                                    value="{{ app.request.get('r_submitted_date') }}"
+                                    :calendars-before="2"
+                                    max-date="{{ 'now'|date('d.m.Y') }}"
+                                    :min-date="values.authoredDate"
+                                    id="r_submitted_date"
+                                    v-model="values.submittedDate"></dp-datepicker>
+                            </div>
+                            <div class="u-1-of-4 layout__item">
+                                <dp-label
+                                    text="{{ 'statement.date.authored'|trans }}"
+                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"
+                                    for="r_authored_date"></dp-label>
+                                <dp-datepicker
+                                    class="o-form__control-wrapper"
+                                    name="r_authored_date"
+                                    value="{{ app.request.get('r_authored_date') }}"
+                                    :calendars-before="2"
+                                    :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
+                                    id="r_authored_date"
+                                    v-model="values.authoredDate"></dp-datepicker>
+                            </div>
+                            <div class="u-1-of-4 layout__item">
+                                <dp-select
+                                    id="r_submit_type"
+                                    :label="{
+                                        text: Translator.trans('submit.type'),
+                                        tooltip: Translator.trans('explanation.statement.submit.type')
+                                    }"
+                                    name="r_submit_type"
+                                    :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
+                                    selected="{{ selectedSubmitType }}"></dp-select>
+                            </div>
+                            <div class="u-1-of-4 layout__item" v-if="hasPermission('field_statement_intern_id')">
+                                <dp-input
+                                    id="r_internId"
+                                    aria-describedby="lastUsedDescription"
+                                    data-dp-validate-error="{{ 'validation.error.internId'|trans }} {{ 'validation.error.alphaNumericDashUnderscore'|trans }}"
+                                    :label="{
+                                        text: Translator.trans('internId'),
+                                        tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
+                                    }"
+                                    name="r_internId"
+                                    pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
+                                    value="{{ app.request.get('r_internId') }}">
+                                </dp-input>
+                                <p
+                                    id="lastUsedDescription"
+                                    class="font-size-small u-mv-0_125">
+                                    {{ 'last.used'|trans ~ ' ' ~ templateVars.table.newestInternalId|default('none'|trans) }}
+                                </p>
+                            </div>
+                        </div>
+
+                    {%- endapply -%}{# end row #}
+
+                    {# depending on which option is selected in the role radio, internal or external phases are displayed
+                       - unless only external phases should be displayed here in the project
+                     #}
+                    {% if hasPermission('field_statement_phase') %}
+                        <div class="layout u-mb-0_75">
+                            <div class="u-1-of-2 layout__item">
+                                <label class="o-form__label">
+                                    {{ "procedure.public.phase"|trans }}*
+                                </label>
+                                <dp-multiselect
+                                    class="o-form__control-wrapper"
+                                    label="name"
+                                    :options="phases"
+                                    required
+                                    track-by="key"
+                                    :value="values.phase"
+                                    @input="setPhaseValue">
+                                    <template v-slot:option="{ props }">
+                                        <span class="weight--normal">
+                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                        </span>
+                                    </template>
+                                </dp-multiselect>
+                                <input type="hidden" :value="values.phase.key" name="r_phase"/>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if hasPermission('feature_statement_cluster') %}
+                        {% set clusters = [] %}
+                        {% if templateVars.table.procedure.clusterStatements is defined %}
+                            {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
+                                {% set assignee = {'id': clusterStatement.assignee.id|default(''), 'name': clusterStatement.assignee.firstname|default('') ~ ' ' ~ clusterStatement.assignee.lastname|default(''), 'organisation': clusterStatement.assignee.orgaName|default('') } %}
+                                {% set clusterStatement = {'id': clusterStatement.id|default(''), 'externId': clusterStatement.externId|default(''), 'assignee': assignee, 'name': clusterStatement.name|default} %}
+                                {% set clusters = clusters|merge([clusterStatement]) %}
+                            {% endfor %}
+                        {% endif %}
+
+                        <label class="o-form__label">
+                            {{ "statement.add.to.cluster"|trans }}
+                        </label>
+                        <dp-select-statement-cluster
+                            class="o-form__control-wrapper u-mb-0_75"
+                            :init-cluster-list="JSON.parse('{{ clusters|default([])|json_encode|e('js', 'utf-8') }}')"
+                            :init-selected-cluster="values.headStatement"
+                            current-user-id="{{ user.ident }}"
+                            current-user-name="{{ username }}"
+                            current-user-organisation="{{ user.organisation|default('') }}"
+                            procedure-id="{{ templateVars.table.procedure.id|default }}"
+                            :ignore-last-claimed="true"
+                            :key="'cluster_' + values.headStatement"
+                        ></dp-select-statement-cluster>
+                    {% endif %}
+
+                    {% if hasPermission('field_procedure_elements') %}
+                        <label class="o-form__label">
+                            {{ "plandocument"|trans }}
+                        </label>
+                        <dp-multiselect
+                            v-model="values.element"
+                            class="o-form__control-wrapper u-mb-0_75"
+                            label="title"
+                            :options="elements"
+                            track-by="id"
+                            @input="checkForParagraphsAndFiles()">
+                            <template v-slot:option="{ props }">
+                                {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                            </template>
+                        </dp-multiselect>
+                        <input type="hidden" :value="values.element.id" name="r_element"/>
+                    {% endif %}
+
+                    {% if hasPermission('field_procedure_paragraphs') %}
+                        <template v-if="elementHasParagraphs">
+                            <label class="o-form__label">
+                                {{ "paragraph"|trans }}*
+                            </label>
+                            <dp-multiselect
+                                v-model="values.paragraph"
+                                class="o-form__control-wrapper u-mb-0_75"
+                                label="title"
+                                :options="paragraph[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
+                                    {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                                </template>
+                            </dp-multiselect>
+                            <input type="hidden" :value="values.paragraph ? values.paragraph.id : null" :name="'r_paragraph_' + values.element.id"/>
+                        </template>
+                    {% endif %}
+
+                    {% if hasPermission('field_procedure_documents') %}
+                        <template v-if="elementHasFiles">
+                            <label class="o-form__label">
+                                {{ "file"|trans }}*
+                            </label>
+                            <dp-multiselect
+                                v-model="values.document"
+                                class="o-form__control-wrapper u-mb-0_75"
+                                label="title"
+                                :options="documents[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
+                                    {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                                </template>
+                            </dp-multiselect>
+                            <input type="hidden" :value="values.document ? values.document.id : null" :name="'r_document_' + values.element.id"/>
+                        </template>
+                    {% endif %}
+
+                    {% block priority %}{% endblock priority %}
+
+                    {% block topic %} {% endblock topic %}
+
+                    {% if formDefinitions.mapAndCountyReference.enabled == true or formDefinitions.countyReference.enabled == true %}
+                        {# COUNTIES #}
+                        {# editable for all statements, not just manual ones #}
+                        {% if hasPermission('field_statement_county') %}
+                            <div class="layout--flush u-mb">
+                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                    {{ "counties"|trans }}
+                                </strong>
+                                <p v-if="countiesPromptAdded" class="lbl__hint">
+                                    <i class="fa fa-info-circle u-mr-0_25"></i>
+                                    {{ 'data.autocompleted.recheck'|trans }}
+                                </p>
+                                <dp-multiselect
+                                    v-model="values.counties"
+                                    class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
+                                    multiple
+                                    :options="counties"
+                                    track-by="id"
+                                    @input="sortSelected('counties')">
+                                    <template v-slot:option="{ props }">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </template>
+                                    <template v-slot:tag="{ props }">
+                            <span class="multiselect__tag">
+                                {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
+                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_counties[]"/>
+                            </span>
+                                    </template>
+                                </dp-multiselect>
+                            </div>
+                        {% endif %}
+
+                        {# MUNICIPALITIES #}
+                        {# editable for all statements, not just manual ones #}
+                        {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled == true %}
+                            <div class="layout--flush u-mb">
+                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                    {{ "municipalities"|trans }}
+                                </strong>
+                                <p v-if="countiesPromptAdded" class="lbl__hint">
+                                    <i class="fa fa-info-circle u-mr-0_25"></i>
+                                    {{ 'data.autocompleted.recheck'|trans }}
+                                </p>
+                                <dp-multiselect
+                                    v-model="values.municipalities"
+                                    class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
+                                    multiple
+                                    :options="municipalities"
+                                    track-by="id"
+                                    @input="sortSelected('municipalities')">
+                                    <template v-slot:option="{ props }">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </template>
+                                    <template v-slot:tag="{ props }">
+                                        <span class="multiselect__tag">
+                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                            <input type="hidden" :value="props.option.id" name="r_municipalities[]"/>
+                                        </span>
+                                    </template>
+                                </dp-multiselect>
+                            </div>
+                        {% endif %}
+
+                        {# priority areas #}
+                        {# editable for all statements, not just manual ones #}
+                        {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled == true %}
+                            <div class="layout--flush u-mb">
+                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                    {{ "priorityArea"|trans }}
+                                </strong>
+                                <dp-multiselect
+                                    v-model="values.priorityAreas"
+                                    class="layout__item u-1-of-1 display--inline-block"
+                                    label="name"
+                                    multiple
+                                    :options="priorityAreas"
+                                    track-by="id"
+                                    @input="sortSelected('priorityAreas')">
+                                    <template v-slot:option="{ props }">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </template>
+                                    <template v-slot:tag="{ props }">
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                            </span>
+                                    </template>
+                                </dp-multiselect>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if hasPermission('feature_statements_tag') %}
+                        <label class="o-form__label" for="r_tags[]">
+                            {{ "tags"|trans }}
+                        </label>
+                        <dp-multiselect
+                            v-model="values.tags"
+                            class="o-form__control-wrapper u-mb-0_75"
+                            group-label="title"
+                            :group-select="false"
+                            group-values="tags"
+                            label="name"
+                            multiple
+                            :options="tags"
+                            track-by="id"
+                            @input="sortSelected('tags')">
+                            <template v-slot:option="{ props }">
+                                <span v-if="props.option.$isLabel">
+                                {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
+                                </span>
+                                <span v-else>
+                                    {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                </span>
+                            </template>
+                            <template v-slot:tag="{ props }">
+                                <span class="multiselect__tag">
+                                    {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                    <input type="hidden" :value="props.option.id" name="r_tags[]"/>
+                                </span>
+                            </template>
+                        </dp-multiselect>
+                    {% endif %}
+
+                    {% if hasPermission('field_statement_text') %}
+                        <dp-label
+                            text="{{ 'statement.text.short'|trans }}"
+                            hint="{{ 'explanation.paste'|trans }}"
+                            for="r_text"
+                            required>
+                        </dp-label>
+                        <dp-editor
+                            :value="values.text"
+                            class="o-form__control-tiptap u-mb-0_75"
+                            hidden-input="r_text"
+                            required
+                            :toolbar-items="{
+                                insertAndDelete: true,
+                                obscure: hasPermission('feature_obscure_text'),
+                                mark: true,
+                                strikethrough: true
+                            }"
+                            procedure-id="{{ templateVars.table.procedure.ident }}">
+                        </dp-editor>
+                    {% endif %}
+
+                    {{
+                    fileupload(
+                        "r_attachment_original",
+                        "attachment.original",
+                        "all",
+                        "form.button.upload.file",
+                        1,
+                        true,
+                        'attachment.original.hint'
+                    )
+                    }}
+
+                    {% if hasPermission('field_statement_file') %}
+                        <div class="u-mv">
+                            {{
+                            fileupload(
+                                "r_upload",
+                                "more.attachments",
+                                "all",
+                                "form.button.upload.files",
+                                1000,
+                                true
+                            )
+                            }}
+                        </div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            {# MITZEICHNER #}
+            {% if hasPermission('feature_statements_vote') %}
+                {% apply spaceless %}
+                    <fieldset class="u-pb-0 u-mv">
+                        <a name="statementVoters" id="statementVotersId"></a>
+                        <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
+                            <statement-voter
+                                id="dp-new-statement-voter"
+                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf"
+                                readonly="{{ readonly|default('') }}"
+                                is-manual="true"
+                            ></statement-voter>
+                        </dp-accordion>
+                    </fieldset>
+                {% endapply %}
+            {% endif %}
+
+            {# PUBLISHING #}
+            {% if hasPermission('field_statement_public_allowed') and templateVars.table.procedure.publicParticipationPublicationEnabled %}
+                {% apply spaceless %}
+                    <fieldset class="u-pb-0 u-mv">
+                        <legend>
+                            {{ "publish.on.platform"|trans }}
+                        </legend>
+
+                        <div
+                            class="o-box--dark u-mt-0_25 u-ph u-pv-0_5"
+                            data-cy="statementPublishContainer">
+
+                            {% if hasPermission('feature_statements_vote') %}
+                                <div
+                                    class="flash flash-info">
+                                    <p class="u-mb-0">
+                                        {{ "explanation.statement.public.activate.voting"|trans }}
+                                    </p>
+                                </div>
+                            {% endif %}
+
+                            <dp-statement-publish :editable="true"></dp-statement-publish>
+                        </div>
+                    </fieldset>
+                {% endapply %}
+            {% endif %}
+
+
+            <div class="text--right u-mv-0_5 space-inline-s">
+                <button
+                    class="btn btn--primary"
+                    @click.prevent="dpValidateAction('newStatementForm', submit)"
+                    name="r_submit_button"
+                    data-cy="submitForm">
+                    {{ 'save'|trans }}
+                </button>
+
+                <a class="btn btn--secondary" href='{{ abort_path }}' name="cancelStellungnahme">
+                    {{ "abort"|trans }}
+                </a>
+            </div>
+
+        </form>
+    </dp-new-statement>
+{% endblock %}

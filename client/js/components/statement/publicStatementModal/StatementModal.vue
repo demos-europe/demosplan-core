@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -15,7 +15,7 @@
       content-header-classes="border--none">
       <template v-slot:header>
         <span
-          :class="prefixClass('color--highlight')"
+          :class="prefixClass('color-highlight')"
           v-if="showHeader">
           <i
             aria-hidden="true"
@@ -45,7 +45,7 @@
       <header
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
-        <multistep-nav
+        <dp-multistep-nav
           v-if="loggedIn === false && showHeader"
           @change-step="val => step = val"
           :active-step="step"
@@ -578,7 +578,7 @@
           v-cleanhtml="responseHtml" />
         <template v-else>
           <h2
-            :class="prefixClass('color--highlight')"
+            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
             tabindex="0"
@@ -639,13 +639,13 @@ import {
   DpLabel,
   DpLoading,
   DpModal,
+  DpMultistepNav,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
   hasOwnProp,
   isActiveFullScreen,
   makeFormPost,
-  MultistepNav,
   prefixClassMixin,
   toggleFullscreen
 } from '@demos-europe/demosplan-ui'
@@ -684,6 +684,7 @@ export default {
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultistepNav,
     DpRadio,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -703,7 +704,6 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
     FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
     FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
-    MultistepNav,
     StatementModalRecheck
   },
 

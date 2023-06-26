@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,9 +13,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -23,11 +25,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\RoleHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -119,9 +120,9 @@ class FaqHandler extends CoreHandler
     /**
      * Get all (enabled and disabled) faqs of a category.
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
     }
@@ -377,11 +378,23 @@ class FaqHandler extends CoreHandler
     }
 
     /**
+     * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @return Collection<PlatformFaqCategory>
+     *
+     * @throws UnexpectedValueException
+     */
+    public function getPlatformFaqCategories(): Collection
+    {
+        return collect($this->faqService->getPlatformFaqCategories());
+    }
+
+    /**
      * Get all faqs and sort by category into array.
      *
      * @param Collection $categories a collection of {@link Category categories}
      *
-     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     * @return array<string, array{id: string, label: string, faqlist: list<FaqInterface>}>
      */
     public function convertIntoTwigFormat(Collection $categories, User $user): array
     {
@@ -512,11 +525,11 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * @param array<int, Faq> $faqs
+     * @param array<int, FaqInterface> $faqs
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
     }

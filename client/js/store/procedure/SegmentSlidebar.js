@@ -1,11 +1,13 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
  *
  * All rights reserved
  */
+
+import { set } from 'vue'
 
 const SegmentSlidebarStore = {
   namespaced: true,
@@ -31,11 +33,11 @@ const SegmentSlidebarStore = {
 
   mutations: {
     setContent (state, data) {
-      Vue.set(state, data.prop, data.val)
+      set(state, data.prop, data.val)
     },
 
     setProperty (state, data) {
-      Vue.set(state, [data.prop], data.val)
+      set(state, [data.prop], data.val)
     }
   },
 

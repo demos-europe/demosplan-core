@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -49,8 +49,6 @@ class LinkMessageSerializable extends MessageSerializable
      * @param string $routeName
      * @param array  $routeParameters
      * @param string $linkText
-     *
-     * @return LinkMessageSerializable
      */
     public static function createLinkMessage(
         $severity,
@@ -59,8 +57,7 @@ class LinkMessageSerializable extends MessageSerializable
         $routeName = '',
         $routeParameters = [],
         $linkText = ''
-    ): LinkMessageSerializable
-    {
+    ): LinkMessageSerializable {
         return new self($severity, $text, $textParameters, $routeName, $routeParameters, $linkText);
     }
 
@@ -138,10 +135,7 @@ class LinkMessageSerializable extends MessageSerializable
         return $this;
     }
 
-    /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_merge(
             parent::jsonSerialize(),

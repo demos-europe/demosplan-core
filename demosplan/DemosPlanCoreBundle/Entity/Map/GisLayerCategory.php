@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -25,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository")
  */
 class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 {
@@ -45,7 +47,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
      *
@@ -79,15 +81,15 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     protected $modifyDate;
 
     /**
-     * @var Collection<int, GisLayer>
-     *                                One GisLayerCategory has many GisLayers
+     * @var Collection<int, GisLayerInterface>
+     *                                         One GisLayerCategory has many GisLayers
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer", mappedBy="category", fetch="EAGER")
      */
     protected $gisLayers;
 
     /**
-     * @var GisLayerCategory
+     * @var GisLayerCategoryInterface
      *
      * Parent GisLayerCategory
      *
@@ -100,7 +102,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     protected $parent;
 
     /**
-     * @var Collection<int, GisLayerCategory>
+     * @var Collection<int, GisLayerCategoryInterface>
      *
      * Child categories of a categorys
      *
@@ -160,7 +162,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {
@@ -208,7 +210,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @param GisLayer[] $gisLayers
+     * @param GisLayerInterface[] $gisLayers
      */
     public function setGisLayers(array $gisLayers)
     {
@@ -219,7 +221,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
         $this->gisLayers = new ArrayCollection($gisLayers);
     }
 
-    public function addLayer(GisLayer $gisLayer): void
+    public function addLayer(GisLayerInterface $gisLayer): void
     {
         if (null === $this->gisLayers) {
             $this->gisLayers = new ArrayCollection();
@@ -257,7 +259,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getParentId()
     {
@@ -265,7 +267,9 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @param GisLayerCategory $newParent
+     * @param GisLayerCategoryInterface $newParent
+     *
+     * @throws InvalidArgumentException
      */
     public function setParent($newParent)
     {
@@ -294,7 +298,9 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
     }
 
     /**
-     * @param GisLayerCategory[] $children
+     * @param GisLayerCategoryInterface[] $children
+     *
+     * @throws InvalidArgumentException
      */
     public function setChildren($children)
     {

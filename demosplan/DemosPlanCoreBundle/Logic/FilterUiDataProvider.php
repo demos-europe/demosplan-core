@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,7 +25,7 @@ class FilterUiDataProvider
 
     public function __construct()
     {
-        $this->relativeFilterNamesPath = 'demosplan/DemosPlanCoreBundle/Resources/config/segmentsFilterNames.yaml';
+        $this->relativeFilterNamesPath = 'segmentsFilterNames.yaml';
     }
 
     /**
@@ -33,7 +33,7 @@ class FilterUiDataProvider
      */
     public function getFilterNames(): array
     {
-        $filterNames = Yaml::parseFile(DemosPlanPath::getRootPath($this->relativeFilterNamesPath));
+        $filterNames = Yaml::parseFile(DemosPlanPath::getConfigPath($this->relativeFilterNamesPath));
         $processor = new Processor();
         $filterNamesConfiguration = new FilterNamesConfiguration();
 

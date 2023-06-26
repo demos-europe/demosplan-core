@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -27,6 +27,8 @@ export default function initGlobalEventListener () {
   if (responsiveMenuHelper) {
     responsiveMenuHelper.addEventListener('click', function (event) {
       event.preventDefault()
+      const body = document.querySelector('body')
+      body.classList.toggle('menu-open')
       document.getElementById('responsive-menu-helper-checkbox').toggleAttribute('checked')
       responsiveMenuHelper.setAttribute('aria-expanded', document.getElementById('responsive-menu-helper-checkbox').checked)
     })

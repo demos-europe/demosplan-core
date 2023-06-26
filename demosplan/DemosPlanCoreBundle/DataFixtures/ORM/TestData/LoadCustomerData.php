@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -44,6 +44,8 @@ class LoadCustomerData extends TestFixture
 
         $customerDemos = new Customer(self::DEMOS, 'demos');
         $customerDemos->setAccessibilityExplanation('Barrierefreiheitserklärung');
+        $customerDemos->setBaseLayerUrl('https://sgx.geodatenzentrum.de/wms_basemapde');
+        $customerDemos->setBaseLayerLayers('de_basemapde_web_raster_farbe');
         $manager->persist($customerDemos);
         $this->setReference(self::DEMOS, $customerDemos);
 

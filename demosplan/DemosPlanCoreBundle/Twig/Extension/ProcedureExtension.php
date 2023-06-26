@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,15 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
@@ -55,10 +56,16 @@ class ProcedureExtension extends ExtensionBase
      */
     private $currentUser;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         ContainerInterface $container,
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
+        LoggerInterface $logger,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         TranslatorInterface $translator)
@@ -69,6 +76,7 @@ class ProcedureExtension extends ExtensionBase
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->currentUser = $currentUser;
+        $this->logger = $logger;
     }
 
     public function getFunctions(): array
@@ -303,6 +311,8 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedure = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
+            $this->logger->error('Could not get procedure object', [$exception]);
+
             return '';
         }
 

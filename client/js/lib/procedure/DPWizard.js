@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -94,7 +94,8 @@ export default function DpWizard () {
           .addClass('is-active')
 
         //  Vue Components that need to init on visible elements may listen to this
-        window.Bus.emit('wizard:show', $currentItem.attr('data-wizard-topic'))
+        const wizardShow = new CustomEvent('wizard:show', { data: $currentItem.attr('data-wizard-topic') })
+        document.dispatchEvent(wizardShow)
 
         this.$menu.find('li').removeClass('active').eq(idx).addClass('active')
 

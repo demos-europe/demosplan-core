@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -9,6 +9,18 @@
 
 @use 'sass:color';
 @use 'sass:math';
+
+
+// Variables for o-form
+$form-border-color: $dp-color-neutral-light-1;
+$form-color: $dp-color-neutral-base;
+$form-border-width: 1px;
+$form-radius: $dp-input-radius;
+$form-background-disabled: $dp-color-neutral-light-3;
+$form-color-disabled: $dp-color-neutral-base;
+$form-lineheight: 1.3em !important; // Remove the !important once there is no more element styling
+$form-line-height: 1.3em; // use this for further calc() operations
+$form-multiselect-selected-background: $dp-color-neutral-light-3;
 
 ////
 /// @group objects
@@ -27,7 +39,7 @@
     &.is-invalid {
         outline: none;
         border-color: transparent !important;
-        box-shadow: 0 0 0 2px $dp-color-system-error;
+        box-shadow: 0 0 0 2px $dp-color-status-failed-fill;
     }
 }
 
@@ -42,7 +54,7 @@ fieldset {
 }
 
 legend {
-    font-size: $dp-token-font-size-large;
+    font-size: $dp-font-size-large;
     font-family: $bold-font-family;
     font-weight: $bold-font-weight;
 }
@@ -76,7 +88,7 @@ label {
 }
 
 .lbl__hint {
-    @include inuit-font-size($dp-token-font-size-small, 1.3);
+    @include inuit-font-size($dp-font-size-small, 1.3);
 
     // Other than the margin-top on the DpLabel hints (which is defined in .o-form__label),
     // we can't target all instances of form input elements preceded by a label containing
@@ -103,8 +115,8 @@ textarea {
 
     padding-left: $inuit-base-spacing-unit--tiny;
 
-    border: 2px solid $default-border-color;
-    color: $default-input-color;
+    border: 2px solid $dp-color-border-default;
+    color: $form-color;
     cursor: text;
 
     font-family: $normal-font-family;
@@ -180,7 +192,7 @@ input[type='file'] {
 
     background: transparent;
     border: none;
-    color: $default-input-color;
+    color: $form-color;
     cursor: pointer;
 }
 
@@ -195,9 +207,9 @@ label input[type='radio'] {
 }
 
 select {
-    border: 2px solid $default-border-color;
+    border: 2px solid $dp-color-border-default;
     background-color: $dp-color-white;
-    color: $default-input-color;
+    color: $form-color;
     cursor: default;
 
     font-family: $normal-font-family;
@@ -239,24 +251,24 @@ input::-webkit-inner-spin-button {
 .is-invalid + .validation-hint {
     display: block;
     margin-top: $inuit-base-spacing-unit--small;
-    color: $dp-color-system-error;
+    color: $dp-color-status-failed-text;
 }
 
 label.required {
-    color: $dp-color-system-error !important;
+    color: $dp-color-status-failed-text !important;
 }
 
 input[type='text'].required,
 input[type='number'].required,
 input[type='email'].required,
 select.required {
-    border-color: $dp-color-system-error !important;
+    border-color: $dp-color-status-failed-border !important;
 }
 
 .disabled {
     @include unselectable;
     border: 2px solid $dp-color-white !important;
-    color: $deactivated-font-color;
+    color: $dp-color-text-muted;
 }
 
 i.disabled,
@@ -272,18 +284,6 @@ input.disabled {
     font-weight: $normal-font-weight;
 }
 
-
-// Variables for o-form
-$form-border-color: $dp-color-neutral-light-1;
-$form-color: $dp-color-neutral-base;
-$form-border-width: 1px;
-$form-radius: $dp-input-radius;
-$form-background-disabled: $dp-color-neutral-light-3;
-$form-color-disabled: $dp-color-neutral-base;
-$form-lineheight: 1.3em !important; // Remove the !important once there is no more element styling
-$form-line-height: 1.3em; // use this for further calc() operations
-
-$form-multiselect-selected-background: $dp-color-neutral-light-3;
 
 .o-form {
     $element-spacing-vertical: $dp-form-element-spacing-vertical;

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Services;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\Transformer\BaseTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -100,15 +101,12 @@ class ApiResourceService implements ApiResourceServiceInterface
     }
 
     /**
-     * @param                 $data
      * @param BaseTransformer $baseTransformer
-     * @param                 $type
-     *
-     * @return Collection
      */
-    public function makeAddonCollection($data, BaseTransformer $baseTransformer, $type = ''): Collection
+    public function makeAddonCollection($data, BaseTransformerInterface $baseTransformer, $type = ''): Collection
     {
         $transformerName = get_class($baseTransformer);
+
         return $this->makeCollection($data, $transformerName, $type);
     }
 
@@ -136,7 +134,7 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeItem($data, string $transformerName, $type = ''): Item
     {
-        /** @var \demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer $transformer */
+        /** @var BaseTransformer $transformer */
         $transformer = $this->getTransformer($transformerName);
 
         if ('' === $type) {

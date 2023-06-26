@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
-use function array_map;
 use function explode;
 use function filter_var;
 use function in_array;
@@ -414,20 +413,8 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
-
-    /** @var array */
-    protected $datasheetVersions;
 
     /**
      * Path to store datasheet pdf and images.
@@ -774,21 +761,9 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
-        // datasheet version keys store lists
-        if ($parameterBag->has('datasheetVersions')) {
-            $this->datasheetVersions = array_map(
-                static function ($version) {
-                    return explode(',', $version);
-                },
-                $parameterBag->get('datasheetVersions')
-            );
-        }
 
         $this->kernelEnvironment = $parameterBag->get('kernel.environment');
 
@@ -972,21 +947,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int
@@ -1631,24 +1591,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProjectSubmissionType(): string
     {
         return $this->projectSubmissionType;
-    }
-
-    /**
-     * @param string $procedureId
-     */
-    public function getDatasheetVersion($procedureId): int
-    {
-        if (null === $this->datasheetVersions) {
-            return 0;
-        }
-
-        foreach ($this->datasheetVersions as $version => $procedureIds) {
-            if (in_array($procedureId, $procedureIds, true)) {
-                return $version;
-            }
-        }
-
-        return 0; // Invalid version
     }
 
     public function getKernelEnvironment(): string

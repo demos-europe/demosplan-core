@@ -1,0 +1,286 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% set entry_assignee_id = '' %}
+{% set entry_assignee_name = '' %}
+{% set entity_id = '' %}
+
+{% if templateVars.statement is defined %}
+    {% if templateVars.statement.assignee is not null %}
+        {% set entry_assignee_id = templateVars.statement.assignee.id %}
+    {% endif %}
+{% endif %}
+
+
+{% block demosplanbundlecontent %}
+    {%- apply spaceless %}
+
+        {% set fragment = templateVars.fragment|default %}
+
+        {% if (hasPermission('feature_statement_assignment') and entry_assignee_id == currentUser.ident) or not hasPermission('feature_statement_assignment') %}
+
+            {# Header #}
+            {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
+                area: 'assessment_table_back',
+                heading: 'statement.do.fragment'|trans
+            } %}
+
+            {# Fragment #}
+            {% set selectedCounties = [] %}
+            {% for selectedCounty in fragment.counties %}
+                {% set selectedCounties = selectedCounties|merge([{id: selectedCounty.id, name: selectedCounty.name}]) %}
+            {% endfor %}
+
+            {% set selectedMunicipalities = [] %}
+            {% for selectedMunicipality in fragment.municipalities %}
+                {% set selectedMunicipalities = selectedMunicipalities|merge([{id: selectedMunicipality.id, name: selectedMunicipality.name}]) %}
+            {% endfor %}
+
+            {% set selectedPriorityAreas = [] %}
+            {% for selectedPriorityArea in fragment.priorityAreas %}
+                {% set selectedPriorityAreas = selectedPriorityAreas|merge([{id: selectedPriorityArea.id, name: selectedPriorityArea.name}]) %}
+            {% endfor %}
+
+            {% set formDefinitions = {} %}
+            {% for definition in templateVars.procedure.statementFormDefinition.fieldDefinitions %}
+                {% set formDefinitions = formDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required:definition.required } }) %}
+            {% endfor %}
+
+            <dp-create-statement-fragment
+                :init-tags="JSON.parse('{{ fragment.tagIds|default([])|json_encode|e('js', 'utf-8') }}')"
+                :init-counties="JSON.parse('{{ selectedCounties|default([])|json_encode|e('js', 'utf-8') }}')"
+                :init-municipalities="JSON.parse('{{ selectedMunicipalities|default([])|json_encode|e('js', 'utf-8') }}')"
+                :init-priority-areas="JSON.parse('{{ selectedPriorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
+                init-fragment-text="{{ fragment.text|default|wysiwyg }}"
+                procedure-id="{{ procedure }}"
+                inline-template>
+                <div>
+                    <p class="u-mt-0_5">{{ "text.statement.fragment"|trans|wysiwyg }}</p>
+
+                    {# statement text #}
+                    <p class="weight--bold">
+                        {{ "statement"|trans }}
+                        <dp-copy-paste-button
+                            button-label="statement.copy"
+                            class="float--right"
+                            copy-content="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
+                            title="{{ 'statement.copy.to.fragment'|trans }}"
+                            @set-text="setFragmentText">
+                        </dp-copy-paste-button>
+                    </p>
+                    <div
+                        class="c-styled-html u-mb u-p-0_5 bg-color-light"
+                        style="max-height: 400px; overflow:scroll"
+                    >
+                        {{ templateVars.statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}
+                    </div>
+
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_form.html.twig' %}
+
+                    {# if there are fragments existing from this statement... #}
+                    {% if templateVars.existingFragmentsList|default([])|length > 0 %}
+
+                        <h2 class="u-mt">{{ "statement.fragments.existing"|trans }}</h2>
+
+                        <ul class="o-list o-list--card u-mb">
+
+                            {% for fragment in templateVars.existingFragmentsList|default([]) %}
+                                <li class="o-list__item u-ph-0_5" data-post-delete-target="{{ fragment.id }}">
+                                    <div class="layout">
+
+                                        {# fragment header #}
+                                        <div class="layout__item u-1-of-1 u-pv-0_25">
+                                            <span class="font-size-smaller">
+                                                {{ 'fragment'|trans }} {{ 'date.created'|trans }}
+                                                {{ fragment.created|dplanDate('d.m.Y H:i') }}
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="btn--blank o-link--default u-mt-0_25 float--right fa fa-trash"
+                                                {% if currentUser.ident == fragment.assignee.id|default('') or (fragment.assignee.id|default('') == '' and fragment.departmentId is null) %}
+                                                    data-target-id="{{ fragment.id }}"
+                                                    data-post-delete="{{ path('DemosPlan_statement_fragment_delete_ajax', {'procedureId': fragment.procedureId|default, 'statementId': fragment.statementId|default, 'fragmentId': fragment.id|default}) }}"
+                                                    title="{{ 'fragment.delete'|trans }}"
+                                                {% else %}
+                                                    disabled
+                                                    title="{{ 'locked.title'|trans }}"
+                                                {% endif %}>
+                                            </button>
+                                        </div>
+
+                                        {# fragment text #}
+                                        <div class="layout__item u-1-of-2 u-1-of-1-desk-down u-pb-0_5">
+                                            {{ fragment.text|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}
+                                        </div>
+
+                                        {# fragment data #}
+                                        <div class="layout layout__item u-1-of-2 u-1-of-1-desk-down u-pb-0_5">
+
+                                            {# tags #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'tags',
+                                                showIf: fragment.tags is not empty
+                                            } %}
+                                                {% block tooltip %}
+                                                    {% for tag in fragment.tags|default([]) %}
+                                                        <li class="o-list__item">
+                                                            <strong class="display--block">{{ tag.topicTitle }}</strong>
+                                                            {{- tag.title -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {% for tag in fragment.tags|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- tag.title -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+                                            {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
+                                                 {# counties #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'counties',
+                                                showIf: fragment.counties is not empty
+                                            } %}
+                                                {% block tooltip %}
+                                                    {% for county in fragment.counties|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- county.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {% for county in fragment.counties|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- county.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+                                            {# municipalities #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'municipalities',
+                                                showIf: fragment.municipalities is not empty and formDefinitions.mapAndCountyReference.enabled
+                                            } %}
+                                                {% block tooltip %}
+                                                    {% for municipality in fragment.municipalities|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- municipality.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {% for municipality in fragment.municipalities|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- municipality.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+
+                                            {# potential areas #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'potential.areas',
+                                                showIf: fragment.priorityAreas is not empty and formDefinitions.mapAndCountyReference.enabled
+                                            } %}
+                                                {% block tooltip %}
+                                                    {% for priorityArea in fragment.priorityAreas|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- priorityArea.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {% for priorityArea in fragment.priorityAreas|default([]) %}
+                                                        <li class="o-list__item">
+                                                            {{- priorityArea.name -}}
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+                                            {% endif %}
+
+                                            {# document #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'document',
+                                                showIf: fragment.element is not null
+                                            } %}
+                                                {% block tooltip %}
+                                                    {{- fragment.elementTitle -}}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {{- fragment.elementTitle -}}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+
+                                            {# document chapter #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'paragraph',
+                                                showIf: fragment.paragraph is not null
+                                            } %}
+                                                {% block tooltip %}
+                                                    {{- fragment.paragraphTitle -}}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {{- fragment.paragraphTitle -}}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+                                            {# organisation #}
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                                propertyName: 'organisation',
+                                                showIf: fragment.departmentId is not null
+                                            } %}
+                                                {% block tooltip %}
+                                                    {{- fragment.department.orga.name|default }} {{ fragment.department.name -}}
+                                                {% endblock tooltip %}
+                                                {% block visibleContent %}
+                                                    {{- fragment.department.orga.name|default }} {{ fragment.department.name -}}
+                                                {% endblock visibleContent %}
+                                            {% endembed %}
+
+                                        </div>
+
+                                    </div>
+                                </li>
+                            {% endfor %}
+
+                        </ul>
+
+                    {% else %}
+
+                        <p class="flash-info u-ph-0_5 u-pv-0_25 u-mt">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            {{ "fragments.none.fromstatement"|trans }}
+                        </p>
+
+                    {% endif %}
+
+                {% else %}
+
+                    <h1>{{ "statement.do.fragment"|trans }}</h1>
+                    <p class="flash flash-warning">
+                        {{ "explanation.fragment.access.denied"|trans }}
+                    </p>
+                    <a class="u-mv" href="{{ path('dplan_assessmenttable_view_table', {'procedureId':procedure, 'filterHash': templateVars.filterHash}) }}#itemdisplay_{{ templateVars.statement.ident }}">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        {{ "back.to.considerationtable"|trans }}
+                    </a>
+
+                {% endif %}
+            </div>
+        </dp-create-statement-fragment>
+    {%- endapply %}
+
+{% endblock demosplanbundlecontent %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-fragmentStatement.js']) }}
+{% endblock javascripts %}

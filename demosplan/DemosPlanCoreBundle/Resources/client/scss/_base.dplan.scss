@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -51,7 +51,7 @@ html.fixtinyfixed {
 
 body {
     min-height: 100%; // ensures complete display of absolutely positioned flyouts
-    background: $dp-bg-color;
+    background: $dp-color-background-default;
     letter-spacing: $base-letter-spacing;
     outline: none;
 }
@@ -103,7 +103,7 @@ h6 {
 }
 
 h1 {
-    @include inuit-font-size($dp-token-font-size-h1, 1.3);
+    @include inuit-font-size($dp-font-size-h1, 1.3);
 
     font-family: $h1-font-family;
     font-weight: $h1-font-weight;
@@ -111,7 +111,7 @@ h1 {
 }
 
 h2 {
-    @include inuit-font-size($dp-token-font-size-h2, 1.3);
+    @include inuit-font-size($dp-font-size-h2, 1.3);
 
     font-family: $h2-font-family;
     font-weight: $h2-font-weight;
@@ -119,7 +119,7 @@ h2 {
 }
 
 h3 {
-    @include inuit-font-size($dp-token-font-size-h3, 1.4);
+    @include inuit-font-size($dp-font-size-h3, 1.4);
 
     font-family: $h3-font-family;
     font-weight: $h3-font-weight;
@@ -127,19 +127,19 @@ h3 {
 }
 
 h4 {
-    @include inuit-font-size($dp-token-font-size-h4, 1.4);
+    @include inuit-font-size($dp-font-size-h4, 1.4);
 }
 
 h5 {
-    @include inuit-font-size($dp-token-font-size-h5);
+    @include inuit-font-size($dp-font-size-h5);
 }
 
 h6 {
-    @include inuit-font-size($dp-token-font-size-h6);
+    @include inuit-font-size($dp-font-size-h6);
 }
 
 a {
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-default;
     text-decoration: #{$dp-links-textdecoration};
 
     @if ($transition-nav == true) {
@@ -149,7 +149,7 @@ a {
     &:hover,
     &:active {
         text-decoration: #{$dp-links-textdecoration-hover};
-        color: $dp-token-color-brand-link-hover;
+        color: $dp-color-interactive-hover;
     }
 }
 
@@ -177,7 +177,7 @@ th {
 hr {
     border: none;
     height: 0;
-    border-top: 2px solid $table-row-alternate-bg-color;
+    border-top: 2px solid $dp-color-border-default;
     margin: $inuit-base-spacing-unit--small auto;
 }
 

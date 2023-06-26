@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
-use demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter;
+use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -30,7 +30,7 @@
 
         background-color: $dp-color-white;
         border-radius: 4px;
-        box-shadow: $dp-token-box-shadow-1;
+        box-shadow: $dp-box-shadow-1;
 
         &.is-active {
             opacity: 1;
@@ -48,7 +48,7 @@
         text-decoration: none;
         padding: 3px;
         border: none;
-        color: $dp-token-color-brand-link;
+        color: $dp-color-interactive-default;
 
         &:hover,
         &.is-active {

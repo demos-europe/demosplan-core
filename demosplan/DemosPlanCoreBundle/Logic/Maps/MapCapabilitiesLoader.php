@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,15 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanMapBundle\ValueObject\MapCapabilities;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapCapabilities;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function in_array;
 use function simplexml_load_string;
 use function str_replace;
 use function strtolower;
-
-use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class MapCapabilitiesLoader
 {

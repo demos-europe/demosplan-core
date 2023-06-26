@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,21 +18,21 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
-use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
-use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -75,7 +75,7 @@ class OzgKeycloakUserDataMapper
         'Support'                           => Role::PLATFORM_SUPPORT,
         'Plattform Administration'          => Role::CUSTOMER_MASTER_USER,
         'Redaktion'                         => Role::CONTENT_EDITOR,
-        'Privatperson/Angemeldet'           => Role::CITIZEN,
+        'Privatperson-Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
     ];
 
@@ -111,7 +111,7 @@ class OzgKeycloakUserDataMapper
 
     /**
      * Maps incoming data to dplan:user.
-     * Creates
+     * Creates.
      *
      * @throws CustomerNotFoundException
      * @throws Exception
@@ -135,7 +135,7 @@ class OzgKeycloakUserDataMapper
     /**
      * Creates a new organisation in case of incoming organisation could not match with existing organisations.
      * In case of incoming organisation can be found, it will be updated with incoming data.
-     * Also handles the special case of citizen organisation
+     * Also handles the special case of citizen organisation.
      *
      * @param array<int, Role> $requestedRoles
      *
@@ -433,8 +433,10 @@ class OzgKeycloakUserDataMapper
             foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
                 $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
                 if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                    $this->logger->info('Role recognized: '.$roleName);
                     $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
                 } else {
+                    $this->logger->info('Role not recognized: '.$roleName);
                     $unIdentifiedRoles[] = $roleName;
                 }
             }
@@ -446,6 +448,7 @@ class OzgKeycloakUserDataMapper
         if (0 === count($requestedRoles)) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
+        $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
 
         return $requestedRoles;
     }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,9 +24,6 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
  */
 class DemosPlanResponseListener
 {
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
-
     /** @var GlobalConfigInterface */
     protected $globalConfig;
 
@@ -36,11 +32,9 @@ class DemosPlanResponseListener
 
     public function __construct(
         GlobalConfig $globalConfig,
-        SearchIndexTaskService $searchIndexTaskService,
         TransformMessageBagService $transformMessageBagService
     ) {
         $this->globalConfig = $globalConfig;
-        $this->searchIndexTaskService = $searchIndexTaskService;
         $this->transformMessageBagService = $transformMessageBagService;
     }
 
@@ -49,12 +43,6 @@ class DemosPlanResponseListener
      */
     public function onKernelResponse(ResponseEvent $event)
     {
-        // index SearchTasks when no async indexing is activated
-        // done here because all Tasks of this Request could be grouped by entity
-        if (false === $this->globalConfig->isElasticsearchAsyncIndexing()) {
-            $this->searchIndexTaskService->refreshIndex();
-        }
-
         // handle Messages on Redirects
         if (Response::HTTP_FOUND === $event->getResponse()->getStatusCode()) {
             $this->transformMessageBagService->transformMessageBagToFlashes();

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
@@ -29,6 +29,7 @@ class WerDenktWasAPIController extends BaseController
      *      path="/api/werdenktwas/procedures",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_public_participation")
      */
     public function procedureListGeoJSONAction(TranslatorInterface $translator): ?JsonResponse

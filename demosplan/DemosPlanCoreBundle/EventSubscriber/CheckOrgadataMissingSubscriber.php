@@ -3,14 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -50,6 +51,11 @@ class CheckOrgadataMissingSubscriber extends BaseEventSubscriber
     {
         $request = $event->getRequest();
         $user = $this->currentUser->getUser();
+
+        // citizens should never need to complete orga data
+        if ($user->hasRole(Role::CITIZEN)) {
+            return;
+        }
 
         // check whether all mandatory organisation data is given
         // ignore routes, that need to be called even if not all data is provided

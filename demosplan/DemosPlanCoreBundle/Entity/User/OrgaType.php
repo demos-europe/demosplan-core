@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,9 +19,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_orga_type")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository")
  */
-class OrgaType extends CoreEntity implements UuidEntityInterface
+class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
 {
     /**
      * AHB = Anhörungsbehörde = hearing authority.
@@ -71,8 +73,11 @@ class OrgaType extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_ot_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

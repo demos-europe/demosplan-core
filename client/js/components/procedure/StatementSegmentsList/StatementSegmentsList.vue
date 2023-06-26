@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -56,6 +56,7 @@
         <ul class="float--right u-m-0 space-inline-s flex">
           <li class="display--inline-block">
             <dp-claim
+              v-if="!statement.attributes.synchronized"
               class="o-flyout__trigger u-ph-0_25 line-height--2"
               entity-type="statement"
               :assigned-id="currentAssignee.id"
@@ -349,7 +350,7 @@ export default {
     },
 
     editable () {
-      return this.isCurrentUserAssigned && !this.statement.synchronized
+      return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
 
     filteredAttachments () {
@@ -506,7 +507,8 @@ export default {
             'submitDate',
             'submitName',
             'submitType',
-            'submitterEmailAddress'
+            'submitterEmailAddress',
+            'synchronized'
           ].join(),
           SimilarStatementSubmitter: [
             'city',

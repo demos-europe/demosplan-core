@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,6 +27,7 @@ class DemosPlanElementsBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_admin_element_edit")
      *
      * @throws Exception
@@ -34,7 +35,7 @@ class DemosPlanElementsBulkEditController extends BaseController
     public function showFormAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
             [
                 'title'       => 'elements.bulk.edit',
             ]

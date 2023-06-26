@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,6 +8,7 @@
 </license>
 
 <script>
+import { formatDate } from '@demos-europe/demosplan-ui'
 import { getTopLeft } from 'ol/extent'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import TileLayer from 'ol/layer/Tile'
@@ -22,9 +23,7 @@ export default {
     attributions: {
       required: false,
       type: String,
-      default: () => {
-        return Translator.trans('map.attribution.default', { link: Routing.generate('DemosPlan_misccontent_static_imprint') })
-      }
+      default: ''
     },
 
     layers: {
@@ -56,9 +55,34 @@ export default {
     }
   },
 
+  data () {
+    return {
+      source: null
+    }
+  },
+
   computed: {
+    defaultAttributions () {
+      const currentYear = formatDate(new Date(), 'YYYY')
+      // If a value is currently given, replace the {currentYear} placeholder within that value
+      if (this?.attributions) {
+        return this.attributions.replaceAll('{currentYear}', currentYear)
+      }
+      // If not, default to the default message
+      return Translator.trans('map.attribution.default', {
+        linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+        currentYear
+      })
+    },
+
     map () {
       return this.olMapState.map
+    }
+  },
+
+  watch: {
+    defaultAttributions () {
+      this.source.setAttributions(this.defaultAttributions)
     }
   },
 
@@ -68,8 +92,8 @@ export default {
         return
       }
 
-      const source = createSourceTileWMS(this.url, this.layers, this.projection, this.attributions, this.map)
-      const layer = createTileLayer(this.title, this.name, source)
+      this.source = createSourceTileWMS(this.url, this.layers, this.projection, this.defaultAttributions, this.map)
+      const layer = createTileLayer(this.title, this.name, this.source)
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(0, layer)

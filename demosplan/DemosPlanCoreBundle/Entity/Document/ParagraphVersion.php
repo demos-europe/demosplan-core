@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,7 +19,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_para_doc_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository")
  */
 class ParagraphVersion extends CoreEntity implements UuidEntityInterface
 {
@@ -27,8 +28,11 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_pdv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -39,6 +43,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var Paragraph
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="versions")
+     *
      * @ORM\JoinColumn(name="_pd_id", referencedColumnName="_pd_id", nullable=true, onDelete="SET NULL")
      */
     protected $paragraph;
@@ -54,6 +59,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -74,6 +80,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=true, onDelete="SET NULL")
      **/
     protected $element;
@@ -128,6 +135,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pdv_version_date", type="datetime", nullable=false)
      */
     protected $versionDate;
@@ -136,6 +144,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -144,6 +153,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -152,6 +162,7 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;

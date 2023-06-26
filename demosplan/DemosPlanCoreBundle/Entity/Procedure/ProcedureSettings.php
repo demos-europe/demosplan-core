@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -188,7 +188,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $links = '';
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var Procedure
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="settings")
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
@@ -832,7 +832,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Set p.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param Procedure $procedure
      *
      * @return ProcedureSettings
      */
@@ -846,7 +846,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Get p.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @return Procedure
      */
     public function getProcedure()
     {
