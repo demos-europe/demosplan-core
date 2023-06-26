@@ -525,7 +525,7 @@
 
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
-                                    <div class="">
+                                    <div>
                                         <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationPhase">
                                             {{ "procedure.public.phase"|trans }}*
                                         </label>
@@ -563,7 +563,7 @@
                                 {% endif %}
 
                                 {# start/end date for public participation #}
-                                <div class="">
+                                <div>
                                     <label class="inline-block u-9-of-10 u-mb-0" for="r_publicParticipationStartDate">
                                         {{ "period.public"|trans }}*
                                     </label>
@@ -710,7 +710,7 @@
                             {% endif %}
 
                             {% if hasPermission('feature_short_url') %}
-                                <div class="">
+                                <div>
                                     <label class="inline-block u-mb-0 u-9-of-10" for="r_shortUrl">
                                         {{ "procedure.url.public"|trans }}
                                     </label>
@@ -963,7 +963,7 @@
 
                             <div
                                 data-toggle-id="procedureLocation"
-                                class="o-wizard__content "
+                                class="o-wizard__content"
                             >
                                 <div class="o-wizard__main">
 
@@ -1078,7 +1078,7 @@
 
                     <div data-toggle-id="phasesParticipation" class="o-wizard__content">
                         <div class="o-wizard__main">
-                            <div class="">
+                            <div>
                                 <export-settings
                                     :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
                                     :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
