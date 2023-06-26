@@ -1,0 +1,342 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{# Route to "classic" manual statement form #}
+{% set newStatementPath = 'DemosPlan_statement_new_submitted' %}
+{% if hasPermission('feature_simplified_new_statement_create') %}
+    {# Route to import center with "simplified" statement form #}
+    {% set newStatementPath = 'DemosPlan_procedure_import' %}
+{% endif %}
+
+{% block demosplanbundlecontent %}
+    {% apply spaceless %}
+
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+            heading: 'overview'|trans
+        } %}
+        {% set sidebar = false %}
+
+        <div class="layout layout--flush">
+            {# narrow left column #}
+            {% if hasOneOfPermissions(['area_admin_boilerplates', 'area_admin_statements_tag', 'area_admin_protocol']) %}
+                {% set sidebar = true %}
+                <div class="layout__item u-1-of-5">
+                    {% if hasPermission('area_admin_boilerplates') %}
+                        <a
+                            class="display--block u-pb-0_25"
+                            data-cy="boilerplates"
+                            href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+                            {{ 'boilerplates'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if hasPermission('area_admin_statements_tag') %}
+                        <a
+                            class="display--block u-pb-0_25"
+                            data-cy="tagAdministration"
+                            href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}">
+                            {{ 'tag.administration'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if hasPermission('area_manage_segment_places') %}
+                        <a
+                            class="display--block u-pb-0_25"
+                            data-cy="places"
+                            href="{{ path('DemosPlan_procedure_places_list', { 'procedureId': procedure}) }}"
+                        >
+                            {{ 'places'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if hasPermission('area_admin_protocol') %}
+                        <a
+                            class="display--block u-pb-0_25"
+                            data-cy="protocol"
+                            href="{{ path('dm_plan_report_table_view', {'procedureId': procedure}) }}"
+                        >
+                            {{ 'protocol'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {# content column #}
+            <div class="layout__item {{ sidebar ? 'u-4-of-5' : 'u-1-of-1' }} u-pb-2 space-stack-l">
+
+                {% if hasPermission('area_statement_segmentation') %}
+                    {# show segments assigned to current user #}
+                    <dp-dashboard-task-card
+                        current-user-id="{{ currentUser.id }}"
+                        procedure-id="{{ procedure }}">
+                    </dp-dashboard-task-card>
+
+                    {# show currently segmentable statements #}
+                    {% if templateVars.statementsTotal|default(0) > 0 %}
+
+                        {# id of next statement to split #}
+                        {% set statementIdToBeSplit = templateVars.segmentableStatement.id|default(null) %}
+
+                        {# number of statements that have been split completely #}
+                        {% set splitStatementsLength = templateVars.statementsSegmentedByUser|default(0) %}
+
+                        {# number of segmentable statements #}
+                        {% set segmentableStatementsCount = templateVars.segmentableStatementsCount|default(0) %}
+
+                        <div class="box-shadow-1 space-inset-m">
+                            <h4 class="u-mb-0 weight--bold">{{ 'statements.do.segment'|trans }}</h4>
+                            {% if statementIdToBeSplit is not defined or statementIdToBeSplit == null %}
+                                <p class="u-mb-0 u-mt">
+                                    <i class="fa fa-check-circle u-mr-0_25 color-message-success-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    {{ 'statements.all.segmented'|trans }}
+                                </p>
+                            {% elseif statementIdToBeSplit is not null and splitStatementsLength <= 0 %}
+                                <p class="u-mb-0 u-mt">
+                                    <i class="fa fa-exclamation-circle u-mr-0_5 color-message-info-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    {{ 'statements.splittable.now'|trans({ count: segmentableStatementsCount })|wysiwyg }}
+                                </p>
+                            {% elseif statementIdToBeSplit is not null and splitStatementsLength > 0 %}
+                                <p class="u-mb-0 u-mt">
+                                    <i class="fa fa-exclamation-circle u-mr-0_25 color-message-info-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    {{ 'welcome.back.continue'|trans }}
+                                </p>
+                            {% endif %}
+
+                            {% if statementIdToBeSplit is defined and statementIdToBeSplit is not null %}
+                                <div class="u-mt text--right">
+                                    <form method="post" action="{{ path('dplan_drafts_list_claim', {'statementId':statementIdToBeSplit, 'procedureId': procedure}) }}">
+                                        {{ uiComponent('button', {
+                                            type: 'submit',
+                                            text: 'statement.do.segment.next'|trans
+                                        }) }}
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                {# statement charts - segmentation status, number of segments with recommendations #}
+                {% if hasPermission('area_statement_segmentation') %}
+                    <dp-statement-segments-status-charts procedure-id="{{ procedure }}">
+                    </dp-statement-segments-status-charts>
+                {% endif %}
+
+                {# statement charts - status and priority #}
+                {% if hasPermission('feature_statements_statistic_state_and_priority') %}
+                    <div class="box-shadow-1 space-inset-m">
+                        <div class="layout">
+                            {% if templateVars.statementsTotal|default(0) > 0 %}
+                                <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
+                                    <p class="weight--bold">
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ 'statements.grouped.status'|trans({ count: 0 }) }}
+                                    </p>
+                                    <div
+                                        id="barChart"
+                                        class="c-chart__svg-wrapper"
+                                        data-categories="{{ templateVars.statementPriorities|json_encode }}"
+                                        data-status="{{ templateVars.statementStatusData|json_encode }}"
+                                        data-colors="{{ { bar: ['c-chart__color-6-1','c-chart__color-6-2','c-chart__color-6-3','c-chart__color-6-4','c-chart__color-6-5','c-chart__color-6-6'], pie: ['c-chart__color-3-1','c-chart__color-3-2','c-chart__color-3-3'], active: ['c-chart__color-active']}|json_encode }}"
+                                    ></div>
+                                    <div id="chartLegend" class="u-pt"></div>
+                                </div>
+                                <div class="layout__item u-1-of-2 u-1-of-1-palm">
+                                    <p class="weight--bold u-pb">
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ 'statements.grouped.priority'|trans({ count: 0 }) }}
+                                    </p>
+                                    <div id="pieChart" class="c-chart__svg-wrapper"></div>
+                                    <div id="pieLegend"></div>
+                                </div>
+                            {% else %}
+                                <div class="layout__item u-1-of-1">
+                                    <p class="weight--bold">{{ 'statements'|trans }}</p>
+                                    {{ 'statements.none'|trans }}
+                                    {% if hasPermission('feature_statement_data_input_orga') %}
+                                        <a class="btn-icns u-m-0 float--right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            {{ 'statement.new'|trans }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# fragment charts #}
+                {% if hasPermission('area_statements_fragment') %}
+                    <div class="box-shadow-1 space-inset-m">
+                        <div class="layout">
+                            {% if hasPermission('field_fragment_status') %}
+                                <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
+                                    <p class="weight--bold">{{ 'fragments.grouped.status'|trans({ count: 0 }) }}</p>
+                                    <div
+                                        id="statusChart"
+                                        class="c-chart__svg-wrapper"
+                                        data-status = "{{ templateVars.statementFragmentStatus|default([])|json_encode }}"
+                                        data-colors = "{{ ['c-chart__color-8-1','c-chart__color-8-2','c-chart__color-8-3','c-chart__color-8-4','c-chart__color-8-5','c-chart__color-8-6','c-chart__color-8-7','c-chart__color-8-8']|json_encode }}"
+                                        data-texts = "{{ {
+                                            'no-data-fallback' : 'fragments.none'|trans,
+                                            'legend-headline' : 'fragments.grouped.status',
+                                            'data-names' : 'fragments'|trans,
+                                            'data-name' : 'fragment'|trans
+                                        }|json_encode }}"
+                                    ></div>
+                                    <div id="statusChartLegend"></div>
+                                </div>
+                            {% endif %}
+                            <div class="layout__item u-1-of-2 u-1-of-1-palm">
+                                <p class="weight--bold">{{ hasPermission('feature_statements_fragment_vote') ? 'fragments.grouped.vote'|trans({ count: 0 }) : 'fragments.grouped.advice'|trans({ count: 0 }) }}</p>
+                                <div
+                                    id="voteChart"
+                                    class="c-chart__svg-wrapper"
+                                    data-status = "{{ templateVars.statementFragmentVote|default([])|json_encode }}"
+                                    data-colors = "{{ ['c-chart__color-6-1','c-chart__color-6-2','c-chart__color-6-3','c-chart__color-6-4','c-chart__color-6-5','c-chart__color-6-6']|json_encode }}"
+                                    data-texts = "{{ {
+                                        'no-data-fallback' : 'fragments.none'|trans,
+                                        'legend-headline' : hasPermission('feature_statements_fragment_vote') ? 'fragments.grouped.vote' : 'fragments.grouped.advice',
+                                        'data-names' : 'fragments'|trans,
+                                        'data-name' : 'fragment'|trans
+                                    }|json_encode }}"
+                                ></div>
+                                <div id="voteChartLegend"></div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# moved statements sankey diagram  #}
+                {% if hasPermission('feature_statement_move_to_procedure') %}
+                    <div class="box-shadow-1 space-inset-m">
+                        <p class="weight--bold">{{ 'statements.moved'|trans }}</p>
+                        {% if (templateVars.movedStatementData.toThisProcedure.total|default(0) + templateVars.movedStatementData.fromThisProcedure.total|default(0)) == 0 %}
+                            <p>{{ 'statement.sum'|trans({ count: 0 }) }}</p>
+                        {% else %}
+                            <div
+                                id="movedStatements"
+                                class="c-chart__svg-wrapper"
+                                data-moved-statements="{{ templateVars.movedStatementData|json_encode }}"
+                                data-current-procedure-id="{{ procedure }}"
+                                data-current-procedure-title="{{ 'procedure.current'|trans }}"
+                                data-current-procedure-statements-total="{{ templateVars.statementsTotal }}"
+                                data-colors="{{ {toThisProcedure: 'c-chart__color-3-1', current: 'c-chart__color-3-2', fromThisProcedure: 'c-chart__color-3-3'}|json_encode }}">
+                            </div>
+                            <div class="u-mb">{{ 'procedure.current.statements.number'|trans({ all: templateVars.statementsTotal }) }}</div>
+                        {% endif %}
+
+                        {% if (templateVars.movedStatementData.toThisProcedure.total|default(0) + templateVars.movedStatementData.fromThisProcedure.total|default(0)) > 0 %}
+                            <div class="layout">
+                                <div id="movedStatementsLegendFrom" class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
+                                    <table class="c-chart__legend">
+                                        <tr>
+                                            <th colspan="2" data-selector="tableHeading" class="c-chart__legend-headline">
+                                                {{ 'statements.moved.from.other.procedure'|trans({ count: templateVars.movedStatementData.toThisProcedure.total|default(0) }) }}
+                                            </th>
+                                        </tr>
+                                        {% for procedure in templateVars.movedStatementData.toThisProcedure.procedures %}
+                                            <tr class="c-chart__legend-content">
+                                                <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
+                                                    {{ procedure.title }}
+                                                </td>
+                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                    {{ procedure.value }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                                <div id="movedStatementsLegendTo" class="layout__item u-1-of-2 u-1-of-1-palm">
+                                    <table class="c-chart__legend">
+                                        <tr>
+                                            <th colspan="2" data-selector="tableHeading" class="c-chart__legend-headline">
+                                                {{ 'statements.moved.to.other.procedure'|trans({ count: templateVars.movedStatementData.fromThisProcedure.total|default(0) }) }}
+                                            </th>
+                                        </tr>
+                                        {% for procedure in templateVars.movedStatementData.fromThisProcedure.procedures %}
+                                            <tr class="c-chart__legend-content">
+                                                <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
+                                                    {{ procedure.title }}
+                                                </td>
+                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                    {{ procedure.value }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {# procedure survey chart #}
+                {% if hasPermission('area_survey_management') %}
+                    {# For now, we want to show only one (the first) survey; in the BE it has been modelled with the
+                       perspective that we will have several surveys at some point, which is why it's an array #}
+                    {% set survey = templateVars.surveys|first %}
+                    {% set commentsPendingCount = templateVars.surveyStatistics|length > 0 ? templateVars.surveyStatistics.votes.reviewRequired.sum : '' %}
+
+                    {% if templateVars.procedureHasSurveys == true %}
+                        {% set votes = {} %}
+                        {% set votes = votes|merge({ percentagePositive: templateVars.surveyStatistics.votes.positive.percent|default(0) }) %}
+                        {% set votes = votes|merge({ percentageNegative: templateVars.surveyStatistics.votes.negative.percent|default(0) }) %}
+                        {% set votes = votes|merge({ nPositive: templateVars.surveyStatistics.votes.positive.sum }) %}
+                        {% set votes = votes|merge({ nNegative: templateVars.surveyStatistics.votes.negative.sum }) %}
+                        {% set votes = votes|merge({ total: templateVars.surveyStatistics.votes.sum }) %}
+                    {% endif %}
+
+                    <div class="box-shadow-1 space-inset-m">
+                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}display--inline-block{% endif %}">{{ 'survey'|trans }}</p>
+                        {% if templateVars.procedureHasSurveys == true and survey.id is defined %}
+                            <span class="u-ml-1_5 o-badge--light font-size-small" style="border-radius: 3px; padding: 1px 6px 3px 1px;">
+                                {{ survey.status|trans }}
+                            </span>
+                            <div>
+                                <p>{{ survey.title }}</p>
+                                {% if templateVars.surveyStatistics.votes.sum > 0 %}
+                                    <dp-survey-chart title="{{ survey.title }}" :votes="JSON.parse('{{ votes|json_encode|e('js', 'utf-8') }}')"></dp-survey-chart>
+
+                                    <a class="o-link--icon u-m-0 float--left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        {{ 'survey.comments.moderate'|trans }}
+                                    </a>
+                                    {% if commentsPendingCount > 0 %}
+                                        <span class="u-ml o-notification-badge">
+                                            {{ commentsPendingCount }}
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                                <a class="o-link--icon u-m-0 float--right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    {{ 'survey.edit'|trans }}
+                                </a>
+                            </div>
+                        {% else %}
+                            <p>{{ 'survey.none'|trans }}</p>
+                            <a class="btn-icns u-m-0 float--right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                {{ 'survey.new'|trans }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {# procedure analytics data (page views) #}
+                {% if hasPermission('feature_procedure_analytics') %}
+                    <procedure-analytics-chart procedure-id="{{ procedure }}">
+                    </procedure-analytics-chart>
+                {% endif %}
+
+                <addon-wrapper
+                    hook-name="dashboard.views"
+                    :addon-props="{
+                        'procedureId': '{{ procedure }}'
+                    }">
+                </addon-wrapper>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock demosplanbundlecontent %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['d3.js', 'procedure-administrationDashboard.js']) }}
+{% endblock javascripts %}

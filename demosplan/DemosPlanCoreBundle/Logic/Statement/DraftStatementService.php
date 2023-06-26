@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -37,12 +37,14 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
@@ -52,8 +54,6 @@ use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -677,8 +677,10 @@ class DraftStatementService extends CoreService
     /**
      * Stellungsnahmen werden eingereicht.
      *
-     * Nach dem Aufruf haben sich folgende Werte der Stellungsnahmen geändert:
+     * After calling this method - the following attributes of the draft-statement(s) will be altered:
      * submitted = true
+     * rejected = false
+     * rejectedReason = ''
      *
      * @param string|array $draftStatementIds
      * @param User         $user
@@ -748,10 +750,12 @@ class DraftStatementService extends CoreService
             }
 
             $data = [
-                'ident'         => $draftStatementId,
-                'submitted'     => true,
-                'released'      => true,
-                'submittedDate' => new DateTime(),
+                'ident'             => $draftStatementId,
+                'submitted'         => true,
+                'released'          => true,
+                'submittedDate'     => new DateTime(),
+                'rejected'          => false,
+                'rejectedReason'    => '',
             ];
 
             $draftStatement = $this->updateDraftStatement($data, false);

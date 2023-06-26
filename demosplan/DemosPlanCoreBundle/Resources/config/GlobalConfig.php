@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
-use function array_map;
 use function explode;
 use function filter_var;
 use function in_array;
@@ -417,9 +416,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchMajorVersion;
 
-    /** @var array */
-    protected $datasheetVersions;
-
     /**
      * Path to store datasheet pdf and images.
      *
@@ -768,15 +764,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
 
         $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
-        // datasheet version keys store lists
-        if ($parameterBag->has('datasheetVersions')) {
-            $this->datasheetVersions = array_map(
-                static function ($version) {
-                    return explode(',', $version);
-                },
-                $parameterBag->get('datasheetVersions')
-            );
-        }
 
         $this->kernelEnvironment = $parameterBag->get('kernel.environment');
 
@@ -1604,24 +1591,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProjectSubmissionType(): string
     {
         return $this->projectSubmissionType;
-    }
-
-    /**
-     * @param string $procedureId
-     */
-    public function getDatasheetVersion($procedureId): int
-    {
-        if (null === $this->datasheetVersions) {
-            return 0;
-        }
-
-        foreach ($this->datasheetVersions as $version => $procedureIds) {
-            if (in_array($procedureId, $procedureIds, true)) {
-                return $version;
-            }
-        }
-
-        return 0; // Invalid version
     }
 
     public function getKernelEnvironment(): string

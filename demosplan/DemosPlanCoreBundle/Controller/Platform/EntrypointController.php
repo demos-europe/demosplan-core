@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -247,7 +247,7 @@ class EntrypointController extends BaseController
         $templateVars['publicAgency'] = $user->isPublicAgency();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_index.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.public.participation',

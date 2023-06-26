@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -45,6 +45,7 @@ class DemosPlanReportAPIController extends APIController
      *        name="dplan_api_report_procedure_list",
      *        defaults={"group": null},
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $group

@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -12,7 +12,7 @@
  */
 
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
-import DpUserList from '@DpJs/components/user/DpUserList'
+import DpUserList from '@DpJs/components/user/DpUserList/DpUserList'
 import DpUserListExtended from '@DpJs/components/user/DpUserListExtended'
 import { initialize } from '@DpJs/InitVue'
 import UserFormFields from '@DpJs/store/user/UserFormFields'

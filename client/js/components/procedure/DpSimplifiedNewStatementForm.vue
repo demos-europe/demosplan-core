@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -41,7 +41,7 @@
                 text: Translator.trans('citizen')
               }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
-              @change="values.submitter.institution = false" />
+              @change="setInstitutionValue(false)" />
             <dp-radio
               name="r_role"
               value="1"
@@ -50,7 +50,7 @@
                 text: Translator.trans('institution')
               }"
               :checked="values.submitter.institution === true"
-              @change="values.submitter.institution = true" />
+              @change="setInstitutionValue(true)" />
           </div>
 
           <div class="space-stack-s">
@@ -71,7 +71,7 @@
                 v-model="values.submitter.department"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
-                  text: Translator.trans('department'),
+                  text: Translator.trans('department')
                 }"
                 name="r_orga_department_name" />
             </div>
@@ -251,17 +251,17 @@
               :text="Translator.trans('tags')"
               for="r_tags[]" />
             <dp-multiselect
-              class="u-mb"
-              multiple
-              :options="tags"
               v-model="values.tags"
-              @input="sortSelected('tags')"
-              track-by="id"
-              label="name"
+              class="u-mb"
+              group-label="title"
               :group-select="false"
               group-values="tags"
-              group-label="title">
-              <template v-slot:option="props">
+              label="name"
+              multiple
+              :options="tags"
+              track-by="id"
+              @input="sortSelected('tags')">
+              <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}
                 </span>
@@ -269,18 +269,18 @@
                   {{ props.option.title }}
                 </span>
               </template>
-              <template v-slot:tag="props">
+              <template v-slot:tag="{ props }">
                 <span class="multiselect__tag">
                   {{ props.option.title }}
                   <i
                     aria-hidden="true"
-                    @click="props.remove(props.option)"
+                    class="multiselect__tag-icon"
                     tabindex="1"
-                    class="multiselect__tag-icon" />
+                    @click="props.remove(props.option)" />
                   <input
+                    name="r_tags[]"
                     type="hidden"
-                    :value="props.option.id"
-                    name="r_tags[]">
+                    :value="props.option.id">
                 </span>
               </template>
             </dp-multiselect>
@@ -366,17 +366,20 @@ import {
   DpUploadFiles,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import dayjs from 'dayjs'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {
-  orga: '',
-  department: '',
-  name: '',
-  email: '',
-  plz: '',
   city: '',
-  institution: false
+  date: '',
+  department: '',
+  email: '',
+  institution: false,
+  name: '',
+  orga: '',
+  plz: ''
 }
 
 export default {
@@ -503,6 +506,11 @@ export default {
   },
 
   computed: {
+    escapedUsedInternIds () {
+      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
+      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
+    },
+
     internIdsPattern () {
       let pattern = ''
       if (this.escapedUsedInternIds.length > 0) {
@@ -510,11 +518,6 @@ export default {
       }
       pattern = pattern + '[0-9a-zA-Z-_ /().?!,+*#äüöß]{1,}$'
       return pattern
-    },
-
-    escapedUsedInternIds () {
-      const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
-      return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
     },
 
     nowDate () {
@@ -546,16 +549,26 @@ export default {
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
-        Vue.set(this.values.submitter, 'institution',  this.values.submitter.toeb)
-        Vue.delete(this.values.submitter, 'toeb')
+        this.$set(this.values.submitter, 'institution', this.values.submitter.toeb)
+        this.$delete(this.values.submitter, 'toeb')
       }
 
-      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0 ) {
-        Vue.set(this.values, 'submitter', {})
+      if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
+        this.$set(this.values, 'submitter', {})
         for (const [key, value] of Object.entries(submitterProperties)) {
-          Vue.set(this.values.submitter, key, value)
+          this.$set(this.values.submitter, key, value)
         }
       }
+    },
+
+    /**
+     * @param { Boolean } val
+     * To ensure the reactivity the state of 'values.submitter.institution'.
+     */
+    setInstitutionValue (val) {
+      this.$nextTick(() => {
+        this.$set(this.values.submitter, 'institution', val)
+      })
     },
 
     sortSelected (property) {
@@ -576,6 +589,11 @@ export default {
 
   mounted () {
     this.setInitialValues()
+    // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
+    if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
+      this.$set(this.values, 'authoredDate', dayjs(this.values.submitter.date).format('DD.MM.YYYY'))
+    }
+
   }
 }
 </script>

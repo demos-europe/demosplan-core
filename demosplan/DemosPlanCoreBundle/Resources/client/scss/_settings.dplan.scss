@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -21,8 +21,8 @@
 $inuit-base-font-size:          $base-font-size; // 16px.
 $inuit-base-line-height:        $base-line-height; // 24px. This is mapped to $inuit-base-spacing-unit
 
-$inuit-base-text-color:         $default-font-color !default;
-$inuit-base-background-color:   $dp-bg-color !default;
+$inuit-base-text-color:         $dp-color-text-default !default;
+$inuit-base-background-color:   $dp-color-background-default !default;
 
 $inuit-enable-layout--flush:    true !default;
 $inuit-enable-layout--auto:     true !default;

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -157,7 +157,20 @@ class DemosPlanUserController extends BaseController
                     'access_confirmed' => true,
                 ];
 
-                $userHandler->updateUser($currentUser->getId(), $data);
+                $updatedUser = null;
+                try {
+                    $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Update user failed with exception', [$e]);
+                }
+
+                if (!$updatedUser instanceof User) {
+                    // logout user to avoid eternal redirect loop
+                    $this->getLogger()->warning('Update user failed, perform logout', [$data]);
+                    $this->messageBag->add('warning', 'warning.login.welcomepage.failed');
+
+                    return $this->redirectToRoute('DemosPlan_user_logout');
+                }
                 $this->getLogger()->info('Welcomepage redirect to index loggedin');
             }
 

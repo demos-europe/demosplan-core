@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -75,7 +75,7 @@ class OzgKeycloakUserDataMapper
         'Support'                           => Role::PLATFORM_SUPPORT,
         'Plattform Administration'          => Role::CUSTOMER_MASTER_USER,
         'Redaktion'                         => Role::CONTENT_EDITOR,
-        'Privatperson/Angemeldet'           => Role::CITIZEN,
+        'Privatperson-Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
     ];
 
@@ -433,8 +433,10 @@ class OzgKeycloakUserDataMapper
             foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
                 $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
                 if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                    $this->logger->info('Role recognized: '.$roleName);
                     $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
                 } else {
+                    $this->logger->info('Role not recognized: '.$roleName);
                     $unIdentifiedRoles[] = $roleName;
                 }
             }
@@ -446,6 +448,7 @@ class OzgKeycloakUserDataMapper
         if (0 === count($requestedRoles)) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
+        $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
 
         return $requestedRoles;
     }

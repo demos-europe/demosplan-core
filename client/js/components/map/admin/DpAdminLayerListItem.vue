@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -319,17 +319,17 @@ export default {
           return 'fa-lock color--grey cursor--help'
         } else if (this.hasGroupId) {
           if (toggleMyIconInSameGroup && this.currentGroupSize <= 2) {
-            return 'fa-unlink color--highlight'
+            return 'fa-unlink color-highlight'
           } else {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color--highlight'
+              return 'fa-link cursor--default color-highlight'
             } else {
               return 'fa-link color--grey cursor--default'
             }
           }
         } else {
           if (this.isHovered === false && toggleMyIconWithoutGroup) {
-            return 'fa-link color--highlight'
+            return 'fa-link color-highlight'
           } else {
             return 'fa-unlink color--grey'
           }
@@ -342,15 +342,15 @@ export default {
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
-            return 'fa-unlink color--highlight'
+            return 'fa-unlink color-highlight'
           } else {
             return 'fa-link color--grey'
           }
         } else {
           if (this.showCurrentIconState) {
-            return 'fa-link color--highlight'
+            return 'fa-link color-highlight'
           } else {
-            return 'fa-unlink  color--highlight cursor--default'
+            return 'fa-unlink  color-highlight cursor--default'
           }
         }
       }
@@ -365,13 +365,13 @@ export default {
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
-            return 'fa-unlink color--highlight'
+            return 'fa-unlink color-highlight'
           } else {
             return 'fa-link color--grey'
           }
         } else {
           if (this.showCurrentIconState) {
-            return 'fa-link color--highlight'
+            return 'fa-link color-highlight'
           } else {
             return 'fa-unlink color--grey cursor--default'
           }
@@ -384,7 +384,7 @@ export default {
         } else {
           if (this.hasGroupId) {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color--highlight'
+              return 'fa-link cursor--default color-highlight'
             } else {
               return 'fa-link color--grey cursor--default'
             }

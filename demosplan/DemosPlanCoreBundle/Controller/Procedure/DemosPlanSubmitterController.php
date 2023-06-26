@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,9 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\SubmitterExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\SubmitterExporter;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +40,7 @@ class DemosPlanSubmitterController extends BaseController
     public function listAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_submitters.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_submitters.html.twig',
             [
                 'procedure' => $procedureId,
                 'title'     => 'submitters',

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
@@ -33,6 +33,7 @@ use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
@@ -90,6 +91,7 @@ class EntityContentChangeService extends CoreService
     private $globalConfig;
 
     public function __construct(
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         EntityContentChangeRepository $entityContentChangeRepository,
         EntityHelper $entityHelper,
         Environment $twig,
@@ -864,10 +866,12 @@ class EntityContentChangeService extends CoreService
     protected function determineChanger(bool $isReviewer): ?object
     {
         $token = $this->getTokenStorage()->getToken();
-        if ($token instanceof DemosToken && $token->getUser() instanceof User) {
-            $user = $token->getUser();
 
-            return $isReviewer ? $user->getDepartment() : $user;
+        if ($token instanceof TokenInterface) {
+            $user = $this->userFromSecurityUserProvider->fromToken($token);
+            if ($user instanceof User) {
+                return $isReviewer ? $user->getDepartment() : $user;
+            }
         }
 
         return null;

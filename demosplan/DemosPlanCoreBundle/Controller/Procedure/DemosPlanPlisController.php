@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -31,6 +31,7 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedure/{uuid}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid
@@ -71,6 +72,7 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedureName/{uuid}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier

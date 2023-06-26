@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
@@ -31,8 +32,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
@@ -49,6 +48,7 @@ use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -133,7 +133,12 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function logIn(UserInterface $user)
     {
-        $this->tokenStorage->setToken(new DemosToken($user));
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')
+            ->willReturn($user);
+        $token->method('getRoleNames')
+            ->willReturn($user->getDplanRolesArray());
+        $this->tokenStorage->setToken($token);
     }
 
     /**
@@ -436,9 +441,7 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function getProcedurePhases()
     {
-        $path = DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config');
-
-        return Yaml::parseFile($path.'/procedurephases.yml');
+        return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }
 
     /**
@@ -604,6 +607,11 @@ class FunctionalTestCase extends WebTestCase
     }
 
     protected function getProcedureBehaviorDefinitionReference(string $name): ProcedureBehaviorDefinition
+    {
+        return $this->getReference($name);
+    }
+
+    protected function getProcedurePersonReference(string $name): ProcedurePerson
     {
         return $this->getReference($name);
     }
