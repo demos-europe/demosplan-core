@@ -52,7 +52,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $orga = $this->findOneBy(['id' => $entityId]);
 
             return $orga;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -110,7 +110,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $query = $query->getQuery();
 
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -284,7 +284,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 ->getQuery();
 
             return $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -308,7 +308,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 ->getQuery();
 
             return $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

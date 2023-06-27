@@ -34,7 +34,7 @@
     <!--  item header  -->
     <div v-if="statement.movedToProcedureId === ''">
       <div
-        class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 cf"
+        class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 flow-root"
         data-add-animation>
         <!--  id, date created, assignment  -->
         <div class="c-at-item__row-icon layout__item">
@@ -51,7 +51,7 @@
           <br>
           <!-- Claim -->
           <dp-claim
-            class="c-at-item__row-icon display--inline-block"
+            class="c-at-item__row-icon inline-block"
             entity-type="statement"
             :assigned-id="(statement.assignee.id || '')"
             :assigned-name="(statement.assignee.name || '')"
@@ -78,14 +78,14 @@
                 class="fa fa-exchange"
                 aria-hidden="true" />
 
-              <span class="weight--normal display--block">
+              <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
 
               <template v-slot:popover>
                 <span
-                  class="display--none"
-                  :class="{'display--inline-block': assessmentBaseLoaded}">
+                  class="hidden"
+                  :class="{'inline-block': assessmentBaseLoaded}">
                   <!-- should work in Vue when -->
                   <template v-if="statement.authoredDate > 0">
                       <!-- remove comment when in vue to sow the date -->
@@ -165,8 +165,8 @@
                     v-if="hasOwnProp(statement, 'initialOrganisationName')"
                      v-slot:popover>
                     <div
-                      class="whitespace--normal display--none"
-                      :class="{'display--inline-block': assessmentBaseLoaded}">
+                      class="whitespace-normal hidden"
+                      :class="{'inline-block': assessmentBaseLoaded}">
                       <!--  see (#1)  -->
                       <template
                         v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
@@ -231,7 +231,7 @@
           </div><!--
 
        --><div
-            class="display--inline-block u-pt-0_25 text--right float--right">
+            class="inline-block u-pt-0_25 text-right float-right">
             <!-- Votes -->
             <span
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"
@@ -307,7 +307,7 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-light cf"
+          class="bg-color-light flow-root"
           v-show="tab === 'statement'">
           <!--  status / priorities  -->
           <dp-item-row
@@ -404,7 +404,7 @@
             class="u-pb-0">
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_county')"
-              class="position--relative"
+              class="relative"
               label="counties"
               :entity-id="statement.id"
               field-key="counties"
@@ -417,7 +417,7 @@
 
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_municipality') && statementFormDefinitions.mapAndCountyReference.enabled"
-              class="position--relative"
+              class="relative"
               label="municipalities"
               :entity-id="statement.id"
               field-key="municipalities"
@@ -430,7 +430,7 @@
 
             <dp-edit-field-multi-select
               v-if="dplan.procedureStatementPriorityArea && statementFormDefinitions.mapAndCountyReference.enabled"
-              class="position--relative"
+              class="relative"
               label="priorityAreas.all"
               :entity-id="statement.id"
               field-key="priorityAreas"
@@ -447,7 +447,7 @@
               </dt><!--
                 --><dd class="layout__item u-1-of-6 u-pt-0_25">
                   <a
-                    class="u-5-of-6 position--relative"
+                    class="u-5-of-6 relative"
                     @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))"
                     href="#"
                     rel="noopener">
@@ -463,7 +463,7 @@
             v-if="hasPermission('field_procedure_elements')"
             class="u-pb-0">
             <dp-edit-field-single-select
-              class="position--relative"
+              class="relative"
               label="document"
               :entity-id="statement.id"
               field-key="elements"
@@ -476,7 +476,7 @@
             <!-- paragraphParent, i.e. original version of the paragraph -->
             <dp-edit-field-single-select
               v-if="elementHasParagraphs"
-              class="position--relative"
+              class="relative"
               label="paragraph"
               :entity-id="statement.id"
               field-key="paragraph"
@@ -489,7 +489,7 @@
             <!-- documentParent -->
             <dp-edit-field-single-select
               v-if="elementHasDocuments"
-              class="position--relative"
+              class="relative"
               label="file"
               :entity-id="statement.id"
               field-key="document"
@@ -524,7 +524,7 @@
             v-if="hasPermission('feature_statements_tag')"
             class="u-pb-0">
             <dp-edit-field-multi-select
-              class="position--relative"
+              class="relative"
               label="tags"
               :entity-id="statement.id"
               field-key="tags"
@@ -545,7 +545,7 @@
             title="statement.text"
             class="u-pb-0 u-pt-0"
             :border-bottom="(statement.files.length > 0)">
-            <dl class="display--flex">
+            <dl class="flex">
               <!--
                   Statement text
                   With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
@@ -594,7 +594,7 @@
                     <i
                       v-tooltip="Translator.trans('recommendation.publicly.visible')"
                       tabindex="0"
-                      class="fa fa-question-circle float--right u-pt-0_125"
+                      class="fa fa-question-circle float-right u-pt-0_125"
                       aria-hidden="true" />
                   </template>
                 </tiptap-edit-text>
@@ -611,7 +611,7 @@
                   aria-hidden="true" />
               </div><!--
 
-           --><div class="layout--flush layout__item c-at-item__row overflow-word-break">
+           --><div class="layout--flush layout__item c-at-item__row break-words">
                 <a
                   v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
@@ -639,7 +639,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light cf"
+          class="bg-color-light flow-root"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -665,7 +665,7 @@
     <!-- Item that has been moved to procedure. minimal item header  -->
     <div
       v-else-if="statement.movedToProcedureId !== ''"
-      class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 cf"
+      class="c-at-item__header layout--flush u-pt-0_25 u-ph-0_5 flow-root"
       data-add-animation>
       <!--  id, date created, assignment  -->
       <div class="c-at-item__row-icon layout__item">
@@ -681,21 +681,21 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover class="display--inline-block">
+            <v-popover class="inline-block">
               {{ extid }}
 
               <i
                 class="fa fa-exchange"
                 aria-hidden="true" />
 
-              <span class="weight--normal display--block">
+              <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
 
               <template v-slot:popover>
                 <span
-                  class="display--none"
-                  :class="{'display--inline-block': assessmentBaseLoaded}">
+                  class="hidden"
+                  :class="{'inline-block': assessmentBaseLoaded}">
                   <template v-if="statement.authoredDate > 0">
                     <!-- remove comment when in vue to show the date -->
                     {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }} <br>
@@ -715,7 +715,7 @@
           </label>
           <div
             v-if="accessibleProcedureIds.findIndex(el => el === statement.movedToProcedureId) >= 0"
-            class="float--right u-mt-0_5 u-mb-0_75 u-mr"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
             <a
               :href="Routing.generate('dm_plan_assessment_single_view', { statement: statement.movedStatementId, procedureId: statement.movedToProcedureId })"
@@ -725,7 +725,7 @@
           </div>
           <div
             v-else
-            class="float--right u-mt-0_5 u-mb-0_75 u-mr"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
             {{ Translator.trans('movedTo') }}: {{ statement.movedToProcedureName.slice(0,55) }}{{ (statement.movedToProcedureName.length > 55) ? '...' : '' }} ({{ Translator.trans('inaccessible') }})
           </div>

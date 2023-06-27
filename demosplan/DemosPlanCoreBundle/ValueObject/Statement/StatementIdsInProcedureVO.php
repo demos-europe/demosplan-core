@@ -22,21 +22,11 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 class StatementIdsInProcedureVO extends ValueObject implements Countable
 {
     /**
-     * @var string
-     */
-    protected $procedureId;
-
-    /** @var string[] */
-    protected $statementIds;
-
-    /**
      * @param string   $procedureId
      * @param string[] $statementIds
      */
-    public function __construct($procedureId, $statementIds)
+    public function __construct(protected $procedureId, protected $statementIds)
     {
-        $this->procedureId = $procedureId;
-        $this->statementIds = $statementIds;
     }
 
     public function count(): int

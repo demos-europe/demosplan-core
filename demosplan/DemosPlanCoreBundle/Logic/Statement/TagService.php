@@ -32,47 +32,8 @@ use Exception;
 
 class TagService extends CoreService
 {
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var TagResourceType
-     */
-    private $tagResourceType;
-    /**
-     * @var BoilerplateRepository
-     */
-    private $boilerplateRepository;
-    /**
-     * @var TagRepository
-     */
-    private $tagRepository;
-    /**
-     * @var TagTopicRepository
-     */
-    private $tagTopicRepository;
-
-    public function __construct(
-        BoilerplateRepository $boilerplateRepository,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        TagRepository $tagRepository,
-        TagResourceType $tagResourceType,
-        TagTopicRepository $tagTopicRepository
-    ) {
-        $this->boilerplateRepository = $boilerplateRepository;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->tagRepository = $tagRepository;
-        $this->tagResourceType = $tagResourceType;
-        $this->tagTopicRepository = $tagTopicRepository;
+    public function __construct(private readonly BoilerplateRepository $boilerplateRepository, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly TagRepository $tagRepository, private readonly TagResourceType $tagResourceType, private readonly TagTopicRepository $tagTopicRepository)
+    {
     }
 
     /**

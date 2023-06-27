@@ -23,15 +23,8 @@ use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    private RpcErrorGenerator $errorGenerator;
-    private FrontendAssetProvider $assetProvider;
-
-    public function __construct(
-        FrontendAssetProvider $assetProvider,
-        RpcErrorGenerator $errorGenerator)
+    public function __construct(private readonly FrontendAssetProvider $assetProvider, private readonly RpcErrorGenerator $errorGenerator)
     {
-        $this->errorGenerator = $errorGenerator;
-        $this->assetProvider = $assetProvider;
     }
 
     public function supports(string $method): bool
@@ -55,11 +48,11 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

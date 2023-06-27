@@ -26,18 +26,14 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ManualSimplifiedStatementCreator extends SimplifiedStatementCreator
 {
-    /** @var FileUploadService */
-    private $fileUploadService;
-
     public function __construct(
         CurrentUserInterface $currentUser,
-        FileUploadService $fileUploadService,
+        private readonly FileUploadService $fileUploadService,
         MessageBagInterface $messageBag,
         StatementHandler $statementHandler,
         RouterInterface $router
     ) {
         $this->currentUser = $currentUser;
-        $this->fileUploadService = $fileUploadService;
         $this->messageBag = $messageBag;
         $this->statementHandler = $statementHandler;
         $this->router = $router;

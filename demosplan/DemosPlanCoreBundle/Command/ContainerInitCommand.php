@@ -115,7 +115,7 @@ EOT
         $connection = $this->entityManager->getConnection();
         try {
             $connection->getDatabase();
-        } catch (ConnectionException $throwable) {
+        } catch (ConnectionException) {
             try {
                 // create database, if it does not exist yet
                 $this->createDatabase($output);

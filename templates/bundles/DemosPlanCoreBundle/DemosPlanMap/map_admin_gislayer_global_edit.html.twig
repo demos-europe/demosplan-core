@@ -14,7 +14,7 @@
 
     <form
         id="form"
-        class="cf"
+        class="flow-root"
         action="{{ actionPath }}"
         method="post"
         enctype="multipart/form-data">
@@ -27,7 +27,7 @@
             <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
 
                 <li>
-                    <label class="cursor--pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
+                    <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
                         <input
                             type="radio"
                             name="r_type"
@@ -38,7 +38,7 @@
                     </label>
                 </li>
                 <li>
-                    <label class="cursor--pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
+                    <label class="cursor-pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
                         <input type="radio" name="r_type" value="overlay" {% if gislayer.type|default('overlay') == '' %}checked="checked"{% endif %}>
                         {{ "overlay"|trans }}
                     </label>
@@ -114,7 +114,7 @@
             </label>
         {% endblock xplanlayer %}
 
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
             <input class="btn btn--primary" type="submit" name="saveLayer" value="{{ "save"|trans }}">
             <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer_global') }}">
                 {{ "abort"|trans }}

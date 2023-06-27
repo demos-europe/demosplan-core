@@ -24,14 +24,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class MapImageToCoordinatesCropper
 {
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    public function __construct(Filesystem $filesystem)
+    public function __construct(private readonly Filesystem $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     /**

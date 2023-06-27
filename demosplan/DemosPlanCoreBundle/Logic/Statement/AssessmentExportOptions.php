@@ -38,17 +38,14 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      */
     protected $translator;
 
-    /**
-     * @var Collection
-     */
-    protected $options;
+    protected Collection $options;
 
     /**
      * Site areas with exports.
      *
      * @const array
      */
-    public const SECTIONS = [
+    final public const SECTIONS = [
         'original_statements',
         'assessment_table',
         'fragment_list',
@@ -59,7 +56,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @const array
      */
-    public const FORMATS = [
+    final public const FORMATS = [
         'docx',
         'pdf',
         'xlsx',
@@ -71,14 +68,9 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      * @var string
      */
     protected $env;
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
-    public function __construct(CacheInterface $cache, string $env)
+    public function __construct(private readonly CacheInterface $cache, string $env)
     {
-        $this->cache = $cache;
         $this->env = $env;
         $options = $this->loadOptions();
 
@@ -99,6 +91,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         $cacheKey = 'export_options_yml';
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) {
+            $optionsFiles = [];
             $fs = new Filesystem();
 
             // no need to evaluate assessment_export_options.yml folders dynamically as we can define allowed folders
@@ -110,11 +103,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
 
             $optionsFiles[] = DemosPlanPath::getConfigPath('statement/assessment_export_options.yml');
 
-            $optionsYaml = collect($optionsFiles)->map(static function ($filename) {
-                return file_exists($filename) ? file_get_contents($filename) : null;
-            })->filter(static function ($yaml) {
-                return null !== $yaml && is_string($yaml);
-            })->all();
+            $optionsYaml = collect($optionsFiles)->map(static fn($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn($yaml) => null !== $yaml && is_string($yaml))->all();
 
             $coreOptions = [];
             $projectOptions = [];
@@ -159,7 +148,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @throws AssessmentExportOptionsException if unmergable
      */
-    public function mergeOptions(array $options)
+    public function mergeOptions(array $options): Collection
     {
         if (!array_key_exists('defaults', $options)) {
             throw AssessmentExportOptionsException::noDefaultsException();
@@ -270,10 +259,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         return $this->options[$section];
     }
 
-    /**
-     * @return mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): Collection
     {
         return $this->options;
     }

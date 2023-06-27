@@ -33,7 +33,7 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -62,7 +62,7 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
      *
      * @throws Exception
      */
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

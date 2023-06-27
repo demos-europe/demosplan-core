@@ -2,20 +2,20 @@
 
     <div class="{{ 'c-statement__formhint flash-info u-mb-0_5'|prefixClass }}">
         <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
-        <span class="{{ 'display--block u-ml'|prefixClass }}">
+        <span class="{{ 'block u-ml'|prefixClass }}">
             {{ templateVars.procedureUiDefinition.statementFormHintPersonalData|default|wysiwyg }}
         </span>
         {% block extra_personal_hint %}{% endblock %}
     </div>
 
-    <p id="c-statement-hint-personal-data" class="{{ 'c-statement__formhint flash-error display--none'|prefixClass }}" tabindex="0">
+    <p id="c-statement-hint-personal-data" class="{{ 'c-statement__formhint flash-error hidden'|prefixClass }}" tabindex="0">
         <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-        <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
+        <a href="#" class="{{ 'block u-ml'|prefixClass }}" tabindex="0">
             {{ "error.mandatoryfields.no_asterisk"|trans }}
         </a>
     </p>
 
-    <fieldset class="{{ 'toggle-group-useName display--block'|prefixClass }}" role="radiogroup" aria-required="true">
+    <fieldset class="{{ 'toggle-group-useName block'|prefixClass }}" role="radiogroup" aria-required="true">
 
         <div class="{{ 'c-statement__formblock'|prefixClass }}" data-toggle-id="useName1" aria-live="polite" aria-relevant="all">
 
@@ -76,7 +76,7 @@
     </fieldset>
 
     <div class="{{ 'c-statement__formblock u-mt'|prefixClass }}" data-toggle-id="getFeedback" aria-live="polite" aria-relevant="all">
-        <label class="{{ 'u-mb-0_5 display--block'|prefixClass }}">
+        <label class="{{ 'u-mb-0_5 block'|prefixClass }}">
             <input
                 class="{{ 'js__toggleAnything'|prefixClass }}"
                 data-toggle="#getFeedback"
@@ -106,7 +106,7 @@
     </div>
 
     <button
-        class="{{ 'btn btn--primary u-ml float--right u-1-of-1-palm u-mt-0_5-palm u-nojs-hide--inline-block js__statementForm'|prefixClass }}"
+        class="{{ 'btn btn--primary u-ml float-right u-1-of-1-palm u-mt-0_5-palm u-nojs-hide--inline-block js__statementForm'|prefixClass }}"
         type="button"
         data-statement-action="toggleCheck"
         data-target-id="#check"

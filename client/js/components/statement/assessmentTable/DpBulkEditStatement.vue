@@ -44,7 +44,7 @@
           v-model="options.newAssignee.checked">
         <label
           for="r_new_assignee"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('statements.assign.other') }}
         </label>
 
@@ -82,7 +82,7 @@
           v-model="options.recommendation.checked">
         <label
           for="r_recommendation"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div
@@ -116,7 +116,7 @@
       </div>
 
       <!-- 'Continue' and 'Back to consideration table' buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <a
           class="btn btn--primary"
           role="button"
@@ -125,7 +125,7 @@
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -167,7 +167,7 @@
       </div>
 
       <!-- Back to edit and apply buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <dp-button
           :busy="isLoading"
           icon-after="chevron-right"
@@ -175,7 +175,7 @@
           @click.once="submitData" />
 
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           @click.prevent="toggleMode('edit')">
           <i class="fa fa-angle-left u-pr-0_25" />

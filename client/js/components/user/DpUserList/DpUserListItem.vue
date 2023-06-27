@@ -20,8 +20,8 @@
     :open="isOpen">
     <!-- Item header -->
     <template v-slot:header>
-      <div class="flex flex-items-start">
-        <div class="position--relative u-z-content-above u-mt-0_75">
+      <div class="flex items-start">
+        <div class="relative u-z-content-above u-mt-0_75">
           <input
             type="checkbox"
             :checked="selected"
@@ -32,7 +32,7 @@
         </div>
         <div
           @click="isOpen = false === isOpen"
-          class="cursor--pointer u-pv-0_75 u-ph-0_25 flex-grow"
+          class="cursor-pointer u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           <div
             data-cy="editItemToggle"
@@ -61,7 +61,7 @@
               <br>
               <div
                 v-if="userDepartment !== null"
-                class="u-1-of-2 display--inline">
+                class="u-1-of-2 inline">
                 {{ Translator.trans(userDepartment.attributes.name) }}
               </div>
             </div>

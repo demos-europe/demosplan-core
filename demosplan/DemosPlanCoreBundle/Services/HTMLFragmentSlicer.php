@@ -22,9 +22,9 @@ use Tightenco\Collect\Support\Collection;
 
 class HTMLFragmentSlicer
 {
-    public const SLICE_AT_END_OF_STRING = -1;
+    final public const SLICE_AT_END_OF_STRING = -1;
 
-    public const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
+    final public const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
 
     /**
      * @var string
@@ -110,7 +110,7 @@ class HTMLFragmentSlicer
         $shortened = $slicer->getShortenedFragment();
 
         // cache entry for 180 Days
-        DemosPlanTools::cacheAdd($cacheKey, $shortened, 15552000);
+        DemosPlanTools::cacheAdd($cacheKey, $shortened, 15_552_000);
 
         return $shortened;
     }
@@ -153,9 +153,7 @@ class HTMLFragmentSlicer
 
             $this->remainingList
                 ->filter(
-                    function ($nodeCheck) {
-                        return is_a($nodeCheck, DOMNode::class);
-                    }
+                    fn($nodeCheck) => is_a($nodeCheck, DOMNode::class)
                 )
                 ->each(
                     function (DOMNode $node) use ($parser) {
@@ -193,10 +191,10 @@ class HTMLFragmentSlicer
     protected function strlen($str)
     {
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str);
+            return mb_strlen((string) $str);
         }
 
-        return strlen($str);
+        return strlen((string) $str);
     }
 
     /**

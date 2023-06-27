@@ -47,7 +47,7 @@
     <h1>{{ "news.edit"|trans }}</h1>
 
     <form
-        class="cf"
+        class="flow-root"
         action="{{ actionPath }}"
         method="post"
         enctype="multipart/form-data"
@@ -67,7 +67,7 @@
         {% endif %}
 
         {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}
-            <dp-change-state-at-date
+            <change-state-at-date
                 class="u-mb-0_75"
                 regular-dropdown-id="r_enable"
                 delayed-switch-dropdown-id="r_designatedState"
@@ -79,7 +79,7 @@
                 :status-options="JSON.parse('{{ statusOptions|json_encode }}')"
                 default-current-state="{{ currentState }}"
                 default-new-state="{{ templateVars.news.designatedState|default == true ? '1' : '0' }}"
-                init-status="{{ currentState }}"></dp-change-state-at-date>
+                init-status="{{ currentState }}"></change-state-at-date>
         {% else %}
             {{ uiComponent('form.row', {
                 elements: [
@@ -339,7 +339,7 @@
 
                 <a
                     id="news_pdf"
-                    class="o-hellip overflow-word-break u-mb-0_25"
+                    class="o-hellip break-words u-mb-0_25"
                     target="_blank"
                     rel="noopener"
                     href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">

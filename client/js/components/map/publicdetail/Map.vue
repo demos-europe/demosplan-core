@@ -1010,12 +1010,12 @@ export default {
                         /*
                          * Roll back to this one when we can handle procedure versions
                          * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                         *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                         *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                          *     Translator.trans('procedure.goto') +
                          *     '</a>';
                          */
                         const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                         Translator.trans('procedures.all.show') +
                         '</a>'
                         this.showPopup('contentPopup', {
@@ -1343,12 +1343,12 @@ export default {
                     /*
                      * Roll back to this one when we can handle procedure versions
                      * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                     *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                      *     Translator.trans('procedure.goto') +
                      *     '</a>';
                      */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                       Translator.trans('procedures.all.show') +
                       '</a>'
                       this.showPopup('contentPopup', {
@@ -1753,7 +1753,7 @@ export default {
       let label = ''
 
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        label = this.procedureSettings.copyright.replace('{year}', currentYear)
+        label = this.procedureSettings.copyright.replace('{currentYear}', currentYear)
       } else {
         label = Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
@@ -1951,7 +1951,7 @@ export default {
             .replace(/___id___/g, content.key)
           // Specialcase priorityArea with key 'Sonderregel' should not have an html view
           if (content.key === 'Sonderregel') {
-            $('#popupContent').find('a').first().removeClass(this.prefixClass('display--block')).hide()
+            $('#popupContent').find('a').first().removeClass(this.prefixClass('block')).hide()
           }
         } else if (templateId === 'miscPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)

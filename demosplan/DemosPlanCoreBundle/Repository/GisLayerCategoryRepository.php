@@ -63,7 +63,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
                 throw new InvalidArgumentException('Trying to add a GisLayerCategory without name');
             }
 
-            if (false === array_key_exists('procedureId', $data) && 36 === strlen($data['procedureId'])) {
+            if (false === array_key_exists('procedureId', $data) && 36 === strlen((string) $data['procedureId'])) {
                 throw new InvalidArgumentException('Trying to add a GisLayerCategory without procedure');
             }
 
@@ -178,7 +178,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -223,7 +223,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
     {
         $em = $this->getEntityManager();
 
-        if (array_key_exists('procedureId', $data) && 36 === strlen($data['procedureId'])) {
+        if (array_key_exists('procedureId', $data) && 36 === strlen((string) $data['procedureId'])) {
             $gisLayerCategory->setProcedure($em->getReference(Procedure::class, $data['procedureId']));
         }
 
@@ -245,7 +245,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             }
         }
 
-        if (array_key_exists('parentId', $data) && 36 === strlen($data['parentId'])) {
+        if (array_key_exists('parentId', $data) && 36 === strlen((string) $data['parentId'])) {
             $gisLayerCategory->setParent($em->getReference(GisLayerCategory::class, $data['parentId']));
         }
 

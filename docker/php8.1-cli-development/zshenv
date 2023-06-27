@@ -18,7 +18,7 @@ then
 fi
 
 function php-xdbg() {
-    php -dzend_extension=xdebug.so \
+    PHP_IDE_CONFIG="serverName=172.22.255.2" php -dzend_extension=xdebug.so \
         -dxdebug.mode=debug \
         -dxdebug.start_with_request=yes \
         -dxdebug.client_host=172.22.255.1 \

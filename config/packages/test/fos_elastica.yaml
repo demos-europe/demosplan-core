@@ -10,6 +10,8 @@ fos_elastica:
                 listener: { enabled: false }
         statements:
             index_name: '%project_prefix%_statements_test'
+            persistence:
+                listener: { enabled: false }
         statementFragments:
             index_name: '%project_prefix%_statement_fragments_test'
             persistence:
@@ -24,4 +26,4 @@ fos_elastica:
                 listener: { enabled: false }
 
 imports:
-    - { resource: "../../../config/elasticsearch.yml" }
+    - { resource: "../../elasticsearch.yml" }

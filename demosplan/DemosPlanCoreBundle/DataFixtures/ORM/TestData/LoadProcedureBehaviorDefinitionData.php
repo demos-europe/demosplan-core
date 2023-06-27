@@ -17,12 +17,12 @@ use Doctrine\Persistence\ObjectManager;
 class LoadProcedureBehaviorDefinitionData extends TestFixture implements DependentFixtureInterface
 {
     // for procedureTypes
-    public const PROCEDURETYPE_1 = 'procedureBehaviorDefinition1';
-    public const PROCEDURETYPE_BPLAN = 'procedureBehaviorDefinition_bplan';
-    public const PROCEDURETYPE_BRK = 'BRK';
+    final public const PROCEDURETYPE_1 = 'procedureBehaviorDefinition1';
+    final public const PROCEDURETYPE_BPLAN = 'procedureBehaviorDefinition_bplan';
+    final public const PROCEDURETYPE_BRK = 'BRK';
 
     // for procedures
-    public const PROCEDURE_TESTPROCEDURE = 'procedureBehaviorDefinition_procedureTest';
+    final public const PROCEDURE_TESTPROCEDURE = 'procedureBehaviorDefinition_procedureTest';
 
     private $manager;
 

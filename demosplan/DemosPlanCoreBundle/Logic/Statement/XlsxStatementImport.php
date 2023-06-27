@@ -37,64 +37,22 @@ class XlsxStatementImport
     protected $logger;
 
     /**
-     * @var ExcelImporter
-     */
-    private $xlsxStatementImporter;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var EventDispatcherPostInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var Permissions
-     */
-    private $permissions;
-
-    /**
      * @var array
      */
     private $createdStatements;
 
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcher,
-        ExcelImporter $xlsxStatementImporter,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly EventDispatcherPostInterface $eventDispatcher,
+        private readonly ExcelImporter $xlsxStatementImporter,
         LoggerInterface $logger,
-        StatementRepository $statementRepository,
-        StatementService $statementService,
-        EntityManagerInterface $entityManager,
-        Permissions $permissions
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementService $statementService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly Permissions $permissions
     ) {
-        $this->xlsxStatementImporter = $xlsxStatementImporter;
-        $this->statementService = $statementService;
         $this->logger = $logger;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->statementRepository = $statementRepository;
-        $this->entityManager = $entityManager;
-        $this->permissions = $permissions;
         $this->createdStatements = [];
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -121,7 +79,7 @@ class XlsxStatementImport
         try {
             $doctrineConnection->beginTransaction();
             $this->xlsxStatementImporter->process($fileInfo);
-            array_map([$this->entityManager, 'persist'], $this->xlsxStatementImporter->getGeneratedTags());
+            array_map($this->entityManager->persist(...), $this->xlsxStatementImporter->getGeneratedTags());
             $generatedStatements = $this->xlsxStatementImporter->getGeneratedStatements();
             if ($this->hasErrors()) {
                 $doctrineConnection->rollBack();

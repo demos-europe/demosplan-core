@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
  */
 class JsonApiPaginationParser
 {
-    public const DEFAULT_PAGE_SIZE = 10;
+    final public const DEFAULT_PAGE_SIZE = 10;
 
     public function parseApiPaginationProfile(
         array $profile,

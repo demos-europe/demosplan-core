@@ -22,13 +22,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class FaqCategoryApiController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/faq-category/",
-     *        methods={"GET"},
-     *        name="dp_api_faq_category_list",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_faq")
      */
+    #[Route(path: '/api/1.0/faq-category/', methods: ['GET'], name: 'dp_api_faq_category_list', options: ['expose' => true])]
     public function listAction(FaqHandler $faqHandler): APIResponse
     {
         try {

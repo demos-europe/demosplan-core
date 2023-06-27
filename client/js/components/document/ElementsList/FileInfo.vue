@@ -9,7 +9,7 @@
 
 <template>
   <a
-    class="flex overflow-word-break font-size-small"
+    class="flex break-words font-size-small"
     target="_blank"
     :href="path">
     <i

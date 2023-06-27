@@ -52,20 +52,8 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    /**
-     * @var QueryUser
-     */
-    private $esQuery;
-
-    /**
-     * @var JsonApiEsService
-     */
-    private $jsonApiEsService;
-
-    public function __construct(QueryUser $esQuery, JsonApiEsService $jsonApiEsService)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService)
     {
-        $this->esQuery = $esQuery;
-        $this->jsonApiEsService = $jsonApiEsService;
     }
 
     public static function getName(): string
@@ -156,25 +144,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->email)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->profileCompleted)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isProfileCompleted();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isAccessConfirmed();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isAccessConfirmed()),
             $this->createAttribute($this->invited)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isInvited();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isInvited()),
             $this->createAttribute($this->newsletter)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNewsletter();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNoPiwik();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles)
                 // Send only the user roles for the current customer.
                 ->readable(true, function (User $user): array {
@@ -182,25 +160,17 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
                     return $user->getRoleInCustomers()
                         ->filter(
-                            static function (UserRoleInCustomer $roleInCustomer) use ($currentCustomer): bool {
-                                return $currentCustomer === $roleInCustomer->getCustomer();
-                            }
+                            static fn(UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
                         )
                         ->map(
-                            static function (UserRoleInCustomer $roleInCustomer): Role {
-                                return $roleInCustomer->getRole();
-                            }
+                            static fn(UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
                         )
                         ->getValues();
                 }),
             $this->createToOneRelationship($this->department)
-                ->readable(true, static function (User $user): ?Department {
-                    return $user->getDepartment();
-                }),
+                ->readable(true, static fn(User $user): ?Department => $user->getDepartment()),
             $this->createToOneRelationship($this->orga)
-                ->readable(true, static function (User $user): ?Orga {
-                    return $user->getOrga();
-                }),
+                ->readable(true, static fn(User $user): ?Orga => $user->getOrga()),
         ];
     }
 }

@@ -17,14 +17,8 @@ use Exception;
 
 class PriorityAreaService extends CoreService
 {
-    /**
-     * @var PriorityAreaRepository
-     */
-    private $priorityAreaRepository;
-
-    public function __construct(PriorityAreaRepository $priorityAreaRepository)
+    public function __construct(private readonly PriorityAreaRepository $priorityAreaRepository)
     {
-        $this->priorityAreaRepository = $priorityAreaRepository;
     }
 
     /**
@@ -56,7 +50,7 @@ class PriorityAreaService extends CoreService
     {
         try {
             return $this->priorityAreaRepository->getAll();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -71,10 +65,9 @@ class PriorityAreaService extends CoreService
         $priorityAreas = $this->getAllPriorityAreas();
 
         return \collect($priorityAreas)->map(
-            function (PriorityArea $priorityArea) {
+            fn(PriorityArea $priorityArea) =>
                 // use 'name' instead of 'key' to make it working in twig
-                return ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()];
-            }
+                ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()]
         )
             ->sortBy('name')
             ->values()

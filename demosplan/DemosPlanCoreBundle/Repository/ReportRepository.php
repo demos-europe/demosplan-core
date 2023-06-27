@@ -64,7 +64,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @throws DeprecatedException
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new DeprecatedException('Use addObject instead.');
     }
@@ -192,7 +192,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

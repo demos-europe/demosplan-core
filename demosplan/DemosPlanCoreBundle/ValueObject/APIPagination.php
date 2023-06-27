@@ -52,7 +52,7 @@ class APIPagination extends ValueObject
         }
 
         $sortDirection = 'asc';
-        if (0 === strpos($sortString, '-')) {
+        if (str_starts_with($sortString, '-')) {
             $sortDirection = 'desc';
             // strip descending marker from sortString;
             $sortString = substr($sortString, 1);

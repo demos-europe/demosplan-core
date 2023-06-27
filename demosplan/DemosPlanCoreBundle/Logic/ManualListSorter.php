@@ -17,19 +17,8 @@ use Exception;
 
 class ManualListSorter
 {
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
-    /**
-     * @var ManualListSortRepository
-     */
-    private $manualListSortRepository;
-
-    public function __construct(ArrayHelper $arrayHelper, ManualListSortRepository $manualListSortRepository)
+    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ManualListSortRepository $manualListSortRepository)
     {
-        $this->arrayHelper = $arrayHelper;
-        $this->manualListSortRepository = $manualListSortRepository;
     }
 
     /**
@@ -55,7 +44,7 @@ class ManualListSorter
         );
 
         if (null !== $manualSort) {
-            $manualOrder = explode(',', $manualSort->getIdents());
+            $manualOrder = explode(',', (string) $manualSort->getIdents());
             $orderedResult['list'] = $this->arrayHelper->orderArrayByIds($manualOrder, $result, $orderByKey);
             $orderedResult['sorted'] = true;
         }

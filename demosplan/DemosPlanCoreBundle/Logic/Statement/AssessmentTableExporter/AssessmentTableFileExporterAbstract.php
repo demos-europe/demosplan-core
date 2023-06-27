@@ -154,7 +154,7 @@ abstract class AssessmentTableFileExporterAbstract
      */
     protected function addStatementsFromCurrentQueryHashToFilter(array $requestPost, string $procedureId, $isOriginal = false): array
     {
-        if (!array_key_exists('sort', $requestPost) || 0 === count($requestPost['sort'])) {
+        if (!array_key_exists('sort', $requestPost) || 0 === (is_countable($requestPost['sort']) ? count($requestPost['sort']) : 0)) {
             $requestPost['sort'] = ToBy::createArray('submitDate', 'desc');
         }
         if ($this->session->has('hashList')) {

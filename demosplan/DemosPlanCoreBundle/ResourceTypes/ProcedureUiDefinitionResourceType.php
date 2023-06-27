@@ -76,25 +76,14 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->statementFormHintPersonalData->getAsNamesInDotNotation():
-                    $object->setStatementFormHintPersonalData($value);
-                    break;
-                case $this->statementFormHintRecheck->getAsNamesInDotNotation():
-                    $object->setStatementFormHintRecheck($value);
-                    break;
-                case $this->statementFormHintStatement->getAsNamesInDotNotation():
-                    $object->setStatementFormHintStatement($value);
-                    break;
-                case $this->mapHintDefault->getAsNamesInDotNotation():
-                    $object->setMapHintDefault($value);
-                    break;
-                case $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation():
-                    $object->setStatementPublicSubmitConfirmationText($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->statementFormHintPersonalData->getAsNamesInDotNotation() => $object->setStatementFormHintPersonalData($value),
+                $this->statementFormHintRecheck->getAsNamesInDotNotation() => $object->setStatementFormHintRecheck($value),
+                $this->statementFormHintStatement->getAsNamesInDotNotation() => $object->setStatementFormHintStatement($value),
+                $this->mapHintDefault->getAsNamesInDotNotation() => $object->setMapHintDefault($value),
+                $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => $object->setStatementPublicSubmitConfirmationText($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

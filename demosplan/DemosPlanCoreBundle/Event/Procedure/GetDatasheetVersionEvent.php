@@ -16,12 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetVersionEventInterfac
 
 class GetDatasheetVersionEvent implements GetDatasheetVersionEventInterface
 {
-    private string $procedureId;
     private int $datasheetVersion = 0;
 
-    public function __construct(string $procedureId)
+    public function __construct(private readonly string $procedureId)
     {
-        $this->procedureId = $procedureId;
     }
 
     public function getProcedureId(): string

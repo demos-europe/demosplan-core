@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -33,82 +32,8 @@ class DefaultTwigVariablesService
 {
     protected $variables;
 
-    /**
-     * @var GlobalConfig
-     */
-    private $globalConfig;
-
-    /**
-     * @var BrandingLoader
-     */
-    private $brandingLoader;
-
-    /** @var OrgaLoader */
-    private $orgaLoader;
-
-    /** @var CustomerService */
-    private $customerService;
-
-    /**
-     * @var SessionHandler
-     */
-    private $sessionHandler;
-    /**
-     * @var string
-     */
-    private $publicCSSClassPrefix;
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-    /**
-     * @var TransformMessageBagService
-     */
-    private $transformMessageBagService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-    /**
-     * @var string
-     */
-    private $defaultLocale;
-
-    /**
-     * @var JWTTokenManagerInterface
-     */
-    private $jwtTokenManager;
-
-    public function __construct(
-        BrandingLoader $brandingLoader,
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUser,
-        CustomerService $customerService,
-        GlobalConfigInterface $globalConfig,
-        JWTTokenManagerInterface $jwtTokenManager,
-        OrgaLoader $orgaLoader,
-        PermissionsInterface $permissions,
-        SessionHandler $sessionHandler,
-        TransformMessageBagService $transformMessageBagService,
-        string $publicCSSClassPrefix,
-        string $defaultLocale
-    ) {
-        $this->globalConfig = $globalConfig;
-        $this->brandingLoader = $brandingLoader;
-        $this->orgaLoader = $orgaLoader;
-        $this->customerService = $customerService;
-        $this->sessionHandler = $sessionHandler;
-        $this->publicCSSClassPrefix = $publicCSSClassPrefix;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->transformMessageBagService = $transformMessageBagService;
-        $this->permissions = $permissions;
-        $this->currentUser = $currentUser;
-        $this->defaultLocale = $defaultLocale;
-        $this->jwtTokenManager = $jwtTokenManager;
+    public function __construct(private readonly BrandingLoader $brandingLoader, private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly CustomerService $customerService, private readonly GlobalConfigInterface $globalConfig, private readonly JWTTokenManagerInterface $jwtTokenManager, private readonly OrgaLoader $orgaLoader, private readonly PermissionsInterface $permissions, private readonly SessionHandler $sessionHandler, private readonly TransformMessageBagService $transformMessageBagService, private readonly string $publicCSSClassPrefix, private readonly string $defaultLocale)
+    {
     }
 
     protected function extractExposedPermissions(): Collection
@@ -124,13 +49,9 @@ class DefaultTwigVariablesService
                 }
             }
         )->filter(
-            static function (Permission $permission) {
-                return $permission->isEnabled() && $permission->isExposed();
-            }
+            static fn (Permission $permission) => $permission->isEnabled() && $permission->isExposed()
         )->flatMap(
-            static function (Permission $permission) {
-                return [$permission->getName() => true];
-            }
+            static fn (Permission $permission) => [$permission->getName() => true]
         );
     }
 
@@ -221,7 +142,7 @@ class DefaultTwigVariablesService
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');
-        if (\is_null($languageKey) || 0 === strlen($languageKey)) {
+        if (\is_null($languageKey) || 0 === strlen((string) $languageKey)) {
             $languageKey = $this->defaultLocale;
         }
 

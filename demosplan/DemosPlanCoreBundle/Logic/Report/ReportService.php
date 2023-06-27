@@ -41,62 +41,8 @@ class ReportService extends CoreService
      */
     protected $currentUser;
 
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-    /**
-     * @var ReportRepository
-     */
-    private $reportRepository;
-
-    public function __construct(
-        DqlConditionFactory $conditionFactory,
-        CustomerHandler $customerHandler,
-        EntityFetcher $entityFetcher,
-        ReportRepository $reportRepository,
-        SortMethodFactory $sortMethodFactory,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        TranslatorInterface $translator,
-        ValidatorInterface $validator
-    ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->customerHandler = $customerHandler;
-        $this->entityFetcher = $entityFetcher;
-        $this->reportRepository = $reportRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->translator = $translator;
-        $this->validator = $validator;
+    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly CustomerHandler $customerHandler, private readonly EntityFetcher $entityFetcher, private readonly ReportRepository $reportRepository, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**
@@ -172,7 +118,7 @@ class ReportService extends CoreService
 
         $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
 
-        return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9999999, [$sorting]);
+        return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9_999_999, [$sorting]);
     }
 
     /**

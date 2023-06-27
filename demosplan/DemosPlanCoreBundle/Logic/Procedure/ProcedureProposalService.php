@@ -24,35 +24,8 @@ use Exception;
 
 class ProcedureProposalService extends CoreService
 {
-    /** @var ProcedureService */
-    private $procedureService;
-
-    /** @var CurrentUserInterface */
-    private $currentUser;
-
-    /** @var ContentService */
-    private $contentService;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var ProcedureProposalRepository
-     */
-    private $procedureProposalRepository;
-
-    public function __construct(
-        ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        ProcedureProposalRepository $procedureProposalRepository,
-        ProcedureService $procedureService,
-        UserRepository $userRepository
-    ) {
-        $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
-        $this->procedureProposalRepository = $procedureProposalRepository;
-        $this->procedureService = $procedureService;
-        $this->userRepository = $userRepository;
+    public function __construct(private ContentService $contentService, private readonly CurrentUserInterface $currentUser, private readonly ProcedureProposalRepository $procedureProposalRepository, private readonly ProcedureService $procedureService, private readonly UserRepository $userRepository)
+    {
     }
 
     /**

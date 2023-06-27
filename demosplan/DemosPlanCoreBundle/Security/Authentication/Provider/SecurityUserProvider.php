@@ -33,7 +33,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
     public function refreshUser(UserInterface $user): ?UserInterface
     {
         if (!$user instanceof SecurityUser) {
-            throw new UnsupportedUserException(sprintf('Invalid user class %s', get_class($user)));
+            throw new UnsupportedUserException(sprintf('Invalid user class %s', $user::class));
         }
 
         return new SecurityUser($this->loadUserByLogin($user->getUsername()));

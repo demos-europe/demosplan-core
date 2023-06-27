@@ -19,7 +19,7 @@
       @mouseover="toggleOpacityControl(true)"
       @mouseout="toggleOpacityControl(false)">
       <button
-        :class="prefixClass('btn--blank btn--focus width-16 text--left')"
+        :class="prefixClass('btn--blank btn--focus width-16 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"

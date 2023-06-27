@@ -32,7 +32,7 @@
 
             <div class="layout__item u-3-of-4">
                 {# select-all Checkbox #}
-                <label class="u-m-0 u-mr u-p-0 display--inline-block">
+                <label class="u-m-0 u-mr u-p-0 inline-block">
                     <input class="u-mr-0" type="checkbox" id="select_all" name="checkAllItems" value="" data-form-actions-check-all data-export-actions-check-all>
                     {{ "markall"|trans }}
                 </label>
@@ -48,7 +48,7 @@
             </div>
 
             {#  Filter modal trigger + Filter modal  #}
-            <div class="float--right">
+            <div class="float-right">
                 {# Fields that need permission check - Format: 'nameInElasticsearcYMLFile': [arrayOfPermissionsToCheck] #}
                 {% set filtersPermissionFields = {
                     'priorityAreaKeys': ['field_statement_priority_area'],
@@ -74,7 +74,7 @@
                     :permission-fields="JSON.parse('{{ filtersPermissionFields|default([])|json_encode|e('js', 'utf-8') }}')">
                     <div
                         v-cloak
-                        class="display--inline-block">
+                        class="inline-block">
                         <a
                             href="#"
                             @click.stop.prevent="$refs.filterModal.toggle()"
@@ -110,7 +110,7 @@
                                     {% endfor %}
                                     <template v-for="filter in group.values">
                                         <template v-if="filter.hasPermission">
-                                            <label :for="filter.name" class="layout__item u-1-of-4 u-pl-0 text--right">
+                                            <label :for="filter.name" class="layout__item u-1-of-4 u-pl-0 text-right">
                                                 {% verbatim %}{{ Translator.trans(filter.title) }}{% endverbatim %}
                                             </label>
                                             <div class="layout__item u-3-of-4">
@@ -136,7 +136,7 @@
                                 </fieldset>
                             </div>
 
-                            <div class="text--right space-inline-s">
+                            <div class="text-right space-inline-s">
                                 <input class="btn btn--primary" type="submit" value="{{ "apply"|trans }}">
                                 <a class="btn btn--secondary" href="{{ path( backpath ) }}?resetForm=1">
                                     {{ "reset"|trans }}

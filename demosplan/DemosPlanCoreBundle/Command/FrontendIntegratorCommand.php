@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
@@ -47,33 +48,14 @@ class FrontendIntegratorCommand extends CoreCommand
     protected static $defaultName = 'dplan:frontend:integrator';
     protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
 
-    /**
-     * @var OpenAPISchemaGenerator
-     */
-    private $apiDocumentationGenerator;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var JsApiResourceDefinitionBuilder
-     */
-    private $resourceDefinitionBuilder;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
-        JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        OpenAPISchemaGenerator $apiDocumentationGenerator,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
+        private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-
-        $this->apiDocumentationGenerator = $apiDocumentationGenerator;
-        $this->currentUser = $currentUser;
-        $this->resourceDefinitionBuilder = $resourceDefinitionBuilder;
     }
 
     public function configure(): void
@@ -95,18 +77,18 @@ class FrontendIntegratorCommand extends CoreCommand
             $output->writeln('Error: Additional data load failed');
             $output->writeln($e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         try {
             $output->writeln(Json::encode($data));
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $output->writeln('Error: Parameter dump failed');
 
-            return 1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getParameters(): array
@@ -125,7 +107,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
         // make the path a valid path on windows
         if (0 === stripos(PHP_OS, 'WIN')) {
-            $routesPath = str_replace(['/', '\\'], '\\\\', $routesPath);
+            $routesPath = str_replace(['/', '\\'], '\\\\', (string) $routesPath);
         }
 
         Batch::create($this->getApplication(), $output)

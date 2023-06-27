@@ -28,14 +28,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class AssignableUserResourceType extends DplanResourceType
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     public static function getName(): string

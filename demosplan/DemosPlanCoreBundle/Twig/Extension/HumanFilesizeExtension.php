@@ -17,7 +17,7 @@ class HumanFilesizeExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('humanFilesize', [$this, 'formatHumanFilesize']),
+            new TwigFilter('humanFilesize', $this->formatHumanFilesize(...)),
         ];
     }
 

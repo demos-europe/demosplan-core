@@ -87,117 +87,34 @@ class OrgaService extends CoreService
      */
     protected $tokenStorage;
 
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-
-    /**
-     * @var OrgaTypeRepository
-     */
-    private $orgaTypeRepository;
-
-    /**
-     * @var OrganisationReportEntryFactory
-     */
-    private $organisationReportEntryFactory;
-
-    /**
-     * @var OrgaResourceType
-     */
-    private $orgaResourceType;
-
-    /**
-     * @var InvitablePublicAgencyResourceType
-     */
-    private $invitablePublicAgencyResourceType;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
         AddressService $addressService,
         ContentService $contentService,
-        CustomerRepository $customerRepository,
-        DqlConditionFactory $conditionFactory,
+        private readonly CustomerRepository $customerRepository,
+        private readonly DqlConditionFactory $conditionFactory,
         MailService $mailService,
-        EntityFetcher $entityFetcher,
-        FileService $fileService,
-        GlobalConfigInterface $globalConfig,
-        InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
-        OrganisationReportEntryFactory $organisationReportEntryFactory,
-        OrgaRepository $orgaRepository,
-        OrgaResourceType $orgaResourceType,
-        OrgaTypeRepository $orgaTypeRepository,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
+        private readonly OrganisationReportEntryFactory $organisationReportEntryFactory,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaResourceType $orgaResourceType,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
         PermissionsInterface $permissions,
-        ReportService $reportService,
+        private readonly ReportService $reportService,
         RoleService $roleService,
-        SortMethodFactory $sortMethodFactory,
+        private readonly SortMethodFactory $sortMethodFactory,
         TokenStorageInterface $tokenStorage,
-        TranslatorInterface $translator,
-        UserService $userService
+        private readonly TranslatorInterface $translator,
+        private readonly UserService $userService
     ) {
         $this->addressService = $addressService;
-        $this->conditionFactory = $conditionFactory;
         $this->contentService = $contentService;
-        $this->customerRepository = $customerRepository;
-        $this->entityFetcher = $entityFetcher;
-        $this->fileService = $fileService;
-        $this->orgaRepository = $orgaRepository;
-        $this->orgaTypeRepository = $orgaTypeRepository;
         $this->permissions = $permissions;
-        $this->reportService = $reportService;
         $this->roleService = $roleService;
-        $this->sortMethodFactory = $sortMethodFactory;
         $this->tokenStorage = $tokenStorage;
-        $this->translator = $translator;
-        $this->userService = $userService;
         $this->mailService = $mailService;
-        $this->organisationReportEntryFactory = $organisationReportEntryFactory;
-        $this->orgaResourceType = $orgaResourceType;
-        $this->invitablePublicAgencyResourceType = $invitablePublicAgencyResourceType;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -442,9 +359,7 @@ class OrgaService extends CoreService
     public function getOrgaCountByTypeTranslated(Customer $customerContext): array
     {
         return collect($this->getAcceptedOrgaCountByType($customerContext))
-            ->mapWithKeys(function (int $count, string $translationKey): array {
-                return [$this->translator->trans($translationKey) => $count];
-            })
+            ->mapWithKeys(fn(int $count, string $translationKey): array => [$this->translator->trans($translationKey) => $count])
             ->sort()
             ->all();
     }
@@ -463,7 +378,7 @@ class OrgaService extends CoreService
     public function getOrganisations(array $additionalConditions = []): array
     {
         try {
-            $conditions = array_merge($additionalConditions, $this->orgaResourceType->getMandatoryConditions());
+            $conditions = [...$additionalConditions, ...$this->orgaResourceType->getMandatoryConditions()];
             $conditions[] = $this->conditionFactory->propertyHasNotValue(
                 User::ANONYMOUS_USER_ORGA_ID,
                 $this->orgaResourceType->id
@@ -472,7 +387,7 @@ class OrgaService extends CoreService
             $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
-            array_map([$this, 'loadMissingOrgaData'], $orgas);
+            array_map($this->loadMissingOrgaData(...), $orgas);
 
             return $orgas;
         } catch (Exception $e) {
@@ -741,7 +656,7 @@ class OrgaService extends CoreService
             }
             try {
                 $this->contentService->deleteSetting($existingSetting[0]->getId());
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // bad luck. Has been logged, go on ;-(
             }
         } else {
@@ -770,6 +685,7 @@ class OrgaService extends CoreService
      */
     public function addReport(string $orgaId, $data, $showListBefore)
     {
+        $message = [];
         $user = null;
         if ($this->tokenStorage instanceof TokenStorageInterface && $this->tokenStorage->getToken() instanceof TokenInterface) {
             $user = $this->tokenStorage->getToken()->getUser();
@@ -945,18 +861,14 @@ class OrgaService extends CoreService
     {
         $customerOrgas = $customer->getOrgas()->toArray();
 
-        return array_filter($customerOrgas, function ($orga) {
-            return $this->orgaRepository->isPublicAffairsAgency($orga);
-        });
+        return array_filter($customerOrgas, fn($orga) => $this->orgaRepository->isPublicAffairsAgency($orga));
     }
 
     public function findPublicAffairsAgenciesIdsByCustomer(Customer $customer): array
     {
         $customerPublicAffairsAgencies = $this->findPublicAffairsAgenciesByCustomer($customer);
 
-        return array_map(static function (Orga $customerPublicAffairsAgency) {
-            return $customerPublicAffairsAgency->getId();
-        }, $customerPublicAffairsAgencies);
+        return array_map(static fn(Orga $customerPublicAffairsAgency) => $customerPublicAffairsAgency->getId(), $customerPublicAffairsAgencies);
     }
 
     /**
@@ -1064,9 +976,7 @@ class OrgaService extends CoreService
         $labelMap = $this->getOrgaTypeLabelMap();
 
         return array_map(
-            function (string $orgaTypeName) use ($labelMap) {
-                return $this->translator->trans($labelMap[$orgaTypeName]);
-            }, $orgaTypeNames
+            fn(string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
         );
     }
 

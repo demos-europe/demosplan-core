@@ -16,17 +16,11 @@ use Psr\Log\LoggerInterface;
 
 class NewOrgaRegisteredSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var OrgaChangesNotifier
-     */
-    private $orgaChangesNotifier;
-
     public function __construct(
-        OrgaChangesNotifier $orgaChangesNotifier,
+        private readonly OrgaChangesNotifier $orgaChangesNotifier,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
-        $this->orgaChangesNotifier = $orgaChangesNotifier;
     }
 
     public static function getSubscribedEvents(): array

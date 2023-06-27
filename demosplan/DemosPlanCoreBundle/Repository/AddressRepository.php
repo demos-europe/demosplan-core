@@ -28,7 +28,7 @@ class AddressRepository extends CoreRepository implements ArrayInterface
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

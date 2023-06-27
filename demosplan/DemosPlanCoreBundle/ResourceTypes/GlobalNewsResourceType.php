@@ -35,14 +35,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class GlobalNewsResourceType extends AbstractNewsResourceType implements DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var ManualListSortRepository
-     */
-    private $manualListSortRepository;
-
-    public function __construct(ManualListSortRepository $manualListSortRepository)
+    public function __construct(private readonly ManualListSortRepository $manualListSortRepository)
     {
-        $this->manualListSortRepository = $manualListSortRepository;
     }
 
     public static function getName(): string
@@ -156,14 +150,14 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     {
         $news = new GlobalContent();
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, [$news, 'setTitle']);
-        $updater->ifPresent($this->description, [$news, 'setDescription']);
-        $updater->ifPresent($this->text, [$news, 'setText']);
-        $updater->ifPresent($this->pictureTitle, [$news, 'setPictitle']);
-        $updater->ifPresent($this->pdfTitle, [$news, 'setPdftitle']);
-        $updater->ifPresent($this->enabled, [$news, 'setEnabled']);
-        $updater->ifPresent($this->roles, [$news, 'setRolesCollection']);
-        $updater->ifPresent($this->categories, [$news, 'setCategoriesCollection']);
+        $updater->ifPresent($this->title, $news->setTitle(...));
+        $updater->ifPresent($this->description, $news->setDescription(...));
+        $updater->ifPresent($this->text, $news->setText(...));
+        $updater->ifPresent($this->pictureTitle, $news->setPictitle(...));
+        $updater->ifPresent($this->pdfTitle, $news->setPdftitle(...));
+        $updater->ifPresent($this->enabled, $news->setEnabled(...));
+        $updater->ifPresent($this->roles, $news->setRolesCollection(...));
+        $updater->ifPresent($this->categories, $news->setCategoriesCollection(...));
         $updater->ifPresent($this->pdf, static function (?File $pdfFile) use ($news): void {
             if (null === $pdfFile) {
                 $news->setPdf('');

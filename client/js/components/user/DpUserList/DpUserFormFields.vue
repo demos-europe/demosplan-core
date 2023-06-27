@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="u-1-of-2 display--inline-block u-pr-0_5">
+    <div class="u-1-of-2 inline-block u-pr-0_5">
       <label
         class="push--bottom validation--fail u-mb-0_25"
         :for="userId + ':firstName'">
@@ -25,7 +25,7 @@
         @input="emitUserUpdate"
         data-cy="firstName">
     </div><!--
-     --><div class="u-1-of-2 display--inline-block u-pl-0_5">
+     --><div class="u-1-of-2 inline-block u-pl-0_5">
       <label
         class="push--bottom u-mt-0_5 u-mb-0_25"
         :for="userId + ':lastName'">
@@ -63,7 +63,7 @@
         data-cy="userEmail">
     </div>
 
-    <div class="u-1-of-2 u-pr-0_5 u-mt-0_25 display--inline-block">
+    <div class="u-1-of-2 u-pr-0_5 u-mt-0_25 inline-block">
       <label
         class="push--bottom u-mb-0_25 u-mt-0_5"
         :for="userId + ':organisationId'">
@@ -95,7 +95,7 @@
         {{ currentUserOrga.name || '' }}
       </span>
     </div><!--
-    --><div class="u-1-of-2 display--inline-block u-pl-0_5">
+    --><div class="u-1-of-2 inline-block u-pl-0_5">
       <label
         class="push--bottom u-mb-0_25 u-mt-0_5"
         :for="userId + ':departmentId'">
@@ -155,7 +155,8 @@
             {{ roles[props.option.id].attributes.name }}
             <i
               aria-hidden="true"
-              tabindex="1" class="multiselect__tag-icon"
+              tabindex="1"
+              class="multiselect__tag-icon"
               @click="props.remove(props.option)" />
             <input
               :name="userId + ':userRoles[]'"

@@ -12,14 +12,14 @@
             {{ templateVars.release.description|default|wysiwyg }}
 
             {% if hasPermission('feature_forum_dev_story_edit') %}
-                <div class="position--relative float--right u-z-content-above">
+                <div class="relative float-right u-z-content-above">
                     <dp-accordion title="Moderieren">
-                        <p class="border border-radius-medium box-shadow-2 position--absolute width-350 u-right-0_25 bg-color--white space-inset-s">
-                            <a class="btn-icns display--block" href="{{ path('DemosPlan_forum_development_release_list') }}">
+                        <p class="border border-radius-medium box-shadow-2 absolute width-350 u-right-0_25 bg-color--white space-inset-s">
+                            <a class="btn-icns block" href="{{ path('DemosPlan_forum_development_release_list') }}">
                                 Übersicht Releases
                                 <i class="btn-icns-icon fa fa-long-arrow-right"></i>
                             </a>
-                            <a class="btn-icns display--block"
+                            <a class="btn-icns block"
                                href="{{ path('DemosPlan_forum_development_release_edit',{'releaseId':templateVars.release.ident }) }}">
                                 <i class="fa fa-pencil btn-icns-icon"></i>
                                 Dieses Release editieren
@@ -28,7 +28,7 @@
                                href="{{ path('DemosPlan_forum_development_userstory_new', {'releaseId' : templateVars.release.ident }) }}">
                                 Neue Userstory erstellen
                             </a>
-                            <a class="btn-icns display--block"
+                            <a class="btn-icns block"
                                href="{{ path('DemosPlan_forum_development_release_export',{'releaseId':templateVars.release.ident }) }}">
                                 <i class="fa fa-download btn-icns-icon"></i>
                                 Release mit Bepunktung exportieren
@@ -62,7 +62,7 @@
                         <p class="layout__item u-1-of-2 u-pl-0 u-nojs-show--block">
                             Sie können insgesamt <span class="color-message-success-text">{{ templateVars.limitForVotes|default(3) }} Punkte</span> verteilen.
                         </p>
-                        <input class="btn btn--primary float--right" type="submit" name="resetVotes" value="Punkte zurücksetzen">
+                        <input class="btn btn--primary float-right" type="submit" name="resetVotes" value="Punkte zurücksetzen">
                         <p class="layout__item u-1-of-2 u-pl-0 u-mb" id="js__statusVotesLeft"></p>
                     {% endif %}
 
@@ -91,7 +91,7 @@
 
                     {% if (templateVars.phasePermissions.vote_online is defined and templateVars.phasePermissions.vote_online == true) or permissions.feature_forum_dev_story_edit.enabled == true and templateVars.phasePermissions.vote_offline is defined and templateVars.phasePermissions.vote_offline == true %}
                         <br>
-                        <input class="btn btn--primary float--right" type="submit" name="saveVotes" value="Punkte speichern">
+                        <input class="btn btn--primary float-right" type="submit" name="saveVotes" value="Punkte speichern">
                     {% endif %}
                 </form>
             {% endif %}

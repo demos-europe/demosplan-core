@@ -18,22 +18,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProcedureStatisticsService
 {
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var SegmentRepository
-     */
-    private $segmentRepository;
-
-    public function __construct(
-        SegmentRepository $segmentRepository,
-        StatementRepository $statementRepository
-    ) {
-        $this->statementRepository = $statementRepository;
-        $this->segmentRepository = $segmentRepository;
+    public function __construct(private readonly SegmentRepository $segmentRepository, private readonly StatementRepository $statementRepository)
+    {
     }
 
     public function getSegmentedStatementsDistribution(string $procedureId): PercentageDistribution
