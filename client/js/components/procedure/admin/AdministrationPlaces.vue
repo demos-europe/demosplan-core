@@ -182,6 +182,7 @@ export default {
       isLoading: false,
       addNewPlace: false,
       newPlace: {},
+      newRowData: {},
       places: []
     }
   },
