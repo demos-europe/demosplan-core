@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqRepository")
  */
-class Faq extends CoreEntity implements UuidEntityInterface
+class Faq extends CoreEntity implements FaqInterface
 {
     /**
      * @var string|null
@@ -262,8 +262,6 @@ class Faq extends CoreEntity implements UuidEntityInterface
 
     public function hasRoleGroupCode(string $code): bool
     {
-        return $this->roles->exists(static function (int $index, Role $role) use ($code): bool {
-            return $role->getGroupCode() === $code;
-        });
+        return $this->roles->exists(static fn (int $index, Role $role): bool => $role->getGroupCode() === $code);
     }
 }

@@ -18,14 +18,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NonAuthorizedAssignRemoveSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var NonAuthorizedAssignRemover
-     */
-    private $assignRemover;
-
-    public function __construct(NonAuthorizedAssignRemover $assignRemover)
+    public function __construct(private readonly NonAuthorizedAssignRemover $assignRemover)
     {
-        $this->assignRemover = $assignRemover;
     }
 
     public static function getSubscribedEvents(): array

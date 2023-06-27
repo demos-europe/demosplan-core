@@ -1,6 +1,6 @@
 {% apply spaceless %}
     <div class="cardbox-half">
-        <div class="card__item position--relative">
+        <div class="card__item flow-root relative">
             {% if permissions.vote_online is defined and permissions.vote_online == true %}
                 <aside class="border--bottom u-mb">
                     Punkte
@@ -25,13 +25,13 @@
                 {{ userStory.numVotes }}
             {% endif %}
             {% if hasPermission('feature_forum_dev_story_edit') and permissions.vote_offline is defined and permissions.vote_offline == true %}
-                <label class="display--inline">
+                <label class="inline">
                     <input class="layout__item u-1-of-10" type="text" name="r_offlineVotes[{{ userStory.ident|default() }}]"
                            value="{{ userStory.offlineVotes|default() }}">
                     Punkte vor Ort
                 </label>
             {% endif %}
-            <a class="float--right" href="{{ route }}">
+            <a class="float-right" href="{{ route }}">
                 Details
             </a>
         </div>

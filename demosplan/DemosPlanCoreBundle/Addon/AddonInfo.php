@@ -17,7 +17,7 @@ final class AddonInfo
     /**
      * @param array<string,mixed> $config
      */
-    public function __construct(private string $name, private array $config, private PermissionInitializerInterface $permissionInitializer)
+    public function __construct(private readonly string $name, private readonly array $config, private readonly PermissionInitializerInterface $permissionInitializer)
     {
     }
 

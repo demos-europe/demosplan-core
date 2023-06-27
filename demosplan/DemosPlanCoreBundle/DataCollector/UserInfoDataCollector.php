@@ -22,14 +22,8 @@ use function compact;
 
 class UserInfoDataCollector extends DataCollector
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserInterface $currentUser)
+    public function __construct(private readonly CurrentUserInterface $currentUser)
     {
-        $this->currentUser = $currentUser;
     }
 
     public function collect(Request $request, Response $response, Throwable $exception = null): void
@@ -49,11 +43,11 @@ class UserInfoDataCollector extends DataCollector
             ];
 
             $permissions = $enabledPermissions->toArray();
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
             $roles = [];
             $permissions = [];
             $permissionStats = null;
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $roles = [];
         }
 

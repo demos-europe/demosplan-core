@@ -11,7 +11,7 @@
 {%- apply spaceless %}
 
 <div class="layout--flush u-1-of-1 u-nojs-hide--inline-block" v-cloak>
-    <div class="flex flex-items-center space-inline-m">
+    <div class="flex items-center space-inline-m">
         {# Search field and advanced search button #}
         <search-modal
             preselected-exactSearch="{{ templateVars.exactSearch|default(false) }}"
@@ -33,7 +33,7 @@
 
         {# Reset filters #}
         {% if filtersSet is defined or fieldsSet is defined or templateVars.table.search is defined and templateVars.table.search != '' %}
-            <div class="flex-item-end">
+            <div class="ml-auto">
                 <dp-button
                     href="{{ path(route_reset_assessment_table|default('dplan_assessmenttable_view_table'), {'procedureId': templateVars.table.procedure.ident}) }}"
                     :text="Translator.trans('reset')"

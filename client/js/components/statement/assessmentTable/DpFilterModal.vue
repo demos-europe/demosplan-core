@@ -24,7 +24,7 @@
       type="button"
       @click.prevent="openModal"
       :class="{'color-highlight': noFilterApplied === false }"
-      class="btn--blank o-link--default display--inline-block u-mb-0 u-p-0 u-mt-0_125"
+      class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
       data-cy="openFilterModal">
       <i
         class="fa fa-lg fa-filter"
@@ -77,7 +77,7 @@
               </template>
             </dp-multiselect>
 
-            <div class="text--right u-mb u-pt-0_5">
+            <div class="text-right u-mb u-pt-0_5">
               <button
                 type="button"
                 class="btn btn--primary"
@@ -145,7 +145,7 @@
           </template>
 
           <!-- Button row -->
-          <div class="text--right space-inline-s">
+          <div class="text-right space-inline-s">
             <button
               type="submit"
               class="btn btn--primary"
@@ -191,7 +191,7 @@
           </div>
 
           <!-- Button row -->
-          <div class="text--right space-inline-s">
+          <div class="text-right space-inline-s">
             <button
               class="btn btn--primary"
               :class="{'pointer-events-none': disabledInteractions}"

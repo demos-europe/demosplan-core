@@ -23,15 +23,10 @@ class LocationService
      * @var ObjectManager
      */
     protected $em;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
-    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
+    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
     {
         $this->em = $registry->getManager();
-        $this->logger = $logger;
     }
 
     /**

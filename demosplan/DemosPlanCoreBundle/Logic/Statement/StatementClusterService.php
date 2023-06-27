@@ -31,41 +31,14 @@ class StatementClusterService extends CoreService
     /** @var StatementService */
     protected $statementService;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var ClusterStatementResourceType
-     */
-    private $clusterStatementResourceType;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /** @var StatementCopier */
-    private $statementCopier;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
     public function __construct(
-        ClusterStatementResourceType $clusterStatementResourceType,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        StatementCopier $statementCopier,
-        StatementRepository $statementRepository,
+        private readonly ClusterStatementResourceType $clusterStatementResourceType,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository,
         StatementService $statementService
     ) {
-        $this->clusterStatementResourceType = $clusterStatementResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->statementCopier = $statementCopier;
-        $this->statementRepository = $statementRepository;
         $this->statementService = $statementService;
     }
 

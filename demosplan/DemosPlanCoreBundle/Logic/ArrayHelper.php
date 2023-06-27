@@ -16,14 +16,8 @@ use Psr\Log\LoggerInterface;
 
 class ArrayHelper
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     // @improve T15851

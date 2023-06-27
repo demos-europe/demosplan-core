@@ -23,18 +23,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
 {
-    /** @var StatementService */
-    private $statementService;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager, StatementService $statementService)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -80,16 +70,14 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
         if (\array_key_exists(Statement::class, $identityMap)) {
             $occupyingStatements = array_filter(
                 $identityMap[Statement::class],
-                static function (Statement $statement) use ($internId, $excludeStatement) {
-                    return !($statement instanceof Segment)
-                        && !$statement->isOriginal()
-                        && $internId === $statement->getInternId()
-                        && $statement->getId() !== $excludeStatement->getId()
-                        && $statement->getProcedureId() === $excludeStatement->getProcedureId();
-                }
+                static fn(Statement $statement) => !($statement instanceof Segment)
+                    && !$statement->isOriginal()
+                    && $internId === $statement->getInternId()
+                    && $statement->getId() !== $excludeStatement->getId()
+                    && $statement->getProcedureId() === $excludeStatement->getProcedureId()
             );
 
-            return 0 !== count($occupyingStatements);
+            return 0 !== count((array) $occupyingStatements);
         }
 
         return false;

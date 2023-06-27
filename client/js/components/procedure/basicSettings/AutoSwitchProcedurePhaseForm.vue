@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="cf">
+  <div class="flow-root">
     <dp-checkbox
       :id="checkboxId"
       v-model="autoSwitchPhase"

@@ -26,38 +26,8 @@ use Exception;
 
 class AddressBookEntryService extends CoreService
 {
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var AddressBookEntryRepository
-     */
-    private $addressBookEntryRepository;
-
-    public function __construct(AddressBookEntryRepository $addressBookEntryRepository, DqlConditionFactory $conditionFactory, EntityFetcher $entityFetcher, MessageBagInterface $messageBag, SortMethodFactory $sortMethodFactory)
+    public function __construct(private readonly AddressBookEntryRepository $addressBookEntryRepository, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly MessageBagInterface $messageBag, private readonly SortMethodFactory $sortMethodFactory)
     {
-        $this->addressBookEntryRepository = $addressBookEntryRepository;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->messageBag = $messageBag;
-        $this->sortMethodFactory = $sortMethodFactory;
     }
 
     /**

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="c-publicindex position--relative overflow-hidden">
+  <div class="c-publicindex relative overflow-hidden">
     <dp-drawer />
     <dp-map
       :map-data="mapData"

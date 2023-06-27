@@ -15,16 +15,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LocationHandler
 {
-    /** @var LocationService */
-    private $locationService;
-
-    /** @var TranslatorInterface */
-    private $translator;
-
-    public function __construct(LocationService $locationService, TranslatorInterface $translator)
+    public function __construct(private readonly LocationService $locationService, private readonly TranslatorInterface $translator)
     {
-        $this->locationService = $locationService;
-        $this->translator = $translator;
     }
 
     public function findByArs(string $ars): array

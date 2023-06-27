@@ -1521,7 +1521,7 @@ class GlobalConfig implements GlobalConfigInterface
     {
         $absolutePath = $this->datasheetFilePath;
         // Wenn ein relativer Pfad konfiguriert ist, baue den absoluten Pfad zusammen
-        if (0 === strpos($absolutePath, '.')) {
+        if (str_starts_with($absolutePath, '.')) {
             $absolutePath = $this->getInstanceAbsolutePath().'/'.$this->datasheetFilePath;
         }
 

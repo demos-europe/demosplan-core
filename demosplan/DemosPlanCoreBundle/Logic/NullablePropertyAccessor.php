@@ -35,7 +35,7 @@ class NullablePropertyAccessor extends PropertyAccessor
     {
         try {
             return parent::getValue($objectOrArray, $propertyPath);
-        } catch (UnexpectedTypeException $e) {
+        } catch (UnexpectedTypeException) {
             return null;
         }
     }

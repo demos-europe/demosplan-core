@@ -17,22 +17,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 class MultipleStatementsSubmittedEvent extends DPlanEvent
 {
     /**
-     * @var array<int, Statement>
-     */
-    private $submittedStatements;
-
-    /**
-     * @var bool
-     */
-    private $public;
-
-    /**
      * @param array<int, Statement> $submittedStatements
      */
-    public function __construct(array $submittedStatements, bool $public)
+    public function __construct(private readonly array $submittedStatements, private readonly bool $public)
     {
-        $this->submittedStatements = $submittedStatements;
-        $this->public = $public;
     }
 
     /**

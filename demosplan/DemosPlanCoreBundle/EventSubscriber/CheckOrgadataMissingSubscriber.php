@@ -30,21 +30,10 @@ class CheckOrgadataMissingSubscriber extends BaseEventSubscriber
         'DemosPlan_user_logout',
         'user_update_additional_information',
     ];
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    public function __construct(CurrentUserInterface $currentUser, LoggerInterface $logger, RouterInterface $router)
+    public function __construct(private readonly CurrentUserInterface $currentUser, LoggerInterface $logger, private readonly RouterInterface $router)
     {
-        $this->currentUser = $currentUser;
         $this->logger = $logger;
-        $this->router = $router;
     }
 
     public function onKernelRequest(RequestEvent $event): void

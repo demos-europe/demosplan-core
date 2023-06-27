@@ -29,7 +29,7 @@
             <div class="{{ 'c-pager__dropdown u-mb-0_5-palm'|prefixClass(omitPrefix) }}">
 
                 <label
-                    class="{{ 'c-pager__dropdown-label u-m-0 u-p-0 weight--normal display--inline-block'|prefixClass(omitPrefix) }}"
+                    class="{{ 'c-pager__dropdown-label u-m-0 u-p-0 weight--normal inline-block'|prefixClass(omitPrefix) }}"
                     aria-label="{{ 'pager.amount.multiple.label'|trans({results: templateVars.totalResults|default(0), items: resultStr|default('pager.amount.multiple.items'|trans) }) }}"
                 >
                     <span aria-hidden="true">
@@ -75,7 +75,7 @@
                 pagerfanta( templateVars.pager, 'default', {
                     prev_message: prev_message,
                     next_message: next_message,
-                    container_template: '<nav class="' ~ 'u-ml-lap-up display--inline-block'|prefixClass(omitPrefix) ~ '" role="navigation" aria-label="'
+                    container_template: '<nav class="' ~ 'u-ml-lap-up inline-block'|prefixClass(omitPrefix) ~ '" role="navigation" aria-label="'
                     ~ ( label_first == true ? 'pager.label.first'|trans : 'pager.label.last'|trans )
                     ~ '" data-pager-nav><ul class="' ~ 'c-pager__page-list'|prefixClass(omitPrefix) ~ '">%pages%</ul></nav>',
                     page_template: '<li class="' ~ 'c-pager__page-item'|prefixClass(omitPrefix) ~ '"><a href="%href%" aria-label="'

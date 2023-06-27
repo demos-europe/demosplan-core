@@ -64,52 +64,12 @@ use stdClass;
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
-    public const RPC_JSON_SCHEMA_PATH = 'json-schemas/segment/rpc-segment-bulk-edit-schema.json';
+    final public const RPC_JSON_SCHEMA_PATH = 'json-schemas/segment/rpc-segment-bulk-edit-schema.json';
 
-    public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
+    final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    protected CurrentProcedureService $currentProcedure;
-    protected CurrentUserInterface $currentUser;
-    protected JsonSchemaValidator $jsonValidator;
-    protected LoggerInterface $logger;
-    protected PlaceService $placeService;
-    protected ProcedureService $procedureService;
-    protected RpcErrorGenerator $errorGenerator;
-    protected SegmentHandler $segmentHandler;
-    protected SegmentValidator $segmentValidator;
-    protected TagService $tagService;
-    protected TagValidator $tagValidator;
-    protected UserHandler $userHandler;
-    private TransactionService $transactionService;
-
-    public function __construct(
-        CurrentProcedureService $currentProcedure,
-        CurrentUserInterface $currentUser,
-        LoggerInterface $logger,
-        JsonSchemaValidator $jsonValidator,
-        PlaceService $placeService,
-        ProcedureService $procedureService,
-        RpcErrorGenerator $errorGenerator,
-        SegmentHandler $segmentHandler,
-        SegmentValidator $segmentValidator,
-        TagService $tagService,
-        TagValidator $tagValidator,
-        TransactionService $transactionService,
-        UserHandler $userHandler
-    ) {
-        $this->currentProcedure = $currentProcedure;
-        $this->currentUser = $currentUser;
-        $this->logger = $logger;
-        $this->jsonValidator = $jsonValidator;
-        $this->errorGenerator = $errorGenerator;
-        $this->placeService = $placeService;
-        $this->procedureService = $procedureService;
-        $this->segmentHandler = $segmentHandler;
-        $this->segmentValidator = $segmentValidator;
-        $this->tagService = $tagService;
-        $this->tagValidator = $tagValidator;
-        $this->userHandler = $userHandler;
-        $this->transactionService = $transactionService;
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler)
+    {
     }
 
     /**
@@ -169,13 +129,13 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                             $segment->setPlace($workflowPlace);
                         }
                     }
-                    $resultSegments = array_merge($resultSegments, $segments);
+                    $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
-                } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
+                } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException) {
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-                } catch (AccessDeniedException|UserNotFoundException $e) {
+                } catch (AccessDeniedException|UserNotFoundException) {
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }

@@ -163,7 +163,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
      *
      * @throws DeprecatedException
      */
-    public function delete($entityId): bool
+    public function delete($entityId): never
     {
         throw new DeprecatedException('Use ObjectInterface::deleteObject instead');
     }

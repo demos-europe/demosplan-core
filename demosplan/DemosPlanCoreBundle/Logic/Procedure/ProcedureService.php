@@ -152,55 +152,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     protected $entityContentChangeService;
 
     /**
-     * @var string
-     */
-    private $environment;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /** @var CustomerService */
-    private $customerService;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ProcedureElasticsearchRepository
-     */
-    private $procedureElasticsearchRepository;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
-
-    /**
-     * @var ProcedureTypeService
-     */
-    private $procedureTypeService;
-    /**
-     * @var PhasePermissionsetLoader
-     */
-    private $phasePermissionsetLoader;
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
      * @var EntityPreparator
      */
     protected $entityPreparator;
@@ -210,247 +161,68 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     protected $fieldConfigurator;
 
-    /**
-     * @var MasterTemplateService
-     */
-    private $masterTemplateService;
-
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    /**
-     * @var BoilerplateRepository
-     */
-    private $boilerplateRepository;
-
-    /**
-     * @var BoilerplateGroupRepository
-     */
-    private $boilerplateGroupRepository;
-
-    /**
-     * @var InstitutionMailRepository
-     */
-    private $institutionMailRepository;
-
-    /**
-     * @var ProcedureSubscriptionRepository
-     */
-    private $procedureSubscriptionRepository;
-
-    /**
-     * @var TagTopicRepository
-     */
-    private $tagTopicRepository;
-
-    /**
-     * @var GisLayerCategoryRepository
-     */
-    private $gisLayerCategoryRepository;
-
-    /**
-     * @var NewsRepository
-     */
-    private $newsRepository;
-
-    /**
-     * @var ElementsRepository
-     */
-    private $elementsRepository;
-
-    /**
-     * @var NotificationReceiverRepository
-     */
-    private $notificationReceiverRepository;
-
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
-
-    /**
-     * @var SettingRepository
-     */
-    private $settingRepository;
-
-    /**
-     * @var BoilerplateCategoryRepository
-     */
-    private $boilerplateCategoryRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ProcedureToLegacyConverter
-     */
-    private $procedureToLegacyConverter;
-
-    /**
-     * @var PlaceRepository
-     */
-    private $placeRepository;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var EntityContentChangeRepository
-     */
-    private $entityContentChangeRepository;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var Plis
-     */
-    private $plis;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        BoilerplateCategoryRepository $boilerplateCategoryRepository,
-        BoilerplateGroupRepository $boilerplateGroupRepository,
-        BoilerplateRepository $boilerplateRepository,
+        private readonly BoilerplateCategoryRepository $boilerplateCategoryRepository,
+        private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
+        private readonly BoilerplateRepository $boilerplateRepository,
         ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        CustomerService $customerService,
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        ElementsRepository $elementsRepository,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly CustomerService $customerService,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsRepository $elementsRepository,
         ElementsService $elementsService,
-        EntityContentChangeRepository $entityContentChangeRepository,
+        private readonly EntityContentChangeRepository $entityContentChangeRepository,
         EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        EntityManagerInterface $entityManager,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly EntityHelper $entityHelper,
+        private readonly EntityManagerInterface $entityManager,
         EntityPreparator $entityPreparator,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         FieldConfigurator $fieldConfigurator,
         FileService $fileService,
-        GisLayerCategoryRepository $gisLayerCategoryRepository,
-        GlobalConfigInterface $globalConfig,
+        private readonly GisLayerCategoryRepository $gisLayerCategoryRepository,
+        private readonly GlobalConfigInterface $globalConfig,
         LocationService $locationService,
-        MasterTemplateService $masterTemplate,
-        MessageBagInterface $messageBag,
-        NewsRepository $newsRepository,
-        NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly MasterTemplateService $masterTemplateService,
+        private readonly MessageBagInterface $messageBag,
+        private readonly NewsRepository $newsRepository,
+        private readonly NotificationReceiverRepository $notificationReceiverRepository,
         ObjectPersisterInterface $esProcedurePersister,
-        OrgaService $orgaService,
-        ParagraphRepository $paragraphRepository,
+        private readonly OrgaService $orgaService,
+        private readonly ParagraphRepository $paragraphRepository,
         Permissions $permissions,
-        PhasePermissionsetLoader $phasePermissionsetLoader,
-        PlaceRepository $placeRepository,
-        Plis $plis,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureElasticsearchRepository $procedureElasticsearchRepository,
-        ProcedureRepository $procedureRepository,
-        ProcedureSubscriptionRepository $procedureSubscriptionRepository,
-        ProcedureToLegacyConverter $procedureToLegacyConverter,
-        ProcedureTypeService $procedureTypeService,
-        SettingRepository $settingRepository,
-        SingleDocumentRepository $singleDocumentRepository,
-        SortMethodFactory $sortMethodFactory,
-        StatementRepository $statementRepository,
-        TagTopicRepository $tagTopicRepository,
-        InstitutionMailRepository $institutionMailRepository,
-        TranslatorInterface $translator,
+        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
+        private readonly PlaceRepository $placeRepository,
+        private readonly Plis $plis,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureElasticsearchRepository $procedureElasticsearchRepository,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
+        private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
+        private readonly ProcedureTypeService $procedureTypeService,
+        private readonly SettingRepository $settingRepository,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly InstitutionMailRepository $institutionMailRepository,
+        private readonly TranslatorInterface $translator,
         UserService $userService,
-        ValidatorInterface $validator,
-        string $environment
+        private readonly ValidatorInterface $validator,
+        private readonly string $environment
     ) {
-        $this->boilerplateCategoryRepository = $boilerplateCategoryRepository;
-        $this->boilerplateGroupRepository = $boilerplateGroupRepository;
-        $this->boilerplateRepository = $boilerplateRepository;
-        $this->conditionFactory = $conditionFactory;
         $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
-        $this->customerService = $customerService;
-        $this->dateHelper = $dateHelper;
-        $this->elementsRepository = $elementsRepository;
         $this->elementsService = $elementsService;
-        $this->entityContentChangeRepository = $entityContentChangeRepository;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->entityManager = $entityManager;
         $this->entityPreparator = $entityPreparator;
-        $this->environment = $environment;
         $this->esProcedurePersister = $esProcedurePersister;
-        $this->eventDispatcher = $eventDispatcher;
         $this->fieldConfigurator = $fieldConfigurator;
         $this->fileService = $fileService;
-        $this->gisLayerCategoryRepository = $gisLayerCategoryRepository;
         $this->locationService = $locationService;
-        $this->masterTemplateService = $masterTemplate;
-        $this->newsRepository = $newsRepository;
-        $this->notificationReceiverRepository = $notificationReceiverRepository;
-        $this->orgaService = $orgaService;
-        $this->paragraphRepository = $paragraphRepository;
         $this->permissions = $permissions;
-        $this->phasePermissionsetLoader = $phasePermissionsetLoader;
-        $this->placeRepository = $placeRepository;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->procedureElasticsearchRepository = $procedureElasticsearchRepository;
-        $this->procedureRepository = $procedureRepository;
-        $this->procedureSubscriptionRepository = $procedureSubscriptionRepository;
-        $this->procedureToLegacyConverter = $procedureToLegacyConverter;
-        $this->procedureTypeService = $procedureTypeService;
-        $this->settingRepository = $settingRepository;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->tagTopicRepository = $tagTopicRepository;
-        $this->institutionMailRepository = $institutionMailRepository;
-        $this->translator = $translator;
         $this->userService = $userService;
-        $this->validator = $validator;
-        $this->statementRepository = $statementRepository;
-
-        $this->plis = $plis;
-        $this->messageBag = $messageBag;
-        $this->globalConfig = $globalConfig;
     }
 
     public function getPermissions(): Permissions
@@ -559,9 +331,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $entitiesToPersist = array_filter(
             $entitiesToPersist,
-            static function (?object $entityToPersist): bool {
-                return null !== $entityToPersist;
-            }
+            static fn(?object $entityToPersist): bool => null !== $entityToPersist
         );
 
         $this->procedureRepository->updateObjects($entitiesToPersist);
@@ -610,7 +380,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen($inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen((string) $inData['r_name']);
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -619,7 +389,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 if (!$hasName) {
                     $inData = $this->checkProcedureDataNoJS($inData);
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Probleme beim LGV, Verfahren sollen auch ohne Startkartenausschnitt angelegt werden können
             }
         }
@@ -642,7 +412,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // Frage die LGV PLIS-Datenbank ab, was für Verfahren angelegt sind
             try {
                 $templateVars['plisProcedures'] = $this->plis->getLgvPlisProcedureList();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $templateVars['plisProcedures'] = [];
             }
         }
@@ -785,7 +555,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100000000)
+    public function getDeletedProcedures($limit = 100_000_000)
     {
         try {
             return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
@@ -837,7 +607,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             );
 
             if ($toLegacy) {
-                $procedureList = \collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
+                $procedureList = \collect($procedureList)->map($this->procedureToLegacyConverter->convertToLegacy(...))->all();
             }
 
             return $toLegacy ? $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray() : $procedureList;
@@ -1019,16 +789,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
         // planning offices needs to get all Orga members that are planners
         if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
-            return $usersOfOrganisation->filter(static function (User $user): bool {
-                return $user->isPlanner();
-            });
+            return $usersOfOrganisation->filter(static fn(User $user): bool => $user->isPlanner());
         }
 
         // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
-            static function (User $user): bool {
-                return $user->isPlanningAgency() || $user->isHearingAuthority();
-            }
+            static fn(User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
         );
 
         // filter users who may not administer this Procedure
@@ -1039,9 +805,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if ($excludeProcedureAuthorizedUsers && $this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $authorizedUserIds = $procedure->getAuthorizedUserIds();
             $usersOfOrganisation = $usersOfOrganisation->filter(
-                static function (User $user) use ($authorizedUserIds): bool {
-                    return \in_array($user->getId(), $authorizedUserIds);
-                }
+                static fn(User $user): bool => \in_array($user->getId(), $authorizedUserIds)
             );
         }
 
@@ -1065,7 +829,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         try {
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
-            $data['settings']['emailTitle'] = $data['settings']['emailTitle'] ?? '';
+            $data['settings']['emailTitle'] ??= '';
             if ('' === $data['settings']['emailTitle']) {
                 $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
@@ -1292,7 +1056,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function updateProcedure($data)
     {
         try {
-            $data['ident'] = $data['ident'] ?? $data['id'];
+            $data['ident'] ??= $data['id'];
             if (!isset($data['ident'])) {
                 throw new \InvalidArgumentException('Ident is missing');
             }
@@ -1311,7 +1075,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             try {
                 $data['currentUser'] = $this->currentUser->getUser();
-            } catch (UserNotFoundException $e) {
+            } catch (UserNotFoundException) {
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
@@ -1784,7 +1548,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $data['procedure'] = $this->getProcedure($procedureId);
 
             return $this->boilerplateRepository->add($data);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
         }
 
@@ -1828,7 +1592,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             try {
                 $groupToDelete = $this->getBoilerplateGroup($groupId);
                 $this->deleteBoilerplateGroup($groupToDelete);
-            } catch (TypeError|Exception $e) {
+            } catch (TypeError|Exception) {
                 $allDeleted = false;
             }
         }
@@ -2018,7 +1782,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         // use global default blueprint as default anyway:
         $masterTemplateId = $this->getMasterTemplateId();
-        $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
+        $incomingCopyMasterId ??= $masterTemplateId;
 
         // T15664: in case of globalMasterBlueprint is set,
         // use customer master blueprint if existing, (instead of global masterblueprint)
@@ -2109,7 +1873,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($organisations as $organisation) {
                 $this->detachOrganisation($procedure, $organisation);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -2520,7 +2284,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
-        if (false !== \stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
+        if (false !== \stripos((string) Role::PRIVATE_PLANNING_AGENCY, (string) $user->getRole())) {
             $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
             $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);
@@ -2584,9 +2348,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $inAccessibleProcedures = $this->getInaccessibleProcedures($user, $procedureIdToExclude);
         $inAccessibleProcedures =
-            \collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
-                return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
-            });
+            \collect($inAccessibleProcedures)->mapWithKeys(fn(Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $inAccessibleProcedures->toArray();
     }
@@ -2615,9 +2377,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         );
 
         $accessibleProcedures =
-            \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
-                return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
-            });
+            \collect($accessibleProcedures)->mapWithKeys(fn(Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $accessibleProcedures->toArray();
     }
@@ -2635,9 +2395,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $user = $this->currentUser->getUser();
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
-        $authorizedUserIds = $authorizedUsers->transform(static function (User $user) {
-            return $user->getId();
-        });
+        $authorizedUserIds = $authorizedUsers->transform(static fn(User $user) => $user->getId());
         if ($authorizedUserIds->contains($user->getId())) {
             return true;
         }
@@ -2976,7 +2734,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->placeRepository->persistEntities($newPlaces);
     }
 
-    public function getMasterTemplateId()
+    public function getMasterTemplateId(): string
     {
         return $this->masterTemplateService->getMasterTemplateId();
     }

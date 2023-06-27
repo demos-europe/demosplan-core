@@ -76,67 +76,28 @@ class ServiceOutput
      */
     protected $userService;
 
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $config;
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
-
     public function __construct(
         ContentService $contentService,
-        CurrentUserService $currentUser,
-        CustomerService $customerService,
-        DraftStatementService $draftStatementService,
+        private CurrentUserService $currentUser,
+        private readonly CustomerService $customerService,
+        private readonly DraftStatementService $draftStatementService,
         Environment $twig,
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        OrgaService $orgaService,
+        private readonly GlobalConfigInterface $config,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         ServiceImporter $serviceImport,
-        StatementService $statementService,
+        private readonly StatementService $statementService,
         UserService $userService
     ) {
-        $this->config = $globalConfig;
         $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
-        $this->draftStatementService = $draftStatementService;
-        $this->logger = $logger;
-        $this->orgaService = $orgaService;
         $this->permissions = $permissions;
         $this->service = $procedureService;
         $this->serviceImporter = $serviceImport;
-        $this->statementService = $statementService;
         $this->twig = $twig;
         $this->userService = $userService;
         $this->currentUser = $currentUser;
-        $this->customerService = $customerService;
     }
 
     /**
@@ -255,13 +216,13 @@ class ServiceOutput
         }
 
         $result = [];
-        if (0 !== count($procedureList)) {
+        if (0 !== (is_countable($procedureList) ? count($procedureList) : 0)) {
             $result['procedures'] = $procedureList;
         }
-        if (0 !== count($filters)) {
+        if (0 !== (is_countable($filters) ? count($filters) : 0)) {
             $result['filters'] = $filters;
         }
-        if (0 !== count($activeFilters)) {
+        if (0 !== (is_countable($activeFilters) ? count($activeFilters) : 0)) {
             $result['activeFilters'] = $activeFilters;
         }
         if (!empty($sResult['result'])) {
@@ -290,14 +251,14 @@ class ServiceOutput
         }
 
         $oStatement = [];
-        if (count($procedureAsArray['organisation']) > 0) {
+        if ((is_countable($procedureAsArray['organisation']) ? count($procedureAsArray['organisation']) : 0) > 0) {
             $filters['original'] = 'IS NULL';
             $statements = $this->statementService->getStatementsByProcedureId(
                 $procedureId,
                 $filters,
                 null,
                 null,
-                1000000
+                1_000_000
             );
 
             foreach ($statements->getResult() as $statement) {
@@ -321,9 +282,7 @@ class ServiceOutput
         }
         usort(
             $orgaRes,
-            static function (Orga $a, Orga $b) {
-                return strcmp(strtolower($a->getName()), strtolower($b->getName()));
-            }
+            static fn(Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
         );
 
         return [
@@ -351,14 +310,12 @@ class ServiceOutput
             try {
                 $orgaRes = $this->orgaService->getOrga($key);
                 $orga[] = $orgaRes;
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
         usort(
             $orga,
-            static function (Orga $a, Orga $b) {
-                return strcmp(strtolower($a->getName()), strtolower($b->getName()));
-            }
+            static fn(Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
         );
 
         return $orga;
@@ -425,7 +382,7 @@ class ServiceOutput
                         $publicAgenciesToBeNotified[] = $publicAgency->getEmail2();
                     }
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->logger->warning('Key emailNotificationEndingPhase für Settings nicht vorhanden');
             }
         }
@@ -451,7 +408,7 @@ class ServiceOutput
         $templateVars = $this->procedureMemberListHandler($procedure, $filters);
 
         // Zeige den Namen des aktuellen internen Verfahrensschritts an
-        if (isset($templateVars['procedure']['phase']) && 0 < strlen($templateVars['procedure']['phase'])) {
+        if (isset($templateVars['procedure']['phase']) && 0 < strlen((string) $templateVars['procedure']['phase'])) {
             $templateVars['procedure']['phaseName'] = $this->config->getPhaseNameWithPriorityInternal(
                 $templateVars['procedure']['phase']
             );
@@ -510,6 +467,7 @@ class ServiceOutput
      */
     public function generatePdfForTitlePage($procedureId, $title)
     {
+        $templateVars = [];
         $templateVars['procedure'] = $this->service->getSingleProcedure(
             $procedureId
         );

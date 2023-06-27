@@ -2,26 +2,26 @@
     <div class="{{ 'u-nojs-hide--block'|prefixClass }}">
         <p class="{{ 'c-statement__formhint flash-warning'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-            <span class="{{ 'display--block u-ml'|prefixClass }}">
+            <span class="{{ 'block u-ml'|prefixClass }}">
                 {{ "statement.recheck"|trans }}
             </span>
         </p>
-        <p id="c-statement-hint-recheck" class="{{ 'flash-error c-statement__formhint display--none'|prefixClass }}">
+        <p id="c-statement-hint-recheck" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
-            <a href="#" class="{{ 'display--block u-ml'|prefixClass }}" tabindex="0">
+            <a href="#" class="{{ 'block u-ml'|prefixClass }}" tabindex="0">
                 {{ "error.mandatoryfields"|trans }}
             </a>
         </p>
 
         <p class="{{ 'c-statement__formhint flash-info'|prefixClass }}">
             <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
-            <span class="{{ 'display--block u-ml'|prefixClass }}">
+            <span class="{{ 'block u-ml'|prefixClass }}">
                 {{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}
             </span>
         </p>
 
         {% if hasPermission('field_statement_public_allowed') %}
-            <div class="{{ 'cf'|prefixClass }}" data-statement-check="r_makePublic">
+            <div class="{{ 'flow-root'|prefixClass }}" data-statement-check="r_makePublic">
                 <span data-statement-check-value="false" id="explanationStatementDontPublish">
                     {{ "explanation.statement.dont.publish"|trans|wysiwyg }}
                 </span>
@@ -37,7 +37,7 @@
             hasPermission('field_statement_user_organisation') or
             (hasPermission('field_statement_user_position') and templateVars.formOptions.userPosition)
         %}
-            <div class="cf {% if hasPermission('field_statement_public_allowed') %}border--top u-pv-0_25{% endif %}" data-statement-check="r_" id="personalData">
+            <div class="flow-root {% if hasPermission('field_statement_public_allowed') %}border--top u-pv-0_25{% endif %}" data-statement-check="r_" id="personalData">
                 <span>
                     {% apply spaceless %}
                         <span class="{{ 'layout__item u-1-of-4-desk-up u-pl-0'|prefixClass }}">
@@ -62,13 +62,13 @@
             </div>
         {% endif %}
 
-        <div class="{{ 'cf border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_useName" id="useNameText">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_useName" id="useNameText">
             <span data-statement-check-value="0">
                 {{ 'statement.detail.form.personal.post_anonymously'|trans }}
             </span>
             <span data-statement-check-value="1">
                 {{ 'statement.detail.form.personal.post_publicly'|trans }}
-                <span class="{{ 'display--block'|prefixClass }}">
+                <span class="{{ 'block'|prefixClass }}">
                     {% apply spaceless %}
                         <span class="{{ 'layout__item u-1-of-4-desk-up u-pl-0'|prefixClass }}">
                             <em>Vorname: </em> <span data-statement-check-content="r_firstname"></span><br>
@@ -94,11 +94,11 @@
             </span>
         </div>
 
-        <div class="{{ 'cf border--top u-pt-0_25'|prefixClass }}">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}">
 
             {% if hasPermission('feature_statements_feedback_postal') %}
 
-                <p class="{{ 'display--inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
+                <p class="{{ 'inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
                     <span data-statement-check-value="true">
                         <span data-statement-check="r_getEvaluation">
                             <span data-statement-check-value="email">
@@ -116,7 +116,7 @@
 
             {% else %}
 
-                <p class="{{ 'display--inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
+                <p class="{{ 'inline-block u-mb-0_25'|prefixClass }}" data-statement-check="r_getFeedback" id="getFeedbackText">
                     <span data-statement-check-value="true">
                         {{ 'statement.detail.form.personal.feedback'|trans }}<br>
                         <em>E-Mail-Adresse:</em> <span data-statement-check-content="r_email"></span>
@@ -129,16 +129,16 @@
             {% endif %}
 
             {#this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern'#}
-            <span class="{{ 'display--none'|prefixClass }}" aria-hidden="true" id="inputDataChange">{{ "statement.form.input.change"|trans }}</span>
+            <span class="{{ 'hidden'|prefixClass }}" aria-hidden="true" id="inputDataChange">{{ "statement.form.input.change"|trans }}</span>
         </div>
 
-        <div class="{{ 'cf border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_text">
+        <div class="{{ 'flow-root border--top u-pt-0_25'|prefixClass }}" data-statement-check="r_text">
 
-            <span class="{{ 'cf'|prefixClass }}">
+            <span class="{{ 'flow-root'|prefixClass }}">
                 <em>{{ "statement.my"|trans }}: </em>
             </span>
 
-            <span class="{{ 'display--block height-130 height-auto-palm overflow-auto'|prefixClass }}" data-statement-check-content="r_text"></span>
+            <span class="{{ 'block height-130 height-auto-palm overflow-auto'|prefixClass }}" data-statement-check-content="r_text"></span>
 
         </div>
     </div>

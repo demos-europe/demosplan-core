@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -82,7 +83,7 @@ class FunctionalUser extends User
     /**
      * Has to be overridden to ignore the customer.
      */
-    public function getDplanroles(Customer $customer = null): Collection
+    public function getDplanroles(CustomerInterface $customer = null): Collection
     {
         return $this->dplanRoles;
     }

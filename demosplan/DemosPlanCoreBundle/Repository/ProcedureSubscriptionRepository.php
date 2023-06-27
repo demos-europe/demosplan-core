@@ -30,7 +30,7 @@ class ProcedureSubscriptionRepository extends CoreRepository implements Immutabl
     {
         try {
             return $this->findOneBy(['ident' => $entityId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -40,7 +40,7 @@ class ProcedureSubscriptionRepository extends CoreRepository implements Immutabl
      *
      * @throws DeprecatedException
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new DeprecatedException('Use addObject instead.');
     }

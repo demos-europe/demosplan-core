@@ -42,8 +42,8 @@
 
     <button
       :aria-label="Translator.trans('search')"
-      class="c-search__icon btn--blank position--absolute"
-      :class="{ 'display--none': !changed }"
+      class="c-search__icon btn--blank absolute"
+      :class="{ 'hidden': !changed }"
       type="button"
       @click="submit">
       <i
@@ -53,8 +53,8 @@
 
     <button
       :aria-label="Translator.trans('search.reset')"
-      class="c-search__icon c-search__icon--reset btn--blank position--absolute"
-      :class="{ 'display--none': !searchedAndNotChanged }"
+      class="c-search__icon c-search__icon--reset btn--blank absolute"
+      :class="{ 'hidden': !searchedAndNotChanged }"
       type="button"
       @click="reset">
       <svg

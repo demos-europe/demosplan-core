@@ -54,39 +54,15 @@ use Elastica\Index;
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, StatementResourceTypeInterface
 {
-    /**
-     * @var QueryStatement
-     */
-    private $esQuery;
-
-    /**
-     * @var StatementResourceTypeService
-     */
-    private $statementResourceTypeService;
-
-    /**
-     * @var JsonApiEsService
-     */
-    private $jsonApiEsService;
-
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
     public function __construct(
         FileService $fileService,
         HTMLSanitizer $htmlSanitizer,
-        JsonApiEsService $jsonApiEsService,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        QueryStatement $queryStatement,
-        StatementResourceTypeService $statementResourceTypeService
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementResourceTypeService $statementResourceTypeService
     ) {
         parent::__construct($fileService, $htmlSanitizer);
-        $this->esQuery = $queryStatement;
-        $this->statementResourceTypeService = $statementResourceTypeService;
-        $this->jsonApiEsService = $jsonApiEsService;
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
     }
 
     public function getEntityClass(): string
@@ -351,13 +327,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->hasAssessmentPermission()) {
             $properties[] = $this->createAttribute($this->documentParentId)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentParentId();
-                });
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId());
             $properties[] = $this->createAttribute($this->documentTitle)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentTitle();
-                });
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle());
             $properties[] = $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id);
             $properties[] = $this->createAttribute($this->elementTitle)
@@ -393,9 +365,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             'area_admin_submitters'
         )) {
             $properties[] = $this->createAttribute($this->isSubmittedByCitizen)
-                ->readable(false, static function (Statement $statement): bool {
-                    return $statement->isSubmittedByCitizen();
-                });
+                ->readable(false, static fn(Statement $statement): bool => $statement->isSubmittedByCitizen());
         }
 
         return $properties;

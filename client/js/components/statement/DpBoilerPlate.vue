@@ -13,14 +13,14 @@
     <div class="u-pb-0_25">
       <label class="u-mb-0_5">
         <i
-          class="fa fa-question-circle float--right u-mt-0_125"
+          class="fa fa-question-circle float-right u-mt-0_125"
           :aria-label="Translator.trans('contextual.help')"
           v-tooltip="tooltipContent" />
         {{ title }}
       </label>
       <dp-multiselect
         v-model="selectedBoilerPlate"
-        class="display--inline-block"
+        class="inline-block"
         :group-label="groupLabel"
         :group-select="groupSelect"
         :group-values="groupValues"

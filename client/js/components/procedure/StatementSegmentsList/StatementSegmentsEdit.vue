@@ -22,10 +22,10 @@
         :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id">
         <div
-          class="display--inline-block"
+          class="inline-block"
           style="width: 5%">
           <dp-claim
-            class="c-at-item__row-icon display--inline-block"
+            class="c-at-item__row-icon inline-block"
             entity-type="segment"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -36,7 +36,7 @@
             @click="() => toggleClaimSegment(segment)" />
         </div><!--
         --><div
-              class="display--inline-block overflow-word-break"
+              class="inline-block break-words"
               style="width: 95%">
           <dp-edit-field
             label=""

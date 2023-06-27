@@ -2,16 +2,16 @@
     <td>
         {{ report.createdDate|default|dplanDate }}
     </td>
-    <td class="overflow-word-break">
+    <td class="break-words">
         {{ report.userName|default }}
     </td>
     <td>
         {{ report.categoryLabel|default }}
     </td>
-    <td class="overflow-word-break">
+    <td class="break-words">
         {{ report.incoming.orgaName|default(report.message.orgaName|default) }}
     </td>
-    <td class="overflow-word-break">
+    <td class="break-words">
         {% for entry in report.changes %}
             {% if report.category is defined and report.category == 'update' %}
                 <p class="u-m-0">

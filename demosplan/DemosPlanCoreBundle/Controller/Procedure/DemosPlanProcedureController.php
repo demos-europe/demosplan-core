@@ -69,6 +69,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MultiTermsAggregation;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -91,6 +92,8 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\PriorityPair;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateGroupVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedureFormData;
@@ -128,6 +131,9 @@ use Twig\Error\SyntaxError;
  */
 class DemosPlanProcedureController extends BaseController
 {
+    private const NONE = 'none';
+    private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+
     /**
      * @var MapService
      */
@@ -143,67 +149,23 @@ class DemosPlanProcedureController extends BaseController
      */
     protected $procedureServiceOutput;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var AssessmentHandler
-     */
-    private $assessmentHandler;
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-    /**
-     * @var ProcedureTypeResourceType
-     */
-    private $procedureTypeResourceType;
-
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     public function __construct(
-        EntityFetcher $entityFetcher,
-        AssessmentHandler $assessmentHandler,
-        Environment $twig,
-        PermissionsInterface $permissions,
-        ProcedureHandler $procedureHandler,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly AssessmentHandler $assessmentHandler,
+        private readonly Environment $twig,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureHandler $procedureHandler,
         ProcedureService $procedureService,
         ProcedureServiceOutput $procedureServiceOutput,
-        ProcedureTypeResourceType $procedureTypeResourceType,
-        SortMethodFactory $sortMethodFactory
+        private readonly ProcedureTypeResourceType $procedureTypeResourceType,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->entityFetcher = $entityFetcher;
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
-        $this->procedureTypeResourceType = $procedureTypeResourceType;
-        $this->twig = $twig;
-        $this->assessmentHandler = $assessmentHandler;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->procedureHandler = $procedureHandler;
-        $this->permissions = $permissions;
     }
 
     /**
      * Verteiler für den Einstiegspunkt in das Verfahren.
-     *
-     * @Route(
-     *     name="DemosPlan_procedure_entrypoint",
-     *     path="/verfahren/{procedure}/entrypoint",
-     * )
      *
      * @DplanPermissions("area_demosplan")
      *
@@ -213,6 +175,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse
      */
+    #[Route(name: 'DemosPlan_procedure_entrypoint', path: '/verfahren/{procedure}/entrypoint')]
     public function procedureEntrypointAction(Request $request, GlobalConfigInterface $globalConfig, $procedure)
     {
         $route = $globalConfig->getProcedureEntrypointRoute();
@@ -225,15 +188,11 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_demosplan")
      *
-     * @Route(
-     *     path="/plan/{slug}",
-     *     name="core_procedure_slug"
-     * )
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
     public function procedureSlugAction(CurrentUserInterface $currentUser, ServiceOutput $procedureOutput, string $slug = '')
     {
         try {
@@ -248,7 +207,7 @@ class DemosPlanProcedureController extends BaseController
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
             return $this->redirectToRoute($redirectRoute, ['procedure' => $procedure->getId()]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
             return $this->redirectToRoute('core_home');
@@ -262,18 +221,13 @@ class DemosPlanProcedureController extends BaseController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/proceduredashboard/ Wiki: Verfahrensübersicht
      *
-     * @Route(
-     *     name="DemosPlan_procedure_dashboard",
-     *     path="/verfahren/{procedure}/uebersicht",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_dashboard")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_dashboard', path: '/verfahren/{procedure}/uebersicht', options: ['expose' => true])]
     public function procedureDashboardAction(
         CurrentUserService $currentUserService,
         PermissionsInterface $permissions,
@@ -283,29 +237,13 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         string $procedure
     ) {
+        $templateVars = [];
         $procedureId = $procedure;
         $procedureService = $this->procedureService;
         $procedureObject = $procedureService->getProcedure($procedureId);
         $templateVars['statementsTotal'] = 0;
 
         $templateVars = $this->collectProcedureDashboard($statementService, $translator, $permissions, $procedureId);
-
-        try {
-            $statements = $statementService->getStatementsByProcedureId(
-                $procedureId,
-                [],
-                null,
-                null,
-                0,
-                1,
-                [],
-                true
-            );
-
-            $templateVars['statementsTotal'] = $statements->getTotal();
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-        }
 
         try {
             if ($permissions->hasPermission('area_statements_fragment')) {
@@ -397,9 +335,7 @@ class DemosPlanProcedureController extends BaseController
      *       ],
      *   ];
      *
-     * @param array $templateVars
-     *
-     * @return mixed
+     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData, procedureHasSurveys?: bool}
      *
      * @throws Exception
      */
@@ -408,84 +344,41 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         PermissionsInterface $permissions,
         string $procedureId,
-        $templateVars = []
-    ) {
+    ): array {
+        $templateVars = [];
+        /** @var array<string, string> $formParamsStatementStatus */
         $formParamsStatementStatus = $this->getFormParameter('statement_status');
+        /** @var array<string, string> $formParamsStatementPriority */
         $formParamsStatementPriority = $this->getFormParameter('statement_priority');
         // add Empty Value
         $formParamsStatementPriority[''] = 'notassigned';
 
-        // set some defaults and helper Vars
-        $priorityInitialValues = [];
-
         // precollect data for each priority
         foreach ($formParamsStatementPriority as $key => $label) {
-            $categoryKey = '' === $key ? 'none' : $key;
-            $categoryLabel = $translator->trans($label);
-            $templateVars['statementPriorities'][] =
-                [
-                    'key'   => $categoryKey,
-                    'label' => $categoryLabel,
-                ];
-            // save initial zero values to be set later on as defaults
-            $priorityInitialValues[$categoryKey] = 0;
+            $templateVars['statementPriorities'][] = new PriorityPair(
+                $this->generateCategoryKey($key),
+                $translator->trans($label),
+            );
         }
 
-        // collect for each status their priority aggregations
-        // therefore several Elasticsearch requests needs to be fired
-        if ($permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
-            foreach ($formParamsStatementStatus as $statusKey => $statusLabel) {
-                // set default data if no aggregation is found
-                $statementData = [
-                    'Category' => $translator->trans($statusLabel),
-                    'count'    => 0,
-                    'freq'     => $priorityInitialValues,
-                ];
-                // fetch priorities for each status
-                foreach ($formParamsStatementPriority as $priorityKey => $priorityLabel) {
-                    try {
-                        $statements = $statementService->getStatementsByProcedureId(
-                            $procedureId,
-                            ['status' => $statusKey, 'isPlaceholder' => false],
-                            null,
-                            null,
-                            0,
-                            1
-                        );
-                    } catch (Exception $e) {
-                        $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
-                        continue;
-                    }
-
-                    // save total statement count per status
-                    $statementData['count'] = $statements->getTotal();
-
-                    // add link with filterhash to assessment table
-                    if (0 < $statements->getTotal()) {
-                        $statementData['url'] = $this->generateAssessmentTableFilterLinkFromStatus($statusKey, $procedureId, 'statement');
-                    }
-
-                    // save priorities per status
-                    if (\array_key_exists('priority', $statements->getFilterSet()['filters'])) {
-                        foreach ($statements->getFilterSet()['filters']['priority'] as $aggregation) {
-                            $priorityKey = ('' == $aggregation['value'] || 'no_value' === $aggregation['value']) ? 'none' : $aggregation['value'];
-                            $statementData['freq'][$priorityKey] = $aggregation['count'];
-                        }
-                    }
-                }
-
-                $templateVars['statementStatusData'][] = $statementData;
-            }
+        $statementStatusData = $this->getStatementStatusData(
+            $permissions,
+            $translator,
+            $formParamsStatementStatus,
+            $formParamsStatementPriority,
+            $statementService,
+            $procedureId
+        );
+        if (null !== $statementStatusData) {
+            $templateVars['statementStatusData'] = $statementStatusData['statementStatusData'];
+            $templateVars['statementsTotal'] = $statementStatusData['total'];
         }
 
         // try block is about getting count for moved statements
         try {
             $procedure = $this->procedureService->getProcedure($procedureId);
-
-            $movedStatementData = [];
-            if ($permissions->hasPermission('feature_statement_move_to_procedure')) {
-                $movedStatementData['toThisProcedure'] = $statementService->getStatementsMovedToThisProcedureCount($procedure);
-                $movedStatementData['fromThisProcedure'] = $statementService->getStatementsMovedFromThisProcedureCount($procedure);
+            $movedStatementData = $statementService->getMovedStatementData($procedure);
+            if (null !== $movedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
             $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
@@ -494,6 +387,94 @@ class DemosPlanProcedureController extends BaseController
         }
 
         return $templateVars;
+    }
+
+    protected function generateCategoryKey(string $key): string
+    {
+        return '' === $key ? self::NONE : $key;
+    }
+
+    /**
+     * @param array<string, string> $statementStatuses
+     * @param array<string, string> $statementPriorities
+     *
+     * @return array{statementStatusData: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, total: int}|null
+     *
+     * @throws Exception
+     */
+    protected function getStatementStatusData(
+        PermissionsInterface $permissions,
+        TranslatorInterface $translator,
+        array $statementStatuses,
+        array $statementPriorities,
+        StatementService $statementService,
+        string $procedureId
+    ): ?array {
+        $priorityInitialValues = [];
+        foreach ($statementPriorities as $key => $label) {
+            // save initial zero values to be set later on as defaults
+            $priorityInitialValues[$this->generateCategoryKey($key)] = 0;
+        }
+
+        // collect for each status their priority aggregations
+        // therefore several Elasticsearch requests needs to be fired
+        if (!$permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
+            return null;
+        }
+
+        $statementStatusData = [];
+        // generate a statementStatusData item for each statement status
+        foreach ($statementStatuses as $statusKey => $statusLabel) {
+            // set default data if no aggregation is found
+            $statementStatusData[$statusKey] = [
+                'Category' => $translator->trans($statusLabel),
+                'count'    => 0,
+                'freq'     => $priorityInitialValues,
+            ];
+        }
+
+        try {
+            $statementQueryResult = $this->getStatements($statementService, $procedureId);
+        } catch (Exception $exception) {
+            $this->logger->warning('Could not get Statements by Status ', [$exception]);
+
+            return [
+                'statementStatusData' => array_values($statementStatusData),
+                'total'               => 0,
+            ];
+        }
+
+        // save status counts
+        $esResultMeta = $statementQueryResult->getFilterSet();
+        $aggregations = $esResultMeta['filters'];
+        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
+            $statusValue = $aggregationBucket['value'];
+            $statusCount = $aggregationBucket['count'];
+            $statementStatusData[$statusValue]['count'] = $statusCount;
+
+            // add link with filterhash to assessment table
+            if (0 < $statusCount) {
+                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                    $statusValue,
+                    $procedureId,
+                    'statement'
+                );
+            }
+        }
+
+        // save priority count per status
+        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+            [$statusValue, $priorityValue] = $aggregationBucket['value'];
+            if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                $priorityValue = self::NONE;
+            }
+            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
+        }
+
+        return [
+            'statementStatusData' => array_values($statementStatusData),
+            'total'               => $statementQueryResult->getTotal(),
+        ];
     }
 
     /**
@@ -569,6 +550,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function getBucketEmptyData($formOptionsKey, $translator)
     {
+        $data = [];
         $params = $this->getFormParameter($formOptionsKey);
         $data[] = [
             'key'   => 'Keine Zuordnung',
@@ -726,18 +708,13 @@ class DemosPlanProcedureController extends BaseController
      * Creates a new procedure (not a procedure template, use
      * {@link DemosPlanProcedureController::newProcedureTemplateAction()} for that).
      *
-     * @Route(
-     *     name="DemosPlan_procedure_new",
-     *     path="/verfahren/neu",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_admin_new_procedure")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_new', path: '/verfahren/neu', options: ['expose' => true])]
     public function newProcedureAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
@@ -748,6 +725,7 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
+        $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
         $breadcrumb->addItem(
             [
@@ -832,18 +810,13 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_master_new",
-     *     path="/verfahren/blaupausen/neu",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_master_new', path: '/verfahren/blaupausen/neu', options: ['expose' => true])]
     public function newProcedureTemplateAction(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
@@ -854,6 +827,7 @@ class DemosPlanProcedureController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
     ) {
+        $templateVars = [];
         // Reichere die breadcrumb mit zusätzl. items an
         $breadcrumb->addItem(
             [
@@ -940,12 +914,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * TöB hinzufügen Liste.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_member_add_mastertoeblist",
-     *     path="/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @param string $procedure
@@ -954,6 +922,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_member_add_mastertoeblist', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist', options: ['expose' => true])]
     public function administrationNewMemberListMastertoeblistAction(
         CurrentProcedureService $currentProcedureService,
         MasterToebService $masterToebService,
@@ -1009,17 +978,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Email to invite unregistered public agencies.
      *
-     * @Route(
-     *     name="DemosPlan_invite_unregistered_public_agency_email",
-     *     path="/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email"
-     * )
-     *
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      *
      * @param string $procedureId
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_email', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email')]
     public function administrationUnregisteredPublicAgencyEMailAction(
         AddressBookEntryService $addressBookEntryService,
         Request $request,
@@ -1088,23 +1053,18 @@ class DemosPlanProcedureController extends BaseController
     /**
      * List of unregistered public agencies, which will be filled by address book of organisations.
      *
-     * @Route(
-     *     name="DemosPlan_invite_unregistered_public_agency_list",
-     *     path="/verfahren/{procedureId}/einstellungen/{organisationId}/unregistrierte_toeb_liste"
-     * )
-     *
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_liste')]
     public function administrationUnregisteredPublicAgencyListAction(
         AddressBookEntryService $addressBookEntryService,
+        CurrentUserService $currentUserService,
         Request $request,
-        string $procedureId,
-        string $organisationId
+        string $procedureId
     ): Response {
-        // overwrite $organisationId to ensure user will always see his own address book list
-        $organisationId = $this->getUser()->getOrganisationId();
+        $orgaId = $currentUserService->getUser()->getOrganisationId() ?? '';
 
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
@@ -1118,7 +1078,7 @@ class DemosPlanProcedureController extends BaseController
             // todo: avoid reload resend request
         }
 
-        $addressBookEntriesOfOrganisation = $addressBookEntryService->getAddressBookEntriesOfOrganisation($organisationId);
+        $addressBookEntriesOfOrganisation = $addressBookEntryService->getAddressBookEntriesOfOrganisation($orgaId);
 
         $templateVars = [
             'procedure'          => $procedure,
@@ -1138,12 +1098,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Administrate the E-Mail to send to invited and registered toeb/public agencies/members.
      *
-     * @Route(
-     *     name="DemosPlan_admin_member_email",
-     *     path="/verfahren/{procedureId}/einstellungen/mitglieder_email",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_main_procedures","area_admin_invitable_institution")
      *
      * @throws LoaderError
@@ -1151,6 +1105,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws SyntaxError
      * @throws Throwable
      */
+    #[Route(name: 'DemosPlan_admin_member_email', path: '/verfahren/{procedureId}/einstellungen/mitglieder_email', options: ['expose' => true])]
     public function administrationMemberEMailAction(
         OrgaService $orgaService,
         Request $request,
@@ -1241,17 +1196,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Allgemeine Einstellungen eines Verfahrens.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_edit",
-     *     path="/verfahren/{procedure}/einstellungen",
-     *     defaults={"isMaster": false}
-     * )
-     * @Route(
-     *     name="DemosPlan_procedure_edit_master",
-     *     path="/verfahren/blaupause/{procedure}/einstellungen",
-     *     defaults={"isMaster": true}
-     * )
-     *
      * @DplanPermissions({"area_main_procedures", "area_admin_preferences"})
      *
      * @param bool $isMaster Ist es eine Blaupause?
@@ -1264,6 +1208,8 @@ class DemosPlanProcedureController extends BaseController
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
+    #[Route(name: 'DemosPlan_procedure_edit', path: '/verfahren/{procedure}/einstellungen', defaults: ['isMaster' => false])]
+    #[Route(name: 'DemosPlan_procedure_edit_master', path: '/verfahren/blaupause/{procedure}/einstellungen', defaults: ['isMaster' => true])]
     public function administrationEditAction(
         ContentService $contentService,
         CurrentUserService $currentUser,
@@ -1362,7 +1308,7 @@ class DemosPlanProcedureController extends BaseController
                 ) {
                     $inData['r_emailTitle'] = str_ireplace(
                         $procedureObject->getName(),
-                        $inData['r_name'],
+                        (string) $inData['r_name'],
                         $procedureObject->getSettings()->getEmailTitle());
                 }
 
@@ -1421,7 +1367,7 @@ class DemosPlanProcedureController extends BaseController
             $procedureAsArray['externalDesc'] = \preg_replace(
                 '|<br />|s',
                 "\n",
-                $procedureAsArray['externalDesc']
+                (string) $procedureAsArray['externalDesc']
             );
             $templateVars = ['proceduresettings' => $procedureAsArray];
 
@@ -1468,9 +1414,9 @@ class DemosPlanProcedureController extends BaseController
                     true,
                     false
                 )->sort(static function (User $userA, User $userB): int {
-                    $lastNameCmpResult = strcmp($userA->getLastname(), $userB->getLastname());
+                    $lastNameCmpResult = strcmp((string) $userA->getLastname(), (string) $userB->getLastname());
                     if (0 === $lastNameCmpResult) {
-                        return strcmp($userA->getName(), $userB->getName());
+                        return strcmp((string) $userA->getName(), (string) $userB->getName());
                     }
 
                     return $lastNameCmpResult;
@@ -1513,18 +1459,13 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedure_edit_ajax",
-     *     path="/verfahren/{procedure}/einstellungen/update",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_preferences"})
      *
      * @param string $procedure
      *
      * @return JsonResponse
      */
+    #[Route(name: 'DemosPlan_procedure_edit_ajax', path: '/verfahren/{procedure}/einstellungen/update', options: ['expose' => true])]
     public function administrationEditAjaxAction(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
@@ -1557,16 +1498,11 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Starting point for importing items into a procedure.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_import",
-     *     path="/verfahren/{procedureId}/import",
-     *     options={"expose":true}
-     * )
-     *
      * @DplanPermissions({"area_main_procedures", "area_admin_import"})
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_import', path: '/verfahren/{procedureId}/import', options: ['expose' => true])]
     public function administrationImportAction(
         CurrentUserService $currentUser,
         PermissionsInterface $permissions,
@@ -1603,6 +1539,7 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function sendProcedureSubscriptionEmail(MailService $mailService, $translator, $procedure)
     {
+        $vars = [];
         if (!isset($procedure['locationPostCode']) || '' === $procedure['locationPostCode']) {
             // @todo im Service abfangen
             return;
@@ -1660,18 +1597,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * öffentliche Verfahrensdetailseite.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_public_detail",
-     *     path="/verfahren/{procedure}/public/detail",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return RedirectResponse|Response
      *
      * @throws Throwable
      */
+    #[Route(name: 'DemosPlan_procedure_public_detail', path: '/verfahren/{procedure}/public/detail', options: ['expose' => true])]
     public function publicDetailAction(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -1775,7 +1707,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['isSubmitted'] = true;
 
                 // Wenn der User eine E-Mail-Adresse angegeben hat, schicke eine Bestätigungsmail
-                if ($request->request->has('r_email') && 0 < \strlen($requestPost['r_email'])) {
+                if ($request->request->has('r_email') && 0 < \strlen((string) $requestPost['r_email'])) {
                     $fullEmailAddress = $requestPost['r_email'];
                     $gdprConsentRevokeToken = isset($savedStatement)
                         ? $gdprConsentRevokeTokenService->maybeCreateGdprConsentRevokeToken(
@@ -1814,7 +1746,7 @@ class DemosPlanProcedureController extends BaseController
             false
         );
 
-        $layerGroupsAlternateVisibility = (1 === count($settings)) ? $settings[0]->getContent() : false;
+        $layerGroupsAlternateVisibility = (1 === count((array) $settings)) ? $settings[0]->getContent() : false;
         if (false === \is_bool($layerGroupsAlternateVisibility)) {
             $layerGroupsAlternateVisibility = \filter_var($layerGroupsAlternateVisibility, \FILTER_VALIDATE_BOOLEAN);
         }
@@ -2032,17 +1964,14 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Display Procedures to user where orga is allowed to input new statements.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_list_data_input_orga_procedures",
-     *     path="/verfahren/datainput/list"
-     * )
-     *
      * @DplanPermissions("area_statement_data_input_orga")
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_list_data_input_orga_procedures', path: '/verfahren/datainput/list')]
     public function dataInputOrgaChooseProcedureAction(CurrentUserService $currentUser): Response
     {
+        $templateVars = [];
         $organisationId = $currentUser->getUser()->getOrganisationId();
         $templateVars['allowedProcedures'] = null === $organisationId
             ? []
@@ -2058,18 +1987,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Verwalte die Abonnements/Benachrichtigunsgservices für eine Region.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_list_subscriptions",
-     *     path="/verfahren/abonnieren",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_subscriptions")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_list_subscriptions', path: '/verfahren/abonnieren', options: ['expose' => true])]
     public function subscribeAction(CurrentUserService $currentUser, Request $request)
     {
         $templateVars = [];
@@ -2078,7 +2002,7 @@ class DemosPlanProcedureController extends BaseController
         // Überprüfe, ob PLZ und Orte für Benachrichtigungen eingegeben wurden
         if (\array_key_exists('newSubscription', $requestPost)) {
             $postalCode = $requestPost['r_postalCode'];
-            if (5 != \strlen($postalCode)) {
+            if (5 != \strlen((string) $postalCode)) {
                 /* In BOB-SH's area_subscriptions feature the postal code is sent by the FE only if
                  * one of the dropdown entries is selected, otherwise (eg. even when a valid postal
                  * code is entered into the search field) `r_postalCode` will be sent by the FE
@@ -2102,12 +2026,12 @@ class DemosPlanProcedureController extends BaseController
 
         // Lösche gegebenenfalls Benachrichtigungen
         if (\array_key_exists('deleteSubscription', $requestPost)) {
-            if (!isset($requestPost['region_selected']) || 0 === count($requestPost['region_selected'])) {
+            if (!isset($requestPost['region_selected']) || 0 === (is_countable($requestPost['region_selected']) ? count($requestPost['region_selected']) : 0)) {
                 $this->getMessageBag()->add('error', 'explanation.entries.noneselected');
             } else {
                 $deleteNotifications = $requestPost['region_selected'];
                 $actuallyDeletedCount = $this->procedureHandler->deleteSubscriptions($deleteNotifications);
-                if (count($deleteNotifications) === $actuallyDeletedCount) {
+                if ((is_countable($deleteNotifications) ? count($deleteNotifications) : 0) === $actuallyDeletedCount) {
                     $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
                 }
 
@@ -2131,14 +2055,7 @@ class DemosPlanProcedureController extends BaseController
 
     // @improve: T15117
     // @improve: T15850
-
     /**
-     * @Route(
-     *     name="DemosPlan_procedure_member_index",
-     *     path="/verfahren/{procedure}/einstellungen/benutzer",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_invitable_institution")
      *
      * @param string $procedure
@@ -2147,6 +2064,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Throwable
      */
+    #[Route(name: 'DemosPlan_procedure_member_index', path: '/verfahren/{procedure}/einstellungen/benutzer', options: ['expose' => true])]
     public function administrationMemberListAction(
         Breadcrumb $breadcrumb,
         MailService $mailService,
@@ -2174,7 +2092,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         if (\array_key_exists('delete_orga_action', $requestPost)) {
-            if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
+            if (!isset($requestPost['orga_selected']) || 0 === (is_countable($requestPost['orga_selected']) ? count($requestPost['orga_selected']) : 0)) {
                 $this->getMessageBag()->add('error', 'explanation.invitable_institutions.noneselected');
             } else {
                 $deleteorga = $requestPost['orga_selected'];
@@ -2229,7 +2147,7 @@ class DemosPlanProcedureController extends BaseController
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
         if (\array_key_exists('sendInvitationEmail', $requestPost)) {
-            if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
+            if (!isset($requestPost['orga_selected']) || 0 === (is_countable($requestPost['orga_selected']) ? count($requestPost['orga_selected']) : 0)) {
                 $this->getMessageBag()->add(
                     'error',
                     'explanation.invitable_institutions.noneselected',
@@ -2273,7 +2191,7 @@ class DemosPlanProcedureController extends BaseController
                             ['procedure' => $procedure]
                         )
                     );
-                } catch (NoRecipientsWithEmailException $e) {
+                } catch (NoRecipientsWithEmailException) {
                     // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
                     $this->getMessageBag()->add(
                         'error',
@@ -2282,14 +2200,14 @@ class DemosPlanProcedureController extends BaseController
                     );
 
                     return $this->redirectBack($request);
-                } catch (MissingDataException $e) {
+                } catch (MissingDataException) {
                     $this->getMessageBag()->add(
                         'error',
                         'error.missing.subject.or.text'
                     );
 
                     return $this->redirectBack($request);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->getMessageBag()->add(
                         'error',
                         'error.email.invitation.send',
@@ -2345,17 +2263,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * TöB hinzufügen Liste.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_member_add",
-     *     path="/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen"
-     * )
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen')]
     public function administrationNewMemberListAction(
         Breadcrumb $breadcrumb,
         MessageBagInterface $messageBag,
@@ -2365,6 +2279,7 @@ class DemosPlanProcedureController extends BaseController
         TranslatorInterface $translator,
         string $procedure
     ) {
+        $templateVars = [];
         $requestPost = $request->request->all();
 
         if (\array_key_exists('orga_add', $requestPost)) {
@@ -2420,12 +2335,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Hole die Liste der Textbausteine, gegebenfalls lösche markeirte Textbausteine.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_boilerplate_list",
-     *     path="/verfahren/{procedure}/textbausteine",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2434,6 +2343,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_boilerplate_list', path: '/verfahren/{procedure}/textbausteine', options: ['expose' => true])]
     public function boilerplateListAction(
         ProcedureHandler $procedureHandler,
         Request $request,
@@ -2474,7 +2384,7 @@ class DemosPlanProcedureController extends BaseController
                     'confirm.boilerplate.group.created',
                     ['title' => $createdGroup->getTitle()]
                 );
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'error.boilerplate.group.not.created',
@@ -2500,17 +2410,10 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Creation and editing of places, each is either process or procedure template related.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_places_list",
-     *     path="/verfahren/{procedureId}/schritte",
-     * )
-     * @Route(
-     *     name="DemosPlan_procedure_template_places_list",
-     *     path="/verfahren/blaupause/{procedureId}/schritte",
-     * )
-     *
      * @DplanPermissions("area_manage_segment_places")
      */
+    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte')]
+    #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
@@ -2521,12 +2424,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Bearbeite bestehende und neue Textbausteine.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_boilerplate_edit",
-     *     path="/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}",
-     *     defaults={"boilerplateId": "new", "selectedGroupId": ""},
-     * )
-     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2535,6 +2432,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      */
+    #[Route(name: 'DemosPlan_procedure_boilerplate_edit', path: '/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}', defaults: ['boilerplateId' => 'new', 'selectedGroupId' => ''])]
     public function boilerplateEditAction(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateId, $selectedGroupId)
     {
         $boilerplateValueObject = new BoilerplateVO();
@@ -2635,11 +2533,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedure_boilerplate_group_delete",
-     *     path="/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete",
-     * )
-     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2649,6 +2542,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_boilerplate_group_delete', path: '/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete')]
     public function boilerplateGroupDeleteAction(Request $request, $procedure, $boilerplateGroupId)
     {
         $procedureService = $this->procedureService;
@@ -2671,13 +2565,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedure_boilerplate_group_edit",
-     *     path="/verfahren/{procedure}/boilerplategroup/{boilerplateGroupId}",
-     *     defaults={"boilerplateGroupId": "new"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions("area_admin_boilerplates")
      *
      * @param string $procedure
@@ -2687,6 +2574,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_boilerplate_group_edit', path: '/verfahren/{procedure}/boilerplategroup/{boilerplateGroupId}', defaults: ['boilerplateGroupId' => 'new'], options: ['expose' => true])]
     public function boilerplateGroupEditAction(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateGroupId)
     {
         $boilerplateGroupValueObject = new BoilerplateGroupVO();
@@ -2899,9 +2787,7 @@ class DemosPlanProcedureController extends BaseController
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
-        $procedureTypeResources = array_map(function (object $entity) use ($wrapperFactory) {
-            return $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType);
-        }, $entities);
+        $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
 
         $templateVars['procedureTypes'] = $procedureTypeResources;
 
@@ -2917,14 +2803,14 @@ class DemosPlanProcedureController extends BaseController
         $error = false;
         if (
             \array_key_exists('r_publicParticipationContact', $input)
-            && \strlen($input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
+            && \strlen((string) $input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.participation.maxlength');
             $error = true;
         }
         if (
             \array_key_exists('r_externalDesc', $input)
-            && \strlen($input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
+            && \strlen((string) $input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.procedure.description.maxlength');
             $error = true;
@@ -2943,5 +2829,27 @@ class DemosPlanProcedureController extends BaseController
     private function eMailTitleContainsOldProcedureName(string $eMailTitle, string $oldProcedureName): bool
     {
         return str_contains(strtolower($eMailTitle), strtolower($oldProcedureName));
+    }
+
+    protected function getStatements(StatementService $statementService, string $procedureId): ElasticsearchResultSet
+    {
+        $statusPriorityAggregation = new MultiTermsAggregation(self::AGGREGATION_STATUS_PRIORITY);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_STATUS);
+        $statusPriorityAggregation->addTerm(StatementService::FIELD_STATEMENT_PRIORITY);
+
+        return $statementService->getStatementsByProcedureId(
+            $procedureId,
+            ['isPlaceholder' => false],
+            null,
+            null,
+            0,
+            1,
+            [],
+            true,
+            0,
+            true,
+            true,
+            [$statusPriorityAggregation]
+        );
     }
 }

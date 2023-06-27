@@ -17,9 +17,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class CustomerConfiguration implements ConfigurationInterface
 {
-    public const NAME = 'customerName';
-    public const SUBDOMAIN = 'customerSubdomain';
-    public const USER_LOGIN = 'userLogin';
+    final public const NAME = 'customerName';
+    final public const SUBDOMAIN = 'customerSubdomain';
+    final public const USER_LOGIN = 'userLogin';
 
     /**
      * @param list<string> $reservedNames

@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="text--right u-pv-0_5">
+    <div class="text-right u-pv-0_5">
       <a
         class="btn btn--primary"
         :href="pathForNewsCreation"
@@ -47,7 +47,7 @@
       <template v-slot:title="{ id, pId, title }">
         <div class="o-hellip__wrapper">
           <a
-            class="o-hellip display--block"
+            class="o-hellip block"
             data-cy="newsTitleLink"
             :href="generateEditPath(id, pId)">
             {{ title }}

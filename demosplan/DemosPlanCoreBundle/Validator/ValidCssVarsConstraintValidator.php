@@ -39,7 +39,7 @@ class ValidCssVarsConstraintValidator extends ConstraintValidator
         // is it valid yml?
         try {
             $ymlParsedValues = Yaml::parse($value);
-        } catch (ParseException $e) {
+        } catch (ParseException) {
             $this->context->buildViolation($constraint->ymlExceptionMessage)->addViolation();
 
             return;

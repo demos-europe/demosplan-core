@@ -2,7 +2,7 @@
     <header class="{{ 'layout__item u-pv-0_25'|prefixClass }}">
         {% if statement.number is defined %}{{ statement.number }}{% endif %}
 
-        <span class="{{ 'font-size-smaller float--right'|prefixClass }}">
+        <span class="{{ 'font-size-smaller float-right'|prefixClass }}">
 			{% if statement.createdDate is defined %}{{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}{% endif %}
 		</span>
     </header>

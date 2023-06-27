@@ -87,7 +87,7 @@
 
                 {{ include('@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm_entry.html.twig') }}
 
-                <div class="{{ 'text--right space-inline-s'|prefixClass }}">
+                <div class="{{ 'text-right space-inline-s'|prefixClass }}">
                     <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" name="submit_item_status" value="{{ "vote.now"|trans }}">
                     <a class="{{ 'btn btn--secondary'|prefixClass }}" href="{{ path('DemosPlan_procedure_public_detail',{'procedure':procedure}) }}#procedureDetailsStatementsPublic">
                         {{ "abort"|trans }}

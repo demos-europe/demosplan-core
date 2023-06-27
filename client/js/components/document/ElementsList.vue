@@ -34,7 +34,7 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
-            class="whitespace--preline"
+            class="whitespace-pre-line"
             v-cleanhtml="nodeElement.attributes.text" />
         </template>
         <template v-slot:leaf="{ nodeElement }">

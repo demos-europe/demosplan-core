@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,7 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository")
  */
-class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
+class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, UserRoleInCustomerInterface
 {
     /**
      * @var string|null
@@ -47,7 +51,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Foreign key, User object.
      *
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User",
@@ -61,7 +65,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Foreign key, Role object.
      *
-     * @var Role
+     * @var RoleInterface
      *
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role",
@@ -75,7 +79,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Foreign key, Customer object.
      *
-     * @var Customer|null
+     * @var CustomerInterface|null
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/
      *
@@ -96,7 +100,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Set User.
      */
-    public function setUser(User $user): self
+    public function setUser(UserInterface $user): self
     {
         $this->user = $user;
 
@@ -106,7 +110,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Get User.
      */
-    public function getUser(): User
+    public function getUser(): UserInterface
     {
         return $this->user;
     }
@@ -114,7 +118,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Set Role.
      */
-    public function setRole(Role $role): self
+    public function setRole(RoleInterface $role): self
     {
         $this->role = $role;
 
@@ -124,12 +128,12 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Get Role.
      */
-    public function getRole(): Role
+    public function getRole(): RoleInterface
     {
         return $this->role;
     }
 
-    public function setCustomer(?Customer $customer): self
+    public function setCustomer(?CustomerInterface $customer): self
     {
         $this->customer = $customer;
         if (null !== $customer && !$customer->getUserRoles()->contains($this)) {
@@ -142,7 +146,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface
     /**
      * Get Customer.
      *
-     * @return Customer|null
+     * @return CustomerInterface|null
      */
     public function getCustomer()
     {

@@ -100,9 +100,7 @@ class QueryProcedure extends AbstractQuery
         if (self::SCOPE_PLANNER === $scope && $scopes->contains(self::SCOPE_EXTERNAL)) {
             // reset existing scopes without external scope
             $this->setScopes(
-                $scopes->filter(function ($value) {
-                    return self::SCOPE_EXTERNAL !== $value;
-                })->toArray()
+                $scopes->filter(fn($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
             );
         }
 

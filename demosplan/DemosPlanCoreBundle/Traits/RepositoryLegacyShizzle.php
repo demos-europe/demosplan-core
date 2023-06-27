@@ -30,7 +30,7 @@ trait RepositoryLegacyShizzle
      *
      * @throws
      */
-    public function update($entityId, array $data)
+    public function update($entityId, array $data): never
     {
         throw new BadMethodCallException('Please use Objects and not arrays.');
     }
@@ -38,7 +38,7 @@ trait RepositoryLegacyShizzle
     /**
      * @throws
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new BadMethodCallException('Please use Objects and not arrays.');
     }
@@ -48,7 +48,7 @@ trait RepositoryLegacyShizzle
      *
      * @throws
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         // We want to use objects. So don't use or implement this.
         // instead make use of deleteObject (which should also be defined in the interface)
@@ -61,7 +61,7 @@ trait RepositoryLegacyShizzle
      *
      * @throws
      */
-    public function generateObjectValues($entity, array $data)
+    public function generateObjectValues($entity, array $data): never
     {
         // - First we need to refactor the usages of generateObjectValues
         // - Then we can delete the method from the CoreRepository
@@ -76,7 +76,7 @@ trait RepositoryLegacyShizzle
      *
      * @throws
      */
-    public function get($entityId)
+    public function get($entityId): never
     {
         /*
          * instead use ->find(['id' => $entityId]);

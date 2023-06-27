@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,10 +24,6 @@ class LocationUpdateCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:location:repopulate';
     protected static $defaultDescription = 'Repopulate location table with current Data';
-    /**
-     * @var LocationUpdateService
-     */
-    private $locationUpdate;
 
     public function configure(): void
     {
@@ -38,21 +35,20 @@ class LocationUpdateCommand extends CoreCommand
         );
     }
 
-    public function __construct(LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-        $this->locationUpdate = $locationUpdate;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $includeOnly = [];
         if ($input->getOption('includeOnly')) {
-            $includeOnly = explode(',', $input->getOption('includeOnly'));
+            $includeOnly = explode(',', (string) $input->getOption('includeOnly'));
         }
 
         $this->locationUpdate->repopulateDatabase($includeOnly);
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

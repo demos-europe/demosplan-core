@@ -92,7 +92,7 @@ class DqlFluentQuery extends FluentQuery
     {
         // extract the original `select`, because it contains the table alias
         $selects = $queryBuilder->getDQLPart('select');
-        $selectsCount = count($selects);
+        $selectsCount = is_countable($selects) ? count($selects) : 0;
         if (1 !== $selectsCount) {
             // we only expect a single `select`, otherwise something is wrong
             throw new InvalidArgumentException("Unexpected number of selects in query. Expected exactly one, got $selectsCount");
