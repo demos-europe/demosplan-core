@@ -90,4 +90,12 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
             $this->permissions
         );
     }
+
+    /**
+     * @return ResolvablePermission[]
+     */
+    public function getResolvePermissions(): array
+    {
+        return $this->permissions;
+    }
 }

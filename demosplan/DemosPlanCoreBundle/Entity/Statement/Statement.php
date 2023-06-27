@@ -1743,7 +1743,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function getSubmitDateString()
     {
-        return null === $this->submit ? '' : $this->getSubmitObject()->format('d-m-Y');
+        return null === $this->getSubmitObject() ? '' : $this->getSubmitObject()->format('d.m.Y');
     }
 
     /**
@@ -3347,7 +3347,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             return '';
         }
 
-        return null === $this->getMeta()->getAuthoredDateObject() ? '' : $this->getMeta()->getAuthoredDateObject()->format('d-m-Y');
+        return null === $this->getMeta()->getAuthoredDateObject() ? '' : $this->getMeta()->getAuthoredDateObject()->format('d.m.Y');
     }
 
     /**
