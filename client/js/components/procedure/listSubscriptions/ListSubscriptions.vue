@@ -93,6 +93,7 @@
 
     <dp-inline-notification
       v-else
+      class="flex"
       :message="Translator.trans('explanation.noentries')"
       type="info" />
   </form>

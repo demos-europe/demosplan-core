@@ -44,6 +44,7 @@
               colspan="4"
               class="u-mr">
               <dp-inline-notification
+                class="flex"
                 type="info"
                 :message="Translator.trans('explanation.noentries')"
               />

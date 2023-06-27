@@ -151,13 +151,13 @@
         <dp-inline-notification
           type="info"
           :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length})"
-          class="border-between-none" />
+          class="flex border-between-none" />
 
         <dp-inline-notification
           v-if="actions.addRecommendations.text === '' && addRecommendationsChecked"
           type="warning"
           :message="emptyRecommendationWarning"
-          class="border-between-none" />
+          class="flex border-between-none" />
 
         <div
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"

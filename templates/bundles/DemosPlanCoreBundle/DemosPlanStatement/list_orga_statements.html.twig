@@ -27,6 +27,7 @@
 
     {% if templateVars.statements|default([])|length == 0 %}
         <dp-inline-notification
+            class="flex"
             :message="Translator.trans('explanation.noentries')"
             type="info">
         </dp-inline-notification>

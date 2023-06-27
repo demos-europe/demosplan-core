@@ -9,6 +9,7 @@
 
 <template>
   <dp-inline-notification
+    class="flex"
     :message="success ? descriptionSuccess : descriptionError"
     :type="success ? 'confirm' : 'error'">
     <slot />

@@ -49,7 +49,7 @@
     <dp-inline-notification
       v-else
       type="info"
-      class="u-mt-1_5 u-mb"
+      class="flex u-mt-1_5 u-mb"
       :message="Translator.trans('explanation.noentries')" />
   </div>
 </template>

@@ -20,6 +20,7 @@
 
     {% if selectedPublicAgencies|length == 0 %}
         <dp-inline-notification
+            class="flex"
             message="{{ 'invitable_institutions.select.explanation'|trans }}"
             type="warning"></dp-inline-notification>
     {% else %}
@@ -32,6 +33,7 @@
         {% endif %}
 
         <dp-inline-notification
+            class="flex"
             message="{{ message }}"
             type="{{ type }}"></dp-inline-notification>
 
@@ -65,6 +67,7 @@
     {% endif %}
 
     <dp-inline-notification
+        class="flex"
         message="{{ 'invitable_institutions.invitation.hint'|trans }}"
         type="warning"></dp-inline-notification>
 

@@ -272,6 +272,7 @@
 
     <dp-inline-notification
       v-else-if="!isLoading && items.length === 0"
+      class="flex"
       :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
       type="info" />
   </div>

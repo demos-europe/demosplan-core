@@ -10,6 +10,7 @@
 <template>
   <div>
     <dp-inline-notification
+      class="flex"
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
       type="info" />

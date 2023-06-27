@@ -11,6 +11,7 @@
   <div class="space-stack-s">
     <dp-inline-notification
       dismissible
+      class="flex"
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
       type="info" />

@@ -222,7 +222,7 @@
       </div>
       <dp-inline-notification
         v-if="rejectedReason"
-        class="u-mt"
+        class="flex u-mt"
         type="info">
         <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
         <div>{{ rejectedReason }}</div>

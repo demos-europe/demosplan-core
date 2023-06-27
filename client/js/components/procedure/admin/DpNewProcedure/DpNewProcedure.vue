@@ -179,6 +179,7 @@
         <div v-text="Translator.trans('procedure.couple_token.vht.info')" />
 
         <dp-inline-notification
+          class="flex"
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 

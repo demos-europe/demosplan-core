@@ -11,6 +11,7 @@
   <div>
     <dp-inline-notification
       dismissible
+      class="flex"
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
     <dp-data-table
