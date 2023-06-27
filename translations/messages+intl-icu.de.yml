@@ -2880,7 +2880,6 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
     }
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
-segments.export.statement.creation.date: "Einwendung/Stellungnahme vom {date}"
 segments.export.statement.export.date: "Synopse vom {date}"
 segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"

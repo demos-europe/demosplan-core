@@ -30,7 +30,7 @@
             v-model="selected"
             :allow-empty="false"
             class="u-n-ml-0_25"
-            :custom-label="props => `${props.option.name} ${props.option.id === currentUserId ? '(Sie)' : ''}`"
+            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :name="`r_${entityId}`"
             :options="[{ id: '', name: '-'}, ...users]"
             :max-height="150"

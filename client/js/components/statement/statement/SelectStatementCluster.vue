@@ -34,7 +34,7 @@
       v-model="selected"
       :allow-empty="false"
       class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
-      :custom-label="props =>`${props.option.externId ? props.option.externId : ''} ${props.option.name ? props.option.name : ''}`"
+      :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
       ref="multiselect"
       track-by="id"
