@@ -16,7 +16,7 @@ use Tests\Base\FunctionalTestCase;
 class NameGeneratorTest extends FunctionalTestCase
 {
     /**
-     * @var GenerateName
+     * @var NameGenerator
      */
     protected $sut;
 
