@@ -3,5 +3,9 @@ when@dev: &dev
     zenstruck_foundry:
         # Whether to auto-refresh proxies by default (https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#auto-refresh)
         auto_refresh_proxies: true
+        faker:
+
+            # Change the default faker locale.
+            locale: de_DE
 
 when@test: *dev
