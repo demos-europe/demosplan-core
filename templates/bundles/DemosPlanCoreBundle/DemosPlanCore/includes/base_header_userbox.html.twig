@@ -233,6 +233,7 @@
                     href="{{ getStaticVariable('login_path') }}"
                     aria-haspopup="{{ loggedout_simple is not defined and hasPermission('area_login_dialog') ? 'true' : 'false' }}"
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
+                    data-cy="headerNav:login"
                     data-touch-flyout="loginLink"
                     id="loginLink">
                     {% block loginButtonGateway %}
@@ -261,7 +262,11 @@
 
             {% elseif projectType == 'portal' %}
 
-                <a class="c-flyout__trigger" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
+                <a
+                    id="loginLink"
+                    class="c-flyout__trigger"
+                    data-cy="headerNav:login"
+                    href="{{ path('DemosPlan_user_login_alternative') }}">
                     {%  block loginButton %}
                         <span class="c-flyout__trigger-inner">
                             <i class="fa fa-user" aria-hidden="true"></i>
