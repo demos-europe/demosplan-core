@@ -65,7 +65,7 @@ final class ProcedureFactory extends ModelFactory
             'master' => self::faker()->randomNumber(),
             'masterTemplate' => false,
             'municipalCode' => self::faker()->text(10),
-            'name' => self::faker()->text(65535),
+            'name' => 'default Procedure',
             'orgaName' => self::faker()->company(),
             'phase' => self::faker()->word(), //todo
             'plisId' => self::faker()->text(36),
