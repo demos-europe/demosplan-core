@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -19,6 +20,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -32,7 +35,22 @@ class DefaultTwigVariablesService
 {
     protected $variables;
 
-    public function __construct(private readonly BrandingLoader $brandingLoader, private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly CustomerService $customerService, private readonly GlobalConfigInterface $globalConfig, private readonly JWTTokenManagerInterface $jwtTokenManager, private readonly OrgaLoader $orgaLoader, private readonly PermissionsInterface $permissions, private readonly SessionHandler $sessionHandler, private readonly TransformMessageBagService $transformMessageBagService, private readonly string $publicCSSClassPrefix, private readonly string $defaultLocale)
+    public function __construct(
+        private readonly BrandingLoader $brandingLoader,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly CustomerService $customerService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly JWTTokenManagerInterface $jwtTokenManager,
+        private readonly OrgaLoader $orgaLoader,
+        /**
+         * @var PermissionsInterface|Permissions
+         */
+        private readonly PermissionsInterface $permissions,
+        private readonly SessionHandler $sessionHandler,
+        private readonly TransformMessageBagService $transformMessageBagService,
+        private readonly string $publicCSSClassPrefix,
+        private readonly string $defaultLocale)
     {
     }
 
@@ -42,7 +60,7 @@ class DefaultTwigVariablesService
          * Filter all permissions that are enabled and marked as to-be-exposed to the frontend
          * and reformat them to [permission_name => true].
          */
-        return collect($this->permissions->getPermissions())->each(
+        $permissions = collect($this->permissions->getPermissions())->each(
             static function ($permission, $permissionName) {
                 if (!is_a($permission, Permission::class)) {
                     throw new RuntimeException(sprintf('Permission %s is not defined in demosplan core anymore', $permissionName));
@@ -53,6 +71,28 @@ class DefaultTwigVariablesService
         )->flatMap(
             static fn (Permission $permission) => [$permission->getName() => true]
         );
+
+        foreach ($this->permissions->getAddonPermissionCollections() as $addonName => $permissionCollection) {
+            $permissions = $permissions->merge(collect($permissionCollection->getResolvePermissions())
+                ->filter(
+                    function (ResolvablePermission $permission) use ($addonName) {
+                        if ($permission->isExposed()) {
+                            // resolve
+                            return $this->permissions->isPermissionEnabled(PermissionIdentifier::forAddon(
+                                $permission->getName(), $addonName
+                            ));
+                        }
+
+                        return false;
+                    }
+                )->flatMap(
+                    static function (ResolvablePermission $permission) {
+                        return [$permission->getName() => true];
+                    }
+                ));
+        }
+
+        return $permissions;
     }
 
     public function getVariables(): array
