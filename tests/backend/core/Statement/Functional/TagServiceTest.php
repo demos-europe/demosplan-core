@@ -2,68 +2,66 @@
 
 /**
  * This file is part of the package demosplan.
- *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
  * All rights reserved
  */
 
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\Tests\Factory\Statement\TagFactory;
+use demosplan\DemosPlanCoreBundle\Tests\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
 class TagServiceTest extends FunctionalTestCase
 {
     use RefreshElasticsearchIndexTrait;
+
     /**
      * @var TagService
      */
     protected $sut;
 
-    /**
-     * @var DraftStatement
-     */
-    protected $testDraftStatement;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(TagService::class);
-        $this->testDraftStatement = $this->getDraftStatementReference('testDraftStatement');
+        $this->sut = $this->getContainer()->get(TagService::class);
 
         $this->setElasticsearchIndexManager(self::$container->get('fos_elastica.index_manager'));
     }
 
-    public function testCreateTag()
+    public function testCreateTag(): void
     {
-        $testTopic = $this->getTagTopicReference('testFixtureTopic_1');
+        $testTopic = TagTopicFactory::createOne();
         $title = 'ersterTag';
 
-        $tag = $this->sut->createTag($title, $testTopic);
+        $tag = $this->sut->createTag($title, $testTopic->object());
 
         $result = $this->sut->getTag($tag->getId());
         static::assertNotNull($result);
         static::assertInstanceOf(Tag::class, $result);
 
         static::assertSame($title, $result->getTitle());
-        static::assertEquals($testTopic, $result->getTopic());
+        static::assertEquals($testTopic->object(), $result->getTopic());
         static::assertNotNull($result->getId());
     }
 
-    public function testCreateTopic()
+    public function testCreateTopic(): void
     {
         $title = 'erstesTopic';
-        $testProcedure = $this->getProcedureReference('testProcedure4');
-        $topic = $this->sut->createTagTopic($title, $testProcedure);
+        $testProcedure = ProcedureFactory::createOne();
+
+        $topic = $this->sut->createTagTopic($title, $testProcedure->object());
 
         $result = $this->sut->getTopic($topic->getId());
 
@@ -73,54 +71,59 @@ class TagServiceTest extends FunctionalTestCase
         static::assertNotNull($result->getId());
         static::assertEmpty($result->getTags());
 
-        $testTag = $this->getTagReference('testFixtureTag_1');
-        $moved = $this->sut->moveTagToTopic($testTag, $topic);
+        $testTag = TagFactory::createOne();
+        $moved = $this->sut->moveTagToTopic($testTag->object(), $topic);
         static::assertTrue($moved);
 
         $result = $this->sut->getTopic($topic->getId());
 
         static::assertNotEmpty($result->getTags());
-        static::assertContains($testTag, $result->getTags());
+        static::assertContains($testTag->object(), $result->getTags());
     }
 
-    public function testDuplicatedTopic()
+    public function testDuplicatedTopic(): void
     {
         $this->expectException(DuplicatedTagTopicTitleException::class);
         $title = 'erstesTopic';
-        $testProcedure = $this->getProcedureReference('testProcedure4');
-        $this->sut->createTagTopic($title, $testProcedure);
-        $this->sut->createTagTopic($title, $testProcedure);
+        $testProcedure = ProcedureFactory::createOne();
+        $this->sut->createTagTopic($title, $testProcedure->object());
+        $this->sut->createTagTopic($title, $testProcedure->object());
     }
 
-    public function testMoveTagToTopic()
+    /**
+     * @throws DuplicatedTagTopicTitleException
+     * @throws DuplicatedTagTitleException
+     */
+    public function testMoveTagToTopic(): void
     {
-        $testProcedure = $this->getProcedureReference('testProcedure4');
-        $topic1 = $this->sut->createTagTopic('Topic1', $testProcedure);
-        $topic2 = $this->sut->createTagTopic('Topic2', $testProcedure);
+        $testProcedure = ProcedureFactory::createOne();
+        $topic1 = $this->sut->createTagTopic('Topic1', $testProcedure->object());
+        $topic2 = $this->sut->createTagTopic('Topic2', $testProcedure->object());
         $tag1 = $this->sut->createTag('newTag1', $topic1);
         $tag2 = $this->sut->createTag('newTag2', $topic1);
 
         $topic1 = $this->sut->getTopic($topic1->getId());
-        static::assertEquals(2, $topic1->getTags()->count());
+        static::assertSame(2, $topic1->getTags()->count());
         static::assertEquals($topic1, $tag1->getTopic());
         static::assertEquals($topic1, $tag2->getTopic());
 
         $topic2 = $this->sut->getTopic($topic2->getId());
         $moved = $this->sut->moveTagToTopic($tag2, $topic2);
         static::assertTrue($moved);
-        static::assertEquals(1, $topic2->getTags()->count());
+        static::assertSame(1, $topic2->getTags()->count());
         static::assertContains($tag2, $topic2->getTags());
         static::assertEquals($tag2, $topic2->getTags()[0]);
 
         $topic1 = $this->sut->getTopic($topic1->getId());
-        static::assertEquals(1, $topic1->getTags()->count());
+        static::assertSame(1, $topic1->getTags()->count());
         static::assertContains($tag1, $topic1->getTags());
         static::assertEquals($tag1, $topic1->getTags()[0]);
     }
 
-    public function testGetTag()
+    public function testGetTag(): void
     {
-        $testTag1 = $this->getTagReference('testFixtureTag_1');
+        $testTag1 = TagFactory::createOne();
+
         $result = $this->sut->getTag($testTag1->getId());
 
         static::assertNotNull($result);
@@ -129,9 +132,9 @@ class TagServiceTest extends FunctionalTestCase
         static::assertEquals($testTag1->getTopic(), $result->getTopic());
     }
 
-    public function testGetTopic()
+    public function testGetTopic(): void
     {
-        $testTopic = $this->getTagTopicReference('testFixtureTopic_1');
+        $testTopic = TagTopicFactory::createOne();
         $result = $this->sut->getTopic($testTopic->getId());
 
         static::assertNotNull($result);
@@ -140,17 +143,21 @@ class TagServiceTest extends FunctionalTestCase
         static::assertEquals($testTopic->getTags(), $result->getTags());
     }
 
-    public function testAttachTagsAndTopic()
+    /**
+     * @throws DuplicatedTagTitleException
+     * @throws DuplicatedTagTopicTitleException
+     */
+    public function testAttachTagsAndTopic(): void
     {
-        $testProcedure = $this->getProcedureReference('testProcedure4');
-        $topic = $this->sut->createTagTopic('filledTopic', $testProcedure);
-        $initialTopic = $this->sut->createTagTopic('initialTopic', $testProcedure);
+        $testProcedure = ProcedureFactory::createOne();
+        $topic = $this->sut->createTagTopic('filledTopic', $testProcedure->object());
+        $initialTopic = $this->sut->createTagTopic('initialTopic', $testProcedure->object());
         $tag2 = $this->sut->createTag('tagToFillInTopic2', $initialTopic);
         $tag3 = $this->sut->createTag('tagToFillInTopic3', $initialTopic);
         $tag4 = $this->sut->createTag('tagToFillInTopic4', $initialTopic);
 
         $initialTopic = $this->sut->getTopic($initialTopic->getId());
-        static::assertEquals(3, $initialTopic->getTags()->count());
+        static::assertSame(3, $initialTopic->getTags()->count());
         static::assertContains($tag2, $initialTopic->getTags());
         static::assertContains($tag3, $initialTopic->getTags());
         static::assertContains($tag4, $initialTopic->getTags());
@@ -163,7 +170,7 @@ class TagServiceTest extends FunctionalTestCase
         $this->sut->moveTagToTopic($tag4, $topic);
 
         $result = $this->sut->getTopic($topic->getId());
-        static::assertEquals(3, $result->getTags()->count());
+        static::assertSame(3, $result->getTags()->count());
         static::assertContains($tag2, $result->getTags());
         static::assertContains($tag3, $result->getTags());
         static::assertContains($tag4, $result->getTags());
@@ -175,32 +182,36 @@ class TagServiceTest extends FunctionalTestCase
         static::assertEquals(0, $initialTopic->getTags()->count());
     }
 
-    public function testDeleteTopic()
+    /**
+     * @throws EntityNotFoundException
+     */
+    public function testDeleteTopic(): void
     {
-        $topic = $this->getTagTopicReference('testFixtureTopic_1');
+        $topic = TagTopicFactory::createOne();
         $topicId = $topic->getId();
-        $tag1 = $this->getTagReference('testFixtureTag_1');
-        $tag2 = $this->getTagReference('testFixtureTag_2');
-        $tag3 = $this->getTagReference('testFixtureTag_3');
-        static::assertContains($tag1, $topic->getTags());
-        static::assertContains($tag2, $topic->getTags());
-        static::assertContains($tag3, $topic->getTags());
 
-        $this->sut->deleteTopic($topic);
+        $tags = TagFactory::createMany(3, static fn(int $i) => [
+            'title' => "TagTitle $i",
+            'topic' => $topic
+        ]);
+
+        $tagId1 = $tags[0]->getId();
+        static::assertContains($tags[0]->object(), $topic->getTags());
+        $tagId2 = $tags[1]->getId();
+        static::assertContains($tags[1]->object(), $topic->getTags());
+        $tagId3 = $tags[2]->getId();
+        static::assertContains($tags[2]->object(), $topic->getTags());
+
+        $this->sut->deleteTopic($topic->object());
         static::assertNull($this->sut->getTopic($topicId));
-
-        $foundTag1 = $this->sut->getTag($tag1->getId());
-        static::assertNull($foundTag1);
-
-        $foundTag2 = $this->sut->getTag($tag2->getId());
-        static::assertNull($foundTag2);
-
-        $foundTag3 = $this->sut->getTag($tag3->getId());
-        static::assertNull($foundTag3);
+        static::assertNull($this->sut->getTag($tagId1));
+        static::assertNull($this->sut->getTag($tagId2));
+        static::assertNull($this->sut->getTag($tagId3));
     }
 
-    protected function setUpMockSession(string $userReferenceName = LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY): Session
-    {
+    protected function setUpMockSession(
+        string $userReferenceName = LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+    ): Session {
         $session = parent::setUpMockSession($userReferenceName);
         $permissions['feature_statement_assignment']['enabled'] = false;
         $permissions['feature_statement_cluster']['enabled'] = false;

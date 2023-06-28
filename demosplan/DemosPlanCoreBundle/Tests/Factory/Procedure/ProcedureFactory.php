@@ -1,10 +1,10 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Factory\Procedure;
+namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Tests\Factory\SlugFactory;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
