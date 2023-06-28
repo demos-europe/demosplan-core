@@ -741,6 +741,11 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
+    demosplan\DemosPlanCoreBundle\Tests\Factory\:
+        autowire: true
+        resource: '../demosplan/DemosPlanCoreBundle/Tests/Factory'
+        public: true
+
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineProcedureListener:
         autowire: true
         lazy: true
