@@ -387,16 +387,23 @@ export default {
     },
 
     getLayerCapabilities: debounce(function () {
+      this.clearSelections()
       this.isLoading = true
       // Don't fetch anything if there is no url
       if (this.url === '') {
-        this.resetDropdowns()
         return
       }
 
       const url = this.handleUrlParams(this.url)
       const hasWMTSType = url.toLowerCase().includes('wmts')
       let parser = null
+
+      if (hasWMTSType && !hasPermission('feature_map_wmts')) {
+        const urlInput = document.getElementById('r_url')
+        urlInput.classList.add('is-invalid')
+
+        return dplan.notify.notify('error', Translator.trans('maplayer.capabilities.invalid.type'))
+      }
 
       externalApi(url)
         .then(response => {
@@ -416,7 +423,7 @@ export default {
             dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           }
 
-          this.resetDropdowns()
+          this.clearSelections()
         })
         .finally(() => {
           this.isLoading = false
@@ -447,7 +454,8 @@ export default {
       return url
     },
 
-    resetDropdowns () {
+    clearSelections () {
+      this.currentCapabilities = null
       this.layersOptions = []
       this.matrixSetOptions = []
       this.projectionOptions = this.availableProjections

@@ -73,7 +73,7 @@
     // Hide plain tooltip texts that are revealed in wizard mode
     form:not(.o-wizard-mode) & {
         [data-wizard-tooltip-plain] {
-            display: none;
+            display: none !important;
         }
     }
 
