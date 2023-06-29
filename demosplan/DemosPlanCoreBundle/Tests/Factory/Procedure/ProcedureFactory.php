@@ -2,6 +2,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Tests\Factory\SlugFactory;
@@ -30,12 +31,9 @@ use Zenstruck\Foundry\RepositoryProxy;
  */
 final class ProcedureFactory extends ModelFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
+    private GlobalConfigInterface $globalConfig;
+
+    public function __construct(GlobalConfigInterface $globalConfig)
     {
         parent::__construct();
     }
@@ -62,7 +60,7 @@ final class ProcedureFactory extends ModelFactory
             'locationName' => self::faker()->text(1024),
             'locationPostCode' => self::faker()->text(5),
             'logo' => self::faker()->text(255),
-            'master' => self::faker()->randomNumber(),
+            'master' => false,
             'masterTemplate' => false,
             'municipalCode' => self::faker()->text(10),
             'name' => 'default Procedure',
