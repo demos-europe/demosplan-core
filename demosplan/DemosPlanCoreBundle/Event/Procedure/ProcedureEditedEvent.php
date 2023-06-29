@@ -10,11 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\ProcedureEditedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class ProcedureEditedEvent extends DPlanEvent implements ProcedureEditedEventInterface
+class ProcedureEditedEvent extends DPlanEvent
 {
     /**
      * @var array Current state of the procedure
