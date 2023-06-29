@@ -994,7 +994,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $numberOfDeletedDraftStatementVersions = $this->deleteDraftStatementVersions($procedure);
             $this->getLogger()->info($numberOfDeletedDraftStatementVersions.' DraftStatementVersions were deleted.');
 
-            $filesToDelete = $repository->deleteRelatedEntitiesOfProcedure($procedureId);
+            $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
             // delete pregenerated zips in filedirectory/procedure
             $filesPath = $fileService->getFilesPathAbsolute();
@@ -1023,7 +1023,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // delete Procedure
             $repository->delete($procedureId);
 
-            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData), PostProcedureDeletedEventInterface::class);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureDeletedEvent($procedureData),
+                PostProcedureDeletedEventInterface::class
+            );
 
             $this->logger->info('Procedure deleted: '.$procedureId);
         } finally {
