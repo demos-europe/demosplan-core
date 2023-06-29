@@ -16,7 +16,7 @@ class GetDatasheetFilePathAbsoluteEvent
 {
     private string $datasheetFilePathAbsolute;
 
-    public function setDatasheetFilePathAbsolute(string $datasheetFilePathAbsolute)
+    public function setDatasheetFilePathAbsolute(string $datasheetFilePathAbsolute): void
     {
         $this->datasheetFilePathAbsolute = $datasheetFilePathAbsolute;
     }
