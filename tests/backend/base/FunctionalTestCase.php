@@ -53,10 +53,13 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Foundry\Test\Factories;
 
 class FunctionalTestCase extends WebTestCase
 {
+    use Factories;
     use MonoKernelTrait;
+    //use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
 
     /** @var object System under Test */
     protected $sut;
