@@ -1014,17 +1014,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 );
             }
 
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id'                => $procedureId,
-                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
-            ];
-
             // delete Procedure
             $repository->delete($procedureId);
 
             $this->eventDispatcher->dispatch(
-                new PostProcedureDeletedEvent($procedureData),
+                new PostProcedureDeletedEvent($procedureId),
                 PostProcedureDeletedEventInterface::class
             );
 

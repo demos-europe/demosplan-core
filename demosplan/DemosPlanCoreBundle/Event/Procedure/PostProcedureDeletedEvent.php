@@ -17,22 +17,15 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class PostProcedureDeletedEvent extends DPlanEvent implements PostProcedureDeletedEventInterface
 {
-    /** @var array<string, mixed> */
-    protected $procedureData;
+    protected string $procedureId;
 
-    /**
-     * @param array<string, mixed> $procedureData
-     */
-    public function __construct(array $procedureData)
+    public function __construct(string $procedureId)
     {
-        $this->procedureData = $procedureData;
+        $this->procedureId = $procedureId;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function getProcedureData(): array
+    public function getProcedureData(): string
     {
-        return $this->procedureData;
+        return $this->procedureId;
     }
 }
