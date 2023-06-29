@@ -34,7 +34,7 @@
         "demos-europe/edt-dql": "^0.16.0",
         "demos-europe/edt-extra": "^0.16.0",
         "demos-europe/edt-paths": "^0.16.0",
-        "demos-europe/demosplan-addon": "^0.1.0",
+        "demos-europe/demosplan-addon": "^0",
         "doctrine/annotations": "^1.13",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
