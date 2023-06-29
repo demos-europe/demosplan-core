@@ -24,7 +24,7 @@ class PostProcedureDeletedEvent extends DPlanEvent implements PostProcedureDelet
         $this->procedureId = $procedureId;
     }
 
-    public function getProcedureData(): string
+    public function getProcedureId(): string
     {
         return $this->procedureId;
     }
