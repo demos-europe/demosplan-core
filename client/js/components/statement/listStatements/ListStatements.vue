@@ -26,7 +26,7 @@
           :text="Translator.trans('search.reset')" />
       </div>
       <dp-bulk-edit-header
-        class="layout__item u-12-of-12 u-mt-0_5 space-inset-s"
+        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
         :selected-items-count="selectedItemsCount"
         :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"

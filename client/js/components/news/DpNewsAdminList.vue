@@ -18,7 +18,7 @@
       </a>
     </div>
     <dp-bulk-edit-header
-      class="layout__item u-12-of-12 space-inset-s"
+      class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
       :selected-items-count="selectedItems.length"
       :selection-text="Translator.trans('news.notes')"

@@ -18,7 +18,7 @@
     <dp-bulk-edit-header
       v-if="hasBulkEdit"
       v-show="selectedElements.length > 0"
-      class="layout__item u-12-of-12 u-mv-0_5 space-inset-s"
+      class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-count="selectedElements.length"
       :selection-text="Translator.trans('elements.selected')"
       @reset-selection="resetSelection">
