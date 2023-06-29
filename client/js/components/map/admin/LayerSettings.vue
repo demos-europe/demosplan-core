@@ -398,6 +398,13 @@ export default {
       const hasWMTSType = url.toLowerCase().includes('wmts')
       let parser = null
 
+      if (hasWMTSType && !hasPermission('feature_map_wmts')) {
+        const urlInput = document.getElementById('r_url')
+        urlInput.classList.add('is-invalid')
+
+        return dplan.notify.notify('error', Translator.trans('maplayer.capabilities.invalid.type'))
+      }
+
       externalApi(url)
         .then(response => {
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
