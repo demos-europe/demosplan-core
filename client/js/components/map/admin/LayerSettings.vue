@@ -387,10 +387,10 @@ export default {
     },
 
     getLayerCapabilities: debounce(function () {
+      this.clearSelections()
       this.isLoading = true
       // Don't fetch anything if there is no url
       if (this.url === '') {
-        this.resetDropdowns()
         return
       }
 
@@ -423,7 +423,7 @@ export default {
             dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           }
 
-          this.resetDropdowns()
+          this.clearSelections()
         })
         .finally(() => {
           this.isLoading = false
@@ -454,7 +454,8 @@ export default {
       return url
     },
 
-    resetDropdowns () {
+    clearSelections () {
+      this.currentCapabilities = null
       this.layersOptions = []
       this.matrixSetOptions = []
       this.projectionOptions = this.availableProjections
