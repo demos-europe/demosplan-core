@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
