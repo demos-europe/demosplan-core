@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
@@ -22,22 +22,6 @@ use UnexpectedValueException;
  */
 class FaqCategory extends CoreEntity implements FaqCategoryInterface
 {
-    /**
-     * These are allowed types, independent of the role.
-     */
-    final public const FAQ_CATEGORY_TYPES_MANDATORY = [
-        'system',
-        'technische_voraussetzung',
-        'bedienung',
-        'oeb_bauleitplanung',
-        'oeb_bob',
-    ];
-
-    /**
-     * These are role-dependent types.
-     */
-    final public const FAQ_CATEGORY_TYPES_OPTIONAL = 'custom_category';
-
     /**
      * @var string|null
      *
