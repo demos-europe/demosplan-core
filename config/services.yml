@@ -651,6 +651,12 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler: ~
 
+    demosplan\DemosPlanCoreBundle\Tools\DocxImporterRabbitmq:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+
+    demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterRabbitmq'
+
 
     demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         arguments:

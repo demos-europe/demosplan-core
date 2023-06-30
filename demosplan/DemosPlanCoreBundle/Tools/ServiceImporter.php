@@ -65,6 +65,7 @@ class ServiceImporter implements ServiceImporterInterface
     protected $globalConfig;
 
     public function __construct(
+        private readonly DocxImporterInterface $docxImporter,
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
         private LoggerInterface $logger,
@@ -171,40 +172,12 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
-        try {
-            // Generiere Message
-            $msg = Json::encode([
-                'procedure' => $procedure,
-                'category'  => $category,
-                'elementId' => $elementId,
-                'path'      => $file->getRealPath(),
-             ]);
-
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-
-            // Füge Message zum Request hinzu
-            $this->getLogger()->debug(
-                'Import docx with RabbitMQ, with routingKey: '.$routingKey);
-            $this->client->addRequest($msg, 'importDemosPlan', 'import', $routingKey, 300);
-            // Anfrage absenden
-            $replies = $this->client->getReplies();
-
-            if ('' != $replies['import']) {
-                $this->getLogger()->info(
-                    'Incoming message size:'.strlen((string) $replies['import']));
-            }
-
-            return Json::decodeToArray($replies['import']);
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException($e->getMessage());
-        } catch (Exception $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw $e;
-        }
+        return $this->docxImporter->importDocx(
+            $file,
+            $elementId,
+            $procedure,
+            $category
+        );
     }
 
     /**
