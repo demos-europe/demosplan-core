@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -221,7 +222,7 @@ class PlatformFaq extends CoreEntity implements FaqInterface
     /**
      * Add Role.
      */
-    public function addRole(Role $role): self
+    public function addRole(RoleInterface $role): self
     {
         $this->roles->add($role);
 
