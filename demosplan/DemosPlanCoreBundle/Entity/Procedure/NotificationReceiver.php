@@ -10,22 +10,28 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\NotificationReceiverInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository")
  */
-class NotificationReceiver extends CoreEntity implements UuidEntityInterface
+class NotificationReceiver extends CoreEntity implements UuidEntityInterface, NotificationReceiverInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -38,9 +44,10 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface
     protected $label;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="notificationReceivers")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable = false)
      */
     protected $procedure;
@@ -90,7 +97,7 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {

@@ -29,53 +29,8 @@ use ReflectionException;
 
 class ParagraphService extends CoreService
 {
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
-    /**
-     * @var ParagraphVersionRepository
-     */
-    private $paragraphVersionRepository;
-
-    public function __construct(
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        ParagraphRepository $paragraphRepository,
-        ParagraphVersionRepository $paragraphVersionRepository,
-        SortMethodFactory $sortMethodFactory
-    ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->paragraphRepository = $paragraphRepository;
-        $this->paragraphVersionRepository = $paragraphVersionRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
+    public function __construct(private readonly DateHelper $dateHelper, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly EntityHelper $entityHelper, private readonly ParagraphRepository $paragraphRepository, private readonly ParagraphVersionRepository $paragraphVersionRepository, private readonly SortMethodFactory $sortMethodFactory)
+    {
     }
 
     /**

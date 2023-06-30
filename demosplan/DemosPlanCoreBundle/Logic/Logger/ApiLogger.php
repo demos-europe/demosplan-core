@@ -20,27 +20,15 @@ use Psr\Log\LoggerInterface;
 class ApiLogger implements LoggerInterface
 {
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
      * @var string
      */
     private $environment;
 
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag
+        private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag
     ) {
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
         $this->environment = $globalConfig->getKernelEnvironment();
     }
 

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -35,22 +36,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
 {
-    /**
-     * @var AssessmentTableXlsExporter
-     */
-    private $assessmentTableXlsExporter;
-    private EntityHelper $entityHelper;
-
     public function __construct(
-        AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
-        EntityHelper $entityHelper,
+        private readonly EntityHelper $entityHelper,
         Slugify $slugify,
         TranslatorInterface $translator
     ) {
         parent::__construct($currentUser, $slugify, $translator);
-        $this->assessmentTableXlsExporter = $assessmentTableXlsExporter;
-        $this->entityHelper = $entityHelper;
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -64,11 +57,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportAll(Procedure $procedure, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
+
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+
         if (0 === count($statements)) {
-            return $this->exportEmptyStatements(new PhpWord(), $procedure);
+            return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements(new PhpWord(), $procedure, $statements);
+        return $this->exportStatements($phpWord, $procedure, $statements);
     }
 
     /**
@@ -216,13 +212,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         if (User::ANONYMOUS_USER_NAME === $orgaName) {
             $authorSourceName = $statement->getUserName();
         }
-        if (null === $authorSourceName || '' === trim($authorSourceName)) {
+        if (null === $authorSourceName || '' === trim((string) $authorSourceName)) {
             $authorSourceName = $this->translator->trans('statement.name_source.unknown');
         }
 
         // determine and return the file name
 
-        if ('' === trim($externId)) {
+        if ('' === trim((string) $externId)) {
             return $withDbId
                 ? "$authorSourceName [$dbId].docx"
                 : "$authorSourceName.docx";
@@ -275,6 +271,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
+        $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
@@ -288,13 +285,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['memo'] = $segmentOrStatement->getParentStatementOfSegment()->getMemo();
             $exportData['internId'] = $segmentOrStatement->getParentStatementOfSegment()->getInternId();
             $exportData['oName'] = $segmentOrStatement->getParentStatementOfSegment()->getOName();
-            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDate();
+            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDateString();
             $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
             $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
+            $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
-        $exportData['tags'] = array_map([$this->entityHelper, 'toArray'], $exportData['tags']->toArray());
+        $exportData['tags'] = array_map($this->entityHelper->toArray(...), $exportData['tags']->toArray());
         foreach ($exportData['tags'] as $key => $tag) {
             $exportData['tags'][$key]['topicTitle'] = $tag['topic']->getTitle();
         }

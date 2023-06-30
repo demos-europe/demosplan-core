@@ -5,9 +5,11 @@
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
     beStrictAboutTodoAnnotatedTests="true"
+    colors="true"
     convertDeprecationsToExceptions="false"
+    stopOnError="true"
     verbose="false"
->
+
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />

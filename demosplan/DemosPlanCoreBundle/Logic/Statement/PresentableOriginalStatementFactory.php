@@ -23,30 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PresentableOriginalStatementFactory
 {
-    /** @var TranslatorInterface */
-    private $translator;
-    /** @var DateExtension */
-    private $dateExtension;
-    /** @var MapService */
-    private $mapService;
-    /** @var EditorService */
-    private $editorService;
-    /** @var AssessmentTableServiceOutput */
-    private $assessmentTableServiceOutput;
-    /** @var CurrentUserInterface */
-    private $currentUser;
-    /** @var StatementService */
-    private $statementService;
-
-    public function __construct(AssessmentTableServiceOutput $assessmentTableServiceOutput, TranslatorInterface $translator, DateExtension $dateExtension, MapService $mapService, EditorService $editorService, CurrentUserInterface $currentUser, StatementService $statementService)
+    public function __construct(private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput, private readonly TranslatorInterface $translator, private readonly DateExtension $dateExtension, private readonly MapService $mapService, private readonly EditorService $editorService, private readonly CurrentUserInterface $currentUser, private readonly StatementService $statementService)
     {
-        $this->translator = $translator;
-        $this->dateExtension = $dateExtension;
-        $this->mapService = $mapService;
-        $this->editorService = $editorService;
-        $this->currentUser = $currentUser;
-        $this->statementService = $statementService;
-        $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
     }
 
     /**

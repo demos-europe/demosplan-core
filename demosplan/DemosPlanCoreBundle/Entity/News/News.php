@@ -26,19 +26,23 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_news")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NewsRepository")
  */
 class News extends CoreEntity implements UuidEntityInterface
 {
-    public const MANUAL_SORT_NAMESPACE = 'news';
-    public const NEW_PROCEDURE_NEWS_VALIDATION_GROUP = 'newProcedureNews';
+    final public const MANUAL_SORT_NAMESPACE = 'news';
+    final public const NEW_PROCEDURE_NEWS_VALIDATION_GROUP = 'newProcedureNews';
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_n_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -47,35 +51,35 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
-     * @Assert\NotBlank(allowNull=false)
      */
+    #[Assert\NotBlank(allowNull: false)]
     protected $pId;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_title", type="string", length=255, nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
     protected $title = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_description", type="text", length=65535, nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
-     * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $description = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_n_text", type="text", length=65535, nullable=false)
-     * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $text = '';
 
     /**
@@ -110,8 +114,8 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_n_enabled", type="boolean", nullable=false)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
     protected $enabled = false;
 
     /**
@@ -125,6 +129,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_n_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -133,6 +138,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_n_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -141,6 +147,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_n_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -149,11 +156,13 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Role>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
+     *
      * @ORM\JoinTable(
      *     name="_news_roles",
      *     joinColumns={@ORM\JoinColumn(name="_n_id", referencedColumnName="_n_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
+     *
      * @AllRolesInGroupPresentConstraint(groupCodes={Role::GLAUTH}, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $roles;
@@ -162,6 +171,7 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime|null
      *
      * @ORM\Column(type = "datetime", nullable = true)
+     *
      * @DateInFutureConstraint(groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $designatedSwitchDate;

@@ -22,13 +22,13 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -79,25 +79,16 @@ class DraftStatementHandler extends CoreHandler
     protected $twig;
 
     /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
      * Constructor.
      */
     public function __construct(
         ContentService $serviceContent,
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         DraftStatementService $draftStatementService,
         EntityManagerInterface $doctrine,
         Environment $twig,
         FileService $fileService,
-        GlobalConfigInterface $globalConfig,
+        private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
         MessageBag $messageBag,
         ProcedureHandler $procedureHandler,
@@ -107,10 +98,8 @@ class DraftStatementHandler extends CoreHandler
     ) {
         parent::__construct($messageBag);
         $this->contentService = $serviceContent;
-        $this->currentUser = $currentUser;
         $this->doctrine = $doctrine;
         $this->fileService = $fileService;
-        $this->globalConfig = $globalConfig;
         $this->mailService = $mailService;
         $this->procedureHandler = $procedureHandler;
         $this->router = $router;
@@ -135,7 +124,7 @@ class DraftStatementHandler extends CoreHandler
     {
         $result = $this->draftStatementService->releaseDraftStatement($idents);
         try {
-            $user = $user ?? $this->currentUser->getUser();
+            $user ??= $this->currentUser->getUser();
             $this->sendNotificationEmailOnReleasedStatement($idents, $user, $procedure);
         } catch (Exception $e) {
             $this->logger->warning('Could not send notification mail ', [$e]);
@@ -158,6 +147,8 @@ class DraftStatementHandler extends CoreHandler
      */
     public function sendNotificationEmailOnReleasedStatement($releasedStatements, $user, $procedure)
     {
+        $mailTemplateVars = [];
+        $vars = [];
         // skip for citizen and guests
         if ($user->isPublicUser()) {
             return;
@@ -434,7 +425,7 @@ class DraftStatementHandler extends CoreHandler
         }
 
         if (array_key_exists('r_text', $data)) {
-            $statement['text'] = strip_tags($data['r_text'], '<a><br><em><i><li><mark><ol><p><s><span><strike><strong><u><ul>');
+            $statement['text'] = strip_tags((string) $data['r_text'], '<a><br><em><i><li><mark><ol><p><s><span><strike><strong><u><ul>');
         }
 
         if (array_key_exists('r_paragraphID', $data) && 'undefined' !== $data['r_paragraphID']) {
@@ -521,7 +512,7 @@ class DraftStatementHandler extends CoreHandler
         $statement = [];
 
         if (array_key_exists('r_text', $data)) {
-            $data['r_text'] = str_replace("\r\n", '', $data['r_text']);
+            $data['r_text'] = str_replace("\r\n", '', (string) $data['r_text']);
             $statement['text'] = strip_tags(
                 $data['r_text'],
                 '<a><br><em><i><li><mark><ol><p><s><span><strike><strong><u><ul>'
@@ -842,6 +833,7 @@ class DraftStatementHandler extends CoreHandler
      */
     protected function sendNewDraftStatementNotification($subjectTransKey, $emailText, $recipients): void
     {
+        $variables = [];
         $variables['mailsubject'] = $this->translator->trans($subjectTransKey);
         $variables['mailbody'] = html_entity_decode(
             $emailText,
@@ -896,6 +888,6 @@ class DraftStatementHandler extends CoreHandler
             'houseNumber'   => $orga->getHouseNumber(),
         ];
 
-        return array_merge($data, $userAddressData);
+        return [...$data, ...$userAddressData];
     }
 }

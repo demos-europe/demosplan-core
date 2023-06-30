@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <li class="flex flex-items-start space-inline-xs u-pr-0_5">
+  <li class="flex items-start space-inline-xs u-pr-0_5">
     <div class="min-width-m">
       <i
         v-if="fromOtherProcedure"
@@ -21,7 +21,7 @@
         class="fa fa-info-circle" />
     </div>
     <div
-      class="flex-grow"
+      class="grow"
       v-cleanhtml="recommendationText" />
     <div class="flex flex-nowrap space-inline-s">
       <button

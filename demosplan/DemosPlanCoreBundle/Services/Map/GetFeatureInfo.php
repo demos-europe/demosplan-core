@@ -13,11 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Services\Map;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
+use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresLoggerTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use SimpleXMLElement;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -71,22 +72,13 @@ class GetFeatureInfo
      */
     protected $httpCall;
 
-    /**
-     * @var StatementGeoService
-     */
-    private $statementGeoService;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
     public function __construct(
         ContentService $contentService,
-        CurrentProcedureService $currentProcedureService,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly DatasheetService $datasheetService,
         GlobalConfigInterface $config,
         HttpCall $httpCall,
-        StatementGeoService $statementGeoService
+        private readonly StatementGeoService $statementGeoService
     ) {
         $this->globalConfig = $config;
 
@@ -95,9 +87,7 @@ class GetFeatureInfo
         $this->useDb = $config->useMapGetFeatureInfoUrlUseDb();
         $this->global = $config->isMapGetFeatureInfoUrlGlobal();
         $this->httpCall = $httpCall;
-        $this->statementGeoService = $statementGeoService;
         $this->serviceContent = $contentService;
-        $this->currentProcedureService = $currentProcedureService;
     }
 
     /**
@@ -119,7 +109,7 @@ class GetFeatureInfo
                 $url = $serviceContent->getSettingContent(
                     'globalFeatureInfoUrl'
                 );
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 $this->logger->warning(
                     'Setting globalFeatureInfoUrl nicht gefunden'
                 );
@@ -142,7 +132,7 @@ class GetFeatureInfo
         $url2 = $this->url2;
         $globalConfig = $this->getGlobalConfig();
         $procedure = $this->getProcedureArray();
-        $datasheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
+        $datasheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
         if (2 === $datasheetVersion) {
             $url2 = $globalConfig->getMapGetFeatureInfoUrl2V2();
         } elseif (3 === $datasheetVersion) {
@@ -164,7 +154,7 @@ class GetFeatureInfo
         $globalConfig = $this->getGlobalConfig();
         $url2Layer = $globalConfig->getMapGetFeatureInfoUrl2Layer();
         $procedure = $this->getProcedureArray();
-        $dataSheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
+        $dataSheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
         if (2 === $dataSheetVersion) {
             $url2Layer = $globalConfig->getMapGetFeatureInfoUrl2V2Layer();
         } elseif (3 === $dataSheetVersion) {
@@ -186,7 +176,7 @@ class GetFeatureInfo
         $versionString = '';
         $globalConfig = $this->getGlobalConfig();
         $procedure = $this->getProcedureArray();
-        $dataSheetVersion = $globalConfig->getDatasheetVersion($procedure['id']);
+        $dataSheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);
         if (2 === $dataSheetVersion) {
             $versionString = '_2018';
         } elseif (3 === $dataSheetVersion) {
@@ -211,7 +201,7 @@ class GetFeatureInfo
                     'globalFeatureInfoUrl',
                     ['content' => $url]
                 );
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 $this->logger->warning(
                     'Setting globalFeatureInfoUrl could not be saved'
                 );
@@ -243,7 +233,7 @@ class GetFeatureInfo
         parse_str($queryString, $query);
         // if a get parameter params is given, add its contents
         if (array_key_exists('params', $queryData)) {
-            parse_str($queryData['params'], $query);
+            parse_str((string) $queryData['params'], $query);
             unset($queryData['params']);
         }
         $data = array_merge($queryData, $query);
@@ -254,7 +244,7 @@ class GetFeatureInfo
         // Parse die Antwort
         if (isset($response['body'])) {
             // Bitte nur den Inhalt des Dokuments, ohne HTML-Gerüst drumrum
-            preg_match('|<body>(.*?)</body>|si', $response['body'], $result);
+            preg_match('|<body>(.*?)</body>|si', (string) $response['body'], $result);
 
             if (isset($result[1])) {
                 // schneide alle hart eingetragenen styles aus
@@ -285,7 +275,7 @@ class GetFeatureInfo
     {
         $return = '';
 
-        parse_str($requestparameter['params'], $query);
+        parse_str((string) $requestparameter['params'], $query);
 
         $versionString = '';
 
@@ -333,7 +323,7 @@ class GetFeatureInfo
             switch ($type) {
                 case 'criteria':
                     // Bitte nur den Inhalt des Dokuments, ohne HTML-Gerüst drumrum
-                    preg_match('|<body>(.*?)</body>|si', $response['body'], $result);
+                    preg_match('|<body>(.*?)</body>|si', (string) $response['body'], $result);
 
                     if (isset($result[1])) {
                         $return = $result[1];
@@ -341,7 +331,7 @@ class GetFeatureInfo
                     break;
                 case 'vorranggebiet':
                     $return = null;
-                    if (200 === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
+                    if (200 === $response['responseCode'] && false === stripos('<ExceptionReport', (string) $response['body'])) {
                         $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
                         $xml->registerXPathNamespace('wfs', 'http://www.opengis.net/wfs');
                         $xml->registerXPathNamespace('gml', 'http://www.opengis.net/gml');
@@ -429,7 +419,7 @@ class GetFeatureInfo
                 $proxyEnabled = $serviceContent->getSettingContent(
                     'globalFeatureInfoUrlProxyEnabled'
                 );
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 $proxyEnabled = 0;
             }
         }
@@ -452,7 +442,7 @@ class GetFeatureInfo
                     'globalFeatureInfoUrlProxyEnabled',
                     ['content' => $proxyEnabled]
                 );
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 $this->logger->warning(
                     'Setting globalFeatureInfoUrlProxyEnabled could not be saved'
                 );

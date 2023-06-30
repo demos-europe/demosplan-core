@@ -103,7 +103,7 @@
         {{ Translator.trans('export') }}
       </a>
       <i
-        class="fa fa-question-circle display--inline-block u-valign--top u-ml-0_25 u-mt-0_125"
+        class="fa fa-question-circle inline-block align-top u-ml-0_25 u-mt-0_125"
         :aria-label="Translator.trans('contextual.help')"
         v-tooltip="Translator.trans('consultation.export.bulk.letter.explanation')" />
     </div>
@@ -148,16 +148,16 @@
         <div
           v-tooltip="user(rowData.tokenId).note"
           class="o-hellip__wrapper max-width-90p">
-          <span class="o-hellip--nowrap display--block">
+          <span class="o-hellip--nowrap block">
             {{ user(rowData.tokenId).note }}
           </span>
         </div>
       </template>
       <template v-slot:expandedContent="rowData">
         <span data-dp-validate="saveEditAuthorisedUser">
-          <div class="display--flex">
-            <div class="u-valign--top u-1-of-3">
-              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 display--flex width-160">
+          <div class="flex">
+            <div class="align-top u-1-of-3">
+              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 flex width-160">
                 <p
                   :id="`userToken:${rowData.tokenId}`"
                   class="u-m-0">
@@ -182,7 +182,7 @@
                 </p>
               </div>
             </div>
-            <div class="u-valign--top u-1-of-3 u-ph-0_5">
+            <div class="align-top u-1-of-3 u-ph-0_5">
               <dp-input
                 :id="`name:${rowData.tokenId}`"
                 :disabled="!rowData.isManual || !rowData.isEditable"
@@ -257,7 +257,7 @@
                   @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
               </div>
             </div>
-            <div class="u-valign--top u-1-of-3 u-pl-0_5">
+            <div class="align-top u-1-of-3 u-pl-0_5">
               <dp-text-area
                 class="u-mb-0_75"
                 :disabled="!rowData.isEditable"
@@ -274,7 +274,7 @@
                 @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })" />
               <div
                 v-else
-                class="text--right">
+                class="text-right">
                 <dp-button
                   :text="Translator.trans('edit')"
                   @click="toggleIsRowEditable({ id: rowData.tokenId })" />

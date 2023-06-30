@@ -22,7 +22,7 @@
       <template
         v-if="hasPermission('feature_user_delete')"
         v-slot:header-buttons>
-        <div class="layout__item u-1-of-2 text--right u-mb-0_5">
+        <div class="layout__item u-1-of-2 text-right u-mb-0_5">
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"

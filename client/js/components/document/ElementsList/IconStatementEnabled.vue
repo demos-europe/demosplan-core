@@ -10,7 +10,7 @@
 <template>
   <div>
     <i
-      class="fa cursor--help"
+      class="fa cursor-help"
       :class="{
         'fa-microphone color-message-success-fill': enabled,
         'fa-microphone-slash color-message-severe-fill': enabled === false

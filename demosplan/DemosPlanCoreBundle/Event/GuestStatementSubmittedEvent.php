@@ -16,24 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 
 class GuestStatementSubmittedEvent extends DPlanEvent
 {
-    /**
-     * @var Statement
-     */
-    private $submittedStatement;
-    /**
-     * @var string
-     */
-    private $emailAddress;
-    /**
-     * @var string
-     */
-    private $emailText;
-
-    public function __construct(Statement $submittedStatement, string $emailText, string $emailAddress = '')
+    public function __construct(private readonly Statement $submittedStatement, private readonly string $emailText, private readonly string $emailAddress = '')
     {
-        $this->emailAddress = $emailAddress;
-        $this->emailText = $emailText;
-        $this->submittedStatement = $submittedStatement;
     }
 
     public function getSubmittedStatement(): Statement

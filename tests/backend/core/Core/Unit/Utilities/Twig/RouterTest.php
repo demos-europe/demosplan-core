@@ -14,14 +14,17 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Router;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 class RouterTest extends FunctionalTestCase
 {
+    use ProphecyTrait;
+
     protected $urlPrefixProcedure = '/verfahren/';
     protected $urlSuffixProcedure = '/public/detail';
     protected $urlPrefixReport = '/report/view/';

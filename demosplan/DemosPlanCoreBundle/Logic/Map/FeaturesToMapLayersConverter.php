@@ -18,14 +18,8 @@ use Tightenco\Collect\Support\Collection;
 
 class FeaturesToMapLayersConverter
 {
-    /**
-     * @var PrintLayerToMapLayerConverter
-     */
-    private $printLayerToMapLayerConverter;
-
-    public function __construct(PrintLayerToMapLayerConverter $printLayerToMapLayerConverter)
+    public function __construct(private readonly PrintLayerToMapLayerConverter $printLayerToMapLayerConverter)
     {
-        $this->printLayerToMapLayerConverter = $printLayerToMapLayerConverter;
     }
 
     /**
@@ -48,7 +42,7 @@ class FeaturesToMapLayersConverter
     private function convertFeatureToMapLayers(Feature $feature): Collection
     {
         return $feature->getPrintLayers()->map(
-            [$this->printLayerToMapLayerConverter, 'convert']
+            $this->printLayerToMapLayerConverter->convert(...)
         );
     }
 }

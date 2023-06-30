@@ -24,22 +24,9 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
  */
 class SinglePageEntityProvider extends DoctrineOrmEntityProvider
 {
-    /**
-     * @var int
-     */
-    private $page;
-
-    /**
-     * @var int
-     */
-    private $pageSize;
-
-    public function __construct(string $className, EntityManager $entityManager, int $page, int $pageSize)
+    public function __construct(string $className, EntityManager $entityManager, private readonly int $page, private readonly int $pageSize)
     {
         parent::__construct($className, $entityManager);
-
-        $this->page = $page;
-        $this->pageSize = $pageSize;
     }
 
     public function getObjects(array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): iterable

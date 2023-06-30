@@ -1,0 +1,79 @@
+{# filter options for procedure list #}
+
+{# for toeb use internal procedurename, participation date etc. #}
+{% set useInternalFields = templateVars.useInternalFields %}
+{% set countyCodes = [] %}
+
+{% block filter %}
+    <form
+        class="{{ 'c-proceduresearch__filter relative flow-root u-pr'|prefixClass }}"
+        action="{{ path('core_home') }}"
+        method="post">
+
+        {% set shouldDisplayArsFilterHeader = templateVars.searchResultsHeader is defined and templateVars.searchResultsHeader != '' and (templateVars.ars is defined or templateVars.gkz != '') %}
+
+        {% set sortOptions = [] %}
+        {% set availableSorts = templateVars.definition.availableSorts|default([])|filter(sort => hasPermission(sort.permission)) %}
+        {% if availableSorts|length > 1 %}
+            {% for sort in availableSorts %}
+                {% set sortOptions = sortOptions|merge([{ value: sort.name, title: sort.titleKey|trans, selected: sort.selected }]) %}
+            {% endfor %}
+        {% endif %}
+
+        {% set countyCode = '' %}
+        {% if templateVars.ars is defined and templateVars.ars != false and templateVars.ars|length > 4 %}
+            {% set countyCode = templateVars.ars %}
+        {% endif %}
+
+        {% set municipalCode = '' %}
+        {% if templateVars.gkz is defined and templateVars.gkz != false and templateVars.gkz|length > 5 %}
+            {% set municipalCode = templateVars.gkz %}
+        {% endif %}
+
+        {% set filters = [] %}
+        {% for filter in templateVars.definition.interfaceFilters|default([])|filter(filter => hasPermission(filter.permission)) %}
+            {% set options = [] %}
+            {% for filterOption in filter.values|default([]) %}
+                {% set options = options|merge([{ label: filterOption.label, value: filterOption.value }]) %}
+            {% endfor %}
+            {% set filters = filters|merge([{ title: filter.titleKey|trans, name: filter.name, options: options, contextHelp: filter.contextHelpKey|trans }]) %}
+        {% endfor %}
+
+        {% if hasPermission('feature_procedures_show_municipal_filter') %}
+            {% set kreise = { label: 'Kreise', options: [
+                {value: '01051', title: 'Dithmarschen'},
+                {value: '01053', title: 'Herzogtum Lauenburg'},
+                {value: '01054', title: 'Nordfriesland'},
+                {value: '01055', title: 'Ostholstein'},
+                {value: '01056', title: 'Pinneberg'},
+                {value: '01057', title: 'Plön'},
+                {value: '01058', title: 'Rendsburg-Eckernförde'},
+                {value: '01059', title: 'Schleswig-Flensburg'},
+                {value: '01060', title: 'Segeberg'},
+                {value: '01061', title: 'Steinburg'},
+                {value: '01062', title: 'Stormarn'},
+            ]} %}
+
+            {% set kreisfrei = { label: 'Kreisfreie Städte', options: [
+                {value: '01001', title: 'Flensburg'},
+                {value: '01002', title: 'Kiel'},
+                {value: '01003', title: 'Lübeck'},
+                {value: '01004', title: 'Neumünster'},
+            ]} %}
+            {% set countyCodes = [{ label: 'all'|trans, value: '' }, kreise, kreisfrei ] %}
+        {% endif %}
+
+        <dp-search-procedure-map
+            :sort-options="JSON.parse('{{ sortOptions|json_encode|e('js', 'utf-8') }}')"
+            :municipalities="JSON.parse('{{ countyCodes|json_encode|e('js', 'utf-8') }}')"
+            county-code="{{ countyCode|default }}"
+            municipal-code="{{ municipalCode|default }}"
+            :filters="JSON.parse('{{ filters|default|json_encode|e('js', 'utf-8') }}')"
+            init-search-term="{{ templateVars.filters.search|default }}"
+            :init-display-ars-filter-header="'{{ shouldDisplayArsFilterHeader|default(-1) }}' === '1'"
+            search-results-header="{{ templateVars.searchResultsHeader|default }}"
+            orga-slug="{{ templateVars.orgaSlug|default }}">
+        </dp-search-procedure-map>
+
+    </form>
+{% endblock filter %}

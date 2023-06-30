@@ -18,19 +18,10 @@ use EDT\Wrapping\Contracts\Types\TypeInterface;
 class GetInternalPropertiesEvent extends DPlanEvent
 {
     /**
-     * @var array<non-empty-string, non-empty-string|null>
-     */
-    private array $properties;
-
-    private TypeInterface $type;
-
-    /**
      * @param array<non-empty-string, non-empty-string|null> $properties
      */
-    public function __construct(array $properties, TypeInterface $type)
+    public function __construct(private array $properties, private readonly TypeInterface $type)
     {
-        $this->properties = $properties;
-        $this->type = $type;
     }
 
     /**

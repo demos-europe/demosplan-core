@@ -32,26 +32,8 @@ use TusPhp\File;
  */
 class TusUploadEventSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var FileStore
-     */
-    private $fileStore;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(FileService $fileService, FileStore $fileStore, LoggerInterface $logger)
+    public function __construct(private readonly FileService $fileService, private readonly FileStore $fileStore, private readonly LoggerInterface $logger)
     {
-        $this->fileService = $fileService;
-        $this->logger = $logger;
-        $this->fileStore = $fileStore;
     }
 
     /**

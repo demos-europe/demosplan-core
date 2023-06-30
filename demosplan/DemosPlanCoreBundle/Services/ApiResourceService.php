@@ -38,17 +38,8 @@ class ApiResourceService implements ApiResourceServiceInterface
      * @var Manager
      */
     private $fractal;
-    /**
-     * @var TransformerLoader
-     */
-    private $transformerLoader;
 
-    /**
-     * @var PrefilledResourceTypeProvider
-     */
-    private $resourceTypeProvider;
-
-    public function __construct(TransformerLoader $transformerLoader, PrefilledResourceTypeProvider $resourceTypeProvider)
+    public function __construct(private readonly TransformerLoader $transformerLoader, private readonly PrefilledResourceTypeProvider $resourceTypeProvider)
     {
         $this->fractal = new Manager();
 
@@ -56,9 +47,6 @@ class ApiResourceService implements ApiResourceServiceInterface
 
         $this->fractal->setSerializer($jsonApiSerializer);
         $this->fractal->setRecursionLimit(self::FRACTAL_RECURSION_LIMIT);
-
-        $this->transformerLoader = $transformerLoader;
-        $this->resourceTypeProvider = $resourceTypeProvider;
     }
 
     public function getFractal(): Manager
@@ -77,7 +65,7 @@ class ApiResourceService implements ApiResourceServiceInterface
         $transformer = $this->transformerLoader->get($transformerName);
 
         if (!is_a($transformer, BaseTransformer::class)) {
-            throw new LogicException('Got '.get_class($transformer).' expected demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;');
+            throw new LogicException('Got '.$transformer::class.' expected demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;');
         }
 
         return $transformer;
@@ -105,7 +93,7 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeAddonCollection($data, BaseTransformerInterface $baseTransformer, $type = ''): Collection
     {
-        $transformerName = get_class($baseTransformer);
+        $transformerName = $baseTransformer::class;
 
         return $this->makeCollection($data, $transformerName, $type);
     }

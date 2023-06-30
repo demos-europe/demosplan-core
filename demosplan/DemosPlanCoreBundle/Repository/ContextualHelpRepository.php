@@ -55,9 +55,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         $allHelpItems = $query->getResult();
 
         // exclude gislayer
-        return array_filter($allHelpItems, function ($elem) {
-            return false === strpos($elem->getKey(), 'gislayer');
-        });
+        return array_filter($allHelpItems, fn($elem) => !str_contains((string) $elem->getKey(), 'gislayer'));
     }
 
     /**
@@ -81,7 +79,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
             ->getQuery();
         try {
             $result = $query->getResult();
-            if (1 === count($result)) {
+            if (1 === (is_countable($result) ? count($result) : 0)) {
                 return $result[0];
             }
 
@@ -112,7 +110,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
 
         try {
             $result = $query->getResult();
-            if (1 === count($result)) {
+            if (1 === (is_countable($result) ? count($result) : 0)) {
                 return $result[0];
             }
 
@@ -190,7 +188,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         return false;
     }
 
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -271,7 +269,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         return $entity;
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -281,7 +279,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

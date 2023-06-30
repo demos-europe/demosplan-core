@@ -22,7 +22,7 @@
                     <textarea class="height-60" name="r_description" value="{{templateVars.request.r_title|default() }}">{{templateVars.request.r_description|default() }}</textarea>
                 </label>
 
-                <div class="text--right space-inline-s">
+                <div class="text-right space-inline-s">
                     <input class="btn btn--primary" type="submit" name="saveNewUserStory" value="{{ "save"|trans }}">
                     <a class="btn btn--secondary" href="{{ path('DemosPlan_forum_development_release_detail', {'releaseId': templateVars.releaseId }) }}">
                         {{ "abort"|trans }}

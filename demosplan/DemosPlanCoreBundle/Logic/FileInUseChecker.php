@@ -41,29 +41,8 @@ use Psr\Log\LoggerInterface;
 
 class FileInUseChecker
 {
-    /**
-     * @var ManagerRegistry
-     */
-    private $managerRegistry;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var TraceableEventDispatcher
-     */
-    private $eventDispatcher;
-
-    public function __construct(
-        ManagerRegistry $managerRegistry,
-        LoggerInterface $logger,
-        TraceableEventDispatcher $eventDispatcher
-    ) {
-        $this->managerRegistry = $managerRegistry;
-        $this->logger = $logger;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly ManagerRegistry $managerRegistry, private readonly LoggerInterface $logger, private readonly TraceableEventDispatcher $eventDispatcher)
+    {
     }
 
     /**
@@ -111,7 +90,7 @@ class FileInUseChecker
                     ->setParameter(':deleted', false)
                     ->getQuery()
                     ->getResult();
-                if (0 < count($entities)) {
+                if (0 < (is_countable($entities) ? count($entities) : 0)) {
                     return true;
                 }
             }
@@ -144,7 +123,7 @@ class FileInUseChecker
                     ->setParameter(':deleted', false)
                     ->getQuery()
                     ->getResult();
-                if (0 < count($result)) {
+                if (0 < (is_countable($result) ? count($result) : 0)) {
                     // file is in use
                     return true;
                 }
@@ -177,7 +156,7 @@ class FileInUseChecker
                         ->setParameter(':deleted', false)
                         ->getQuery()
                         ->getResult();
-                    if (0 < count($entities)) {
+                    if (0 < (is_countable($entities) ? count($entities) : 0)) {
                         // file is in use
                         return true;
                     }
@@ -219,7 +198,7 @@ class FileInUseChecker
                     }
 
                     $entities = $qb->getQuery()->getResult();
-                    if (0 < count($entities)) {
+                    if (0 < (is_countable($entities) ? count($entities) : 0)) {
                         // file is in use
                         return true;
                     }
@@ -258,7 +237,7 @@ class FileInUseChecker
                 ->setParameter(':fileId', $fileId)
                 ->getQuery()
                 ->getResult();
-            if (0 < count($result)) {
+            if (0 < (is_countable($result) ? count($result) : 0)) {
                 // file is in use
                 return true;
             }
@@ -288,7 +267,7 @@ class FileInUseChecker
             ->getQuery()
             ->getResult();
 
-        return 0 < count($entities);
+        return 0 < (is_countable($entities) ? count($entities) : 0);
     }
 
     private function isNewsFileUsedInProcedure(string $fileId): bool
@@ -304,7 +283,7 @@ class FileInUseChecker
                 ->setParameter(':deleted', false)
                 ->getQuery()
                 ->getResult();
-            if (0 < count($entities)) {
+            if (0 < (is_countable($entities) ? count($entities) : 0)) {
                 return true;
             }
         }
@@ -325,6 +304,6 @@ class FileInUseChecker
             ->getQuery()
             ->getResult();
 
-        return 0 < count($entities);
+        return 0 < (is_countable($entities) ? count($entities) : 0);
     }
 }

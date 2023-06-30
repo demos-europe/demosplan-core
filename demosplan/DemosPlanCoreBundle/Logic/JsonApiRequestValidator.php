@@ -27,14 +27,8 @@ class JsonApiRequestValidator
 {
     private const API_URL_PATH = '/api/2.0/';
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    public function __construct(RouterInterface $router)
+    public function __construct(private readonly RouterInterface $router)
     {
-        $this->router = $router;
     }
 
     /**
@@ -45,17 +39,17 @@ class JsonApiRequestValidator
         // We can only validate /api/2.0/ routes because some /api/1.0/ were implemented incorrectly
         // (eg. expecting non-json as request content)
         $path = $request->getPathInfo();
-        if (self::API_URL_PATH !== substr($path, 0, strlen(self::API_URL_PATH))) {
+        if (!str_starts_with((string) $path, self::API_URL_PATH)) {
             return false;
         }
 
         $arrayOfParameters = $this->router->matchRequest($request);
-        $controller = explode('::', $arrayOfParameters['_controller'])[0];
+        $controller = explode('::', (string) $arrayOfParameters['_controller'])[0];
         try {
             $reflectionController = new ReflectionClass($controller);
 
             return $reflectionController->isSubclassOf(APIController::class);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -79,7 +73,7 @@ class JsonApiRequestValidator
         $acceptableContentTypes = $request->getAcceptableContentTypes();
         $jsonApiContentType = $request->getMimeType('jsonapi');
 
-        if (0 < count($acceptableContentTypes) && !in_array(
+        if (0 < (is_countable($acceptableContentTypes) ? count($acceptableContentTypes) : 0) && !in_array(
             $jsonApiContentType,
             $acceptableContentTypes,
             true
@@ -98,7 +92,7 @@ class JsonApiRequestValidator
                 // and it MUST be the json:api content type
                 return new Response('', Response::HTTP_UNSUPPORTED_MEDIA_TYPE);
             }
-        } catch (Exception|ContentTypeInspectorException $e) {
+        } catch (Exception|ContentTypeInspectorException) {
             // a throwing inspector means there is no content type
             if ('' !== $request->getContent()) {
                 // missing content type is only accepted if there is also no content

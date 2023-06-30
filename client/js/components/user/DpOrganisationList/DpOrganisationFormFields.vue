@@ -28,7 +28,7 @@
           v-if="canEdit('name')"
           type="text"
           :id="organisation.id + ':orgaName'"
-          class="width-100p u-mb-0_5 display--block"
+          class="width-100p u-mb-0_5 block"
           style="height: 27px;"
           data-cy="orgaName"
           @input="emitOrganisationUpdate"
@@ -332,7 +332,7 @@
         </p>
         <input
           v-if="canEdit('slug')"
-          class="width-100p display--inline u-mb-0_5 u-1-of-3 organisationSlug"
+          class="width-100p inline u-mb-0_5 u-1-of-3 organisationSlug"
           style="height: 27px;"
           type="text"
           :data-organisation-id="organisation.id"
@@ -630,7 +630,7 @@
         <label
           class="u-ml u-mb-0"
           v-if="canEdit('showlistChangeReason') && hasChanged('showlist') && typeof initialOrganisation.attributes !== 'undefined'">
-          <span class="display--inline-block weight--normal u-mb-0_25">
+          <span class="inline-block weight--normal u-mb-0_25">
             {{ Translator.trans('reason.change') }}*
           </span>
           <textarea

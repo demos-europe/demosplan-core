@@ -18,7 +18,7 @@ class HeightLimitExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('heightLimitShorten', [$this, 'heightLimitShorten']),
+            new TwigFilter('heightLimitShorten', $this->heightLimitShorten(...)),
         ];
     }
 

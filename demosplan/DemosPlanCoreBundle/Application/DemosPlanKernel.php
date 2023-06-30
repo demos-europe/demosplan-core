@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 use function array_merge;
 use function file_exists;
@@ -56,32 +56,28 @@ class DemosPlanKernel extends Kernel
      *
      * @const string
      */
-    public const ENVIRONMENT_TEST = 'test';
+    final public const ENVIRONMENT_TEST = 'test';
 
     /**
      * String that defines dev environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_DEV = 'dev';
+    final public const ENVIRONMENT_DEV = 'dev';
 
     /**
      * String that defines production environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_PROD = 'prod';
-
-    private string $activeProject;
+    final public const ENVIRONMENT_PROD = 'prod';
 
     public function __construct(
-        string $activeProject,
+        private readonly string $activeProject,
         string $environment,
         bool $debug
     ) {
         parent::__construct($environment, $debug);
-
-        $this->activeProject = $activeProject;
 
         DemosPlanPath::setProjectPathFromConfig("projects/{$activeProject}");
     }
@@ -105,12 +101,12 @@ class DemosPlanKernel extends Kernel
         yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $coreConfigPath = DemosPlanPath::getConfigPath();
 
-        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
+        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, 'glob');
 
         $routesConfig = DemosPlanPath::getProjectPath('app/config/routing.yml');
 
@@ -274,11 +270,13 @@ class DemosPlanKernel extends Kernel
             );
         }
 
-        $container->addCompilerPass(new DeploymentStrategyLoaderPass());
-        $container->addCompilerPass(new RpcMethodSolverPass());
-        $container->addCompilerPass(new MenusLoaderPass());
-        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
+        if ('test' !== $this->getEnvironment()) {
+            $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        }
     }
 
     public function getActiveProject(): string

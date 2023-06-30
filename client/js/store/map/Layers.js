@@ -8,6 +8,7 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { set } from 'vue'
 
 const LayersStore = {
 
@@ -139,13 +140,13 @@ const LayersStore = {
         const layers = []
 
         data.data.forEach((el, idx) => {
-          Vue.set(el.attributes, data.orderType, (data.parentOrder * 100) + (idx + 1))
+          set(el.attributes, data.orderType, (data.parentOrder * 100) + (idx + 1))
           if (data.orderType === 'treeOrder') {
             if (el.type === 'GisLayerCategory') {
-              Vue.set(el.attributes, 'parentId', data.categoryId)
+              set(el.attributes, 'parentId', data.categoryId)
               categories.push(el)
             } else if (el.type === 'GisLayer') {
-              Vue.set(el.attributes, 'categoryId', data.categoryId)
+              set(el.attributes, 'categoryId', data.categoryId)
               if (el.attributes.isEnabled) {
                 layers.push(el)
               }
@@ -154,8 +155,8 @@ const LayersStore = {
         })
 
         // Update the store-state
-        Vue.set(category.relationships.categories, 'data', categories)
-        Vue.set(category.relationships.gisLayers, 'data', layers)
+        set(category.relationships.categories, 'data', categories)
+        set(category.relationships.gisLayers, 'data', layers)
       }
     },
 
@@ -189,7 +190,7 @@ const LayersStore = {
     },
 
     setIsMapLoaded (state) {
-      Vue.set(state, 'isMapLoaded', true)
+      set(state, 'isMapLoaded', true)
     }
 
   },

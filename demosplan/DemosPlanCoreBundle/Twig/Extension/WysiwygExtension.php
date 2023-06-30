@@ -19,15 +19,9 @@ use Twig\TwigFilter;
  */
 class WysiwygExtension extends ExtensionBase
 {
-    /**
-     * @var HTMLSanitizer
-     */
-    private $htmlSanitizer;
-
-    public function __construct(ContainerInterface $container, HTMLSanitizer $htmlSanitizer)
+    public function __construct(ContainerInterface $container, private readonly HTMLSanitizer $htmlSanitizer)
     {
         parent::__construct($container);
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     /* (non-PHPdoc)
@@ -36,7 +30,7 @@ class WysiwygExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('wysiwyg', [$this, 'wysiwygFilter'], ['is_safe' => ['html']]),
+            new TwigFilter('wysiwyg', $this->wysiwygFilter(...), ['is_safe' => ['html']]),
         ];
     }
 

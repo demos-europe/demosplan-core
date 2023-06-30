@@ -82,7 +82,7 @@
     %fileName:{{ statement.mapFile|getFile('name')|raw }}:{{ statement.mapFile|getFile('hash') }}%
     \caption{Kartenauschnitt}
 	\label{fig1}
-        {{ procedure.settings.copyright }}
+        {{ procedure.settings.copyright|replace({'{currentYear}': 'now'|date('Y')}) }}
     \end{figure}
     {% endif %}
     {% endif %}

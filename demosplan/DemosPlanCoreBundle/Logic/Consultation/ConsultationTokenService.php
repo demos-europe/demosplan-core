@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
-use EDT\Querying\Contracts\PathException;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -27,14 +26,15 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ConsultationTokenResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Doctrine\ORM\EntityNotFoundException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -49,94 +49,8 @@ class ConsultationTokenService
      */
     private const TOKEN_CHARACTERS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ';
 
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ConsultationTokenRepository
-     */
-    private $consultationTokenRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-    /**
-     * @var ConsultationTokenResourceType
-     */
-    private $consultationTokenResourceType;
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    public function __construct(
-        ConsultationTokenRepository $consultationTokenRepository,
-        ConsultationTokenResourceType $consultationTokenResourceType,
-        CurrentProcedureService $currentProcedureService,
-        DqlConditionFactory $conditionFactory,
-        ElementsService $elementsService,
-        EntityFetcher $entityFetcher,
-        EventDispatcherInterface $eventDispatcher,
-        GlobalConfigInterface $globalConfig,
-        PermissionsInterface $permissions,
-        SortMethodFactory $sortMethodFactory,
-        StatementHandler $statementHandler,
-        StatementService $statementService,
-        ValidatorInterface $validator
-    ) {
-        $this->consultationTokenRepository = $consultationTokenRepository;
-        $this->consultationTokenResourceType = $consultationTokenResourceType;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->elementsService = $elementsService;
-        $this->entityFetcher = $entityFetcher;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->globalConfig = $globalConfig;
-        $this->permissions = $permissions;
-        $this->statementService = $statementService;
-        $this->statementHandler = $statementHandler;
-        $this->validator = $validator;
-        $this->conditionFactory = $conditionFactory;
-        $this->sortMethodFactory = $sortMethodFactory;
+    public function __construct(private readonly ConsultationTokenRepository $consultationTokenRepository, private readonly ConsultationTokenResourceType $consultationTokenResourceType, private readonly CurrentProcedureService $currentProcedureService, private readonly DqlConditionFactory $conditionFactory, private readonly ElementsService $elementsService, private readonly EntityFetcher $entityFetcher, private readonly EventDispatcherInterface $eventDispatcher, private readonly GlobalConfigInterface $globalConfig, private readonly PermissionsInterface $permissions, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementHandler $statementHandler, private readonly StatementService $statementService, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**
@@ -320,19 +234,12 @@ class ConsultationTokenService
      */
     private function getSortMethod(array $sortParams): SortMethodInterface
     {
-        switch ($sortParams['key']) {
-            case 'submitterEmailAddress':
-                $sortProperty = $this->consultationTokenResourceType->statement->initialOrganisationEmail;
-                break;
-            case 'token':
-                $sortProperty = $this->consultationTokenResourceType->token;
-                break;
-            case 'note':
-                $sortProperty = $this->consultationTokenResourceType->note;
-                break;
-            default:
-                $sortProperty = $this->consultationTokenResourceType->statement->submitName;
-        }
+        $sortProperty = match ($sortParams['key']) {
+            'submitterEmailAddress' => $this->consultationTokenResourceType->statement->initialOrganisationEmail,
+            'token'                 => $this->consultationTokenResourceType->token,
+            'note'                  => $this->consultationTokenResourceType->note,
+            default                 => $this->consultationTokenResourceType->statement->submitName,
+        };
         if ('1' === $sortParams['direction']) {
             return $this->sortMethodFactory->propertyAscending($sortProperty);
         }

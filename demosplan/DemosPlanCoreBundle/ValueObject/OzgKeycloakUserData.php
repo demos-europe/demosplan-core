@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use Stringable;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
@@ -23,42 +24,34 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getFirstName()
  * @method string getLastName()
  */
-class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterface
+class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterface, Stringable
 {
     /**
      * @var array<int, array<int,string>>
      */
     protected array $customerRoleRelations = [];
-
     /**
      * E-mail-address of the provided user.
      */
     protected string $emailAddress = '';
-
     /**
      * Unique abbreviation of chosen login name of the provided user.
      */
     protected string $userName = '';
-
     /**
      * Unique ID of the provided user.
      */
     protected string $userId = '';
-
     /**
      * Name of the provided organisation.
      */
     protected string $organisationName = '';
-
     /**
      * Unique identifier of the provided organisation.
      */
     protected string $organisationId = '';
-
     protected string $firstName = '';
-
     protected string $lastName = '';
-
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {
         $userInformation = $resourceOwner->toArray();
@@ -80,7 +73,6 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
-
     /**
      * Checks for existing mandatory data.
      */
@@ -115,7 +107,6 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
             throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
         }
     }
-
     /**
      * Mapping of roles of customer based on string-comparison.
      * Example of data structure of $groups:
@@ -137,7 +128,6 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
             }
         }
     }
-
     public function __toString(): string
     {
         $customerRoleRelationString = '';

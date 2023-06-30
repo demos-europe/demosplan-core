@@ -15,7 +15,7 @@ use EDT\JsonApi\RequestHandling\ApiListResultInterface;
 use Pagerfanta\Pagerfanta;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  *
  * @template-implements ApiListResultInterface<O>
  *

@@ -15,7 +15,7 @@
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :id="'segment_' + segment.id">
-    <div class="flex flex-column flex-content-start flex-basis-20 u-pt-0_5 u-pl-0_5">
+    <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
       <v-popover :container="$refs.statementSegment">
         <i
           class="fa fa-hashtag color--grey-light"
@@ -68,7 +68,7 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l"
+      class="segment-list-col--l overflow-word-break"
       v-cleanhtml="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
@@ -85,7 +85,7 @@
           aria-hidden="true" />
       </button>
     </div>
-    <div class="segment-list-col--l">
+    <div class="segment-list-col--l overflow-word-break">
       <div
         v-if="isAssignedToMe === false"
         :class="{ 'color--grey': visibleRecommendation === '' }"
@@ -193,7 +193,7 @@
         @primary-action="save"
         @secondary-action="abort" />
     </div>
-    <div class="segment-list-col--m text--right flex-shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">
@@ -213,7 +213,7 @@
 
         <button
           v-if="isAssignedToMe"
-          class="segment-list-toolbar__button btn btn--primary"
+          class="segment-list-toolbar__button btn btn--primary icon-only"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           v-tooltip="{
@@ -257,7 +257,7 @@
             aria-hidden="true" />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker display--block position--absolute u-ml u-n-mt">
+            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt">
             {{ commentCount }}
           </span>
         </button>

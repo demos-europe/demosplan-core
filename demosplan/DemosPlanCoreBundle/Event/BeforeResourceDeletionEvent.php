@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class BeforeResourceDeletionEvent extends DPlanEvent
 {
@@ -25,18 +25,12 @@ class BeforeResourceDeletionEvent extends DPlanEvent
     private $entity;
 
     /**
-     * @var ResourceTypeInterface<O>
-     */
-    private $resourceType;
-
-    /**
      * @param O                        $entity
      * @param ResourceTypeInterface<O> $resourceType
      */
-    public function __construct(object $entity, ResourceTypeInterface $resourceType)
+    public function __construct(object $entity, private readonly ResourceTypeInterface $resourceType)
     {
         $this->entity = $entity;
-        $this->resourceType = $resourceType;
     }
 
     /**

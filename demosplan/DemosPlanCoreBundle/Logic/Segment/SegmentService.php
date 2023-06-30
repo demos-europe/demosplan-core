@@ -28,35 +28,8 @@ use Doctrine\ORM\ORMException;
 
 class SegmentService extends CoreService
 {
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
-    /**
-     * @var SegmentValidator
-     */
-    private $segmentValidator;
-
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-    /**
-     * @var SegmentRepository
-     */
-    private $segmentRepository;
-
-    public function __construct(
-        EntityContentChangeService $entityContentChangeService,
-        SegmentValidator $segmentValidator,
-        SegmentRepository $segmentRepository,
-        TransactionService $transactionService
-    ) {
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->segmentRepository = $segmentRepository;
-        $this->segmentValidator = $segmentValidator;
-        $this->transactionService = $transactionService;
+    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly SegmentValidator $segmentValidator, private readonly SegmentRepository $segmentRepository, private readonly TransactionService $transactionService)
+    {
     }
 
     /**
@@ -127,7 +100,7 @@ class SegmentService extends CoreService
             // obscure and validate
             $this->prepareSegmentsForDatabase($segments);
             // make the segments known to Doctrine
-            array_map([$entityManager, 'persist'], $segments);
+            array_map($entityManager->persist(...), $segments);
             // flush will be automatically called
         });
     }
@@ -146,9 +119,7 @@ class SegmentService extends CoreService
         $this->segmentRepository->persistEntities($contentChanges);
 
         // do the actual change in the database
-        $segmentIds = array_map(static function (Segment $segment): string {
-            return $segment->getId();
-        }, $segments);
+        $segmentIds = array_map(static fn(Segment $segment): string => $segment->getId(), $segments);
         $this->segmentRepository->editSegmentRecommendations($segmentIds, $procedureId, $recommendationText, $attach);
     }
 
@@ -163,14 +134,12 @@ class SegmentService extends CoreService
     {
         $segmentChanges = $this->getSegmentChanges($segments);
 
-        $contentChangeLists = array_map(function (Segment $segment) use ($segmentChanges, $updateTime): array {
-            return $this->entityContentChangeService->createEntityContentChangeEntries(
-                $segment,
-                $segmentChanges[$segment->getId()],
-                false,
-                $updateTime
-            );
-        }, $segments);
+        $contentChangeLists = array_map(fn(Segment $segment): array => $this->entityContentChangeService->createEntityContentChangeEntries(
+            $segment,
+            $segmentChanges[$segment->getId()],
+            false,
+            $updateTime
+        ), $segments);
 
         // return empty array if $contentChangeLists is empty
         return array_merge([], ...$contentChangeLists);
@@ -296,9 +265,7 @@ class SegmentService extends CoreService
     private function createRecommendationEditContentChangeEntries(string $entityType, array $segments, string $recommendationText, bool $attach, User $user, DateTime $creationTime): array
     {
         return array_map(
-            function (Segment $segment) use ($recommendationText, $attach, $entityType, $user, $creationTime): EntityContentChange {
-                return $this->createRecommendationContentChange($segment, $recommendationText, $attach, $entityType, $user, $creationTime);
-            },
+            fn(Segment $segment): EntityContentChange => $this->createRecommendationContentChange($segment, $recommendationText, $attach, $entityType, $user, $creationTime),
             $segments
         );
     }

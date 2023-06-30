@@ -26,18 +26,9 @@ class BrandingProvider
 {
     private const PROD_EXPIRATION_DATE = 3600;
     private const DEV_EXPIRATION_DATE = 10;
-    private $cache;
-    private $logger;
-    private $globalConfig;
 
-    public function __construct(
-        CacheInterface $cache,
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger
-    ) {
-        $this->cache = $cache;
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
+    public function __construct(private readonly CacheInterface $cache, private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
@@ -74,7 +65,7 @@ class BrandingProvider
 
                 return $fullCss;
             });
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return null;
         }
     }

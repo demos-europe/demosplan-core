@@ -2,7 +2,7 @@
 
     {#
         Leaflet. To be refactored into one of:
-            - DemosPlanProcedureBundle/Resources/client/js/components/publicindex/Procedures.vue which uses Leaflet / Vue
+            - client/js/components/procedure/publicindex/Procedures.vue which uses Leaflet / Vue
             - DemosPlanMapBundle/Resources/client/js/components/map/DpOlMap.vue which uses openlayers 5 / Vue
         Possibly the 2nd option but the Leaflet Markercluster looks better.
     #}
@@ -65,13 +65,18 @@
                 attributionControl: false
             });
 
-            L.control.attribution({prefix: '{{ map.mapAttribution|default|trans|wysiwyg }}' || Translator.trans('map.attribution.default', { a: function (msg) { return '<a href="/impressum">' + msg + '</a>' }}) }).addTo(map);
+            L.control.attribution({
+                prefix: '{{ map.mapAttribution|default|replace({'{currentYear}': 'now'|date('Y')})|wysiwyg }}' || Translator.trans('map.attribution.default', {
+                    linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+                    currentYear: {{ 'now' | date('Y') }}
+                })
+            }).addTo(map);
 
             (function() {
                 var control = new L.Control({position:'topleft'})
                 control.onAdd = function (map) {
                     let azoom = L.DomUtil.create('div','leaflet-control-zoom leaflet-bar leaflet-control u-mt-0')
-                    azoom.innerHTML = '<a class="leaflet-control-zoom-out ' + prefixClass('u-pb-0_5 u-ph-0_25 cursor--pointer') + '" tabindex="0" title="{{ 'map.zoom.reset'|trans }}"><i class="' + prefixClass('fa fa-circle-o font-size-medium') + '" aria-hidden="true"></i></a>'
+                    azoom.innerHTML = '<a class="leaflet-control-zoom-out ' + prefixClass('u-pb-0_5 u-ph-0_25 cursor-pointer') + '" tabindex="0" title="{{ 'map.zoom.reset'|trans }}"><i class="' + prefixClass('fa fa-circle-o font-size-medium') + '" aria-hidden="true"></i></a>'
                     L.DomEvent
                         .disableClickPropagation(azoom)
                         .addListener(azoom, 'click', fitToMarkers, azoom)
@@ -148,8 +153,8 @@
                         // show notification only if there are procedures visible in other parts of the map.
                         // If the filter/search did not find any procedures, there is a hint below filters, that nothing was found.
                         allProcedures.length > 0 && visibleMarkers.length === 0 ?
-                            noProcedureNotification.classList.remove(prefixClass('display--none')) :
-                            noProcedureNotification.classList.add(prefixClass('display--none'))
+                            noProcedureNotification.classList.remove(prefixClass('hidden')) :
+                            noProcedureNotification.classList.add(prefixClass('hidden'))
                     }
                 }
 

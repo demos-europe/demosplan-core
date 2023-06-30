@@ -12,72 +12,24 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublicIndexProcedureLister
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        GlobalConfigInterface $globalConfig,
-        OrgaService $orgaService,
-        PermissionsInterface $permissions,
-        ProcedureHandler $procedureHandler,
-        TranslatorInterface $translator
-    ) {
-        $this->currentUser = $currentUser;
-        $this->globalConfig = $globalConfig;
-        $this->orgaService = $orgaService;
-        $this->permissions = $permissions;
-        $this->procedureHandler = $procedureHandler;
-        $this->translator = $translator;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly GlobalConfigInterface $globalConfig, private readonly OrgaService $orgaService, private readonly PermissionsInterface $permissions, private readonly ProcedureHandler $procedureHandler, private readonly TranslatorInterface $translator)
+    {
     }
 
     public function getPublicIndexProcedureList(Request $request, string $orgaSlug = ''): array
     {
-        $requestPost = array_merge(
-            [
-                'search' => '',
-            ],
-            $request->request->all()
-        );
+        $requestPost = ['search' => '', ...$request->request->all()];
 
         if ($request->query->has('search') && '' !== $request->query->get('search')) {
             $requestPost['search'] = $request->query->get('search').'*';
@@ -135,11 +87,11 @@ class PublicIndexProcedureLister
             $this->procedureHandler->setRequestValues($tmpRequestParams);
             $procedures = $this->procedureHandler->getProcedureList();
 
-            if (0 === count($procedures['list']['procedurelist'])) {
+            if (0 === (is_countable($procedures['list']['procedurelist']) ? count($procedures['list']['procedurelist']) : 0)) {
                 $requestPost['municipalCode'] = [];
 
-                for ($i = 4, $iMax = strlen($gkz); $i <= $iMax; ++$i) {
-                    $gzkPart = substr($gkz, 0, $i + 1);
+                for ($i = 4, $iMax = strlen((string) $gkz); $i <= $iMax; ++$i) {
+                    $gzkPart = substr((string) $gkz, 0, $i + 1);
                     $requestPost['municipalCode'][] = $gzkPart;
                 }
 
@@ -163,9 +115,7 @@ class PublicIndexProcedureLister
             $orga = $this->orgaService->findOrgaBySlug($orgaSlug);
             $orgaId = $orga->getId();
 
-            $procedures['list']['procedurelist'] = array_filter($procedures['list']['procedurelist'], function ($procedure) use ($orgaId) {
-                return $procedure['orgaId'] === $orgaId;
-            });
+            $procedures['list']['procedurelist'] = array_filter($procedures['list']['procedurelist'], fn($procedure) => $procedure['orgaId'] === $orgaId);
         }
 
         return $procedures;
@@ -194,7 +144,7 @@ class PublicIndexProcedureLister
         ];
 
         if (isset($procedures['list']['procedurelist'], $procedures['list']['filters']['filters']['phase'])
-            && 0 < count($procedures['list']['procedurelist'])) {
+            && 0 < (is_countable($procedures['list']['procedurelist']) ? count($procedures['list']['procedurelist']) : 0)) {
             foreach ($procedures['list']['filters']['filters']['phase'] as $key => $filterEntry) {
                 if ($procedures['useInternalFields']) {
                     $procedures['list']['filters']['filters']['phase'][$key]['label'] = $this->globalConfig->getPhaseNameWithPriorityInternal(

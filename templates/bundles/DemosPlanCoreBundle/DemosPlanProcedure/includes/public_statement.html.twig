@@ -1,0 +1,202 @@
+<article class="{{ 'layout--flush u-pb-0_5-lap-up u-pt-0_5'|prefixClass }} {% if not loop.first %}{{ 'border--top'|prefixClass }}{% endif %}">
+
+    <header class="{{ 'layout__item u-1-of-1 u-mb-0_25'|prefixClass }}" id="{{ statement.ident|default }}">
+
+        {# Vote for a statement aka Mitzeichnen #}
+        {% if hasPermission('feature_statements_vote') %}
+
+            {% if hasPermission('feature_new_statement') and hasPermission('feature_statements_vote_may_vote') %}
+
+                {% if statement.uId|default != currentUser.id|default %}
+                    {% set hasVoted = false %}
+                    {% set userId = currentUser.id|default %}
+                    {# votedcheck needs to be done in twig as we want to be able to pass a statement pager object #}
+                    {% for vote in statement.votes|default([]) %}
+                        {% if vote.uId == userId %}
+                            {% set hasVoted = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if hasVoted %}
+                        <strong class="{{ 'float-right color--grey'|prefixClass }}">{{ 'statement.is.voted'|trans }}</strong>
+                    {% else %}
+                        <a
+                            class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float-right'|prefixClass }}"
+                            title="{{ 'statement.vote.description'|trans }}"
+                            aria-label="{{ 'statement'|trans }} {{ statement.externId|default }} {{ 'statement.vote.description'|trans }}"
+                            href="{{ path('DemosPlan_statement_public_vote', {'statementID': statement.ident, 'procedure': procedure}) }}">
+                            <i class="{{ 'fa fa-comment-o'|prefixClass }}" aria-hidden="true"></i>
+                            {{ 'statement.vote'|trans }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+
+            {# Vote for a statement aka Like (as anonymous user) #}
+        {% elseif hasPermission('feature_statements_like') and hasPermission('feature_statements_like_may_like') %}
+            {% if statement.id in templateVars.publicStatements.likedStatementIds|default([]) %}
+                <p class="{{ 'flash flash-info u-mt-0 font-size-smaller float-right'|prefixClass }}">{{ 'statement.is.liked'|trans }}</p>
+            {% else %}
+                <form action="{{ path('DemosPlan_statement_public_like', {'statementId': statement.ident, 'procedure': procedure})  ~ '#_procedureDetailsStatementsPublic' }}" method="post">
+                    <button class="{{ 'btn btn--primary float-right'|prefixClass }}" type="submit" title="{{ 'statement.like.description'|trans }}">
+                        <i class="{{ 'fa fa-chevron-circle-up'|prefixClass }}" aria-hidden="true"></i>
+                        {{ 'statement.like'|trans }}
+                    </button>
+
+                    {# Raw-filter usage is necessary and considered as save here - should be used with |raw Filter in this special case as html-tags are returned #}
+                    {{ extensionPointMarkup('formExtraFields')|raw }}
+                </form>
+            {% endif %}
+
+        {% endif %}
+
+        {# title: statement extern id #}
+        <h2 class="{{ 'u-mb-0 u-mr'|prefixClass }}">
+            <i class="{{ 'fa fa-comment-o'|prefixClass }}" aria-hidden="true"></i>
+            {{ 'statement'|trans }} #{{ statement.externId|default }}
+        </h2>
+
+        {# for statements of institutions, display orgaName #}
+        {% if statement.publicStatement == 'internal' %}
+            {% set department = (statement.meta.orgaDepartmentName|default == '') ? '' : '(' ~ statement.meta.orgaDepartmentName|default ~ ')' %}
+            <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "author"|trans }}: {{ statement.meta.orgaName|default('anonymous'|trans) }} {{ department }}">
+                <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'hide-visually'|prefixClass }}">{{ "author"|trans }}:</span> {{ statement.meta.orgaName|default('anonymous'|trans) }} {{ department }}
+            </div>
+        {% elseif statement.publicStatement == 'external' %}
+            <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "author"|trans }}: {{ "role.citizen"|trans }}">
+                <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'hide-visually'|prefixClass }}">{{ "author"|trans }}:</span> {{ "role.citizen"|trans }}
+            </div>
+        {% endif %}
+
+        {# submitted date #}
+        {% if statement.submit is defined %}
+            <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "submitted.date"|trans }}: {{ statement.submit|dplanDate }}">
+                <i class="{{ 'fa fa-calendar-check-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'hide-visually'|prefixClass }}">{{ "submitted.date"|trans }}:</span> {{ statement.submit|dplanDateAnnotated }}
+            </div>
+        {% endif %}
+
+        {# votes #}
+        {% if statement.votesNum|default(0) > 0  %}
+            <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "voted.by.persons"|trans({ count: statement.votesNum }) }}">
+                <i class="{{ 'fa fa-comment-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'hide-visually'|prefixClass }}">{{ "voted.by"|trans }}:</span> {{ statement.votesNum }}
+            </div>
+        {% endif %}
+
+        {# likes #}
+        {% if hasPermission('feature_statements_like') and statement.likesNum|default(0) > 0  %}
+            <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "liked.by.persons"|trans({ count: statement.likesNum }) }}">
+                <i class="{{ 'fa fa-chevron-circle-up u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                <span class="{{ 'hide-visually'|prefixClass }}">{{ "liked.by"|trans }}:</span> {{ statement.likesNum }}
+            </div>
+        {% endif %}
+
+        {# Preview for owner of the procedure #}
+        {% if ownsProcedure(proceduresettings) and hasPermission('feature_statements_vote')%}
+
+            {% if ('hidden' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external')) %}
+                <div class="{{ 'text-left float-left'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.invitable_institution.public.config"|trans }}
+                    </p>
+                </div>
+
+            {% elseif ('hidden' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')) %}
+                <div class="{{ 'text-right float-right'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.public"|trans }}
+                    </p>
+                </div>
+
+            {# show this only if fachplaner can't participate themselves in the procedure #}
+            {% elseif ('write' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external'))
+                and false == hasPermission('feature_statements_vote_may_vote')
+            %}
+                <div class="{{ 'text-right float-right'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.invitable_institution"|trans }}
+                    </p>
+                </div>
+            {% endif %}
+
+            {# show this only if fachplaner can't participate themselves in the procedure #}
+            {% if 'write' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external')
+                and false == hasPermission('feature_statements_vote_may_vote')
+            %}
+                <div class="{{ 'text-right float-right'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.invitable_institution.public"|trans }}
+                    </p>
+                </div>
+
+            {# show this only if fachplaner can't participate themselves in the procedure #}
+            {% elseif 'write' == getProcedurePermissionset('internal') and 'read' == getProcedurePermissionset('external')
+                and false == hasPermission('feature_statements_vote_may_vote')
+            %}
+                <div class="{{ 'text-right float-right'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.invitable_institution"|trans }}
+                    </p>
+                </div>
+            {% elseif 'read' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
+                <div class="{{ 'text-right float-right'|prefixClass }}">
+                    <p class="{{ 'flash flash-info'|prefixClass }}">
+                        {{ "explanation.statement.cosign.public"|trans }}
+                    </p>
+                </div>
+            {% endif %}
+
+        {% endif %}
+
+    </header>
+
+    <div class="{{ 'layout__item u-1-of-1'|prefixClass }}">
+
+        <div class="{{ 'break-words'|prefixClass }}">
+            {{ statement.text|dpObscure|wysiwyg }}
+        </div>
+
+        {% if statement.fileContainers|default([])|filter(fileContainer => fileContainer.publicAllowed == true)|length > 0 %}
+            <ul class="{{ 'o-list u-mb-0_5'|prefixClass }}">
+                {% for fileContainer in statement.fileContainers|filter(fileContainer => fileContainer.publicAllowed == true) %}
+                    {% set file = fileContainer.fileString %}
+                    <li class="{{ 'u-pv-0_25 border--top flow-root'|prefixClass }}">
+                        <a
+                            class="{{ 'u-ml-0_25 u-mb-0_25 inline-block'|prefixClass }}"
+                            target="_blank"
+                            rel="noopener"
+                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                            <i class="{{ 'fa fa-download u-mr-0_25'|prefixClass }}"></i>
+                            {{ 'file.download' | trans }}
+                            {% if (file|getFile('size')|length > 0) %}
+                                ({{ file|getFile('mimeType') }} {{ file|getFile('size', 'MB') }})
+                            {% endif %}
+                        </a>
+
+                        <a
+                            class="{{ 'btn btn--secondary float-right u-ml-0_125'|prefixClass }}"
+                            target="_blank"
+                            rel="noopener"
+                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                            {{ 'download'|trans }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if hasPermission('feature_statements_public_statement_recommendation_visible') and statement.recommendation|length %}
+            <section class="{{ 'u-pl-2 border--top'|prefixClass }}">
+                <h3 class="{{ 'font-size-large  u-pt-0_5'|prefixClass }}">
+                    {{ 'recommendation.public'|trans({ statement: 'statement'|trans, externId: statement.externId|default }) }}
+                </h3>
+                <article>{{ statement.recommendation|wysiwyg }}</article>
+            </section>
+        {% endif %}
+
+    </div>
+
+</article>

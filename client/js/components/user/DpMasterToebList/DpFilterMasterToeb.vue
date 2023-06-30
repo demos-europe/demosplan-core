@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <fieldset class="u-pb-0 display--inline">
+  <fieldset class="u-pb-0 inline">
     <legend class="hide-visually">
       {{ Translator.trans('filter') }}
     </legend>

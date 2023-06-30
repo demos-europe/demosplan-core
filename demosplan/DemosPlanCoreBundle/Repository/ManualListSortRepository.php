@@ -154,7 +154,7 @@ class ManualListSortRepository extends FluentRepository implements ImmutableArra
     /**
      * @return CoreEntity|void
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

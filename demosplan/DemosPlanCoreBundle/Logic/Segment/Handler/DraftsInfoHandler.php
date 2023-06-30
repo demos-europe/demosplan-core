@@ -23,20 +23,8 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DraftsInfoHandler
 {
-    /** @var DraftsInfoService */
-    private $draftsInfoService;
-
-    /** @var DraftsInfoValidator */
-    private $draftsInfoValidator;
-
-    /** @var SegmentableStatementValidator */
-    private $segmentableStatementValidator;
-
-    public function __construct(DraftsInfoService $draftsInfoService, DraftsInfoValidator $draftsInfoValidator, SegmentableStatementValidator $segmentableStatementValidator)
+    public function __construct(private readonly DraftsInfoService $draftsInfoService, private readonly DraftsInfoValidator $draftsInfoValidator, private readonly SegmentableStatementValidator $segmentableStatementValidator)
     {
-        $this->draftsInfoService = $draftsInfoService;
-        $this->draftsInfoValidator = $draftsInfoValidator;
-        $this->segmentableStatementValidator = $segmentableStatementValidator;
     }
 
     /**

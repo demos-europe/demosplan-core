@@ -55,7 +55,7 @@
                     {{ "user.details"|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
                     {% apply spaceless %}
 
                         <dp-autofill-submitter-data
@@ -166,7 +166,7 @@
                     {{ 'statement'|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
 
                     {% apply spaceless -%}{# start row #}
                         {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
@@ -372,7 +372,7 @@
                         {# editable for all statements, not just manual ones #}
                         {% if hasPermission('field_statement_county') %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "counties"|trans }}
                                 </strong>
                                 <p v-if="countiesPromptAdded" class="lbl__hint">
@@ -381,7 +381,7 @@
                                 </p>
                                 <dp-multiselect
                                     v-model="values.counties"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="counties"
@@ -405,7 +405,7 @@
                         {# editable for all statements, not just manual ones #}
                         {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled == true %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <p v-if="countiesPromptAdded" class="lbl__hint">
@@ -414,7 +414,7 @@
                                 </p>
                                 <dp-multiselect
                                     v-model="values.municipalities"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="municipalities"
@@ -438,12 +438,12 @@
                         {# editable for all statements, not just manual ones #}
                         {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled == true %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
                                     v-model="values.priorityAreas"
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="priorityAreas"
@@ -556,7 +556,7 @@
                         <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
                             <statement-voter
                                 id="dp-new-statement-voter"
-                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf"
+                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
                                 readonly="{{ readonly|default('') }}"
                                 is-manual="true"
                             ></statement-voter>
@@ -593,7 +593,7 @@
             {% endif %}
 
 
-            <div class="text--right u-mv-0_5 space-inline-s">
+            <div class="text-right u-mv-0_5 space-inline-s">
                 <button
                     class="btn btn--primary"
                     @click.prevent="dpValidateAction('newStatementForm', submit)"
