@@ -50,6 +50,6 @@ class EntrypointRoute extends ValueObject
 
     public function redirectLeavesPlatform(): bool
     {
-        return $this->doRedirect && 0 === strpos($this->route, 'http');
+        return $this->doRedirect && str_starts_with($this->route, 'http');
     }
 }

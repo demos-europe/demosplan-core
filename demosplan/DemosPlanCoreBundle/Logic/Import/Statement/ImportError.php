@@ -16,26 +16,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 
 class ImportError
 {
-    /**
-     * @var int
-     */
-    private $lineNumber;
-
-    /**
-     * @var ConstraintViolation
-     */
-    private $violation;
-
-    /**
-     * @var string
-     */
-    private $worksheetTitle;
-
-    public function __construct(ConstraintViolation $violation, int $lineNumber, string $worksheetTitle = '')
+    public function __construct(private readonly ConstraintViolation $violation, private readonly int $lineNumber, private readonly string $worksheetTitle = '')
     {
-        $this->violation = $violation;
-        $this->lineNumber = $lineNumber;
-        $this->worksheetTitle = $worksheetTitle;
     }
 
     public function getLine(): int

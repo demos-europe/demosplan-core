@@ -17,12 +17,8 @@ use Exception;
 
 class SurveyNewHandler
 {
-    /** @var string */
-    private $defaultStatus;
-
-    public function __construct(string $defaultStatus)
+    public function __construct(private readonly string $defaultStatus)
     {
-        $this->defaultStatus = $defaultStatus;
     }
 
     /**

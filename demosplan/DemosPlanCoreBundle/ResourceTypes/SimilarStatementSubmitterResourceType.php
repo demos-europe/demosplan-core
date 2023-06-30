@@ -38,14 +38,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class SimilarStatementSubmitterResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
 {
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    public function __construct(StatementService $statementService)
+    public function __construct(private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
     }
 
     public function createObject(array $properties): ResourceChange
@@ -120,7 +114,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
     public function updateObject(object $object, array $properties): ResourceChange
     {
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->fullName, [$object, 'setFullName']);
+        $updater->ifPresent($this->fullName, $object->setFullName(...));
         $this->statementService->updatePersonEditableProperties($updater, $object);
 
         $this->resourceTypeService->validateObject($object);

@@ -15,8 +15,8 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -33,11 +33,6 @@ class DemosPlanReportController extends BaseController
     /**
      * Show a report.
      *
-     * @Route(
-     *     name="dm_plan_report_table_view",
-     *     path="/report/view/{procedureId}"
-     * )
-     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $procedureId
@@ -46,6 +41,7 @@ class DemosPlanReportController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
     public function viewReportAction(Request $request, $procedureId)
     {
         return $this->renderTemplate(
@@ -60,19 +56,13 @@ class DemosPlanReportController extends BaseController
     /**
      * Generates a PDF Report for the given procedure.
      *
-     * @Route(
-     *     name="dplan_export_report",
-     *     path="/report/export/{procedureId}",
-     *     methods={"GET"},
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
      * @param string $procedureId
      *
      * @throws Exception
      */
+    #[Route(name: 'dplan_export_report', path: '/report/export/{procedureId}', methods: ['GET'], options: ['expose' => true])]
     public function exportProcedureReportAction(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,

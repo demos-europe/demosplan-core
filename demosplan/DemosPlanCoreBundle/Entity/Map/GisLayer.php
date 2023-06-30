@@ -28,9 +28,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class GisLayer extends CoreEntity implements GisLayerInterface
 {
-    public const TYPE_BASE = 'base';
-    public const TYPE_OVERLAY = 'overlay';
-
     /**
      * Unique identification of the Gislayer entry.
      *
@@ -1006,7 +1003,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     public function isOverlay(): bool
     {
-        return self::TYPE_OVERLAY === $this->getType();
+        return GisLayerInterface::TYPE_OVERLAY === $this->getType();
     }
 
     public function getProjectionLabel(): string

@@ -1,9 +1,10 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,9 +21,7 @@ if (isset($_ENV['ACTIVE_PROJECT'])) {
 }
 
 if (null === $activeProject) {
-    echo "Cannot determine project, please set ACTIVE_PROJECT on call or in the environment.\n";
-
-    return 1;
+    $activeProject = 'core';
 }
 
 require __DIR__.'/../vendor/autoload.php';

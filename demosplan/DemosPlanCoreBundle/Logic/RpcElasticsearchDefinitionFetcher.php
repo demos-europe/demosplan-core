@@ -42,21 +42,8 @@ use stdClass;
  */
 class RpcElasticsearchDefinitionFetcher implements RpcMethodSolverInterface
 {
-    /**
-     * @var ElasticSearchDefinitionProvider
-     */
-    private $definitionProvider;
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    public function __construct(
-        ElasticSearchDefinitionProvider $definitionProvider,
-        JsonSchemaValidator $jsonSchemaValidator
-    ) {
-        $this->definitionProvider = $definitionProvider;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
+    public function __construct(private readonly ElasticSearchDefinitionProvider $definitionProvider, private readonly JsonSchemaValidator $jsonSchemaValidator)
+    {
     }
 
     public function supports(string $method): bool

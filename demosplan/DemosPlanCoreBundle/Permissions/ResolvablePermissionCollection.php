@@ -30,11 +30,8 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
      */
     protected array $permissions = [];
 
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**
@@ -92,5 +89,13 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
             ]),
             $this->permissions
         );
+    }
+
+    /**
+     * @return ResolvablePermission[]
+     */
+    public function getResolvePermissions(): array
+    {
+        return $this->permissions;
     }
 }

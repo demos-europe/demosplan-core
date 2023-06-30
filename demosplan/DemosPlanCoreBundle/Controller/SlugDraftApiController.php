@@ -25,14 +25,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class SlugDraftApiController.
- *
- * @Route(path="/api/1.0/slug-draft", name="dp_api_slug_draft_", options={"expose": true})
  */
+#[Route(path: '/api/1.0/slug-draft', name: 'dp_api_slug_draft_', options: ['expose' => true])]
 class SlugDraftApiController extends APIController
 {
     /**
-     * @Route(methods={"POST"}, name="create")
-     *
      * Currently this route is only needed when editing procedure or orga settings
      * but can be used by anyone as it has no security implications.
      * However, that changes if the route starts to support an
@@ -43,6 +40,7 @@ class SlugDraftApiController extends APIController
      *
      * @return APIResponse|JsonResponse
      */
+    #[Route(methods: ['POST'], name: 'create')]
     public function createAction(SlugDraftTransformer $slugDraftTransformer)
     {
         $slugDraftType = $slugDraftTransformer->getType();
@@ -52,7 +50,7 @@ class SlugDraftApiController extends APIController
         }
 
         $slugDrafts = $this->requestData[$slugDraftType];
-        if (1 !== count($slugDrafts)) {
+        if (1 !== (is_countable($slugDrafts) ? count($slugDrafts) : 0)) {
             throw new BadRequestException('exactly one slug-draft resource must be provided in the request');
         }
 

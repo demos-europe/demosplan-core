@@ -29,7 +29,6 @@
 
 // Einzelne Webcards
 .card__item {
-    @extend .cf;
     margin-bottom: $inuit-base-spacing-unit;
     padding: $inuit-base-spacing-unit--small;
 
@@ -38,12 +37,12 @@
 }
 
 .js .card__item:hover {
-    background-color: $dp-color-interactive-hover-subtle;
+    background-color: $dp-color-interactive-subtle-hover;
 
     animation: background-default-brand 1s;
 }
 
 @keyframes background-default-brand {
     0% { background-color: $dp-color-white; }
-    100% { background-color: $dp-color-interactive-hover-subtle; }
+    100% { background-color: $dp-color-interactive-subtle-hover; }
 }

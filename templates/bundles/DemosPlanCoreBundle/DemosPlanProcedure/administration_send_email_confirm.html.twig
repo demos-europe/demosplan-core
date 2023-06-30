@@ -1,0 +1,73 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+
+{% block demosplanbundlecontent %}
+<form
+    action="{{ path('dplan_procedure_mail_send_all_submitters_confirm_send', {'procedureId': templateVars.procedureId}) }}"
+    method="post"
+    data-dp-validate
+>
+    <fieldset>
+        <legend>
+            <h1>
+                {{ 'procedure.mail.submitters.send'|trans }}
+            </h1>
+        </legend>
+
+        <label class="u-mt">
+            {{ 'subject'|trans }}
+            <input
+                class="layout__item u-pl-0"
+                type="text"
+                name="r_email_subject"
+                value="{{ templateVars.preparationMail.mailSubject }}"
+                readonly
+            >
+        </label>
+
+        <label for="r_email_body" class="lbl">
+            {{ 'email.body'|trans }}
+        </label>
+
+        <div>{{ templateVars.preparationMail.mailBody|wysiwyg }}</div>
+        <input type="hidden" name="r_email_body" value="{{ templateVars.preparationMail.mailBody }}"/>
+
+        {{ uiComponent('form.element', {
+            label: {
+                text: 'procedure.mail.submitters.send.confirm.final'|trans({ count: templateVars.mailsCount }),
+                class: 'u-mt u-pr'
+            },
+            control: {
+                name: 'r_email_send'
+            },
+            type: 'checkbox',
+            id: 'r_email_send',
+            required: true
+        }) }}
+        <div class="u-mt text-right">
+            <input
+                class="btn btn--primary"
+                type="submit"
+                value="{{ 'send'|trans }}"
+                data-dp-validate-callback="dpconfirm"
+                data-dp-validate-transkey="{{ 'procedure.mail.submitters.send.confirm.alert'|trans({ count: templateVars.mailsCount }) }}"
+            >
+            <a
+                class="btn btn--secondary float-left"
+                role="button"
+                href="{{ path('dplan_procedure_mail_send_all_submitters_view', {'procedureId':templateVars.procedureId}) }}"
+            >
+                <i class="fa fa-angle-left u-pr-0_25"></i>
+                {{ 'back.to.edit'|trans }}
+            </a>
+        </div>
+
+    </fieldset>
+</form>
+
+
+{% endblock demosplanbundlecontent %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-genericBundleValidate.js') }}
+{% endblock javascripts %}

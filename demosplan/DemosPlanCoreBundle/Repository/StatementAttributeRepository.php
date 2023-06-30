@@ -25,7 +25,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

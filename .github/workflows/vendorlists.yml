@@ -1,0 +1,63 @@
+name: Update vendor lists
+
+on:
+  schedule:
+    - cron: 0 7 * * 1-5
+
+jobs:
+  vendor_update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP with composer v2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: gd soap sockets zip
+          tools: composer:v2
+
+      - name: Cache php modules
+        uses: actions/cache@v3.3.1
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-php-
+
+      - name: Miscellaneous runtime caches
+        uses: actions/cache@v3.3.1
+        with:
+          path: |
+            infrastructure/.runtime/cache
+          key: ${{ runner.os }}-infrastructure-runtime
+          restore-keys: |
+            ${{ runner.os }}-infrastructure-runtime
+
+      - name: Install composer dependencies
+        run: |
+          composer --version
+          composer install --no-interaction
+
+      - name: Create parameters.yml
+        run: |
+          printf "parameters:\n  database_name: test\n" > projects/core/app/config/parameters.yml
+
+      - name: Warmup cache
+        run: |
+          DEVELOPMENT_CONTAINER=1 php bin/console cache:clear
+
+      - name: Update lists
+        run: |
+          DEVELOPMENT_CONTAINER=1 bin/console dplan:vendorlist:update
+
+      - uses: peter-evans/create-pull-request@v3
+        with:
+            base: main
+            title: "chore: Update vendor lists"
+            commit-message: "chore: Update vendor lists"
+            body: |
+                Update the vendor lists with the current versions and licenses.
+            labels: devops, dependencies:composer, dependencies:yarn

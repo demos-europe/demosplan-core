@@ -14,21 +14,15 @@ use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterf
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class AfterResourceCreationEvent extends DPlanEvent implements AfterResourceCreationEventInterface
 {
     /**
-     * @var ResourceChange<O>
-     */
-    private $resourceChange;
-
-    /**
      * @param ResourceChange<O> $resourceChange
      */
-    public function __construct(ResourceChange $resourceChange)
+    public function __construct(private readonly ResourceChange $resourceChange)
     {
-        $this->resourceChange = $resourceChange;
     }
 
     /**

@@ -15,25 +15,15 @@ use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use Exception;
 use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 
 class SurveyValidator
 {
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    /** @var JsonSchemaValidator */
-    private $jsonSchemaValidator;
-
-    public function __construct(
-        ProcedureHandler $procedureHandler,
-        JsonSchemaValidator $jsonSchemaValidator
-    ) {
-        $this->procedureHandler = $procedureHandler;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
+    public function __construct(private readonly ProcedureHandler $procedureHandler, private readonly JsonSchemaValidator $jsonSchemaValidator)
+    {
     }
 
     /**

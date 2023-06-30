@@ -61,9 +61,7 @@ trait ElasticsearchQueryTrait
      */
     private function areSortsAvailable(array $sorts, array $availableSorts): bool
     {
-        $getSortname = function ($sort) {
-            return $sort->getName();
-        };
+        $getSortname = fn($sort) => $sort->getName();
 
         $availableSortNames = array_map($getSortname, $availableSorts);
         $sortNames = array_map($getSortname, $sorts);
@@ -306,16 +304,16 @@ trait ElasticsearchQueryTrait
             }
         }
         if (0 < count($boolMustFilters)) {
-            array_map([$boolQuery, 'addMust'], $boolMustFilters);
+            array_map($boolQuery->addMust(...), $boolMustFilters);
         }
         if (0 < count($boolMustNotFilters)) {
-            array_map([$boolQuery, 'addMustNot'], $boolMustNotFilters);
+            array_map($boolQuery->addMustNot(...), $boolMustNotFilters);
         }
         if (0 < count($esQuery->getFilterMustNotQueries())) {
-            array_map([$boolQuery, 'addMustNot'], $esQuery->getFilterMustNotQueries());
+            array_map($boolQuery->addMustNot(...), $esQuery->getFilterMustNotQueries());
         }
         if (0 < count($esQuery->getFilterMustQueries())) {
-            array_map([$boolQuery, 'addMust'], $esQuery->getFilterMustQueries());
+            array_map($boolQuery->addMust(...), $esQuery->getFilterMustQueries());
         }
 
         return $boolQuery;
@@ -340,7 +338,7 @@ trait ElasticsearchQueryTrait
         }
 
         if (0 < count($boolShouldFilter)) {
-            array_map([$boolQuery, 'addShould'], $boolShouldFilter);
+            array_map($boolQuery->addShould(...), $boolShouldFilter);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);
         }
 
@@ -462,14 +460,14 @@ trait ElasticsearchQueryTrait
             $filter,
             function ($a, $b) {
                 // Missing has to be on top
-                if (0 === strcmp($a['label'], 'Keine Zuordnung')) {
+                if (0 === strcmp((string) $a['label'], 'Keine Zuordnung')) {
                     return -1;
                 }
-                if (0 === strcmp($b['label'], 'Keine Zuordnung')) {
+                if (0 === strcmp((string) $b['label'], 'Keine Zuordnung')) {
                     return 1;
                 }
 
-                return strnatcasecmp($a['label'], $b['label']);
+                return strnatcasecmp((string) $a['label'], (string) $b['label']);
             }
         );
 
@@ -541,10 +539,9 @@ trait ElasticsearchQueryTrait
         foreach ($filters as $filter) {
             $labelMap = array_key_exists($filter->getName(), $labelMaps) ? $labelMaps[$filter->getName()] : [];
             $filterValues = $this->generateFilterValues($aggregationsFilterResult[$filter->getName()], $labelMap);
-            $filterValues = collect($filterValues)->sortBy(function ($filterValue) {
+            $filterValues = collect($filterValues)->sortBy(fn($filterValue) =>
                 /* @var FilterValue $filterValue */
-                return $filterValue->getLabel();
-            })->toArray();
+                $filterValue->getLabel())->toArray();
             if ($filter->hasNoAssignmentSelectOption()) {
                 $filterValues[] = $this->generateMissingFilterValue($filter, $aggregationsFilterResult);
             }

@@ -22,14 +22,8 @@ use Doctrine\ORM\ORMException;
 
 class SegmentHandler implements SegmentHandlerInterface
 {
-    /**
-     * @var SegmentService
-     */
-    private $segmentService;
-
-    public function __construct(SegmentService $segmentService)
+    public function __construct(private readonly SegmentService $segmentService)
     {
-        $this->segmentService = $segmentService;
     }
 
     /**

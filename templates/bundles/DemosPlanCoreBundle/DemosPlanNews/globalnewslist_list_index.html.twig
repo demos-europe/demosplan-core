@@ -1,4 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
 {% block component_part %}
 	{% set isLayoutArrow ='true' %}
     {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
@@ -35,3 +36,8 @@
         {% endblock content %}
     {% endembed %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}

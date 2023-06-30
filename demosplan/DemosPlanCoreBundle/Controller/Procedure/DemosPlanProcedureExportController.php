@@ -14,11 +14,11 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ExportService;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureServiceOutput;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,11 +30,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureExportController extends DemosPlanProcedureController
 {
     /**
-     * @Route(
-     *     name="DemosPlan_title_page_export.tex.twig",
-     *     path="/verfahren/{procedure}/titlepage/export"
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure
@@ -43,6 +38,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
     public function titlePageExportAction(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
@@ -78,12 +74,6 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     /**
      * PDF-Export der Institutionen-Liste.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_member_index_pdf",
-     *     path="/verfahren/{procedure}/einstellungen/benutzer/pdf",
-     *     options={"expose": true},
-     * )
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @param string $procedure
@@ -92,6 +82,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,
@@ -132,11 +123,6 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     /**
      * Export Procedure.
      *
-     * @Route(
-     *     name="DemosPlan_procedure_export",
-     *     path="/verfahren/{procedure}/export",
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure
@@ -145,6 +131,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_procedure_export', path: '/verfahren/{procedure}/export')]
     public function exportProcedureAction(
         CurrentUserService $currentUser,
         ExportService $exportService,

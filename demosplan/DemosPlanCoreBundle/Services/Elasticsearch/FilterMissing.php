@@ -12,17 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 class FilterMissing implements FilterInterface
 {
-    /** @var string */
-    protected $field;
     /** @var mixed */
     protected $value;
 
     /**
      * @param string $field
      */
-    public function __construct($field)
+    public function __construct(protected $field)
     {
-        $this->field = $field;
         $this->value = [''];
     }
 

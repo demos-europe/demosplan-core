@@ -20,21 +20,17 @@ use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TagTopicAPIController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/TagTopic/",
-     *        methods={"POST"},
-     *        name="dplan_api_tag_topic_create",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_json_api_tag_topic_create")
      */
+    #[Route(path: '/api/1.0/TagTopic/', methods: ['POST'], name: 'dplan_api_tag_topic_create', options: ['expose' => true])]
     public function createAction(
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,

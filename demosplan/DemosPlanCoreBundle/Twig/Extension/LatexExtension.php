@@ -31,12 +31,7 @@ class LatexExtension extends ExtensionBase
      */
     protected $fileService;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public const HTMLTOREPLACE = [
+    final public const HTMLTOREPLACE = [
         '\\',
         '{',
         '}',
@@ -84,7 +79,7 @@ class LatexExtension extends ExtensionBase
         '</ins>',
     ];
 
-    public const REPLACEBYLATEX = [
+    final public const REPLACEBYLATEX = [
         '\textbackslash~',
         '\{',
         '\}',
@@ -132,11 +127,10 @@ class LatexExtension extends ExtensionBase
         '',
     ];
 
-    public function __construct(ContainerInterface $container, FileService $serviceFile, LoggerInterface $logger)
+    public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
     {
         parent::__construct($container);
         $this->fileService = $serviceFile;
-        $this->logger = $logger;
     }
 
     /**
@@ -147,12 +141,12 @@ class LatexExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('latex', [$this, 'latexFilter']),
-            new TwigFilter('nl2texnl', [$this, 'latexNewlineFilter']),
-            new TwigFilter('latexPrepareImage', [$this, 'prepareImage']),
-            new TwigFilter('htmlPrepareImage', [$this, 'prepareHtmlImage']),
-            new TwigFilter('latexOutputImage', [$this, 'outputImage']),
-            new TwigFilter('latexGetImageDimensions', [$this, 'getImageDimensions']),
+            new TwigFilter('latex', $this->latexFilter(...)),
+            new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
+            new TwigFilter('latexPrepareImage', $this->prepareImage(...)),
+            new TwigFilter('htmlPrepareImage', $this->prepareHtmlImage(...)),
+            new TwigFilter('latexOutputImage', $this->outputImage(...)),
+            new TwigFilter('latexGetImageDimensions', $this->getImageDimensions(...)),
         ];
     }
 
@@ -161,7 +155,7 @@ class LatexExtension extends ExtensionBase
      */
     public function latexNewlineFilter($text)
     {
-        return str_replace("\n", '\\\\', $text);
+        return str_replace("\n", '\\\\', (string) $text);
     }
 
     /**
@@ -201,12 +195,12 @@ class LatexExtension extends ExtensionBase
             $sanitizedHits = [];
             $urlPlaceholderPattern = '-+-+-+';
             foreach ($urlHits[0] as $hit) {
-                $hitRegex = sprintf('/%s(\s|$|<)/', preg_quote($hit, '/'));
+                $hitRegex = sprintf('/%s(\s|$|<)/', preg_quote((string) $hit, '/'));
                 $text = preg_replace($hitRegex, $urlPlaceholderPattern.++$hitcount.'$1', $text);
 
                 // urls may contain % chars, these need to be sanitized for latex
-                $sanitizedHit = str_replace('%', '\%', $hit);
-                $sanitizedHits[] = str_replace($hit, '\footnote{\protect\url{'.$sanitizedHit.'}}', $hit);
+                $sanitizedHit = str_replace('%', '\%', (string) $hit);
+                $sanitizedHits[] = str_replace($hit, '\footnote{\protect\url{'.$sanitizedHit.'}}', (string) $hit);
             }
 
             // Tabellen-Tags behandeln
@@ -267,11 +261,11 @@ class LatexExtension extends ExtensionBase
             // Replace found URLs with latex-style URLs
             $hitcount = 0;
             foreach ($sanitizedHits as $sanitizedHit) {
-                $text = str_replace($urlPlaceholderPattern.++$hitcount, $sanitizedHit, $text);
+                $text = str_replace($urlPlaceholderPattern.++$hitcount, $sanitizedHit, (string) $text);
             }
 
             // replace tilde placeholder to latext tilde
-            $text = str_replace('LATEXtextasciitildeLATEX', '\textasciitilde', $text);
+            $text = str_replace('LATEXtextasciitildeLATEX', '\textasciitilde', (string) $text);
 
             $posthtml = [
                 '<p>',
@@ -331,7 +325,7 @@ class LatexExtension extends ExtensionBase
             }
             $currenttable = $tablesmatcharray[0][$t1];
 
-            $currenttable = str_replace("\n", '', $currenttable);
+            $currenttable = str_replace("\n", '', (string) $currenttable);
             $currenttable = str_replace("\r", '', $currenttable);
             $currenttable = str_replace('<p>', '', $currenttable);
             $currenttable = str_replace('</p>', '', $currenttable);
@@ -348,7 +342,7 @@ class LatexExtension extends ExtensionBase
 
             // count the inner segments
             $firstrow = $countCellsArray[0][0];
-            $numberofcells = substr_count($firstrow, '<td>');
+            $numberofcells = substr_count((string) $firstrow, '<td>');
 
             if ($numberofcells > 0) {
                 $cellwidth = round(14 / $numberofcells, 2);
@@ -381,10 +375,10 @@ class LatexExtension extends ExtensionBase
             $latextable .= "}\n\\hline\n";
 
             // Tabelle reihenweise durchgehen
-            for ($tr = 0, $trMax = count($oneTablerowsarray[0]); $tr < $trMax; ++$tr) {
+            for ($tr = 0, $trMax = is_countable($oneTablerowsarray[0]) ? count($oneTablerowsarray[0]) : 0; $tr < $trMax; ++$tr) {
                 $currentrow = $oneTablerowsarray[0][$tr];
                 // Replace <tr>
-                $currentrow = str_replace('<tr>', '', $currentrow);
+                $currentrow = str_replace('<tr>', '', (string) $currentrow);
                 $currentrow = str_replace(
                     '</tr>',
                     "\\\\\n\\hline\n",
@@ -490,24 +484,24 @@ class LatexExtension extends ExtensionBase
             $imageMatches
         );
         // nothing to replace
-        if (0 === count($imageMatches[0])) {
+        if (0 === (is_countable($imageMatches[0]) ? count($imageMatches[0]) : 0)) {
             return $text;
         }
         foreach ($imageMatches[0] as $imageMatch) {
             // build placeholderstring
             $currentImageTex = 'IMAGEPLACEHOLDER-';
 
-            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', $imageMatch, $src);
+            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', (string) $imageMatch, $src);
             $currentImageTex .= $src[2] ?? '';
 
             // only add width and height if both are provided
-            preg_match('|width=[\\\'"]([\d-]*)[\\\'"]|', $imageMatch, $width);
-            preg_match('|height=[\\\'"]([\d-]*)[\\\'"]|', $imageMatch, $height);
+            preg_match('|width=[\\\'"]([\d-]*)[\\\'"]|', (string) $imageMatch, $width);
+            preg_match('|height=[\\\'"]([\d-]*)[\\\'"]|', (string) $imageMatch, $height);
             if (2 === count($width) && 2 === count($height)) {
                 $currentImageTex .= '&width='.$width[1].'&height='.$height[1];
             }
 
-            preg_match('|alt=[\\\'"]([[:print:]§]+)[\\\'"]|u', $imageMatch, $alt);
+            preg_match('|alt=[\\\'"]([[:print:]§]+)[\\\'"]|u', (string) $imageMatch, $alt);
             if (2 === count($alt)) {
                 // replace doublequotes as alt text is wrapped in "
                 $altText = str_replace('"', '\'', $alt[1]);
@@ -528,7 +522,7 @@ class LatexExtension extends ExtensionBase
     {
         preg_match_all(
             '|[.*]?<!-- #Image-([a-z0-9&=\-].*?) -->[.*]?|',
-            $text,
+            (string) $text,
             $imageMatches,
             PREG_PATTERN_ORDER
         );
@@ -541,7 +535,7 @@ class LatexExtension extends ExtensionBase
                 $text = preg_replace(
                     '|'.$imageMatches[0][$matchKey].'|',
                     $currentImageTex,
-                    $text
+                    (string) $text
                 );
             }
         }
@@ -669,7 +663,7 @@ class LatexExtension extends ExtensionBase
 
                 return $this->getLatexSizeCommand($sizeArray[0], $sizeArray[1]);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             // return default value
         }
 

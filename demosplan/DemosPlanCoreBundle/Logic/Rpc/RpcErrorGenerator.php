@@ -16,26 +16,26 @@ use stdClass;
 
 class RpcErrorGenerator implements RpcErrorGeneratorInterface
 {
-    public const ACCESS_DENIED_CODE = -32768;
-    public const ACCESS_DENIED_MESSAGE = 'Access denied';
+    final public const ACCESS_DENIED_CODE = -32768;
+    final public const ACCESS_DENIED_MESSAGE = 'Access denied';
 
-    public const INTERNAL_ERROR_CODE = -32603;
-    public const INTERNAL_ERROR_MESSAGE = 'Internal error';
+    final public const INTERNAL_ERROR_CODE = -32603;
+    final public const INTERNAL_ERROR_MESSAGE = 'Internal error';
 
-    public const INVALID_PARAMS_CODE = -32602;
-    public const INVALID_PARAMS_MESSAGE = 'Invalid params';
+    final public const INVALID_PARAMS_CODE = -32602;
+    final public const INVALID_PARAMS_MESSAGE = 'Invalid params';
 
-    public const INVALID_REQUEST_CODE = -32600;
-    public const INVALID_REQUEST_MESSAGE = 'Invalid Request';
+    final public const INVALID_REQUEST_CODE = -32600;
+    final public const INVALID_REQUEST_MESSAGE = 'Invalid Request';
 
-    public const METHOD_NOT_FOUND_CODE = -32601;
-    public const METHOD_NOT_FOUND_MESSAGE = 'Method not found';
+    final public const METHOD_NOT_FOUND_CODE = -32601;
+    final public const METHOD_NOT_FOUND_MESSAGE = 'Method not found';
 
-    public const PARSE_ERROR_CODE = -32700;
-    public const PARSE_ERROR_MESSAGE = 'Parse error';
+    final public const PARSE_ERROR_CODE = -32700;
+    final public const PARSE_ERROR_MESSAGE = 'Parse error';
 
-    public const SERVER_ERROR_CODE = -32000;
-    public const SERVER_ERROR_MESSAGE = 'Server error';
+    final public const SERVER_ERROR_CODE = -32000;
+    final public const SERVER_ERROR_MESSAGE = 'Server error';
 
     /**
      * @var array
@@ -45,9 +45,8 @@ class RpcErrorGenerator implements RpcErrorGeneratorInterface
      * @return array
      */
     private $errorMessages;
-    private LoggerInterface $logger;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
         $this->errorMessages = [
             self::ACCESS_DENIED_CODE    => self::ACCESS_DENIED_MESSAGE,
@@ -58,7 +57,6 @@ class RpcErrorGenerator implements RpcErrorGeneratorInterface
             self::PARSE_ERROR_CODE      => self::PARSE_ERROR_MESSAGE,
             self::SERVER_ERROR_CODE     => self::SERVER_ERROR_MESSAGE,
         ];
-        $this->logger = $logger;
     }
 
     public function parseError(?object $rpcRequest = null): object

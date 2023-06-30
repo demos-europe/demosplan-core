@@ -12,7 +12,7 @@ namespace Tests\Core\Procedure\Functional;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\EndDateSorter;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\EndDateSorter;
 use Tests\Base\FunctionalTestCase;
 
 class EndDateSorterTest extends FunctionalTestCase

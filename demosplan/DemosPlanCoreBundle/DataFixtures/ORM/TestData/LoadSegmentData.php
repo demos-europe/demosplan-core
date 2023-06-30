@@ -19,9 +19,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadSegmentData extends TestFixture implements DependentFixtureInterface
 {
-    public const SEGMENT_BULK_EDIT_1 = 'segmentTestTagsBulkEdit1';
-    public const SEGMENT_BULK_EDIT_2 = 'segmentTestTagsBulkEdit2';
-    public const SEGMENT_WITH_ASSIGNEE = 'segmentWithAssignee';
+    final public const SEGMENT_BULK_EDIT_1 = 'segmentTestTagsBulkEdit1';
+    final public const SEGMENT_BULK_EDIT_2 = 'segmentTestTagsBulkEdit2';
+    final public const SEGMENT_WITH_ASSIGNEE = 'segmentWithAssignee';
 
     protected $manager;
 

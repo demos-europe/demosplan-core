@@ -15,11 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
-use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -64,36 +64,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $accessEvaluator;
-
-    /**
-     * @var ProcedureExtension
-     */
-    private $procedureExtension;
-
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-
-    /**
-     * @var PhasePermissionsetLoader
-     */
-    private $phasePermissionsetLoader;
-
-    public function __construct(
-        PhasePermissionsetLoader $phasePermissionsetLoader,
-        DraftStatementService $draftStatementService,
-        ProcedureAccessEvaluator $accessEvaluator,
-        ProcedureExtension $procedureExtension
-    ) {
-        $this->phasePermissionsetLoader = $phasePermissionsetLoader;
-        $this->accessEvaluator = $accessEvaluator;
-        $this->procedureExtension = $procedureExtension;
-        $this->draftStatementService = $draftStatementService;
+    public function __construct(private readonly PhasePermissionsetLoader $phasePermissionsetLoader, private readonly DraftStatementService $draftStatementService, private readonly ProcedureAccessEvaluator $accessEvaluator, private readonly ProcedureExtension $procedureExtension)
+    {
     }
 
     public function getEntityClass(): string
@@ -198,11 +170,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
         $properties = [
             $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->name)->readable(true, function (Procedure $procedure) use ($external): ?string {
-                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $procedure->getName()
-                    : null;
-            }, true)->sortable()->filterable(),
+            $this->createAttribute($this->name)->readable(true, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $procedure->getName()
+                : null, true)->sortable()->filterable(),
             $owningOrganisation,
             $invitedOrganisations,
         ];
@@ -241,41 +211,27 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 return count($statementResult->getResult());
             });
 
-            $properties[] = $this->createAttribute($this->externalName)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $procedure->getExternalName()
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->externalStartDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->formatDate($procedure->getPublicParticipationStartDate())
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->formatDate($procedure->getPublicParticipationEndDate())
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->globalConfig->getExternalPhaseTranslationKey($procedure->getPublicParticipationPhase())
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->formatDate($procedure->getStartDate())
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->formatDate($procedure->getEndDate())
-                    : null;
-            });
-            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, function (Procedure $procedure) use ($external): ?string {
-                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                    ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
-                    : null;
-            });
+            $properties[] = $this->createAttribute($this->externalName)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $procedure->getExternalName()
+                : null);
+            $properties[] = $this->createAttribute($this->externalStartDate)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->formatDate($procedure->getPublicParticipationStartDate())
+                : null);
+            $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->formatDate($procedure->getPublicParticipationEndDate())
+                : null);
+            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->globalConfig->getExternalPhaseTranslationKey($procedure->getPublicParticipationPhase())
+                : null);
+            $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->formatDate($procedure->getStartDate())
+                : null);
+            $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->formatDate($procedure->getEndDate())
+                : null);
+            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
+                : null);
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
             // T18749
@@ -284,9 +240,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             });
 
             $properties[] = $this->createAttribute($this->internalPhasePermissionset)
-                ->readable(false, [$this->phasePermissionsetLoader, 'getInternalPhasePermissionset']);
+                ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
-                ->readable(false, [$this->phasePermissionsetLoader, 'getExternalPhasePermissionset']);
+                ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
         }
 
         return $properties;

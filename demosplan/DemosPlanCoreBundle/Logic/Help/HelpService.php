@@ -19,14 +19,8 @@ use InvalidArgumentException;
 
 class HelpService extends CoreService
 {
-    /**
-     * @var ContextualHelpRepository
-     */
-    private $contextualHelpRepository;
-
-    public function __construct(ContextualHelpRepository $contextualHelpRepository)
+    public function __construct(private readonly ContextualHelpRepository $contextualHelpRepository)
     {
-        $this->contextualHelpRepository = $contextualHelpRepository;
     }
 
     /**
@@ -115,7 +109,7 @@ class HelpService extends CoreService
             $this->logger->error('UpdateSingleContextualHelp failed, Ident: '.$id.' ExceptionMessage: ', [$e]);
             throw new InvalidArgumentException();
         } catch (Exception $e) {
-            $type = get_class($e);
+            $type = $e::class;
             $this->logger->error('UpdateSingleContextualHelp failed Ident: '.$id.', ExceptionClass: '.$type.' ExceptionMessage: ', [$e]);
             throw $e;
         }

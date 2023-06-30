@@ -35,14 +35,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    /**
-     * @var FaqHandler
-     */
-    private $faqHandler;
-
-    public function __construct(FaqHandler $faqHandler)
+    public function __construct(private readonly FaqHandler $faqHandler)
     {
-        $this->faqHandler = $faqHandler;
     }
 
     public static function getName(): string
@@ -86,15 +80,9 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->enabled)->readable(true),
             $this->createAttribute($this->title)->readable(true),
-            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GPSORG);
-            }),
-            $this->createAttribute($this->publicVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GGUEST);
-            }),
-            $this->createAttribute($this->fpVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GLAUTH);
-            }),
+            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG)),
+            $this->createAttribute($this->publicVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST)),
+            $this->createAttribute($this->fpVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH)),
         ];
     }
 

@@ -38,11 +38,10 @@ class AddressBookEntryVO extends ValueObject
     protected $organisation;
 
     /**
-     * @Assert\NotBlank(message = "email.address.invalid")
-     * @Assert\Email(message = "email.address.invalid")
-     *
      * @var string
      */
+    #[Assert\NotBlank(message: 'email.address.invalid')]
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $emailAddress;
 
     public function __construct(string $name, string $emailAddress, Orga $organisation)

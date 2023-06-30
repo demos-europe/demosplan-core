@@ -23,17 +23,17 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use Exception;
@@ -46,73 +46,25 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
     /**
      * Key of the related event concern.
      */
-    public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUserProvider;
-
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $tokenRepository;
-
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
+    final public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
 
     /**
      * @var TranslatorInterface
      */
     protected $translator;
 
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var EntitySyncLinkRepository
-     */
-    private $entitySyncLinkRepository;
-
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureProvider;
-
     public function __construct(
-        CurrentProcedureService $currentProcedureProvider,
-        CurrentUserInterface $currentUserProvider,
-        EntitySyncLinkRepository $entitySyncLinkRepository,
-        MessageBagInterface $messageBag,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        ProcedureCoupleTokenRepository $tokenRepository,
-        StatementResourceType $statementResourceType,
-        TokenFactory $tokenFactory,
+        private readonly CurrentProcedureService $currentProcedureProvider,
+        private readonly CurrentUserInterface $currentUserProvider,
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureCoupleTokenRepository $tokenRepository,
+        private readonly StatementResourceType $statementResourceType,
+        private readonly TokenFactory $tokenFactory,
         TranslatorInterface $translator
     ) {
-        $this->currentUserProvider = $currentUserProvider;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
-        $this->tokenFactory = $tokenFactory;
-        $this->tokenRepository = $tokenRepository;
         $this->translator = $translator;
-        $this->messageBag = $messageBag;
-        $this->entitySyncLinkRepository = $entitySyncLinkRepository;
-        $this->statementResourceType = $statementResourceType;
-        $this->currentProcedureProvider = $currentProcedureProvider;
     }
 
     public static function getSubscribedEvents(): array
@@ -256,12 +208,10 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         $path->setParent($this->statementResourceType);
         $path->setParentPropertyName(self::SYNCHRONIZED_PROPERTY);
         $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
-        $property->readable(false, function (Statement $statement): bool {
-            return null !== $this->entitySyncLinkRepository->findOneBy([
-                'sourceId' => $statement->getId(),
-                'class'    => Statement::class,
-            ]);
-        });
+        $property->readable(false, fn (Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
+            'sourceId' => $statement->getId(),
+            'class'    => Statement::class,
+        ]));
         $event->addProperty($property);
     }
 

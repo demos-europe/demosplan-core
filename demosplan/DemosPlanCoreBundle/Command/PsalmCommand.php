@@ -66,10 +66,7 @@ class PsalmCommand extends CoreCommand
         );
     }
 
-    /**
-     * @return int|null
-     */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $configFilePath = DemosPlanPath::getTemporaryPath(uniqid('', true).'psalm.xml');
 
@@ -123,6 +120,6 @@ class PsalmCommand extends CoreCommand
             $output->write($process->getOutput());
         }
 
-        return $process->getExitCode();
+        return (int) $process->getExitCode();
     }
 }

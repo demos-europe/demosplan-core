@@ -11,14 +11,15 @@
 
     {% if hasPermission('area_admin_map') and (templateVars.procedure.master == true or templateVars.procedure.procedureBehaviorDefinition.isAllowedToEnableMap) %}
         <dp-map-settings-preview
-            procedure-id="{{ procedure }}"
-            procedure-coordinate="{{ procedureSettings.coordinate }}"
-            init-extent="{{ procedureSettings.mapExtent }}"
-            :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-            territory="{{ procedureSettings.territory }}"
             drawing="{{ procedureSettings.planDrawPDF}}"
             drawing-explanation="{{ procedureSettings.planPDF}}"
+            init-extent="{{ procedureSettings.mapExtent }}"
             :is-blueprint="Boolean({{ templateVars.procedure.master }})"
+            map-attribution="{{ procedureSettings.copyright }}"
+            procedure-coordinate="{{ procedureSettings.coordinate }}"
+            :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
+            procedure-id="{{ procedure }}"
+            territory="{{ procedureSettings.territory }}"
         >
         </dp-map-settings-preview>
     {% endif %}
@@ -41,10 +42,10 @@
             </ul>
         {% endif %}
 
-        <div class="cf">
+        <div class="flow-root">
             {% if hasPermission('feature_admin_element_edit') %}
                 <a
-                    class="btn btn--primary float--right"
+                    class="btn btn--primary float-right"
                     href="{{ path('DemosPlan_elements_administration_new',{'procedure':procedure }) }}"
                     data-cy="createElementCategory">
                     {{ "category.create"|trans }}
@@ -82,7 +83,7 @@
             }}
 
             <input
-                class="btn btn--primary u-mt-0_75 float--right"
+                class="btn btn--primary u-mt-0_75 float-right"
                 data-cy="submitImport"
                 type="submit"
                 value="{{ "import.verb"|trans }}">

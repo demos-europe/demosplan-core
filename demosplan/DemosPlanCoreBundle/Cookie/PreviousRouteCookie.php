@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 use function str_replace;
-use function strpos;
 
 /**
  * Class PreviousRouteCookie.
@@ -29,13 +28,13 @@ use function strpos;
  */
 class PreviousRouteCookie extends Cookie
 {
-    public const NAME = 'dplan-loggedInRoute';
+    final public const NAME = 'dplan-loggedInRoute';
 
     public function __construct(Request $request)
     {
         $path = str_replace($request->getSchemeAndHttpHost(), '', $request->getUri());
 
-        if (0 === strpos($path, '/app_dev.php')) {
+        if (str_starts_with($path, '/app_dev.php')) {
             $path = str_replace('/app_dev.php', '', $path);
         }
 

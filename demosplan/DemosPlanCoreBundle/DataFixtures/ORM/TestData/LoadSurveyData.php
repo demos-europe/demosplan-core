@@ -19,11 +19,11 @@ use Exception;
 
 class LoadSurveyData extends TestFixture implements DependentFixtureInterface
 {
-    public const PARK_SURVEY = 'parkSurvey';
+    final public const PARK_SURVEY = 'parkSurvey';
 
-    public const POOL_SURVEY = 'poolSurvey';
+    final public const POOL_SURVEY = 'poolSurvey';
 
-    public const SCHOOL_SURVEY = 'schoolSurvey';
+    final public const SCHOOL_SURVEY = 'schoolSurvey';
 
     /**
      * @throws Exception

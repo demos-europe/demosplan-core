@@ -27,19 +27,19 @@
 
 // Inline spacing: put stuff next to each other maintaining a small space between items.
 .space-inline-xs > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit--tiny;
     }
 }
 
 .space-inline-s > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit--small;
     }
 }
 
 .space-inline-m > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit;
     }
 }

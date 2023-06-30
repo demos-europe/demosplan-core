@@ -17,16 +17,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConsoleApplication extends Application
 {
-    /**
-     * @var bool
-     */
-    private $isDeprecatedFrontController;
-
-    public function __construct(KernelInterface $kernel, bool $isDeprecatedFrontController)
+    public function __construct(KernelInterface $kernel, private readonly bool $isDeprecatedFrontController)
     {
         parent::__construct($kernel);
-
-        $this->isDeprecatedFrontController = $isDeprecatedFrontController;
 
         /* @var DemosPlanKernel $kernel */
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');

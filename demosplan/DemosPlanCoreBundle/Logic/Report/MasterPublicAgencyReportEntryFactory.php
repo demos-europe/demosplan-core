@@ -20,6 +20,7 @@ class MasterPublicAgencyReportEntryFactory extends AbstractReportEntryFactory
 {
     public function createDeletionEntry(MasterToeb $masterToeb): ReportEntry
     {
+        $message = [];
         $incomingData = ['status' => true];
 
         $message['ident'] = $masterToeb->getIdent();

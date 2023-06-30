@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import { nextTick, set } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
 
 const ProcedureStore = {
@@ -35,7 +36,7 @@ const ProcedureStore = {
     },
 
     setProperty (state, data) {
-      Vue.set(state, data.prop, data.val)
+      set(state, data.prop, data.val)
     }
   },
 
@@ -61,7 +62,7 @@ const ProcedureStore = {
         responseType: 'json'
       }).then(response => {
         commit('reset')
-        Vue.nextTick(() => {
+        nextTick(() => {
           const procedures = response.data.data.map(el => {
             return {
               ...el.attributes,

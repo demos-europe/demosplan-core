@@ -30,25 +30,15 @@ class CustomerHandler extends CoreHandler
      * @var CustomerService
      */
     protected $customerService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
 
     public function __construct(
         CustomerService $customerService,
         MessageBag $messageBag,
-        PermissionsInterface $permissions,
-        ValidatorInterface $validator)
+        private readonly PermissionsInterface $permissions,
+        private readonly ValidatorInterface $validator)
     {
         $this->customerService = $customerService;
         parent::__construct($messageBag);
-        $this->permissions = $permissions;
-        $this->validator = $validator;
     }
 
     /**

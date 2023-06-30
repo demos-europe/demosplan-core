@@ -194,7 +194,7 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             // logging is already done in sub methods
 
             return false;
@@ -214,7 +214,7 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
         return $entity;
     }
 
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

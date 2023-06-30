@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,19 +25,24 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Defines the availability of a customizable fields on a statement (participation).
  *
  * @ORM\Table(uniqueConstraints={
+ *
  *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
  *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
  */
-class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
+class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface, StatementFieldDefinitionInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -44,6 +51,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -52,58 +60,35 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
-     */
-    private $name;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private $enabled;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
-     */
-    private $required = true;
-
-    /**
-     * @var StatementFormDefinition
-     *
-     * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
-     * @JoinColumn(referencedColumnName="id", nullable=false)
-     */
-    private $statementFormDefinition;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="smallint", nullable=false, options={"default":0})
-     */
-    private $orderNumber;
-
     public function __construct(
-        string $fieldName,
-        StatementFormDefinition $statementFormDefinition,
-        int $orderNumber,
-        bool $enabled,
-        bool $required
+        /**
+         * @ORM\Column(type="string", nullable=false)
+         */
+        private string $name,
+        /**
+         * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+         *
+         * @JoinColumn(referencedColumnName="id", nullable=false)
+         */
+        private StatementFormDefinition $statementFormDefinition,
+        /**
+         * @ORM\Column(type="smallint", nullable=false, options={"default":0})
+         */
+        private int $orderNumber,
+        /**
+         * @ORM\Column(type="boolean", nullable=false)
+         */
+        private bool $enabled,
+        /**
+         * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+         */
+        private bool $required
     ) {
-        $this->enabled = $enabled;
-        $this->required = $required;
-        $this->name = $fieldName;
-        $this->orderNumber = $orderNumber;
-        $this->statementFormDefinition = $statementFormDefinition;
     }
 
     public function isEnabled(): bool
@@ -126,7 +111,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getStatementFormDefinition(): StatementFormDefinition
+    public function getStatementFormDefinition(): StatementFormDefinitionInterface
     {
         return $this->statementFormDefinition;
     }

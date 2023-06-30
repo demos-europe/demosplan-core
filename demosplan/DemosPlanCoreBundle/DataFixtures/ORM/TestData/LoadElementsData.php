@@ -22,9 +22,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadElementsData extends TestFixture implements DependentFixtureInterface
 {
-    public const TEST_ELEMENT_1 = 'testElement1';
-    public const ELEMENT_CATEGORY_FILE = 'testFileElement';
-    public const TEST_ELEMENT_2 = 'testElement2';
+    final public const TEST_ELEMENT_1 = 'testElement1';
+    final public const ELEMENT_CATEGORY_FILE = 'testFileElement';
+    final public const TEST_ELEMENT_2 = 'testElement2';
 
     public function load(ObjectManager $manager): void
     {

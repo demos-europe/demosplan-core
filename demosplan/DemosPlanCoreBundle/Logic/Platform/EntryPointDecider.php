@@ -52,7 +52,7 @@ class EntryPointDecider implements EntryPointDeciderInterface
 
         $publicIndexRoute = $this->globalConfig->getPublicIndexRoute();
         if ('' !== $publicIndexRoute) {
-            $doRedirect = false === strpos($publicIndexRoute, '::');
+            $doRedirect = !str_contains($publicIndexRoute, '::');
 
             ($doRedirect)
                 ? $entrypointRoute->setRoute($publicIndexRoute)

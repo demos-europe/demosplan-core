@@ -16,12 +16,12 @@ use Doctrine\Persistence\ObjectManager;
 class LoadStatementFormDefinitionData extends TestFixture
 {
     // for procedureTypes
-    public const PROCEDURETYPE_1 = 'statementFormDefinition1';
-    public const PROCEDURETYPE_BPLAN = 'statementFormDefinition_bplan';
-    public const PROCEDURETYPE_BRK = 'statementFormDefinitionBrk';
+    final public const PROCEDURETYPE_1 = 'statementFormDefinition1';
+    final public const PROCEDURETYPE_BPLAN = 'statementFormDefinition_bplan';
+    final public const PROCEDURETYPE_BRK = 'statementFormDefinitionBrk';
 
     // for procedures
-    public const PROCEDURE_TESTPROCEDURE = 'statementFormDefinition_testProcedure';
+    final public const PROCEDURE_TESTPROCEDURE = 'statementFormDefinition_testProcedure';
 
     private $manager;
 

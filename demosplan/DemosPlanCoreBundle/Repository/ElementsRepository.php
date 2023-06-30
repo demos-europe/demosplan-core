@@ -339,7 +339,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
      *
      * @return Elements
      */
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -349,7 +349,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -405,11 +405,10 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $paragraphs = $paragraphRepository->findBy(['procedure' => $procedureId]);
         $documents = $documentRepository->findBy(['procedure' => $procedureId]);
         $elementIdsWithParagraphsOrDocuments = array_map(
-            static function ($paragraphOrDocument) {
+            static fn($paragraphOrDocument) =>
                 /* @var Paragraph|SingleDocument $paragraphOrDocument */
-                return $paragraphOrDocument->getElement()->getId();
-            },
-            array_merge($paragraphs, $documents)
+                $paragraphOrDocument->getElement()->getId(),
+            [...$paragraphs, ...$documents]
         );
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -426,9 +425,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $elements = $queryBuilder->getQuery()->getResult();
 
         return array_map(
-            static function (Elements $element) {
-                return $element->getId();
-            },
+            static fn(Elements $element) => $element->getId(),
             $this->filterElementsByPermissions($elements)
         );
     }

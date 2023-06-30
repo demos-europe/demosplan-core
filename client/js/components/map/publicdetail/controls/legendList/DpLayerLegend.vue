@@ -27,7 +27,7 @@
           v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
           :class="prefixClass('list-style-none')">
           <a
-            :class="prefixClass('c-map__group-item display--block')"
+            :class="prefixClass('c-map__group-item block')"
             target="_blank"
             :href="Routing.generate('core_file', { hash: planPdf.hash })"
             :title="planPdfTitle">
@@ -50,7 +50,7 @@
             :data-layername="layer.name"
             :class="prefixClass('list-style-none')">
             <a
-              :class="prefixClass('c-map__group-item display--block')"
+              :class="prefixClass('c-map__group-item block')"
               target="_blank"
               :href="Routing.generate('core_file', { hash: layer.legend.hash })"
               :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">

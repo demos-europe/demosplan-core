@@ -9,7 +9,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { DpCopyPasteButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import DpSelectDocument from './../fragment/SelectDocument'
 
 export default {
@@ -17,7 +17,7 @@ export default {
   name: 'DpCreateStatementFragment',
 
   components: {
-    DpCopyPasteButton,
+    DpButton,
     DpEditor,
     DpMultiselect,
     DpSelectDocument
@@ -57,6 +57,12 @@ export default {
     procedureId: {
       required: true,
       type: String
+    },
+
+    statementText: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
 
@@ -82,8 +88,8 @@ export default {
       this[field] = []
     },
 
-    setFragmentText (value) {
-      this.fragmentText = value
+    setFragmentText () {
+      this.fragmentText = this.statementText
     }
   },
 

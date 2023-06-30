@@ -28,20 +28,13 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
-    private UserService $userService;
-    private UserHandler $userHandler;
-    private OrgaService $orgaService;
-
     public function __construct(
         EntityManagerInterface $entityManager,
-        OrgaService $orgaService,
-        UserHandler $userHandler,
-        UserService $userService
+        private readonly OrgaService $orgaService,
+        private readonly UserHandler $userHandler,
+        private readonly UserService $userService
     ) {
         parent::__construct($entityManager);
-        $this->userService = $userService;
-        $this->userHandler = $userHandler;
-        $this->orgaService = $orgaService;
     }
 
     public function load(ObjectManager $manager): void

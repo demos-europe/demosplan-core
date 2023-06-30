@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Application;
 
 class Header
 {
-    public const FILE_HASH = 'X-Demosplan-File-Hash';
-    public const FILE_ID = 'X-Demosplan-File-Id';
-    public const PROCEDURE_ID = 'X-Demosplan-Procedure-Id';
+    final public const FILE_HASH = 'X-Demosplan-File-Hash';
+    final public const FILE_ID = 'X-Demosplan-File-Id';
+    final public const PROCEDURE_ID = 'X-Demosplan-Procedure-Id';
 }

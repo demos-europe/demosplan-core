@@ -19,11 +19,11 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadWorkflowPlaceData extends TestFixture implements DependentFixtureInterface
 {
-    public const PLACE_REPLY = 'reply';
-    public const PLACE_TECHNICAL_REVIEW = 'technicalReview';
-    public const PLACE_LEGAL_REVIEW = 'legalExamination';
-    public const PLACE_EDITORIAL = 'editorial';
-    public const PLACE_COMPLETED = 'completed';
+    final public const PLACE_REPLY = 'reply';
+    final public const PLACE_TECHNICAL_REVIEW = 'technicalReview';
+    final public const PLACE_LEGAL_REVIEW = 'legalExamination';
+    final public const PLACE_EDITORIAL = 'editorial';
+    final public const PLACE_COMPLETED = 'completed';
 
     public function load(ObjectManager $manager): void
     {

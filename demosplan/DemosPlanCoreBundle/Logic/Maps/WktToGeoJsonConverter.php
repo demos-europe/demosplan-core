@@ -21,14 +21,8 @@ use stdClass;
 
 class WktToGeoJsonConverter
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     public function convertIfNeeded(string $input): string
@@ -60,7 +54,7 @@ class WktToGeoJsonConverter
             );
 
             return $features;
-        } catch (InvalidArgumentException|JsonException $e) {
+        } catch (InvalidArgumentException|JsonException) {
             $this->logger->error('Received string cannot be converted to geoJson.', [$input]);
         }
 

@@ -173,7 +173,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
     {
         try {
             return $this->findAll();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

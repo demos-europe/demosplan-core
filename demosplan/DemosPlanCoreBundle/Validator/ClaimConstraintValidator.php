@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -25,12 +25,8 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class ClaimConstraintValidator extends ConstraintValidator
 {
-    /** @var ProcedureService */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     public function validate($value, Constraint $constraint): void

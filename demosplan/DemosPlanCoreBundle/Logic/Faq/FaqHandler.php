@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -44,72 +46,26 @@ class FaqHandler extends CoreHandler
      */
     protected $contentService;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FaqService
-     */
-    private $faqService;
-
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-
-    /**
-     * @var RoleHandler
-     */
-    private $roleHandler;
-
-    /**
-     * @var FaqResourceType
-     */
-    private $faqResourceType;
-
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
     public function __construct(
         MessageBag $messageBag,
-        TranslatorInterface $translator,
-        EntityManagerInterface $entityManager,
-        FaqResourceType $faqResourceType,
-        FaqService $faqService,
-        CustomerHandler $customerHandler,
-        RoleHandler $roleHandler,
-        RoleRepository $roleRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly FaqResourceType $faqResourceType,
+        private readonly FaqService $faqService,
+        private readonly CustomerHandler $customerHandler,
+        private readonly RoleHandler $roleHandler,
+        private readonly RoleRepository $roleRepository,
         ContentService $contentService,
-        ValidatorInterface $validator
+        private readonly ValidatorInterface $validator
     ) {
         parent::__construct($messageBag);
-        $this->translator = $translator;
-        $this->entityManager = $entityManager;
-        $this->faqService = $faqService;
-        $this->customerHandler = $customerHandler;
-        $this->roleHandler = $roleHandler;
         $this->contentService = $contentService;
-        $this->faqResourceType = $faqResourceType;
-        $this->roleRepository = $roleRepository;
-        $this->validator = $validator;
     }
 
     /**
-     * Gets enabled faqs of a category.
+     * Get all (enabled and disabled) faqs of a category.
+     *
+     * @return array<int, FaqInterface>
      */
     public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
     {
@@ -117,13 +73,24 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * Get all (enabled and disabled) faqs of a category.
+     * Gets enabled faqs of a category.
+     * takes user-roles into account.
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
+    }
+
+    /**
+     * Get all enabled faqs of a category regardless of user role restrictions.
+     *
+     * @return array<int, FaqInterface>
+     */
+    public function getAllEnabledFaqsRegardlessOfUserRoleRestrictions(FaqCategoryInterface $faqCategory): array
+    {
+        return $this->faqService->getAllEnabledFaqForCategoryRegardlessOfUserRoles($faqCategory);
     }
 
     /**
@@ -183,10 +150,10 @@ class FaqHandler extends CoreHandler
     public function createFaqCategory(array $data): FaqCategory
     {
         try {
-            if (!array_key_exists('r_category_title', $data) || '' === trim($data['r_category_title'])) {
+            if (!array_key_exists('r_category_title', $data) || '' === trim((string) $data['r_category_title'])) {
                 throw new UnexpectedValueException('FaqCategory title field missing or left blank.');
             }
-            $data['r_category_title'] = trim($data['r_category_title']);
+            $data['r_category_title'] = trim((string) $data['r_category_title']);
 
             $faqCategory = new FaqCategory();
             $faqCategory->setTitle($data['r_category_title']);
@@ -219,7 +186,7 @@ class FaqHandler extends CoreHandler
         // improve:
         // Sanitize and validate fields
         $mandatoryErrors = false;
-        if (!array_key_exists('r_enable', $data) || '' === trim($data['r_enable'])) {
+        if (!array_key_exists('r_enable', $data) || '' === trim((string) $data['r_enable'])) {
             $mandatoryErrors = true;
             $this->getMessageBag()->add(
                 'warning',
@@ -235,7 +202,7 @@ class FaqHandler extends CoreHandler
                 ['name' => $this->translator->trans('visible')]
             );
         }
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors = true;
             $this->getMessageBag()->add(
                 'warning',
@@ -243,7 +210,7 @@ class FaqHandler extends CoreHandler
                 ['name' => $this->translator->trans('heading')]
             );
         }
-        if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
+        if (!array_key_exists('r_text', $data) || '' === trim((string) $data['r_text'])) {
             $mandatoryErrors = true;
             $this->getMessageBag()->add(
                 'warning',
@@ -262,8 +229,8 @@ class FaqHandler extends CoreHandler
         if (true === $mandatoryErrors) {
             return null;
         }
-        if (255 < strlen($data['r_title'])) {
-            $data['r_title'] = substr($data['r_title'], 0, 255);
+        if (255 < strlen((string) $data['r_title'])) {
+            $data['r_title'] = substr((string) $data['r_title'], 0, 255);
             $this->getMessageBag()->add('warning', 'warning.faq.title.tooLong');
         }
 
@@ -370,10 +337,20 @@ class FaqHandler extends CoreHandler
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
         // filter: custom categories only
         return $allFaqCategories->filter(
-            static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
-                return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
-            }
+            static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()
         );
+    }
+
+    /**
+     * Get all platform-faq-categories sorted alphabetically by title.
+     *
+     * @return Collection<PlatformFaqCategory>
+     *
+     * @throws UnexpectedValueException
+     */
+    public function getPlatformFaqCategories(): Collection
+    {
+        return collect($this->faqService->getPlatformFaqCategories());
     }
 
     /**
@@ -381,7 +358,7 @@ class FaqHandler extends CoreHandler
      *
      * @param Collection $categories a collection of {@link Category categories}
      *
-     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     * @return array<string, array{id: string, label: string, faqlist: list<FaqInterface>}>
      */
     public function convertIntoTwigFormat(Collection $categories, User $user): array
     {
@@ -512,11 +489,11 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * @param array<int, Faq> $faqs
+     * @param array<int, FaqInterface> $faqs
      *
-     * @return array<int, Faq>
+     * @return array<int, FaqInterface>
      */
-    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
     }
@@ -540,17 +517,13 @@ class FaqHandler extends CoreHandler
             ]);
             $currentRoles = $faqEntity->getRoles();
             foreach ($groupRoles as $role) {
-                $present = $currentRoles->exists(static function (int $index, Role $currentRole) use ($role): bool {
-                    return $currentRole->getId() === $role->getId();
-                });
+                $present = $currentRoles->exists(static fn (int $index, Role $currentRole): bool => $currentRole->getId() === $role->getId());
                 if ($setVisible) {
                     if (!$present) {
                         $currentRoles->add($role);
                     }
                 } elseif ($present) {
-                    $currentRoles = $currentRoles->filter(static function (Role $currentRole) use ($role): bool {
-                        return $currentRole->getId() !== $role->getId();
-                    });
+                    $currentRoles = $currentRoles->filter(static fn (Role $currentRole): bool => $currentRole->getId() !== $role->getId());
                 }
             }
             $faqEntity->setRoles($currentRoles->getValues());

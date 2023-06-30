@@ -19,15 +19,15 @@ use Exception;
 
 class LoadSurveyVoteData extends TestFixture implements DependentFixtureInterface
 {
-    public const SURVEY_PARK_POSITIVE1 = 'surveyParkPositive1';
-    public const SURVEY_PARK_POSITIVE2 = 'surveyParkPositive2';
-    public const SURVEY_PARK_POSITIVE3 = 'surveyParkPositive3';
-    public const SURVEY_PARK_POSITIVE4 = 'surveyParkPositive4';
-    public const SURVEY_PARK_POSITIVE5 = 'surveyParkPositive5';
-    public const SURVEY_PARK_POSITIVE6 = 'surveyParkPositive6';
-    public const SURVEY_PARK_POSITIVE7 = 'surveyParkPositive7';
-    public const SURVEY_PARK_POSITIVE8 = 'surveyParkPositive8';
-    public const SURVEY_PARK_POSITIVE9 = 'surveyParkPositive9';
+    final public const SURVEY_PARK_POSITIVE1 = 'surveyParkPositive1';
+    final public const SURVEY_PARK_POSITIVE2 = 'surveyParkPositive2';
+    final public const SURVEY_PARK_POSITIVE3 = 'surveyParkPositive3';
+    final public const SURVEY_PARK_POSITIVE4 = 'surveyParkPositive4';
+    final public const SURVEY_PARK_POSITIVE5 = 'surveyParkPositive5';
+    final public const SURVEY_PARK_POSITIVE6 = 'surveyParkPositive6';
+    final public const SURVEY_PARK_POSITIVE7 = 'surveyParkPositive7';
+    final public const SURVEY_PARK_POSITIVE8 = 'surveyParkPositive8';
+    final public const SURVEY_PARK_POSITIVE9 = 'surveyParkPositive9';
 
     /**
      * @throws Exception

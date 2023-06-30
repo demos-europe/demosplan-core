@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
-use function array_map;
 use function explode;
 use function filter_var;
 use function in_array;
@@ -417,16 +416,6 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchMajorVersion;
 
-    /** @var array */
-    protected $datasheetVersions;
-
-    /**
-     * Path to store datasheet pdf and images.
-     *
-     * @var string
-     */
-    protected $datasheetFilePath;
-
     /**
      * @var string
      */
@@ -766,17 +755,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
-
-        $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
-        // datasheet version keys store lists
-        if ($parameterBag->has('datasheetVersions')) {
-            $this->datasheetVersions = array_map(
-                static function ($version) {
-                    return explode(',', $version);
-                },
-                $parameterBag->get('datasheetVersions')
-            );
-        }
 
         $this->kernelEnvironment = $parameterBag->get('kernel.environment');
 
@@ -1527,37 +1505,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $realpath;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function getDatasheetFilePathAbsolute(): string
-    {
-        $absolutePath = $this->datasheetFilePath;
-        // Wenn ein relativer Pfad konfiguriert ist, baue den absoluten Pfad zusammen
-        if (0 === strpos($absolutePath, '.')) {
-            $absolutePath = $this->getInstanceAbsolutePath().'/'.$this->datasheetFilePath;
-        }
-
-        $realpath = realpath($absolutePath);
-
-        // fallback if path could not be resolved
-        if (false === $realpath) {
-            $realpath = $this->getKernelRootDir().'/datasheets';
-        }
-
-        // check path
-        // mkdir, create recursively
-        // !is_dir needs to checked twice. First check: Only try to create
-        // dir if folder does not exist
-        // second check: Did something happen during mkdir?
-        if (!is_dir($realpath) && !mkdir($realpath, 0755, true)
-            && !is_dir($realpath)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $realpath));
-        }
-
-        return $realpath;
-    }
-
     public function getInstanceAbsolutePath(): string
     {
         return $this->instanceAbsolutePath;
@@ -1604,24 +1551,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProjectSubmissionType(): string
     {
         return $this->projectSubmissionType;
-    }
-
-    /**
-     * @param string $procedureId
-     */
-    public function getDatasheetVersion($procedureId): int
-    {
-        if (null === $this->datasheetVersions) {
-            return 0;
-        }
-
-        foreach ($this->datasheetVersions as $version => $procedureIds) {
-            if (in_array($procedureId, $procedureIds, true)) {
-                return $version;
-            }
-        }
-
-        return 0; // Invalid version
     }
 
     public function getKernelEnvironment(): string
