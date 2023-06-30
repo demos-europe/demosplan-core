@@ -886,10 +886,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
-                throw new CriticalConcernException(
-                    'Critical concerns occurs',
-                    $postNewProcedureCreatedEvent->getCriticalEventConcerns()
-                );
+                throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
             }
             $newProcedure = $postNewProcedureCreatedEvent->getProcedure();
             $doctrineConnection->commit();
