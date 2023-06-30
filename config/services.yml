@@ -471,11 +471,6 @@ services:
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
 
-
-    demosplan\DemosPlanCoreBundle\Monolog\SentryHandler:
-        decorates: Sentry\Monolog\Handler
-        arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
-
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
             $path: !php/const 'demosplan\DemosPlanCoreBundle\Permissions\Permissions::PERMISSIONS_YML'

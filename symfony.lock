@@ -744,15 +744,15 @@
         "version": "3.3.2"
     },
     "sentry/sentry-symfony": {
-        "version": "3.0",
+        "version": "4.8",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "9746f0823302d7980e5273ef7a69ef3f5ac80914"
+            "branch": "main",
+            "version": "4.6",
+            "ref": "f7b4706a3e8a6f096b7392f3146f4f7f65ff594c"
         },
         "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/sentry.yaml"
+            "config/packages/sentry.yaml"
         ]
     },
     "squizlabs/php_codesniffer": {
