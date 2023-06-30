@@ -20,14 +20,8 @@ use Doctrine\ORM\ORMException;
 
 class SurveyService extends CoreService
 {
-    /**
-     * @var SurveyRepository
-     */
-    private $surveyRepository;
-
-    public function __construct(SurveyRepository $surveyRepository)
+    public function __construct(private readonly SurveyRepository $surveyRepository)
     {
-        $this->surveyRepository = $surveyRepository;
     }
 
     public function findById(string $id): Survey

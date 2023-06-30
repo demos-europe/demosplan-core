@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
@@ -24,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
-class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
+class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
     /**
      * @var string|null
@@ -45,56 +45,36 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
-
     /**
      * @var Collection<int, CustomerCountyInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="customer", cascade={"persist"})
      */
     private $customerCounties;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
-     */
-    private $name;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
-     */
-    private $subdomain;
-
     /**
      * @var string
      *
      * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
      */
     private $imprint = '';
-
     /**
      * $orgas not mapped to a Table because they are now retrieved from {@link Customer::$orgaStatuses}.
      *
      * @var ArrayCollection
      */
     private $orgas;
-
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
-
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
      */
     protected $orgaStatuses;
-
     /**
      * Data privacy protection setting of the customer which is displayed as legal requirement on the website.
      *
@@ -105,7 +85,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $dataProtection = '';
-
     /**
      * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
      *
@@ -116,7 +95,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $termsOfUse = '';
-
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
      *
@@ -125,7 +103,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $xplanning = '';
-
     /**
      * T15644:.
      *
@@ -136,7 +113,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
      */
     protected $defaultProcedureBlueprint;
-
     /**
      * T16986
      * Will be used to store licence information about used map by customer.
@@ -147,7 +123,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
      */
     protected $mapAttribution = '';
-
     /**
      * T16986
      * A short Url with an ID as parameter.
@@ -159,7 +134,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     protected $baseLayerUrl = '';
-
     /**
      * T16986
      * Layer of the baserlayers in public area.
@@ -171,7 +145,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     protected $baseLayerLayers = '';
-
     /**
      * @var BrandingInterface|null
      *
@@ -179,7 +152,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      */
     #[Assert\Valid]
     protected $branding;
-
     /**
      * @var string
      *
@@ -187,7 +159,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      */
     #[Assert\Length(max: 65000)]
     protected $accessibilityExplanation = '';
-
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.
      *
@@ -201,7 +172,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * )
      */
     private $signLanguageOverviewVideos;
-
     /**
      * Description text for the page in which {@link CustomerInterface::$signLanguageOverviewVideos} are shown.
      *
@@ -210,7 +180,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\Column(type="text", nullable=false, options={"default":""})
      */
     private $signLanguageOverviewDescription = '';
-
     /**
      * A text that will be shown on a separate page, explaining content and navigation of the
      * website in simple language.
@@ -222,10 +191,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
-    public function __construct(string $name, string $subdomain, string $mapAttribution = '')
+    public function __construct(/**
+     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
+     */
+    private string $name, /**
+     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
+     */
+    private string $subdomain, string $mapAttribution = '')
     {
-        $this->name = $name;
-        $this->subdomain = $subdomain;
         $this->mapAttribution = $mapAttribution;
         $this->userRoles = new ArrayCollection();
         $this->orgaStatuses = new ArrayCollection();
@@ -298,6 +271,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @param array<int,string> $statuses if null, all orga statuses will be returned
      *                                    will be applied as or condition
+     *
      * @return Collection<int, Orga>
      */
     public function getOrgas(array $statuses = []): Collection
@@ -353,10 +327,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->orgas->removeElement($orga);
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->id ?? '';
     }

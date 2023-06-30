@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Images;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 
-use function array_merge;
 use function call_user_func_array;
 use function imagecolorallocate;
 use function imagecreatetruecolor;
@@ -71,7 +70,7 @@ abstract class FakeImageGenerator implements DataGeneratorInterface
 
         call_user_func_array(
             $this->getRenderFunction(),
-            array_merge([$gd, null], $this->getRenderArgs())
+            [$gd, null, ...$this->getRenderArgs()]
         );
 
         return ob_get_clean();

@@ -21,7 +21,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 class DplanDrupalConditionFactory extends PredefinedDrupalConditionFactory
 {
-    public function __construct(private PathsBasedConditionFactoryInterface $conditionFactory)
+    public function __construct(private readonly PathsBasedConditionFactoryInterface $conditionFactory)
     {
         parent::__construct($conditionFactory);
     }

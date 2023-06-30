@@ -51,14 +51,8 @@ use function usort;
  */
 class DemosPlanAssessmentController extends BaseController
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(PermissionsInterface $permissions)
+    public function __construct(private readonly PermissionsInterface $permissions)
     {
-        $this->permissions = $permissions;
     }
 
     /**
@@ -131,7 +125,7 @@ class DemosPlanAssessmentController extends BaseController
 
         $templateVars = [
             'statements'  => $statements,
-            'count'       => count($statements),
+            'count'       => is_countable($statements) ? count($statements) : 0,
             'orgaId'      => $organisationId,
             'procedureId' => $procedureId,
         ];
@@ -206,7 +200,7 @@ class DemosPlanAssessmentController extends BaseController
                         ['procedureId' => $procedureId]
                     );
                 }
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 // some data is missing, process with existing requestdata
             }
         }
@@ -540,13 +534,9 @@ class DemosPlanAssessmentController extends BaseController
             $postalCode = $meta->getOrgaPostalCode();
             $city = $meta->getOrgaCity();
             $countyIds = collect($statement->getCounties())
-                ->transform(static function (County $county) {
-                    return $county->getId();
-                })->unique()->toArray();
+                ->transform(static fn (County $county) => $county->getId())->unique()->toArray();
             $municipalityIds = collect($statement->getMunicipalities())
-                ->transform(static function (Municipality $municipality) {
-                    return $municipality->getId();
-                })->unique()->toArray();
+                ->transform(static fn (Municipality $municipality) => $municipality->getId())->unique()->toArray();
 
             if (null !== $statement->getOrganisation()
                 && !$statement->getOrganisation()->isDefaultCitizenOrganisation()) {

@@ -34,14 +34,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class TagResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var TagService
-     */
-    private $tagService;
-
-    public function __construct(TagService $tagService)
+    public function __construct(private readonly TagService $tagService)
     {
-        $this->tagService = $tagService;
     }
 
     public function getEntityClass(): string

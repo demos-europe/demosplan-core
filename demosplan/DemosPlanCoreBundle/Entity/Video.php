@@ -44,69 +44,6 @@ class Video implements UuidEntityInterface, VideoInterface
     private $id;
 
     /**
-     * The reference to the {@link UserInterface} that uploaded the video.
-     *
-     * Required and non-nullable on creation because currently videos can only be uploaded by
-     * logged-in users. However, the property can still be `null` as  the referenced {@link UserInterface}
-     * may be deleted.
-     *
-     * @var UserInterface|null
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
-     */
-    private $uploader;
-
-    /**
-     * Identifies the customer/domain within which the video was uploaded.
-     *
-     * @var CustomerInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
-     */
-    #[Assert\NotNull]
-    private $customerContext;
-
-    /**
-     * The actual video file.
-     *
-     * @var FileInterface
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
-     *
-     * @VideoFileConstraint()
-     */
-    #[Assert\NotNull]
-    private $file;
-
-    /**
-     * The title shown for the video.
-     *
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
-    #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
-    private $title = '';
-
-    /**
-     * The description shown for the video.
-     *
-     * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
-     */
-    #[Assert\NotNull]
-    #[Assert\Length(max: 65535, normalizer: 'trim')]
-    private $description = '';
-
-    /**
      * @var DateTimeInterface
      *
      * @Gedmo\Timestampable(on="create")
@@ -124,18 +61,59 @@ class Video implements UuidEntityInterface, VideoInterface
      */
     private $modificationDate;
 
+    /**
+     * @param string $description
+     */
     public function __construct(
-        User $uploader,
-        Customer $customerContext,
-        File $file,
-        string $title = '',
-        $description = ''
+        /**
+         * The reference to the {@link UserInterface} that uploaded the video.
+         *
+         * Required and non-nullable on creation because currently videos can only be uploaded by
+         * logged-in users. However, the property can still be `null` as  the referenced {@link UserInterface}
+         * may be deleted.
+         *
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+         *
+         * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
+         */
+        private User $uploader,
+        /**
+         * Identifies the customer/domain within which the video was uploaded.
+         *
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+         *
+         * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
+         */
+        #[Assert\NotNull]
+        private Customer $customerContext,
+        /**
+         * The actual video file.
+         *
+         * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
+         *
+         * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
+         *
+         * @VideoFileConstraint()
+         */
+        #[Assert\NotNull]
+        private File $file,
+        /**
+         * The title shown for the video.
+         *
+         * @ORM\Column(type="string", length=255, nullable=false)
+         */
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
+        private string $title = '',
+        /**
+         * The description shown for the video.
+         *
+         * @ORM\Column(type="text", nullable=false)
+         */
+        #[Assert\NotNull]
+        #[Assert\Length(max: 65535, normalizer: 'trim')]
+        private $description = ''
     ) {
-        $this->uploader = $uploader;
-        $this->customerContext = $customerContext;
-        $this->file = $file;
-        $this->title = $title;
-        $this->description = $description;
     }
 
     public function getId(): ?string

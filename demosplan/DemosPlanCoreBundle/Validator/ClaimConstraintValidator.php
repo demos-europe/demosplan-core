@@ -25,12 +25,8 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class ClaimConstraintValidator extends ConstraintValidator
 {
-    /** @var ProcedureService */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     public function validate($value, Constraint $constraint): void

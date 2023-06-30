@@ -2,6 +2,7 @@
     <li class="c-nav__item{{ route_name == 'DemosPlan_misccontent_static_sign_language' ? ' current' : '' }}" role="menuitem">
         <a
             href="{{ path('DemosPlan_misccontent_static_sign_language') }}"
+            data-cy="headerNav:signLanguage"
             {% if route_name == 'DemosPlan_misccontent_static_sign_language' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
         >
             <svg class="align-sub u-mr-0_125" width="18" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">

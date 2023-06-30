@@ -18,12 +18,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureBehaviorDefinitionFormType extends AbstractBaseResourceFormType
 {
-    private $permissions;
-
-    public function __construct(PermissionsInterface $permissions, TranslatorInterface $translator)
+    public function __construct(private readonly PermissionsInterface $permissions, TranslatorInterface $translator)
     {
         parent::__construct($translator);
-        $this->permissions = $permissions;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

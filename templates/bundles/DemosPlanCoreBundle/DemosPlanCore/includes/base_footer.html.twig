@@ -7,6 +7,7 @@
 
             {% if hasPermission('area_main_static_documents') %}
                 <a class="c-footer__link" href="{{ path("DemosPlan_misccontent_static_documents") }}"
+                   data-cy="footerNav:staticDocuments"
                    aria-label="{{ "static.documents"|trans }}">
                     {{- "static.documents"|trans -}}
                 </a>
@@ -14,6 +15,7 @@
 
             {% if hasPermission('area_main_view_participants') %}
                 <a class="c-footer__link" href="{{ path('DemosPlan_informationen_teilnehmende') }}"
+                   data-cy="footerNav:participants"
                    aria-label="{{ "participants"|trans }}">
                     {{- "participants"|trans -}}
                 </a>
@@ -21,6 +23,7 @@
 
             {% if hasPermission('area_main_xplanning') %}
                 <a class="c-footer__link" href="{{ path('DemosPlan_misccontent_static_xplanung') }}"
+                   data-cy="footerNav:xplanning"
                    aria-label="{{ "xplanning"|trans }}">
                     {{- "xplanning"|trans -}}
                 </a>
@@ -28,12 +31,14 @@
 
             <a class="c-footer__link"
                href="{{ path( 'DemosPlan_misccontent_static_dataprotection')}}{% if branding.orgaId is defined and branding.orgaId != '' %}#{{ branding.orgaId }}{% endif %}"
+               data-cy="footerNav:privacy"
                aria-label="{{ 'privacy'|trans }}">
                 {{- "privacy"|trans -}}
             </a>
 
             <a class="c-footer__link"
                href="{{ path( 'DemosPlan_misccontent_static_imprint') }}{% if branding.orgaId is defined and branding.orgaId != '' %}#{{ branding.orgaId }}{% endif %}"
+               data-cy="footerNav:imprint"
                aria-label="{{ 'imprint'|trans }}">
                 {{- "imprint"|trans -}}
             </a>
@@ -42,6 +47,7 @@
                 <a
                     class="c-footer__link"
                     href="{{ path( 'DemosPlan_misccontent_static_accessibility_explanation') }}"
+                    data-cy="footerNav:accessibility"
                     aria-label="{{ 'accessibility.explanation'|trans }}">
                     {{- 'accessibility'|trans -}}
                 </a>
@@ -49,6 +55,7 @@
 
             {% if hasPermission('area_terms_of_use') %}
                 <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
+                   data-cy="footerNav:termsOfUse"
                    aria-label="{{ 'terms.of.use'|trans }}">
                     {{- "terms.of.use"|trans -}}
                 </a>
@@ -56,6 +63,7 @@
 
             {% if hasPermission('area_main_contact') %}
                 <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_contact') }}"
+                   data-cy="footerNav:contact"
                    aria-label="{{ 'contact'|trans }}">
                     {{- "contact"|trans -}}
                 </a>

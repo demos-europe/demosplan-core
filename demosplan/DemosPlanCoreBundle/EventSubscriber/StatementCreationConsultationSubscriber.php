@@ -44,36 +44,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
  */
 class StatementCreationConsultationSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        ConsultationTokenService $consultationService,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions)
+    public function __construct(private readonly ConsultationTokenService $consultationService, private readonly GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions)
     {
-        $this->consultationService = $consultationService;
-        $this->permissions = $permissions;
-        $this->messageBag = $messageBag;
-        $this->globalConfig = $globalConfig;
     }
 
     /**

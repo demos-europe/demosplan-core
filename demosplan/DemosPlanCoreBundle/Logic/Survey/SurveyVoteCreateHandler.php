@@ -19,20 +19,8 @@ use JsonSchema\Exception\InvalidArgumentException;
 
 class SurveyVoteCreateHandler
 {
-    /** @var SurveyVoteValidator */
-    private $surveyVoteValidator;
-
-    /** @var UserHandler */
-    private $userHandler;
-
-    /** @var SurveyHandler */
-    private $surveyHandler;
-
-    public function __construct(SurveyVoteValidator $surveyVoteValidator, UserHandler $userHandler, SurveyHandler $surveyHandler)
+    public function __construct(private readonly SurveyVoteValidator $surveyVoteValidator, private readonly UserHandler $userHandler, private readonly SurveyHandler $surveyHandler)
     {
-        $this->surveyVoteValidator = $surveyVoteValidator;
-        $this->userHandler = $userHandler;
-        $this->surveyHandler = $surveyHandler;
     }
 
     public function getRequestUserId(ResourceObject $resourceObject): string

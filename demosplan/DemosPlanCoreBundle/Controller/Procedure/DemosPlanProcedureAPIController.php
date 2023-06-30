@@ -49,14 +49,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanProcedureAPIController extends APIController
 {
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
     public function __construct(
         LoggerInterface $apiLogger,
-        ProcedureHandler $procedureHandler,
+        private readonly ProcedureHandler $procedureHandler,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
@@ -75,7 +70,6 @@ class DemosPlanProcedureAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->procedureHandler = $procedureHandler;
     }
 
     /**
@@ -332,7 +326,7 @@ class DemosPlanProcedureAPIController extends APIController
         if ((!$permissions->hasPermission('feature_original_statements_use_pager') && true === $original)
             || (!$permissions->hasPermission('feature_assessmenttable_use_pager') && false === $original)) {
             // hotfix #11850 display all original SN in list
-            $rParams['request']['limit'] = 1000000;
+            $rParams['request']['limit'] = 1_000_000;
         }
 
         $res = $assessmentTableServiceOutput->getStatementListHandler(
@@ -443,9 +437,9 @@ class DemosPlanProcedureAPIController extends APIController
             $requestData = $item;
             $multiselect = false;
             // check if multiselect
-            if (false !== strpos($requestData['name'], '[]')) {
+            if (str_contains((string) $requestData['name'], '[]')) {
                 $multiselect = true;
-                $requestData['name'] = str_replace('[]', '', $requestData['name']);
+                $requestData['name'] = str_replace('[]', '', (string) $requestData['name']);
             }
             if ($multiselect) {
                 $filter = $request->request->get($requestData['name'], []);

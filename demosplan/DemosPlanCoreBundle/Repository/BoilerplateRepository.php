@@ -44,7 +44,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
 
         try {
             $boilerplates = $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
 
@@ -336,7 +336,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @throws Exception
      */
-    public function generateObjectValues($entity, array $data)
+    public function generateObjectValues($entity, array $data): never
     {
         throw new Exception('Method not implemented');
     }
@@ -379,7 +379,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

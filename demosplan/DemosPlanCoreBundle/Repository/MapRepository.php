@@ -302,7 +302,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gis->setOrder($data['mapOrder']);
         }
 
-        if (array_key_exists('categoryId', $data) && 36 === strlen($data['categoryId'])) {
+        if (array_key_exists('categoryId', $data) && 36 === strlen((string) $data['categoryId'])) {
             $gis->setCategory(
                 $this->getEntityManager()->getReference(GisLayerCategory::class, $data['categoryId'])
             );
@@ -478,7 +478,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
                 $idents = $gisLayerIds;
             }
 
-            $size = count($idents);
+            $size = is_countable($idents) ? count($idents) : 0;
             for ($i = 0; $i < $size; ++$i) {
                 $currentGis = $this->get($idents[$i]);
                 if (!is_null($currentGis)) {
@@ -539,10 +539,10 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gisLayer->setOrder($data['order']);
         }
         // ProcedureId kommt als "pId"
-        if (array_key_exists('pId', $data) && 36 === strlen($data['pId'])) {
+        if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $gisLayer->setProcedureId($data['pId']);
             // only if not global GisLayer:
-            if (array_key_exists('category', $data) && 36 === strlen($data['category'])) {
+            if (array_key_exists('category', $data) && 36 === strlen((string) $data['category'])) {
                 $gisLayer->setCategory($this->getEntityManager()->getReference(GisLayerCategory::class, $data['category']));
             } else {
                 // set rootCategory:
@@ -710,7 +710,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

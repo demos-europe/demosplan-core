@@ -76,7 +76,7 @@ class CheckPermissionListener
             $dplanPermissions = $this->reader->getMethodAnnotation($reflectionMethod, DplanPermissions::class);
 
             if (null === $dplanPermissions) {
-                $className = get_class($controller);
+                $className = $controller::class;
                 trigger_error(
                     "{$className}::{$methodName} does not use the @DplanPermissions annotation yet",
                     E_USER_DEPRECATED
@@ -97,13 +97,11 @@ class CheckPermissionListener
                 } elseif ($controller instanceof BaseController) {
                     $redirectResponse = $controller->handleError($e);
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // could be thrown in dev mode only
             }
 
-            $event->setController(static function () use ($redirectResponse) {
-                return $redirectResponse;
-            });
+            $event->setController(static fn () => $redirectResponse);
         }
     }
 }

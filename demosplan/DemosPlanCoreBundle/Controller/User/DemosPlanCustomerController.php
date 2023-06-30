@@ -136,6 +136,8 @@ class DemosPlanCustomerController extends BaseController
         TranslatorInterface $translator,
         UserService $userService
     ): Response {
+        $templateVars = [];
+        $vars = [];
         try {
             $currentCustomer = $customerHandler->getCurrentCustomer();
             $emailAddresses = $userService->getEmailsOfUsersOfOrgas($currentCustomer);

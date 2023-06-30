@@ -29,7 +29,7 @@ class DateStringConstraintValidator extends ConstraintValidator
     {
         try {
             Carbon::parse($value)->toDate();
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $value)
                 ->addViolation();

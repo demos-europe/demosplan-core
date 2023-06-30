@@ -50,7 +50,7 @@ class SlugDraftApiController extends APIController
         }
 
         $slugDrafts = $this->requestData[$slugDraftType];
-        if (1 !== count($slugDrafts)) {
+        if (1 !== (is_countable($slugDrafts) ? count($slugDrafts) : 0)) {
             throw new BadRequestException('exactly one slug-draft resource must be provided in the request');
         }
 

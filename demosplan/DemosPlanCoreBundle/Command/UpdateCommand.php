@@ -213,7 +213,7 @@ EOT
 
             $fs->remove(DemosPlanPath::getProjectPath("app/cache/{$cacheDir}"));
             $fs->remove(DemosPlanPath::getProjectPath("app/cache/{$alternativeCacheDir}"));
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->error("An error occured while clearing {$cacheDir} and {$alternativeCacheDir} cache.");
 
             return false;

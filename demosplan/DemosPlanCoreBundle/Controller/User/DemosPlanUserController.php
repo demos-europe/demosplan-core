@@ -59,20 +59,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanUserController extends BaseController
 {
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserService $currentUser, ParameterBagInterface $parameterBag)
+    public function __construct(private readonly CurrentUserService $currentUser, private readonly ParameterBagInterface $parameterBag)
     {
-        $this->currentUser = $currentUser;
-        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -153,7 +141,20 @@ class DemosPlanUserController extends BaseController
                     'access_confirmed' => true,
                 ];
 
-                $userHandler->updateUser($currentUser->getId(), $data);
+                $updatedUser = null;
+                try {
+                    $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Update user failed with exception', [$e]);
+                }
+
+                if (!$updatedUser instanceof User) {
+                    // logout user to avoid eternal redirect loop
+                    $this->getLogger()->warning('Update user failed, perform logout', [$data]);
+                    $this->messageBag->add('warning', 'warning.login.welcomepage.failed');
+
+                    return $this->redirectToRoute('DemosPlan_user_logout');
+                }
                 $this->getLogger()->info('Welcomepage redirect to index loggedin');
             }
 
@@ -262,6 +263,7 @@ class DemosPlanUserController extends BaseController
      */
     protected function checkProfileCompleted(): array
     {
+        $templateVars = [];
         if (!($this->currentUser->getUser() instanceof User)) {
             throw new SessionUnavailableException('Session korrupt');
         }
@@ -285,6 +287,7 @@ class DemosPlanUserController extends BaseController
     #[Route(name: 'DemosPlan_orga_toeblist_changes', path: '/organisations/visibilitylog')]
     public function showInvitableInstitutionVisibilityChangesAction(UserService $userService)
     {
+        $templateVars = [];
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
 
         return $this->renderTemplate(
@@ -338,6 +341,7 @@ class DemosPlanUserController extends BaseController
         UserHandler $userHandler,
         string $title = 'user.profile'
     ) {
+        $templateVars = [];
         $userId = $currentUser->getUser()->getId();
         $user = $userHandler->getSingleUser($userId);
         $templateVars['user'] = $user;
@@ -380,12 +384,12 @@ class DemosPlanUserController extends BaseController
                     $this->getMessageBag()->add('confirm', 'confirm.user.created');
                 }
             }
-        } catch (EmailAddressInUseException|LoginNameInUseException $e) {
+        } catch (EmailAddressInUseException|LoginNameInUseException) {
             $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
             $this->getMessageBag()->add('error', 'error.user.login.exists');
-        } catch (UserAlreadyExistsException $e) {
+        } catch (UserAlreadyExistsException) {
             $this->getMessageBag()->add('error', 'error.user.login.exists');
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getLogger()->error('New User Entity could not been saved');
             $this->getMessageBag()->add('error', 'error.save');
         }
@@ -441,7 +445,7 @@ class DemosPlanUserController extends BaseController
             try {
                 $userHandler->inviteUser($user);
                 $this->getMessageBag()->add('confirm', 'confirm.email.registration.sent');
-            } catch (SendMailException $e) {
+            } catch (SendMailException) {
                 $this->getMessageBag()->add('error', 'error.email.invitation.send.to.user');
             }
 
@@ -544,7 +548,7 @@ class DemosPlanUserController extends BaseController
             ];
 
             $contentService->setSetting('emailNotificationReleasedStatement', $data);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add('error', 'error.save');
         }
 
@@ -654,7 +658,7 @@ class DemosPlanUserController extends BaseController
         try {
             $addressBookEntryService->deleteAddressBookEntries($addressBookEntryIds);
             $this->getMessageBag()->add('confirm', 'confirm.addressBookEntry.deleted');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // while loop over addressbookentries, exception was thrown
             $this->getMessageBag()->add('warning', 'warning.addressBookEntries.not.deleted');
         }
@@ -675,6 +679,7 @@ class DemosPlanUserController extends BaseController
     #[Route(name: 'DemosPlan_user_statements', path: '/portal/user/statements', options: ['expose' => true])]
     public function statementListAction(CurrentUserService $currentUser, StatementService $statementService)
     {
+        $templateVars = [];
         $user = $currentUser->getUser();
         $userId = $user->getId();
 
@@ -736,9 +741,9 @@ class DemosPlanUserController extends BaseController
             } else {
                 $this->getMessageBag()->add('warning', 'error.statement.anonymized', ['externId' => $statement->getExternId()]);
             }
-        } catch (AccessDeniedException $e) {
+        } catch (AccessDeniedException) {
             $this->getMessageBag()->add('error', 'error.gdpr.revoke.of.statement.not.permitted');
-        } catch (EntityIdNotFoundException $e) {
+        } catch (EntityIdNotFoundException) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
         } catch (Exception $e) {
             $externId = $statement instanceof Statement ? $statement->getExternId() : '';

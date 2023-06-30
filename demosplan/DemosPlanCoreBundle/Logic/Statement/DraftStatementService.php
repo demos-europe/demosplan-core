@@ -110,144 +110,54 @@ class DraftStatementService extends CoreService
      */
     protected $fileService;
     /**
-     * @var ReportService
-     */
-    private $reportService;
-    /**
      * @var StatementValidator
      */
     protected $statementValidator;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
     /**
      * @var \demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface
      */
     private $messageBag;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var ManualListSorter
-     */
-    private $manualListSorter;
-    /**
-     * @var DraftStatementRepository
-     */
-    private $draftStatementRepository;
-    /**
-     * @var DraftStatementVersionRepository
-     */
-    private $draftStatementVersionRepository;
-    /**
-     * @var NotificationReceiverRepository
-     */
-    private $notificationReceiverRepository;
-    /**
-     * @var ParagraphVersionRepository
-     */
-    private $paragraphVersionRepository;
-    /**
-     * @var SingleDocumentVersionRepository
-     */
-    private $singleDocumentVersionRepository;
-    /**
-     * @var StatementAttributeRepository
-     */
-    private $statementAttributeRepository;
-    /**
-     * @var ElasticsearchFilterArrayTransformer
-     */
-    private $elasticsearchFilterArrayTransformer;
-
     public function __construct(
         CurrentUserInterface $currentUser,
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        DraftStatementRepository $draftStatementRepository,
-        DraftStatementVersionRepository $draftStatementVersionRepository,
-        ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly DraftStatementRepository $draftStatementRepository,
+        private readonly DraftStatementVersionRepository $draftStatementVersionRepository,
+        private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
         ElementsService $elementsService,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
-        ManualListSorter $manualListSorter,
+        private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
         MessageBagInterface $messageBag,
-        NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly NotificationReceiverRepository $notificationReceiverRepository,
         OrgaService $orgaService,
         ParagraphService $paragraphService,
-        ParagraphVersionRepository $paragraphVersionRepository,
-        ProcedureService $procedureService,
-        ReportService $reportService,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ProcedureService $procedureService,
+        private readonly ReportService $reportService,
         ServiceImporter $serviceImporter,
-        SingleDocumentVersionRepository $singleDocumentVersionRepository,
-        SortMethodFactory $sortMethodFactory,
-        StatementAttributeRepository $statementAttributeRepository,
-        StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementAttributeRepository $statementAttributeRepository,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
         StatementService $statementService,
         StatementValidator $statementValidator,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
-        $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser;
-        $this->dateHelper = $dateHelper;
-        $this->draftStatementRepository = $draftStatementRepository;
-        $this->draftStatementVersionRepository = $draftStatementVersionRepository;
-        $this->elasticsearchFilterArrayTransformer = $elasticsearchFilterArrayTransformer;
         $this->elementsService = $elementsService;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
         $this->fileService = $fileService;
-        $this->manualListSorter = $manualListSorter;
         $this->messageBag = $messageBag;
-        $this->notificationReceiverRepository = $notificationReceiverRepository;
         $this->orgaService = $orgaService;
         $this->paragraphService = $paragraphService;
-        $this->paragraphVersionRepository = $paragraphVersionRepository;
-        $this->procedureService = $procedureService;
-        $this->reportService = $reportService;
         $this->serviceImporter = $serviceImporter;
         $this->serviceMap = $serviceMap;
-        $this->singleDocumentVersionRepository = $singleDocumentVersionRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->statementAttributeRepository = $statementAttributeRepository;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
         $this->statementService = $statementService;
         $this->statementValidator = $statementValidator;
-        $this->translator = $translator;
         $this->twig = $twig;
     }
 
@@ -850,7 +760,7 @@ class DraftStatementService extends CoreService
         });
 
         // generate Screenshot if necessary
-        if (array_key_exists('polygon', $data) && 0 < strlen($data['polygon'])) {
+        if (array_key_exists('polygon', $data) && 0 < strlen((string) $data['polygon'])) {
             $mapService = $this->getServiceMap();
             $mapService->createMapScreenshot($data['pId'], $draftStatement->getId());
         }
@@ -861,10 +771,10 @@ class DraftStatementService extends CoreService
             if (array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($draftStatement);
-            } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen($data['statementAttributes']['county'])) {
+            } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen((string) $data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $attrRepo->removeCounty($draftStatement);
                 }
             }
@@ -892,7 +802,7 @@ class DraftStatementService extends CoreService
     public function deleteDraftStatementsByIds(array $draftStatementIds): bool
     {
         // @improve T12809
-        $draftStatements = array_map([$this->draftStatementRepository, 'get'], $draftStatementIds);
+        $draftStatements = array_map($this->draftStatementRepository->get(...), $draftStatementIds);
 
         return $this->deleteDraftStatements($draftStatements);
     }
@@ -931,6 +841,8 @@ class DraftStatementService extends CoreService
      */
     public function generatePdf($draftStatementList, $type, $procedureId, $itemsToExport = null): PdfFile
     {
+        $templateVars = [];
+        $outputResult = [];
         $template = 'list_export';
         switch ($type) {
             case 'list_released_group':
@@ -977,9 +889,7 @@ class DraftStatementService extends CoreService
             ? explode(',', $itemsToExport)
             : null;
 
-        $filteredStatementList = collect($draftStatementList)->filter(function ($statement) use ($selectedStatementsToExport) {
-            return null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport);
-        })->map(function (array $statement) use ($procedureId) {
+        $filteredStatementList = collect($draftStatementList)->filter(fn($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
             $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
             $statement = $this->checkMapScreenshotFile($statement, $procedureId);
 
@@ -1037,9 +947,7 @@ class DraftStatementService extends CoreService
     {
         return collect($statements)
             ->pluck('oId')
-            ->every(static function (string $oId) use ($organisationId) {
-                return $oId === $organisationId;
-            });
+            ->every(static fn(string $oId) => $oId === $organisationId);
     }
 
     /**
@@ -1077,7 +985,7 @@ class DraftStatementService extends CoreService
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
         // hat das Statement einen Screenshot aber kein Polygon?
-        if (0 < strlen($statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
+        if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
@@ -1088,7 +996,7 @@ class DraftStatementService extends CoreService
             // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
             if (!is_file($fileInfo->getAbsolutePath())) {
                 $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
-                if (0 < strlen($statementArray['polygon'])) {
+                if (0 < strlen((string) $statementArray['polygon'])) {
                     $this->getLogger()->info('Erzeuge Screenshot neu');
                     $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
                 }
@@ -1116,7 +1024,7 @@ class DraftStatementService extends CoreService
 
         preg_match_all('/includegraphics\[.*]*\]\{(.*)\}/Usi', $content, $imagematches);
         if (isset($imagematches[1])) {
-            $this->getLogger()->info('Pdf: Gefundene Bilder: '.count($imagematches[1]));
+            $this->getLogger()->info('Pdf: Gefundene Bilder: '.(is_countable($imagematches[1]) ? count($imagematches[1]) : 0));
             foreach ($imagematches[1] as $match) {
                 $file = $this->fileService->getFileInfo($match);
                 $pictures = $this->addEntryOfFoundPicture($file, $pictures);
@@ -1176,7 +1084,7 @@ class DraftStatementService extends CoreService
             $attrRepo = $this->statementAttributeRepository;
 
             // generate Screenshot if necessary
-            if (array_key_exists('polygon', $data) && 0 < strlen($data['polygon'])) {
+            if (array_key_exists('polygon', $data) && 0 < strlen((string) $data['polygon'])) {
                 $mapService = $this->getServiceMap();
                 $mapFile = $mapService->createMapScreenshot($draftStatement->getPId(), $data['ident']);
                 $draftStatement->setMapFile($mapFile);
@@ -1194,13 +1102,13 @@ class DraftStatementService extends CoreService
                     $attrRepo->setNoLocation($draftStatement);
                     $draftStatement->setMapFile('');
                     $draftStatement->setPolygon('');
-                } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen($data['statementAttributes']['county'])) {
+                } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen((string) $data['statementAttributes']['county'])) {
                     try {
                         $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
                         $attrRepo->unsetNoLocation($draftStatement);
                         $draftStatement->setMapFile('');
                         $draftStatement->setPolygon('');
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         $attrRepo->removeCounty($draftStatement);
                     }
                 }
@@ -1260,7 +1168,7 @@ class DraftStatementService extends CoreService
                 // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                 $parentParagraph = $draftStatement['paragraph']->getParagraph();
                 $draftStatement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                 $this->logger->error('No ParagraphVersion found for Id '.DemosPlanTools::varExport($draftStatement['paragraph']->getId(), true));
                 unset($draftStatement['paragraph']);
@@ -1324,7 +1232,7 @@ class DraftStatementService extends CoreService
                 );
             }
         }
-        if (array_key_exists('paragraphId', $data) && 0 < strlen($data['paragraphId'])) {
+        if (array_key_exists('paragraphId', $data) && 0 < strlen((string) $data['paragraphId'])) {
             // check whether existing paragraph equals given paragraphId
             if (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId()) {
                 $data['paragraph'] = $this->createParagraphVersion(
@@ -1344,7 +1252,7 @@ class DraftStatementService extends CoreService
                 );
             }
         }
-        if (array_key_exists('documentId', $data) && 0 < strlen($data['documentId'])) {
+        if (array_key_exists('documentId', $data) && 0 < strlen((string) $data['documentId'])) {
             // check whether existing document equals given documentId
             if (is_null($entity) || $data['documentId'] != $entity->getDocumentId()) {
                 $data['document'] = $this->createSingleDocumentVersion(
@@ -1397,6 +1305,7 @@ class DraftStatementService extends CoreService
      */
     protected function toLegacyResult($list, $procedureId, ?string $search = '', $filters = [], $sort = [], $manualSortScope = null, $aggregation = []): DraftStatementResult
     {
+        $sorted = [];
         // Is the list manually sorted?
         $sorted['sorted'] = false;
         if (isset($manualSortScope) && 0 < strlen($manualSortScope)) {
@@ -1474,9 +1383,7 @@ class DraftStatementService extends CoreService
                 }
             }
 
-            $draftStatementIds = array_map(function ($draftStatement) {
-                return $draftStatement->getId();
-            }, $results);
+            $draftStatementIds = array_map(fn($draftStatement) => $draftStatement->getId(), $results);
 
             // get Elasticsearch aggregations aka Userfilters
             // add user to Filter
@@ -1623,7 +1530,7 @@ class DraftStatementService extends CoreService
                 $boolMustFilter[] = new Terms('showToAll', $showToAll);
             }
 
-            array_map([$boolQuery, 'addMust'], $boolMustFilter);
+            array_map($boolQuery->addMust(...), $boolMustFilter);
 
             $boolMustNotFilter = [];
 
@@ -1634,7 +1541,7 @@ class DraftStatementService extends CoreService
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
+                array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
             // generate Query
@@ -1831,11 +1738,9 @@ class DraftStatementService extends CoreService
             }
         }
 
-        return collect($sortMethodPaths)->map(function (array $path) use ($sortDir): SortMethodInterface {
-            return 'asc' === $sortDir
-                ? $this->sortMethodFactory->propertyAscending($path)
-                : $this->sortMethodFactory->propertyDescending($path);
-        })->all();
+        return collect($sortMethodPaths)->map(fn(array $path): SortMethodInterface => 'asc' === $sortDir
+            ? $this->sortMethodFactory->propertyAscending($path)
+            : $this->sortMethodFactory->propertyDescending($path))->all();
     }
 
     /**
@@ -1848,7 +1753,7 @@ class DraftStatementService extends CoreService
         $sortDir = $defaultAsc ? 'asc' : 'desc';
         if (is_array($sort) && array_key_exists('to', $sort)) {
             $allowedDirs = ['asc', 'desc'];
-            if (in_array(strtolower($sort['to']), $allowedDirs)) {
+            if (in_array(strtolower((string) $sort['to']), $allowedDirs)) {
                 $sortDir = $sort['to'];
             }
         }
@@ -1890,7 +1795,7 @@ class DraftStatementService extends CoreService
         if (array_key_exists(
             'priorityAreaKey',
             $data['statementAttributes']
-        ) && 0 < strlen($data['statementAttributes']['priorityAreaKey'])
+        ) && 0 < strlen((string) $data['statementAttributes']['priorityAreaKey'])
         ) {
             try {
                 $dataKey = [
@@ -2036,7 +1941,7 @@ class DraftStatementService extends CoreService
 
         // #1: Einzeichnung/Planzeichnung:
         $geoData = $this->extractGeoData($data, []);
-        if (array_key_exists('polygon', $geoData) && 0 !== strlen($geoData['polygon'])) {
+        if (array_key_exists('polygon', $geoData) && 0 !== strlen((string) $geoData['polygon'])) {
             $determinedElementId = $elementService->getMapElement($procedureId)->getId();
         }
 
@@ -2059,18 +1964,18 @@ class DraftStatementService extends CoreService
         }
 
         // #3: category: dokument
-        if (array_key_exists('r_document_id', $data) && 0 !== strlen($data['r_document_id'])) {
+        if (array_key_exists('r_document_id', $data) && 0 !== strlen((string) $data['r_document_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
-        if (array_key_exists('r_documentID', $data) && 0 !== strlen($data['r_documentID'])) {
+        if (array_key_exists('r_documentID', $data) && 0 !== strlen((string) $data['r_documentID'])) {
             $determinedElementId = array_key_exists('r_elementID', $data) ? $data['r_elementID'] : '';
         }
 
         // #4: strongest category: absatz
-        if (array_key_exists('r_paragraph_id', $data) && 0 !== strlen($data['r_paragraph_id'])) {
+        if (array_key_exists('r_paragraph_id', $data) && 0 !== strlen((string) $data['r_paragraph_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
-        if (array_key_exists('r_paragraphID', $data) && 0 !== strlen($data['r_paragraphID'])) {
+        if (array_key_exists('r_paragraphID', $data) && 0 !== strlen((string) $data['r_paragraphID'])) {
             $determinedElementId = array_key_exists('r_elementID', $data) ? $data['r_elementID'] : '';
         }
 
@@ -2098,18 +2003,18 @@ class DraftStatementService extends CoreService
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && 0 < strlen($data['r_location_geometry'])) {
+            if (array_key_exists('r_location_geometry', $data) && 0 < strlen((string) $data['r_location_geometry'])) {
                 $statement['polygon'] = $data['r_location_geometry'];
             }
 
             // Vorranggebiet
-            if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen($data['r_location_priority_area_key'])) {
+            if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen((string) $data['r_location_priority_area_key'])) {
                 $statement['statementAttributes']['priorityAreaKey'] = $data['r_location_priority_area_key'];
                 $statement['statementAttributes']['priorityAreaType'] = $data['r_location_priority_area_type'];
             }
 
             // Ortsbezug
-            if (array_key_exists('r_location_point', $data) && 0 < strlen($data['r_location_point'])) {
+            if (array_key_exists('r_location_point', $data) && 0 < strlen((string) $data['r_location_point'])) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
@@ -2122,7 +2027,7 @@ class DraftStatementService extends CoreService
         if (array_key_exists('r_county', $data)) {
             $statement['statementAttributes']['county'] = '';
 
-            if (0 < strlen($data['r_county'])) {
+            if (0 < strlen((string) $data['r_county'])) {
                 $statement['statementAttributes']['county'] = $data['r_county'];
             }
         }

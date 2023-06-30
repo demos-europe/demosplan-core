@@ -50,15 +50,15 @@ use function is_array;
  */
 class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
-    public const PERMISSIONS_YML = 'permissions.yml';
+    final public const PERMISSIONS_YML = 'permissions.yml';
 
-    public const PROCEDURE_PERMISSIONSET_READ = 'read';
-    public const PROCEDURE_PERMISSIONSET_WRITE = 'write';
-    public const PROCEDURE_PERMISSIONSET_HIDDEN = 'hidden';
+    final public const PROCEDURE_PERMISSIONSET_READ = 'read';
+    final public const PROCEDURE_PERMISSIONSET_WRITE = 'write';
+    final public const PROCEDURE_PERMISSIONSET_HIDDEN = 'hidden';
 
-    public const PROCEDURE_PERMISSION_SCOPE_NONE = 'none';
-    public const PROCEDURE_PERMISSION_SCOPE_INTERNAL = 'internal';
-    public const PROCEDURE_PERMISSION_SCOPE_EXTERNAL = 'external';
+    final public const PROCEDURE_PERMISSION_SCOPE_NONE = 'none';
+    final public const PROCEDURE_PERMISSION_SCOPE_INTERNAL = 'internal';
+    final public const PROCEDURE_PERMISSION_SCOPE_EXTERNAL = 'external';
 
     /**
      * @var Procedure|null
@@ -101,22 +101,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     protected $procedureAccessEvaluator;
 
     /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    private PermissionCollectionInterface $corePermissions;
-
-    private CustomerService $currentCustomerProvider;
-
-    private ValidatorInterface $validator;
-
-    private PermissionResolver $permissionResolver;
-
-    /**
      * @var array<non-empty-string, PermissionInitializerInterface>
      */
-    private array $addonPermissionInitializers;
+    private readonly array $addonPermissionInitializers;
 
     /**
      * Permissions loaded from addons.
@@ -132,24 +119,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function __construct(
         AddonRegistry $addonRegistry,
-        CustomerService $currentCustomerProvider,
+        private readonly CustomerService $currentCustomerProvider,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
-        PermissionCollectionInterface $corePermissions,
-        PermissionResolver $permissionResolver,
+        private readonly PermissionCollectionInterface $corePermissions,
+        private readonly PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureRepository $procedureRepository,
-        ValidatorInterface $validator
+        private ProcedureRepository $procedureRepository,
+        private readonly ValidatorInterface $validator
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
-        $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->procedureRepository = $procedureRepository;
-        $this->permissionResolver = $permissionResolver;
-        $this->validator = $validator;
-        $this->currentCustomerProvider = $currentCustomerProvider;
     }
 
     /**
@@ -1037,12 +1019,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             })
             ->all();
 
-        // Add addon permissions to list of core permissions. Not mixing them would be preferred,
-        // but this is currently needed to expose addon permissions to the frontend.
-        $this->permissions = collect($this->addonPermissionCollections)
-            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
-            ->merge($this->corePermissions->toArray())
-            ->all();
+        $this->permissions = $this->corePermissions->toArray();
     }
 
     /**
@@ -1131,7 +1108,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         try {
             $this->evaluatePermission($permission);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -1197,28 +1174,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function hasPermissions(array $permissions, string $operator = 'AND'): bool
     {
-        switch ($operator) {
-            case 'AND':
-                return array_reduce(
-                    $permissions,
-                    function (bool $carry, string $permission) {
-                        return $carry && $this->hasPermission($permission);
-                    },
-                    true
-                );
-
-            case 'OR':
-                return array_reduce(
-                    $permissions,
-                    function (bool $carry, string $permission) {
-                        return $carry || $this->hasPermission($permission);
-                    },
-                    false
-                );
-
-            default:
-                throw PermissionException::invalidPermissionCheckOperator($operator);
-        }
+        return match ($operator) {
+            'AND' => array_reduce(
+                $permissions,
+                fn(bool $carry, string $permission) => $carry && $this->hasPermission($permission),
+                true
+            ),
+            'OR' => array_reduce(
+                $permissions,
+                fn(bool $carry, string $permission) => $carry || $this->hasPermission($permission),
+                false
+            ),
+            default => throw PermissionException::invalidPermissionCheckOperator($operator),
+        };
     }
 
     /**
@@ -1336,6 +1304,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
             }
         );
+    }
+
+    /**
+     * @return ResolvablePermissionCollection[]
+     */
+    public function getAddonPermissionCollections(): array
+    {
+        return $this->addonPermissionCollections;
     }
 
     /**

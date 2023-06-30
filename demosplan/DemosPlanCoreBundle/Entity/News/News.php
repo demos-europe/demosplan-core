@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class News extends CoreEntity implements UuidEntityInterface
 {
-    public const MANUAL_SORT_NAMESPACE = 'news';
-    public const NEW_PROCEDURE_NEWS_VALIDATION_GROUP = 'newProcedureNews';
+    final public const MANUAL_SORT_NAMESPACE = 'news';
+    final public const NEW_PROCEDURE_NEWS_VALIDATION_GROUP = 'newProcedureNews';
 
     /**
      * @var string|null

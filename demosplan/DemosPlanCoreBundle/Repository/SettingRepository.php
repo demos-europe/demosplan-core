@@ -78,7 +78,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
      *
      * @throws Exception
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new Exception('Inserts are implemented as upsert via update()');
     }
@@ -111,7 +111,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
         return $setting;
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

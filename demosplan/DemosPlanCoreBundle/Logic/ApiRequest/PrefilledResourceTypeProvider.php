@@ -30,6 +30,6 @@ class PrefilledResourceTypeProvider extends PrefilledTypeProvider
             return $type::getName();
         }
 
-        throw new InvalidArgumentException('Expected ResourceTypeInterface, got '.get_class($type));
+        throw new InvalidArgumentException('Expected ResourceTypeInterface, got '.$type::class);
     }
 }

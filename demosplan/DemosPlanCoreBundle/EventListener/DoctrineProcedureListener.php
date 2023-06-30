@@ -15,14 +15,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 
 class DoctrineProcedureListener
 {
-    /**
-     * @var PhasePermissionsetLoader
-     */
-    private $permissionsetLoader;
-
-    public function __construct(PhasePermissionsetLoader $permissionsetLoader)
+    public function __construct(private readonly PhasePermissionsetLoader $permissionsetLoader)
     {
-        $this->permissionsetLoader = $permissionsetLoader;
     }
 
     public function postLoad(Procedure $procedure): void

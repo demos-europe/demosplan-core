@@ -15,12 +15,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 class SurveyShowHandler
 {
-    /** @var SurveyVoteHandler */
-    private $surveyVoteHandler;
-
-    public function __construct(SurveyVoteHandler $surveyVoteHandler)
+    public function __construct(private readonly SurveyVoteHandler $surveyVoteHandler)
     {
-        $this->surveyVoteHandler = $surveyVoteHandler;
     }
 
     /**

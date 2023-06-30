@@ -48,7 +48,7 @@ class DumpCommand extends DatabaseManagementCommand
 
         try {
             $fs->touch($file);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->error("Cannot write to {$file}");
 
             return Command::FAILURE;

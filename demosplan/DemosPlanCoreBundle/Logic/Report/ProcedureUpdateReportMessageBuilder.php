@@ -19,54 +19,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ProcedureUpdateReportMessageBuilder
 {
     /**
-     * @var array<string, mixed>
-     */
-    private $messageData;
-
-    /**
-     * @var DateExtension
-     */
-    private $dateExtension;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var string
-     */
-    private $oldPrefix;
-
-    /**
-     * @var string
-     */
-    private $newPrefix;
-
-    /**
      * @var array<int, string>
      */
     private $messages = [];
 
     /**
-     * @var GlobalConfigInterface
+     * @param array<string, mixed> $messageData
      */
-    private $globalConfig;
-
-    public function __construct(
-        array $messageData,
-        DateExtension $dateExtension,
-        TranslatorInterface $translator,
-        GlobalConfigInterface $globalConfig,
-        string $oldPrefix,
-        string $newPrefix
-    ) {
-        $this->messageData = $messageData;
-        $this->dateExtension = $dateExtension;
-        $this->translator = $translator;
-        $this->oldPrefix = $oldPrefix;
-        $this->newPrefix = $newPrefix;
-        $this->globalConfig = $globalConfig;
+    public function __construct(private readonly array $messageData, private readonly DateExtension $dateExtension, private readonly TranslatorInterface $translator, private readonly GlobalConfigInterface $globalConfig, private readonly string $oldPrefix, private readonly string $newPrefix)
+    {
     }
 
     /**

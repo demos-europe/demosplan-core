@@ -20,7 +20,7 @@ class UserMapperDataportGatewayHHStatic extends UserMapperDataportGatewayHH
      *
      * @var array<string, string>
      */
-    public const AVAILABLE_USER = [
+    final public const AVAILABLE_USER = [
         // Rolle Institutions-Admin und Fachplaner-Admin
         'Intranet-InvitableInstitution-K'                                      => '<USERDATA><HHGW USERID="4389" MODEID="2" USERMODE="Intranet" LOGINNAME="FHHNET\\ITBBOPTo" FIRSTNAME="TöB-Koordinator" LASTNAME="ITB-BOP-Test" EMAIL="toeb-koordinator.itb-bop-test@hamburg-nord.hamburg.de" LANGUAGE="de-DE" AUTHORITYSIGN="" FEDERAL_STATE="Hamburg" AUTHORITY="Moonlimited Corp" DEPARTMENT="Abteilung2" SUBDEPARTMENT="IAbteilung2-1" STREET="Gravel Lane" STREETNUMBER="122c" CITY="Hamburg" ZIPCODE="22083" COUNTRY="Deutschland" USERPHONENUMBER="" /><ROLES ROLEID="645" ROLENAME="G-D-BOP-FHHintern-TestToeB" PERMISSION="1" ISDEFAULT="0" /><ROLES ROLEID="432" ROLENAME="G-D-BOP-ToeB-Koordinator" PERMISSION="1" ISDEFAULT="0" /></USERDATA>',
         'aca4a800-7172-11e4-82f8-0800200c9a66'                                 => '<USERDATA><HHGW USERID="7005" MODEID="1" USERMODE="Bürger" LOGINNAME="sr7005@demos-deutschland.de" TITLE="" PREFIX="Frau" FIRSTNAME="sr" LASTNAME="sr" EMAIL="sr7005@demos-deutschland.de" LANGUAGE="de-DE" STREET="Ocean Street" STREETNUMBER="1" STREETEXTENSION="a" CITY="Berlin" ZIPCODE="10178" COUNTRY="Deutschland"/></USERDATA>',

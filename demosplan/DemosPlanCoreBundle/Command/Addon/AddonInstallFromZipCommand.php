@@ -58,13 +58,10 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $zipCachePath;
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
-    private Registrator $installer;
 
-    public function __construct(Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-
-        $this->installer = $installer;
     }
 
     public function configure(): void

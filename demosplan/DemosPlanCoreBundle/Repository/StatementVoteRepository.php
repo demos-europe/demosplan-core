@@ -320,7 +320,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

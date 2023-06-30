@@ -46,7 +46,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
 
         try {
             return $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -87,7 +87,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
     {
         try {
             $files = $this->getFileResponses($entryIdent);
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             $files = [];
         }
 
@@ -150,7 +150,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
             $forumEntryFile->setBlocked(false);
             $forumEntryFile->setDeleted(false);
             $forumEntryFile->setString($singleFileString);
-            $exploded = explode(':', $singleFileString);
+            $exploded = explode(':', (string) $singleFileString);
             $forumEntryFile->setHash($exploded[1]);
             $forumEntryFile->setEntry($this->getEntityManager()->getRepository(ForumEntry::class)->find($data['entryId']));
             $forumEntryFile->setOrder($this->calculateOrder());

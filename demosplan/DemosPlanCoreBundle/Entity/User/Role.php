@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 
 /**
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/
@@ -25,7 +26,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\RoleRepository")
  */
-class Role extends CoreEntity implements UuidEntityInterface, RoleInterface
+class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Stringable
 {
     /**
      * @var string|null
@@ -39,14 +40,12 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
-
     /**
      * @var string
      *
      * @ORM\Column(name="_r_code", type="string", length=6, nullable=false, options={"fixed":true})
      */
     protected $code;
-
     /**
      * This property is set by {@link RoleEntityListener} on the postLoad event to allow the usage of
      * translation keys here.
@@ -54,21 +53,18 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface
      * @var string
      */
     protected $name;
-
     /**
      * @var string
      *
      * @ORM\Column(name="_r_group_code", type="string", length=6, nullable=false, options={"fixed":true})
      */
     protected $groupCode;
-
     /**
      * @var string
      *
      * @ORM\Column(name="_r_group_name", type="string", length=60, nullable=false)
      */
     protected $groupName;
-
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
@@ -83,10 +79,8 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface
 
     /**
      * Some methods need this. For example, array_unique().
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->ident ?? '';
     }

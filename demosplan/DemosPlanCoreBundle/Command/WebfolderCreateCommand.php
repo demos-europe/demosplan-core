@@ -109,7 +109,7 @@ EOT
         }
 
         foreach (glob($source.'/css/*.css') as $filename) {
-            $targetFile = basename($filename);
+            $targetFile = basename((string) $filename);
             echo 'Copy '.$filename.' to '.$targetDir.$targetFile."\n";
             copy($filename, $targetDir.$targetFile);
         }
@@ -155,7 +155,7 @@ EOT
                     $output->writeln('DeleteFolder '.$dirToDelete);
                     $fs->remove(glob($dirToDelete));
                 });
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->error('Error deleting: ');
         }
 

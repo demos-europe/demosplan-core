@@ -20,21 +20,15 @@ use Symfony\Component\Routing\RouterInterface;
 class JwtRouter extends Router
 {
     /**
-     * @var JWTTokenManagerInterface
-     */
-    private $jwtManager;
-
-    /**
      * This router decorates Symfony\Bundle\FrameworkBundle\Routing.
      */
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        JWTTokenManagerInterface $jwtManager,
+        private readonly JWTTokenManagerInterface $jwtManager,
         ProcedureRepository $procedureRepository,
         RouterInterface $router,
         protected readonly UserService $userService
     ) {
-        $this->jwtManager = $jwtManager;
         parent::__construct($globalConfig, $procedureRepository, $router);
     }
 

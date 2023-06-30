@@ -18,12 +18,12 @@ class LoadCustomerData extends TestFixture
     /**
      * @deprecated use {@link LoadCustomerData::BRANDENBURG} instead
      */
-    public const BB = 'testCustomerBrandenburg';
-    public const HINDSIGHT = 'testCustomer';
-    public const ROSTOCK = 'Rostock';
-    public const BRANDENBURG = 'Brandenburg';
-    public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
-    public const DEMOS = 'Demos';
+    final public const BB = 'testCustomerBrandenburg';
+    final public const HINDSIGHT = 'testCustomer';
+    final public const ROSTOCK = 'Rostock';
+    final public const BRANDENBURG = 'Brandenburg';
+    final public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
+    final public const DEMOS = 'Demos';
 
     public function load(ObjectManager $manager)
     {

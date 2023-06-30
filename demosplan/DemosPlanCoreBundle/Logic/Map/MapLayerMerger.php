@@ -24,14 +24,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class MapLayerMerger
 {
-    /**
-     * @var Filesystem
-     */
-    private $fileSystem;
-
-    public function __construct(Filesystem $fileSystem)
+    public function __construct(private readonly Filesystem $fileSystem)
     {
-        $this->fileSystem = $fileSystem;
     }
 
     /**

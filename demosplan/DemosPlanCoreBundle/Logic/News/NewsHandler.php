@@ -32,9 +32,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class NewsHandler extends CoreHandler
 {
     /** @var int Do not increase over 65535 as this is the maximum in the database */
-    public const NEWS_DESCRIPTION_MAX_LENGTH = 65535;
+    final public const NEWS_DESCRIPTION_MAX_LENGTH = 65535;
     /** @var int Do not increase over 65535 as this is the maximum in the database */
-    public const NEWS_TEXT_MAX_LENGTH = 65535;
+    final public const NEWS_TEXT_MAX_LENGTH = 65535;
 
     /** @var ContentService */
     protected $contentService;
@@ -48,40 +48,24 @@ class NewsHandler extends CoreHandler
 
     /** @var Permissions */
     protected $permissions;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var FlashMessageHandler
-     */
-    private $flashMessageHandler;
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
 
     public function __construct(
-        ArrayHelper $arrayHelper,
+        private readonly ArrayHelper $arrayHelper,
         ContentService $contentService,
-        FlashMessageHandler $flashMessageHandler,
+        private readonly FlashMessageHandler $flashMessageHandler,
         GlobalNewsHandler $globalNewsHandler,
         ManagerRegistry $doctrine,
         MessageBag $messageBag,
         PermissionsInterface $permissions,
         ProcedureNewsService $procedureNewsService,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($messageBag);
-        $this->arrayHelper = $arrayHelper;
         $this->contentService = $contentService;
         $this->doctrine = $doctrine;
-        $this->flashMessageHandler = $flashMessageHandler;
         $this->globalNewsHandler = $globalNewsHandler;
         $this->permissions = $permissions;
         $this->procedureNewsService = $procedureNewsService;
-        $this->translator = $translator;
     }
 
     /**
@@ -93,19 +77,19 @@ class NewsHandler extends CoreHandler
     {
         $errors = [];
 
-        if (!array_key_exists('r_enable', $data) || '' === trim($data['r_enable'])) {
+        if (!array_key_exists('r_enable', $data) || '' === trim((string) $data['r_enable'])) {
             $errors[] = $this->createMandatoryErrorMessage('status');
         }
 
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $errors[] = $this->createMandatoryErrorMessage('heading');
         }
 
-        if (!array_key_exists('r_description', $data) || '' === trim($data['r_description'])) {
+        if (!array_key_exists('r_description', $data) || '' === trim((string) $data['r_description'])) {
             $errors[] = $this->createMandatoryErrorMessage('teaser');
         }
 
-        if (!array_key_exists('r_group_code', $data) || 0 === count($data['r_group_code'])) {
+        if (!array_key_exists('r_group_code', $data) || 0 === (is_countable($data['r_group_code']) ? count($data['r_group_code']) : 0)) {
             $errors[] = $this->createMandatoryErrorMessage('visibility');
         }
 

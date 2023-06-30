@@ -17,17 +17,8 @@ use Knp\Menu\ItemInterface;
 
 class ConfigureMenuEvent extends DPlanEvent
 {
-    private $menuName;
-    /** @var FactoryInterface */
-    private $factory;
-    /** @var ItemInterface */
-    private $menu;
-
-    public function __construct(string $menuName, FactoryInterface $factory, ItemInterface $menu)
+    public function __construct(private readonly string $menuName, private readonly FactoryInterface $factory, private readonly ItemInterface $menu)
     {
-        $this->menuName = $menuName;
-        $this->factory = $factory;
-        $this->menu = $menu;
     }
 
     public function getFactory(): FactoryInterface

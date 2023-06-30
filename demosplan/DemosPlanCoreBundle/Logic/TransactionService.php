@@ -93,7 +93,7 @@ class TransactionService implements TransactionServiceInterface
     {
         $entitiesToPersist = $resourceChange->getEntitiesToPersist();
         $entitiesToDelete = $resourceChange->getEntitiesToDelete();
-        array_map([$this->entityManager, 'persist'], $entitiesToPersist);
-        array_map([$this->entityManager, 'remove'], $entitiesToDelete);
+        array_map($this->entityManager->persist(...), $entitiesToPersist);
+        array_map($this->entityManager->remove(...), $entitiesToDelete);
     }
 }

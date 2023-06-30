@@ -38,7 +38,7 @@ trait CanTransformRequestVariablesTrait
                 [$ident, $keyName] = explode(':', $key);
 
                 $transformedRequestData[$ident][$keyName] = $value;
-            } elseif (0 === strpos($key, ':')) {
+            } elseif (str_starts_with($key, ':')) {
                 $transformedRequestData[substr($key, 1)] = $value;
             } else {
                 $transformedRequestData[$key] = $value;
