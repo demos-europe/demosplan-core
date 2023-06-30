@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

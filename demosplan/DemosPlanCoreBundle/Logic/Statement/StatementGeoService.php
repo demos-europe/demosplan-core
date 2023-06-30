@@ -11,10 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetFilePathAbsoluteEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\GetDatasheetFilePathAbsoluteEvent;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
@@ -26,6 +28,7 @@ use LineString;
 use Point;
 use Polygon;
 use SimpleXMLElement;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -39,6 +42,11 @@ class StatementGeoService extends CoreService
      */
     protected $twig;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
     public function __construct(
         private readonly DatasheetService $datasheetService,
         private readonly CountyService $countyService,
@@ -48,9 +56,11 @@ class StatementGeoService extends CoreService
         private readonly MunicipalityService $municipalityService,
         private readonly PriorityAreaService $priorityAreaService,
         private readonly StatementAttributeRepository $statementAttributeRepository,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->twig = $twig;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -575,8 +585,15 @@ class StatementGeoService extends CoreService
      */
     private function doesWind4PriorityAreaFileExist(string $fileName): bool
     {
+        /** @var GetDatasheetFilePathAbsoluteEvent $event * */
+        $event = $this->eventDispatcher->dispatch(
+            new GetDatasheetFilePathAbsoluteEvent(),
+            GetDatasheetFilePathAbsoluteEventInterface::class
+        );
+        $datasheetAbsolutePah = $event->getDatasheetFilePathAbsolute();
+
         return file_exists(
-            $this->globalConfig->getDatasheetFilePathAbsolute().
+            $datasheetAbsolutePah.
             '/version4/pdf/'.
             $fileName.
             '.pdf'
