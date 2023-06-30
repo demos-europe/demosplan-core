@@ -16,12 +16,12 @@ use Doctrine\Persistence\ObjectManager;
 class LoadProcedureUiDefinitionData extends TestFixture
 {
     // for procedureTypes
-    public const PROCEDURETYPE_1 = 'procedureUiDefinition1';
-    public const PROCEDURETYPE_BPLAN = 'procedureUiDefinition_bplan';
-    public const PROCEDURETYPE_BRK = 'procedureUiDefinitionBrk';
+    final public const PROCEDURETYPE_1 = 'procedureUiDefinition1';
+    final public const PROCEDURETYPE_BPLAN = 'procedureUiDefinition_bplan';
+    final public const PROCEDURETYPE_BRK = 'procedureUiDefinitionBrk';
 
     // for procedures
-    public const PROCEDURE_TESTPROCEDURE = 'procedureUiDefinition_procedureTest';
+    final public const PROCEDURE_TESTPROCEDURE = 'procedureUiDefinition_procedureTest';
 
     private $manager;
 

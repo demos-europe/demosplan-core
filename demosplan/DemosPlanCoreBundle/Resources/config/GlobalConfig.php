@@ -417,13 +417,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $elasticsearchMajorVersion;
 
     /**
-     * Path to store datasheet pdf and images.
-     *
-     * @var string
-     */
-    protected $datasheetFilePath;
-
-    /**
      * @var string
      */
     protected $kernelEnvironment;
@@ -762,8 +755,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
-
-        $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
 
         $this->kernelEnvironment = $parameterBag->get('kernel.environment');
 
@@ -1508,37 +1499,6 @@ class GlobalConfig implements GlobalConfigInterface
         // second check: Did something happen during mkdir?
         if (!is_dir($realpath) && !mkdir($realpath, 0755, true)
                 && !is_dir($realpath)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $realpath));
-        }
-
-        return $realpath;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getDatasheetFilePathAbsolute(): string
-    {
-        $absolutePath = $this->datasheetFilePath;
-        // Wenn ein relativer Pfad konfiguriert ist, baue den absoluten Pfad zusammen
-        if (0 === strpos($absolutePath, '.')) {
-            $absolutePath = $this->getInstanceAbsolutePath().'/'.$this->datasheetFilePath;
-        }
-
-        $realpath = realpath($absolutePath);
-
-        // fallback if path could not be resolved
-        if (false === $realpath) {
-            $realpath = $this->getKernelRootDir().'/datasheets';
-        }
-
-        // check path
-        // mkdir, create recursively
-        // !is_dir needs to checked twice. First check: Only try to create
-        // dir if folder does not exist
-        // second check: Did something happen during mkdir?
-        if (!is_dir($realpath) && !mkdir($realpath, 0755, true)
-            && !is_dir($realpath)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $realpath));
         }
 

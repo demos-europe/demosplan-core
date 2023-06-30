@@ -22,18 +22,8 @@ use JsonSchema\Exception\InvalidSchemaException;
 
 class SurveyValidator
 {
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    /** @var JsonSchemaValidator */
-    private $jsonSchemaValidator;
-
-    public function __construct(
-        ProcedureHandler $procedureHandler,
-        JsonSchemaValidator $jsonSchemaValidator
-    ) {
-        $this->procedureHandler = $procedureHandler;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
+    public function __construct(private readonly ProcedureHandler $procedureHandler, private readonly JsonSchemaValidator $jsonSchemaValidator)
+    {
     }
 
     /**

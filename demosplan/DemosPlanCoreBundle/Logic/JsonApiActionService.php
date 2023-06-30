@@ -72,49 +72,19 @@ class JsonApiActionService extends AbstractApiService
      */
     protected $eventDispatcher;
 
-    /**
-     * @var ResourceTypeService
-     */
-    private $resourceTypeService;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-
-    /**
-     * @var ResourcePersister
-     */
-    private $resourcePersister;
-
-    /**
-     * @var JsonApiPaginationParser
-     */
-    private $paginationParser;
-
-    /**
-     * @var JsonApiEsService
-     */
-    private $jsonApiEsService;
-
     public function __construct(
         FilterParserInterface $filterParser,
-        EntityFetcher $entityFetcher,
+        private readonly EntityFetcher $entityFetcher,
         TraceableEventDispatcher $eventDispatcher,
-        JsonApiEsService $jsonApiEsService,
-        JsonApiPaginationParser $paginationParser,
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly JsonApiPaginationParser $paginationParser,
         JsonApiSortingParser $sortingParser,
         PaginatorFactory $paginatorFactory,
         PrefilledResourceTypeProvider $typeProvider,
         PropertyValuesGenerator $propertyValuesGenerator,
-        ResourcePersister $resourcePersister,
-        ResourceTypeService $resourceTypeService,
-        TransactionService $transactionService
+        private readonly ResourcePersister $resourcePersister,
+        private readonly ResourceTypeService $resourceTypeService,
+        private readonly TransactionService $transactionService
     ) {
         parent::__construct(
             $filterParser,
@@ -124,12 +94,6 @@ class JsonApiActionService extends AbstractApiService
             $typeProvider
         );
         $this->eventDispatcher = $eventDispatcher;
-        $this->resourceTypeService = $resourceTypeService;
-        $this->entityFetcher = $entityFetcher;
-        $this->transactionService = $transactionService;
-        $this->resourcePersister = $resourcePersister;
-        $this->paginationParser = $paginationParser;
-        $this->jsonApiEsService = $jsonApiEsService;
     }
 
     /**
@@ -275,7 +239,7 @@ class JsonApiActionService extends AbstractApiService
         }
 
         if (!$type instanceof ReadableEsResourceTypeInterface) {
-            $typeClass = get_class($type);
+            $typeClass = $type::class;
             throw new InvalidArgumentException("Type does not implement ReadableEsResourceTypeInterface: $typeClass");
         }
 

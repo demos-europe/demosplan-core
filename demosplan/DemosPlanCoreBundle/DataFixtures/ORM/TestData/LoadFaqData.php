@@ -19,11 +19,11 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadFaqData extends TestFixture implements DependentFixtureInterface
 {
-    public const FAQ_GUEST = 'testFaqGuest';
-    public const FAQ_PLANNER = 'testFaqPlanner';
-    public const FAQ_PLANNER_BB = 'testFaqPlannerBB';
+    final public const FAQ_GUEST = 'testFaqGuest';
+    final public const FAQ_PLANNER = 'testFaqPlanner';
+    final public const FAQ_PLANNER_BB = 'testFaqPlannerBB';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Customer $customer */
         $customer = $this->getReference('testCustomer');

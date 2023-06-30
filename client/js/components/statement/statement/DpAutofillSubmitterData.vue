@@ -37,7 +37,7 @@
             :id="`r_role_${role.value}`"
             v-model="currentRole"><!--
        --><label
-            class="lbl--text display--inline-block u-mb-0_5 u-pr u-ml-0_25"
+            class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
             :for="`r_role_${role.value}`">
             {{ Translator.trans(role.label) }}
           </label>
@@ -57,11 +57,11 @@
       v-if="currentRoleHasSelect">
 <!-- Label & contextual help -->
       <label
-        class="u-mb-0_25 cf"
+        class="u-mb-0_25 flow-root"
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
         <i
-          class="fa fa-question-circle float--right"
+          class="fa fa-question-circle float-right"
           :aria-label="Translator.trans('contextual.help')"
           v-tooltip="autoFillLabel" />
       </label>

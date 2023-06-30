@@ -10,7 +10,7 @@
 
     {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') or canEditMapHint %}
         <form
-            class="cf border--bottom u-pb-0_5 u-mb"
+            class="flow-root border--bottom u-pb-0_5 u-mb"
             name="planform"
             action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}"
             method="post"
@@ -33,7 +33,7 @@
                         </div>
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planDrawPDF != '' %}
-                            <div class="u-mb overflow-word-break">
+                            <div class="u-mb break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -56,7 +56,7 @@
                         {{ fileupload( "r_planPDF", "drawing.explanation"|trans, null, null, null, true ) }}
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planPDF != '' %}
-                            <div class="u-mb overflow-word-break">
+                            <div class="u-mb break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -83,7 +83,7 @@
                     </h3>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'map.hint.edit.contextual.help'|trans,
-                        cssClasses:'o-tooltip--question-circle float--right u-mt-0_5'
+                        cssClasses:'o-tooltip--question-circle float-right u-mt-0_5'
                     } %}
                     <p class="lbl__hint">
                         {{ 'map.hint.edit.explanation'|trans }}
@@ -95,7 +95,7 @@
                 </fieldset>
             {% endif %}
 
-            <div class="text--right space-inline-s">
+            <div class="text-right space-inline-s">
                 <input
                     class="btn btn--primary"
                     type="submit"
@@ -127,7 +127,7 @@
                 </legend>
 
             </div><!--
-         --><div class="layout__item u-3-of-4 text--right">
+         --><div class="layout__item u-3-of-4 text-right">
 
                 <dp-split-button>
                     <a

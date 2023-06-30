@@ -34,7 +34,7 @@ logs
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
-/demosplan/DemosPlanCoreBundle/Resources/config/jwt/*.pem
+/config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
 ###> friendsofphp/php-cs-fixer ###

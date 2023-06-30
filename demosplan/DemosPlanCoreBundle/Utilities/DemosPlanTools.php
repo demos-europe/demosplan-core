@@ -40,7 +40,7 @@ class DemosPlanTools
             }
 
             return var_export($expression, $return);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             return [];
         }
     }
@@ -195,6 +195,6 @@ class DemosPlanTools
     {
         // $_SERVER may be used in this case as nothing else is available in
         // static context :(
-        return md5($_SERVER['DOCUMENT_ROOT']);
+        return md5((string) $_SERVER['DOCUMENT_ROOT']);
     }
 }

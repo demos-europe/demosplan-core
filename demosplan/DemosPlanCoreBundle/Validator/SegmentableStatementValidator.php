@@ -18,18 +18,8 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 
 class SegmentableStatementValidator
 {
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserService $currentUser, StatementHandler $statementHandler)
+    public function __construct(private readonly CurrentUserService $currentUser, private readonly StatementHandler $statementHandler)
     {
-        $this->currentUser = $currentUser;
-        $this->statementHandler = $statementHandler;
     }
 
     /**

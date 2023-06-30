@@ -23,14 +23,8 @@ use Throwable;
 
 class GeoJsonDataCollector extends DataCollector
 {
-    /**
-     * @var DraftStatementHandler
-     */
-    private $draftStatementHandler;
-
-    public function __construct(DraftStatementHandler $draftStatementHandler)
+    public function __construct(private readonly DraftStatementHandler $draftStatementHandler)
     {
-        $this->draftStatementHandler = $draftStatementHandler;
     }
 
     /**
@@ -74,7 +68,7 @@ class GeoJsonDataCollector extends DataCollector
 
     public function getGeoJsonInfo(): ?array
     {
-        return isset($this->data['geo_json_info']) ? $this->data['geo_json_info'] : null;
+        return $this->data['geo_json_info'] ?? null;
     }
 
     private function jsonPrettify(string $json): string
@@ -83,7 +77,7 @@ class GeoJsonDataCollector extends DataCollector
             str_replace(
                 ' ',
                 '&nbsp;',
-                Json::encode(
+                (string) Json::encode(
                     Json::decodeToMatchingType($json), JSON_PRETTY_PRINT
                 )
             )

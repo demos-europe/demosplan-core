@@ -35,7 +35,7 @@ class DepartmentRepository extends CoreRepository implements ArrayInterface
             $department = $this->findOneBy(['id' => $entityId]);
 
             return $department;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

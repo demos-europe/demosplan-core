@@ -23,7 +23,7 @@ class Base64Extension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('base64', [$this, 'base64Filter']),
+            new TwigFilter('base64', $this->base64Filter(...)),
         ];
     }
 

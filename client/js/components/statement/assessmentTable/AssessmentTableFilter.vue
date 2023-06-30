@@ -28,7 +28,7 @@
           </label>
         </div><!--
      --><div
-          class="layout__item u-4-of-6 u-mt-0_25 cursor--pointer"
+          class="layout__item u-4-of-6 u-mt-0_25 cursor-pointer"
           aria-labelledby="searchTermLabel">
           {{ searchTerm }}
         </div>
@@ -45,7 +45,7 @@
           </label>
         </div><!--
      --><div
-          class="layout__item u-4-of-6 u-mt-0_25 cursor--pointer"
+          class="layout__item u-4-of-6 u-mt-0_25 cursor-pointer"
           :aria-label="Translator.trans('aria.maximize_filters')">
           {{ filterSet.activeFilters.join(', ') }}
         </div>
@@ -63,7 +63,7 @@
         :search-term="searchTerm"
         :has-changed-statements="hasChangedStatements" />
 
-      <div class="flex flex-items-center space-inline-m">
+      <div class="flex items-center space-inline-m">
         <!-- mark all -->
         <label
           class="o-link--default u-mb-0"
@@ -231,7 +231,7 @@
         </div>
 
         <!-- Sorting -->
-        <div class="flex-item-end">
+        <div class="ml-auto">
           <div
             v-if="searchTerm.length === 0 && !viewModeActivated"
             class="c-actionmenu"

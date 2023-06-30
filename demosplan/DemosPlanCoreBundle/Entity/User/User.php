@@ -278,15 +278,14 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @Assert\All({
-     *
-     *     @Assert\NotNull(),
-     *
      *     @RoleAllowedConstraint()
      * })
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
+    #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
+    #[Assert\NotNull]
     protected $roleInCustomers;
 
     /**
@@ -1342,7 +1341,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     {
         if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
-            $customer = $customer ?? $this->getCurrentCustomer();
+            $customer ??= $this->getCurrentCustomer();
             /** @var RoleInterface $role */
             foreach ($this->getDplanroles($customer) as $role) {
                 $this->rolesArrayCache[] = $role->getCode();
@@ -1454,7 +1453,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
             return;
         }
 
-        $customer = $customer ?? $this->getCurrentCustomer();
+        $customer ??= $this->getCurrentCustomer();
 
         $userRoleInCustomer = new UserRoleInCustomer();
         $userRoleInCustomer->setUser($this);
@@ -1471,7 +1470,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
      */
     public function hasRole($role, CustomerInterface $customer = null): bool
     {
-        $customer = $customer ?? $this->getCurrentCustomer();
+        $customer ??= $this->getCurrentCustomer();
 
         return in_array($role, $this->getDplanRolesArray($customer));
     }
@@ -1557,9 +1556,7 @@ class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterf
     public function getCustomers(): array
     {
         return $this->roleInCustomers
-            ->map(static function (UserRoleInCustomerInterface $roleInCustomer) {
-                return $roleInCustomer->getCustomer();
-            })->toArray();
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
     }
 
     /**

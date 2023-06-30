@@ -29,7 +29,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class ProcedureProposal extends CoreEntity implements UuidEntityInterface
 {
-    public const STATUS = [
+    final public const STATUS = [
         'new'                                 => 'new',
         'has_been_transformed_into_procedure' => 'has_been_transformed_into_procedure',
     ];

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,37 +34,22 @@ class UserCreateCommand extends CoreCommand
     protected static $defaultName = 'dplan:user:create';
     protected static $defaultDescription = 'Creates a new user with customer, orga, department and roles';
     /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-    /**
      * @var mixed|QuestionHelper
      */
     private $helper;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var Helpers
-     */
-    private $helpers;
 
     public function __construct(
-        Helpers $helpers,
-        OrgaRepository $orgaRepository,
+        private readonly Helpers $helpers,
+        private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
-        UserRepository $userRepository,
+        private readonly UserRepository $userRepository,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-        $this->orgaRepository = $orgaRepository;
         $this->helper = new QuestionHelper();
-        $this->userRepository = $userRepository;
-        $this->helpers = $helpers;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $firstName = $this->askFirstname($input, $output);
         $lastName = $this->askLastname($input, $output);
@@ -94,7 +80,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 0;
+            return Command::SUCCESS;
         } catch (Exception $e) {
             // Print Exception
             $output->writeln(
@@ -102,7 +88,7 @@ class UserCreateCommand extends CoreCommand
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            return 1;
+            return Command::FAILURE;
         }
     }
 
@@ -152,9 +138,7 @@ class UserCreateCommand extends CoreCommand
             }
             // Check if orga is active in customer
             $customers = $orga->getCustomers();
-            $filteredCustomers = $customers->filter(function (Customer $customer) use ($customerId) {
-                return $customerId === $customer->getId();
-            });
+            $filteredCustomers = $customers->filter(fn (Customer $customer) => $customerId === $customer->getId());
             $isOrgaMissingInCustomer = $filteredCustomers->isEmpty();
             if ($isOrgaMissingInCustomer) {
                 throw new RuntimeException('Given orga is not active in the chosen customer.');
@@ -169,14 +153,10 @@ class UserCreateCommand extends CoreCommand
     private function askDepartment(string $orgaId, InputInterface $input, OutputInterface $output): Department
     {
         $availableDepartments = $this->orgaRepository->get($orgaId)->getDepartments();
-        $departmentSelection = $availableDepartments->map(function (Department $department) {
-            return $department->getName();
-        })->toArray();
+        $departmentSelection = $availableDepartments->map(fn (Department $department) => $department->getName())->toArray();
         $questionDepartment = new ChoiceQuestion('Please select a department: ', $departmentSelection);
         $answer = $this->helper->ask($input, $output, $questionDepartment);
 
-        return $availableDepartments->first(function (Department $department) use ($answer) {
-            return $answer === $department->getName();
-        });
+        return $availableDepartments->first(fn (Department $department) => $answer === $department->getName());
     }
 }

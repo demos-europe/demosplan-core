@@ -40,68 +40,44 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
     private $id;
 
     /**
-     * @var Procedure
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
-     */
-    private $procedure;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
-     *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
-     */
-    private $fullName;
-
-    /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetName;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetNumber;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $city;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $postalCode;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
-     *
-     * @Assert\Email()
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[Assert\Email]
     private $emailAddress;
 
     /**
@@ -124,10 +100,17 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      */
     private Collection $similarForeignStatements;
 
-    public function __construct(string $fullName, Procedure $procedure)
+    public function __construct(/**
+     * @ORM\Column(type="text", nullable=false)
+     */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    private string $fullName, /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
+     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
+     */
+    private Procedure $procedure)
     {
-        $this->fullName = $fullName;
-        $this->procedure = $procedure;
         $this->similarForeignStatements = new ArrayCollection();
     }
 

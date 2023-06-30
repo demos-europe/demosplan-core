@@ -34,7 +34,7 @@
       v-model="selected"
       :allow-empty="false"
       class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
-      :custom-label="props =>`${props.option.externId ? props.option.externId : ''} ${props.option.name ? props.option.name : ''}`"
+      :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
       ref="multiselect"
       track-by="id"
@@ -55,7 +55,7 @@
       v-if="hasPermission('feature_statement_assignment')"
       class="layout__item u-1-of-1 u-pt-0_25 u-pl-0">
       <dp-claim
-        class="c-at-item__row-icon display--inline-block"
+        class="c-at-item__row-icon inline-block"
         entity-type="statement"
         :ignore-last-claimed="false"
         :assigned-id="(selected.assignee.id || '')"
@@ -69,7 +69,7 @@
         :key="selected.assignee.id" />
       <p
         v-if="currentUserId !== selected.assignee.id && inputValue !== ''"
-        class="display--inline-block lbl__hint u-n-ml-0_5">
+        class="inline-block lbl__hint u-n-ml-0_5">
         {{ Translator.trans('statement.cluster.assign.self') }}
       </p>
     </div>

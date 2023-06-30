@@ -40,11 +40,6 @@ use Symfony\Component\Routing\RouterInterface;
 class ServiceImporter implements ServiceImporterInterface
 {
     /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
      * @var FileService
      */
     protected $fileService;
@@ -68,39 +63,23 @@ class ServiceImporter implements ServiceImporterInterface
      * @var GlobalConfigInterface
      */
     protected $globalConfig;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
 
     public function __construct(
+        private readonly DocxImporterInterface $docxImporter,
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag,
-        ParagraphRepository $paragraphRepository,
+        private LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
         private readonly PdfCreatorInterface $pdfCreator,
+        private readonly RouterInterface $router,
         RouterInterface $router,
         RpcClient $client
     ) {
         $this->client = $client;
-        $this->router = $router;
-        $this->messageBag = $messageBag;
         $this->fileService = $fileService;
         $this->paragraphService = $paragraphService;
-        $this->logger = $logger;
-        $this->paragraphRepository = $paragraphRepository;
         $this->globalConfig = $globalConfig;
     }
 
@@ -157,40 +136,12 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
-        try {
-            // Generiere Message
-            $msg = Json::encode([
-                'procedure' => $procedure,
-                'category'  => $category,
-                'elementId' => $elementId,
-                'path'      => $file->getRealPath(),
-             ]);
-
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-
-            // Füge Message zum Request hinzu
-            $this->getLogger()->debug(
-                'Import docx with RabbitMQ, with routingKey: '.$routingKey);
-            $this->client->addRequest($msg, 'importDemosPlan', 'import', $routingKey, 300);
-            // Anfrage absenden
-            $replies = $this->client->getReplies();
-
-            if ('' != $replies['import']) {
-                $this->getLogger()->info(
-                    'Incoming message size:'.strlen($replies['import']));
-            }
-
-            return Json::decodeToArray($replies['import']);
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException($e->getMessage());
-        } catch (Exception $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw $e;
-        }
+        return $this->docxImporter->importDocx(
+            $file,
+            $elementId,
+            $procedure,
+            $category
+        );
     }
 
     /**
@@ -249,7 +200,7 @@ class ServiceImporter implements ServiceImporterInterface
                          * Teil 1 = Dateiname
                          * Teil 2 = Dateiinhalt base64 encoded
                          */
-                        $ca = explode('::', $c);
+                        $ca = explode('::', (string) $c);
                         if (2 === count($ca)) {
                             $fs = new Filesystem();
                             // Speichere dekodierte Datei als temporäre Datei
@@ -293,13 +244,13 @@ class ServiceImporter implements ServiceImporterInterface
                                 ).DIRECTORY_SEPARATOR.$ca[0]
                             );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr($f, 2);
+                            $stringToReplace = '/file/'.substr((string) $f, 2);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
                                 $this->router->generate('core_file', [
                                     'hash' => $hash,
                                 ]),
-                                $paragraph['text']
+                                (string) $paragraph['text']
                             );
                         }
                     }
@@ -338,7 +289,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < count($exception->getErrorParagraphs())) {
+        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
             throw $exception;
         }
     }

@@ -19,7 +19,7 @@
       <i
         :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
         aria-hidden="true" />
-      <span :class="prefixClass('display--block u-ml')">
+      <span :class="prefixClass('block u-ml')">
         {{ Translator.trans('statement.recheck') }}
       </span>
     </p>
@@ -31,13 +31,13 @@
         :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
         aria-hidden="true" />
       <span
-        :class="prefixClass('display--block u-ml')"
+        :class="prefixClass('block u-ml')"
         v-cleanhtml="statementFormHintRecheck" />
     </p>
 
     <div
       v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled"
-      :class="prefixClass('cf')">
+      :class="prefixClass('flow-root')">
       <span
         v-if="statement.r_makePublic === 'on'"
         v-cleanhtml="Translator.trans('explanation.statement.public', { projectName: dplan.projectName })" />
@@ -47,7 +47,7 @@
       <button
         type="button"
         @click="$emit('edit-input', 'r_makePublic')"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="statementDetailFormPersonalPublish inputDataChange">
         <i
@@ -58,13 +58,13 @@
 
     <div
       v-if="statement.r_useName === '1'"
-      :class="prefixClass('cf border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       <div :class="prefixClass('layout--flush')">
         <span :class="prefixClass('layout__item u-1-of-1')">
           {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
           <button
             type="button"
-            :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+            :class="prefixClass('o-link--default btn-icns u-ml float-right')"
             @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
             aria-labelledby="useNameText inputDataChange">
@@ -138,11 +138,11 @@
     </div>
     <div
       v-else
-      :class="prefixClass('cf border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       {{ Translator.trans('statement.detail.form.personal.post_anonymously') }}
       <button
         type="button"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="useNameText inputDataChange">
@@ -154,10 +154,10 @@
 
     <div
       v-if="statementFeedbackDefinitions.length > 0"
-      :class="prefixClass('cf border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')">
       <p
         v-if="hasPermission('feature_statements_feedback_postal')"
-        :class="prefixClass('display--inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')">
         <template v-if="statement.r_getFeedback === 'on'">
           <span
             v-if="statement.r_getEvaluation === 'email'"
@@ -173,7 +173,7 @@
 
       <p
         v-else
-        :class="prefixClass('display--inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')">
         <template v-if="statement.r_getFeedback === 'on'">
           {{ Translator.trans('statement.detail.form.personal.feedback') }}<br>
           <em>{{ Translator.trans('email.address') }}:</em> {{ statement.r_email }}
@@ -185,14 +185,14 @@
 
       <!-- this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern' -->
       <span
-        :class="prefixClass('display--none')"
+        :class="prefixClass('hidden')"
         aria-hidden="true"
         id="inputDataChange">
         {{ Translator.trans('statement.form.input.change') }}
       </span>
       <button
         type="button"
-        :class="prefixClass('o-link--default btn-icns u-ml float--right')"
+        :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         @click="$emit('edit-input', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="getFeedbackText inputDataChange">
@@ -202,12 +202,12 @@
       </button>
     </div>
 
-    <div :class="prefixClass('cf border--top u-pt-0_25')">
-      <span :class="prefixClass('cf')">
+    <div :class="prefixClass('flow-root border--top u-pt-0_25')">
+      <span :class="prefixClass('flow-root')">
         <em>{{ Translator.trans('statement.my') }}: </em>
         <button
           type="button"
-          :class="prefixClass('o-link--default btn-icns float--right')"
+          :class="prefixClass('o-link--default btn-icns float-right')"
           @click="$emit('edit-input', 'r_text')"
           :title="Translator.trans('statement.alter')"
           :aria-label="Translator.trans('statement.alter')">

@@ -51,16 +51,11 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->enabled->getAsNamesInDotNotation():
-                    $object->setEnabled($value);
-                    break;
-                case $this->required->getAsNamesInDotNotation():
-                    $object->setRequired($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->enabled->getAsNamesInDotNotation() => $object->setEnabled($value),
+                $this->required->getAsNamesInDotNotation() => $object->setRequired($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

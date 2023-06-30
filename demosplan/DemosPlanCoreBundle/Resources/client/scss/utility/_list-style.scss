@@ -16,6 +16,10 @@
 //  ] | inherit
 //  https://developer.mozilla.org/de/docs/Web/CSS/list-style
 
+// @TODO When migrating to tailwind, the margin reset should be removed here, as well as the
+// default margins of the inuit _generic.shared.scss. However to do so, the margins must be reapplied
+// wherever needed.
+
 .list-style {
     &-none {
         list-style-type: none;

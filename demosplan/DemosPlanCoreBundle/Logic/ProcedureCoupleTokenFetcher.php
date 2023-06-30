@@ -19,22 +19,8 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 
 class ProcedureCoupleTokenFetcher
 {
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $procedureCoupleTokenRepository;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        ProcedureCoupleTokenRepository $procedureCoupleTokenRepository,
-        PermissionsInterface $permissions
-    ) {
-        $this->procedureCoupleTokenRepository = $procedureCoupleTokenRepository;
-        $this->permissions = $permissions;
+    public function __construct(private readonly ProcedureCoupleTokenRepository $procedureCoupleTokenRepository, private readonly PermissionsInterface $permissions)
+    {
     }
 
     /**

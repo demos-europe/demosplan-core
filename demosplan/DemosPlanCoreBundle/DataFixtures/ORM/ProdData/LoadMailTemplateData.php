@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadMailTemplateData extends ProdFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         // array was exported with HeidiSQL and modified afterwards
         $mailTemplates = [

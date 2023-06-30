@@ -17,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureSubscriptionData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $procedureId = $this->getReference('testProcedure2')->getId();
 

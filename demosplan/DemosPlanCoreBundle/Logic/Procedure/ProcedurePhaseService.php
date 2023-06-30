@@ -17,14 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 class ProcedurePhaseService
 {
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
-        $this->globalConfig = $globalConfig;
     }
 
     /**

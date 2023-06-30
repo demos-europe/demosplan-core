@@ -30,14 +30,11 @@ class GdprConsentRevokeTokenController extends BaseController
     private const POST_PARAM_KEY_GDPR_CONSENT_REVOKE_TOKEN = 'gdprConsentRevokeToken';
 
     /**
-     * @Route(path="/einwilligung-widerrufen",
-     *        methods={"POST"},
-     *        name="DemosPlan_statement_revoke_gdpr_consent_post")
-     *
      * @DplanPermissions("area_gdpr_consent_revoke_page")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
     public function revokeGdprConsentPostAction(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
         try {
@@ -48,11 +45,11 @@ class GdprConsentRevokeTokenController extends BaseController
                 assert(2 === $request->request->count());
                 $gdprConsentRevokeTokenService->revokeConsentByTokenIdAndEmailAddress($tokenValue, $emailAddress);
                 $messageBag->add('confirm', 'gdpr.revoke.token.request.success');
-            } catch (InvalidPostDataException $e) {
+            } catch (InvalidPostDataException) {
                 $this->getMessageBag()->add('error', 'gdpr.revoke.token.request.invalid');
-            } catch (GdprConsentRevokeTokenAlreadyUsedException $e) {
+            } catch (GdprConsentRevokeTokenAlreadyUsedException) {
                 $messageBag->add('error', 'gdpr.revoke.token.already_used');
-            } catch (GdprConsentRevokeTokenNotFoundException $e) {
+            } catch (GdprConsentRevokeTokenNotFoundException) {
                 $messageBag->add('error', 'gdpr.revoke.token.request.mismatch');
             }
 
@@ -65,13 +62,9 @@ class GdprConsentRevokeTokenController extends BaseController
     /**
      * @DplanPermissions("area_demosplan")
      *
-     * @Route(path="/einwilligung-widerrufen",
-     *        methods={"GET"},
-     *        name="DemosPlan_statement_revoke_gdpr_consent_get"
-     * )
-     *
      * @throws Exception
      */
+    #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
     public function revokeGdprConsentGetAction(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {

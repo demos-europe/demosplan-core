@@ -28,15 +28,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanSubmitterController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_submitters_list",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/submitters/list")
-     *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
     public function listAction(string $procedureId): Response
     {
         return $this->renderTemplate(
@@ -49,15 +45,9 @@ class DemosPlanSubmitterController extends BaseController
     }
 
     /**
-     * @Route(
-     *      name="dplan_admin_procedure_submitter_export",
-     *      path="/verfahren/{procedureId}/einreicher/export",
-     *      methods={"GET"},
-     *      options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         FileResponseGeneratorStrategy $responseGenerator,

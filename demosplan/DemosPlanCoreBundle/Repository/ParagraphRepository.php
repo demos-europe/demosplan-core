@@ -427,7 +427,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
         return $entity;
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -459,7 +459,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

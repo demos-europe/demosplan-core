@@ -23,12 +23,9 @@ class AddonBuildFrontendCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:build-frontend';
 
-    private AddonRegistry $registry;
-
-    public function __construct(AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-        $this->registry = $registry;
     }
 
     protected function configure()

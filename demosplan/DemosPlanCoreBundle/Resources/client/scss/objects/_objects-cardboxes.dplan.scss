@@ -29,7 +29,6 @@
 
 // Einzelne Webcards
 .card__item {
-    @extend .cf;
     margin-bottom: $inuit-base-spacing-unit;
     padding: $inuit-base-spacing-unit--small;
 

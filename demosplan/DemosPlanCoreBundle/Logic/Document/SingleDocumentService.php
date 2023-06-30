@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -23,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
@@ -34,48 +34,16 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     protected $fileService;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-    /**
-     * @var SingleDocumentVersionRepository
-     */
-    private $singleDocumentVersionRepository;
-
     public function __construct(
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly EntityHelper $entityHelper,
         FileService $fileService,
-        SingleDocumentRepository $singleDocumentRepository,
-        SingleDocumentVersionRepository $singleDocumentVersionRepository
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
         $this->fileService = $fileService;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->singleDocumentVersionRepository = $singleDocumentVersionRepository;
     }
 
     /**
@@ -413,7 +381,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function getSingleDocumentInfo(SingleDocument $singleDocument): array
     {
         $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = \explode(':', $singleDocument->getDocument());
+        $documentStringParts = \explode(':', (string) $singleDocument->getDocument());
         if (count($documentStringParts) >= 4) {
             $fileInfo['name'] = $documentStringParts[0];
             $fileInfo['hash'] = $documentStringParts[1];
@@ -432,9 +400,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $procedureSingleDocs = $this->singleDocumentRepository->getSingleDocumentsByProcedureId($procedureId);
         $procedureSingleDocIds = array_map(
-            static function (SingleDocument $singleDocument) {
-                return $singleDocument->getId();
-            },
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
 
@@ -457,9 +423,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         $procedureSingleDocs = $this->getProcedureDocumentsByVisibleStatus($procedureId, $visible);
 
         return array_map(
-            static function (SingleDocument $singleDocument) {
-                return $singleDocument->getId();
-            },
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
     }

@@ -78,7 +78,7 @@
         })
       }"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor--default': disabled }">
+      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor-default': disabled }">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -155,7 +155,7 @@ export default {
 
   computed: {
     tooltipClass () {
-      return this.zIndexSuper ? 'u-z-super' : null
+      return this.zIndexSuper ? 'u-z-super' : ''
     },
 
     map () {
@@ -210,7 +210,7 @@ export default {
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
       if (isNaN(z)) {
-        return this.getZIndex(element.parentNode)
+        return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
 
       return z

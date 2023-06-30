@@ -19,15 +19,9 @@ use Exception;
 
 class HelpHandler extends CoreHandler
 {
-    /**
-     * @var HelpService
-     */
-    private $helpService;
-
-    public function __construct(MessageBag $messageBag, HelpService $helpService)
+    public function __construct(MessageBag $messageBag, private readonly HelpService $helpService)
     {
         parent::__construct($messageBag);
-        $this->helpService = $helpService;
     }
 
     /**
@@ -104,7 +98,7 @@ class HelpHandler extends CoreHandler
     {
         return array_key_exists($key, $array)
             && null !== $array[$key]
-            && '' !== trim($array[$key]);
+            && '' !== trim((string) $array[$key]);
     }
 
     /**

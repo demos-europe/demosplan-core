@@ -30,23 +30,17 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * Teilnehmerliste anzeigen.
      *
-     * @Route(
-     *     name="DemosPlan_informationen_teilnehmende_public",
-     *     path="/informationen/teilnehmende/public"
-     * )
-     * @Route(
-     *     name="DemosPlan_informationen_teilnehmende",
-     *     path="/teilnehmende"
-     * )
-     *
      * @DplanPermissions("area_main_view_participants")
      *
      * @return Response
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_informationen_teilnehmende_public', path: '/informationen/teilnehmende/public')]
+    #[Route(name: 'DemosPlan_informationen_teilnehmende', path: '/teilnehmende')]
     public function showParticipantsAction(OrgaService $orgaService)
     {
+        $templateVars = [];
         // Teilnehmende Organisationen (öffentliche Liste)
         $templateVars['orgas'] = $orgaService->getParticipants();
 
@@ -62,17 +56,13 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List users of a specific organisation.
      *
-     * @Route(
-     *     name="DemosPlan_user_list",
-     *     path="/user/list"
-     * )
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_user_list', path: '/user/list')]
     public function listUsersAction(Request $request)
     {
         $title = 'user.admin.user';
@@ -86,20 +76,16 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List all AddressBookEntries of specific Organisation.
      *
-     * @Route(
-     *     name="DemosPlan_get_address_book_entries",
-     *     path="/organisation/adressen/liste/{organisationId}",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_get_address_book_entries', path: '/organisation/adressen/liste/{organisationId}', methods: ['GET'])]
     public function getAddressBookEntriesAction(AddressBookEntryService $addressBookEntryService, Request $request, string $organisationId)
     {
+        $templateVars = [];
         $checkResult = $this->checkUserOrganisation($organisationId, 'DemosPlan_get_address_book_entries');
         if ($request instanceof RedirectResponse) {
             return $checkResult;
@@ -119,17 +105,13 @@ class DemosPlanUserListController extends DemosPlanUserController
      * Administrate users.
      * In this case administrate means, save or delete users.
      *
-     * @Route(
-     *     name="DemosPlan_user_admin",
-     *     path="/user/admin"
-     * )
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_user_admin', path: '/user/admin')]
     public function adminUsersAction(Request $request, UserHandler $userHandler)
     {
         $userIdent = '';

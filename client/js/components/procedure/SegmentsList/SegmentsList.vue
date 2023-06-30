@@ -12,7 +12,7 @@
     <dp-sticky-element
       border
       class="u-pv-0_5">
-      <div class="flex flex-items-start space-inline-s">
+      <div class="flex items-start space-inline-s">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -42,7 +42,7 @@
             @filter-apply="sendFilterQuery" />
         </div>
         <dp-button
-          class="flex-item-end"
+          class="ml-auto"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -60,7 +60,7 @@
           @click.prevent="handleBulkEdit"
           :text="Translator.trans('segments.bulk.edit')" />
       </dp-bulk-edit-header>
-      <div class="u-mt text--right">
+      <div class="u-mt text-right">
         <dp-column-selector
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
@@ -91,7 +91,7 @@
         :should-be-selected-items="currentlySelectedItems">
         <template v-slot:externId="rowData">
           <v-popover>
-            <div class="whitespace--nowrap">
+            <div class="whitespace-nowrap">
               {{ rowData.attributes.externId }}
             </div>
             <template v-slot:popover>
@@ -106,7 +106,7 @@
         <template v-slot:internId="rowData">
           <div class="o-hellip__wrapper">
             <div
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap text-right"
               v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
               dir="rtl">
               {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
@@ -152,7 +152,9 @@
           {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
         </template>
         <template v-slot:text="rowData">
-          <div v-cleanhtml="rowData.attributes.text" />
+          <div
+            v-cleanhtml="rowData.attributes.text"
+            class="overflow-word-break" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -218,8 +220,8 @@
 
       <dp-pager
         v-if="pagination.currentPage"
-        :class="{ 'visibility--hidden': isLoading }"
-        class="u-pt-0_5 text--right u-1-of-1"
+        :class="{ 'invisible': isLoading }"
+        class="u-pt-0_5 text-right u-1-of-1"
         :current-page="pagination.currentPage"
         :total-pages="pagination.totalPages"
         :total-items="pagination.total"

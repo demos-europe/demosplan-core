@@ -30,16 +30,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SurveyController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_survey_new",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/umfrage/neu")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'dplan_survey_new', methods: 'GET', path: '/verfahren/{procedureId}/umfrage/neu')]
     public function newAction(
         string $procedureId,
         SurveyHandler $surveyHandler,
@@ -82,16 +78,12 @@ class SurveyController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_survey_create",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/umfrage/create")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'dplan_survey_create', methods: 'POST', path: '/verfahren/{procedureId}/umfrage/create')]
     public function createAction(
         string $procedureId,
         SurveyHandler $surveyHandler,
@@ -127,16 +119,12 @@ class SurveyController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_survey_edit",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/umfrage/{surveyId}/edit")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'dplan_survey_edit', methods: 'GET', path: '/verfahren/{procedureId}/umfrage/{surveyId}/edit')]
     public function editAction(
         string $procedureId,
         string $surveyId,
@@ -169,16 +157,12 @@ class SurveyController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_survey_update",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/umfrage/{surveyId}/update")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'dplan_survey_update', methods: 'POST', path: '/verfahren/{procedureId}/umfrage/{surveyId}/update')]
     public function updateAction(
         string $procedureId,
         string $surveyId,
@@ -211,16 +195,12 @@ class SurveyController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_survey_show",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/umfrage/{surveyId}")
-     *
      * @DplanPermissions("area_survey")
      *
      * @throws MessageBagException
      * @throws Exception
      */
+    #[Route(name: 'dplan_survey_show', methods: 'GET', path: '/verfahren/{procedureId}/umfrage/{surveyId}')]
     public function showAction(
         string $procedureId,
         string $surveyId,

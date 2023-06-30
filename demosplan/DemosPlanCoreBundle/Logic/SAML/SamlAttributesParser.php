@@ -16,20 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 class SamlAttributesParser
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var array
-     */
-    private $samlAttributes;
-
-    public function __construct(User $user, array $samlAttributes)
+    public function __construct(private readonly User $user, private readonly array $samlAttributes)
     {
-        $this->user = $user;
-        $this->samlAttributes = $samlAttributes;
     }
 
     public function parse()

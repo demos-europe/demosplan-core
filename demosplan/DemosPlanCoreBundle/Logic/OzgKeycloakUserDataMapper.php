@@ -47,20 +47,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class OzgKeycloakUserDataMapper
 {
-    private CustomerService $customerService;
-    private DepartmentRepository $departmentRepository;
-    private EntityManagerInterface $entityManager;
-    private GlobalConfig $globalConfig;
-    private LoggerInterface $logger;
-    private OrgaRepository $orgaRepository;
-    private OrgaService $orgaService;
-    private OrgaTypeRepository $orgaTypeRepository;
     private KeycloakUserDataInterface $ozgKeycloakUserData;
-    private RoleRepository $roleRepository;
-    private UserRepository $userRepository;
-    private UserRoleInCustomerRepository $userRoleInCustomerRepository;
-    private UserService $userService;
-    private ValidatorInterface $validator;
     private const ROLETITLE_TO_ROLECODE = [
         // 'Mandanten Administration'          => Role::ORGANISATION_ADMINISTRATION,
         'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
@@ -79,34 +66,8 @@ class OzgKeycloakUserDataMapper
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
     ];
 
-    public function __construct(
-        CustomerService $customerService,
-        DepartmentRepository $departmentRepository,
-        EntityManagerInterface $entityManager,
-        GlobalConfig $globalConfig,
-        LoggerInterface $logger,
-        OrgaRepository $orgaRepository,
-        OrgaService $orgaService,
-        OrgaTypeRepository $orgaTypeRepository,
-        RoleRepository $roleRepository,
-        UserRepository $userRepository,
-        UserRoleInCustomerRepository $userRoleInCustomerRepository,
-        UserService $userService,
-        ValidatorInterface $validator
-    ) {
-        $this->customerService = $customerService;
-        $this->departmentRepository = $departmentRepository;
-        $this->entityManager = $entityManager;
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
-        $this->orgaRepository = $orgaRepository;
-        $this->orgaService = $orgaService;
-        $this->orgaTypeRepository = $orgaTypeRepository;
-        $this->roleRepository = $roleRepository;
-        $this->userRepository = $userRepository;
-        $this->userRoleInCustomerRepository = $userRoleInCustomerRepository;
-        $this->userService = $userService;
-        $this->validator = $validator;
+    public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**

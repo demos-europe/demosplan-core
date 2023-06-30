@@ -21,12 +21,8 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class RoleAllowedConstraintValidator extends ConstraintValidator
 {
-    /** @var GlobalConfigInterface */
-    private $globalConfig;
-
-    public function __construct(GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
-        $this->globalConfig = $globalConfig;
     }
 
     public function validate($value, Constraint $constraint): void

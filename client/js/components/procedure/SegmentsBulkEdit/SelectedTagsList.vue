@@ -10,7 +10,7 @@
 <template>
   <ul class="o-list">
     <li
-      class="display--inline-block border bg-color--white color--grey-dark"
+      class="inline-block border bg-color--white color--grey-dark"
       style="border-radius: 4px; padding: 4px 8px; margin-right: 12px;"
       :key="tag.id"
       v-for="tag in selectedTags">

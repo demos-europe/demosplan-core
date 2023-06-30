@@ -86,12 +86,10 @@ class Search
         $defaultFields = in_array(AbstractQuery::SCOPE_ALL, $this->scopes)
             ? []
             : $this->getAvailableFieldsScope(AbstractQuery::SCOPE_ALL);
-        $availableFieldsPerScope = array_map([$this, 'getAvailableFieldsScope'], $this->scopes);
+        $availableFieldsPerScope = array_map($this->getAvailableFieldsScope(...), $this->scopes);
         $availableFields = array_merge($defaultFields, ...$availableFieldsPerScope);
 
-        return array_filter($availableFields, function (SearchField $searchField): bool {
-            return !in_array($searchField->getField(), $this->excludedFields);
-        });
+        return array_filter($availableFields, fn(SearchField $searchField): bool => !in_array($searchField->getField(), $this->excludedFields));
     }
 
     /**
@@ -105,7 +103,7 @@ class Search
             return $configuredFieldsInScope;
         }
 
-        return array_filter($configuredFieldsInScope, [$this, 'isFieldAllowed']);
+        return array_filter($configuredFieldsInScope, $this->isFieldAllowed(...));
     }
 
     /**

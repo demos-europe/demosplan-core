@@ -18,14 +18,8 @@ use Exception;
 
 class ConsultationTokenCreatedSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var TokenCreationNotifier
-     */
-    private $creationNotifier;
-
-    public function __construct(TokenCreationNotifier $creationNotifier)
+    public function __construct(private readonly TokenCreationNotifier $creationNotifier)
     {
-        $this->creationNotifier = $creationNotifier;
     }
 
     /**

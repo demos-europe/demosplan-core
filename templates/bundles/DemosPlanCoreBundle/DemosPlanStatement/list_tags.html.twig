@@ -13,10 +13,10 @@
         name="tag_edit">
 
         {# global actions #}
-        <div class="u-mb-0_5 cf u-nojs-hide--block">
+        <div class="u-mb-0_5 u-nojs-hide--block">
 
             {# mark all #}
-            <label class="u-mb-0 u-mh-0_75 display--inline-block">
+            <label class="u-mb-0 u-mh-0_75 inline-block">
                 <input
                     class="u-mr-0"
                     type="checkbox"
@@ -59,7 +59,7 @@
                     <th>
                         {{ "boilerplate" |trans }}
                     </th>
-                    <th class="text--center">
+                    <th class="text-center">
                         {{ "actions" |trans }}
                     </th>
                 </tr>
@@ -71,7 +71,7 @@
 
                 <tr>
 
-                    <td colspan="4" class="u-p-0 text--left cf">
+                    <td colspan="4" class="u-p-0 text-left">
 
                         <table class="c-table u-mb-0">
 
@@ -85,7 +85,7 @@
                             <tr class="hide-visually">
                                 <th>{{ "choose"|trans }}</th>
                                 <th>{{ "topic"|trans }}</th>
-                                <th />
+                                <th></th>
                                 <th>{{ "edit"|trans }}</th>
                             </tr>
 
@@ -93,9 +93,9 @@
                                 id="{{ topic.id }}"
                                 data-cy="TopicField"
                                 class="o-animate--bg-color">
+                                <td class="checkbox u-ph-0 u-pb-0_25 u-pt-0_5 text-center">
+                                    <input type="hidden" name="{{ topic.id }}:r_itemtype" value="topic">
 
-                                <input type="hidden" name="{{ topic.id }}:r_itemtype" value="topic">
-                                <td class="checkbox u-ph-0 u-pb-0_25 u-pt-0_5 text--center">
                                     <label class="u-m-0">
                                         <input type="checkbox" name="{{ topic.id }}:r_selected" data-checkable-item>
                                     </label>
@@ -154,7 +154,7 @@
 
                                 <td></td>
 
-                                <td class="u-pb-0_25 u-pt-0_5 text--right">
+                                <td class="u-pb-0_25 u-pt-0_5 text-right">
                                     <a
                                         href="#"
                                         data-cy="addNewTag"
@@ -178,7 +178,7 @@
                                     </a>
 
                                     <button
-                                        class="btn--blank o-link--default u-valign--top"
+                                        class="btn--blank o-link--default align-top"
                                         name="r_deletetopic"
                                         value="{{ topic.id }}"
                                         data-form-actions-confirm="{{ "check.topic.delete.tags" | trans({ topic: topic.title }) }}"
@@ -197,7 +197,7 @@
                                 class="o-animate--bg-color">
 
                                 <input type="hidden" name="{{ tag.id }}:r_itemtype" value="tag">
-                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--center">
+                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     <label class="u-m-0">
                                         <input type="checkbox" name="{{ tag.id }}:r_selected" data-checkable-item>
                                     </label>
@@ -205,7 +205,7 @@
 
                                 <td class="o-toggle u-pr-0 u-pl-0_5 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} o-hellip--td">
                                     <a
-                                        class="u-1-of-1 display--block o-hellip"
+                                        class="u-1-of-1 block o-hellip"
                                         href="{{ path('DemosPlan_statement_administration_tag', {'procedure':procedure, 'tag':tag.id}) }}"
                                         title="{{ "tag.update" |trans }}: {{ tag.title }}">
                                         {{ tag.title }}
@@ -255,7 +255,7 @@
 
                                 </td>
 
-                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--center">
+                                <td class="u-ph-0 {{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-center">
                                     {% if tag.boilerplate %}
                                         <dp-tooltip-icon
                                             class="color--grey"
@@ -265,7 +265,7 @@
                                     {% endif %}
                                 </td>
 
-                                <td class="{{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text--right">
+                                <td class="{{ loop.last ? 'u-pt-0_25 u-pb-0_5' : 'u-pv-0_25' }} text-right">
                                     <a
                                         href="#"
                                         data-cy="moveTag"
@@ -289,7 +289,7 @@
                                     </a>
 
                                     <button
-                                        class="btn--blank o-link--default u-valign--top"
+                                        class="btn--blank o-link--default align-top"
                                         data-cy="deleteTagField"
                                         name="r_deletetag"
                                         value="{{ tag.id }}"
@@ -304,7 +304,7 @@
                             {% else %}
                                 <tr>
                                     <td></td>
-                                    <td colspan="3" class="u-ph-0 u-pl-0_5 u-pv-0_25 text--left">
+                                    <td colspan="3" class="u-ph-0 u-pl-0_5 u-pv-0_25 text-left">
                                         {{ "topic.noentries" |trans }}
                                         <br>
                                         <a
@@ -326,7 +326,7 @@
 
             {% else %}
                 <tr>
-                    <td colspan="4" class="u-ph-0 u-pl-0_5 u-pv-0_25 text--left">
+                    <td colspan="4" class="u-ph-0 u-pl-0_5 u-pv-0_25 text-left">
                         {{ "tags.noentries"|trans }}
                     </td>
                 </tr>
@@ -337,7 +337,7 @@
         </table>
 
         {# other options #}
-        <fieldset class="cf u-pb-0 u-mt-2">
+        <fieldset class="flow-root u-pb-0 u-mt-2">
 
             {# new topic #}
             <div class="layout u-mb">
@@ -364,7 +364,7 @@
 
             {# import #}
             <dp-tooltip-icon
-                class="float--right"
+                class="float-right"
                 icon="fa-question-circle"
                 text="{{ "tags.import.help"|trans }}"
             ></dp-tooltip-icon>
@@ -381,7 +381,7 @@
                 }}
             </div>
 
-            <button name="r_import" class="btn btn--primary float--right u-mb-2">
+            <button name="r_import" class="btn btn--primary float-right u-mb-2">
                 {{ "tags.import" |trans }}
             </button>
 

@@ -110,7 +110,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery();
         try {
             return $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -337,7 +337,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         /** @var NewsRepository $newsRepos */
         $newsRepos = $entityManager->getRepository(News::class);
         foreach ($newsRepos->getFilesByProcedureId($procedureId) as $newsPdfToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($newsPdfToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($newsPdfToDelete)];
         }
         $newsRepos->deleteByProcedureId($procedureId);
 
@@ -345,7 +345,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         /** @var MapRepository $gisRepos */
         $gisRepos = $entityManager->getRepository(GisLayer::class);
         foreach ($gisRepos->getLegendsByProcedureId($procedureId) as $legendsToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($legendsToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($legendsToDelete)];
         }
         $gisRepos->deleteByProcedureId($procedureId);
 
@@ -357,7 +357,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // Delete DraftStatements
         $draftStatementRepos = $entityManager->getRepository(DraftStatement::class);
         foreach ($draftStatementRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($fileToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
         $draftStatementsToDelete = $draftStatementRepos->findBy(['procedure' => $procedureId]);
         foreach ($draftStatementsToDelete as $draftStatement) {
@@ -369,7 +369,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // Delete DraftStatementVersions
         $draftStatementVersionRepos = $entityManager->getRepository(DraftStatementVersion::class);
         foreach ($draftStatementVersionRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($fileToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
 
         $draftStatementVersionsToDelete = $draftStatementVersionRepos->findBy(['procedure' => $procedureId]);
@@ -428,7 +428,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         /** @var SingleDocumentVersionRepository $singleDocumentVersionRepos */
         $singleDocumentVersionRepos = $entityManager->getRepository(SingleDocumentVersion::class);
         foreach ($singleDocumentVersionRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($fileToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
         $singleDocumentVersionRepos->deleteByProcedureId($procedureId);
 
@@ -436,7 +436,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         /** @var SingleDocumentRepository $singleDocumentRepos */
         $singleDocumentRepos = $entityManager->getRepository(SingleDocument::class);
         foreach ($singleDocumentRepos->getFilesByProcedureId($procedureId) as $fileToDelete) {
-            $filesToDelete = array_merge($filesToDelete, array_values($fileToDelete));
+            $filesToDelete = [...$filesToDelete, ...array_values($fileToDelete)];
         }
         $singleDocumentRepos->deleteByProcedureId($procedureId);
 
@@ -491,9 +491,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // return unique and not empty values
         return collect($filesToDelete)
             ->unique()
-            ->filter(function ($value) {
-                return !is_null($value) && 0 < mb_strlen($value);
-            })
+            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen((string) $value))
             ->toArray();
     }
 
@@ -597,10 +595,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setLocationName($data['locationName']);
         }
         if (array_key_exists('locationPostCode', $data)) {
-            $procedure->setLocationPostCode(substr($data['locationPostCode'], 0, 5));
+            $procedure->setLocationPostCode(substr((string) $data['locationPostCode'], 0, 5));
         }
         if (array_key_exists('ars', $data)) {
-            $procedure->setArs(substr($data['ars'], 0, 12));
+            $procedure->setArs(substr((string) $data['ars'], 0, 12));
         }
 
         if (array_key_exists('logo', $data)) {
@@ -616,7 +614,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setCustomer($data['customer']);
         }
         if (array_key_exists('municipalCode', $data)) {
-            $procedure->setMunicipalCode(substr($data['municipalCode'], 0, 10));
+            $procedure->setMunicipalCode(substr((string) $data['municipalCode'], 0, 10));
         }
         if (array_key_exists('name', $data)) {
             $procedure->setName($data['name']);
@@ -898,7 +896,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -1151,7 +1149,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery();
         try {
             $result = $query->getSingleResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
 
@@ -1163,7 +1161,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -1221,7 +1219,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->getQuery()
             ->getResult();
 
-        return count($queryResult);
+        return is_countable($queryResult) ? count($queryResult) : 0;
     }
 
     /**
@@ -1349,7 +1347,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         if (array_key_exists('designatedPublicSwitchDate', $data['settings'])) {
             $designatedPublicSwitchDate = $data['settings']['designatedPublicSwitchDate'];
             if (null !== $designatedPublicSwitchDate) {
-                $designatedPublicSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime($designatedPublicSwitchDate)));
+                $designatedPublicSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime((string) $designatedPublicSwitchDate)));
             }
             $procedureSettings->setDesignatedPublicSwitchDate($designatedPublicSwitchDate);
         }
@@ -1375,7 +1373,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         if (array_key_exists('designatedSwitchDate', $data['settings'])) {
             $designatedSwitchDate = $data['settings']['designatedSwitchDate'];
             if (null !== $designatedSwitchDate) {
-                $designatedSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime($designatedSwitchDate)));
+                $designatedSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime((string) $designatedSwitchDate)));
             }
             $procedureSettings->setDesignatedSwitchDate($designatedSwitchDate);
         }

@@ -45,69 +45,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var EntityWrapperFactory
-     */
-    private $entityWrapperFactory;
-    /**
-     * @var ProcedureTypeResourceType
-     */
-    private $procedureTypeResourceType;
-    /**
-     * @var ResourcePersister
-     */
-    private $resourcePersister;
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-    /**
-     * @var ProcedureTypeRepository
-     */
-    private $procedureTypeRepository;
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var StatementFormDefinitionRepository
-     */
-    private $statementFormDefinitionRepository;
-    /**
-     * @var ProcedureBehaviorDefinitionRepository
-     */
-    private $procedureBehaviorDefinitionRepository;
-    /**
-     * @var ProcedureUiDefinitionRepository
-     */
-    private $procedureUiDefinitionRepository;
-
-    public function __construct(
-        EntityFetcher $entityFetcher,
-        EntityWrapperFactory $entityWrapperFactory,
-        ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,
-        ProcedureRepository $procedureRepository,
-        ProcedureTypeRepository $procedureTypeRepository,
-        ProcedureTypeResourceType $procedureTypeResourceType,
-        ProcedureUiDefinitionRepository $procedureUiDefinitionRepository,
-        ResourcePersister $resourcePersister,
-        SortMethodFactory $sortMethodFactory,
-        StatementFormDefinitionRepository $statementFormDefinitionRepository
-    ) {
-        $this->entityFetcher = $entityFetcher;
-        $this->entityWrapperFactory = $entityWrapperFactory;
-        $this->procedureBehaviorDefinitionRepository = $procedureBehaviorDefinitionRepository;
-        $this->procedureRepository = $procedureRepository;
-        $this->procedureTypeRepository = $procedureTypeRepository;
-        $this->procedureTypeResourceType = $procedureTypeResourceType;
-        $this->procedureUiDefinitionRepository = $procedureUiDefinitionRepository;
-        $this->resourcePersister = $resourcePersister;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->statementFormDefinitionRepository = $statementFormDefinitionRepository;
+    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly EntityWrapperFactory $entityWrapperFactory, private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository, private readonly ProcedureRepository $procedureRepository, private readonly ProcedureTypeRepository $procedureTypeRepository, private readonly ProcedureTypeResourceType $procedureTypeResourceType, private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository, private readonly ResourcePersister $resourcePersister, private readonly SortMethodFactory $sortMethodFactory, private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository)
+    {
     }
 
     public function deleteStatementFormDefinition(StatementFormDefinition $statementFormDefinition): void
@@ -492,15 +431,10 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
 
-        return array_map(function (object $entity): TwigableWrapperObject {
-            return $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType);
-        }, $entities);
+        return array_map(fn(object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
     }
 
-    /**
-     * @return ProcedureType|null
-     */
-    public function getProcedureTypeByName(string $name)
+    public function getProcedureTypeByName(string $name): ?ProcedureType
     {
         return $this->procedureTypeRepository->findOneBy(['name' => $name]);
     }

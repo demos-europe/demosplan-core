@@ -15,12 +15,9 @@ use UnexpectedValueException;
 
 class SendMailException extends UnexpectedValueException
 {
-    protected $context;
-
-    public function __construct($message, $context = null, $code = 0, Exception $previous = null)
+    public function __construct($message, protected $context = null, $code = 0, Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        $this->context = $context;
     }
 
     public function getContext()
@@ -43,7 +40,7 @@ class SendMailException extends UnexpectedValueException
 
     public static function mailListFailed($to, $originalException): SendMailException
     {
-        $numberOfMailsToBeSend = count($to);
+        $numberOfMailsToBeSend = is_countable($to) ? count($to) : 0;
 
         return new self(
             'Failed to store one or multiple mails to be send in database.'.

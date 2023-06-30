@@ -28,36 +28,15 @@ class SubmitterService extends CoreService
      * @var MailService
      */
     protected $mailService;
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var ProcedureReportEntryFactory
-     */
-    private $procedureReportEntryFactory;
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
 
     public function __construct(
         MailService $mailService,
-        ProcedureReportEntryFactory $procedureReportEntryFactory,
-        ProcedureRepository $procedureRepository,
-        ReportService $reportService,
-        UserRepository $userRepository
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ReportService $reportService,
+        private readonly UserRepository $userRepository
     ) {
         $this->mailService = $mailService;
-        $this->procedureReportEntryFactory = $procedureReportEntryFactory;
-        $this->procedureRepository = $procedureRepository;
-        $this->reportService = $reportService;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -113,7 +92,7 @@ class SubmitterService extends CoreService
     {
         try {
             $user = $this->userRepository->get($userId);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             $user = null;
         }
         $userMailAddress = $user->getEmail();

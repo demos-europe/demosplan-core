@@ -27,7 +27,7 @@ function toggleCaptionInput (fieldName, show) {
   const selectCaptionId = document.getElementById(captionId)
   if (selectCaptionId) {
     if (show) {
-      selectCaptionId.parentNode.classList.remove('display--none')
+      selectCaptionId.parentNode.classList.remove('hidden')
       selectCaptionId.setAttribute('required', 'required')
       /*
        * Since the input is hidden onLoad, the `CharCount()` that is fired after mounting Vue
@@ -35,7 +35,7 @@ function toggleCaptionInput (fieldName, show) {
        */
       CharCount(selectCaptionId)
     } else {
-      selectCaptionId.parentNode.classList.add('display--none')
+      selectCaptionId.parentNode.classList.add('hidden')
       selectCaptionId.removeAttribute('required')
     }
   }

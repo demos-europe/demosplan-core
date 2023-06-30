@@ -52,6 +52,7 @@
                 :init-priority-areas="JSON.parse('{{ selectedPriorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
                 init-fragment-text="{{ fragment.text|default|wysiwyg }}"
                 procedure-id="{{ procedure }}"
+                statement-text="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
                 inline-template>
                 <div>
                     <p class="u-mt-0_5">{{ "text.statement.fragment"|trans|wysiwyg }}</p>
@@ -59,16 +60,17 @@
                     {# statement text #}
                     <p class="weight--bold">
                         {{ "statement"|trans }}
-                        <dp-copy-paste-button
-                            button-label="statement.copy"
-                            class="float--right"
-                            copy-content="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
+                        <dp-button
+                            class="float-right font-size-medium"
+                            icon="copy"
+                            :text="Translator.trans('statement.copy')"
                             title="{{ 'statement.copy.to.fragment'|trans }}"
-                            @set-text="setFragmentText">
-                        </dp-copy-paste-button>
+                            variant="subtle"
+                            @click="setFragmentText">
+                        </dp-button>
                     </p>
                     <div
-                        class="c-styled-html u-mb u-p-0_5 bg-color-light"
+                        class="c-styled-html u-mv u-p-0_5 bg-color-light"
                         style="max-height: 400px; overflow:scroll"
                     >
                         {{ templateVars.statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}
@@ -96,7 +98,7 @@
 
                                             <button
                                                 type="button"
-                                                class="btn--blank o-link--default u-mt-0_25 float--right fa fa-trash"
+                                                class="btn--blank o-link--default u-mt-0_25 float-right fa fa-trash"
                                                 {% if currentUser.ident == fragment.assignee.id|default('') or (fragment.assignee.id|default('') == '' and fragment.departmentId is null) %}
                                                     data-target-id="{{ fragment.id }}"
                                                     data-post-delete="{{ path('DemosPlan_statement_fragment_delete_ajax', {'procedureId': fragment.procedureId|default, 'statementId': fragment.statementId|default, 'fragmentId': fragment.id|default}) }}"
@@ -124,7 +126,7 @@
                                                 {% block tooltip %}
                                                     {% for tag in fragment.tags|default([]) %}
                                                         <li class="o-list__item">
-                                                            <strong class="display--block">{{ tag.topicTitle }}</strong>
+                                                            <strong class="block">{{ tag.topicTitle }}</strong>
                                                             {{- tag.title -}}
                                                         </li>
                                                     {% endfor %}
