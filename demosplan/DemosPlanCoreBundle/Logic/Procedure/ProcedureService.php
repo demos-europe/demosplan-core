@@ -95,12 +95,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
@@ -332,7 +330,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $entitiesToPersist = array_filter(
             $entitiesToPersist,
-            static fn(?object $entityToPersist): bool => null !== $entityToPersist
+            static fn (?object $entityToPersist): bool => null !== $entityToPersist
         );
 
         $this->procedureRepository->updateObjects($entitiesToPersist);
@@ -790,12 +788,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
         // planning offices needs to get all Orga members that are planners
         if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
-            return $usersOfOrganisation->filter(static fn(User $user): bool => $user->isPlanner());
+            return $usersOfOrganisation->filter(static fn (User $user): bool => $user->isPlanner());
         }
 
         // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
-            static fn(User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
+            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
         );
 
         // filter users who may not administer this Procedure
@@ -806,7 +804,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if ($excludeProcedureAuthorizedUsers && $this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $authorizedUserIds = $procedure->getAuthorizedUserIds();
             $usersOfOrganisation = $usersOfOrganisation->filter(
-                static fn(User $user): bool => \in_array($user->getId(), $authorizedUserIds)
+                static fn (User $user): bool => \in_array($user->getId(), $authorizedUserIds)
             );
         }
 
@@ -2339,7 +2337,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $inAccessibleProcedures = $this->getInaccessibleProcedures($user, $procedureIdToExclude);
         $inAccessibleProcedures =
-            \collect($inAccessibleProcedures)->mapWithKeys(fn(Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
+            \collect($inAccessibleProcedures)->mapWithKeys(fn (Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $inAccessibleProcedures->toArray();
     }
@@ -2368,7 +2366,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         );
 
         $accessibleProcedures =
-            \collect($accessibleProcedures)->mapWithKeys(fn(Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
+            \collect($accessibleProcedures)->mapWithKeys(fn (Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $accessibleProcedures->toArray();
     }
@@ -2386,7 +2384,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $user = $this->currentUser->getUser();
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
-        $authorizedUserIds = $authorizedUsers->transform(static fn(User $user) => $user->getId());
+        $authorizedUserIds = $authorizedUsers->transform(static fn (User $user) => $user->getId());
         if ($authorizedUserIds->contains($user->getId())) {
             return true;
         }
