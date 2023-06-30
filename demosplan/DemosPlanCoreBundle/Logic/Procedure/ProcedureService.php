@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
@@ -830,10 +831,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] ??= '';
             if ('' === $data['settings']['emailTitle']) {
-                $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
+                $data['settings']['emailTitle'] =
+                    $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
 
-            // Wrap creation of procedure in a transaction to be able to validate the whole procedure including subentities
+            // Wrap creation of procedure in a transaction to be able to validate the whole procedure
+            // including subentities
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
@@ -854,15 +857,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $newProcedure = $this->copyFromBlueprint($data, $blueprintId, $newProcedure);
             }
 
-            $violationList = $this->validator->validate($newProcedure, null, [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]);
+            $violationList = $this->validator->validate(
+                $newProcedure,
+                null,
+                [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]
+            );
             if (0 !== $violationList->count()) {
                 $doctrineConnection->rollBack();
                 throw ViolationsException::fromConstraintViolationList($violationList);
             }
 
             try {
-                $this->prepareReportFromProcedureService
-                    ->addReportOnProcedureCreate($this->procedureToLegacyConverter->convertToLegacy($newProcedure), $newProcedure);
+                $this->prepareReportFromProcedureService->addReportOnProcedureCreate(
+                    $this->procedureToLegacyConverter->convertToLegacy($newProcedure),
+                    $newProcedure
+                );
             } catch (Exception $e) {
                 $doctrineConnection->rollBack();
                 $this->logger->warning('Add Report in addProcedure() failed Message: ', [$e]);
@@ -871,10 +880,16 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']), PostNewProcedureCreatedEventInterface::class);
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                PostNewProcedureCreatedEventInterface::class
+            );
+
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
-                throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
+                throw new CriticalConcernException(
+                    'Critical concerns occurs',
+                    $postNewProcedureCreatedEvent->getCriticalEventConcerns()
+                );
             }
             $newProcedure = $postNewProcedureCreatedEvent->getProcedure();
             $doctrineConnection->commit();
@@ -1055,7 +1070,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             // Update exportSettings
             if (\array_key_exists('exportSettings', $data)) {
-                $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
+                $this->entityPreparator->prepareEntity(
+                    $data['exportSettings'],
+                    $origSourceRepos->getDefaultExportFieldsConfiguration()
+                );
             }
 
             try {
@@ -1064,7 +1082,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
-            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
@@ -1111,7 +1132,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure->setSettings($sourceProcedureSettings);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
-            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
@@ -1152,7 +1176,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $procedure = $this->procedureRepository->update($data['ident'], $data);
-            $this->eventDispatcher->dispatch(new PostProcedureUpdatedEvent($procedure));
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
