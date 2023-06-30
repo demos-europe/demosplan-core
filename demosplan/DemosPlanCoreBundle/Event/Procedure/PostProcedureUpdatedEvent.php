@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
     /** @var Procedure */
-    protected $procedure;
+    protected Procedure $procedure;
 
     public function __construct(Procedure $procedure)
     {
