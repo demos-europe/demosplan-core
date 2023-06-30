@@ -357,6 +357,9 @@ services:
             $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler'
+
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler

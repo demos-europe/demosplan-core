@@ -110,6 +110,7 @@ class FaqService extends CoreService
 
     /**
      * Get enabled FAQs of a given category.
+     * takes the User-roles into account.
      *
      * @return array<int, FaqInterface>
      */
@@ -127,6 +128,29 @@ class FaqService extends CoreService
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
             $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
             $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
+        ];
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
+
+        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
+    }
+
+    /**
+     * Get all enabled FAQs of a given category ragardless of user-roles.
+     *
+     * @return array<int, FaqInterface>
+     */
+    public function getAllEnabledFaqForCategoryRegardlessOfUserRoles(FaqCategoryInterface $faqCategory): array
+    {
+        $categoryName = 'faqCategory';
+        $className = Faq::class;
+
+        if ($faqCategory instanceof PlatformFaqCategory) {
+            $categoryName = 'platformFaqCategory';
+            $className = PlatformFaq::class;
+        }
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(1, ['enabled']),
+            $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
