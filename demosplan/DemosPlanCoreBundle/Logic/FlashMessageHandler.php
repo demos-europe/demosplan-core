@@ -18,20 +18,8 @@ use UnexpectedValueException;
 
 class FlashMessageHandler
 {
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(MessageBagInterface $messageBag, TranslatorInterface $translator)
+    public function __construct(private readonly MessageBagInterface $messageBag, private readonly TranslatorInterface $translator)
     {
-        $this->messageBag = $messageBag;
-        $this->translator = $translator;
     }
 
     /**

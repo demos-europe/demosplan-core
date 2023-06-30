@@ -23,7 +23,7 @@ use RuntimeException;
  */
 class StoredQueryType extends JsonType
 {
-    public const DPLAN_STORED_QUERY = 'dplan.stored_query';
+    final public const DPLAN_STORED_QUERY = 'dplan.stored_query';
 
     private const TYPE_CLASSES = [
         AssessmentTableQuery::class,
@@ -60,11 +60,7 @@ class StoredQueryType extends JsonType
                 }
             )
             ->filter(
-                static function (StoredQueryInterface $query) use (
-                    $queryFormat
-                ) {
-                    return $query->getFormat() === $queryFormat;
-                }
+                static fn (StoredQueryInterface $query) => $query->getFormat() === $queryFormat
             )
             ->map(
                 static function (StoredQueryInterface $query) use (

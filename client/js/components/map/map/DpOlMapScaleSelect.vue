@@ -8,9 +8,9 @@
 </license>
 
 <template>
-  <div class="display--inline-block">
+  <div class="inline-block">
     <label
-      class="display--inline-block u-m-0"
+      class="inline-block u-m-0"
       for="customScaleControl">
       {{ Translator.trans('map.scale') }}
     </label>

@@ -29,8 +29,8 @@ use Tightenco\Collect\Support\Collection;
 
 class StatementFactory extends FactoryBase
 {
-    public const RANDOM_ORGANISATION = '__random__570cdd6f65e5f';
-    public const PUBLIC_USERS_ONLY = 'PUBLIC';
+    final public const RANDOM_ORGANISATION = '__random__570cdd6f65e5f';
+    final public const PUBLIC_USERS_ONLY = 'PUBLIC';
 
     /**
      * @var User
@@ -60,35 +60,17 @@ class StatementFactory extends FactoryBase
      */
     protected $orgaService;
 
-    /**
-     * @var DraftStatementService
-     */
-    private $draftService;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
-        DraftStatementService $draftService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DraftStatementService $draftService,
         ManagerRegistry $registry,
         OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        UserService $userService
+        private readonly UserService $userService
     ) {
-        $this->currentUser = $currentUser;
-        $this->draftService = $draftService;
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
-        $this->userService = $userService;
 
         parent::__construct($registry, $permissions);
     }
@@ -176,9 +158,7 @@ class StatementFactory extends FactoryBase
 
             // Only use valid Orgas with departments
             $orgas = $allOrgas->filter(
-                static function (Orga $value) {
-                    return $value->getDepartments()->count() > 0;
-                }
+                static fn (Orga $value) => $value->getDepartments()->count() > 0
             );
 
             $organisation = $orgas->random();

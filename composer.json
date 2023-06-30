@@ -5,7 +5,7 @@
     "license": "EUPL-1.2",
     "minimum-stability": "stable",
     "require": {
-        "php": "8.1.*",
+        "php": "^8.1 || ^8.2",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -34,7 +34,7 @@
         "demos-europe/edt-dql": "^0.16.0",
         "demos-europe/edt-extra": "^0.16.0",
         "demos-europe/edt-paths": "^0.16.0",
-        "demos-europe/demosplan-addon": "^0.0",
+        "demos-europe/demosplan-addon": "^0",
         "doctrine/annotations": "^1.13",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
@@ -143,8 +143,8 @@
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
         "php-parallel-lint/php-console-highlighter": "^0.5",
-        "phpcompatibility/php-compatibility": "^9.3",
         "phpspec/prophecy": "^1.15",
+        "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/phpstan": "^1.9",
         "phpstan/phpstan-symfony": "^1.2",
         "phpunit/phpunit": "^9",
@@ -200,11 +200,10 @@
             "php-http/discovery": false
         }
     },
+    "platform": {
+      "php": "8.1"
+    },
     "conflict": {
       "twig/twig": "<2.10"
-    },
-    "scripts": {
-      "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
-      "post-update-cmd" : "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
     }
 }

@@ -15,30 +15,16 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class BeforeResourceCreationEvent extends DPlanEvent
 {
     /**
-     * @var CreatableDqlResourceTypeInterface<O>
-     */
-    private $resourceType;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $properties;
-
-    /**
      * @param CreatableDqlResourceTypeInterface<O> $resourceType
      * @param array<string, mixed>                 $properties
      */
-    public function __construct(
-        CreatableDqlResourceTypeInterface $resourceType,
-        array $properties
-    ) {
-        $this->resourceType = $resourceType;
-        $this->properties = $properties;
+    public function __construct(private readonly CreatableDqlResourceTypeInterface $resourceType, private readonly array $properties)
+    {
     }
 
     /**

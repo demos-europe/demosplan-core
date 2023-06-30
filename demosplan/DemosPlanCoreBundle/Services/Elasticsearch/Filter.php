@@ -12,19 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 class Filter implements FilterInterface
 {
-    /** @var string */
-    protected $field;
-    /** @var mixed */
-    protected $value;
-
     /**
      * @param string $field
      * @param mixed  $value
      */
-    public function __construct($field, $value)
+    public function __construct(protected $field, protected $value)
     {
-        $this->field = $field;
-        $this->value = $value;
     }
 
     public function getField(): string

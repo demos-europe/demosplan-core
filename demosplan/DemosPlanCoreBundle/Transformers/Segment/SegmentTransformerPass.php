@@ -21,16 +21,10 @@ use Symfony\Component\Form\Exception\RuntimeException;
 class SegmentTransformerPass
 {
     /**
-     * @var iterable<SegmentTransformerInterface>
-     */
-    private $transformers;
-
-    /**
      * @param iterable<SegmentTransformerInterface> $transformers
      */
-    public function __construct(iterable $transformers)
+    public function __construct(private readonly iterable $transformers)
     {
-        $this->transformers = $transformers;
     }
 
     /**

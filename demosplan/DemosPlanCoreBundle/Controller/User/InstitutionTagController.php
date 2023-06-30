@@ -20,15 +20,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class InstitutionTagController extends BaseController
 {
     /**
-     * @Route(
-     *     name="DemosPlan_get_institution_tag_management",
-     *     path="/institutions/tags",
-     *     methods={"GET"},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_institution_tag_manage")
      */
+    #[Route(name: 'DemosPlan_get_institution_tag_management', path: '/institutions/tags', methods: ['GET'], options: ['expose' => true])]
     public function getInstitutionTagManagement(): Response
     {
         return $this->renderTemplate(

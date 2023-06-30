@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -57,22 +58,19 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
 
-    private ConditionEvaluator $conditionEvaluator;
-
     /**
      * @var DrupalFilterParser<ClauseFunctionInterface<bool>>
      */
-    private DrupalFilterParser $filterParser;
+    private readonly DrupalFilterParser $filterParser;
 
-    private DrupalFilterValidator $filterValidator;
+    private readonly DrupalFilterValidator $filterValidator;
 
     public function __construct(
-        ConditionEvaluator $conditionEvaluator,
+        private readonly ConditionEvaluator $conditionEvaluator,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityFetcher $entityFetcher,
         ValidatorInterface $validator
     ) {
-        $this->conditionEvaluator = $conditionEvaluator;
         $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
         $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
         $this->filterParser = new DrupalFilterParser(
@@ -149,6 +147,16 @@ class PermissionResolver implements PermissionFilterValidatorInterface
             return [] === $conditions;
         }
 
+        if ($evaluationTarget instanceof FunctionalUser) {
+            foreach ($conditions as $condition) {
+                if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
 
         return [] !== $this->entityFetcher->listEntitiesUnrestricted(
@@ -188,19 +196,12 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {
-                switch ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
-                    case ResolvablePermission::CURRENT_CUSTOMER_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $customer);
-                        break;
-                    case ResolvablePermission::CURRENT_PROCEDURE_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $procedure);
-                        break;
-                    case ResolvablePermission::CURRENT_USER_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $user);
-                        break;
-                    default:
-                        throw new InvalidArgumentException('Invalid value for parameter usage.');
-                }
+                $filterList[$filterName] = match ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
+                    ResolvablePermission::CURRENT_CUSTOMER_ID => $this->adjustCondition($conditionWrapper, $customer),
+                    ResolvablePermission::CURRENT_PROCEDURE_ID => $this->adjustCondition($conditionWrapper, $procedure),
+                    ResolvablePermission::CURRENT_USER_ID => $this->adjustCondition($conditionWrapper, $user),
+                    default => throw new InvalidArgumentException('Invalid value for parameter usage.'),
+                };
             }
         }
 

@@ -22,12 +22,12 @@ class RpcValidator
     /**
      * Path to the file that defines a generic JSON-RPC conform schema for a request.
      */
-    public const RPC_JSON_SCHEMA_PATH_REQUEST = 'json-schemas/rpc-schema-request.json';
+    final public const RPC_JSON_SCHEMA_PATH_REQUEST = 'json-schemas/rpc-schema-request.json';
 
     /**
      * Path to the file that defines a generic JSON-RPC schema for a result.
      */
-    public const RPC_JSON_SCHEMA_PATH_RESULT = 'json-schemas/rpc-schema-result.json';
+    final public const RPC_JSON_SCHEMA_PATH_RESULT = 'json-schemas/rpc-schema-result.json';
 
     /**
      * @var JsonSchemaValidator

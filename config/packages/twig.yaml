@@ -1,4 +1,3 @@
-# Twig Configuration
 twig:
     debug:            '%kernel.debug%'
     exception_controller: null
@@ -10,3 +9,8 @@ twig:
         sentry_dsn: '%sentry_dsn%'
     form_themes:
         - '@DemosPlanCore/form/styled_fields.html.twig'
+    default_path: '%kernel.project_dir%/templates'
+
+when@test:
+    twig:
+        strict_variables: true

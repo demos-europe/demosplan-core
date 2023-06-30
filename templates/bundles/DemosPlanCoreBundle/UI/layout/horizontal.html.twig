@@ -14,7 +14,7 @@
 
 {% set omitPrefix  = omitCssPrefix ?? true %}
 
-{% set aligningClass = align|default('left') == 'right' ? 'text--right'|prefixClass(omitPrefix) : '' %}
+{% set aligningClass = align|default('left') == 'right' ? 'text-right'|prefixClass(omitPrefix) : '' %}
 
 {% set outer = [classes|default]|merge([aligningClass]) %}
 
@@ -32,11 +32,11 @@
 
         {# Apply right margin only if it is not the last item #}
         {% if loop.last %}
-            {% set inner = ['display--inline-block'] %}
+            {% set inner = ['inline-block'] %}
         {% else %}
             {% set inner = inner|default([])|merge([
                 gutterClass,
-                'display--inline-block'
+                'inline-block'
             ]) %}
         {% endif %}
 

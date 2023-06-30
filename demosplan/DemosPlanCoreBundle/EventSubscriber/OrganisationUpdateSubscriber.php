@@ -22,12 +22,9 @@ class OrganisationUpdateSubscriber extends BaseEventSubscriber
      */
     protected $draftStatementService;
 
-    protected MessageBagInterface $messageBag;
-
-    public function __construct(DraftStatementService $draftStatementService, MessageBagInterface $messageBag)
+    public function __construct(DraftStatementService $draftStatementService, protected MessageBagInterface $messageBag)
     {
         $this->draftStatementService = $draftStatementService;
-        $this->messageBag = $messageBag;
     }
 
     public static function getSubscribedEvents(): array

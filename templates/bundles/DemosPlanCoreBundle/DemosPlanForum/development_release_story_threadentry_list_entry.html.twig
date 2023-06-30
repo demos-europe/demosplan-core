@@ -70,7 +70,7 @@
             {% if permissions.feature_forum_thread_edit.enabled == true %}
                 <dp-accordion title="{{ 'moderate'|trans }}" id="moderation-beitragsID{{ entry.ident|default() }}">
                     <div class="border u-p-0_5 u-mt-0_5">
-                        <a class="btn-icns u-m-0 display--block" href="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{"storyId": templateVars.userStory.ident, "threadEntryId": entry.ident })  }}">
+                        <a class="btn-icns u-m-0 block" href="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{"storyId": templateVars.userStory.ident, "threadEntryId": entry.ident })  }}">
                         <i class="fa fa-pencil btn-icns-icon"></i>
                             {{ 'entry.edit'|trans }}
                         </a>

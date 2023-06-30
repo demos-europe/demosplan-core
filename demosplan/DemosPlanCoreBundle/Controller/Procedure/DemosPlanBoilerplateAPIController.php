@@ -21,11 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemosPlanBoilerplateAPIController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/procedures/{procedureId}/relationships/boilerplates",
-     *        methods={"GET"},
-     *        name="dplan_api_procedure_boilerplate_list",
-     *        options={"expose": true})
-     *
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
      *
@@ -33,6 +28,7 @@ class DemosPlanBoilerplateAPIController extends APIController
      *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded
      */
+    #[Route(path: '/api/1.0/procedures/{procedureId}/relationships/boilerplates', methods: ['GET'], name: 'dplan_api_procedure_boilerplate_list', options: ['expose' => true])]
     public function getProcedureListAction(ProcedureService $procedureService, string $procedureId): APIResponse
     {
         $boilerplates = $procedureService->getBoilerplateList($procedureId);
@@ -42,15 +38,11 @@ class DemosPlanBoilerplateAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/procedures/{procedureId}/relationships/boilerplate_groups",
-     *        methods={"GET"},
-     *        name="dplan_api_procedure_boilerplate_group_list",
-     *        options={"expose": true})
-     *
      * Returns all boilerplateGroups of a specific procedure, as JsonResponse.
      *
      * @param string $procedureId specify the Procedure, whose BoilerplateGroups will be loaded
      */
+    #[Route(path: '/api/1.0/procedures/{procedureId}/relationships/boilerplate_groups', methods: ['GET'], name: 'dplan_api_procedure_boilerplate_group_list', options: ['expose' => true])]
     public function getProcedureGroupListAction(ProcedureService $procedureService, string $procedureId): APIResponse
     {
         $groups = $procedureService->getBoilerplateGroups($procedureId);

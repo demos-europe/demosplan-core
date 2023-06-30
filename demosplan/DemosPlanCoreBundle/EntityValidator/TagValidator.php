@@ -18,19 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TagValidator
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(LoggerInterface $logger, ValidatorInterface $validator)
+    public function __construct(private readonly LoggerInterface $logger, private readonly ValidatorInterface $validator)
     {
-        $this->logger = $logger;
-        $this->validator = $validator;
     }
 
     /**
@@ -50,9 +39,7 @@ class TagValidator
         }
         $filteredByProcedureTags = array_filter(
             $tags,
-            function (Tag $tag) use ($procedureId) {
-                return $tag->getProcedure()->getId() === $procedureId;
-            }
+            fn (Tag $tag) => $tag->getProcedure()->getId() === $procedureId
         );
         if (count($filteredByProcedureTags) !== count($tags)) {
             $this->logger->error(

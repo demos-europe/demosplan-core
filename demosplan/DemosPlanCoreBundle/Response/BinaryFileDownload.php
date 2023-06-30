@@ -27,7 +27,7 @@ class BinaryFileDownload extends BinaryFileResponse
         if (class_exists(Utf8::class)) {
             $fileNameFallback = Utf8::toAscii($fileName);
         } else {
-            $fileNameFallback = iconv('UTF-8', 'ASCII//TRANSLIT', $fileName);
+            $fileNameFallback = iconv('UTF-8', 'ASCII//TRANSLIT', (string) $fileName);
         }
 
         $this->setContentDisposition(

@@ -17,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadSettingData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $setting1 = new Setting();
         $setting1->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));

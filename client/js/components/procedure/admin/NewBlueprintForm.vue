@@ -57,7 +57,7 @@
           @select="setValuesFromSelectedBlueprint" />
       </dp-form-row>
 
-      <div class="position--relative">
+      <div class="relative">
         <dp-loading
           v-if="isLoading"
           overlay />
@@ -91,7 +91,7 @@
         <dp-email-list
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-7 pointer-events-none' : '' } u-mt-0_25`"
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
           :init-emails="emailAddresses" />
 
         <dp-text-area
@@ -118,7 +118,7 @@
           {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
         </p>
 
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
           <input
             class="btn btn--primary"
             type="submit"

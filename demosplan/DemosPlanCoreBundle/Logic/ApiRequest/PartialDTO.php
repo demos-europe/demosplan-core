@@ -20,13 +20,10 @@ use InvalidArgumentException;
 class PartialDTO
 {
     /**
-     * @var array<string,mixed>
+     * @param array<string, mixed> $properties
      */
-    private $properties;
-
-    public function __construct(array $properties)
+    public function __construct(private readonly array $properties)
     {
-        $this->properties = $properties;
     }
 
     public function hasProperty(string $property): bool

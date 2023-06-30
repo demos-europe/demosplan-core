@@ -11,8 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -211,7 +212,7 @@ class Faq extends CoreEntity implements FaqInterface
     /**
      * Set Roles.
      *
-     * @param array $roles
+     * @param array<int, RoleInterface> $roles
      */
     public function setRoles($roles): self
     {
@@ -223,7 +224,7 @@ class Faq extends CoreEntity implements FaqInterface
     /**
      * Add Role.
      */
-    public function addRole(Role $role): self
+    public function addRole(RoleInterface $role): self
     {
         $this->roles->add($role);
 
@@ -262,8 +263,6 @@ class Faq extends CoreEntity implements FaqInterface
 
     public function hasRoleGroupCode(string $code): bool
     {
-        return $this->roles->exists(static function (int $index, Role $role) use ($code): bool {
-            return $role->getGroupCode() === $code;
-        });
+        return $this->roles->exists(static fn (int $index, Role $role): bool => $role->getGroupCode() === $code);
     }
 }

@@ -31,18 +31,12 @@ class StatementFragmentFactory extends FactoryBase
      */
     private $statement;
 
-    /**
-     * @var StatementFragmentService
-     */
-    private $statementFragmentService;
-
     public function __construct(
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
-        StatementFragmentService $statementFragmentService,
+        private readonly StatementFragmentService $statementFragmentService,
         StatementService $statementService
     ) {
-        $this->statementFragmentService = $statementFragmentService;
         $this->statementService = $statementService;
 
         parent::__construct($registry, $permissions);

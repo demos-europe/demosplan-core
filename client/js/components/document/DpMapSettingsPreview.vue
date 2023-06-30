@@ -84,16 +84,16 @@
       </ul>
       <div class="layout__item u-mb-0_25 u-mt-0_25">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="planstatus">{{ Translator.trans('planstatus') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
         <dp-datepicker
-          class="display--inline-block u-3-of-4"
+          class="inline-block u-3-of-4"
           v-model="planstatus"
           id="planstatus"
           :disabled="!isPlanStatusEditing"
           :calendars-before="2" /><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -131,17 +131,17 @@
         v-if="hasPermission('feature_map_deactivate')"
         class="layout__item u-mb-0_25">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="mapStatus">{{ Translator.trans('map') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
 <!--
-     --><div class="display--inline-block u-3-of-4">
+     --><div class="inline-block u-3-of-4">
           <dp-toggle
             id="mapStatus"
             :disabled="!isMapStatusEditing"
             v-model="isMapEnabled" />
         </div><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -179,9 +179,9 @@
         v-if="hasPermission('feature_procedure_planning_area_match')"
         class="layout__item">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="planningArea">{{ Translator.trans('planningArea') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
           <select
             id="planningArea"
             :disabled="!isPlanningAreaEditing"
@@ -194,7 +194,7 @@
               {{ Translator.trans(option.label) }}
             </option>
           </select><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"

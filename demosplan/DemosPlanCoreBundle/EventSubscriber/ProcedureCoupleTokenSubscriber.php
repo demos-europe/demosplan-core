@@ -46,73 +46,25 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
     /**
      * Key of the related event concern.
      */
-    public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUserProvider;
-
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $tokenRepository;
-
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
+    final public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
 
     /**
      * @var TranslatorInterface
      */
     protected $translator;
 
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var EntitySyncLinkRepository
-     */
-    private $entitySyncLinkRepository;
-
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureProvider;
-
     public function __construct(
-        CurrentProcedureService $currentProcedureProvider,
-        CurrentUserInterface $currentUserProvider,
-        EntitySyncLinkRepository $entitySyncLinkRepository,
-        MessageBagInterface $messageBag,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        ProcedureCoupleTokenRepository $tokenRepository,
-        StatementResourceType $statementResourceType,
-        TokenFactory $tokenFactory,
+        private readonly CurrentProcedureService $currentProcedureProvider,
+        private readonly CurrentUserInterface $currentUserProvider,
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureCoupleTokenRepository $tokenRepository,
+        private readonly StatementResourceType $statementResourceType,
+        private readonly TokenFactory $tokenFactory,
         TranslatorInterface $translator
     ) {
-        $this->currentUserProvider = $currentUserProvider;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
-        $this->tokenFactory = $tokenFactory;
-        $this->tokenRepository = $tokenRepository;
         $this->translator = $translator;
-        $this->messageBag = $messageBag;
-        $this->entitySyncLinkRepository = $entitySyncLinkRepository;
-        $this->statementResourceType = $statementResourceType;
-        $this->currentProcedureProvider = $currentProcedureProvider;
     }
 
     public static function getSubscribedEvents(): array
@@ -256,12 +208,10 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         $path->setParent($this->statementResourceType);
         $path->setParentPropertyName(self::SYNCHRONIZED_PROPERTY);
         $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
-        $property->readable(false, function (Statement $statement): bool {
-            return null !== $this->entitySyncLinkRepository->findOneBy([
-                'sourceId' => $statement->getId(),
-                'class'    => Statement::class,
-            ]);
-        });
+        $property->readable(false, fn (Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
+            'sourceId' => $statement->getId(),
+            'class'    => Statement::class,
+        ]));
         $event->addProperty($property);
     }
 

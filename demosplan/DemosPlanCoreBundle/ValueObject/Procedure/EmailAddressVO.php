@@ -18,19 +18,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class EmailAddressVO extends ValueObject
 {
     /**
-     * @Assert\NotBlank(message = "email.address.invalid")
-     * @Assert\Email(message = "email.address.invalid")
-     *
-     * @var string
-     */
-    protected $fullAddress;
-
-    /**
      * @param string $fullAddress
      */
-    public function __construct($fullAddress = null)
+    public function __construct(#[Assert\NotBlank(message: 'email.address.invalid')]
+    #[Assert\Email(message: 'email.address.invalid')]
+    protected $fullAddress = null)
     {
-        $this->fullAddress = $fullAddress;
     }
 
     /**

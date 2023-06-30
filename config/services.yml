@@ -357,6 +357,9 @@ services:
             $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler'
+
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
@@ -467,11 +470,6 @@ services:
     # when $jwtRouter is injected via DI JwtRouter is used
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
-
-
-    demosplan\DemosPlanCoreBundle\Monolog\SentryHandler:
-        decorates: Sentry\Monolog\Handler
-        arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
 
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:

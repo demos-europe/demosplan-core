@@ -16,12 +16,12 @@ class EndDateSorter extends ProcedureTimestampSorter
 {
     public function sortLegacyArrays(array $procedures): array
     {
-        return $this->sortArbitrary($procedures, [self::class, 'getLegacyArrayTimestamp']);
+        return $this->sortArbitrary($procedures, self::getLegacyArrayTimestamp(...));
     }
 
     public function sortEntities(array $procedures): array
     {
-        return $this->sortArbitrary($procedures, [self::class, 'getEntityTimestamp']);
+        return $this->sortArbitrary($procedures, self::getEntityTimestamp(...));
     }
 
     /**

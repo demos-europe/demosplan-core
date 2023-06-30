@@ -14,43 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 class OrgaSignatureValueObject
 {
-    /**
-     * @var string
-     */
-    private $legalName;
-
-    /**
-     * @var string
-     */
-    private $street;
-
-    /**
-     * @var string
-     */
-    private $postalCode;
-
-    /**
-     * @var string
-     */
-    private $city;
-
-    /**
-     * @var string
-     */
-    private $email;
-
-    public function __construct(
-        string $legalName,
-        string $street = '',
-        string $postalCode = '',
-        string $city = '',
-        string $email = ''
-    ) {
-        $this->legalName = $legalName;
-        $this->street = $street;
-        $this->postalCode = $postalCode;
-        $this->city = $city;
-        $this->email = $email;
+    public function __construct(private readonly string $legalName, private readonly string $street = '', private readonly string $postalCode = '', private readonly string $city = '', private readonly string $email = '')
+    {
     }
 
     public function getLegalName(): string

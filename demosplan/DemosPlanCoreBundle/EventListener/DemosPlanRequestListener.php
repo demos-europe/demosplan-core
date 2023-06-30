@@ -32,18 +32,12 @@ class DemosPlanRequestListener
     /** @var SubdomainHandlerInterface */
     protected $subdomainHandler;
 
-    /**
-     * @var JsonApiRequestValidator
-     */
-    private $jsonApiRequestValidator;
-
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        JsonApiRequestValidator $jsonApiRequestValidator,
+        private readonly JsonApiRequestValidator $jsonApiRequestValidator,
         RouterInterface $router,
         SubdomainHandlerInterface $subdomainHandler
     ) {
-        $this->jsonApiRequestValidator = $jsonApiRequestValidator;
         $this->subdomainHandler = $subdomainHandler;
         $this->globalConfig = $globalConfig;
         $this->router = $router;

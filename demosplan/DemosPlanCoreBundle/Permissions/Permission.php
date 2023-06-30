@@ -51,16 +51,6 @@ class Permission implements ArrayAccess
     private const MUTABLE_FIELDS = ['enabled', 'active', 'loginRequired'];
 
     /**
-     * @var string name of the permission
-     */
-    protected $name = '';
-
-    /**
-     * @var string descriptive text for a permission
-     */
-    protected $label = '';
-
-    /**
      * @var bool general "is this permission enabled" check
      */
     protected $enabled = false;
@@ -71,30 +61,13 @@ class Permission implements ArrayAccess
     protected $active = false;
 
     /**
-     * @var bool should this permission be available to the js frontend?
-     */
-    protected $expose = false;
-
-    /**
-     * @var bool does this permission require a logged in user?
-     */
-    protected $loginRequired = true;
-
-    private string $description;
-
-    /**
      * @param string $name
      * @param string $label
      * @param bool   $expose
      * @param bool   $loginRequired
      */
-    protected function __construct($name, $label, $expose, $loginRequired, string $description)
+    protected function __construct(protected $name, protected $label, protected $expose, protected $loginRequired, private readonly string $description)
     {
-        $this->name = $name;
-        $this->label = $label;
-        $this->expose = $expose;
-        $this->loginRequired = $loginRequired;
-        $this->description = $description;
     }
 
     /**

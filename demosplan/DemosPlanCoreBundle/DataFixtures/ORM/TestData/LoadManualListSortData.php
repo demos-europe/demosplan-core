@@ -16,7 +16,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadManualListSortData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $procedureNewsIdents = $this->getReference(LoadNewsData::TEST_SINGLE_NEWS_2)->getIdent().', '.$this->getReference(LoadNewsData::TEST_SINGLE_NEWS_1)->getIdent();
 

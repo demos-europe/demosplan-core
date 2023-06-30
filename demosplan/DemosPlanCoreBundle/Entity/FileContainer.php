@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileContainerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -20,7 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository")
  */
-class FileContainer extends CoreEntity implements UuidEntityInterface
+class FileContainer extends CoreEntity implements UuidEntityInterface, FileContainerInterface
 {
     /**
      * @var string|null
@@ -230,7 +232,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return File
+     * @return FileInterface
      */
     public function getFile()
     {
@@ -238,7 +240,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param File $file
+     * @param FileInterface $file
      */
     public function setFile($file)
     {

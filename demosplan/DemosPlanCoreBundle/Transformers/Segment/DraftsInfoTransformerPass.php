@@ -21,16 +21,10 @@ use Symfony\Component\Form\Exception\RuntimeException;
 class DraftsInfoTransformerPass
 {
     /**
-     * @var iterable<DraftsInfoTransformerInterface>
-     */
-    private $transformers;
-
-    /**
      * @param iterable<DraftsInfoTransformerInterface> $transformers
      */
-    public function __construct(iterable $transformers)
+    public function __construct(private readonly iterable $transformers)
     {
-        $this->transformers = $transformers;
     }
 
     /**

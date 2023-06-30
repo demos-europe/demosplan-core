@@ -44,10 +44,6 @@ class SegmentsExporter
      * @var TranslatorInterface
      */
     protected $translator;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
 
     /**
      * @var Slugify
@@ -55,13 +51,12 @@ class SegmentsExporter
     protected $slugify;
 
     public function __construct(
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         Slugify $slugify,
         TranslatorInterface $translator)
     {
         $this->translator = $translator;
         $this->initializeStyles();
-        $this->currentUser = $currentUser;
         $this->slugify = $slugify;
     }
 
@@ -102,36 +97,47 @@ class SegmentsExporter
     protected function addStatementInfo(Section $section, Statement $statement): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
-
         $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
 
-        $row1 = $table->addRow();
-        $this->addSegmentCell($row1, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row1, '', $this->styles['statementInfoEmptyCell']);
-        $creationDate = $statement->getCreated()->format('d.m.Y');
-        $creationText = $this->translator->trans('segments.export.statement.creation.date', ['date' => $creationDate]);
-        $this->addSegmentCell($row1, $creationText, $this->styles['statementInfoTextCell']);
+        if ('' !== $statement->getAuthoredDateString()) {
+            $authoredDateRow = $table->addRow();
+            $this->addSegmentCell($authoredDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+            $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
+            $authoredAt = $this->translator->trans('statement.date.authored').': '.$statement->getAuthoredDateString();
+            $this->addSegmentCell($authoredDateRow, $authoredAt, $this->styles['statementInfoTextCell']);
+        }
 
-        $row2 = $table->addRow();
-        $this->addSegmentCell($row2, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row2, '', $this->styles['statementInfoEmptyCell']);
+        if ('' !== $statement->getSubmitDateString()) {
+            $submitDateRow = $table->addRow();
+            $this->addSegmentCell($submitDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+            $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
+            $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
+            $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
+        }
+
+        $textRow = $table->addRow();
+        $this->addSegmentCell($textRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+        $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
-        $this->addSegmentCell($row2, $externIdText, $this->styles['statementInfoTextCell']);
+        $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
 
-        $row3 = $table->addRow();
-        $this->addSegmentCell($row3, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row3, '', $this->styles['statementInfoEmptyCell']);
-        $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
-        $this->addSegmentCell($row3, $internIdText, $this->styles['statementInfoTextCell']);
+        if (null !== $statement->getInternId() && '' !== $statement->getInternId()) {
+            $internIdRow = $table->addRow();
+            $this->addSegmentCell($internIdRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+            $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
+            $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
+            $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
+        }
 
-        $row4 = $table->addRow();
-        $this->addSegmentCell($row4, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
-        $this->addSegmentCell($row4, '', $this->styles['statementInfoEmptyCell']);
-        $this->addSegmentCell($row4, '', $this->styles['statementInfoTextCell']);
-
+        // formation only
         $row5 = $table->addRow();
         $this->addSegmentCell($row5, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
+        $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
+
+        $row6 = $table->addRow();
+        $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+        $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
         $section->addTextBreak(2);
     }
@@ -173,9 +179,7 @@ class SegmentsExporter
     {
         $table = $this->addSegmentsTableHeader($section);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static function (Segment $segmentA, Segment $segmentB) {
-            return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-        });
+        uasort($sortedSegments, static fn(Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment);

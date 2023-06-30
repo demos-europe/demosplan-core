@@ -42,71 +42,8 @@ use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    /**
-     * @var MapService
-     */
-    private $mapService;
-
-    /**
-     * @var ParagraphService
-     */
-    private $paragraphDocumentService;
-
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var ProcedureReportEntryFactory
-     */
-    private $procedureReportEntryFactory;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        ElementsService $elementsService,
-        GlobalConfigInterface $globalConfig,
-        MapService $mapService,
-        ParagraphService $paragraphDocumentService,
-        PermissionsInterface $permissions,
-        ReportService $reportService,
-        ProcedureReportEntryFactory $procedureReportEntryFactory,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly TranslatorInterface $translator
-    ) {
-        $this->currentUser = $currentUser;
-        $this->elementsService = $elementsService;
-        $this->globalConfig = $globalConfig;
-        $this->mapService = $mapService;
-        $this->paragraphDocumentService = $paragraphDocumentService;
-        $this->permissions = $permissions;
-        $this->procedureReportEntryFactory = $procedureReportEntryFactory;
-        $this->reportService = $reportService;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementsService, private readonly GlobalConfigInterface $globalConfig, private readonly MapService $mapService, private readonly ParagraphService $paragraphDocumentService, private readonly PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly ProcedureReportEntryFactory $procedureReportEntryFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator)
+    {
     }
 
     /**
@@ -238,22 +175,22 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newDesignatedCitizenSwitchEndDate'] = $this->getTimestamp($destinationEndDateOfPublicSwitchPhase);
         }
 
-        if (0 !== strcmp($sourceProcedure->getSettings()->getDesignatedPublicPhase(), $destinationProcedure->getSettings()->getDesignatedPublicPhase())) {
+        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPublicPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPublicPhase())) {
             $update['oldDesignatedCitizenPhase'] = $sourceProcedure->getSettings()->getDesignatedPublicPhase();
             $update['newDesignatedCitizenPhase'] = $destinationProcedure->getSettings()->getDesignatedPublicPhase();
         }
 
-        if (0 !== strcmp($sourceProcedure->getSettings()->getDesignatedPhase(), $destinationProcedure->getSettings()->getDesignatedPhase())) {
+        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPhase())) {
             $update['oldDesignatedAgencyPhase'] = $sourceProcedure->getSettings()->getDesignatedPhase();
             $update['newDesignatedAgencyPhase'] = $destinationProcedure->getSettings()->getDesignatedPhase();
         }
 
-        if (0 !== strcmp($sourceProcedure->getName(), $destinationProcedure->getName())) {
+        if (0 !== strcmp((string) $sourceProcedure->getName(), (string) $destinationProcedure->getName())) {
             $update['oldName'] = $sourceProcedure->getName();
             $update['newName'] = $destinationProcedure->getName();
         }
 
-        if (0 !== strcmp($sourceProcedure->getExternalName(), $destinationProcedure->getExternalName())) {
+        if (0 !== strcmp((string) $sourceProcedure->getExternalName(), (string) $destinationProcedure->getExternalName())) {
             $update['oldPublicName'] = $sourceProcedure->getExternalName();
             $update['newPublicName'] = $destinationProcedure->getExternalName();
         }
@@ -262,9 +199,7 @@ class PrepareReportFromProcedureService extends CoreService
             // compare Users using custom function instead of just casting a User instance to a string
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
-            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, function (User $user1, User $user2) {
-                return strcmp($user1->getId(), $user2->getId());
-            });
+            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn(User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
             if (0 !== count($changes)) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());
@@ -470,8 +405,8 @@ class PrepareReportFromProcedureService extends CoreService
 
     private function hasPhaseChanged(Procedure $sourceProcedure, Procedure $destinationProcedure): bool
     {
-        return 0 !== strcmp($sourceProcedure->getPhase(), $destinationProcedure->getPhase()) ||
-            0 !== strcmp($sourceProcedure->getPublicParticipationPhase(), $destinationProcedure->getPublicParticipationPhase());
+        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase()) ||
+            0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
     }
 
     /**

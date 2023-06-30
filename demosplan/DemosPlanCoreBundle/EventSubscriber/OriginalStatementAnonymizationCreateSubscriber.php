@@ -16,12 +16,8 @@ use Exception;
 
 class OriginalStatementAnonymizationCreateSubscriber extends BaseEventSubscriber
 {
-    /** @var OriginalStatementAnonymizationService */
-    private $statementAnonymizationService;
-
-    public function __construct(OriginalStatementAnonymizationService $statementAnonymizationService)
+    public function __construct(private readonly OriginalStatementAnonymizationService $statementAnonymizationService)
     {
-        $this->statementAnonymizationService = $statementAnonymizationService;
     }
 
     public static function getSubscribedEvents(): array

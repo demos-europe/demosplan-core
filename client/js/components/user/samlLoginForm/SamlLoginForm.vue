@@ -59,6 +59,7 @@
           </dp-form-row>
           <a
             :class="prefixClass('o-link--default')"
+            data-cy="password_forgot"
             :href="Routing.generate('DemosPlan_user_password_recover')"
             v-text="Translator.trans('password.forgot')" />
         </form>

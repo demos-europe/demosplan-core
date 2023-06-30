@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class ProcedureCoupleToken implements UuidEntityInterface
 {
-    public const TOKEN_LENGTH = 12;
+    final public const TOKEN_LENGTH = 12;
 
     /**
      * @var string|null
@@ -48,9 +48,8 @@ class ProcedureCoupleToken implements UuidEntityInterface
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, unique=true)
-     *
-     * @Assert\NotNull(message="procedureCoupleToken.sourceProceudre.not.null")
      */
+    #[Assert\NotNull(message: 'procedureCoupleToken.sourceProceudre.not.null')]
     protected $sourceProcedure;
 
     /**
@@ -69,11 +68,9 @@ class ProcedureCoupleToken implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=12, nullable=false, unique=true, options={"fixed":true})
-     *
-     * @Assert\Length(max=ProcedureCoupleToken::TOKEN_LENGTH, min=ProcedureCoupleToken::TOKEN_LENGTH, normalizer="trim")
-     *
-     * @Assert\NotBlank(message="procedureCoupleToken.token.invalid", allowNull=false, normalizer="trim")
      */
+    #[Assert\Length(max: ProcedureCoupleToken::TOKEN_LENGTH, min: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
+    #[Assert\NotBlank(message: 'procedureCoupleToken.token.invalid', allowNull: false, normalizer: 'trim')]
     protected $token;
 
     public function __construct(Procedure $sourceProcedure, string $token)

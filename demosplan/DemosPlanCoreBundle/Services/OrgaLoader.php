@@ -21,16 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OrgaLoader
 {
-    /** @var OrgaService */
-    private $orgaService;
-
-    /** @var ProcedureService */
-    private $procedureService;
-
-    public function __construct(OrgaService $orgaService, ProcedureService $procedureService)
+    public function __construct(private readonly OrgaService $orgaService, private readonly ProcedureService $procedureService)
     {
-        $this->orgaService = $orgaService;
-        $this->procedureService = $procedureService;
     }
 
     /**
@@ -96,7 +88,7 @@ class OrgaLoader
         $orgaObject = null;
         try {
             $orga = $this->getOrga($request);
-        } catch (NoResultException|NonUniqueResultException|Exception $e) {
+        } catch (NoResultException|NonUniqueResultException|Exception) {
             $orga = null;
         }
 

@@ -24,8 +24,8 @@
           v-if="isLoading"
           class="u-pv-0_5" />
         <template v-else>
-          <div class="flash flash-warning cf">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
+          <div class="flash flash-warning flow-root">
+            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
             <div class="u-ml">
               <p
                 :class="{'u-mb-0': false === hasPermission('feature_statement_move_to_foreign_procedure')}"
@@ -39,9 +39,9 @@
 
           <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
           <div
-            class="flash flash-warning cf"
+            class="flash flash-warning flow-root"
             v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float--left" />
+            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
             <div class="u-ml">
               <p
                 class="u-mb-0"
@@ -51,7 +51,7 @@
 
           <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
           <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
-            <label class="u-mb-0_5 display--inline-block">
+            <label class="u-mb-0_5 inline-block">
               <input
                 type="radio"
                 name="procedure_permissions"
@@ -59,7 +59,7 @@
                 value="accessibleProcedures"
                 required> {{ Translator.trans('procedure.accessible') }}
             </label>
-            <label class="u-mb-0_5 u-ml display--inline-block">
+            <label class="u-mb-0_5 u-ml inline-block">
               <input
                 type="radio"
                 name="procedure_permissions"
@@ -96,7 +96,7 @@
               aria-describedby="deleteHistoryDesc">
             <label
               for="deleteVersionHistory"
-              class="display--inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
+              class="inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
             <p
               class="lbl__hint"
               id="deleteHistoryDesc">
@@ -106,7 +106,7 @@
           <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
           <button
             type="button"
-            class="btn btn--primary float--right"
+            class="btn btn--primary float-right"
             @click.prevent.stop="moveStatement"
             :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
             {{ Translator.trans('statement.moveto.procedure.action') }}

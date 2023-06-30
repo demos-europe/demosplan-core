@@ -14,7 +14,7 @@
     </td>
     <td class="o-hellip--td">
         <label
-            class="lbl--text display--inline-block u-mb-0 o-hellip max-width-90p u-ml"
+            class="lbl--text inline-block u-mb-0 o-hellip max-width-90p u-ml"
             for="boilerplateGroupChildren:{{ boilerplate.ident|default }}">
             {{ boilerplate.title|default('Titel') }}
         </label>
@@ -24,11 +24,11 @@
             {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
         {% endfor %}
     </td>
-    <td class="text--center">
+    <td class="text-center">
         <a
          href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
          data-cy="procedureBoilerplateEdit"
-         class="o-toggle__trigger u-mr-0_5 u-valign--middle js__toggleAnything">
+         class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything">
             <i
                 class="fa fa-pencil"
                 aria-hidden="true">

@@ -237,7 +237,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

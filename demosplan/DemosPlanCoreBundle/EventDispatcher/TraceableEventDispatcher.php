@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use Exception;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class TraceableEventDispatcher extends \Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher implements EventDispatcherPostInterface
 {

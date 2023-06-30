@@ -27,14 +27,8 @@ class DemosPlanForumBaseController extends BaseController
      */
     protected $forumHandler;
 
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserService $currentUser, ForumHandler $forumHandler, TranslatorInterface $translator)
+    public function __construct(private readonly CurrentUserService $currentUser, ForumHandler $forumHandler, TranslatorInterface $translator)
     {
-        $this->currentUser = $currentUser;
         $this->forumHandler = $forumHandler;
         $this->translator = $translator;
     }
@@ -58,11 +52,12 @@ class DemosPlanForumBaseController extends BaseController
      */
     protected function generateImagesAndDocuments($files)
     {
+        $result = [];
         $images = [];
         $documents = [];
 
         foreach ($files as $file) {
-            if (false != stripos($file, 'image')) {
+            if (false != stripos((string) $file, 'image')) {
                 $images[] = $file;
             } else {
                 $documents[] = $file;

@@ -24,16 +24,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ResourceTypeService implements ResourceTypeServiceInterface
 {
-    public const VALIDATION_GROUP_DEFAULT = 'Default';
+    final public const VALIDATION_GROUP_DEFAULT = 'Default';
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

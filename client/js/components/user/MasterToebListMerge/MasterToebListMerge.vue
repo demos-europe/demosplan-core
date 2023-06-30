@@ -24,7 +24,7 @@
           :options="organisations"
           track-by="ident">
           <template v-slot:option="{ props }">
-            <span class="weight--bold display--block">{{ props.option.name }}</span>
+            <span class="weight--bold block">{{ props.option.name }}</span>
             <span class="font-size-small">{{ list(props.option.departmentNames) }}</span>
           </template>
         </dp-multiselect>
@@ -61,7 +61,7 @@
           :options="organisationsMasterToeb"
           track-by="ident">
           <template v-slot:option="{ props }">
-            <span class="weight--bold display--block">{{ props.option.orgaName }}</span>
+            <span class="weight--bold block">{{ props.option.orgaName }}</span>
             <span class="font-size-small">{{ props.option.departmentName }}</span>
           </template>
         </dp-multiselect>

@@ -17,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadStatementVoteData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $testStatement1 = $this->getReference('testStatement1');
         $testStatement2 = $this->getReference('testStatement2');
