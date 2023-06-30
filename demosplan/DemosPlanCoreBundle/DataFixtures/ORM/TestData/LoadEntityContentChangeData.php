@@ -18,7 +18,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadEntityContentChangeData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Statement $testStatement */
         $testStatement = $this->getReference('testStatement');

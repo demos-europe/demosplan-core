@@ -45,7 +45,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
     /**
      * @throws InvalidDataException
      */
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
 

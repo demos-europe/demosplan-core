@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadRolesData extends ProdFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $roles = [
             [

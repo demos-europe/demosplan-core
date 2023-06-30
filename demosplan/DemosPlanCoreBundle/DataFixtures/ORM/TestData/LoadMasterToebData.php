@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadMasterToebData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $masterToeb = new MasterToeb();
         $masterToeb->setGatewayGroup('G-D-BOP-Bezirksamt-Nord');
