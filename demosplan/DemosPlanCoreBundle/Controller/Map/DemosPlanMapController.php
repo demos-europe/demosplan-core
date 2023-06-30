@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\ServiceStorage;
-use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCapabilitiesLoader;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
@@ -41,8 +40,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
