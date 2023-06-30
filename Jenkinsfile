@@ -35,7 +35,7 @@ def _dockerExecAsRoot(String command, String containerName) {
 pipeline {
     agent {label 'docker && metal'}
     options {
-        timeout(time: 1, unit: 'HOURS')
+        timeout(time: 0.5, unit: 'HOURS')
         buildDiscarder(logRotator(numToKeepStr: "10", daysToKeepStr: "10"))
     }
     stages {
@@ -89,7 +89,7 @@ pipeline {
                         stage("Jest Tests") {
                             steps {
                                  script {
-                                    npmTest = _dockerExecAsUser('yarn test --ci', containerName)
+                                    npmTest = _dockerExecAsUser('yarn test --maxWorkers 1 --ci', containerName)
                                     sh "$npmTest"
                                 }
                             }
