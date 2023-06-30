@@ -24,11 +24,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Procedure proposal.
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository")
  */
 class ProcedureProposal extends CoreEntity implements UuidEntityInterface
 {
-    public const STATUS = [
+    final public const STATUS = [
         'new'                                 => 'new',
         'has_been_transformed_into_procedure' => 'has_been_transformed_into_procedure',
     ];
@@ -37,8 +38,11 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -61,6 +65,7 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -69,6 +74,7 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -91,6 +97,7 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="user", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
     protected $user;
@@ -108,6 +115,7 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, File>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File",)
+     *
      * @ORM\JoinTable(
      *     name="procedureproposal_file_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="procedureProposal", referencedColumnName="id")},

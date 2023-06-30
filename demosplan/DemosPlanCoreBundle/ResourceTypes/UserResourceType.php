@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -47,14 +47,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class UserResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, UserResourceTypeInterface
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     public function getEntityClass(): string
@@ -194,25 +188,15 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
             $this->createAttribute($this->deleted)->filterable()->sortable(),
             $this->createAttribute($this->roleInCustomers)->filterable()->sortable(),
             $this->createAttribute($this->profileCompleted)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isProfileCompleted();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isAccessConfirmed();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isAccessConfirmed()),
             $this->createAttribute($this->invited)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isInvited();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isInvited()),
             $this->createAttribute($this->newsletter)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNewsletter();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNoPiwik();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles, true)
                 ->readable(true, static function (User $user): array {
                     $roles = [];
@@ -228,13 +212,9 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
                     return $roles;
                 }),
             $this->createToOneRelationship($this->department, true)
-                ->readable(true, static function (User $user) {
-                    return $user->getDepartment();
-                }),
+                ->readable(true, static fn(User $user) => $user->getDepartment()),
             $this->createToOneRelationship($this->orga, true)
-                ->readable(true, static function (User $user) {
-                    return $user->getOrga();
-                }),
+                ->readable(true, static fn(User $user) => $user->getOrga()),
         ];
     }
 }

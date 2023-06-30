@@ -15,8 +15,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -30,32 +30,14 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
 {
     public static $defaultName = 'dplan:data:generate:statement-fragment';
     protected static $defaultDescription = 'Generate Fragments on a Statement';
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var StatementFragmentFactory
-     */
-    private $statementFragmentFactory;
 
     public function __construct(
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         ParameterBagInterface $parameterBag,
-        ProcedureHandler $procedureHandler,
-        StatementFragmentFactory $statementFragmentFactory,
+        private readonly ProcedureHandler $procedureHandler,
+        private readonly StatementFragmentFactory $statementFragmentFactory,
         string $name = null
     ) {
-        $this->currentUser = $currentUser;
-        $this->procedureHandler = $procedureHandler;
-        $this->statementFragmentFactory = $statementFragmentFactory;
-
         parent::__construct($parameterBag, $name);
     }
 
@@ -133,7 +115,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
     private function getCountRange(): array
     {
         if ('' !== $this->getOption('count-range')) {
-            $countRange = explode(':', $this->getOption('count-range'));
+            $countRange = explode(':', (string) $this->getOption('count-range'));
             if (is_array($countRange) && 2 === count($countRange)
                 && (int) $countRange[0] > 0 && (int) $countRange[1] > 0
                 && $countRange[0] < $countRange[1]) {
@@ -162,10 +144,8 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
             if (!empty($procedureId)) {
                 $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
                 $statements = $procedure->getStatements()->filter(
-                    static function (Statement $statement) {
-                        return !$statement->isOriginal() && null === $statement->getMovedToProcedureId()
-                            && null === $statement->getHeadStatement();
-                    }
+                    static fn (Statement $statement) => !$statement->isOriginal() && null === $statement->getMovedToProcedureId()
+                        && null === $statement->getHeadStatement()
                 );
 
                 /** @var Statement $statement */

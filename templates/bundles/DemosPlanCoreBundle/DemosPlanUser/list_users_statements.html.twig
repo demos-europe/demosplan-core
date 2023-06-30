@@ -34,7 +34,7 @@
                         {% block statement_entry %}
                             <li class="o-list__item">
                                 <header class="bg-color--grey-light-1 u-ph u-pl-0_25-palm u-pr-0_25-palm u-pv-0_25" id="{{ statement.ident|default() }}">
-                                    <div class="display--inline-block">
+                                    <div class="inline-block">
                                        {% if statement.externId is defined %}
                                         <p class="u-mv-0"><strong>{{ 'statement.id'|trans }}:</strong> {{ statement.externId|default() }}</p>
                                         {% endif %}
@@ -44,7 +44,7 @@
                                     </div>
 
                                     {% if hasPermission('feature_statement_gdpr_consent_may_revoke') %}
-                                        <div class="display--inline-block float--right-lap-up u-mt-0_5-lap-up u-1-of-1-palm">
+                                        <div class="inline-block float-right-lap-up u-mt-0_5-lap-up u-1-of-1-palm">
                                             <a class="u-pr-0_5 gdpr_revoke"
                                                @click="() => confirm(Translator.trans('gdpr.revoke.confirm'))"
                                                href="{{ path('DemosPlan_revoke_statement', {'statementId': statement.id}) }}"
@@ -81,7 +81,7 @@
                                             <dt class="layout__item u-1-of-6 u-1-of-3-palm u-pl-0_5-palm weight--bold{{ statement.file|isNot(' color--grey') }}">
                                                 {{ "attachments"|trans }}:
                                             </dt>
-                                            <dd class="layout__item u-1-of-3 u-2-of-3-palm u-ml-0{{ statement.file|isNot(' color--grey') }} overflow-word-break">
+                                            <dd class="layout__item u-1-of-3 u-2-of-3-palm u-ml-0{{ statement.file|isNot(' color--grey') }} break-words">
                                                 {% if statement.files|default([])|length > 0 %}
                                                     {% for file in statement.files %}
                                                         <a
@@ -147,7 +147,7 @@
                                 <span class="layout__item u-1-of-6 u-1-of-1-palm u-pl-0_5-palm u-pb-0_5-lap-up u-pb-0_25-palm weight--bold{{ statement.text|default()|isNot(' color--grey') }}">
                                     {{ "statementtext"|trans }}:
                                 </span>
-                                <span class="layout__item u-5-of-6 u-1-of-1-palm u-pl-0_5-palm u-pr-0_25-palm overflow-word-break u-pr{{ statement.text|default()|isNot(' color--grey') }}">
+                                <span class="layout__item u-5-of-6 u-1-of-1-palm u-pl-0_5-palm u-pr-0_25-palm break-words u-pr{{ statement.text|default()|isNot(' color--grey') }}">
                                     {# no JS - show whole statement text #}
                                     <div class="u-nojs-show--block">
                                         {{ statement.text|default( "<p>" ~ "notspecified"|trans ~ "</p>" )|dpObscure|wysiwyg }}
@@ -162,17 +162,17 @@
                                                  <div id="text--short__{{ statement.id }}">
                                                      {{ statement.text|slice(0, 3000)|wysiwyg }} ...
                                                     <button
-                                                        class="btn--blank o-link--default float--right u-mv show-more"
+                                                        class="btn--blank o-link--default float-right u-mv show-more"
                                                         @Click="() => toggleStatement('{{ statement.id }}')"
                                                         aria-label="{{ 'show.more'|trans }} {{ 'statement.id'|trans }}:{{ statement.externId }}, {{ 'procedure'|trans }}:{{ statement.procedure.name }}"
                                                         aria-expanded="false">
                                                         {{ 'show.more'|trans }}
                                                     </button>
                                                  </div>
-                                                 <div id="text--full__{{ statement.id }}" class="display--none">
+                                                 <div id="text--full__{{ statement.id }}" class="hidden">
                                                      {{ statement.text|wysiwyg }}
                                                     <button
-                                                        class="btn--blank o-link--default float--right u-mv show-less"
+                                                        class="btn--blank o-link--default float-right u-mv show-less"
                                                         @Click="toggleStatement('{{ statement.id }}')"
                                                         aria-label="{{ 'show.less'|trans }} {{ 'statement.id'|trans }}:{{ statement.externId }}, {{ 'procedure'|trans }}:{{ statement.procedure.name }}"
                                                         aria-expanded="true">
@@ -204,8 +204,8 @@
             let shortText = document.getElementById(`text--short__${statementId}`)
             let fullText = document.getElementById(`text--full__${statementId}`)
 
-            shortText.classList.toggle('display--none')
-            fullText.classList.toggle('display--none')
+            shortText.classList.toggle('hidden')
+            fullText.classList.toggle('hidden')
         }
 
     </script>

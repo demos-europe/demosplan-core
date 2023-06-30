@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,8 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class SingleDocument extends CoreEntity implements SingleDocumentInterface
 {
-    public const IMPORT_CREATION = 'importCreation';
-
     /**
      * @var string|null
      *
@@ -50,7 +50,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
@@ -69,7 +69,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     protected $elementId;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
      *
@@ -95,9 +95,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      * @var string
      *
      * @ORM\Column(name="_sd_title", type="string", length=256, nullable=false)
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.heading", groups={SingleDocument::IMPORT_CREATION})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.heading', groups: [SingleDocument::IMPORT_CREATION])]
     protected $title = '';
 
     /**
@@ -120,9 +119,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      * @var string
      *
      * @ORM\Column(name="_sd_document", type="string", nullable=false, length=256)
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.file", groups={SingleDocument::IMPORT_CREATION})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.file', groups: [SingleDocument::IMPORT_CREATION])]
     protected $document = '';
 
     /**
@@ -176,7 +174,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     protected $deleteDate;
 
     /**
-     * @var SingleDocumentVersion[]
+     * @var SingleDocumentVersionInterface[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", mappedBy="singleDocument")
      *
@@ -197,7 +195,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     /**
      * Set procedure.
      */
-    public function setProcedure(Procedure $procedure): self
+    public function setProcedure(ProcedureInterface $procedure): self
     {
         $this->procedure = $procedure;
         $this->pId = $procedure->getId();
@@ -208,7 +206,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     /**
      * Get procedure.
      */
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
@@ -220,7 +218,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -234,19 +232,19 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
         return $this->elementId;
     }
 
-    public function getElement(): Elements
+    public function getElement(): ElementsInterface
     {
         return $this->element;
     }
 
-    public function setElement(Elements $element): void
+    public function setElement(ElementsInterface $element): void
     {
         $this->elementId = $element->getId();
         $this->element = $element;
@@ -327,7 +325,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
     }
 
     /**
-     * @return Collection<int, SingleDocumentVersion>
+     * @return Collection<int, SingleDocumentVersionInterface>
      */
     public function getVersions(): Collection
     {

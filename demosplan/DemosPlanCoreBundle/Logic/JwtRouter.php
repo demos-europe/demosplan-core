@@ -13,28 +13,22 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class JwtRouter extends Router
 {
     /**
-     * @var JWTTokenManagerInterface
-     */
-    private $jwtManager;
-
-    /**
      * This router decorates Symfony\Bundle\FrameworkBundle\Routing.
      */
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        JWTTokenManagerInterface $jwtManager,
+        private readonly JWTTokenManagerInterface $jwtManager,
         ProcedureRepository $procedureRepository,
         RouterInterface $router,
         protected readonly UserService $userService
     ) {
-        $this->jwtManager = $jwtManager;
         parent::__construct($globalConfig, $procedureRepository, $router);
     }
 

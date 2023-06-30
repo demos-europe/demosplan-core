@@ -26,7 +26,7 @@
             <i class="fa fa-arrow-down" />
           </button>
         </div>
-        <div class="segment-list-col--l weight--bold text--right">
+        <div class="segment-list-col--l weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
         <div class="segment-list-col--m width-160" />
@@ -37,7 +37,7 @@
         <p class="flash flash-info u-mb">
           {{ Translator.trans('statement.not.segmented') }}
         </p>
-        <div class="text--right u-mb-2">
+        <div class="text-right u-mb-2">
           <dp-button
             :text="Translator.trans('split.now')"
             @click="claimAndRedirect" />

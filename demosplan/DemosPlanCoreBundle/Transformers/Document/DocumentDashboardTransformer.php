@@ -30,13 +30,7 @@ class DocumentDashboardTransformer extends BaseTransformer
         ];
 
         if ($this->permissions->hasPermission('feature_procedure_planning_area_match')) {
-            $data = array_merge(
-                [
-                    'planningArea'           => $dashboardData['planningArea'],
-                    'availablePlanningAreas' => $dashboardData['availablePlanningAreas'],
-                ],
-                $data
-            );
+            $data = ['planningArea'           => $dashboardData['planningArea'], 'availablePlanningAreas' => $dashboardData['availablePlanningAreas'], ...$data];
         }
 
         return $data;

@@ -14,29 +14,14 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 
 class SurveyCreateHandler
 {
-    /** @var string */
-    private $schemaFilePath;
-
-    /** @var SurveyValidator */
-    private $surveyValidator;
-
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    public function __construct(
-        string $schemaFilePath,
-        SurveyValidator $surveyValidator,
-        ProcedureHandler $procedureHandler
-    ) {
-        $this->schemaFilePath = $schemaFilePath;
-        $this->surveyValidator = $surveyValidator;
-        $this->procedureHandler = $procedureHandler;
+    public function __construct(private readonly string $schemaFilePath, private readonly SurveyValidator $surveyValidator, private readonly ProcedureHandler $procedureHandler)
+    {
     }
 
     /**

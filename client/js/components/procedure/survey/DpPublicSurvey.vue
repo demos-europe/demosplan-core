@@ -51,7 +51,7 @@
 
             <dp-text-area
               :attributes="['rows=5', 'cols=10']"
-              :class="prefixClass('display--inline-block u-mv-0_5')"
+              :class="prefixClass('inline-block u-mv-0_5')"
               :hint="Translator.trans('survey.hint.public.check')"
               id="vote_comment"
               :label="Translator.trans('survey.comment.yours')"
@@ -139,7 +139,7 @@
               {{ Translator.trans('explanation.noentries') }}
             </p>
           </div>
-          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up float--right-lap-up')">
+          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up float-right-lap-up')">
             <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-down u-mr-0_25')"

@@ -30,7 +30,7 @@ class FilterUiDataProviderTest extends FunctionalTestCase
         $this->sut = self::$container->get(FilterUiDataProvider::class);
         $reflectionProperty = new ReflectionProperty($this->sut, 'relativeFilterNamesPath');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($this->sut, 'tests/backend/core/Core/Functional/res/tagFilterNames.yaml');
+        $reflectionProperty->setValue($this->sut, '../tests/backend/core/Core/Functional/res/tagFilterNames.yaml');
     }
 
     public function testExpectedFilterNames(): void

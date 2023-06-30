@@ -40,11 +40,11 @@ class ClusterCitizenInstitutionSorter implements ArraySorterInterface
                 }
             );
         $clusters = collect($groups->get(0, []))->all();
-        usort($clusters, [$this, 'sort']);
+        usort($clusters, $this->sort(...));
         $citizens = collect($groups->get(1, []))->all();
-        usort($citizens, [$this, 'sort']);
+        usort($citizens, $this->sort(...));
         $institutions = collect($groups->get(2, []))->all();
-        usort($institutions, [$this, 'sort']);
+        usort($institutions, $this->sort(...));
 
         return array_merge($clusters, $institutions, $citizens);
     }

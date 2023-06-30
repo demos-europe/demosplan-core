@@ -27,7 +27,7 @@
         <dp-checkbox
           id="autoSwitchAction"
           v-model="actions.setEnabled.checked"
-          class="display--inline-block"
+          class="inline-block"
           disabled
           :label="{
             bold: actions.setEnabled.checked,

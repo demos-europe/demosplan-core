@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Traits\DI;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait RequiresLoggerTrait
 {
@@ -27,9 +28,7 @@ trait RequiresLoggerTrait
         return $this->logger;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;

@@ -39,7 +39,7 @@
         \caption {Kartenauschnitt}
         \label{{ '{' }}fig1{{ '}' }}
         %fileName:{{ statement.mapFile|getFile('name')|wysiwyg }}:{{ statement.mapFile|getFile('hash') }}%
-        {{ procedure.settings.copyright|latex|raw }}
+        {{ procedure.settings.copyright|replace({'{currentYear}': 'now'|date('Y')})|latex|raw }}
         \end{figure}
     {% endif %}
 {% endif %}

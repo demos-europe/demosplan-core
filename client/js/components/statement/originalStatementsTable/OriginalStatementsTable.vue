@@ -48,8 +48,8 @@
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
-      :class="{ 'visibility--hidden': isLoading }"
-      class="u-pt-0_5 text--right u-1-of-1"
+      :class="{ 'invisible': isLoading }"
+      class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
       :total-pages="pagination.total_pages"
       :total-items="pagination.total"
@@ -84,7 +84,7 @@
       class="c-at-orig">
       <colgroup>
         <col class="width-10p">
-        <col class="width-10p text--left">
+        <col class="width-10p text-left">
         <col
           span="3"
           class="width-25p">

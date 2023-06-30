@@ -32,21 +32,15 @@ class RequestValidationEvent extends DPlanEvent
     protected $response;
 
     /**
+     * @param string|null $scope
+     */
+    public function __construct(Request $request, Response $response = null, /**
      * @var string|null Scope to validate Request for. E.g. statementId
      */
-    protected $scope;
-
-    /**
-     * @var mixed|null
-     */
-    protected $identifier;
-
-    public function __construct(Request $request, Response $response = null, $scope = null, $identifier = null)
+    protected $scope = null, protected $identifier = null)
     {
         $this->request = $request;
         $this->response = $response;
-        $this->scope = $scope;
-        $this->identifier = $identifier;
     }
 
     /**

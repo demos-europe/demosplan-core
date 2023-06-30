@@ -34,55 +34,17 @@ class ProcedureNewsService extends CoreService
      */
     protected $fileService;
 
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var ManualListSorter
-     */
-    private $manualListSorter;
-    /**
-     * @var NewsRepository
-     */
-    private $newsRepository;
-
     public function __construct(
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
+        private readonly EntityHelper $entityHelper,
         FileService $fileService,
-        ManualListSorter $manualListSorter,
-        NewsRepository $newsRepository,
-        SortMethodFactory $sortMethodFactory
+        private readonly ManualListSorter $manualListSorter,
+        private readonly NewsRepository $newsRepository,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
         $this->fileService = $fileService;
-        $this->manualListSorter = $manualListSorter;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->newsRepository = $newsRepository;
     }
 
     /**

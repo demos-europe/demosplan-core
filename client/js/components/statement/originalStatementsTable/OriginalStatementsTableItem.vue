@@ -17,11 +17,11 @@
       <table :aria-label="Translator.trans('statement')">
         <colgroup>
           <col class="width-10p">
-          <col class="width-10p text--left">
+          <col class="width-10p text-left">
           <col
             span="3"
             class="width-25p">
-          <col class="width-5p text--right">
+          <col class="width-5p text-right">
         </colgroup>
         <thead>
           <tr class="hide-visually">
@@ -48,7 +48,7 @@
           data-cy="originalStatementHeader">
           <tr>
             <td>
-              <label class="whitespace--nowrap u-m-0">
+              <label class="whitespace-nowrap u-m-0">
                 <input
                   type="checkbox"
                   name="item_check[]"
@@ -72,7 +72,7 @@
             <td>
               {{ statement.phase }}
             </td>
-            <td class="text--right">
+            <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
                 <a :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
@@ -103,10 +103,10 @@
 
         <div
           v-if="statement.sourceAttachment !== '' || statement.files.length > 0 || statement.polygon !== ''"
-          class="u-ml u-pr text--left border--top">
+          class="u-ml u-pr text-left border--top">
           <div
             v-if="statement.sourceAttachment !== '' || statement.files.length > 0"
-            class="overflow-word-break">
+            class="break-words">
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"

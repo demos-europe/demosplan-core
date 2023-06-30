@@ -30,13 +30,8 @@ class StatementAnonymizeRpcController extends RpcController
      * @DplanPermissions("area_statement_anonymize")
      *
      * @return RedirectResponse|Response
-     *
-     * @Route(
-     *     path="/rpc/1.0/statement/anonymize",
-     *     name="dplan_rpc_statement_anonymize",
-     *     options={"expose": true}
-     * )
      */
+    #[Route(path: '/rpc/1.0/statement/anonymize', name: 'dplan_rpc_statement_anonymize', options: ['expose' => true])]
     public function statementAnonymizeRpcAction(
         Request $request,
         StatementAnonymizeHandler $statementAnonymizeHandler,

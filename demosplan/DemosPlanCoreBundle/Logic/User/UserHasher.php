@@ -18,14 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 class UserHasher
 {
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
-        $this->globalConfig = $globalConfig;
     }
 
     public function getPasswordEditHash(User $user): string

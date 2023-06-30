@@ -10,9 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty;
 use demosplan\DemosPlanCoreBundle\EventListener\CountyEntityListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +26,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CountyRepository")
  */
-class County extends CoreEntity implements UuidEntityInterface
+class County extends CoreEntity implements UuidEntityInterface, CountyInterface
 {
     /**
      * @var string|null
@@ -39,7 +42,7 @@ class County extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Collection<int, CustomerCounty>
+     * @var Collection<int, CustomerCountyInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="county", cascade={"persist"})
      */
@@ -63,7 +66,7 @@ class County extends CoreEntity implements UuidEntityInterface
     protected $email = '';
 
     /**
-     * @var Collection<int, Statement>
+     * @var Collection<int, StatementInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="counties")
      *
@@ -76,7 +79,7 @@ class County extends CoreEntity implements UuidEntityInterface
     protected $statements;
 
     /**
-     * @var Collection<int, StatementFragment>
+     * @var Collection<int, StatementFragmentInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="counties", cascade={"persist"})
      *
@@ -101,7 +104,7 @@ class County extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int, CustomerCounty>
+     * @return Collection<int, CustomerCountyInterface>
      */
     public function getCustomerCounties(): Collection
     {
@@ -109,7 +112,7 @@ class County extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Collection<int, CustomerCounty> $customerCounties
+     * @param Collection<int, CustomerCountyInterface> $customerCounties
      */
     public function setCustomerCounties(Collection $customerCounties): void
     {
@@ -167,7 +170,7 @@ class County extends CoreEntity implements UuidEntityInterface
     /**
      * Add Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return bool - true if the given statement was added to this county, otherwise false
      */
@@ -184,7 +187,7 @@ class County extends CoreEntity implements UuidEntityInterface
     /**
      * Remove Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      */
     public function removeStatement($statement)
     {
@@ -204,7 +207,7 @@ class County extends CoreEntity implements UuidEntityInterface
     /**
      * Add StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function addStatementFragment($fragment)
     {
@@ -216,7 +219,7 @@ class County extends CoreEntity implements UuidEntityInterface
     /**
      * Remove StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function removeStatementFragment($fragment)
     {

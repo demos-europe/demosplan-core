@@ -58,9 +58,7 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
         $this->replaceSelect($queryBuilder);
         $result = $queryBuilder->getQuery()->getResult();
 
-        return array_map(static function (array $properties): PartialDTO {
-            return new PartialDTO($properties);
-        }, $result);
+        return array_map(static fn (array $properties): PartialDTO => new PartialDTO($properties), $result);
     }
 
     /**
@@ -87,9 +85,7 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
         $this->replaceSelect($queryBuilder);
         $result = $queryBuilder->getQuery()->getResult();
 
-        return array_map(static function (array $properties): PartialDTO {
-            return new PartialDTO($properties);
-        }, $result);
+        return array_map(static fn (array $properties): PartialDTO => new PartialDTO($properties), $result);
     }
 
     /**
@@ -102,7 +98,7 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
     {
         // extract the original `select`, because it contains the table alias
         $selects = $queryBuilder->getDQLPart('select');
-        $selectsCount = count($selects);
+        $selectsCount = is_countable($selects) ? count($selects) : 0;
         if (1 !== $selectsCount) {
             // we only expect a single `select`, otherwise something is wrong
             throw new InvalidArgumentException("Unexpected number of selects in query. Expected exactly one, got $selectsCount");
@@ -113,9 +109,7 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
         $queryBuilder->resetDQLPart('select');
 
         // set the specific properties to load in the `select`
-        $properties = array_map(static function (string $property) use ($tableAlias): string {
-            return "$tableAlias.$property";
-        }, $this->properties);
+        $properties = array_map(static fn (string $property): string => "$tableAlias.$property", $this->properties);
 
         $queryBuilder->select(implode(',', $properties));
     }

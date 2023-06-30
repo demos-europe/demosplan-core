@@ -35,12 +35,12 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
 {
     protected $manager;
 
-    public const PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST = 'http://www.pisegmentsproposalresourceurl.com';
+    final public const PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST = 'http://www.pisegmentsproposalresourceurl.com';
 
-    public const TEST_STATEMENT = 'testStatement';
-    public const TEST_STATEMENT_ORIGINAL = 'testStatementOrig';
-    public const TEST_STATEMENT_WITH_TOKEN = 'testStatementWithToken';
-    public const MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE = 'manualStatementInPublicParticipationPhase';
+    final public const TEST_STATEMENT = 'testStatement';
+    final public const TEST_STATEMENT_ORIGINAL = 'testStatementOrig';
+    final public const TEST_STATEMENT_WITH_TOKEN = 'testStatementWithToken';
+    final public const MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE = 'manualStatementInPublicParticipationPhase';
 
     /**
      * @throws InvalidDataException

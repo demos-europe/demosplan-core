@@ -74,7 +74,7 @@
                                     <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
                                 {% else %}
                                     <input type="checkbox" name="newsletter" {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
-                                    <p class="lbl--text display--inline">
+                                    <p class="lbl--text inline">
                                         {{ "explanation.newsletter"|trans({ projectName:projectName })|wysiwyg }}
                                     </p>
                                 {% endif %}
@@ -192,7 +192,7 @@
                         {% endif %}
                     {% endfor %}
 
-                    <div class="text--right space-inline-s">
+                    <div class="text-right space-inline-s">
                         <input class="btn btn--primary" type="submit" value="{{ "continue"|trans }}">
                         <a
                             class="btn btn--secondary"

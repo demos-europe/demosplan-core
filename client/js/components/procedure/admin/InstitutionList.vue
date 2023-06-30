@@ -45,7 +45,7 @@
           multiple />
       </template>
       <template v-slot:action="rowData">
-        <div class="float--right">
+        <div class="float-right">
           <template v-if="!rowData.edit">
             <button
               :aria-label="Translator.trans('item.edit')"

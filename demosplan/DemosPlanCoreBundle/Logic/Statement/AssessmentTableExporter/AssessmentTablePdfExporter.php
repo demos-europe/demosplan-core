@@ -24,12 +24,12 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
@@ -43,35 +43,25 @@ use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 {
-    /** @var PermissionsInterface */
-    private $permissions;
     /** @var Environment */
     protected $twig;
     /** @var ServiceImporter */
     protected $serviceImport;
-    /** @var MapService */
-    private $mapService;
-    /** @var FileService */
-    private $fileService;
 
     /** @var array */
-    private $supportedTypes = ['pdf']; // : TODO: By Config ?
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
+    private $supportedTypes = ['pdf'];
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
+        // : TODO: By Config ?
+        private readonly CurrentUserInterface $currentUser,
         Environment $twig,
-        FileService $fileService,
+        private readonly FileService $fileService,
         LoggerInterface $logger,
-        MapService $mapService,
-        PermissionsInterface $permissions,
+        private readonly MapService $mapService,
+        private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
@@ -86,12 +76,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $requestStack,
             $statementHandler
         );
-        $this->permissions = $permissions;
         $this->twig = $twig;
         $this->serviceImport = $serviceImport;
-        $this->mapService = $mapService;
-        $this->fileService = $fileService;
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -100,6 +86,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     public function __invoke(array $parameters): array
     {
+        $changedOutputResult = [];
+        $pdf = [];
         try {
             $procedureId = $parameters['procedureId'];
             $anonymous = $parameters['anonymous'];
@@ -127,7 +115,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             }
             $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
             $fragmentIds = [];
-            if (array_key_exists('items', $parameters) && 0 < count($parameters['items'])) {
+            if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
                 $parameters['filters']['id'] = [];
                 foreach ($parameters['items'] as $statementOrFragmentId) {
                     $idArray = $this->assessmentHandler
@@ -164,26 +152,20 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // and they currently have no condensed exports
             if ('condensed' === $template && 'statementsOnly' !== $exportType) {
                 $institutionStatements = collect($statements)
-                    ->filter(static function (array $statement): bool {
-                        return 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'];
-                    })->values();
+                    ->filter(static fn(array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
 
                 $clusterStatements = collect($statements)
-                    ->filter(static function (array $statement): bool {
-                        return $statement['isClusterStatement'];
-                    })->values();
+                    ->filter(static fn(array $statement): bool => $statement['isClusterStatement'])->values();
 
                 $publicStatements = collect($statements)
-                    ->filter(static function (array $statement): bool {
-                        return 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'];
-                    })->values();
+                    ->filter(static fn(array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
 
                 $statements = $institutionStatements->merge($clusterStatements)
                     ->merge($publicStatements)
                     ->toArray();
             }
             $statements = array_map(
-                [$this->assessmentTableOutput, 'replacePhase'],
+                $this->assessmentTableOutput->replacePhase(...),
                 $statements
             );
             if ('condensed' === $template) {
@@ -378,7 +360,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 // has Fragments
-                if (0 < count($statement['fragments'])) {
+                if (0 < (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)) {
                     // if there are fragments, export those and not the statement
 
                     $unorderedList = $this->filterForSelectedStatementFragments($statement['fragments'], $selectedFragmentIds);
@@ -434,10 +416,10 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $mapFile = $statement['mapFile'];
-                if (('' === $mapFile || null === $mapFile) && 0 < strlen($statement['polygon'])) {
+                if (('' === $mapFile || null === $mapFile) && 0 < strlen((string) $statement['polygon'])) {
                     $mapFile = $this->mapService->createMapScreenshot($procedureId, $statement['ident']);
                 }
-                if (null !== $mapFile && 0 < strlen($mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
+                if (null !== $mapFile && 0 < strlen((string) $mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
                     $fileInfo = $this->fileService->getFileInfoFromFileString($mapFile);
                     if (is_file($fileInfo->getAbsolutePath())) {
                         $fileContent = file_get_contents($fileInfo->getAbsolutePath());

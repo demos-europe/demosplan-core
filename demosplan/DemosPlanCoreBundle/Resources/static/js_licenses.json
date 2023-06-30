@@ -50,11 +50,6 @@
         "website": "https://babel.dev/docs/en/next/babel-runtime"
     },
     {
-        "package": "@demos-europe/demosplan-utils",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
         "package": "@demos-europe/dp-consent",
         "license": "MIT",
         "website": "Unknown"
@@ -395,11 +390,6 @@
         "website": "https://github.com/mikaelbr/node-notifier#readme"
     },
     {
-        "package": "normalize.css",
-        "license": "MIT",
-        "website": "https://necolas.github.io/normalize.css"
-    },
-    {
         "package": "ol",
         "license": "BSD-2-Clause",
         "website": "https://openlayers.org/"
@@ -442,7 +432,7 @@
     {
         "package": "proj4",
         "license": "MIT",
-        "website": "Unknown"
+        "website": "https://proj4js.github.io/proj4js/"
     },
     {
         "package": "prosemirror-history",
@@ -505,9 +495,9 @@
         "website": "Unknown"
     },
     {
-        "package": "sass",
+        "package": "sass-embedded",
         "license": "MIT",
-        "website": "https://github.com/sass/dart-sass"
+        "website": "Unknown"
     },
     {
         "package": "sass-loader",
@@ -577,7 +567,7 @@
     {
         "package": "util",
         "license": "MIT",
-        "website": "https://github.com/defunctzombie/node-util"
+        "website": "https://github.com/browserify/node-util"
     },
     {
         "package": "uuid",

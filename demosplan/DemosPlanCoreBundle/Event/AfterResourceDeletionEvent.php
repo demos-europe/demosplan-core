@@ -25,22 +25,15 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
  *
  * ({@link https://www.doctrine-project.org/projects/doctrine-orm/en/latest/reference/working-with-objects.html#removing-entities removing-entities})
  *
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class AfterResourceDeletionEvent extends DPlanEvent
 {
     /**
-     * @var DeletableDqlResourceTypeInterface
-     */
-    private $resourceType;
-
-    /**
      * @param DeletableDqlResourceTypeInterface<O> $resourceType
      */
-    public function __construct(
-        DeletableDqlResourceTypeInterface $resourceType
-    ) {
-        $this->resourceType = $resourceType;
+    public function __construct(private readonly DeletableDqlResourceTypeInterface $resourceType)
+    {
     }
 
     /**

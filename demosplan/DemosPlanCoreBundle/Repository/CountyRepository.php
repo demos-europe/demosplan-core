@@ -194,7 +194,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
                 ->getQuery();
 
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -221,7 +221,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

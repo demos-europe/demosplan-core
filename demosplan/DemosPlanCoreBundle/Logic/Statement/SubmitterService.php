@@ -16,9 +16,9 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
@@ -28,36 +28,15 @@ class SubmitterService extends CoreService
      * @var MailService
      */
     protected $mailService;
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var ProcedureReportEntryFactory
-     */
-    private $procedureReportEntryFactory;
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
 
     public function __construct(
         MailService $mailService,
-        ProcedureReportEntryFactory $procedureReportEntryFactory,
-        ProcedureRepository $procedureRepository,
-        ReportService $reportService,
-        UserRepository $userRepository
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ReportService $reportService,
+        private readonly UserRepository $userRepository
     ) {
         $this->mailService = $mailService;
-        $this->procedureReportEntryFactory = $procedureReportEntryFactory;
-        $this->procedureRepository = $procedureRepository;
-        $this->reportService = $reportService;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -113,7 +92,7 @@ class SubmitterService extends CoreService
     {
         try {
             $user = $this->userRepository->get($userId);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             $user = null;
         }
         $userMailAddress = $user->getEmail();

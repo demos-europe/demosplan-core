@@ -20,25 +20,8 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 
 class RoleService extends CoreService
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(CurrentUserInterface $currentUser, GlobalConfigInterface $globalConfig, RoleRepository $roleRepository)
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly GlobalConfigInterface $globalConfig, private readonly RoleRepository $roleRepository)
     {
-        $this->currentUser = $currentUser;
-        $this->globalConfig = $globalConfig;
-        $this->roleRepository = $roleRepository;
     }
 
     /**
@@ -97,14 +80,10 @@ class RoleService extends CoreService
         $allRoles = $this->getRoles();
 
         $allRoles = collect($allRoles)->flatMap(
-            static function (Role $role) {
-                return [$role->getCode() => $role];
-            }
+            static fn(Role $role) => [$role->getCode() => $role]
         );
 
-        $acceptedOrgaTypeNames = array_map(static function (OrgaType $orgaType) {
-            return $orgaType->getName();
-        }, $acceptedOrgaTypes);
+        $acceptedOrgaTypeNames = array_map(static fn(OrgaType $orgaType) => $orgaType->getName(), $acceptedOrgaTypes);
 
         $givableRoles = [];
 
@@ -153,18 +132,14 @@ class RoleService extends CoreService
                 $givableRoles[] = $allRoles[Role::CONTENT_EDITOR];
                 $givableRoles[] = $allRoles[Role::PROCEDURE_DATA_INPUT];
             }
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
         }
 
         $rolesAllowed = $this->globalConfig->getRolesAllowed();
 
         return collect($givableRoles)
             ->unique()
-            ->filter(static function (Role $role) use ($rolesAllowed) {
-                return in_array($role->getCode(), $rolesAllowed, true);
-            })
-            ->sortBy(static function (Role $role) {
-                return $role->getName();
-            })->all();
+            ->filter(static fn(Role $role) => in_array($role->getCode(), $rolesAllowed, true))
+            ->sortBy(static fn(Role $role) => $role->getName())->all();
     }
 }

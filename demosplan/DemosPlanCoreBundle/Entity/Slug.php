@@ -41,10 +41,9 @@ class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
     /**
      * @var string
      *
-     * @Assert\Length(min=0, max=255)
-     *
      * @ORM\Column(type="string")
      */
+    #[Assert\Length(min: 0, max: 255)]
     protected $name;
 
     /**

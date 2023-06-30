@@ -48,7 +48,7 @@
         {# Assignment (a.k.a. Claim) #}
         {% if hasPermission('feature_statement_assignment') %}
             {% if statement.assignee.id|default != currentUser.ident %}
-                <a class="c-actionmenu__trigger o-tooltip display--inline-block u-mr-0_5"
+                <a class="c-actionmenu__trigger o-tooltip inline-block u-mr-0_5"
                     href="{{ href_assign }}"
                     data-cy="claim">
                     <i class="fa {{ icon }}" aria-hidden="true"></i>
@@ -57,7 +57,7 @@
                     </div>
                 </a>
             {% else %}
-                <a class="c-actionmenu__trigger o-tooltip o-link--default display--inline-block u-mr-0_5"
+                <a class="c-actionmenu__trigger o-tooltip o-link--default inline-block u-mr-0_5"
                     href="{{ href_unassign }}"
                     data-cy="unclaim">
                     <i class="fa {{ icon }}" aria-hidden="true"></i>
@@ -101,10 +101,10 @@
 
     </div><!--
 
- --><div class="layout__item u-pt-0_125 u-2-of-4 cf vertical-align--baseline u-mb-0_25">
+ --><div class="layout__item u-pt-0_125 u-2-of-4 flow-root vertical-align--baseline u-mb-0_25">
         {% if statement.assignee.id|default != currentUser.ident and hasPermission('feature_statement_assignment') %}
             <a
-                class="btn btn--primary float--right u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                class="btn btn--primary float-right u-pr-0_5-desk-down u-pl-0_5-desk-down"
                 data-cy="statementAssignmentOverride"
                 href="{{ href_assign }}">
                 {{ label }}

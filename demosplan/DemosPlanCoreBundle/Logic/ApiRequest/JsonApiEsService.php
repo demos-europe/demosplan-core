@@ -30,38 +30,10 @@ class JsonApiEsService
     use ElasticsearchQueryTrait;
 
     /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var FacetFactory
-     */
-    private $facetFactory;
-
-    /**
-     * @var array<string,Index>
-     */
-    private $searchTypes;
-
-    /**
      * @param array<string,Index> $searchTypes
      */
-    public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        FacetFactory $facetFactory,
-        array $searchTypes
-    ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->facetFactory = $facetFactory;
-        $this->searchTypes = $searchTypes;
+    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly FacetFactory $facetFactory, private readonly array $searchTypes)
+    {
     }
 
     /**
@@ -242,9 +214,7 @@ class JsonApiEsService
         // kick out entries in $sortedKeys that have no equivalent in $arrayValuesToSort
         $sortedKeys = array_intersect($sortedKeys, array_keys($arrayValuesToSort));
 
-        return array_map(static function ($key) use ($arrayValuesToSort) {
-            return $arrayValuesToSort[$key];
-        }, $sortedKeys);
+        return array_map(static fn ($key) => $arrayValuesToSort[$key], $sortedKeys);
     }
 
     /**
@@ -257,9 +227,7 @@ class JsonApiEsService
     private function useIdAsKey(array $entities): array
     {
         return collect($entities)
-            ->mapWithKeys(static function (UuidEntityInterface $entity): array {
-                return [$entity->getId() => $entity];
-            })
+            ->mapWithKeys(static fn (UuidEntityInterface $entity): array => [$entity->getId() => $entity])
             ->all();
     }
 }

@@ -60,6 +60,9 @@ class SamlUserFactoryTest extends FunctionalTestCase
 
     public function testCreateNewUserFromSAML(): void
     {
+        // Anonymous user Id is not set in fixtures
+        self::markSkippedForCIIntervention();
+
         $attributes = [
             'country'       => [''],
             'givenName'     => ['Hannah'],
@@ -84,6 +87,9 @@ class SamlUserFactoryTest extends FunctionalTestCase
 
     public function testCreateNewUserFromSAMLServicekonto(): void
     {
+        // Anonymous user Id is not set in fixtures
+        self::markSkippedForCIIntervention();
+
         $attributes = [
             'email'       => ['Sarah@connell.de'],
             'givenName'   => ['Sarah'],

@@ -32,9 +32,9 @@ use Exception;
  **/
 class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
 {
-    public const RPC_JSON_SCHEMA_PATH = 'json-schema/rpc-statements-bulk-delete-schema.json';
+    final public const RPC_JSON_SCHEMA_PATH = 'json-schema/rpc-statements-bulk-delete-schema.json';
 
-    public const STATEMENTS_BULK_DELETE_METHOD = 'statements.bulk.delete';
+    final public const STATEMENTS_BULK_DELETE_METHOD = 'statements.bulk.delete';
 
     protected function checkIfAuthorized(string $procedureId): bool
     {
@@ -43,7 +43,7 @@ class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
 
             return $this->assessmentTableServiceOutput->isOrgaAuthorized($procedureId, $orgaId)
                 && $this->isAvailable();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

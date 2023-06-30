@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\ExportTemplateData;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -154,7 +154,7 @@ abstract class AssessmentTableFileExporterAbstract
      */
     protected function addStatementsFromCurrentQueryHashToFilter(array $requestPost, string $procedureId, $isOriginal = false): array
     {
-        if (!array_key_exists('sort', $requestPost) || 0 === count($requestPost['sort'])) {
+        if (!array_key_exists('sort', $requestPost) || 0 === (is_countable($requestPost['sort']) ? count($requestPost['sort']) : 0)) {
             $requestPost['sort'] = ToBy::createArray('submitDate', 'desc');
         }
         if ($this->session->has('hashList')) {

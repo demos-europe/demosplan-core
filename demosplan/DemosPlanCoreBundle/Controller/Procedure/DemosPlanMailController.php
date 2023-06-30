@@ -12,10 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Form\PreparationMailType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanProcedureBundle\Form\PreparationMailType;
-use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,17 +27,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanMailController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_view",
-     *     path="/verfahren/{procedureId}/mail",
-     *     methods={"HEAD", "GET"},
-     * )
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_send",
-     *     path="/verfahren/{procedureId}/mail",
-     *     methods={"POST"},
-     * )
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -46,6 +35,8 @@ class DemosPlanMailController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_view', path: '/verfahren/{procedureId}/mail', methods: ['HEAD', 'GET'])]
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_send', path: '/verfahren/{procedureId}/mail', methods: ['POST'])]
     public function sendAllSubmittersAction(
         CurrentUserService $currentUser,
         FormFactoryInterface $formFactory,
@@ -109,7 +100,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_send_email.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send',
@@ -151,12 +142,6 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_confirm_view",
-     *     path="/verfahren/{procedureId}/mailconfirm",
-     *     methods={"HEAD", "GET"},
-     * )
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -165,6 +150,7 @@ class DemosPlanMailController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_view', path: '/verfahren/{procedureId}/mailconfirm', methods: ['HEAD', 'GET'])]
     public function sendAllSubmittersConfirmViewAction(Request $request, SubmitterService $submitterService, $procedureId)
     {
         // @improve T14122
@@ -189,7 +175,7 @@ class DemosPlanMailController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_send_email_confirm.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_send_email_confirm.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.mail.submitters.send.confirm',
@@ -199,12 +185,6 @@ class DemosPlanMailController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_procedure_mail_send_all_submitters_confirm_send",
-     *     path="/verfahren/{procedureId}/mailconfirm",
-     *     methods={"POST"},
-     * )
-     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -213,6 +193,7 @@ class DemosPlanMailController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_send', path: '/verfahren/{procedureId}/mailconfirm', methods: ['POST'])]
     public function sendAllSubmittersConfirmSendAction(
         CurrentUserService $currentUser,
         Request $request,

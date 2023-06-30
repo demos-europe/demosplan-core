@@ -13,11 +13,11 @@
     :data-cy="filterItem.attributes.label">
     <label
       :for="filterItem.id"
-      class="layout__item u-1-of-3 u-pl-0 text--right">
+      class="layout__item u-1-of-3 u-pl-0 text-right">
       <dp-loading
         v-if="isUpdating"
         hide-label
-        class="display--inline-block u-mr-0_5" />
+        class="inline-block u-mr-0_5" />
       {{ filterItem.attributes.label }}
     </label><!--
 

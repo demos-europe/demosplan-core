@@ -22,7 +22,7 @@ omitCssPrefix {Boolean}     set to false will add a css prefix from parameters.y
 {% set class = class|default ~ ' ' ~ width ~ ' o-form__control-input'  %}
 
 {% if style|default == 'inline' %}
-    {% set class = class|default ~ ' display--inline' %}
+    {% set class = class|default ~ ' inline' %}
 {% endif %}
 
 {% if disabled|default(false) == false %}

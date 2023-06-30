@@ -102,7 +102,7 @@
           required />
         <dp-multiselect
           v-model="currentProcedureType"
-          class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
+          class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
           label="name"
           :options="procedureTypes"
           required
@@ -185,7 +185,7 @@
         <couple-token-input :token-length="tokenLength" />
       </div>
 
-      <div class="space-inline-s text--right">
+      <div class="space-inline-s text-right">
         <dp-button
           id="saveBtn"
           :text="Translator.trans('save')"

@@ -18,14 +18,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssignService extends CoreService
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(private readonly TokenStorageInterface $tokenStorage)
     {
-        $this->tokenStorage = $tokenStorage;
     }
 
     /**

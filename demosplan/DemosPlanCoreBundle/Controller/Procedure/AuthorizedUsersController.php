@@ -28,18 +28,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AuthorizedUsersController extends BaseController
 {
     /**
-     * @Route(
-     *     "/verfahren/{procedureId}/berechtigte",
-     *      name="dplan_admin_procedure_authorized_users",
-     *      methods={"HEAD", "GET"}
-     * )
-     *
      * @DplanPermissions("area_admin_consultations")
      */
+    #[Route(path: '/verfahren/{procedureId}/berechtigte', name: 'dplan_admin_procedure_authorized_users', methods: ['HEAD', 'GET'])]
     public function listAction(string $procedureId)
     {
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_authorized_users_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_authorized_users_list.html.twig',
             [
                 'procedure'    => $procedureId,
                 'title'        => 'authorized.users',
@@ -48,14 +43,9 @@ class AuthorizedUsersController extends BaseController
     }
 
     /**
-     * @Route(
-     *     "/verfahren/{procedureId}/berechtigte/export",
-     *      name="dplan_admin_procedure_authorized_users_export",
-     *      methods={"HEAD", "GET"}, options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_consultations")
      */
+    #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', methods: ['HEAD', 'GET'], options: ['expose' => true])]
     public function exportAction(
         ConsultationTokenService $consultationTokenService,
         CurrentUserInterface $currentUser,
