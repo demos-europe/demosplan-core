@@ -232,7 +232,7 @@ class PlatformFaq extends CoreEntity implements FaqInterface
     /**
      * Get Roles.
      *
-     * @return Collection<int, Role>
+     * @return Collection<int, RoleInterface>
      */
     public function getRoles(): Collection
     {
