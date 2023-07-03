@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Tools;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -26,7 +25,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Monolog\Logger;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
-use PhpAmqpLib\Exception\AMQPTimeoutException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -72,7 +70,9 @@ class ServiceImporter implements ServiceImporterInterface
         private readonly MessageBagInterface $messageBag,
         private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
+        private readonly PdfCreatorInterface $pdfCreator,
         private readonly RouterInterface $router,
+        RouterInterface $router,
         RpcClient $client
     ) {
         $this->client = $client;
@@ -118,45 +118,7 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function exportPdfWithRabbitMQ($content, $pictures = [])
     {
-        $payload = [
-            'file' => $content,
-        ];
-        $payload = array_merge($payload, $pictures);
-        $msg = Json::encode($payload);
-
-        $this->getLogger()->debug(
-            'Export pdf with RabbitMQ, with routingKey: '.$this->globalConfig->getProjectPrefix());
-        $this->getLogger()->debug(
-            'Content to send to RabbitMQ: '.DemosPlanTools::varExport(base64_decode($content), true));
-        $this->getLogger()->debug(
-            'Number of pictures send to RabbitMQ: '.count($pictures));
-
-        try {
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-            $this->client->addRequest($msg, 'pdfDemosPlan', 'exportPDF', $routingKey, 600);
-            $replies = $this->client->getReplies();
-            $this->getLogger()->debug('Got replies ', [DemosPlanTools::varExport($replies, true)]);
-
-            $exportResult = Json::decodeToArray($replies['exportPDF']);
-            if (null === $exportResult) {
-                $this->getLogger()->error('Reply from RabbitMQ: ', [DemosPlanTools::varExport($replies, true)]);
-                throw new Exception('Could not decode export result');
-            } elseif (!isset($exportResult['file'])) {
-                $this->getLogger()->error('AMPQResult has wrong format ', [DemosPlanTools::varExport($exportResult, true)]);
-                throw new Exception('AMPQResult has wrong format');
-            }
-
-            return $exportResult['file'];
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException('Timeout ');
-        } catch (Exception $e) {
-            $this->getLogger()->error('Could not create PDF ', [$e]);
-            throw new Exception('Could not create PDF ');
-        }
+        return $this->pdfCreator->createPdf($content, $pictures);
     }
 
     /**
