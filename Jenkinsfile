@@ -121,9 +121,14 @@ pipeline {
         }
     }
 
-//    post {
-//        always{
-//            sh 'docker rm -f $containerName'
-//        }
-//    }
+    post {
+        always {
+            script {
+                def containerExists = sh(script: "docker ps -a -q -f name=$containerName", returnStdout: true).trim()
+                if (containerExists) {
+                    sh "docker rm -f $containerName"
+                }
+            }
+        }
+    }
 }
