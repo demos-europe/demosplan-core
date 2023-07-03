@@ -89,7 +89,7 @@ pipeline {
                         stage("Jest Tests") {
                             steps {
                                  script {
-                                    npmTest = _dockerExecAsUser('yarn test --ci', containerName)
+                                    npmTest = _dockerExecAsUser('yarn test --maxWorkers=1 --ci', containerName)
                                     sh "$npmTest"
                                 }
                             }
