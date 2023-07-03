@@ -41,6 +41,7 @@ parameters:
         - 'cdnjs.cloudflare.com'
 
     rabbitmq_routing_disabled: true
+    tex2pdf_url: "http://pdflatex-api"
 
     gateway_url: '/app_dev.php/dplan/login'
 
@@ -53,3 +54,6 @@ parameters:
     url_scheme: http
 
     wegewerk_dev_mode_rewrite: true
+
+services:
+    demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'
