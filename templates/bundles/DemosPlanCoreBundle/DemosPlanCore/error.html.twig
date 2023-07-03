@@ -1,7 +1,16 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
-{% block component_part %}
-    <h1>{{ templateTitle }}</h1>
-    <p>Ein technischer Fehler ist aufgetreten. Bitte überprüfen Sie die zuletzt durchgeführte Aktion und wiederholen Sie
-        sie gegebenenfalls.</p>
 
+{% block component_part %}
+    <h1>
+        {{ templateTitle }}
+    </h1>
+    <p>
+        Ein technischer Fehler ist aufgetreten. Bitte überprüfen Sie die zuletzt durchgeführte Aktion und wiederholen Sie
+        sie gegebenenfalls.
+    </p>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}

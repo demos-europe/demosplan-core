@@ -24,12 +24,6 @@ monolog:
             action_level: "%symfony_loglevel%"
             handler: file
             channels: ["!event"]
-        sentry:
-            type: service
-            id: demosplan\DemosPlanCoreBundle\Monolog\SentryHandler
-            dsn: "%sentry_dsn%"
-            level: "%sentry_loglevel%"
-            release: "%project_version%"
         deprecations:
             type: stream
             level: INFO

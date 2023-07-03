@@ -25,7 +25,7 @@ class LoadWorkflowPlaceData extends TestFixture implements DependentFixtureInter
     final public const PLACE_EDITORIAL = 'editorial';
     final public const PLACE_COMPLETED = 'completed';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Procedure $procedure */
         $procedure = $this->getReference(LoadProcedureData::TESTPROCEDURE);

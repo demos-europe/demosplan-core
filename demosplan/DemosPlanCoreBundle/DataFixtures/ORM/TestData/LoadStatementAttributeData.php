@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadStatementAttributeData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $statementAttribute1 = new StatementAttribute();
         $statementAttribute1->setType('priorityAreaType');
