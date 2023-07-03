@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
-class GetDatasheetFilePathAbsoluteEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetVersionEventInterface;
+use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+
+class GetDatasheetFilePathAbsoluteEvent extends DPlanEvent implements GetDatasheetVersionEventInterface
 {
     private string $datasheetFilePathAbsolute;
 
