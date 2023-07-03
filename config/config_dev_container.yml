@@ -42,6 +42,7 @@ parameters:
 
     rabbitmq_routing_disabled: true
     tex2pdf_url: "http://pdflatex-api"
+    docx_importer_route: "http://docx-importer"
 
     gateway_url: '/app_dev.php/dplan/login'
 
@@ -56,4 +57,5 @@ parameters:
     wegewerk_dev_mode_rewrite: true
 
 services:
+    demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterHttp'
     demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'
