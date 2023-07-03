@@ -24,7 +24,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
@@ -33,9 +32,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -52,7 +48,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SecurityUserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface, AddonUserInterface
+class User implements SamlUserInterface, AddonUserInterface
 {
     /**
      * @var string|null
