@@ -33,7 +33,7 @@ def _dockerExecAsRoot(String command, String containerName) {
 }
 
 pipeline {
-    agent {label 'docker && metal'}
+    agent {label 'special'}
     options {
         timeout(time: 1, unit: 'HOURS')
         buildDiscarder(logRotator(numToKeepStr: "10", daysToKeepStr: "10"))
