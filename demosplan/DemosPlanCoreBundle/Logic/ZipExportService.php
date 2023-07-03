@@ -60,7 +60,7 @@ class ZipExportService
             // set maximum filesize to load into memory to 120 MB
             $options->setLargeFileSize(120 * 1024 * 1024);
             // do not compress large files. Store should be default but somehow isn't if not set
-            $options->setLargeFileMethod(Method::STORE);
+            $options->setLargeFileMethod(Method::STORE());
 
             $zip = new ZipStream($name, $options);
             $fillZipFunction($zip);
@@ -72,7 +72,7 @@ class ZipExportService
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
         $fileOptions = new File();
-        $fileOptions->setMethod(Method::STORE);
+        $fileOptions->setMethod(Method::STORE());
         $zip->addFileFromPath($zipPath, $filePath, $fileOptions);
 
         $this->logger->info('Added File to Zip');
