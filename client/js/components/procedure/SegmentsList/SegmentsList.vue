@@ -199,7 +199,7 @@
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
+              :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
               {{ Translator.trans('original.pdf') }}
             </a>

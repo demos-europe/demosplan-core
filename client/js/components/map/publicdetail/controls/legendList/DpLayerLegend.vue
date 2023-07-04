@@ -29,7 +29,7 @@
           <a
             :class="prefixClass('c-map__group-item display--block')"
             target="_blank"
-            :href="Routing.generate('core_file', { hash: planPdf.hash })"
+            :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedureId: procedureId})"
             :title="planPdfTitle">
             <i
               :class="prefixClass('fa fa-download')"
@@ -52,7 +52,7 @@
             <a
               :class="prefixClass('c-map__group-item display--block')"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: layer.legend.hash })"
+              :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedureId: procedureId })"
               :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
               {{ layer.name }}
             </a>
@@ -85,7 +85,12 @@ export default {
     planPdf: {
       type: Object,
       default: () => ({})
-    }
+    },
+
+  procedureId: {
+    type: String,
+    required: true
+  }
   },
 
   data () {

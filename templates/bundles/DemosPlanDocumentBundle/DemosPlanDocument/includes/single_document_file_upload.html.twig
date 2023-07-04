@@ -3,7 +3,7 @@
         id="r_document"
         allowed-file-types="pdf-zip-video"
         :get-file-by-hash="(hash) => {
-           return Routing.generate('core_file', { hash: hash })
+           return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.zip.mp4'),
@@ -21,7 +21,7 @@
         id="r_document"
         allowed-file-types="pdf-video"
         :get-file-by-hash="(hash) => {
-           return Routing.generate('core_file', { hash: hash })
+           return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.mp4'),

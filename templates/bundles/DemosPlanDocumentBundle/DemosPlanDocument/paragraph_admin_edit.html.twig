@@ -79,7 +79,7 @@
                 table: true
             }"
             :routes="{
-              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
+             getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
             }"
             procedure-id="{{ procedure }}"
             :required="true">
