@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
