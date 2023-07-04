@@ -18,6 +18,7 @@ use Doctrine\Common\Annotations\Reader;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -72,21 +73,10 @@ class CheckPermissionListener
         // Method
         $reflectionMethod = $reflectionClass->getMethod($methodName);
         try {
-            /** @var DplanPermissions $dplanPermissions */
-            $dplanPermissions = $this->reader->getMethodAnnotation($reflectionMethod, DplanPermissions::class);
-
-            if (null === $dplanPermissions) {
-                $className = $controller::class;
-                trigger_error(
-                    "{$className}::{$methodName} does not use the @DplanPermissions annotation yet",
-                    E_USER_DEPRECATED
-                );
-
-                return;
-            }
+            $dplanPermissions = $this->getDplanPermissions($reflectionMethod);
 
             // perform initialize with permissions from annotation
-            $this->initializeService->initialize($dplanPermissions->getPermissions());
+            $this->initializeService->initialize($dplanPermissions);
         } catch (Exception $e) {
             // fallback if everything fails
             $redirectResponse = new RedirectResponse($this->router->generate('core_home'));
@@ -103,5 +93,28 @@ class CheckPermissionListener
 
             $event->setController(static fn () => $redirectResponse);
         }
+    }
+
+    private function getDplanPermissions(ReflectionMethod $reflectionMethod): array
+    {
+        $dplanPermissions = [];
+
+        // Check if there is a DplanPermissions-Attribute. If so, get the permissions
+        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions::class);
+        if (0 < count($dplanPermissionsAttributes)) {
+            $dplanPermissions = $dplanPermissionsAttributes[0]->newInstance()->getPermissions();
+        }
+
+        // If dplanPermissions is still empty, check for annotation
+        if ([] === $dplanPermissions) {
+            /** @var DplanPermissions $dplanPermissionsAnnotation */
+            $dplanPermissionsAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, DplanPermissions::class);
+
+            if (null !== $dplanPermissionsAnnotation) {
+                $dplanPermissions = $dplanPermissionsAnnotation->getPermissions();
+            }
+        }
+
+        return $dplanPermissions;
     }
 }
