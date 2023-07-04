@@ -332,8 +332,9 @@ class ServiceImporter implements ServiceImporterInterface
                             $stringToReplace = '/file/'.substr($f, 2);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
-                                $this->router->generate('core_file', [
-                                    'hash' => $hash,
+                                $this->router->generate('core_file_procedure', [
+                                    'hash'        => $hash,
+                                    'procedureId' => $procedureId,
                                 ]),
                                 $paragraph['text']
                             );

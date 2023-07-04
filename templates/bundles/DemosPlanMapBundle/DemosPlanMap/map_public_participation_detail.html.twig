@@ -302,7 +302,7 @@
                         class="{{ 'c-map__tool o-link--default'|prefixClass }}"
                         target="_blank"
                         rel="noopener"
-                        href="{{ path('core_file', { 'hash': procedureSettings.planDrawPDF|getFile('hash') }) }}"
+                        href="{{ path('core_file_procedure', { 'hash': procedureSettings.planDrawPDF|getFile('hash'), 'procedureId': procedure|default() }) }}"
                         title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
                         <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
                         {{ "drawing.download"|trans }}
@@ -327,7 +327,8 @@
                 <dp-layer-legend
                     v-show="Boolean({{ display_legend_box }})"
                     :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
+                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
+                    procedure-id="{{ procedure|default('') }}">
                 </dp-layer-legend>
 
                 {# Zoom to extend, measure length + area #}
