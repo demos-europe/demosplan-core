@@ -445,20 +445,22 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // save status counts
-        $esResultMeta = $statementQueryResult->getFilterSet();
-        $aggregations = $esResultMeta['filters'];
+        $aggregations = $statementQueryResult->getFilterSet()['filters'];
         foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-            $statusValue = $aggregationBucket['value'];
-            $statusCount = $aggregationBucket['count'];
-            $statementStatusData[$statusValue]['count'] = $statusCount;
+            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                $statusValue = $aggregationBucket['value'];
+                $statusCount = $aggregationBucket['count'];
+                $statementStatusData[$statusValue]['count'] = $statusCount;
+                $statementStatusData[$statusValue]['freq'] = $priorityInitialValues;
 
-            // add link with filterhash to assessment table
-            if (0 < $statusCount) {
-                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                    $statusValue,
-                    $procedureId,
-                    'statement'
-                );
+                // add link with filterhash to assessment table
+                if (0 < $statusCount) {
+                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                        $statusValue,
+                        $procedureId,
+                        'statement'
+                    );
+                }
             }
         }
 
