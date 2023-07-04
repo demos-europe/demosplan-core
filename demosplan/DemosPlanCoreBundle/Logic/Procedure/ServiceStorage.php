@@ -404,7 +404,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
-        if (array_key_exists('agency_main_email_address ', $data)) {
+        if (array_key_exists('agency_main_email_address', $data)) {
             $procedure['agencyMainEmailAddress'] = $data['agency_main_email_address'];
         }
 
