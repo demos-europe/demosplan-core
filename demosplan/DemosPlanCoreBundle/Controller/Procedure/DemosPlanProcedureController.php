@@ -2143,7 +2143,7 @@ class DemosPlanProcedureController extends BaseController
 
         $emailTextAdded = '';
         if ($this->permissions->hasPermission('feature_email_invitable_institution_additional_invitation_text')) {
-            $agencyMainEmailAddress = isset($procedureAsArray['agencyMainEmailAddress']) && $procedureAsArray['agencyMainEmailAddress'] !== null ? $procedureAsArray['agencyMainEmailAddress'] : '';
+            $agencyMainEmailAddress = isset($procedureAsArray['agencyMainEmailAddress']) && null !== $procedureAsArray['agencyMainEmailAddress'] ? $procedureAsArray['agencyMainEmailAddress'] : '';
             $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $agencyMainEmailAddress);
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
