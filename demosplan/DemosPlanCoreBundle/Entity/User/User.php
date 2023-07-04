@@ -48,7 +48,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements AddonUserInterface
 {
     /**
      * @var string|null
@@ -322,7 +322,7 @@ class User implements SamlUserInterface, AddonUserInterface
      * As one user might belong only to one organisation another "twin" user is needed to fulfill
      * this purpose.
      *
-     * @var SecurityUserInterface|null
+     * @var AddonUserInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
      *
@@ -1281,7 +1281,7 @@ class User implements SamlUserInterface, AddonUserInterface
         $this->rolesAllowed = $roles;
     }
 
-    public function getTwinUser(): ?SecurityUserInterface
+    public function getTwinUser(): ?AddonUserInterface
     {
         return $this->twinUser;
     }
@@ -1291,7 +1291,7 @@ class User implements SamlUserInterface, AddonUserInterface
         return null !== $this->twinUser;
     }
 
-    public function setTwinUser(?AddonUserInterface $twinUser): SecurityUserInterface
+    public function setTwinUser(?AddonUserInterface $twinUser): AddonUserInterface
     {
         $this->twinUser = $twinUser;
 
