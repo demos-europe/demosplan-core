@@ -253,7 +253,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             $messages = collect($mandatoryErrors)->map(
-                fn($array) => collect($array)->only('message'))->flatten()->toArray();
+                fn ($array) => collect($array)->only('message'))->flatten()->toArray();
 
             throw new ContentMandatoryFieldsException($messages, 'Mandatory fields are missing');
         }
