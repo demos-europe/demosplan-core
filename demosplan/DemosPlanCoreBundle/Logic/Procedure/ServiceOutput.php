@@ -533,13 +533,6 @@ class ServiceOutput
         if (isset($procedure['phase']) && isset($internalPhases[$procedure['phase']])) {
             $procedure['phaseName'] = $internalPhases[$procedure['phase']]['name'];
         }
-
-        $procedure['agencyMainEmailAddress'] = '';
-        $internalPhases = $this->config->getInternalPhasesAssoc();
-        if (isset($procedure['agencyMainEmail']) && isset($internalPhases[$procedure['agencyMainEmail']])) {
-            $procedure['agencyMainEmailAddress'] = $internalPhases[$procedure['agencyMainEmail']]['address'];
-        }
-
         // Öffentlichkeitsbeteiligung
         $procedure['publicParticipationPhaseName'] = '';
         $externalPhases = $this->config->getExternalPhasesAssoc();

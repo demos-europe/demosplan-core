@@ -403,11 +403,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
         }
-
-        if (array_key_exists('agency_main_email_address', $data)) {
-            $procedure['agencyMainEmailAddress'] = $data['agency_main_email_address'];
-        }
-
         if (array_key_exists('r_startdate', $data) && '----' != $data['r_startdate']) {
             $procedure['startDate'] = $data['r_startdate'];
         }
