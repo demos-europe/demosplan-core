@@ -272,7 +272,7 @@ function buildListAsHtmlString (list) {
  * @return {string}
  */
 function prepareDataBeforeParsingMso (slice) {
-  const x = slice
+  return slice
     // Strip head
     .replace(/<head>(.|\n|\r)*?<\/head>/mi, '')
     // Strip line breaks
@@ -291,9 +291,6 @@ function prepareDataBeforeParsingMso (slice) {
         .replace(/(&nbsp;|\s|\\r|\\n|\r|\n)/gmi, '')
       return `<span data-val-${p1}="${listStyleType}" />`
     })
-
-  console.log(x, slice)
-  return x
 }
 
 /**
