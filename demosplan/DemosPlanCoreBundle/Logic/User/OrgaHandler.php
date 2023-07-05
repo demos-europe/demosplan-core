@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 
 class OrgaHandler extends CoreHandler
 {

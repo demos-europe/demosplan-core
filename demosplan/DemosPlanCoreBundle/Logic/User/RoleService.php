@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 
 class RoleService extends CoreService
 {

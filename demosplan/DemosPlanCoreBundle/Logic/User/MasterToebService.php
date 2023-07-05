@@ -27,6 +27,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 
 class MasterToebService extends CoreService
 {
