@@ -276,7 +276,7 @@ function prepareDataBeforeParsingMso (slice) {
     // Strip head
     .replace(/<head>(.|\n|\r)*?<\/head>/mi, '')
     // Strip line breaks
-    .replace(/(\r\n)+?/gmi, ' ')
+    .replace(/(\r\n)+/gmi, ' ')
     // Strip html wrapper and remove conentless and non html like elements "<o:p>"
     .replace(/<(\/)?(html|o:p)[^>]*>/gmi, '')
     /*
