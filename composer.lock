@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b48e852284878168e7dd46e4809cc5a2",
+    "content-hash": "440be75d0ad7f47741f534775299b6f6",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -3957,16 +3957,16 @@
         },
         {
             "name": "exercise/htmlpurifier-bundle",
-            "version": "4.1.1",
+            "version": "4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Exercise/HTMLPurifierBundle.git",
-                "reference": "153e71b36d90060b5ba52efdec75d6b4bf0fe9bd"
+                "reference": "526c98e5b6ca712874d6422b98f32233b81f4c19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Exercise/HTMLPurifierBundle/zipball/153e71b36d90060b5ba52efdec75d6b4bf0fe9bd",
-                "reference": "153e71b36d90060b5ba52efdec75d6b4bf0fe9bd",
+                "url": "https://api.github.com/repos/Exercise/HTMLPurifierBundle/zipball/526c98e5b6ca712874d6422b98f32233b81f4c19",
+                "reference": "526c98e5b6ca712874d6422b98f32233b81f4c19",
                 "shasum": ""
             },
             "require": {
@@ -4013,9 +4013,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Exercise/HTMLPurifierBundle/issues",
-                "source": "https://github.com/Exercise/HTMLPurifierBundle/tree/4.1.1"
+                "source": "https://github.com/Exercise/HTMLPurifierBundle/tree/4.1.2"
             },
-            "time": "2022-08-29T10:31:19+00:00"
+            "time": "2023-07-05T07:14:30+00:00"
         },
         {
             "name": "ezimuel/guzzlestreams",
@@ -6928,16 +6928,16 @@
         },
         {
             "name": "lexik/jwt-authentication-bundle",
-            "version": "v2.19.0",
+            "version": "v2.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lexik/LexikJWTAuthenticationBundle.git",
-                "reference": "1305d7ec0ee540340d9041bd97659a13a0d1e6ed"
+                "reference": "2db3658bcb7902b63f09f23ebbefa77a94d3f55d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/1305d7ec0ee540340d9041bd97659a13a0d1e6ed",
-                "reference": "1305d7ec0ee540340d9041bd97659a13a0d1e6ed",
+                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/2db3658bcb7902b63f09f23ebbefa77a94d3f55d",
+                "reference": "2db3658bcb7902b63f09f23ebbefa77a94d3f55d",
                 "shasum": ""
             },
             "require": {
@@ -7031,7 +7031,7 @@
             ],
             "support": {
                 "issues": "https://github.com/lexik/LexikJWTAuthenticationBundle/issues",
-                "source": "https://github.com/lexik/LexikJWTAuthenticationBundle/tree/v2.19.0"
+                "source": "https://github.com/lexik/LexikJWTAuthenticationBundle/tree/v2.19.1"
             },
             "funding": [
                 {
@@ -7043,7 +7043,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-06T15:58:15+00:00"
+            "time": "2023-07-04T01:04:21+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -17990,16 +17990,16 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "5.0.0",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "811fff5e9cf16471d350d8d3d0d09127bfe31b1e"
+                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/811fff5e9cf16471d350d8d3d0d09127bfe31b1e",
-                "reference": "811fff5e9cf16471d350d8d3d0d09127bfe31b1e",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
+                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
                 "shasum": ""
             },
             "require": {
@@ -18052,9 +18052,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/5.0.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/5.1.0"
             },
-            "time": "2021-12-02T07:27:01+00:00"
+            "time": "2023-07-03T21:26:41+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
