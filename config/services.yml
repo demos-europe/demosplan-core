@@ -45,6 +45,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
 
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
+
     DemosEurope\DemosplanAddon\Contracts\ApiClientInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
 
@@ -1131,9 +1134,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
-
-    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
 
     demosplan\DemosPlanCoreBundle\Logic\User\AddressService:
         lazy: true
