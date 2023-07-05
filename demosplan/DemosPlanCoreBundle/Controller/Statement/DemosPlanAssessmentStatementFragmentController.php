@@ -28,7 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;

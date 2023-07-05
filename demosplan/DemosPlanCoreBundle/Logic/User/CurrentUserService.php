@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -20,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecur
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\NotAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
@@ -42,7 +45,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(User $user, Customer $customer = null): void
+    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);

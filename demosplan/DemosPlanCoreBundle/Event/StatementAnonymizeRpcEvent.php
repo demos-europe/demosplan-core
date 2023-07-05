@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 
 class StatementAnonymizeRpcEvent extends RpcEvent
 {

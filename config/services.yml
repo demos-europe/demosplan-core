@@ -1132,6 +1132,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
 
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
+
     demosplan\DemosPlanCoreBundle\Logic\User\AddressService:
         lazy: true
 
