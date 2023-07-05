@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -35,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -621,7 +621,7 @@ class ExportService
         }
 
         $currentUserOrgaId = $this->currentUser->getUser()->getOrganisationId();
-        $containsCurrentUserOrga = collect($organisations)->filter(static fn(Orga $orga) => $orga->getId() === $currentUserOrgaId);
+        $containsCurrentUserOrga = collect($organisations)->filter(static fn (Orga $orga) => $orga->getId() === $currentUserOrgaId);
 
         return 0 < $containsCurrentUserOrga->count();
     }
@@ -806,7 +806,7 @@ class ExportService
         string $fileNamePrefix,
         Collection $attachments
     ): void {
-        collect($attachments)->filter(static fn(StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->map(fn(StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo($attachment->getFile()->getId()))->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+        collect($attachments)->filter(static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->map(fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo($attachment->getFile()->getId()))->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
             $this->zipExportService->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
         });
     }

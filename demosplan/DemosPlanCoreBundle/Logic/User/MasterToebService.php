@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
@@ -27,7 +28,6 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 
 class MasterToebService extends CoreService
 {
@@ -417,7 +417,7 @@ class MasterToebService extends CoreService
         /** @var Orga $result */
         foreach ($results as $result) {
             $userNames = $result->getUsers()->map(
-                static fn(User $user): string => $user->getFullname())->toArray();
+                static fn (User $user): string => $user->getFullname())->toArray();
             $departmentNames = [];
             /** @var Department $orgaDepartment */
             foreach ($result->getDepartments() as $orgaDepartment) {
@@ -464,7 +464,7 @@ class MasterToebService extends CoreService
 
             $arrayOfResults[] = $masterToebArray;
         }
-        usort($arrayOfResults, fn($a, $b) => strcmp(strtolower((string) $a['orgaName']), strtolower((string) $b['orgaName'])));
+        usort($arrayOfResults, fn ($a, $b) => strcmp(strtolower((string) $a['orgaName']), strtolower((string) $b['orgaName'])));
 
         return $arrayOfResults;
     }

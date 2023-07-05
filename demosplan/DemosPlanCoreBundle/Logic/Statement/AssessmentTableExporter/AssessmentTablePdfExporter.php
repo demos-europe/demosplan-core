@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
@@ -152,13 +152,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // and they currently have no condensed exports
             if ('condensed' === $template && 'statementsOnly' !== $exportType) {
                 $institutionStatements = collect($statements)
-                    ->filter(static fn(array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+                    ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
 
                 $clusterStatements = collect($statements)
-                    ->filter(static fn(array $statement): bool => $statement['isClusterStatement'])->values();
+                    ->filter(static fn (array $statement): bool => $statement['isClusterStatement'])->values();
 
                 $publicStatements = collect($statements)
-                    ->filter(static fn(array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+                    ->filter(static fn (array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
 
                 $statements = $institutionStatements->merge($clusterStatements)
                     ->merge($publicStatements)

@@ -11,8 +11,8 @@
 namespace Tests\Project\Core\Unit\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ElasticSearchDefinitionProvider;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ElasticSearchDefinitionProvider;
 use InvalidArgumentException;
 use Tests\Base\UnitTestCase;
 
