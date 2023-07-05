@@ -17990,16 +17990,16 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "5.0.0",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "811fff5e9cf16471d350d8d3d0d09127bfe31b1e"
+                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/811fff5e9cf16471d350d8d3d0d09127bfe31b1e",
-                "reference": "811fff5e9cf16471d350d8d3d0d09127bfe31b1e",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
+                "reference": "820a1fa45b9c84c262606e77bc9cadd1c8ad5953",
                 "shasum": ""
             },
             "require": {
@@ -18052,9 +18052,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/5.0.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/5.1.0"
             },
-            "time": "2021-12-02T07:27:01+00:00"
+            "time": "2023-07-03T21:26:41+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
