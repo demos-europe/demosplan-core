@@ -30,7 +30,7 @@
       }"
       name="r_url"
       required
-      @input="getLayerCapabilities"
+      @blur="getLayerCapabilities"
       @enter="getLayerCapabilities" />
 
     <dp-select
