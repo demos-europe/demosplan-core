@@ -53,7 +53,7 @@ class DocxImporterHttp implements DocxImporterInterface
             ];
         } catch (Exception $e) {
             $this->logger->error('Error while creating docx with http: '.$e->getMessage());
-            $this->logger->error('Response body: '. $response->getContent(false));
+            $this->logger->error('Response body: '. $response?->getContent(false) ?? '');
             throw $e;
         }
 
