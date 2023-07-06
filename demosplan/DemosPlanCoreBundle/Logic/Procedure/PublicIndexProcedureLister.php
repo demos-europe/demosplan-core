@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -115,7 +115,7 @@ class PublicIndexProcedureLister
             $orga = $this->orgaService->findOrgaBySlug($orgaSlug);
             $orgaId = $orga->getId();
 
-            $procedures['list']['procedurelist'] = array_filter($procedures['list']['procedurelist'], fn($procedure) => $procedure['orgaId'] === $orgaId);
+            $procedures['list']['procedurelist'] = array_filter($procedures['list']['procedurelist'], fn ($procedure) => $procedure['orgaId'] === $orgaId);
         }
 
         return $procedures;
