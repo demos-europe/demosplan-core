@@ -209,11 +209,11 @@ class ProcedureExtension extends ExtensionBase
             try {
                 $procedureObject = $this->getProcedureObject($procedure);
             } catch (Exception $exception) {
-                throw new RuntimeException('Got unretrievable procedure: ' . var_export($procedure, true), 0, $exception);
+                throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true), 0, $exception);
             }
-            return $this->getEndDateFromProcedureObject($procedureObject, $type);
 
-        }else{
+            return $this->getEndDateFromProcedureObject($procedureObject, $type);
+        } else {
             if (!is_array($procedure)
                 || (
                     is_array($procedure)
@@ -223,10 +223,6 @@ class ProcedureExtension extends ExtensionBase
                 throw new RuntimeException('Got empty procedure: '.var_export($procedure, true));
             }
         }
-
-
-
-
     }
 
     protected function getEndDateFromProcedureObject(Procedure $procedure, $type)
