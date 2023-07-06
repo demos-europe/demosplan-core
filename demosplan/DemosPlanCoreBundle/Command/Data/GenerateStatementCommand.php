@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use EFrane\ConsoleAdditions\Batch\Batch;
