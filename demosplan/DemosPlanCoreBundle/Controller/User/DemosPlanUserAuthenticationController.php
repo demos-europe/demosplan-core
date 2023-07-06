@@ -182,6 +182,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * This Action is only needed to define the routes.
      * Authentication is handled via guards located in Security/Authentication.
      */
+    #[Route(name: 'DemosPlan_user_login_gateway', path: '/redirect/')]
+    #[Route(name: 'DemosPlan_user_login_osi_legacy', path: '/user/login/osi/legacy')]
     #[Route(name: 'DemosPlan_user_login', path: '/user/login', options: ['expose' => true])]
     public function loginAction(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
     {
