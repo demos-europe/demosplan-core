@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -42,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
@@ -64,7 +64,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Exception\ClientException;
@@ -343,14 +342,14 @@ class StatementFragmentService extends CoreService
         // only fields to return
         $versions = \collect($fragment['versions'])
             ->filter(
-                fn($version) => array_key_exists('modifiedByDepartmentId', $version)
+                fn ($version) => array_key_exists('modifiedByDepartmentId', $version)
                     && $version['modifiedByDepartmentId'] == $departmentId
             )->filter(
                 function ($version) use (&$currentValues) {
                     return $this->hasModifiedValues($version, $currentValues);
                 }
             )
-            ->transform(fn($fragment) => \collect($fragment)
+            ->transform(fn ($fragment) => \collect($fragment)
                 ->only($fieldsToReturn)
                 ->toArray())
             ->values()
