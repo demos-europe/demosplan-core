@@ -205,7 +205,15 @@ class ProcedureExtension extends ExtensionBase
      */
     public function getEndDate($procedure, $type = 'auto')
     {
-        if (false === $procedure instanceof Procedure) {
+        if ($procedure instanceof Procedure) {
+            try {
+                $procedureObject = $this->getProcedureObject($procedure);
+            } catch (Exception $exception) {
+                throw new RuntimeException('Got unretrievable procedure: ' . var_export($procedure, true), 0, $exception);
+            }
+            return $this->getEndDateFromProcedureObject($procedureObject, $type);
+
+        }else{
             if (!is_array($procedure)
                 || (
                     is_array($procedure)
@@ -216,13 +224,9 @@ class ProcedureExtension extends ExtensionBase
             }
         }
 
-        try {
-            $procedureObject = $this->getProcedureObject($procedure);
-        } catch (Exception $exception) {
-            throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true), 0, $exception);
-        }
 
-        return $this->getEndDateFromProcedureObject($procedureObject, $type);
+
+
     }
 
     protected function getEndDateFromProcedureObject(Procedure $procedure, $type)
