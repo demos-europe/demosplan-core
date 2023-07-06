@@ -60,7 +60,7 @@ export default {
     },
 
     messageRole () {
-      return (this.isVisible) ? 'result' : 'none'
+      return (this.isVisible) ? 'status' : 'none'
     }
   },
 
