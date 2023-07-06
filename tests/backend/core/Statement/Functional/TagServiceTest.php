@@ -9,14 +9,14 @@
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
-use demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Tests\Factory\Statement\TagFactory;
-use demosplan\DemosPlanCoreBundle\Tests\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Session\Session;
