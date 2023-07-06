@@ -54,7 +54,7 @@ pipeline {
                 }
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    commandDockerRun = 'docker run -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
+                    commandDockerRun = 'docker run --cpus=1 -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
                     commandExecYarn =  _dockerExecAsRoot('yarn install --prefer-offline --frozen-lockfile', containerName)
                     commandExecComposer = _dockerExecAsRoot('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
@@ -89,7 +89,7 @@ pipeline {
                         stage("Jest Tests") {
                             steps {
                                  script {
-                                    npmTest = _dockerExecAsUser('yarn test --ci', containerName)
+                                    npmTest = _dockerExecAsUser('yarn test --maxWorkers=1 --ci', containerName)
                                     sh "$npmTest"
                                 }
                             }
@@ -121,9 +121,14 @@ pipeline {
         }
     }
 
-//    post {
-//        always{
-//            sh 'docker rm -f $containerName'
-//        }
-//    }
+    post {
+        always {
+            script {
+                def containerExists = sh(script: "docker ps -a -q -f name=$containerName", returnStdout: true).trim()
+                if (containerExists) {
+                    sh "docker rm -f $containerName"
+                }
+            }
+        }
+    }
 }
