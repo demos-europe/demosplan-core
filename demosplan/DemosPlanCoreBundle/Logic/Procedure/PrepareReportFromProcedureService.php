@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -199,7 +199,7 @@ class PrepareReportFromProcedureService extends CoreService
             // compare Users using custom function instead of just casting a User instance to a string
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
-            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn(User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
+            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
             if (0 !== count($changes)) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());

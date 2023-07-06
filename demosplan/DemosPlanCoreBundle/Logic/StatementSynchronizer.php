@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
@@ -277,7 +277,7 @@ class StatementSynchronizer
             $fileContainerCopies[] = $newFileContainer;
         }
 
-        $targetStatement->setFiles(array_map(static fn(FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
+        $targetStatement->setFiles(array_map(static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
 
         return $fileContainers;
     }

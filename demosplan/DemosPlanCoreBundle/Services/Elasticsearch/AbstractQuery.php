@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Elastica\Query\AbstractQuery as AbstractQueryES;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -248,7 +248,7 @@ abstract class AbstractQuery
             : $this->configuredFilters[self::SCOPE_ALL] ?? [];
 
         // Get available filters by scope.
-        $scopedFilters = array_map(fn(string $scope): array => $this->configuredFilters[$scope] ?? [], $this->scopes);
+        $scopedFilters = array_map(fn (string $scope): array => $this->configuredFilters[$scope] ?? [], $this->scopes);
 
         return array_merge($configuredFilters, ...$scopedFilters);
     }
@@ -335,7 +335,7 @@ abstract class AbstractQuery
             return '' === $filter || null === $filter;
         }
         if (is_array($filter)) {
-            $filters = collect($filter)->reject(static fn($filterEntry) => '' === $filterEntry || null === $filterEntry);
+            $filters = collect($filter)->reject(static fn ($filterEntry) => '' === $filterEntry || null === $filterEntry);
 
             return 0 === $filters->count();
         }
@@ -544,7 +544,7 @@ abstract class AbstractQuery
         if (array_key_exists($type, $this->filters)) {
             $this->filters[$type] = collect($this->filters[$type])
                 // remove Filter
-                ->filter(fn($filter) =>
+                ->filter(fn ($filter) =>
                     /* @var FilterInterface $filter */
                     $fieldName !== $filter->getField())
                 // reset keys
