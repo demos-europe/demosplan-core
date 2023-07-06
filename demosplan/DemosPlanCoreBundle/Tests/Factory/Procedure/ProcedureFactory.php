@@ -29,20 +29,16 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Procedure[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Procedure[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class ProcedureFactory extends ModelFactory
+class ProcedureFactory extends ModelFactory
 {
     private GlobalConfigInterface $globalConfig;
 
     public function __construct(GlobalConfigInterface $globalConfig)
     {
         parent::__construct();
+        $this->globalConfig = $globalConfig;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function getDefaults(): array
     {
         $slug = SlugFactory::createOne()->object();
@@ -53,46 +49,64 @@ final class ProcedureFactory extends ModelFactory
             'addSlug' => $slug,
             'currentSlug' => $slug,
             'deleted' => false,
-            'desc' => self::faker()->text(65535),
-            'externId' => self::faker()->text(25),
-            'externalDesc' => self::faker()->text(65535),
-            'externalName' => self::faker()->text(65535),
-            'locationName' => self::faker()->text(1024),
+            'desc' => self::faker()->text(400),
+            'externId' => self::faker()->numberBetween(1000, 9999),
+            'externalDesc' => self::faker()->text(400),
+            'externalName' => 'default Procedure',
+            'locationName' => self::faker()->country(),
             'locationPostCode' => self::faker()->text(5),
-            'logo' => self::faker()->text(255),
+            'logo' => self::faker()->uuid(),
             'master' => false,
             'masterTemplate' => false,
-            'municipalCode' => self::faker()->text(10),
+            'municipalCode' => self::faker()->countryCode(),
             'name' => 'default Procedure',
             'orgaName' => self::faker()->company(),
-            'phase' => self::faker()->word(), //todo
-            'plisId' => self::faker()->text(36),
-            'publicParticipation' => self::faker()->boolean(),
+            'phase' => $this->globalConfig->getInternalPhaseKeys('write')[0],
+            'plisId' => self::faker()->uuid(),
+            'publicParticipation' => true,
             'publicParticipationContact' => self::faker()->text(255),
-//            'publicParticipationEndDate' => self::faker()->dateTime(),
-            'publicParticipationPhase' => self::faker()->text(20),
+            'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('write')[0],
             'publicParticipationPublicationEnabled' => false,
-//            'publicParticipationStartDate' => self::faker()->dateTime(),
-            'publicParticipationStep' => self::faker()->text(25),
-            'shortUrl' => self::faker()->text(256),
-//            'startDate' => self::faker()->dateTime(),
-            'step' => self::faker()->text(25), //todo
-            'xtaPlanId' => self::faker()->text(50),
+            'publicParticipationStep' => self::faker()->text(10),
+            'shortUrl' => self::faker()->url(),
+            'step' => self::faker()->text(10),
+            'xtaPlanId' => self::faker()->uuid(),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): self
     {
-        return $this
-            // ->afterInstantiate(function(Procedure $procedure): void {})
-        ;
+        return $this;
     }
 
     protected static function getClass(): string
     {
         return Procedure::class;
+    }
+
+    public function inHiddenPhase(): self
+    {
+        return $this->addState([
+            'phase' => $this->globalConfig->getInternalPhaseKeys('hidden')[0],
+            'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('hidden')[0],
+            ]);
+    }
+
+    public function inReadingPhase(): self
+    {
+        return $this->addState([
+            'phase' => $this->globalConfig->getInternalPhaseKeys('read')[0],
+            'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('read')[0],
+        ]);
+    }
+
+    public function asDeleted(): self
+    {
+        return $this->addState(['deleted' => true]);
+    }
+
+    public function withoutPublicParticipation()
+    {
+        return $this->addState(['publicParticipation' => false]);
     }
 }
