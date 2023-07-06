@@ -1,6 +1,6 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Tests\Factory;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Repository\SlugRepository;

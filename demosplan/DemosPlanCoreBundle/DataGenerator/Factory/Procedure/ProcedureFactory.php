@@ -1,11 +1,11 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Tests\Factory\SlugFactory;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
@@ -105,7 +105,7 @@ class ProcedureFactory extends ModelFactory
         return $this->addState(['deleted' => true]);
     }
 
-    public function withoutPublicParticipation()
+    public function withoutPublicParticipation(): self
     {
         return $this->addState(['publicParticipation' => false]);
     }

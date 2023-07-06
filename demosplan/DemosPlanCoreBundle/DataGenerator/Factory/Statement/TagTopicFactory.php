@@ -1,10 +1,10 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Statement;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure\ProcedureFactory;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;

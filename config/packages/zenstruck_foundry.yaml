@@ -4,8 +4,9 @@ when@dev: &dev
         # Whether to auto-refresh proxies by default (https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#auto-refresh)
         auto_refresh_proxies: true
         faker:
-
-            # Change the default faker locale.
             locale: de_DE
-
+#            seed: null
+        make_factory:
+            # Namespace to use for make:factory. Is overridden by --namespace option
+            default_namespace: 'DataGenerator\Factory'
 when@test: *dev

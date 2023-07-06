@@ -1,6 +1,6 @@
 <?php
 
-namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Statement;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
