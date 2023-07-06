@@ -109,7 +109,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_export', path: '/news/export')]
-    public function globalnewsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator)
+    public function globalnewsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator)
     {
         $pdfName = $translator->trans('news.global.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -118,7 +118,7 @@ class DemosPlanNewsController extends BaseController
             'news.global.export'
         );
 
-        return $this->handleNewsExport($pdfContent, $pdfName);
+        return $this->handleNewsExport($pdfContent, $pdfName, $nameGenerator);
     }
 
     /**
@@ -131,7 +131,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_export', path: '/verfahren/{procedure}/aktuelles/export')]
-    public function newsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, string $procedure)
+    public function newsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator, string $procedure)
     {
         $pdfName = $translator->trans('news.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -140,7 +140,7 @@ class DemosPlanNewsController extends BaseController
             'news.export'
         );
 
-        return $this->handleNewsExport($pdfContent, $pdfName);
+        return $this->handleNewsExport($pdfContent, $pdfName, $nameGenerator);
     }
 
     /**

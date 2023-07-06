@@ -40,6 +40,7 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte/export', options: ['expose' => true])]
     public function exportAction(
+        NameGenerator $nameGenerator,
         ProcedureHandler $procedureHandler,
         SegmentsExporter $exporter,
         Slugify $slugify,
@@ -60,7 +61,7 @@ class SegmentsExportController extends BaseController
                     .'-'
                     .$statement->getExternId().'.docx';
 
-        $this->setResponseHeaders($response, $filename);
+        $this->setResponseHeaders($response, $filename, $nameGenerator);
 
         return $response;
     }
@@ -70,6 +71,7 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_statement_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/gruppiert', options: ['expose' => true])]
     public function exportByStatementsFilterAction(
+        NameGenerator $nameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
@@ -88,7 +90,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'), $nameGenerator);
 
         return $response;
     }
