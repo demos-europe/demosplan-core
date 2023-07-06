@@ -451,7 +451,6 @@ class DemosPlanProcedureController extends BaseController
                 $statusValue = $aggregationBucket['value'];
                 $statusCount = $aggregationBucket['count'];
                 $statementStatusData[$statusValue]['count'] = $statusCount;
-                $statementStatusData[$statusValue]['freq'] = $priorityInitialValues;
 
                 // add link with filterhash to assessment table
                 if (0 < $statusCount) {
