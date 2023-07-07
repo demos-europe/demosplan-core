@@ -383,6 +383,7 @@
     {# table for organisations and users #}
     <dp-data-table-extended
         track-by="user"
+        class="u-mt-0_5"
         is-sortable
         :header-fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"
         :table-items="JSON.parse('{{ items|json_encode|e('js', 'utf-8') }}')">
