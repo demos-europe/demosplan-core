@@ -1098,6 +1098,7 @@ error.login.or.email.not.unique: "Der angegebene Nutzername oder die angegebene 
 error.mandatoryfield: "Bitte füllen Sie auch das Feld \"{name}\" aus."
 error.mandatoryfields: "Bitte füllen Sie alle Pflichtfelder(*) korrekt aus. Erst dann können Sie Ihre Angaben speichern."
 error.mandatoryfields.no_asterisk: "Bitte füllen Sie alle Pflichtfelder korrekt aus. Erst dann können Sie Ihre Angaben speichern."
+error.mandatoryfields.missing_fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: {fields}. Erst dann können Sie Ihre Angaben speichern."
 error.mandatoryfields.send_email: "Bitte füllen Sie alle Pflichtfelder korrekt aus. Erst dann können Sie Ihre Stellungnahme versenden."
 error.missing.required.info: "Bitte füllen Sie alle Pflichtfelder(*) korrekt aus. Erst dann können Sie Ihre Angaben speichern."
 error.news.text.toolong: "Der Mitteilungstext ist zu lang. Bitte kürzen Sie ihn."
