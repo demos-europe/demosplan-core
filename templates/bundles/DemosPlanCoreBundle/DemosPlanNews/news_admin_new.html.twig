@@ -37,7 +37,7 @@
                 label="status"
                 :active-delay="JSON.parse('{{ templateVars.news.determinedToSwitch|default(false)|json_encode }}')"
                 date-id="r_designatedSwitchDate"
-                :status-options="[{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked'}]"
+                :status-options="[{ 'value': '1', 'label': 'released' }, {'value': '0', 'label': 'blocked' }]"
                 default-new-state="1"
                 default-current-state="0"
                 init-status="0">

@@ -19,7 +19,7 @@ All rights reserved
       delayed-switch-dropdown-id="id_for_the_dropdown_that_gets_send_if_the_checkbox_is_checked"
       label="trans.key"
       date-id="id_for_the_date_input"
-      :status-options="[{ 'value': 'myValue', 'label': 'trans.key.one'}, {'value': 'anotherValue', 'label': 'trans.key.two'}]"
+      :status-options="[{ 'value': 'myValue', 'label': Translator.trans('trans.key.one')}, {'value': 'anotherValue', 'label': Translator.trans('trans.key.two')}]"
       init-status="myValue" />
   </usage>
 </documentation>

@@ -6,7 +6,7 @@
     </h1>
     {% if hasPermission('feature_procedure_templates') %}
         {% set masterBlueprintId = templateVars.masterTemplateId %}
-        {% set copyMasterOptions = [{ label: 'master.empty', value: masterBlueprintId, isMaster: true }] %}
+        {% set copyMasterOptions = [{ label: 'master.empty'|trans, value: masterBlueprintId, isMaster: true }] %}
         {% if templateVars.list.procedures is defined %}
             {% for procedure in templateVars.list.procedures %}
                 {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default('----'), value: procedure.ident|default('----') }]) %}
