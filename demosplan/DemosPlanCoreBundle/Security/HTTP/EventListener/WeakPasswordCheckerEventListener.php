@@ -22,7 +22,9 @@ class WeakPasswordCheckerEventListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [CheckPassportEvent::class => ['checkPassport']];
+        // this should be handled after the CheckCredentialsListener::checkPassport() has veryfied
+        // that the users credentials are correct - therefore the negativ priority is set here. refs T32782:
+        return [CheckPassportEvent::class => ['checkPassport', -1]];
     }
 
     public function checkPassport(CheckPassportEvent $event): void
