@@ -6,8 +6,8 @@ require('vendor/autoload.php');
  * This is the migration script to transform demosplan/DemosPlanCoreBundle into src/
  */
 
-// TODO: Execute Doctrine Migrations
-    // TODO: First create the migrations
+// Execute Doctrine Migrations
+exec("doctrine:mig:execute --up 'Application\Migrations\Version20230707083308'");
 
 // TODO: Execute Rector for changing all namespaces
     // TODO: First create Rector rule
