@@ -25,7 +25,7 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('login.email')" />
           <slot />
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_email"
               data-cy="email"

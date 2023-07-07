@@ -13,6 +13,7 @@
     class="u-mt-0_5">
     <dp-data-table-extended
       ref="dataTable"
+      class="u-mt-0_5"
       :header-fields="headerFields"
       :table-items="rowItems"
       is-selectable
