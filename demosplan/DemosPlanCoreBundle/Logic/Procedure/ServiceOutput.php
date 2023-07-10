@@ -38,6 +38,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
 use function array_key_exists;
 use function is_array;
 
@@ -282,7 +283,7 @@ class ServiceOutput
         }
         usort(
             $orgaRes,
-            static fn(Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
+            static fn (Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
         );
 
         return [
@@ -315,7 +316,7 @@ class ServiceOutput
         }
         usort(
             $orga,
-            static fn(Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
+            static fn (Orga $a, Orga $b) => strcmp(strtolower((string) $a->getName()), strtolower((string) $b->getName()))
         );
 
         return $orga;
@@ -532,7 +533,6 @@ class ServiceOutput
         if (isset($procedure['phase']) && isset($internalPhases[$procedure['phase']])) {
             $procedure['phaseName'] = $internalPhases[$procedure['phase']]['name'];
         }
-
         // Öffentlichkeitsbeteiligung
         $procedure['publicParticipationPhaseName'] = '';
         $externalPhases = $this->config->getExternalPhasesAssoc();
