@@ -174,7 +174,8 @@
             "Tests\\Core\\": "tests/backend/core/",
             "Tests\\CoreApplication\\": "tests/backend/core-application/src/",
             "Tests\\Plugin\\": "tests/backend/plugins/",
-            "Tests\\Project\\": "tests/backend/projects/"
+            "Tests\\Project\\": "tests/backend/projects/",
+            "Utils\\Rector\\": "utils/rector/src"
         }
     },
     "extra": {
