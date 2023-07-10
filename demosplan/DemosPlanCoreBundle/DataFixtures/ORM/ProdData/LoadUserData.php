@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\DepartmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -127,9 +128,15 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         OrgaType $orgaTypeOlauth,
         Customer $customer
     ): void {
+
+        DepartmentFactory::new([
+            'name' => User::ANONYMOUS_USER_DEPARTMENT_NAME,
+            'id' => User::ANONYMOUS_USER_DEPARTMENT_ID,
+        ]);
+
         // Create Department
         $department = new Department();
-        $department->setName(User::ANONYMOUS_USER_DEPARTMENT_NAME);
+        $department->setName();
 
         $manager->persist($department);
         $manager->flush();

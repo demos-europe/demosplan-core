@@ -12,8 +12,10 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\DepartmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -42,6 +44,11 @@ class TagServiceTest extends FunctionalTestCase
 
     public function testCreateTag(): void
     {
+        $testDepartment = DepartmentFactory::new();
+        $testDepartment = $testDepartment->create()->forceSet('id', User::ANONYMOUS_USER_DEPARTMENT_ID)->save();
+        static::assertSame(User::ANONYMOUS_USER_DEPARTMENT_ID, $testDepartment->getId());
+
+
         $testTopic = TagTopicFactory::createOne();
         $title = 'ersterTag';
 
