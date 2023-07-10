@@ -18,7 +18,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadTagData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $fixtureTopic1 = new TagTopic('DataFixtureTopic_1', $this->getReference('masterBlaupause'));
         $manager->persist($fixtureTopic1);

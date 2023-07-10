@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -271,6 +271,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
+        $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
@@ -284,10 +285,11 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['memo'] = $segmentOrStatement->getParentStatementOfSegment()->getMemo();
             $exportData['internId'] = $segmentOrStatement->getParentStatementOfSegment()->getInternId();
             $exportData['oName'] = $segmentOrStatement->getParentStatementOfSegment()->getOName();
-            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDate();
+            $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDateString();
             $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
             $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
+            $exportData['submitDateString'] = $segmentOrStatement->getParentStatementOfSegment()->getSubmitDateString();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
         $exportData['tags'] = array_map($this->entityHelper->toArray(...), $exportData['tags']->toArray());

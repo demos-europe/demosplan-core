@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadCategoryData extends ProdFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $categories = [
             [ // row #0

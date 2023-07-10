@@ -26,7 +26,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
     final public const ELEMENT_CATEGORY_FILE = 'testFileElement';
     final public const TEST_ELEMENT_2 = 'testElement2';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $element1 = new Elements();
         $element1->setTitle('Title of elementfixture1');

@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Security\HTTP\EventListener;
 
@@ -22,7 +31,9 @@ class WeakPasswordCheckerEventListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [CheckPassportEvent::class => ['checkPassport']];
+        // this should be handled after the CheckCredentialsListener::checkPassport() has veryfied
+        // that the users credentials are correct - therefore the negativ priority is set here. refs T32782:
+        return [CheckPassportEvent::class => ['checkPassport', -1]];
     }
 
     public function checkPassport(CheckPassportEvent $event): void

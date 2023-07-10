@@ -24,7 +24,7 @@
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
 
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_useremail"
               data-cy="username"
@@ -59,6 +59,7 @@
           </dp-form-row>
           <a
             :class="prefixClass('o-link--default')"
+            data-cy="password_forgot"
             :href="Routing.generate('DemosPlan_user_password_recover')"
             v-text="Translator.trans('password.forgot')" />
         </form>

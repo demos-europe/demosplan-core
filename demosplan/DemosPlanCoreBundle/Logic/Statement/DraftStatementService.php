@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -39,7 +40,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
@@ -1075,6 +1075,16 @@ class DraftStatementService extends CoreService
 
             // Create and use versions of paragraph and Element
             $data = $this->getEntityVersions($data);
+
+            // before updating the draftstatement - check if a version allready exists
+            // if versioning is requested and no version exists yet - create a version of the original state as well
+            // before updating the entity. refs T32960:
+            if ($createVersion && 0 === count($this->getVersionList($data['ident']))) {
+                $draftStatementBeforeUpdate = $this->draftStatementRepository->get($data['ident']);
+                if (null !== $draftStatementBeforeUpdate) {
+                    $this->draftStatementVersionRepository->createVersion($draftStatementBeforeUpdate);
+                }
+            }
 
             $draftStatement = $this->draftStatementRepository
                 ->update($data['ident'], $data);

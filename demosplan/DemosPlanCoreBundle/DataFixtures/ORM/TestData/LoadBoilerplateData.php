@@ -20,7 +20,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadBoilerplateData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Procedure $procedure2 * */
         $procedure2 = $this->getReference('testProcedure2');

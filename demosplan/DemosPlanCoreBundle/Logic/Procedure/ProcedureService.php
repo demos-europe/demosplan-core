@@ -13,8 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
@@ -37,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\NewProcedureAdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureUpdatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -57,7 +60,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -823,10 +825,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] ??= '';
             if ('' === $data['settings']['emailTitle']) {
-                $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
+                $data['settings']['emailTitle'] =
+                    $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
 
-            // Wrap creation of procedure in a transaction to be able to validate the whole procedure including subentities
+            // Wrap creation of procedure in a transaction to be able to validate the whole procedure
+            // including subentities
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
@@ -847,15 +851,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $newProcedure = $this->copyFromBlueprint($data, $blueprintId, $newProcedure);
             }
 
-            $violationList = $this->validator->validate($newProcedure, null, [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]);
+            $violationList = $this->validator->validate(
+                $newProcedure,
+                null,
+                [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]
+            );
             if (0 !== $violationList->count()) {
                 $doctrineConnection->rollBack();
                 throw ViolationsException::fromConstraintViolationList($violationList);
             }
 
             try {
-                $this->prepareReportFromProcedureService
-                    ->addReportOnProcedureCreate($this->procedureToLegacyConverter->convertToLegacy($newProcedure), $newProcedure);
+                $this->prepareReportFromProcedureService->addReportOnProcedureCreate(
+                    $this->procedureToLegacyConverter->convertToLegacy($newProcedure),
+                    $newProcedure
+                );
             } catch (Exception $e) {
                 $doctrineConnection->rollBack();
                 $this->logger->warning('Add Report in addProcedure() failed Message: ', [$e]);
@@ -864,7 +874,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']), PostNewProcedureCreatedEventInterface::class);
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                PostNewProcedureCreatedEventInterface::class
+            );
+
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
@@ -985,7 +998,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $numberOfDeletedDraftStatementVersions = $this->deleteDraftStatementVersions($procedure);
             $this->getLogger()->info($numberOfDeletedDraftStatementVersions.' DraftStatementVersions were deleted.');
 
-            $filesToDelete = $repository->deleteRelatedEntitiesOfProcedure($procedureId);
+            $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
             // delete pregenerated zips in filedirectory/procedure
             $filesPath = $fileService->getFilesPathAbsolute();
@@ -1005,27 +1018,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 );
             }
 
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id' => $procedureId,
-            ];
-
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id'                => $procedureId,
-                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
-            ];
-
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id'                => $procedureId,
-                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
-            ];
-
             // delete Procedure
             $repository->delete($procedureId);
 
-            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData), PostProcedureDeletedEventInterface::class);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureDeletedEvent($procedureId),
+                PostProcedureDeletedEventInterface::class
+            );
 
             $this->logger->info('Procedure deleted: '.$procedureId);
         } finally {
@@ -1062,7 +1061,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             // Update exportSettings
             if (\array_key_exists('exportSettings', $data)) {
-                $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
+                $this->entityPreparator->prepareEntity(
+                    $data['exportSettings'],
+                    $origSourceRepos->getDefaultExportFieldsConfiguration()
+                );
             }
 
             try {
@@ -1071,6 +1073,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
@@ -1117,6 +1123,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure->setSettings($sourceProcedureSettings);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
@@ -1157,6 +1167,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
+
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
             if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {

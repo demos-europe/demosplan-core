@@ -202,7 +202,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * )
      */
     #[Assert\All([new Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')])]
-    #[Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')]
+    #[Assert\Type(type: Collection::class)]
     protected $addresses;
     /**
      * $customers not mapped to a Table because they are now retrieved from {@link Orga::$statusInCustomers}.

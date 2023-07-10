@@ -23,7 +23,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
     final public const TEST_SINGLE_NEWS_3 = 'testSingleNews3';
     final public const TEST_SINGLE_NEWS_4 = 'testSingleNews4';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $procedureId = $this->getReference('testProcedure2')->getId();
 

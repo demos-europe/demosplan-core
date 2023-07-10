@@ -31,7 +31,7 @@
       <legend
         class="hide-visually"
         v-text="Translator.trans('blueprint.data')" />
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-input
           id="r_name"
           data-cy="newMasterName"
@@ -43,7 +43,7 @@
           required />
       </dp-form-row>
 
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-select
           id="r_copymaster"
           v-model="selectedBlueprint"
@@ -62,7 +62,7 @@
           v-if="isLoading"
           overlay />
 
-        <dp-form-row>
+        <dp-form-row class="u-mb-0_75">
           <dp-text-area
             :label="Translator.trans('internalnote')"
             id="r_desc"

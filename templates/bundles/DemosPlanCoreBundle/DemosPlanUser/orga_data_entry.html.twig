@@ -79,7 +79,7 @@
             <p class="{{ 'inline color--grey align-middle'|prefixClass }}">{{ templateVars.proceduresDirectlinkPrefix }}/</p>
 
             {{ uiComponent('form.input.text', {
-                id: 'orga_slug',
+                id: organisation.ident|default ~ ':slug',
                 name: organisation.ident|default ~ ':slug',
                 class: submittedAuthorClass|default,
                 value: organisation.currentSlug.name|default,
