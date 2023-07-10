@@ -153,11 +153,11 @@ class FaqService extends CoreService
     public function getAllEnabledFaqForCategoryRegardlessOfUserRoles(FaqCategoryInterface $faqCategory): array
     {
         $categoryName = 'faqCategory';
-        $className = Faq::class;
+        $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
-            $className = PlatformFaq::class;
+            $repository = $this->platformFaqRepository;
         }
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
@@ -165,7 +165,7 @@ class FaqService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
+        return $repository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
