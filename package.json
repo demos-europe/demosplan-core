@@ -18,6 +18,7 @@
     "prod:bobhh": "cross-env ./fe build --prod bobhh",
     "prod:bobsh": "cross-env ./fe build --prod bobsh",
     "prod:diplanbau": "cross-env ./fe build --prod diplanbau",
+    "prod:diplanrog": "cross-env ./fe build --prod diplanrog",
     "prod:ewm": "cross-env ./fe build --prod ewm",
     "prod:planfestsh": "cross-env ./fe build --prod planfestsh",
     "prod:regio": "cross-env ./fe build --prod regio",
