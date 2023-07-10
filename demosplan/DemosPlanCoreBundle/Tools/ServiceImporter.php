@@ -153,17 +153,6 @@ class ServiceImporter implements ServiceImporterInterface
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    private function deleteDocxAfterImportWithRabbitMQ(string $fileHash) {
-        try {
-            $this->fileService->deleteFile($fileHash);
-        } catch (Exception $e) {
-            $this->getLogger()->warning('Could not delete uploaded docx file ', [$e]);
-        }
-    }
-
     public function createParagraphsFromImportResult(array $importResult, string $procedureId): void
     {
         $order = 0;
