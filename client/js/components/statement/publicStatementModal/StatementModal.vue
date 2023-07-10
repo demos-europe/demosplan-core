@@ -129,6 +129,7 @@
           <dp-editor
             :class="prefixClass('u-mb')"
             hidden-input="r_text"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             id="statementText"
             :toolbar-items="{
               mark: true,
