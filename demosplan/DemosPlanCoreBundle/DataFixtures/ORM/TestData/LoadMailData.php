@@ -17,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadMailData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $mailTemplate = new MailTemplate();
         $mailTemplate->setLabel('test_template');

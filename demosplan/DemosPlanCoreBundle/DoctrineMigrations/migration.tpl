@@ -3,6 +3,7 @@
 namespace <namespace>;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -40,7 +41,7 @@ class <className> extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            'mysql' !== $this->connection->getDatabasePlatform()->getName(),
+            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }

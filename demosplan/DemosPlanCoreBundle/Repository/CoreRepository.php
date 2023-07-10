@@ -496,7 +496,7 @@ abstract class CoreRepository extends ServiceEntityRepository
         return $this->getEntityManager()->getUnitOfWork()->getOriginalEntityData($entity);
     }
 
-    protected function validate(object $entityToValidate)
+    protected function validate(object $entityToValidate): void
     {
         $violations = $this->validator->validate($entityToValidate);
         if (0 !== $violations->count()) {

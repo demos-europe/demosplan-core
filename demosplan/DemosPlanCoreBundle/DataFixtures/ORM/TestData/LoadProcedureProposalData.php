@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureProposalData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $testProcedureProposal1 = new ProcedureProposal();
         $testProcedureProposal1->setName('testProcedureProposal1');

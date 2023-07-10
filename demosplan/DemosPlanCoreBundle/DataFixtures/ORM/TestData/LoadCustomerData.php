@@ -25,7 +25,7 @@ class LoadCustomerData extends TestFixture
     final public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
     final public const DEMOS = 'Demos';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $customerRostock = new Customer(self::ROSTOCK, 'rostock');
         $customerRostock->setAccessibilityExplanation('Barrierefreiheitserklärung');

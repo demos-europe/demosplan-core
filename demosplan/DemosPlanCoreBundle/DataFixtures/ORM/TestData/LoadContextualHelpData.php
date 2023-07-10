@@ -16,7 +16,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadContextualHelpData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $contextualHelp1 = new ContextualHelp();
         $contextualHelp1->setKey('help.key1');

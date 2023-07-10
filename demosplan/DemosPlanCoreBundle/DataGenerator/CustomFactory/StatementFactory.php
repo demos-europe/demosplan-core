@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\Persistence\ManagerRegistry;

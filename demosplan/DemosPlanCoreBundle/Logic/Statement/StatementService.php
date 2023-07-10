@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -88,7 +89,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
@@ -126,7 +126,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
@@ -346,7 +345,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             /** @var ArrayCollection<int,File> $originalAttachmentFiles */
             $originalAttachmentFiles = $data['originalAttachmentFiles'];
             $originalAttachments = $originalAttachmentFiles
-                ->map(fn(File $file) => $this->statementAttachmentService->createOriginalAttachment(
+                ->map(fn (File $file) => $this->statementAttachmentService->createOriginalAttachment(
                     $statement,
                     $file
                 ));
@@ -814,7 +813,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // ensure that every value is a statement
-        return \collect($statementIds)->filter(static fn($entry) => $entry instanceof Statement)->toArray();
+        return \collect($statementIds)->filter(static fn ($entry) => $entry instanceof Statement)->toArray();
     }
 
     /**
@@ -943,7 +942,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($statements)
             ->flatMap(
-                fn(Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
+                fn (Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
                     $statement,
                     $entityClassesToInclude
                 )
@@ -1756,7 +1755,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         return \array_map(static function (array $statement) use ($entities): array {
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
-                static fn(StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
+                static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
 
             return $statement;
@@ -2130,7 +2129,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
-        return array_filter($statementsByIds, static fn(?Statement $statement) => null !== $statement);
+        return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
     }
 
     protected function getPriorityAreaService(): PriorityAreaService
@@ -2478,7 +2477,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function collectRequest(array $rParams): array
     {
         return \collect($rParams)->filter(
-            static fn($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
+            static fn ($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
                 // Use substr without r_ as key
@@ -2496,7 +2495,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function collectFilters(array $rParams): array
     {
-        return \collect($rParams)->filter(static fn($value, string $key) => \is_array($value) && str_contains($key, 'filter_') && 0 < count($value))->mapWithKeys(static function (array $value, string $key) {
+        return \collect($rParams)->filter(static fn ($value, string $key) => \is_array($value) && str_contains($key, 'filter_') && 0 < count($value))->mapWithKeys(static function (array $value, string $key) {
             $filterKey = str_replace('filter_', '', $key);
 
             return [$filterKey => $value];
@@ -3124,7 +3123,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $processedAggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = \collect($elementsAdminList)
-                ->mapWithKeys(static fn(Elements $element): array => [$element->getId() => $element->getTitle()])->all();
+                ->mapWithKeys(static fn (Elements $element): array => [$element->getId() => $element->getTitle()])->all();
 
             /********************************** QUERY AGGREGATIONS (INI) *********************************************/
 
@@ -3675,7 +3674,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             try {
                 // gibt es ein StatementAttribut, dass eine Potenzialfläche gespeichert ist
                 $hasPriorityArea = $statementAttributes->filter(
-                    fn($entry) =>
+                    fn ($entry) =>
                         /* @var StatementAttribute $entry */
                         'priorityAreaKey' === $entry->getType()
                 );
