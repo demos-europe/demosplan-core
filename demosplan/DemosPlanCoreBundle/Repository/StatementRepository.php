@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\DBAL\Connection;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
@@ -28,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -46,9 +45,12 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
@@ -56,7 +58,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
+use EDT\Querying\Pagination\PagePagination;
 use Exception;
+use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
@@ -464,6 +468,22 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->unassigned();
 
         return $query->getCount();
+    }
+
+    /**
+     * @return array<int, Statement|Segment>
+     */
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    {
+        return parent::getEntities($conditions, $sortMethods, $offset, $limit);
+    }
+
+    /**
+     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     */
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
+    {
+        return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
     }
 
     /**
@@ -964,11 +984,11 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $voteRepository = $this->getEntityManager()
                 ->getRepository(StatementVote::class);
 
-        $votesToDelete = $currentVotes->filter(fn($vote) => !$votesToSet->keyBy('id')->has($vote->getId()));
+        $votesToDelete = $currentVotes->filter(fn ($vote) => !$votesToSet->keyBy('id')->has($vote->getId()));
 
-        $votesToUpdate = $votesToSet->filter(fn($vote) => array_key_exists('id', $vote) && '' != $vote['id']);
+        $votesToUpdate = $votesToSet->filter(fn ($vote) => array_key_exists('id', $vote) && '' != $vote['id']);
 
-        $votesToCreate = $votesToSet->filter(fn($vote) => !array_key_exists('id', $vote) || '' == $vote['id']);
+        $votesToCreate = $votesToSet->filter(fn ($vote) => !array_key_exists('id', $vote) || '' == $vote['id']);
 
         /** @var StatementVote $voteToDelete */
         foreach ($votesToDelete as $voteToDelete) {
@@ -1341,9 +1361,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $statements = $this->getStatements($statementIds);
 
         return collect($statements)->filter(
-            static fn(Statement $statement) => $statement->isPlaceholder()
+            static fn (Statement $statement) => $statement->isPlaceholder()
         )->map(
-            static fn(Statement $statement) => $statement->getId()
+            static fn (Statement $statement) => $statement->getId()
         )->toArray();
     }
 
@@ -1452,7 +1472,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static fn(string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**
@@ -1471,7 +1491,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static fn(string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**

@@ -36,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementFragmentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -57,6 +56,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
@@ -124,7 +124,6 @@ class StatementFragmentService extends CoreService
         private readonly ElasticSearchService $searchService,
         ElementsService $elementService,
         EntityContentChangeService $entityContentChangeService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly ManagerRegistry $managerRegistry,
@@ -368,11 +367,11 @@ class StatementFragmentService extends CoreService
     public function getStatementFragmentsStatement($statementId)
     {
         try {
-            return $this->entityFetcher->listEntitiesUnrestricted(
-                StatementFragment::class,
-                [$this->conditionFactory->propertyHasValue($statementId, ['statement'])],
-                [$this->sortMethodFactory->propertyAscending(['sortIndex'])]
-            );
+            return $this->statementFragmentRepository->findBy([
+                'statement' => $statementId,
+            ], [
+                'sortIndex' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment List', [$e]);
 
