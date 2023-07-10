@@ -2,7 +2,9 @@
 
 /**
  * This file is part of the package demosplan.
+ *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
  * All rights reserved
  */
 
@@ -190,9 +192,9 @@ class TagServiceTest extends FunctionalTestCase
         $topic = TagTopicFactory::createOne();
         $topicId = $topic->getId();
 
-        $tags = TagFactory::createMany(3, static fn(int $i) => [
+        $tags = TagFactory::createMany(3, static fn (int $i) => [
             'title' => "TagTitle $i",
-            'topic' => $topic
+            'topic' => $topic,
         ]);
 
         $tagId1 = $tags[0]->getId();

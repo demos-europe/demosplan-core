@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
@@ -47,7 +55,7 @@ final class SlugFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'name' => self::faker()->streetName()
+            'name' => self::faker()->streetName(),
         ];
     }
 
@@ -58,7 +66,7 @@ final class SlugFactory extends ModelFactory
     {
         return $this
             // ->afterInstantiate(function(Slug $slug): void {})
-            ;
+        ;
     }
 
     protected static function getClass(): string
