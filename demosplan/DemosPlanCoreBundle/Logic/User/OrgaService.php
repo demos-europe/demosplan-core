@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -40,17 +39,16 @@ use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -93,7 +91,6 @@ class OrgaService extends CoreService
         private readonly CustomerRepository $customerRepository,
         private readonly DqlConditionFactory $conditionFactory,
         MailService $mailService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
@@ -359,7 +356,7 @@ class OrgaService extends CoreService
     public function getOrgaCountByTypeTranslated(Customer $customerContext): array
     {
         return collect($this->getAcceptedOrgaCountByType($customerContext))
-            ->mapWithKeys(fn(int $count, string $translationKey): array => [$this->translator->trans($translationKey) => $count])
+            ->mapWithKeys(fn (int $count, string $translationKey): array => [$this->translator->trans($translationKey) => $count])
             ->sort()
             ->all();
     }
@@ -384,7 +381,7 @@ class OrgaService extends CoreService
                 $this->orgaResourceType->id
             );
             $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
-            $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
+            $orgas = $this->orgaRepository->getEntities($conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
             array_map($this->loadMissingOrgaData(...), $orgas);
@@ -394,6 +391,23 @@ class OrgaService extends CoreService
             $this->logger->error('Fehler bei getList Orga:', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * @return array<int, Orga>
+     */
+    public function getOrgasInCustomer(Customer $customer): array
+    {
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(
+                $customer->getId(),
+                ['statusInCustomers', 'customer']
+            ),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+        ];
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
+
+        return $this->orgaRepository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
@@ -444,7 +458,7 @@ class OrgaService extends CoreService
             ),
         ];
 
-        return $this->entityFetcher->getEntityCount($this->orgaResourceType, $conditions);
+        return $this->orgaResourceType->getEntityCount($conditions);
     }
 
     /**
@@ -774,7 +788,7 @@ class OrgaService extends CoreService
      */
     public function getInvitablePublicAgencies(): array
     {
-        return $this->entityFetcher->listEntities($this->invitablePublicAgencyResourceType, []);
+        return $this->invitablePublicAgencyResourceType->listEntities([]);
     }
 
     /**
@@ -806,13 +820,12 @@ class OrgaService extends CoreService
     public function getOrganisationsByIds($organisationIds)
     {
         try {
-            $conditions = [
-                $this->conditionFactory->propertyHasValue(false, ['deleted']),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
-            ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
-
-            return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
+            return $this->orgaRepository->findBy([
+                'deleted' => false,
+                'id'      => $organisationIds,
+            ], [
+                'name' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);
             throw $e;
@@ -861,14 +874,14 @@ class OrgaService extends CoreService
     {
         $customerOrgas = $customer->getOrgas()->toArray();
 
-        return array_filter($customerOrgas, fn($orga) => $this->orgaRepository->isPublicAffairsAgency($orga));
+        return array_filter($customerOrgas, fn ($orga) => $this->orgaRepository->isPublicAffairsAgency($orga));
     }
 
     public function findPublicAffairsAgenciesIdsByCustomer(Customer $customer): array
     {
         $customerPublicAffairsAgencies = $this->findPublicAffairsAgenciesByCustomer($customer);
 
-        return array_map(static fn(Orga $customerPublicAffairsAgency) => $customerPublicAffairsAgency->getId(), $customerPublicAffairsAgencies);
+        return array_map(static fn (Orga $customerPublicAffairsAgency) => $customerPublicAffairsAgency->getId(), $customerPublicAffairsAgencies);
     }
 
     /**
@@ -976,7 +989,7 @@ class OrgaService extends CoreService
         $labelMap = $this->getOrgaTypeLabelMap();
 
         return array_map(
-            fn(string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
+            fn (string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
         );
     }
 

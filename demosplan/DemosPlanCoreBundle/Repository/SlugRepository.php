@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class SlugRepository extends CoreRepository implements ObjectInterface
+class SlugRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

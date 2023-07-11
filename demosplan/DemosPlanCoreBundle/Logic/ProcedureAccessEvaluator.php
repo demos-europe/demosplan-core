@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
@@ -141,8 +140,8 @@ class ProcedureAccessEvaluator
     public function filterNonOwnedProcedureIds(User $user, Procedure ...$procedures): array
     {
         return collect($procedures)
-            ->filter(fn(Procedure $procedure): bool => $this->isOwningProcedure($user, $procedure))
-            ->map(static fn(Procedure $procedure): string => $procedure->getId())
+            ->filter(fn (Procedure $procedure): bool => $this->isOwningProcedure($user, $procedure))
+            ->map(static fn (Procedure $procedure): string => $procedure->getId())
             ->all();
     }
 

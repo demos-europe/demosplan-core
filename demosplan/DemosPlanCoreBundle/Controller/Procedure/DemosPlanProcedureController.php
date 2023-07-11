@@ -43,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -150,7 +149,6 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly EntityFetcher $entityFetcher,
         private readonly AssessmentHandler $assessmentHandler,
         private readonly Environment $twig,
         private readonly PermissionsInterface $permissions,
@@ -2787,7 +2785,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
+        $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
         $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
 
         $templateVars['procedureTypes'] = $procedureTypeResources;

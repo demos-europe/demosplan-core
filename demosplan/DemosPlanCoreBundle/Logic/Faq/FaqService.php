@@ -20,12 +20,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FaqRepository;
+use demosplan\DemosPlanCoreBundle\Repository\PlatformFaqRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -37,8 +38,15 @@ use UnexpectedValueException;
 
 class FaqService extends CoreService
 {
-    public function __construct(private readonly CustomerHandler $customerHandler, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly FaqCategoryRepository $faqCategoryRepository, private readonly FaqRepository $faqRepository, private readonly ManualListSorter $manualListSorter, private readonly SortMethodFactory $sortMethodFactory)
-    {
+    public function __construct(
+        private readonly CustomerHandler $customerHandler,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly FaqCategoryRepository $faqCategoryRepository,
+        private readonly FaqRepository $faqRepository,
+        private readonly ManualListSorter $manualListSorter,
+        private readonly PlatformFaqRepository $platformFaqRepository,
+        private readonly SortMethodFactory $sortMethodFactory
+    ) {
     }
 
     /**
@@ -104,10 +112,11 @@ class FaqService extends CoreService
      */
     public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
     {
-        $condition = $this->conditionFactory->propertyHasValue($faqCategory, ['faqCategory']);
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, [$condition], [$sortMethod]);
+        return $this->faqRepository->findBy([
+            'faqCategory' => $faqCategory,
+        ], [
+            'title' => Criteria::ASC,
+        ]);
     }
 
     /**
@@ -120,11 +129,11 @@ class FaqService extends CoreService
     {
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
         $categoryName = 'faqCategory';
-        $className = Faq::class;
+        $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
-            $className = PlatformFaq::class;
+            $repository = $this->platformFaqRepository;
         }
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
@@ -133,7 +142,7 @@ class FaqService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
+        return $repository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
@@ -144,11 +153,11 @@ class FaqService extends CoreService
     public function getAllEnabledFaqForCategoryRegardlessOfUserRoles(FaqCategoryInterface $faqCategory): array
     {
         $categoryName = 'faqCategory';
-        $className = Faq::class;
+        $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
-            $className = PlatformFaq::class;
+            $repository = $this->platformFaqRepository;
         }
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
@@ -156,7 +165,7 @@ class FaqService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
+        return $repository->getEntities($conditions, [$sortMethod]);
     }
 
     /**

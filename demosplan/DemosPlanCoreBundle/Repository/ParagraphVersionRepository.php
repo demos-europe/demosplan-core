@@ -21,7 +21,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class ParagraphVersionRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ParagraphVersionRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get a paragraph.
