@@ -30,8 +30,7 @@ class Version20230706091408 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('CREATE TABLE procedure_message (id CHAR(36) NOT NULL, procedure_id CHAR(36) NOT NULL, message LONGTEXT NOT NULL, created_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, modification_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, error TINYINT(1) DEFAULT false NOT NULL, deleted TINYINT(1) DEFAULT false NOT NULL, request_count INT DEFAULT 0 NOT NULL, UNIQUE INDEX UNIQ_E7F5DA961624BCD2 (procedure_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
+        $this->addSql('CREATE TABLE procedure_message (id CHAR(36) NOT NULL, message LONGTEXT NOT NULL, created_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, modification_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, error TINYINT(1) DEFAULT false NOT NULL, deleted TINYINT(1) DEFAULT false NOT NULL, request_count INT DEFAULT 0 NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
     }
 
     /**
@@ -41,7 +40,6 @@ class Version20230706091408 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
         $this->addSql('DROP TABLE procedure_message');
     }
 
