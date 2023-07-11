@@ -101,7 +101,7 @@ class NonAuthorizedAssignRemover
     {
         $ownsProcedureCondition = $this->procedureAccessEvaluator->getOwnsProcedureCondition($procedure);
         $authorizedUsers = $this->procedureService->getAuthorizedUsers($procedure->getId());
-        $owningUsers = $this->userRepository->getEntities([$ownsProcedureCondition]);
+        $owningUsers = $this->userRepository->getEntities([$ownsProcedureCondition], []);
 
         return $authorizedUsers
             ->merge($owningUsers)
