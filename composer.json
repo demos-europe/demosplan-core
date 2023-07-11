@@ -158,7 +158,8 @@
         "symfony/web-profiler-bundle": "5.*.*",
         "timeweb/phpstan-enum": "^3.1",
         "vimeo/psalm": "^4.9.3",
-        "weirdan/doctrine-psalm-plugin": "^2.0.1"
+        "weirdan/doctrine-psalm-plugin": "^2.0.1",
+        "zenstruck/foundry": "^1.33"
     },
     "autoload": {
         "classmap": ["vendor/phayes/geophp/lib"],

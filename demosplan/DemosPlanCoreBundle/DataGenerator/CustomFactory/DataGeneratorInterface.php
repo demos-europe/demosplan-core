@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\DataGenerator;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory;
 
 interface DataGeneratorInterface
 {

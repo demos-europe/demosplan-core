@@ -70,6 +70,9 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
         return $this->currentSlug;
     }
 
+    /**
+     * Kind of enabling a specific slug.
+     */
     public function setCurrentSlug(SlugInterface $currentSlug)
     {
         if (!$this->hasSlugString($currentSlug)) {
