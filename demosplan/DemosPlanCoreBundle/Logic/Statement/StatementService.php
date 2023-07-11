@@ -135,7 +135,6 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use ReflectionException;
@@ -196,12 +195,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /** @var UserService */
     protected $userService;
-
-    /** @var IndexManager */
-    protected $esIndexManager;
-
-    /** @var DemosPlanStatementAPIController */
-    protected $statementApiController;
 
     /** @var HashedQueryService */
     protected $filterSetService;
