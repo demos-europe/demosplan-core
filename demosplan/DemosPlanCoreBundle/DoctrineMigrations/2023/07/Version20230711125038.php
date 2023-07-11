@@ -31,8 +31,6 @@ class Version20230711125038 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
-        $table = $schema->getTable('procedure_message');
-        $table->dropColumn('procedure_id');
     }
 
     /**
