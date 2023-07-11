@@ -23,7 +23,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 
-class SettingRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class SettingRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

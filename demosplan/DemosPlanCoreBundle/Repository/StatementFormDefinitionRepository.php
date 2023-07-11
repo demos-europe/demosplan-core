@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class StatementFormDefinitionRepository extends CoreRepository implements ObjectInterface
+class StatementFormDefinitionRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * @param StatementFormDefinition $statementFormDefinition

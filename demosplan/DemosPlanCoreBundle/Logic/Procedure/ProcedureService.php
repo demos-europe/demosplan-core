@@ -49,7 +49,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
@@ -174,7 +173,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         ElementsService $elementsService,
         private readonly EntityContentChangeRepository $entityContentChangeRepository,
         EntityContentChangeService $entityContentChangeService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly EntityManagerInterface $entityManager,
         EntityPreparator $entityPreparator,
@@ -600,11 +598,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
 
-            $procedureList = $this->entityFetcher->listEntitiesUnrestricted(
-                Procedure::class,
-                $conditions,
-                $sortMethods
-            );
+            $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
             if ($toLegacy) {
                 $procedureList = \collect($procedureList)->map($this->procedureToLegacyConverter->convertToLegacy(...))->all();
@@ -2305,11 +2299,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
-        $foreignProcedures = $this->entityFetcher->listEntitiesUnrestricted(
-            Procedure::class,
-            $conditions,
-            [$sortMethod]
-        );
+        $foreignProcedures = $this->procedureRepository->getEntities($conditions, [$sortMethod]);
 
         $unauthorizedProcedures = [];
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
@@ -2339,11 +2329,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            Procedure::class,
-            $conditions,
-            [$sortMethod]
-        );
+        return $this->procedureRepository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
