@@ -742,6 +742,9 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureNewsServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService'
+
     demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
