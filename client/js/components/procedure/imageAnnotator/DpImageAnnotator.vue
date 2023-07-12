@@ -263,7 +263,7 @@ export default {
       return Object.entries(this.labelTranslations)
         .map(([key, value]) => {
           return {
-            label: value,
+            label: Translator.trans(value),
             value: key
           }
         })

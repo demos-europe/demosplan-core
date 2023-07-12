@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -126,7 +125,6 @@ class DraftStatementService extends CoreService
         private readonly DraftStatementVersionRepository $draftStatementVersionRepository,
         private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
         ElementsService $elementsService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
@@ -229,7 +227,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, $conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             if (null !== $results) {
@@ -287,7 +285,7 @@ class DraftStatementService extends CoreService
             $sortMethods = $this->createSortMethodsByAssociation($sort);
             array_unshift($sortMethods, $this->createSortMethod($sort));
 
-            $results = $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, $conditions, $sortMethods);
+            $results = $this->draftStatementRepository->getEntities($conditions, $sortMethods);
 
             $list = [];
             foreach ($results as $result) {
@@ -2052,9 +2050,7 @@ class DraftStatementService extends CoreService
      */
     public function getByIds(array $draftStatementIds): array
     {
-        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, ['id']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, [$condition]);
+        return $this->draftStatementRepository->findBy(['id' => $draftStatementIds]);
     }
 
     /**

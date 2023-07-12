@@ -59,11 +59,11 @@
         {% set currentState = '0' %}
         {% set defaultNewState = '1' %}
         {% if templateVars.news.enabled == true %}
-            {% set statusOptions = [{ 'value': '1', 'label': 'released', 'selected': true}, {'value': '0', 'label': 'blocked'}] %}
+            {% set statusOptions = [{ 'value': '1', 'label': 'released'|trans, 'selected': true}, {'value': '0', 'label': 'blocked'|trans}] %}
             {% set currentState = '1' %}
             {% set defaultNewState = '0' %}
         {% elseif templateVars.news.enabled == false %}
-            {% set statusOptions = [{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked', 'selected': true}] %}
+            {% set statusOptions = [{ 'value': '1', 'label': 'released'|trans}, {'value': '0', 'label': 'blocked'|trans, 'selected': true}] %}
         {% endif %}
 
         {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}

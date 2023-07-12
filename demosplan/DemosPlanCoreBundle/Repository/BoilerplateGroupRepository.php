@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class BoilerplateGroupRepository extends CoreRepository implements ObjectInterface
+class BoilerplateGroupRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

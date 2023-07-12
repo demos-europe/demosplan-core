@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
  *    }
  * )
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository")
  */
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {

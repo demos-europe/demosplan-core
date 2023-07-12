@@ -14,14 +14,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
@@ -34,7 +32,6 @@ class StatementClusterService extends CoreService
     public function __construct(
         private readonly ClusterStatementResourceType $clusterStatementResourceType,
         private readonly DqlConditionFactory $conditionFactory,
-        private readonly EntityFetcher $entityFetcher,
         private readonly StatementCopier $statementCopier,
         private readonly StatementRepository $statementRepository,
         StatementService $statementService
@@ -123,6 +120,6 @@ class StatementClusterService extends CoreService
             ),
         ];
 
-        return $this->entityFetcher->listEntitiesUnrestricted(Statement::class, $conditions, $sortMethods);
+        return $this->statementRepository->getEntities($conditions, $sortMethods);
     }
 }

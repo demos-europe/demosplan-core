@@ -62,7 +62,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutionSorter;
@@ -92,6 +91,7 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -135,7 +135,6 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use ReflectionException;
@@ -197,12 +196,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /** @var UserService */
     protected $userService;
 
-    /** @var IndexManager */
-    protected $esIndexManager;
-
-    /** @var DemosPlanStatementAPIController */
-    protected $statementApiController;
-
     /** @var HashedQueryService */
     protected $filterSetService;
 
@@ -247,7 +240,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly ElasticSearchService $searchService,
         ElementsService $serviceElements,
         EntityContentChangeService $entityContentChangeService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly FileContainerRepository $fileContainerRepository,
@@ -671,10 +663,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->getEntityCount(
-            $this->statementResourceType,
-            [$procedureCondition]
-        );
+        return $this->statementResourceType->getEntityCount([$procedureCondition]);
     }
 
     public function getMovedStatementData(Procedure $procedure): ?MovedStatementData
@@ -4179,7 +4168,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $userFilters
      *
-     * @deprecated use a pre-filter approach utilizing {@link EntityFetcher::listEntitiesUnrestricted()}
+     * @deprecated use a pre-filter approach utilizing {@link FluentRepository::getEntities()}
      *             instead and access the Elasticsearch index with the result
      */
     public function mapRequestFiltersToESFragmentFilters($userFilters): array
@@ -4582,7 +4571,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$condition]);
+        return $this->statementResourceType->listEntities([$condition]);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

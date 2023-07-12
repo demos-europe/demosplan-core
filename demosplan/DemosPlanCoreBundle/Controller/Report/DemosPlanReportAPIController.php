@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
@@ -47,7 +46,6 @@ class DemosPlanReportAPIController extends APIController
     #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
-        EntityFetcher $entityFetcher,
         PaginatorFactory $paginatorFactory,
         $group = null
     ): APIResponse {
@@ -75,7 +73,7 @@ class DemosPlanReportAPIController extends APIController
         );
 
         try {
-            $paginator = $entityFetcher->getEntityPaginator($resourceType, $pagination, []);
+            $paginator = $resourceType->getEntityPaginator($pagination, []);
             $transformer = $resourceType->getTransformer();
             $collection = new Collection($paginator, $transformer, ReportEntryResourceType::getName());
             $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);

@@ -10,6 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class StatementFieldDefinitionRepository extends CoreRepository
+class StatementFieldDefinitionRepository extends FluentRepository
 {
 }
