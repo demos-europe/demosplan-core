@@ -24,14 +24,6 @@ export default {
     DpButton
   },
 
-  props: {
-    title: {
-      type: String,
-      required: false,
-      default: ''
-    }
-  },
-
   data () {
     return {
       buttonPosition: '',
