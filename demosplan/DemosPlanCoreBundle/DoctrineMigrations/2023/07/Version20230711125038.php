@@ -31,7 +31,7 @@ class Version20230711125038 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
-        $this->addSql('DROP INDEX UNIQ_E7F5DA961624BCD2 ON _procedure');
+        $this->addSql('DROP INDEX UNIQ_E7F5DA961624BCD2 ON procedure_message');
     }
 
     /**
