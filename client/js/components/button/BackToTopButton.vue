@@ -1,15 +1,14 @@
 <template>
   <dp-button
     :aria-label="Translator.trans('back.to.top')"
-    :title="Translator.trans('back.to.top')"
-    variant="outline"
-    color="primary"
     :class="{ 'hide-visually': hide }"
     hide-text
-    rounded
     icon="arrow-up"
     icon-size="large"
+    rounded
     :style="buttonPosition"
+    :title="Translator.trans('back.to.top')"
+    variant="outline"
     @click="scrollTop">
   </dp-button>
 </template>
