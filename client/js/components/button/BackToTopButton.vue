@@ -9,8 +9,7 @@
     :style="buttonPosition"
     :title="Translator.trans('back.to.top')"
     variant="outline"
-    @click="scrollTop">
-  </dp-button>
+    @click="scrollTop" />
 </template>
 
 <script>
