@@ -35,6 +35,9 @@ export default {
   data () {
     return {
       buttonPosition: '',
+      contentHeight: 0,
+      footerHeight: 0,
+      positionFromLeft: 0,
       scrollPos: 0,
       windowHeight: 0
     }
@@ -47,12 +50,18 @@ export default {
   },
 
   methods: {
-    calculatePositionAndVisibility () {
-      const fromLeft = document.getElementById('jumpContent').offsetWidth + document.getElementById('jumpContent').offsetLeft
-
-      this.buttonPosition = `bottom: 60px; left: ${fromLeft}px; position: fixed`
+    calculateSizes () {
+      this.positionFromLeft = document.getElementById('jumpContent').offsetWidth + document.getElementById('jumpContent').offsetLeft
+      this.contentHeight = document.documentElement.scrollHeight - document.documentElement.offsetHeight
+      this.footerheight = document.querySelector('#app footer').offsetHeight
       this.windowHeight = document.documentElement.clientHeight
+    },
+
+    calculatePosition () {
       this.scrollPos = document.documentElement.scrollTop
+      const fromBottom = (this.contentHeight - 10 - this.footerheight > this.scrollPos) ? 10 : -this.contentHeight + 10 + this.footerheight + this.scrollPos
+
+      this.buttonPosition = `bottom: ${fromBottom}px; left: ${this.positionFromLeft}px; position: fixed`
     },
 
     scrollTop () {
@@ -61,14 +70,16 @@ export default {
   },
 
   mounted () {
-    this.calculatePositionAndVisibility()
+    this.calculateSizes()
+    this.calculatePosition()
 
     window.addEventListener('resize', () => {
-      this.calculatePositionAndVisibility()
+      this.calculateSizes()
+      this.calculatePosition()
     })
 
     window.addEventListener('scroll', () => {
-      this.scrollPos = document.documentElement.scrollTop
+      this.calculatePosition()
     })
   }
 }
