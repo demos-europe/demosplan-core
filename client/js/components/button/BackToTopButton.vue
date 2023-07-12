@@ -1,7 +1,7 @@
 <template>
   <dp-button
-    :aria-label="Translator.trans('backToTop')"
-    :title="Translator.trans('backToTop')"
+    :aria-label="Translator.trans('back.to.top')"
+    :title="Translator.trans('back.to.top')"
     variant="outline"
     color="primary"
     :class="{ 'hide-visually': hide }"
