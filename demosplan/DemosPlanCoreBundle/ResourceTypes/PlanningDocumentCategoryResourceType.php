@@ -154,7 +154,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $enabled = $this->createAttribute($this->enabled)->filterable();
         $parentId = $this->createAttribute($this->parentId)->aliasedPath($this->parent->id);
         $fileInfo = $this->createAttribute($this->fileInfo)
-                ->readable(true, fn(Elements $element): array => $this->fileService->getInfoArrayFromFileString($element->getFile()));
+                ->readable(true, fn (Elements $element): array => $this->fileService->getInfoArrayFromFileString($element->getFile()));
         $filePathWithHash = $this->createAttribute($this->filePathWithHash)
             ->readable(true, function (Elements $element): ?string {
                 $filePathWithHash = null;
@@ -172,7 +172,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $title = $this->createAttribute($this->title);
         $text = $this->createAttribute($this->text);
         $children = $this->createToManyRelationship($this->children, true)
-            ->readable(true, static fn(Elements $element): Collection => $element->getChildren()->filter(fn(Elements $elements): bool => $elements->getEnabled()));
+            ->readable(true, static fn (Elements $element): Collection => $element->getChildren()->filter(fn (Elements $elements): bool => $elements->getEnabled()));
         $documents = $this->createToManyRelationship($this->documents, true);
         $index = $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order);
 
@@ -220,7 +220,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             if (!\in_array($index, $properties, true)) {
                 $properties[] = $index;
             }
-            $properties = [...$properties, $this->createAttribute($this->designatedSwitchDate)->readable(false, fn(Elements $category): ?string => $this->formatDate($category->getDesignatedSwitchDate())), $this->createAttribute($this->category)->readable(), $this->createToOneRelationship($this->procedure)->filterable()];
+            $properties = [...$properties, $this->createAttribute($this->designatedSwitchDate)->readable(false, fn (Elements $category): ?string => $this->formatDate($category->getDesignatedSwitchDate())), $this->createAttribute($this->category)->readable(), $this->createToOneRelationship($this->procedure)->filterable()];
         }
 
         return $properties;

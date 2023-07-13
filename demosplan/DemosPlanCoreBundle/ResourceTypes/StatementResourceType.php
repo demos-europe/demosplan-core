@@ -328,9 +328,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->hasAssessmentPermission()) {
             $properties[] = $this->createAttribute($this->documentParentId)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
             $properties[] = $this->createAttribute($this->documentTitle)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
             $properties[] = $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id);
             $properties[] = $this->createAttribute($this->elementTitle)
@@ -366,7 +366,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             'area_admin_submitters'
         )) {
             $properties[] = $this->createAttribute($this->isSubmittedByCitizen)
-                ->readable(false, static fn(Statement $statement): bool => $statement->isSubmittedByCitizen());
+                ->readable(false, static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
         }
 
         return $properties;

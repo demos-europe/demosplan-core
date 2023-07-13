@@ -239,7 +239,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $currentTaggedInstitutions,
         Collection $newTaggedInstitutions
     ): Collection {
-        return $newTaggedInstitutions->filter(static fn(Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
+        return $newTaggedInstitutions->filter(static fn (Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
     }
 
     /**
@@ -253,7 +253,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $newTaggedInstitutions
     ): Collection {
         return $currentTaggedInstitutions->filter(
-            static fn(Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
+            static fn (Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
         );
     }
 
