@@ -207,10 +207,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_statement_delete')) {
-            throw new InvalidArgumentException('Insufficient permissions');
-        }
-
         $success = $this->statementResourceTypeService->deleteStatement($entity);
         if (true !== $success) {
             throw new InvalidArgumentException('Deletion request could not be executed.');
@@ -220,6 +216,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $resourceChange->addEntityToDelete($entity);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_statement_delete'];
     }
 
     /**

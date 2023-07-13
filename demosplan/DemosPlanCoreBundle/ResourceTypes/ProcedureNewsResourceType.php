@@ -65,6 +65,11 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         return $change;
     }
 
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['area_admin_news'];
+    }
+
     public function getEntityClass(): string
     {
         return News::class;

@@ -200,10 +200,6 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     public function delete(object $tag): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_institution_tag_delete')) {
-            throw new InvalidArgumentException('Insufficient permissions');
-        }
-
         $owningOrganisation = $tag->getOwningOrganisation();
         $owningOrganisation->removeOwnInstitutionTag($tag);
         $violations = $this->validator->validate($owningOrganisation);
@@ -226,6 +222,11 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         $resourceChange->addEntityToDelete($tag);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_institution_tag_delete'];
     }
 
     /**

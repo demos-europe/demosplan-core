@@ -51,13 +51,15 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('area_admin_globalnews')) {
-            throw new BadRequestException("deletion of GlobalNews not allowed: {$entity->getId()}");
-        }
         $resourceChange = new ResourceChange($entity, $this, []);
         $resourceChange->addEntityToDelete($entity);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['area_admin_globalnews'];
     }
 
     public function getEntityClass(): string

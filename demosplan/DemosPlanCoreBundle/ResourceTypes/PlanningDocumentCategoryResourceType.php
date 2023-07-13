@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -292,10 +291,6 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_admin_element_edit')) {
-            throw new BadRequestException('Deletion of planning document categories is not allowed at all');
-        }
-
         $success = $this->elementService->deleteElement([$entity->getId()]);
         if (!$success) {
             throw new InvalidArgumentException("Deletion of planning document category failed for the given ID '{$entity->getId()}'");
@@ -303,5 +298,10 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         // as the service already flushed the changes, we don't need to return anything in particular
         return new ResourceChange($entity, $this, []);
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_admin_element_edit'];
     }
 }

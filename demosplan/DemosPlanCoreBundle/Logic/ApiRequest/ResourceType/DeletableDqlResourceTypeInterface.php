@@ -26,4 +26,9 @@ interface DeletableDqlResourceTypeInterface extends ResourceTypeInterface
      * @return ResourceChange<T>
      */
     public function delete(object $entity): ResourceChange;
+
+    /**
+     * @return list<non-empty-string> list of permission identifiers, each and all permissions must be enabled for the resource to be deletable
+     */
+    public function getRequiredDeletionPermissions(): array;
 }
