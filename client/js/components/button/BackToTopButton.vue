@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton, throttle } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBackToTop',
@@ -24,6 +24,7 @@ export default {
 
   data () {
     return {
+      containerElement: null,
       buttonPosition: '',
       contentHeight: 0,
       footerHeight: 0,
@@ -35,13 +36,13 @@ export default {
 
   computed: {
     hide () {
-      return this.scrollPos < this.windowHeight
+      return this.scrollPos < this.windowHeight * 0.7
     }
   },
 
   methods: {
     calculateSizes () {
-      this.positionFromLeft = document.getElementById('jumpContent').offsetWidth + document.getElementById('jumpContent').offsetLeft
+      this.positionFromLeft = this.containerElement.offsetWidth + this.containerElement.offsetLeft
       this.contentHeight = document.documentElement.scrollHeight - document.documentElement.offsetHeight
       this.footerheight = document.querySelector('#app footer').offsetHeight
       this.windowHeight = document.documentElement.clientHeight
@@ -60,17 +61,19 @@ export default {
   },
 
   mounted () {
+    this.containerElement = document.getElementById('jumpContent')
     this.calculateSizes()
     this.calculatePosition()
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('scroll', throttle(() => {
+      this.calculatePosition()
+    }, 20))
+
+    new ResizeObserver(throttle(() => {
       this.calculateSizes()
       this.calculatePosition()
-    })
-
-    window.addEventListener('scroll', () => {
-      this.calculatePosition()
-    })
+    }), 20)
+      .observe(this.containerElement)
   }
 }
 
