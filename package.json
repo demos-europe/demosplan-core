@@ -6,6 +6,7 @@
     "dev:bobhh": "cross-env ./fe build bobhh",
     "dev:bobsh": "cross-env ./fe build bobsh",
     "dev:diplanbau": "cross-env ./fe build diplanbau",
+    "dev:diplanrog": "cross-env ./fe build diplanrog",
     "dev:ewm": "cross-env ./fe build ewm",
     "dev:planfestsh": "cross-env ./fe build planfestsh",
     "dev:regio": "cross-env ./fe build regio",
@@ -17,6 +18,7 @@
     "prod:bobhh": "cross-env ./fe build --prod bobhh",
     "prod:bobsh": "cross-env ./fe build --prod bobsh",
     "prod:diplanbau": "cross-env ./fe build --prod diplanbau",
+    "prod:diplanrog": "cross-env ./fe build --prod diplanrog",
     "prod:ewm": "cross-env ./fe build --prod ewm",
     "prod:planfestsh": "cross-env ./fe build --prod planfestsh",
     "prod:regio": "cross-env ./fe build --prod regio",
@@ -31,6 +33,7 @@
     "watch:bobhh": "cross-env ./fe watch bobhh",
     "watch:bobsh": "cross-env ./fe watch bobsh",
     "watch:diplanbau": "cross-env ./fe watch diplanbau",
+    "watch:diplanrog": "cross-env ./fe watch diplanrog",
     "watch:ewm": "cross-env ./fe watch ewm",
     "watch:planfestsh": "cross-env ./fe watch planfestsh",
     "watch:regio": "cross-env ./fe watch regio",
@@ -41,7 +44,7 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
-    "@demos-europe/demosplan-ui": "^0",
+    "@demos-europe/demosplan-ui": "^0.1.8-rerelease",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
     "@masterportal/masterportalapi": "^2.19.2",

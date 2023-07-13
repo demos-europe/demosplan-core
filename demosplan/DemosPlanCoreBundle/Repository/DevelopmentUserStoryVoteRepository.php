@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 
-class DevelopmentUserStoryVoteRepository extends CoreRepository implements ArrayInterface
+class DevelopmentUserStoryVoteRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get Entity by Id.

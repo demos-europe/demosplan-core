@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
@@ -27,8 +26,10 @@ use function collect;
 
 class FacetFactory
 {
-    public function __construct(private readonly EntityFetcher $entityFetcher, private readonly PrefilledResourceTypeProvider $resourceTypeProvider, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly PrefilledResourceTypeProvider $resourceTypeProvider,
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
     /**
@@ -87,7 +88,7 @@ class FacetFactory
         $groupsLoadConditions = $facetDefinition->getGroupsLoadConditions();
 
         // load the groups to be shown in the facet
-        $groups = collect($this->entityFetcher->listEntities($resourceType, $groupsLoadConditions));
+        $groups = collect($resourceType->listEntities($groupsLoadConditions));
 
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
@@ -99,7 +100,7 @@ class FacetFactory
                 throw AccessException::typeNotAvailable($itemResourceType);
             }
 
-            return collect($this->entityFetcher->listPrefilteredEntities($itemResourceType, $facetDefinition->getGroupItems($group), []));
+            return collect($itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []));
         });
 
         $selections = $this->determineSelections($facetDefinition, $rawFilter, $flattedItems);
@@ -187,8 +188,7 @@ class FacetFactory
             throw AccessException::typeNotAvailable($itemsResourceType);
         }
 
-        $items = $this->entityFetcher->listEntities(
-            $itemsResourceType,
+        $items = $itemsResourceType->listEntities(
             $facetDefinition->getRootItemsLoadConditions(),
             $facetDefinition->getItemsSortMethods()
         );
@@ -220,7 +220,7 @@ class FacetFactory
             throw AccessException::typeNotAvailable($itemResourceType);
         }
 
-        $items = $this->entityFetcher->listPrefilteredEntities($itemResourceType, $facetDefinition->getGroupItems($group), []);
+        $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []);
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);
     }

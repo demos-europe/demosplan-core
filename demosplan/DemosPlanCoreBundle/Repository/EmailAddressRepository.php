@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
-class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
+class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
 {
     /**
      * @param string[] $inputEmailAddressStrings
@@ -24,7 +24,7 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
     public function getOrCreateEmailAddresses(array $inputEmailAddressStrings): array
     {
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
-        $foundEmailAddressStrings = array_map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
+        $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
         $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {

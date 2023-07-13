@@ -48,10 +48,10 @@ when@test:
     doctrine:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
             default_connection: dplan
             connections:
                 dplan:
+                    dbname_suffix: '_test%env(default::TEST_TOKEN)%'
                     driver: pdo_sqlite
                     path: "%kernel.cache_dir%/__DBNAME__.db"
                     charset: UTF8

@@ -25,7 +25,7 @@
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
 
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_useremail"
               data-cy="username"

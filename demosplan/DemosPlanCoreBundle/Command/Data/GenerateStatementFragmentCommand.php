@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFragmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
