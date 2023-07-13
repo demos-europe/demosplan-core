@@ -18,10 +18,10 @@
 
 // Color tokens from demosplan-ui.
 
-@import '~@demos-europe/demosplan-ui/tokens/scss/color.palette';
-@import '~@demos-europe/demosplan-ui/tokens/scss/color.data';
-@import '~@demos-europe/demosplan-ui/tokens/scss/color.brand';
-@import '~@demos-europe/demosplan-ui/tokens/scss/color.ui';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/color.palette';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/color.data';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/color.brand';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/color.ui';
 
 
 // Variables that are not defined in demosplan-ui but used globally within demosplan.
