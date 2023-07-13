@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { DpButton, throttle } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBackToTop',
@@ -64,14 +64,14 @@ export default {
     this.calculateSizes()
     this.calculatePosition()
 
-    window.addEventListener('scroll', throttle(() => {
+    window.addEventListener('scroll', () => {
       this.calculatePosition()
-    }, 20))
+    }, { passive: true })
 
-    new ResizeObserver(throttle(() => {
+    new ResizeObserver(() => {
       this.calculateSizes()
       this.calculatePosition()
-    }), 20)
+    })
       .observe(this.containerElement)
   }
 }
