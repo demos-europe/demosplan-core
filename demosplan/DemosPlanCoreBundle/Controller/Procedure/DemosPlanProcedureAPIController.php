@@ -514,8 +514,11 @@ class DemosPlanProcedureAPIController extends APIController
      * )
      * @DplanPermissions("area_admin_invitable_institution")
      */
-    public function addInvitedPublicAffairsAgentsAction(Request $request, ResourceLinkageFactory $linkageFactory, string $procedureId): JsonResponse
-    {
+    public function addInvitedPublicAffairsAgentsAction(
+        Request $request,
+        ResourceLinkageFactory $linkageFactory,
+        string $procedureId
+    ): JsonResponse {
         // Check if normalizer succeeded, even if we don't need its object here
         if (null === $this->requestData) {
             throw BadRequestException::normalizerFailed();

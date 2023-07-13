@@ -121,15 +121,13 @@ export default {
         url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
           procedureId: this.procedureId
         }),
-        data: publicAgenciesIds.map(id => {
+        data: { data: publicAgenciesIds.map(id => {
           return {
-            data: {
-              type: 'publicAffairsAgent',
-              id: id
-            }
+            type: 'publicAffairsAgent',
+            id: id
           }
         })
-      })
+      }})
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
           this.getInstitutions({ procedureId: this.procedureId })

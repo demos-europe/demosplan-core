@@ -44,6 +44,6 @@ class ResourceLinkageFactory
             throw new InvalidArgumentException('expected JSON object with \'data\' as only field containing an array');
         }
 
-        return ToManyResourceLinkage::createFromArray($requestJson);
+        return ToManyResourceLinkage::createFromArray($requestJson[ContentField::DATA]);
     }
 }
