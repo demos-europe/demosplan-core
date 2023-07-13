@@ -12,16 +12,6 @@
  */
 
 export default function initGlobalEventListener () {
-  // Used for Scroll to Top
-  const scrollToTop = document.querySelector('[data-scroll-to-top]')
-  if (scrollToTop) {
-    scrollToTop.addEventListener('click', function (event) {
-      event.preventDefault()
-      document.body.scrollTop = 0
-      document.documentElement.scrollTop = 0
-    })
-  }
-
   // Used for responsively compressed menu
   const responsiveMenuHelper = document.querySelector('[data-responsive-menu-helper]')
   if (responsiveMenuHelper) {
