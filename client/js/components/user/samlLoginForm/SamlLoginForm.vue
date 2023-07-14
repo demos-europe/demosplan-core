@@ -143,7 +143,7 @@ export default {
   methods: {
     submit () {
       this.dpValidateAction('loginForm', () => {
-        this.$refs.simplifiedNewStatementForm.submit()
+        this.$refs.loginForm.submit()
       }, false)
     }
   }
