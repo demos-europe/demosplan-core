@@ -11,13 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocxResponseGenerator extends FileResponseGeneratorAbstract
 {
-    public function __construct(array $supportedTypes)
+    public function __construct(array $supportedTypes, NameGenerator $nameGenerator)
     {
+        parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
     }
 
@@ -44,12 +46,10 @@ class DocxResponseGenerator extends FileResponseGeneratorAbstract
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        if ($this->nameGenerator) {
             $response->headers->set(
                 'Content-Disposition',
                 $this->nameGenerator->generateDownloadFilename($file['filename'])
             );
-        }
 
         return $response;
     }
