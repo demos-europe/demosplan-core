@@ -25,7 +25,7 @@ module.exports = {
     'scss/at-import-no-partial-leading-underscore': null,
     'scss/at-rule-conditional-no-parentheses': null,
     'scss/at-rule-no-unknown': [
-      true,
+      true, // Allow @tailwind expression while keeping the rest of the rule
       {
         'ignoreAtRules': [
           'extends',
