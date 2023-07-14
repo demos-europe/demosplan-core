@@ -51,6 +51,7 @@
             hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
             text: Translator.trans('master')
           }"
+          data-cy="NewBlueprintForm:selectedBlueprint"
           name="r_copymaster"
           :options="blueprintOptions"
           :show-placeholder="false"
@@ -66,6 +67,7 @@
           <dp-text-area
             :label="Translator.trans('internalnote')"
             id="r_desc"
+            data-cy="NewBlueprintForm:internalNote"
             name="r_desc"
             reduced-height />
         </dp-form-row>
@@ -124,10 +126,11 @@
             type="submit"
             :value="Translator.trans('save')"
             id="saveButton"
-            data-cy="saveButton">
+            data-cy="NewBlueprintForm:saveButton">
 
           <a
             class="btn btn--secondary"
+            data-cy="NewBlueprintForm:abortButton"
             :href="Routing.generate('DemosPlan_procedure_templates_list')">
             {{ Translator.trans('abort') }}
           </a>
