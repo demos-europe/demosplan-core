@@ -18,7 +18,7 @@
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
       ref="editSelectedItemsMenu">
-      <div class="flex flex-items-center space-inline-m">
+      <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
         <search-modal
           ref="searchModal"
@@ -38,7 +38,7 @@
         <!-- Reset filters -->
         <div
           v-if="Object.keys(filterSet).length || searchFields.length || searchTerm.length"
-          class="flex-item-end">
+          class="ml-auto">
           <dp-button
             :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId })"
             :text="Translator.trans('reset')"

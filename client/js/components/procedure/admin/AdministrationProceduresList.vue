@@ -9,13 +9,13 @@
 
 <template>
   <div class="space-stack-s">
-    <div class="flex flex-content-between">
+    <div class="flex justify-between">
       <p
         v-text="Translator.trans('text.procedures.list')" />
 
       <div
         v-if="hasPermission('feature_admin_new_procedure')"
-        class="text--right">
+        class="text-right">
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
@@ -35,7 +35,7 @@
         @reset="resetAdministrationProceduresList" />
 
       <dp-select
-        class="width-250 flex-item-end"
+        class="width-250 ml-auto"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
@@ -131,12 +131,12 @@
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
           v-text="statementsCount"
-          class="text--center" />
+          class="text-center" />
       </template>
 
       <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
         <div
-          class="float--left u-m-0">
+          class="float-left u-m-0">
           <span v-text="internalPhase" />
           <div v-text="internalStartDate + ' - ' + internalEndDate" />
         </div>

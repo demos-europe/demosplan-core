@@ -53,34 +53,17 @@ use Elastica\Index;
 final class StatementSegmentResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, ReadableEsResourceTypeInterface
 {
     /**
-     * @var QuerySegment
-     */
-    private $esQuery;
-    /**
      * @var Index
      */
     private $esType;
 
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var PlaceResourceType
-     */
-    private $placeResourceType;
-
     public function __construct(
-        QuerySegment $queryStatement,
+        private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
-        PlaceResourceType $placeResourceType,
-        ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly PlaceResourceType $placeResourceType,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
     ) {
-        $this->esQuery = $queryStatement;
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->placeResourceType = $placeResourceType;
     }
 
     public function getEntityClass(): string
@@ -254,8 +237,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
-        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
-            return $property->filterable()->sortable();
-        }, $properties);
+        return array_map(static fn(PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
     }
 }

@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 
-class DevelopmentUserStoryVoteRepository extends CoreRepository implements ArrayInterface
+class DevelopmentUserStoryVoteRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get Entity by Id.
@@ -124,7 +124,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
      *
      * @return CoreEntity
      */
-    public function update($entityId, array $data)
+    public function update($entityId, array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -260,7 +260,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
             ->find($userStoryId);
 
         if (!is_null($story)) {
-            if (0 !== strcmp($story->getReleaseId(), $releaseId)) {
+            if (0 !== strcmp($story->getReleaseId(), (string) $releaseId)) {
                 $result = false;
             }
         } else {

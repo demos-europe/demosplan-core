@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -19,10 +17,12 @@ use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use InvalidArgumentException;
 
-class ReportRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ReportRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Gets an ReportEntry.
@@ -64,7 +64,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @throws DeprecatedException
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new DeprecatedException('Use addObject instead.');
     }
@@ -192,7 +192,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

@@ -31,9 +31,9 @@ use function array_key_exists;
 
 class ElasticSearchService extends CoreService
 {
-    public const EXISTING_FIELD_FILTER = '*';
-    public const KEINE_ZUORDNUNG = 'keinezuordnung';
-    public const EMPTY_FIELD = 'no_value';
+    final public const EXISTING_FIELD_FILTER = '*';
+    final public const KEINE_ZUORDNUNG = 'keinezuordnung';
+    final public const EMPTY_FIELD = 'no_value';
 
     /**
      * Number of Documents to be counted as an Elasticsearch aggregation.
@@ -41,35 +41,9 @@ class ElasticSearchService extends CoreService
      * @var int
      */
     protected $aggregationsMinDocumentCount = 1;
-    /**
-     * @var UserService
-     */
-    private $userService;
 
-    /**
-     * @var EditorService
-     */
-    private $editorService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var ElasticsearchFilterArrayTransformer
-     */
-    private $elasticsearchFilterArrayTransformer;
-
-    public function __construct(
-        EditorService $editorService,
-        ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
-        PermissionsInterface $permissions,
-        UserService $userService
-    ) {
-        $this->editorService = $editorService;
-        $this->elasticsearchFilterArrayTransformer = $elasticsearchFilterArrayTransformer;
-        $this->permissions = $permissions;
-        $this->userService = $userService;
+    public function __construct(private readonly EditorService $editorService, private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer, private readonly PermissionsInterface $permissions, private readonly UserService $userService)
+    {
     }
 
     /**
@@ -101,7 +75,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsAggregation(Query $query, $key, $orderBy = null, $orderDir = null, $bucketKey = null): Query
     {
-        $bucketKey = $bucketKey ?? $key;
+        $bucketKey ??= $key;
         $aggPriority = new \Elastica\Aggregation\Terms($bucketKey);
         $aggPriority->setField($key);
         // we usually need all Aggregations, 0 is not allowed any more. Use some reasonably big magic number
@@ -276,9 +250,7 @@ class ElasticSearchService extends CoreService
         // sort by Label
         \usort(
             $bucket,
-            function ($a, $b) {
-                return \strnatcasecmp($a['label'], $b['label']);
-            }
+            fn($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
         );
 
         return $bucket;
@@ -351,7 +323,7 @@ class ElasticSearchService extends CoreService
         $usedSearchFields = [];
         foreach ($searchFields as $esField) {
             if (is_array($esField)) {
-                $usedSearchFields = array_merge($usedSearchFields, $esField);
+                $usedSearchFields = [...$usedSearchFields, ...$esField];
             } else {
                 $usedSearchFields[] = $esField;
             }
@@ -513,7 +485,7 @@ class ElasticSearchService extends CoreService
         $resultKey = 'statements'
     ): ElasticsearchResultSet {
         $filterSet = [
-            'total'   => count($elasticsearchResult->getAggregations()),
+            'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,
             'offset'  => 0,
             'limit'   => 0,
             'filters' => $elasticsearchResult->getAggregations(),

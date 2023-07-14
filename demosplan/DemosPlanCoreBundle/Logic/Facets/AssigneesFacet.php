@@ -24,14 +24,11 @@ use EDT\Querying\Contracts\FunctionInterface;
  */
 class AssigneesFacet implements GroupedFacetInterface
 {
-    private $rootItemsLoadCondition;
-
     /**
      * @param FunctionInterface<bool> $rootItemsLoadCondition
      */
-    public function __construct(FunctionInterface $rootItemsLoadCondition)
+    public function __construct(private readonly FunctionInterface $rootItemsLoadCondition)
     {
-        $this->rootItemsLoadCondition = $rootItemsLoadCondition;
     }
 
     public function getFacetNameTranslationKey(): string

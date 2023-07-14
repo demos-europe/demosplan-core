@@ -13,7 +13,7 @@
         <h1>{{ "globalnews.administrate"|trans }}</h1>
     {% endif %}
 
-    <form class="cf" name="itemsForm">
+    <form class="flow-root" name="itemsForm">
         <dp-news-admin-list
             procedure-id="{{ procedure|default }}"
             :init-list="JSON.parse('{{ templateVars.list.newslist|default([])|json_encode|e('js', 'utf-8') }}')">

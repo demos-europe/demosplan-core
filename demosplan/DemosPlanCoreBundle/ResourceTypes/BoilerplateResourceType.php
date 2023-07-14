@@ -33,14 +33,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class BoilerplateResourceType extends DplanResourceType
 {
-    /**
-     * @var HTMLSanitizer
-     */
-    private $htmlSanitizer;
-
-    public function __construct(HTMLSanitizer $htmlSanitizer)
+    public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public static function getName(): string
@@ -96,13 +90,9 @@ final class BoilerplateResourceType extends DplanResourceType
             $this->createAttribute($this->procedureId)
                 ->readable(true)->aliasedPath($this->procedure->id),
             $this->createAttribute($this->text)->sortable()
-                ->readable(true, function (Boilerplate $boilerplate): string {
-                    return $this->htmlSanitizer->purify($boilerplate->getText());
-                }, true),
+                ->readable(true, fn(Boilerplate $boilerplate): string => $this->htmlSanitizer->purify($boilerplate->getText()), true),
             $this->createAttribute($this->categoriesTitle)
-                ->readable(true, function (Boilerplate $boilerplate): array {
-                    return $boilerplate->getCategoryTitles();
-                }),
+                ->readable(true, fn(Boilerplate $boilerplate): array => $boilerplate->getCategoryTitles()),
             // defaultInclude used because of recursion
             $this->createToOneRelationship($this->group, true)->readable(true),
         ];

@@ -45,12 +45,12 @@
         <input type="hidden" name="r_location_geometry" value="">
     {% endif %}
 
-    <header class="{{ 'c-statement__header cf'|prefixClass }}" role="banner">
+    <header class="{{ 'c-statement__header flow-root'|prefixClass }}" role="banner">
 
         {# dialog title #}
         <h2
             id="statementModalTitle"
-            class="{{ 'color-highlight float--left u-m-0'|prefixClass }}"
+            class="{{ 'color-highlight float-left u-m-0'|prefixClass }}"
             data-statement-state-started
         >
             <i class="{{ 'fa fa-comment'|prefixClass }}" aria-hidden="true"></i>
@@ -70,7 +70,7 @@
     {# should be used with |raw Filter in this special case as html-tags are returned #}
     {{ extensionPointMarkup('formExtraFields')|raw }}
 
-    <div class="{{ 'u-mv-0_5 space-inline-s cf'|prefixClass }}" data-statement-state-submit>
+    <div class="{{ 'u-mv-0_5 space-inline-s flow-root'|prefixClass }}" data-statement-state-submit>
         {% if loggedin %}
             <button
                 type="reset"
@@ -81,13 +81,13 @@
                 {# Logged in, existing draft statement #}
                 <button
                     type="submit"
-                    class="{{ 'btn btn--primary float--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
+                    class="{{ 'btn btn--primary float-right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
                     data-cy="saveChangedStatement">
                     {{ "statement.save.altered"|trans }}
                 </button>
             {% else %}
                 {# Logged in, new draft statement #}
-                <div class="{{ "display--inline-block float--right u-1-of-1-palm u-mt-0_5-palm"|prefixClass }}">
+                <div class="{{ "inline-block float-right u-1-of-1-palm u-mt-0_5-palm"|prefixClass }}">
                     {% if hasPermission('feature_draft_statement_citizen_immediate_submit') %}
                         <button
                             type="submit"
@@ -113,7 +113,7 @@
             <button
                 id="submit"
                 type="submit"
-                class="{{ 'btn btn--primary u-ml float--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
+                class="{{ 'btn btn--primary u-ml float-right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}"
                 data-cy="submitStatement">
                 <i class="{{ 'fa fa-comment u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
                 {{ "statement.submit.now"|trans }}

@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table(name="_procedure_settings", indexes={@ORM\Index(name="_procedure_settings_ibfk_1", columns={"_p_id"})})
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository")
  */
 class ProcedureSettings extends CoreEntity implements UuidEntityInterface, ProcedureSettingsInterface
 {

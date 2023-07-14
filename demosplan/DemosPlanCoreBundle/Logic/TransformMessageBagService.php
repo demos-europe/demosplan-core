@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Tightenco\Collect\Support\Collection;
@@ -18,26 +20,21 @@ use Tightenco\Collect\Support\Collection;
 class TransformMessageBagService
 {
     /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
      * @var FlashBagInterface
      */
     private $flashBag;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
 
     public function __construct(
-        MessageBagInterface $messageBag,
-        FlashBagInterface $flashBag,
-        RouterInterface $router
+        private readonly MessageBagInterface $messageBag,
+        RequestStack $requestStack,
+        private readonly RouterInterface $router
     ) {
-        $this->messageBag = $messageBag;
-        $this->flashBag = $flashBag;
-        $this->router = $router;
+        try {
+            // in some cases like console commands, the request stack is not available
+            $this->flashBag = $requestStack->getSession()->getFlashBag();
+        } catch (\Throwable) {
+            $this->flashBag = new FlashBag();
+        }
     }
 
     public function transformMessageBagToFlashes(): void

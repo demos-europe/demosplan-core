@@ -20,7 +20,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use UnexpectedValueException;
 
-class FaqCategoryRepository extends CoreRepository
+class FaqCategoryRepository extends FluentRepository
 {
     /**
      * Get FaqCategory by id of a specific customer.

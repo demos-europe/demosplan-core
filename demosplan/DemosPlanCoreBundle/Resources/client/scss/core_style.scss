@@ -7,6 +7,7 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 // INUIT 5
 
 // Because inuitcss is broken apart into lots of small, composable modules, it is important that you as
@@ -23,6 +24,16 @@
 // Read more about inuit: https://github.com/inuitcss/inuitcss
 
 
+// Tailwind
+
+// This project is in the process of migrating from INUIT 5 to Tailwind.
+// A custom Tailwind build is separately included in the 'demosplan-ui' entrypoint. It contains...
+// - Tailwind Preflight, an opinionated set of base styles (see https://tailwindcss.com/docs/preflight)
+// - Tailwind Utility Classes (to be configured by demosplan-ui design tokens).
+// As Tailwind is configured to use !important everywhere, its utility classes should always win,
+// at least if not outpaced by even higher specificity.
+
+
 // This file is imported from projects/<project>/app/Resources/DemosPlanCoreBundle/client/scss/style.scss
 // after importing the following files, which declare all variables needed for project specific style compilation:
 // - settings-color.project.dplan
@@ -31,17 +42,14 @@
 // - <core>/settings-fonts.dplan
 // - settings.project.dplan
 
-// Styles from demosplan-ui (Tailwindcss)
-// @TODO make purgeCss work for tailwind styles. After that, we can start adopting tailwind in demosPlan.
-// @import url('~demosplan-ui/style/style.css');
 
 // Design tokens - the visual atoms of the demosplan-ui design system.
 // The files are included here to make tokens available to objects and components.
 // Color tokens are imported within _settings-color.dplan.sss.
 // Color tokens may be overridden from within <project-scss-path>/settings-color.project.dplan
-@import '@demos-europe/demosplan-ui/tokens/scss/boxShadow';
-@import '@demos-europe/demosplan-ui/tokens/scss/fontSize';
-@import '@demos-europe/demosplan-ui/tokens/scss/rounded';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/boxShadow';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/fontSize';
+@import '~@demos-europe/demosplan-ui/tokens/dist/scss/rounded';
 
 // Base settings, sync inuit with demosplan settings
 @import 'settings.dplan';
@@ -62,14 +70,9 @@
 @import 'inuit-5/tools.widths';
 
 // Generic
-@import 'inuit-5/generic.box-sizing';
-@import '~normalize.css/normalize.css';
-@import 'inuit-5/generic.reset';
 @import 'inuit-5/generic.shared';
 
 // Base (Elements)
-@import 'inuit-5/base.images';
-@import 'inuit-5/base.lists';
 @import 'inuit-5/base.page';
 @import 'base.dplan';
 
@@ -89,6 +92,7 @@
 @import 'trumps-3rd-party-resets.dplan';
 @import 'inuit-5/trumps.widths';
 @import 'inuit-5/trumps.widths-responsive';
+
 
 // After including core_style.scss (this file), the project style.scss file that serves as an entry point for style
 // compilation also includes two more project specific files, which contain project overrides on a very specific level:

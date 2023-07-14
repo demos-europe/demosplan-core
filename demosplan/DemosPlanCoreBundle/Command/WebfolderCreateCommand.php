@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -90,7 +91,7 @@ EOT
             $this->copyStaticCss($projectWebsource, $projectWebfolderTarget);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
@@ -108,7 +109,7 @@ EOT
         }
 
         foreach (glob($source.'/css/*.css') as $filename) {
-            $targetFile = basename($filename);
+            $targetFile = basename((string) $filename);
             echo 'Copy '.$filename.' to '.$targetDir.$targetFile."\n";
             copy($filename, $targetDir.$targetFile);
         }
@@ -154,7 +155,7 @@ EOT
                     $output->writeln('DeleteFolder '.$dirToDelete);
                     $fs->remove(glob($dirToDelete));
                 });
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->error('Error deleting: ');
         }
 

@@ -1,7 +1,7 @@
 <p class="{{ 'weight--bold u-mt u-mb-0'|prefixClass }}" id="statementMapReference">
     {{ "statement.map.reference"|trans }}<span aria-hidden="true">*</span>
 </p>
-<fieldset class="{{ 'toggle-group-location display--block'|prefixClass }}" role="radiogroup" aria-labelledby="statementMapReference" aria-required="true" id="locationFieldset">
+<fieldset class="{{ 'toggle-group-location block'|prefixClass }}" role="radiogroup" aria-labelledby="statementMapReference" aria-required="true" id="locationFieldset">
     {% if hasPermission('field_statement_location') %}
         <div class="{{ ('c-statement__formblock layout__item u-1-of-1-palm height-90 height-auto-lap-down ' ~ (loggedin ? 'u-1-of-3' : 'u-3-of-10'))|prefixClass }}" data-toggle-id="locationCountryOrga">
 

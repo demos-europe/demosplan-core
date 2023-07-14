@@ -107,7 +107,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         foreach ($entries as $entry) {
             try {
                 $files = $forumEntryFileRepos->getFileResponsesAsString($entry->getIdent());
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $files = [];
             }
             $entryResponse = $this->convertToEntryResponse($entry, $files);
@@ -211,7 +211,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         foreach ($files as $singleFileString) {
             $fileToAdd = new ForumEntryFile();
             $fileToAdd->setString($singleFileString);
-            $exploded = explode(':', $singleFileString);
+            $exploded = explode(':', (string) $singleFileString);
             $fileToAdd->setHash($exploded[1]);
             $fileToAdd->setEntry($entry);
 
@@ -292,7 +292,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new Exception('not used any more');
     }

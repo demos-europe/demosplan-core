@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
@@ -58,37 +58,20 @@ class AssessmentHandler extends CoreHandler
     /** @var TranslatorInterface */
     protected $translator;
 
-    /** @var ProcedureService */
-    private $procedureService;
-
-    /** @var PresentableOriginalStatementFactory */
-    private $presentableOriginalStatementFactory;
-
-    /** @var GlobalConfig */
-    private $globalConfig;
-
     /**
      * @var SimpleSpreadsheetService
      */
     protected $simpleSpreadsheetService;
 
-    /** @var RouterInterface */
-    private $router;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
-        CurrentUserInterface $currentUser,
-        GlobalConfig $globalConfig,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly GlobalConfig $globalConfig,
         HashedQueryService $filterSetService,
         MessageBag $messageBag,
-        PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
-        ProcedureService $procedureService,
-        RouterInterface $router,
+        private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
+        private readonly ProcedureService $procedureService,
+        private readonly RouterInterface $router,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
@@ -97,12 +80,7 @@ class AssessmentHandler extends CoreHandler
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
-        $this->currentUser = $currentUser;
         $this->filterSetService = $filterSetService;
-        $this->globalConfig = $globalConfig;
-        $this->presentableOriginalStatementFactory = $presentableOriginalStatementFactory;
-        $this->procedureService = $procedureService;
-        $this->router = $router;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
         $this->statementFragmentService = $statementFragmentService;
         $this->statementService = $statementService;
@@ -147,7 +125,7 @@ class AssessmentHandler extends CoreHandler
     {
         $rParams = [
             'filters'   => ['original' => 'IS NULL'],
-            'request'   => ['limit' => 1000000],
+            'request'   => ['limit' => 1_000_000],
             'items'     => [],
             'procedure' => $procedureId,
         ];
@@ -168,7 +146,7 @@ class AssessmentHandler extends CoreHandler
         $statementsAsArrays = $outputResult->getStatements();
         $statementsAsObjects = $this->elasticsearchStatementsToObjects($statementsAsArrays);
         $presentableOriginalStatements = array_map(
-            [$this->presentableOriginalStatementFactory, 'createFromStatement'],
+            $this->presentableOriginalStatementFactory->createFromStatement(...),
             $statementsAsObjects
         );
 
@@ -265,7 +243,7 @@ class AssessmentHandler extends CoreHandler
              * Keine Gliederung
              * {"anonymous":true,"exportType":"statementsOnly","sortType":"default","template":"landscape"}
              */
-            $viewOrientation = false !== \strpos($exportChoice['template'], 'landscape')
+            $viewOrientation = str_contains((string) $exportChoice['template'], 'landscape')
                 ? ViewOrientation::createLandscape()
                 : ViewOrientation::createPortrait();
             $objWriter = $this->assessmentTableServiceOutput->generateDocx(
@@ -328,7 +306,7 @@ class AssessmentHandler extends CoreHandler
         $requestPost['procedure'] = $procedureId;
         $requestPost['filters']['original'] = $original ? 'IS NULL' : 'IS NOT NULL';
 
-        if (array_key_exists('items', $requestPost) && 0 < count($requestPost['items'])) {
+        if (array_key_exists('items', $requestPost) && 0 < (is_countable($requestPost['items']) ? count($requestPost['items']) : 0)) {
             $requestPost['filters']['id'] = [];
             foreach ($requestPost['items'] as $statementIdOrFragmentId) {
                 $requestPost['filters']['id'][] =

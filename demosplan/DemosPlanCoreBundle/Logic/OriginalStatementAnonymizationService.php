@@ -21,21 +21,8 @@ use Doctrine\ORM\ORMException;
 
 class OriginalStatementAnonymizationService extends CoreService
 {
-    /**
-     * @var OriginalStatementAnonymizationRepository
-     */
-    private $originalStatementAnonymizationRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    public function __construct(
-        OriginalStatementAnonymizationRepository $originalStatementAnonymizationRepository,
-        UserRepository $userRepository
-    ) {
-        $this->originalStatementAnonymizationRepository = $originalStatementAnonymizationRepository;
-        $this->userRepository = $userRepository;
+    public function __construct(private readonly OriginalStatementAnonymizationRepository $originalStatementAnonymizationRepository, private readonly UserRepository $userRepository)
+    {
     }
 
     /**

@@ -18,11 +18,8 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class AfterSegmentationEvent extends DPlanEvent implements AfterSegmentationEventInterface
 {
-    private Statement $statement;
-
-    public function __construct(Statement $statement)
+    public function __construct(private Statement $statement)
     {
-        $this->statement = $statement;
     }
 
     public function getStatement(): Statement

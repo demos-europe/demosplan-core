@@ -53,10 +53,6 @@ class ParagraphExporter
      * @var LoggerInterface
      */
     protected $logger;
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
 
     /**
      * @throws Exception
@@ -67,14 +63,13 @@ class ParagraphExporter
         FileService $fileService,
         LoggerInterface $logger,
         ParagraphService $paragraphService,
-        ProcedureService $procedureService,
+        private readonly ProcedureService $procedureService,
         ServiceImporter $serviceImporter
     ) {
         $this->documentHandler = $documentHandler;
         $this->fileService = $fileService;
         $this->logger = $logger;
         $this->paragraphService = $paragraphService;
-        $this->procedureService = $procedureService;
         $this->serviceImporter = $serviceImporter;
         $this->twig = $twig;
     }
@@ -97,7 +92,7 @@ class ParagraphExporter
 
         preg_match_all('/includegraphics(\[.*\])?\{(.*)\}/', $content, $imagematches);
         if (isset($imagematches[2])) {
-            $this->logger->info('Pdf: Gefundene Bilder: '.count($imagematches[2]));
+            $this->logger->info('Pdf: Gefundene Bilder: '.(is_countable($imagematches[2]) ? count($imagematches[2]) : 0));
             foreach ($imagematches[2] as $match) {
                 try {
                     $file = $this->fileService->getFileInfo($match);
@@ -108,7 +103,7 @@ class ParagraphExporter
                         $pictures['picture'.$i] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->logger->warning('Could not find Picture referenced in conten', ['hash' => $match, 'content' => $content]);
                 }
             }
@@ -131,6 +126,7 @@ class ParagraphExporter
      */
     public function generatePdf($procedureId, $title, $category)
     {
+        $templateVars = [];
         $procedure = $this->procedureService->getProcedure($procedureId);
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $documentList = $this->paragraphService->getParaDocumentObjectList($procedureId, $category);

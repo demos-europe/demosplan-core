@@ -155,7 +155,7 @@ class EntityContentChangeRollbackVersionService extends CoreService
     public function skipLines(array $diffArray, int $currentChange, float $lineNumber): int
     {
         if (in_array($diffArray[$currentChange]['tag'], ['ins', 'rep'])) {
-            $lineNumber += count($diffArray[$currentChange]['new']['lines']);
+            $lineNumber += is_countable($diffArray[$currentChange]['new']['lines']) ? count($diffArray[$currentChange]['new']['lines']) : 0;
         }
 
         return (int) $lineNumber;

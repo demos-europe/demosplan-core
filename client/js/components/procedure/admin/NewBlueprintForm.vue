@@ -31,7 +31,7 @@
       <legend
         class="hide-visually"
         v-text="Translator.trans('blueprint.data')" />
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-input
           id="r_name"
           data-cy="newMasterName"
@@ -43,7 +43,7 @@
           required />
       </dp-form-row>
 
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-select
           id="r_copymaster"
           v-model="selectedBlueprint"
@@ -51,21 +51,23 @@
             hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
             text: Translator.trans('master')
           }"
+          data-cy="NewBlueprintForm:selectedBlueprint"
           name="r_copymaster"
           :options="blueprintOptions"
           :show-placeholder="false"
           @select="setValuesFromSelectedBlueprint" />
       </dp-form-row>
 
-      <div class="position--relative">
+      <div class="relative">
         <dp-loading
           v-if="isLoading"
           overlay />
 
-        <dp-form-row>
+        <dp-form-row class="u-mb-0_75">
           <dp-text-area
             :label="Translator.trans('internalnote')"
             id="r_desc"
+            data-cy="NewBlueprintForm:internalNote"
             name="r_desc"
             reduced-height />
         </dp-form-row>
@@ -91,7 +93,7 @@
         <dp-email-list
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-7 pointer-events-none' : '' } u-mt-0_25`"
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
           :init-emails="emailAddresses" />
 
         <dp-text-area
@@ -118,16 +120,17 @@
           {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
         </p>
 
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
           <input
             class="btn btn--primary"
             type="submit"
             :value="Translator.trans('save')"
             id="saveButton"
-            data-cy="saveButton">
+            data-cy="NewBlueprintForm:saveButton">
 
           <a
             class="btn btn--secondary"
+            data-cy="NewBlueprintForm:abortButton"
             :href="Routing.generate('DemosPlan_procedure_templates_list')">
             {{ Translator.trans('abort') }}
           </a>

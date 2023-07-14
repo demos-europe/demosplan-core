@@ -780,9 +780,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      */
     public function getFiles(): array
     {
-        return $this->files->map(static function (DraftStatementFileInterface $draftStatementFile): ?string {
-            return $draftStatementFile->getFileString();
-        })->toArray();
+        return $this->files->map(static fn (DraftStatementFileInterface $draftStatementFile): ?string => $draftStatementFile->getFileString())->toArray();
     }
 
     public function addFile(DraftStatementFileInterface $draftStatementFile): self
@@ -888,7 +886,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         if ($this->organisation instanceof OrgaInterface) {
             try {
                 $this->oGatewayName = $this->organisation->getGatewayName();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->oGatewayName = '';
             }
         }
@@ -1376,7 +1374,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

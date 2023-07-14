@@ -27,57 +27,8 @@ use Twig\Environment;
 
 class TokenCreationNotifier
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    public function __construct(
-        ConsultationTokenService $consultationTokenService,
-        Environment $twig,
-        LoggerInterface $logger,
-        MailService $mailService,
-        MessageBagInterface $messageBag,
-        OrgaService $orgaService,
-        TranslatorInterface $translator
-    ) {
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
-        $this->mailService = $mailService;
-        $this->orgaService = $orgaService;
-        $this->translator = $translator;
-        $this->twig = $twig;
-        $this->consultationTokenService = $consultationTokenService;
+    public function __construct(private readonly ConsultationTokenService $consultationTokenService, private readonly Environment $twig, private readonly LoggerInterface $logger, private readonly MailService $mailService, private readonly MessageBagInterface $messageBag, private readonly OrgaService $orgaService, private readonly TranslatorInterface $translator)
+    {
     }
 
     /**
@@ -114,7 +65,7 @@ class TokenCreationNotifier
         if (null === $emailAddress) {
             return false;
         }
-        if ('' === trim($emailAddress)) {
+        if ('' === trim((string) $emailAddress)) {
             return false;
         }
 

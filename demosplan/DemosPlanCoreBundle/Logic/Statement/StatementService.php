@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -61,7 +62,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutionSorter;
@@ -88,10 +88,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -126,7 +126,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
@@ -136,7 +135,6 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use ReflectionException;
@@ -155,19 +153,19 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * The name of the terms aggregation on the {@link Statement::$status} field.
      */
-    public const AGGREGATION_STATEMENT_STATUS = 'status';
+    final public const AGGREGATION_STATEMENT_STATUS = 'status';
     /**
      * The name of the terms aggregation on the {@link Statement::$priority} field.
      */
-    public const AGGREGATION_STATEMENT_PRIORITY = 'priority';
+    final public const AGGREGATION_STATEMENT_PRIORITY = 'priority';
     /**
      * Name of the {@link Statement::$status} field.
      */
-    public const FIELD_STATEMENT_STATUS = 'status';
+    final public const FIELD_STATEMENT_STATUS = 'status';
     /**
      * Name of the {@link Statement::$priority} field.
      */
-    public const FIELD_STATEMENT_PRIORITY = 'priority';
+    final public const FIELD_STATEMENT_PRIORITY = 'priority';
 
     /**
      * @var ProcedureService
@@ -197,12 +195,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /** @var UserService */
     protected $userService;
-
-    /** @var IndexManager */
-    protected $esIndexManager;
-
-    /** @var DemosPlanStatementAPIController */
-    protected $statementApiController;
 
     /** @var HashedQueryService */
     protected $filterSetService;
@@ -237,253 +229,73 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     protected $statementValidator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /** @var StatementEntityGrouper */
-    private $statementEntityGrouper;
-
-    /**
-     * @var EditorService
-     */
-    private $editorService;
-
-    /**
-     * @var ElasticSearchService
-     */
-    private $searchService;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var StatementAttachmentService
-     */
-    private $statementAttachmentService;
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var SimilarStatementSubmitterResourceType
-     */
-    private $similarStatementSubmitterResourceType;
-
-    /**
-     * @var ResourceTypeService
-     */
-    private $resourceTypeService;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var DepartmentRepository
-     */
-    private $departmentRepository;
-    /**
-     * @var FileContainerRepository
-     */
-    private $fileContainerRepository;
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-    /**
-     * @var SingleDocumentVersionRepository
-     */
-    private $singleDocumentVersionRepository;
-    /**
-     * @var StatementAttributeRepository
-     */
-    private $statementAttributeRepository;
-    /**
-     * @var StatementFragmentRepository
-     */
-    private $statementFragmentRepository;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-    /**
-     * @var StatementVoteRepository
-     */
-    private $statementVoteRepository;
-    /**
-     * @var TagRepository
-     */
-    private $tagRepository;
-    /**
-     * @var TagTopicRepository
-     */
-    private $tagTopicRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-    private StatementDeleter $statementDeleter;
-
     public function __construct(
         AssignService $assignService,
-        ConsultationTokenService $consultationTokenService,
-        CurrentUserInterface $currentUser,
-        DateHelper $dateHelper,
-        DepartmentRepository $departmentRepository,
-        DqlConditionFactory $conditionFactory,
-        EditorService $editorService,
-        ElasticSearchService $elasticSearchService,
+        private readonly ConsultationTokenService $consultationTokenService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DateHelper $dateHelper,
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EditorService $editorService,
+        private readonly ElasticSearchService $searchService,
         ElementsService $serviceElements,
         EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        EventDispatcherInterface $eventDispatcher,
-        FileContainerRepository $fileContainerRepository,
-        FileService $fileService,
-        GlobalConfigInterface $globalConfig,
+        private readonly EntityHelper $entityHelper,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FileContainerRepository $fileContainerRepository,
+        private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
-        ProcedureRepository $procedureRepository,
+        private readonly ProcedureRepository $procedureRepository,
         ProcedureService $procedureService,
-        ReportService $reportService,
-        ResourceTypeService $resourceTypeService,
-        RouterInterface $router,
-        SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
-        SingleDocumentRepository $singleDocumentRepository,
+        private readonly ReportService $reportService,
+        private readonly ResourceTypeService $resourceTypeService,
+        private readonly RouterInterface $router,
+        private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        SingleDocumentVersionRepository $singleDocumentVersionRepository,
-        StatementAttachmentService $statementAttachmentService,
-        StatementAttributeRepository $statementAttributeRepository,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly StatementAttributeRepository $statementAttributeRepository,
         StatementCopier $statementCopier,
         StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementEntityGrouper $statementEntityGrouper,
-        StatementFragmentRepository $statementFragmentRepository,
+        private readonly StatementEntityGrouper $statementEntityGrouper,
+        private readonly StatementFragmentRepository $statementFragmentRepository,
         StatementFragmentService $statementFragmentService,
         StatementGeoService $statementGeoService,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        StatementRepository $statementRepository,
-        StatementResourceType $statementResourceType,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementResourceType $statementResourceType,
         StatementValidator $statementValidator,
-        StatementVoteRepository $statementVoteRepository,
-        TagRepository $tagRepository,
-        TagTopicRepository $tagTopicRepository,
-        TranslatorInterface $translator,
-        UserRepository $userRepository,
+        private readonly StatementVoteRepository $statementVoteRepository,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
         UserService $userService,
-        StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter
     ) {
         $this->assignService = $assignService;
-        $this->conditionFactory = $conditionFactory;
-        $this->consultationTokenService = $consultationTokenService;
-        $this->currentUser = $currentUser;
-        $this->dateHelper = $dateHelper;
-        $this->departmentRepository = $departmentRepository;
-        $this->editorService = $editorService;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->fileContainerRepository = $fileContainerRepository;
-        $this->fileService = $fileService;
         $this->filterSetService = $filterSetService;
-        $this->messageBag = $messageBag;
         $this->paginationParser = $paginationParser;
         $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->priorityAreaService = $priorityAreaService;
-        $this->procedureRepository = $procedureRepository;
         $this->procedureService = $procedureService;
-        $this->reportService = $reportService;
-        $this->resourceTypeService = $resourceTypeService;
-        $this->router = $router;
-        $this->searchService = $elasticSearchService;
         $this->serviceElements = $serviceElements;
-        $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
-        $this->singleDocumentRepository = $singleDocumentRepository;
         $this->singleDocumentService = $singleDocumentService;
-        $this->singleDocumentVersionRepository = $singleDocumentVersionRepository;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->statementAttributeRepository = $statementAttributeRepository;
         $this->statementCopier = $statementCopier;
         $this->statementCopyAndMoveService = $statementCopyAndMoveService;
-        $this->statementEntityGrouper = $statementEntityGrouper;
-        $this->statementFragmentRepository = $statementFragmentRepository;
         $this->statementFragmentService = $statementFragmentService;
         $this->statementGeoService = $statementGeoService;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->statementRepository = $statementRepository;
-        $this->statementResourceType = $statementResourceType;
         $this->statementValidator = $statementValidator;
-        $this->statementVoteRepository = $statementVoteRepository;
-        $this->tagRepository = $tagRepository;
-        $this->tagTopicRepository = $tagTopicRepository;
-        $this->translator = $translator;
-        $this->userRepository = $userRepository;
         $this->userService = $userService;
-        $this->globalConfig = $globalConfig;
-        $this->statementDeleter = $statementDeleter;
     }
 
     /**
@@ -503,13 +315,13 @@ class StatementService extends CoreService implements StatementServiceInterface
         $em = $this->getDoctrine()->getManager();
 
         // Create and use versions of paragraph and SingleDocument
-        if (\array_key_exists('paragraphId', $data) && 0 < \strlen($data['paragraphId']) && '-' != $data['paragraphId']) {
+        if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('documentId', $data) && 0 < \strlen($data['documentId'])) {
+        if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
@@ -525,12 +337,10 @@ class StatementService extends CoreService implements StatementServiceInterface
             /** @var ArrayCollection<int,File> $originalAttachmentFiles */
             $originalAttachmentFiles = $data['originalAttachmentFiles'];
             $originalAttachments = $originalAttachmentFiles
-                ->map(function (File $file) use ($statement) {
-                    return $this->statementAttachmentService->createOriginalAttachment(
-                        $statement,
-                        $file
-                    );
-                });
+                ->map(fn (File $file) => $this->statementAttachmentService->createOriginalAttachment(
+                    $statement,
+                    $file
+                ));
             $statement->setAttachments($originalAttachments);
         }
 
@@ -586,7 +396,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             if (\array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($statement);
-            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen($data['statementAttributes']['county'])) {
+            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
                 } catch (Exception $e) {
@@ -839,11 +649,11 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     public function updatePersonEditableProperties(PropertiesUpdater $updater, ProcedurePerson $person): void
     {
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->city, [$person, 'setCity']);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->streetName, [$person, 'setStreetName']);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->streetNumber, [$person, 'setStreetNumber']);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->postalCode, [$person, 'setPostalCode']);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->emailAddress, [$person, 'setEmailAddress']);
+        $updater->ifPresent($this->similarStatementSubmitterResourceType->city, $person->setCity(...));
+        $updater->ifPresent($this->similarStatementSubmitterResourceType->streetName, $person->setStreetName(...));
+        $updater->ifPresent($this->similarStatementSubmitterResourceType->streetNumber, $person->setStreetNumber(...));
+        $updater->ifPresent($this->similarStatementSubmitterResourceType->postalCode, $person->setPostalCode(...));
+        $updater->ifPresent($this->similarStatementSubmitterResourceType->emailAddress, $person->setEmailAddress(...));
     }
 
     public function getStatementResourcesCount(string $procedureId): int
@@ -853,10 +663,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->getEntityCount(
-            $this->statementResourceType,
-            [$procedureCondition]
-        );
+        return $this->statementResourceType->getEntityCount([$procedureCondition]);
     }
 
     public function getMovedStatementData(Procedure $procedure): ?MovedStatementData
@@ -995,9 +802,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // ensure that every value is a statement
-        return \collect($statementIds)->filter(static function ($entry) {
-            return $entry instanceof Statement;
-        })->toArray();
+        return \collect($statementIds)->filter(static fn ($entry) => $entry instanceof Statement)->toArray();
     }
 
     /**
@@ -1075,7 +880,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($statements as $statement) {
                     $publicStatement = $statement instanceof Statement ? $statement->getPublicStatement() : $statement['publicStatement'];
                     $statementId = $statement instanceof Statement ? $statement->getId() : $statement['id'];
-                    if (0 < count($accessMap) && 0 === \strcmp($publicStatement, Statement::EXTERNAL)) {
+                    if (0 < count($accessMap) && 0 === \strcmp((string) $publicStatement, (string) Statement::EXTERNAL)) {
                         $this->addStatementViewedReport($procedureId, $accessMap, $statementId);
                     }
                 }
@@ -1109,9 +914,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         $assessmentQuery = $filterSet->getStoredQuery();
 
         $pagination = $this->paginationParser->parseApiPaginationProfile(
-            ['number' => 1, 'size' => 1000000],
+            ['number' => 1, 'size' => 1_000_000],
             (string) ToBy::createFromArray($assessmentQuery->getSorting(), 'submitDate', 'desc'),
-            1000000
+            1_000_000
         );
 
         $result = $this->getResultByFilterSetHash($filterHash, $pagination)->getCurrentPageResults();
@@ -1126,12 +931,10 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         return \collect($statements)
             ->flatMap(
-                function (Statement $statement) use ($entityClassesToInclude): \Tightenco\Collect\Support\Collection {
-                    return $this->getStatementAndItsFragmentsInOneFlatList(
-                        $statement,
-                        $entityClassesToInclude
-                    );
-                }
+                fn (Statement $statement): \Tightenco\Collect\Support\Collection => $this->getStatementAndItsFragmentsInOneFlatList(
+                    $statement,
+                    $entityClassesToInclude
+                )
             )->all();
     }
 
@@ -1249,7 +1052,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ((!$this->permissions->hasPermission('feature_original_statements_use_pager') && $original)
             || (!$this->permissions->hasPermission('feature_assessmenttable_use_pager') && !$original)) {
             // T11850: display all original SN in list
-            $rParams['request']['limit'] = 1000000;
+            $rParams['request']['limit'] = 1_000_000;
         }
 
         // set procedureId for esRequest
@@ -1838,7 +1641,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return [];
         }
         try {
-            if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
+            if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                 try {
                     $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
                 } catch (Exception $e) {
@@ -1878,7 +1681,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             try {
                 $accessMap = $this->generateAccessMap();
-                if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
+                if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                     try {
                         $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
                     } catch (Exception $e) {
@@ -1941,9 +1744,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         return \array_map(static function (array $statement) use ($entities): array {
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
-                static function (StatementAttachment $attachment) {
-                    return StatementAttachment::SOURCE_STATEMENT === $attachment->getType();
-                }
+                static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
 
             return $statement;
@@ -2139,7 +1940,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             // Enter StatementAttributes
-            if (count($statementAttributes) > 0) {
+            if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
                 $statement['statementAttributes'] = [];
             }
             foreach ($statementAttributes as $sa) {
@@ -2209,7 +2010,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (\array_key_exists('paragraphId', $data) &&
-            0 < \strlen($data['paragraphId']) &&
+            0 < \strlen((string) $data['paragraphId']) &&
             $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
@@ -2222,7 +2023,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         if (\array_key_exists('documentId', $data) &&
-            0 < \strlen($data['documentId']) &&
+            0 < \strlen((string) $data['documentId']) &&
             $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
@@ -2234,7 +2035,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $user = $this->currentUser->getUser();
             try {
                 $doctrineUser = $this->userRepository->get($user->getIdent());
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $doctrineUser = null;
             }
             $orga = $user->getOrga()->getNameLegal();
@@ -2317,9 +2118,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
-        return array_filter($statementsByIds, static function (?Statement $statement) {
-            return null !== $statement;
-        });
+        return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
     }
 
     protected function getPriorityAreaService(): PriorityAreaService
@@ -2596,10 +2395,10 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         foreach ($rParams as $key => $value) {
             if ('Suchbegriff eingeben' !== $value
-                && false !== strpos($key, 'search_word')) {
+                && str_contains($key, 'search_word')) {
                 $resParams['search'] = $value;
             }
-            if (false !== strpos($key, 'search_fields')) {
+            if (str_contains($key, 'search_fields')) {
                 foreach ($value as $v) {
                     $resParams['searchFields'][] = $v;
                 }
@@ -2624,8 +2423,8 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $sort = ToBy::createEmptyArray();
         foreach ($rParams as $key => $value) {
-            if ('' !== $value && false !== strpos($key, 'sort')) {
-                [$by, $to] = explode(':', $value);
+            if ('' !== $value && str_contains($key, 'sort')) {
+                [$by, $to] = explode(':', (string) $value);
                 $sort = ToBy::createArray($by, $to);
             }
         }
@@ -2646,10 +2445,10 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $items = [];
         foreach ($rParams as $key => $value) {
-            if ('' !== $value && false !== strpos($key, 'r_ident')) {
+            if ('' !== $value && str_contains($key, 'r_ident')) {
                 $items[] = $value;
             }
-            if (false !== strpos($key, 'item_check')) {
+            if (str_contains($key, 'item_check')) {
                 foreach ($value as $v) {
                     $items[] = $v;
                 }
@@ -2667,9 +2466,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function collectRequest(array $rParams): array
     {
         return \collect($rParams)->filter(
-            static function ($value, string $key) {
-                return 0 === strpos($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
-            }
+            static fn ($value, string $key) => str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)))
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
                 // Use substr without r_ as key
@@ -2687,9 +2484,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function collectFilters(array $rParams): array
     {
-        return \collect($rParams)->filter(static function ($value, string $key) {
-            return \is_array($value) && false !== strpos($key, 'filter_') && 0 < count($value);
-        })->mapWithKeys(static function (array $value, string $key) {
+        return \collect($rParams)->filter(static fn ($value, string $key) => \is_array($value) && str_contains($key, 'filter_') && 0 < count($value))->mapWithKeys(static function (array $value, string $key) {
             $filterKey = str_replace('filter_', '', $key);
 
             return [$filterKey => $value];
@@ -2950,7 +2745,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $userFragmentFilters['procedureId'] = $procedureId;
                 $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult($userFragmentFilters, $search, null, 10000, 1, $searchFields, $addAllAggregations);
                 $statementMustIds = [];
-                if (0 < count($fragmentEsResult->getHits()['hits'])) {
+                if (0 < (is_countable($fragmentEsResult->getHits()['hits']) ? count($fragmentEsResult->getHits()['hits']) : 0)) {
                     // use should filter as other filters may be applied as well
                     foreach ($fragmentEsResult->getHits()['hits'] as $fragmentHit) {
                         $statementMustIds[] = $fragmentHit['_source']['statementId'];
@@ -3033,11 +2828,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                             );
                         }
                     }
-                    array_map([$shouldQuery, 'addShould'], $shouldFilter);
+                    array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
                     if (0 < count($shouldNotFilter)) {
                         $shouldNotBool = new BoolQuery();
-                        array_map([$shouldNotBool, 'addMustNot'], $boolMustNotFilter);
+                        array_map($shouldNotBool->addMustNot(...), $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
                     }
                     $shouldQuery = $this->searchService->setMinimumShouldMatch(
@@ -3059,12 +2854,12 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
 
-            if (0 < count($boolMustFilter)) {
-                array_map([$boolQuery, 'addMust'], $boolMustFilter);
+            if (0 < (is_countable($boolMustFilter) ? count($boolMustFilter) : 0)) {
+                array_map($boolQuery->addMust(...), $boolMustFilter);
             }
             // do not include procedures in configuration
-            if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
+            if (0 < (is_countable($boolMustNotFilter) ? count($boolMustNotFilter) : 0)) {
+                array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
             // generate Query
@@ -3317,9 +3112,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $processedAggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = \collect($elementsAdminList)
-                ->mapWithKeys(static function (Elements $element): array {
-                    return [$element->getId() => $element->getTitle()];
-                })->all();
+                ->mapWithKeys(static fn (Elements $element): array => [$element->getId() => $element->getTitle()])->all();
 
             /********************************** QUERY AGGREGATIONS (INI) *********************************************/
 
@@ -3818,7 +3611,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // add default sort, additionally to primary sort
-        if (!\array_key_exists('submit', $esSort) || 'asc' !== strtolower($esSort['submit'])) {
+        if (!\array_key_exists('submit', $esSort) || 'asc' !== strtolower((string) $esSort['submit'])) {
             $esSort['submit'] = 'desc';
         }
 
@@ -3870,10 +3663,9 @@ class StatementService extends CoreService implements StatementServiceInterface
             try {
                 // gibt es ein StatementAttribut, dass eine Potenzialfläche gespeichert ist
                 $hasPriorityArea = $statementAttributes->filter(
-                    function ($entry) {
+                    fn ($entry) =>
                         /* @var StatementAttribute $entry */
-                        return 'priorityAreaKey' === $entry->getType();
-                    }
+                        'priorityAreaKey' === $entry->getType()
                 );
                 if (1 == $hasPriorityArea->count()) {
                     // lade die Potenzialfläche
@@ -4081,7 +3873,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function bulkEditStatementsAddData(StatementBulkEditVO $statementEdit): void
     {
         $targetIds = $statementEdit->getStatementIdsInProcedure()->getStatementIds();
-        if (0 === count($targetIds)) {
+        if (0 === (is_countable($targetIds) ? count($targetIds) : 0)) {
             throw new NoTargetsException('No statements given');
         }
         /** @var Statement[] $targetStatements */
@@ -4094,10 +3886,10 @@ class StatementService extends CoreService implements StatementServiceInterface
         if (0 === count($targetStatements)) {
             throw new NoTargetsException('No statements found');
         }
-        if (count($targetStatements) !== count($targetIds)) {
+        if (count($targetStatements) !== (is_countable($targetIds) ? count($targetIds) : 0)) {
             $e = new UnknownIdsException('Some statement IDs were not found.');
             $e->setExpectedIds($targetIds);
-            $e->setFoundIds(\array_map([$this, 'mapStatementToStatementId'], $targetStatements));
+            $e->setFoundIds(\array_map($this->mapStatementToStatementId(...), $targetStatements));
             throw $e;
         }
         // transaction is needed here, because we want both the Statement changes and the
@@ -4376,7 +4168,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param array $userFilters
      *
-     * @deprecated use a pre-filter approach utilizing {@link EntityFetcher::listEntitiesUnrestricted()}
+     * @deprecated use a pre-filter approach utilizing {@link FluentRepository::getEntities()}
      *             instead and access the Elasticsearch index with the result
      */
     public function mapRequestFiltersToESFragmentFilters($userFilters): array
@@ -4512,7 +4304,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             if ('' === $data['r_submitted_date']) {
                 $data['r_submitted_date'] = Carbon::now()->format('d.m.Y H:i:s');
             } else {
-                $incomingDate = Carbon::createFromTimestamp(strtotime($data['r_submitted_date']));
+                $incomingDate = Carbon::createFromTimestamp(strtotime((string) $data['r_submitted_date']));
                 $now = Carbon::now();
                 // On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
                 $incomingDate->setTime($now->hour, $now->minute, $now->second);
@@ -4532,7 +4324,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         // get Gesamtstellungnahme as default:
         $statement['element'] = $this->serviceElements->getStatementElement($statement['pId']);
 
-        if (\array_key_exists('r_element', $data) && 36 === \strlen($data['r_element'])) {
+        if (\array_key_exists('r_element', $data) && 36 === \strlen((string) $data['r_element'])) {
             $statement['elementId'] = $data['r_element'];
 
             if (\array_key_exists('r_paragraph_'.$statement['elementId'], $data)) {
@@ -4577,23 +4369,23 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
         }
 
-        if (\array_key_exists('r_userState', $data) && 0 < \strlen($data['r_userState'])) {
+        if (\array_key_exists('r_userState', $data) && 0 < \strlen((string) $data['r_userState'])) {
             $statement['meta']['userState'] = $data['r_userState'];
         }
-        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen($data['r_userGroup'])) {
+        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen((string) $data['r_userGroup'])) {
             $statement['meta']['userGroup'] = $data['r_userGroup'];
         }
-        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen($data['r_userOrganisation'])) {
+        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen((string) $data['r_userOrganisation'])) {
             $statement['meta']['userOrganisation'] = $data['r_userOrganisation'];
         }
-        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen($data['r_userPosition'])) {
+        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen((string) $data['r_userPosition'])) {
             $statement['meta']['userPosition'] = $data['r_userPosition'];
         }
-        if (\array_key_exists('r_phone', $data) && 0 < \strlen($data['r_phone'])) {
+        if (\array_key_exists('r_phone', $data) && 0 < \strlen((string) $data['r_phone'])) {
             $statement['meta'][StatementMeta::USER_PHONE] = $data['r_phone'];
         }
 
-        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen($data['r_authored_date'])) {
+        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen((string) $data['r_authored_date'])) {
             $statement['authoredDate'] = $data['r_authored_date'];
         }
 
@@ -4639,8 +4431,8 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         if (\array_key_exists('originalAttachments', $data)) {
             $originalAttachmentFiles = (new ArrayCollection($data['originalAttachments']))
-                ->map(Closure::fromCallable([$this->fileService, 'getFileIdFromUploadFile']))
-                ->map(Closure::fromCallable([$this->fileService, 'getFileById']));
+                ->map(Closure::fromCallable($this->fileService->getFileIdFromUploadFile(...)))
+                ->map(Closure::fromCallable($this->fileService->getFileById(...)));
             $statement['originalAttachmentFiles'] = $originalAttachmentFiles;
         }
 
@@ -4719,12 +4511,12 @@ class StatementService extends CoreService implements StatementServiceInterface
     private function getSortingJsonFormat(array $rParams): ?ToBy
     {
         if (isset($rParams['currentTableSort'])) {
-            $sortTo = '-' === substr($rParams['currentTableSort'], 0, 1)
+            $sortTo = str_starts_with((string) $rParams['currentTableSort'], '-')
                 ? 'desc'
                 : 'asc';
 
-            $sortBy = '-' === substr($rParams['currentTableSort'], 0, 1)
-                ? substr($rParams['currentTableSort'], 1)
+            $sortBy = str_starts_with((string) $rParams['currentTableSort'], '-')
+                ? substr((string) $rParams['currentTableSort'], 1)
                 : $rParams['currentTableSort'];
 
             return ToBy::create($sortBy, $sortTo);
@@ -4779,7 +4571,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$condition]);
+        return $this->statementResourceType->listEntities([$condition]);
     }
 
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy

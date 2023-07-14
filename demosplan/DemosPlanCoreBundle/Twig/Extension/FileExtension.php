@@ -26,15 +26,9 @@ class FileExtension extends ExtensionBase
      */
     protected $fileService;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(ContainerInterface $container, Environment $twig, FileService $fileService)
+    public function __construct(ContainerInterface $container, private readonly Environment $twig, FileService $fileService)
     {
         parent::__construct($container);
-        $this->twig = $twig;
         $this->fileService = $fileService;
     }
 
@@ -46,15 +40,15 @@ class FileExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('getFile', [$this, 'getFileFilter']),
-            new TwigFilter('humanFilesize', [$this, 'formatHumanFilesize']),
+            new TwigFilter('getFile', $this->getFileFilter(...)),
+            new TwigFilter('humanFilesize', $this->formatHumanFilesize(...)),
         ];
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('fileupload', [$this, 'fileupload'], ['is_safe' => ['html']]),
+            new TwigFunction('fileupload', $this->fileupload(...), ['is_safe' => ['html']]),
         ];
     }
 

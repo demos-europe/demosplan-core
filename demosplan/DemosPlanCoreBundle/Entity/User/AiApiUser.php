@@ -14,8 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class AiApiUser extends FunctionalUser
 {
-    public const AI_API_USER_LOGIN = 'aiapi+internal-users@demosplan';
-    public const AI_API_USER_ID = '00000000-0000-0000-0000-000000000001';
+    final public const AI_API_USER_LOGIN = 'aiapi+internal-users@demosplan';
+    final public const AI_API_USER_ID = '00000000-0000-0000-0000-000000000001';
 
     public function __construct(Customer $customer)
     {

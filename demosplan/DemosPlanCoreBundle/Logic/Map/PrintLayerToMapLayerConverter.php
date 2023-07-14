@@ -21,20 +21,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class PrintLayerToMapLayerConverter
 {
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var ImageManager
-     */
-    private $imageManager;
-
-    public function __construct(Filesystem $filesystem, ImageManager $imageManager)
+    public function __construct(private readonly Filesystem $filesystem, private readonly ImageManager $imageManager)
     {
-        $this->filesystem = $filesystem;
-        $this->imageManager = $imageManager;
     }
 
     public function convert(PrintLayer $printLayer): MapLayer

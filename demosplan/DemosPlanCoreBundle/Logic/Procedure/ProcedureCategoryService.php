@@ -18,14 +18,8 @@ use Doctrine\ORM\TransactionRequiredException;
 
 class ProcedureCategoryService extends CoreService
 {
-    /**
-     * @var ProcedureCategoryRepository
-     */
-    private $procedureCategoryRepository;
-
-    public function __construct(ProcedureCategoryRepository $procedureCategoryRepository)
+    public function __construct(private readonly ProcedureCategoryRepository $procedureCategoryRepository)
     {
-        $this->procedureCategoryRepository = $procedureCategoryRepository;
     }
 
     public function getProcedureCategories(): array

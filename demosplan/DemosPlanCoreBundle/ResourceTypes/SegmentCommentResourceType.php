@@ -38,14 +38,8 @@ use EDT\Wrapping\Contracts\AccessException;
  */
 final class SegmentCommentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var SegmentCommentFactory
-     */
-    private $segmentCommentFactory;
-
-    public function __construct(SegmentCommentFactory $segmentCommentFactory)
+    public function __construct(private readonly SegmentCommentFactory $segmentCommentFactory)
     {
-        $this->segmentCommentFactory = $segmentCommentFactory;
     }
 
     public static function getName(): string
@@ -129,9 +123,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         $segment = $this->createToOneRelationship($this->segment);
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
-            $creationDate->readable(false, function (SegmentComment $comment): string {
-                return $this->formatDate($comment->getCreationDate());
-            });
+            $creationDate->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
             $text->readable();
             $submitter->readable();
             $place->readable();

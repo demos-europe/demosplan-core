@@ -91,13 +91,9 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         $properties = parent::getProperties();
         $additionalProperties = [
             $this->createAttribute($this->documentParentId)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentParentId();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId()),
             $this->createAttribute($this->documentTitle)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentTitle();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle()),
             $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id),
             $this->createAttribute($this->elementTitle)
@@ -127,6 +123,6 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
                 ->readable(true)->filterable()->sortable()->aliasedPath($this->meta->submitName),
         ];
 
-        return array_merge($properties, $additionalProperties);
+        return [...$properties, ...$additionalProperties];
     }
 }

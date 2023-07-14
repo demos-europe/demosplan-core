@@ -55,7 +55,7 @@
         { field: 'documentAssessment', value: "documentAssessment"|trans({}, "master-toeb-list") }
     ] %}
 
-    <form method="post" id="orgalistForm" class="cf" action="">
+    <form method="post" id="orgalistForm" class="flow-root" action="">
         <dp-master-toeb-list
             user-id="{{ currentUser.ident|default }}"
             :fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"

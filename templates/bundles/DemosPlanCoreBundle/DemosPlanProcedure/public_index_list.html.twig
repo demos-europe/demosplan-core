@@ -17,10 +17,10 @@
             data-phase-key="{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}">
             {% if hasPermission('field_procedure_phase_filter') %}
                 {# span added so items can be filtered by procedure phase, is not displayed #}
-                <span class="{{ 'phase display--none'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}</span>
+                <span class="{{ 'phase hidden'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}</span>
                 {# if fachplaner, also filter by public phases, but only if fachplaner owns the procedure #}
                 {% if templateVars.useInternalFields and ownsProcedure(publicProcedure) %}
-                    <span class="{{ 'phaseExt display--none'|prefixClass }}">{{ publicProcedure['publicParticipationPhase'] }}</span>
+                    <span class="{{ 'phaseExt hidden'|prefixClass }}">{{ publicProcedure['publicParticipationPhase'] }}</span>
                 {% endif %}
             {% endif %}
 
@@ -62,7 +62,7 @@
                 {#  item date #}
                 {% block procedure_date %}
                     <div class="{{ 'c-procedurelist__trans'|prefixClass }}">
-                        <i class="{{ 'c-procedurelist__item-icon fa fa-calendar width-20 text--center u-mr-0_125'|prefixClass }}"></i>
+                        <i class="{{ 'c-procedurelist__item-icon fa fa-calendar width-20 text-center u-mr-0_125'|prefixClass }}"></i>
                         <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                             {% include '@DemosPlanCore/DemosPlanProcedure/includes/procedure_date.html.twig' with { 'procedure' : publicProcedure } %}
                         </div>
@@ -72,8 +72,8 @@
                 {# item tags / categories #}
                 {% if hasPermission('feature_procedure_categories') and publicProcedure.procedureCategoryNames is defined and publicProcedure.procedureCategoryNames|length > 0 %}
                     <div class="{{ 'c-procedurelist__trans'|prefixClass }}">
-                        <i class="{{ 'c-procedurelist__item-icon fa fa-tag width-20 text--center u-mr-0_125 display--inline-block'|prefixClass }}"></i>
-                        <ul class="{{ 'c-procedurelist__item-text o-list o-list--csv display--inline'|prefixClass }}">
+                        <i class="{{ 'c-procedurelist__item-icon fa fa-tag width-20 text-center u-mr-0_125 inline-block'|prefixClass }}"></i>
+                        <ul class="{{ 'c-procedurelist__item-text o-list o-list--csv inline'|prefixClass }}">
                             {% for procedureCategoryName in publicProcedure.procedureCategoryNames %}
                                 <li class="{{ 'o-list__item max-width-100p'|prefixClass }}">
                                     {{- procedureCategoryName -}}
@@ -87,7 +87,7 @@
                 {% if hasPermission( 'field_procedure_phase' ) %}
                     {% block procedure_phase %}
                         <div class="{{ 'c-procedurelist__trans'|prefixClass }}">
-                            <i class="{{ 'c-procedurelist__item-icon fa fa-puzzle-piece width-20 text--center u-mr-0_125'|prefixClass }}"></i>
+                            <i class="{{ 'c-procedurelist__item-icon fa fa-puzzle-piece width-20 text-center u-mr-0_125'|prefixClass }}"></i>
                             <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                                 {%- if ownsProcedure(publicProcedure) %}
                                     {{- getProcedurePhase(publicProcedure, 'internal') ~ ' / ' ~ getProcedurePhase(publicProcedure, 'public') -}}
@@ -103,7 +103,7 @@
                 {% if hasPermission( 'field_procedure_administration' ) %}
                     {% block procedure_orga %}
                         <div class="{{ 'c-procedurelist__trans'|prefixClass }}">
-                            <i class="{{ 'c-procedurelist__item-icon fa fa-university width-20 text--center u-mr-0_125'|prefixClass }}"></i>
+                            <i class="{{ 'c-procedurelist__item-icon fa fa-university width-20 text-center u-mr-0_125'|prefixClass }}"></i>
                             <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                                 {{ publicProcedure.orgaName|default('n/a') }}
                             </div>
@@ -114,7 +114,7 @@
                 {# item statement count #}
                 {% if publicProcedure.statementSubmitted|default(0) > 0 and hasPermission('feature_procedures_count_released_drafts') %}
                     <div class="{{ 'c-procedurelist__trans u-4-of-5 u-1-of-1-palm overflow-hidden'|prefixClass }}">
-                        <i class="{{ 'c-procedurelist__item-icon fa fa-comment text--center width-20 u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <i class="{{ 'c-procedurelist__item-icon fa fa-comment text-center width-20 u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                         <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                             {{ 'statements.submitted.institution'|trans }}: {{ publicProcedure.statementSubmitted|default('n/a') }}
                         </div>
@@ -125,7 +125,7 @@
                 {% block procedureDescription %}
                     {% if publicProcedure.externalDesc is defined and publicProcedure.externalDesc != '' %}
                         <div class="{{ 'c-procedurelist__trans u-4-of-5 u-1-of-1-palm overflow-hidden'|prefixClass }}">
-                            <i class="{{ 'c-procedurelist__item-icon fa fa-file-text-o text--center width-20 u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                            <i class="{{ 'c-procedurelist__item-icon fa fa-file-text-o text-center width-20 u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                             <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                                 {{- publicProcedure.externalDesc|wysiwyg -}}
                             </div>
@@ -139,7 +139,7 @@
                         <i class="{{ 'c-procedurelist__item-switch-icon fa fa-lg color--grey-light-1 fa-check-circle'|prefixClass }}" aria-hidden="true"></i>
                         <div class="{{ 'c-procedurelist__item-switch-controls'|prefixClass }}">
                             <input id="markDone_{{ publicProcedure.id }}" type="checkbox" {{ is_marked_done ? ' checked="checked"' : '' }} data-done-procedure-id="{{ publicProcedure.id }}">
-                            <label class="{{ 'c-procedurelist__item-switch-label u-m-0 display--inline-block'|prefixClass }}" for="markDone_{{ publicProcedure.id }}">{{ 'done'|trans }}</label>
+                            <label class="{{ 'c-procedurelist__item-switch-label u-m-0 inline-block'|prefixClass }}" for="markDone_{{ publicProcedure.id }}">{{ 'done'|trans }}</label>
                         </div>
                     </div>
                 {% endif %}

@@ -270,9 +270,8 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
      * @var int
      *
      * @ORM\Column(type="integer", nullable=false, options={"default":-1})
-     *
-     * @Assert\PositiveOrZero(groups={"mandatory"})
      */
+    #[Assert\PositiveOrZero(groups: ['mandatory'])]
     protected $sortIndex = -1;
 
     /**
@@ -1539,7 +1538,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

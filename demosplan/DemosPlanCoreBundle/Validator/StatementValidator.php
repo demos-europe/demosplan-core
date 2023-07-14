@@ -19,14 +19,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementValidator
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

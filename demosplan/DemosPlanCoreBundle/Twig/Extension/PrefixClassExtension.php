@@ -18,12 +18,8 @@ use Twig\TwigFilter;
  */
 class PrefixClassExtension extends ExtensionBase
 {
-    /** @var string */
-    private $prefixClass;
-
-    public function __construct(ContainerInterface $container, string $prefixClass)
+    public function __construct(ContainerInterface $container, private readonly string $prefixClass)
     {
-        $this->prefixClass = $prefixClass;
         parent::__construct($container);
     }
 
@@ -33,7 +29,7 @@ class PrefixClassExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('prefixClass', [$this, 'prefixClass']),
+            new TwigFilter('prefixClass', $this->prefixClass(...)),
         ];
     }
 
@@ -54,13 +50,12 @@ class PrefixClassExtension extends ExtensionBase
 
         // Assuming that a querySelector is passed when classList contains a dot, only the class selector parts are prefixed.
         // In the unlikely case that classes contain dots as part of their names, they will not be prefixed.
-        if (false !== strpos($classList, '.')) {
+        if (str_contains($classList, '.')) {
             return preg_replace_callback(
                 '/(\S+)/',
-                function ($match) use ($prefix) {
+                fn($match) =>
                     // Only prefix matches that start with a dot
-                    return 0 === strpos($match[0], '.') ? '.'.$prefix.substr($match[0], 1) : $match[0];
-                },
+                    str_starts_with($match[0], '.') ? '.'.$prefix.substr((string) $match[0], 1) : $match[0],
                 $classList
             );
         }

@@ -29,24 +29,8 @@ use function collect;
  */
 class ProcedureToLegacyConverter extends CoreService
 {
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-
-    public function __construct(DateHelper $dateHelper, EntityHelper $entityHelper, ProcedureRepository $procedureRepository)
+    public function __construct(private readonly DateHelper $dateHelper, private readonly EntityHelper $entityHelper, private readonly ProcedureRepository $procedureRepository)
     {
-        $this->dateHelper = $dateHelper;
-        $this->entityHelper = $entityHelper;
-        $this->procedureRepository = $procedureRepository;
     }
 
     /**
@@ -73,9 +57,7 @@ class ProcedureToLegacyConverter extends CoreService
 
         $procedureArray['agencyExtraEmailAddresses'] = $procedure
             ->getAgencyExtraEmailAddresses()
-            ->map(static function (EmailAddress $emailAddress) {
-                return $emailAddress->getFullAddress();
-            });
+            ->map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress());
 
         // When using objects this is not needed any more
 
@@ -87,10 +69,8 @@ class ProcedureToLegacyConverter extends CoreService
         $procedureArray['isMapEnabled'] = false;
         if (isset($procedureArray['elements']) && $procedureArray['elements'] instanceof Collection) {
             $mapElements = $procedureArray['elements']->filter(
-                static function ($entry) {
-                    return 'map' === $entry->getCategory()
-                        && true === $entry->getEnabled();
-                }
+                static fn($entry) => 'map' === $entry->getCategory()
+                    && true === $entry->getEnabled()
             );
             if (0 < $mapElements->count()) {
                 $procedureArray['isMapEnabled'] = true;
@@ -124,13 +104,11 @@ class ProcedureToLegacyConverter extends CoreService
         $planningOfficeIds = $this->procedureRepository->getPlanningOfficeIds($procedure->getId());
         $isCustomerMasterBlueprint = $procedure->isCustomerMasterBlueprint();
         $planningOfficeOrganisations = collect($procedure->getPlanningOffices())
-            ->transform(static function (Orga $orga) {
-                return [
-                    'ident'     => $orga->getId(),
-                    'name'      => $orga->getName(),
-                    'nameLegal' => $orga->getName(),
-                ];
-            })->all();
+            ->transform(static fn(Orga $orga) => [
+                'ident'     => $orga->getId(),
+                'name'      => $orga->getName(),
+                'nameLegal' => $orga->getName(),
+            ])->all();
         $dataInputOrgaIds = $procedure->getDataInputOrgaIds();
         $authorizedUserIds = $procedure->getAuthorizedUserIds();
 

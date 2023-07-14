@@ -54,7 +54,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
         $this->checkIfLocked();
 
         if (!property_exists($this, $name)) {
-            throw ValueObjectException::unknownProperty($name, get_class($this));
+            throw ValueObjectException::unknownProperty($name, static::class);
         }
 
         return $this->{$name};
@@ -140,12 +140,10 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
             return collect($reflection->getProperties(ReflectionProperty::IS_PROTECTED))
                 ->flatMap(
-                    function (ReflectionProperty $property) {
-                        return [$property->getName() => $this->{$property->getName()}];
-                    }
+                    fn(ReflectionProperty $property) => [$property->getName() => $this->{$property->getName()}]
                 )
                 ->toArray();
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             // this can in theory only happen if reflection is disabled
             // if so, other things will have broken long before we arrive here
             // thus returning an empty array to keep type safety is "good enough"
@@ -160,7 +158,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
         }
 
         if (!property_exists($this, $name)) {
-            throw ValueObjectException::unknownProperty($name, get_class($this));
+            throw ValueObjectException::unknownProperty($name, static::class);
         }
     }
 }

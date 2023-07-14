@@ -70,6 +70,9 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
         return $this->currentSlug;
     }
 
+    /**
+     * Kind of enabling a specific slug.
+     */
     public function setCurrentSlug(SlugInterface $currentSlug)
     {
         if (!$this->hasSlugString($currentSlug)) {
@@ -80,9 +83,7 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
 
     public function hasSlugString(SlugInterface $slug): bool
     {
-        return $this->getSlugs()->map(function (Slug $slug) {
-            return $slug->getName();
-        })->contains($slug->getName());
+        return $this->getSlugs()->map(fn (Slug $slug) => $slug->getName())->contains($slug->getName());
     }
 
     public function isSlugCurrent(string $slug): bool

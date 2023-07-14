@@ -122,7 +122,7 @@ class SimpleSpreadsheetService
         // T9490: decode because text was stored encoded in DB:
         foreach ($formattedData as $key => $dataSet) {
             if (array_key_exists('recommendation', $formattedData[$key])) {
-                $formattedData[$key]['recommendation'] = htmlspecialchars_decode($dataSet['recommendation']);
+                $formattedData[$key]['recommendation'] = htmlspecialchars_decode((string) $dataSet['recommendation']);
             }
         }
 

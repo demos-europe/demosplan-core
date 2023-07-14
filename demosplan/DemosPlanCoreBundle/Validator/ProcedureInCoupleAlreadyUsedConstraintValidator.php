@@ -27,14 +27,8 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidator
 {
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $tokenRepository;
-
-    public function __construct(ProcedureCoupleTokenRepository $tokenRepository)
+    public function __construct(private readonly ProcedureCoupleTokenRepository $tokenRepository)
     {
-        $this->tokenRepository = $tokenRepository;
     }
 
     /**

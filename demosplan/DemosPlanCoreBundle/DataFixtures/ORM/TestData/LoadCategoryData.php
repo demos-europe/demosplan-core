@@ -16,11 +16,11 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadCategoryData extends TestFixture
 {
-    public const TEST_CATEGORY_FAQ = 'testCategoryFaq';
-    public const TEST_CATEGORY_FAQ_2 = 'testCategoryFaq2';
-    public const TEST_CATEGORY_NEWS = 'testCategoryNews';
+    final public const TEST_CATEGORY_FAQ = 'testCategoryFaq';
+    final public const TEST_CATEGORY_FAQ_2 = 'testCategoryFaq2';
+    final public const TEST_CATEGORY_NEWS = 'testCategoryNews';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $category1 = new Category();
         $category1->setName('faqcategorie');
