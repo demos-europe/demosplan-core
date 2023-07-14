@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 abstract class FileResponseGeneratorAbstract
 {
-    public NameGenerator $nameGenerator;
+    public ?NameGenerator $nameGenerator = null;
 
     public function __construct(NameGenerator $nameGenerator)
     {

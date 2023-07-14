@@ -44,10 +44,12 @@ class DocxResponseGenerator extends FileResponseGeneratorAbstract
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set(
-            'Content-Disposition',
-            $this->nameGenerator->generateDownloadFilename($file['filename'])
-        );
+        if($this->nameGenerator) {
+            $response->headers->set(
+                'Content-Disposition',
+                $this->nameGenerator->generateDownloadFilename($file['filename'])
+            );
+        }
 
         return $response;
     }
