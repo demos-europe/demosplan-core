@@ -11,12 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Component\HttpFoundation\Response;
 
 class PdfResponseGenerator extends FileResponseGeneratorAbstract
 {
-    public function __construct(array $supportedTypes)
+    public function __construct(array $supportedTypes, NameGenerator $nameGenerator)
     {
+        parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
     }
 
@@ -34,6 +36,7 @@ class PdfResponseGenerator extends FileResponseGeneratorAbstract
         $response = new Response($file['content'], 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
+
         $response->headers->set(
             'Content-Disposition',
             $this->nameGenerator->generateDownloadFilename($file['filename'])
