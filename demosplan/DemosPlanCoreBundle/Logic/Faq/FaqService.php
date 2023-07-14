@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
@@ -18,73 +20,33 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FaqRepository;
+use demosplan\DemosPlanCoreBundle\Repository\PlatformFaqRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use UnexpectedValueException;
 
 class FaqService extends CoreService
 {
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var ManualListSorter
-     */
-    private $manualListSorter;
-    /**
-     * @var FaqCategoryRepository
-     */
-    private $faqCategoryRepository;
-    /**
-     * @var FaqRepository
-     */
-    private $faqRepository;
-
     public function __construct(
-        CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        FaqCategoryRepository $faqCategoryRepository,
-        FaqRepository $faqRepository,
-        ManualListSorter $manualListSorter,
-        SortMethodFactory $sortMethodFactory
+        private readonly CustomerHandler $customerHandler,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly FaqCategoryRepository $faqCategoryRepository,
+        private readonly FaqRepository $faqRepository,
+        private readonly ManualListSorter $manualListSorter,
+        private readonly PlatformFaqRepository $platformFaqRepository,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->customerHandler = $customerHandler;
-        $this->entityFetcher = $entityFetcher;
-        $this->faqCategoryRepository = $faqCategoryRepository;
-        $this->faqRepository = $faqRepository;
-        $this->manualListSorter = $manualListSorter;
-        $this->sortMethodFactory = $sortMethodFactory;
     }
 
     /**
@@ -150,14 +112,16 @@ class FaqService extends CoreService
      */
     public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
     {
-        $condition = $this->conditionFactory->propertyHasValue($faqCategory, ['faqCategory']);
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, [$condition], [$sortMethod]);
+        return $this->faqRepository->findBy([
+            'faqCategory' => $faqCategory,
+        ], [
+            'title' => Criteria::ASC,
+        ]);
     }
 
     /**
      * Get enabled FAQs of a given category.
+     * takes the User-roles into account.
      *
      * @return array<int, FaqInterface>
      */
@@ -165,11 +129,11 @@ class FaqService extends CoreService
     {
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
         $categoryName = 'faqCategory';
-        $className = Faq::class;
+        $repository = $this->faqRepository;
 
         if ($faqCategory instanceof PlatformFaqCategory) {
             $categoryName = 'platformFaqCategory';
-            $className = PlatformFaq::class;
+            $repository = $this->platformFaqRepository;
         }
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, ['enabled']),
@@ -178,7 +142,30 @@ class FaqService extends CoreService
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted($className, $conditions, [$sortMethod]);
+        return $repository->getEntities($conditions, [$sortMethod]);
+    }
+
+    /**
+     * Get all enabled FAQs of a given category ragardless of user-roles.
+     *
+     * @return array<int, FaqInterface>
+     */
+    public function getAllEnabledFaqForCategoryRegardlessOfUserRoles(FaqCategoryInterface $faqCategory): array
+    {
+        $categoryName = 'faqCategory';
+        $repository = $this->faqRepository;
+
+        if ($faqCategory instanceof PlatformFaqCategory) {
+            $categoryName = 'platformFaqCategory';
+            $repository = $this->platformFaqRepository;
+        }
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(1, ['enabled']),
+            $this->conditionFactory->propertyHasValue($faqCategory, [$categoryName]),
+        ];
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
+
+        return $repository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
@@ -263,6 +250,7 @@ class FaqService extends CoreService
 
     public function findFaqCategoryByType(string $type): FaqCategory
     {
+        $criteria = [];
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $criteria['customer'] = $currentCustomer->getId();
         $criteria['type'] = $type;

@@ -33,6 +33,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateData($in, $out): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $sut = $this->createSut(
             $out['postalCode'],
             $out['city'],
@@ -90,6 +92,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateDataException($in, $out, $exception): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $this->expectException($exception);
 
         $sut = $this->createSut(

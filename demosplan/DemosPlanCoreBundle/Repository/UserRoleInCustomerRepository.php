@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 
-class UserRoleInCustomerRepository extends CoreRepository
+class UserRoleInCustomerRepository extends FluentRepository
 {
     /**
      * Delete all existing user roles for this customer.

@@ -13,7 +13,7 @@
     } %}
 
     <form
-        class="cf space-stack-m"
+        class="flow-root space-stack-m"
         name="xsubmititem"
         enctype="multipart/form-data"
         method="post"
@@ -22,7 +22,7 @@
     >
         <input type="hidden" value="singledocumentedit" name="r_action">
 
-        <fieldset class="display--flex u-pb-0">
+        <fieldset class="flex u-pb-0">
             <legend class="font-size-medium u-mb-0_25">{{ 'status'|trans }}</legend>
             <dp-radio
                 id="visbility_true"
@@ -76,7 +76,7 @@
         } %}
 
         {% if hasPermission('feature_single_document_statement') %}
-            <fieldset class="display--flex u-pb-0">
+            <fieldset class="flex u-pb-0">
                 <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
                 <dp-radio
                     id="statement_enabled_true"
@@ -109,7 +109,7 @@
         } %}
 
         {% if document.document is defined and document.document != '' %}
-            <p class="overflow-word-break" title="{{ document.document|getFile('name') }}">
+            <p class="break-words" title="{{ document.document|getFile('name') }}">
                 <a
                     target="_blank"
                     rel="noopener"
@@ -120,7 +120,7 @@
             </p>
         {% endif %}
 
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
             <input
                 class="btn btn--primary"
                 type="submit"

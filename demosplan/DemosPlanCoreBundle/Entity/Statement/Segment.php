@@ -31,11 +31,9 @@ class Segment extends Statement implements SegmentInterface
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
-     *
-     * @Assert\NotNull(groups={SegmentInterface::VALIDATION_GROUP_IMPORT})
-     *
-     * @Assert\Type(groups={SegmentInterface::VALIDATION_GROUP_IMPORT}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
      */
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
     protected $parentStatementOfSegment;
 
     /**
@@ -53,10 +51,9 @@ class Segment extends Statement implements SegmentInterface
     /**
      * @var int
      *
-     * @Assert\NotNull(groups={SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY})
-     *
      * @ORM\Column(type="integer", nullable=true)
      */
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY])]
     private $orderInProcedure;
 
     /**
@@ -72,12 +69,11 @@ class Segment extends Statement implements SegmentInterface
      *
      * @var PlaceInterface
      *
-     * @Assert\NotBlank(groups={"Default", SegmentInterface::VALIDATION_GROUP_IMPORT})
-     *
      * @ORM\ManyToOne(targetEntity=Place::class)
      *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
+    #[Assert\NotBlank(groups: ['Default', SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
 
     public function __construct()

@@ -14,14 +14,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
@@ -31,41 +29,13 @@ class StatementClusterService extends CoreService
     /** @var StatementService */
     protected $statementService;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var ClusterStatementResourceType
-     */
-    private $clusterStatementResourceType;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /** @var StatementCopier */
-    private $statementCopier;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
     public function __construct(
-        ClusterStatementResourceType $clusterStatementResourceType,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        StatementCopier $statementCopier,
-        StatementRepository $statementRepository,
+        private readonly ClusterStatementResourceType $clusterStatementResourceType,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository,
         StatementService $statementService
     ) {
-        $this->clusterStatementResourceType = $clusterStatementResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->statementCopier = $statementCopier;
-        $this->statementRepository = $statementRepository;
         $this->statementService = $statementService;
     }
 
@@ -150,6 +120,6 @@ class StatementClusterService extends CoreService
             ),
         ];
 
-        return $this->entityFetcher->listEntitiesUnrestricted(Statement::class, $conditions, $sortMethods);
+        return $this->statementRepository->getEntities($conditions, $sortMethods);
     }
 }

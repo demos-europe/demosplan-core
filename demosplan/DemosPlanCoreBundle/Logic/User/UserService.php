@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -94,11 +95,6 @@ class UserService extends CoreService implements UserServiceInterface
     protected $draftStatementService;
 
     /**
-     * @var CustomerService
-     */
-    private $customerService;
-
-    /**
      * @var AddressService
      */
     protected $addressService;
@@ -107,116 +103,36 @@ class UserService extends CoreService implements UserServiceInterface
      * @var OrgaService
      */
     protected $orgaService;
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ProdLogger
-     */
-    private $prodLogger;
-
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    private $userPasswordHasher;
-
-    /**
-     * @var PasswordHasherFactoryInterface
-     */
-    private $passwordHasherFactory;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * @var UserRoleInCustomerRepository
-     */
-    private $userRoleInCustomerRepository;
-
-    /**
-     * @var StatementVoteRepository
-     */
-    private $statementVoteRepository;
-
-    /**
-     * @var DepartmentRepository
-     */
-    private $departmentRepository;
-
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-    /**
-     * @var BrandingRepository
-     */
-    private $brandingRepository;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
 
     public function __construct(
         AddressService $addressService,
-        BrandingRepository $brandingRepository,
+        private readonly BrandingRepository $brandingRepository,
         ContentService $serviceContent,
-        CustomerService $customerService,
-        DepartmentRepository $departmentRepository,
+        private readonly CustomerService $customerService,
+        private readonly DepartmentRepository $departmentRepository,
         DraftStatementService $draftStatementService,
-        EntityHelper $entityHelper,
-        GlobalConfigInterface $globalConfig,
+        private readonly EntityHelper $entityHelper,
+        private readonly GlobalConfigInterface $globalConfig,
         MasterToebService $serviceMasterToeb,
-        MessageBagInterface $messageBag,
-        OrgaRepository $orgaRepository,
+        private readonly MessageBagInterface $messageBag,
+        private readonly OrgaRepository $orgaRepository,
         OrgaService $orgaService,
-        PasswordHasherFactoryInterface $passwordHasherFactory,
+        private readonly PasswordHasherFactoryInterface $passwordHasherFactory,
         PermissionsInterface $permissions,
-        ProdLogger $prodLogger,
-        ReportService $reportService,
-        StatementVoteRepository $statementVoteRepository,
-        TranslatorInterface $translator,
-        UserPasswordHasherInterface $userPasswordHasher,
-        UserRepository $userRepository,
-        UserRoleInCustomerRepository $userRoleInCustomerRepository
+        private readonly ProdLogger $prodLogger,
+        private readonly ReportService $reportService,
+        private readonly StatementVoteRepository $statementVoteRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly UserRepository $userRepository,
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
-        $this->customerService = $customerService;
-        $this->departmentRepository = $departmentRepository;
         $this->draftStatementService = $draftStatementService;
-        $this->messageBag = $messageBag;
-        $this->passwordHasherFactory = $passwordHasherFactory;
-        $this->orgaRepository = $orgaRepository;
         $this->orgaService = $orgaService;
-        $this->userPasswordHasher = $userPasswordHasher;
         $this->permissions = $permissions;
-        $this->prodLogger = $prodLogger;
-        $this->reportService = $reportService;
         $this->serviceMasterToeb = $serviceMasterToeb;
-        $this->statementVoteRepository = $statementVoteRepository;
-        $this->userRepository = $userRepository;
-        $this->userRoleInCustomerRepository = $userRoleInCustomerRepository;
-        $this->brandingRepository = $brandingRepository;
-        $this->translator = $translator;
-        $this->entityHelper = $entityHelper;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -525,7 +441,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         try {
             return $this->userRepository->get($userId);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage des Users: ', [$e]);
@@ -777,13 +693,9 @@ class UserService extends CoreService implements UserServiceInterface
     public function getSortedLegacyDepartmentsWithoutDefaultDepartment(Orga $orga): array
     {
         $sortedDepartments = $this->sortByName($orga->getDepartments());
-        $filteredDepartments = array_filter($sortedDepartments, function (Department $department): bool {
-            return $this->isNotDefaultDepartment($department);
-        });
+        $filteredDepartments = array_filter($sortedDepartments, fn(Department $department): bool => $this->isNotDefaultDepartment($department));
 
-        return array_map(function ($object): ?array {
-            return $this->entityHelper->toArray($object);
-        }, $filteredDepartments);
+        return array_map(fn($object): ?array => $this->entityHelper->toArray($object), $filteredDepartments);
     }
 
     /**
@@ -1023,9 +935,7 @@ class UserService extends CoreService implements UserServiceInterface
     protected function getRoleNames(User $user): array
     {
         $userRoles = $user->getDplanroles();
-        $userRoleNames = $userRoles->map(static function (Role $role): string {
-            return $role->getName();
-        })->toArray();
+        $userRoleNames = $userRoles->map(static fn(Role $role): string => $role->getName())->toArray();
 
         // sort the roles to generate the same array key for the same roles
         $userRoleNames = array_unique($userRoleNames);
@@ -1062,15 +972,11 @@ class UserService extends CoreService implements UserServiceInterface
 
             // display only users of current Customer
             if ($customer instanceof Customer) {
-                $users = collect($users)->filter(static function (User $user) use ($customer) {
-                    return null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer);
-                })->all();
+                $users = collect($users)->filter(static fn(User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
             }
 
             // never show internal Citizen user
-            return collect($users)->filter(static function (User $user) {
-                return User::ANONYMOUS_USER_ID !== $user->getId();
-            })->all();
+            return collect($users)->filter(static fn(User $user) => User::ANONYMOUS_USER_ID !== $user->getId())->all();
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Userlist: ', [$e]);
 
@@ -1093,7 +999,7 @@ class UserService extends CoreService implements UserServiceInterface
         try {
             try {
                 $user = $this->userRepository->get($userId);
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $user = null;
             }
 
@@ -1514,12 +1420,10 @@ class UserService extends CoreService implements UserServiceInterface
     {
         return collect($statementsOrFragments)
             ->transform(
-                static function ($fragmentOrStatement) {
-                    return [
-                        'id'         => $fragmentOrStatement['id'],
-                        'assigneeId' => $fragmentOrStatement['assignee']['uId'] ?? null,
-                    ];
-                }
+                static fn($fragmentOrStatement) => [
+                    'id'         => $fragmentOrStatement['id'],
+                    'assigneeId' => $fragmentOrStatement['assignee']['uId'] ?? null,
+                ]
             )
             ->values()
             ->toArray();
@@ -1555,9 +1459,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         $unsortedDepartments = $departments->getIterator();
         $unsortedDepartments->uasort(
-            static function (Department $department1, Department $department2) {
-                return strcmp($department1->getName(), $department2->getName());
-            }
+            static fn(Department $department1, Department $department2) => strcmp((string) $department1->getName(), (string) $department2->getName())
         );
 
         return iterator_to_array($unsortedDepartments);
@@ -1576,9 +1478,7 @@ class UserService extends CoreService implements UserServiceInterface
             ->map(
                 static function (User $user) {
                     $roles = collect($user->getDplanroles())->map(
-                        static function (Role $role) {
-                            return $role->getName();
-                        }
+                        static fn(Role $role) => $role->getName()
                     )->implode(', ');
 
                     $testUser = new TestUserValueObject();
@@ -1604,19 +1504,11 @@ class UserService extends CoreService implements UserServiceInterface
      */
     public function getTestUsersOsi(string $project): IlluminateCollection
     {
-        switch ($project) {
-            case 'bimschgsh':
-            case 'bobsh':
-            case 'planfestsh':
-            case 'robobsh':
-                $testUserXml = UserMapperDataportGatewaySHStatic::AVAILABLE_USER;
-                break;
-            case 'bobhh':
-                $testUserXml = UserMapperDataportGatewayHHStatic::AVAILABLE_USER;
-                break;
-            default:
-                $testUserXml = [];
-        }
+        $testUserXml = match ($project) {
+            'bimschgsh', 'bobsh', 'planfestsh', 'robobsh' => UserMapperDataportGatewaySHStatic::AVAILABLE_USER,
+            'bobhh' => UserMapperDataportGatewayHHStatic::AVAILABLE_USER,
+            default => [],
+        };
 
         return collect($testUserXml)
             ->map(
@@ -1628,9 +1520,7 @@ class UserService extends CoreService implements UserServiceInterface
                     $userAttributes = $userArray['USERDATA']['HHGW']['@attributes'];
                     $roleString = 'Bürger';
                     if (array_key_exists('ROLES', $userArray['USERDATA'])) {
-                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static function ($roleArray) {
-                            return $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default';
-                        })
+                        $roleString = collect($userArray['USERDATA']['ROLES'])->transform(static fn($roleArray) => $roleArray['@attributes']['ROLENAME'] ?? $roleArray['ROLENAME'] ?? 'Default')
                         ->implode(', ');
                     }
                     $testUser = new TestUserValueObject();
@@ -1682,5 +1572,28 @@ class UserService extends CoreService implements UserServiceInterface
         }
 
         return $string;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getEmailsOfUsersOfOrgas(Customer $customer): array
+    {
+        $mailAddresses = [];
+        /** @var Orga $orga */
+        foreach ($customer->getOrgas([OrgaStatusInCustomer::STATUS_ACCEPTED]) as $orga) {
+            /** @var User $user */
+            foreach ($orga->getUsers() as $user) {
+                // ensure that user is registered in current customer
+                // avoids that citizens of other customers are notified
+                if ($user->isDeleted() || !in_array($customer->getId(), $user->getCustomersIds(), true)) {
+                    continue;
+                }
+
+                $mailAddresses[] = $user->getEmail();
+            }
+        }
+
+        return $mailAddresses;
     }
 }

@@ -16,7 +16,7 @@
                 <p class="lbl u-mb-0_25">
                     {{ "file.delete"|trans }}
                 </p>
-                <div class="overflow-word-break u-mb-0_75">
+                <div class="break-words u-mb-0_75">
                     <a
                         href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': templateVars.elementFile|getFile('hash') }) }}"
                         target="_blank"
@@ -34,7 +34,7 @@
             {{ fileupload("r_planPDF", "file.upload.pdf.mp4", "pdf-video", "form.button.upload.file") }}
         </fieldset>
 
-        <div class="text--right">
+        <div class="text-right">
             <input
                 class="btn btn--primary"
                 type="submit"
@@ -47,7 +47,7 @@
     {% if hasPermission('feature_admin_element_paragraph_import_docx') %}
         <hr class="u-mv border--top">
 
-        <form name="begruendungForm" class="cf" enctype="multipart/form-data" method="post" action="">
+        <form name="begruendungForm" class="flow-root" enctype="multipart/form-data" method="post" action="">
 
             <input type="hidden" name="action" value="uploadImportFile">
 
@@ -64,7 +64,7 @@
                 }}
             </fieldset>
 
-            <div class="text--right">
+            <div class="text-right">
                 <input
                     class="btn btn--primary"
                     type="submit"
@@ -91,8 +91,8 @@
         {# paragraph settings: list paragraphs #}
         <form class="u-mv" name="itemsForm" action="{{ path('DemosPlan_plandocument_administration_element', {'procedure':procedure, 'elementId':templateVars.procedureCurrentElementId}) }}" method="post">
 
-            <div class="cf u-mb-0_25">
-                <label class="o-link--default display--inline-block u-ml-0_25 u-mb-0 u-mr-0_5 u-valign--middle line-height--2">
+            <div class="flow-root u-mb-0_25">
+                <label class="o-link--default inline-block u-ml-0_25 u-mb-0 u-mr-0_5 align-middle line-height--2">
                     <input
                         id="select_all"
                         data-cy="selectAllParagraphs"
@@ -114,7 +114,7 @@
 
                 {# paragraph settings for category: new paragraph #}
                 <a
-                    class="btn btn--primary float--right"
+                    class="btn btn--primary float-right"
                     data-cy="createNewParagraph"
                     href="{{ path('DemosPlan_plandocument_administration_' ~ category ~ '_new',
                             {'procedure':procedure, 'elementId': templateVars.procedureCurrentElementId}) }}">
@@ -136,10 +136,10 @@
                         <th>
                             {{ "heading"|trans }}
                         </th>
-                        <th class="text--center">
+                        <th class="text-center">
                             {{ "status"|trans }}
                         </th>
-                        <th class="text--center">
+                        <th class="text-center">
                             {{ "move"|trans }}
                         </th>
                     </tr>
@@ -153,7 +153,7 @@
         </form>
     {% else %}
         {# paragraph settings: new paragraph #}
-        <div class="text--right">
+        <div class="text-right">
             <a
                 class="btn btn--primary"
                 data-cy="createNewParagraph"

@@ -24,22 +24,10 @@ use EDT\Querying\Contracts\SortMethodInterface;
 class PlaceFacet implements FacetInterface
 {
     /**
-     * @var FunctionInterface
-     */
-    private $rootItemsLoadCondition;
-
-    /**
-     * @var SortMethodInterface
-     */
-    private $itemsSortMethod;
-
-    /**
      * @param FunctionInterface<bool> $rootItemsLoadCondition
      */
-    public function __construct(FunctionInterface $rootItemsLoadCondition, SortMethodInterface $itemsSortMethod)
+    public function __construct(private readonly FunctionInterface $rootItemsLoadCondition, private readonly SortMethodInterface $itemsSortMethod)
     {
-        $this->rootItemsLoadCondition = $rootItemsLoadCondition;
-        $this->itemsSortMethod = $itemsSortMethod;
     }
 
     public function getFacetNameTranslationKey(): string

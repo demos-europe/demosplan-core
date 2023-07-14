@@ -6,7 +6,7 @@
         heading: 'tag.administration_single' |trans
     } %}
 
-    <form class="layout--flush cf" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
+    <form class="layout--flush flow-root" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
 
         {{ uiComponent('form.row', {
             elements: [
@@ -26,7 +26,7 @@
             {{ uiComponent('form.row', {
                 elements: [
                     {
-                        label: { text: 'boilerplate.none'|trans, class: "display--inline" },
+                        label: { text: 'boilerplate.none'|trans, class: "inline" },
                         control: { name: 'r_attachmode' },
                         id: 'boilerplateNone',
                         name: 'r_attachmode',
@@ -46,7 +46,7 @@
             {{ uiComponent('form.row', {
                 elements: [
                     {
-                        label: { text: 'boilerplate.existing'|trans, class: "display--inline" },
+                        label: { text: 'boilerplate.existing'|trans, class: "inline" },
                         control: { name: 'r_attachmode' },
                         name: 'r_attachmode',
                         id: 'boilerplateExisting',
@@ -70,7 +70,7 @@
             {% apply spaceless %}
                 <div class="layout__item u-1-of-3">
                     {{ uiComponent('form.element', {
-                        label: { text: 'boilerplate.generate'|trans, class: "display--inline" },
+                        label: { text: 'boilerplate.generate'|trans, class: "inline" },
                         control: { name: 'r_attachmode' },
                         name: 'r_attachmode',
                         id: 'newBoilerplateRadio',
@@ -79,7 +79,7 @@
                     }) }}
                 </div>
 
-                <div class="layout__item u-2-of-3 display--none" id="newBoilerplateForm">
+                <div class="layout__item u-2-of-3 hidden" id="newBoilerplateForm">
                     {{ uiComponent('form.element',  {
                         label: {},
                         control: { name: 'r_boilerplateTitle', attributes: ['data-dp-validate-if=#newBoilerplateRadio'], required: true },
@@ -105,7 +105,7 @@
 
         {% endif %}
 
-        <div class="text--right u-mt-0_5 space-inline-s">
+        <div class="text-right u-mt-0_5 space-inline-s">
             <button type="submit" class="btn btn--primary">{{ "save" |trans }}</button>
             <a class="btn btn--secondary" href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}#{{ tag }}">
                 {{ "abort"|trans }}

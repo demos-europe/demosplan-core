@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class CoreService
 {
@@ -39,9 +40,8 @@ class CoreService
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -57,9 +57,8 @@ class CoreService
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setStopwatch(Stopwatch $stopwatch)
     {
         $this->stopwatch = $stopwatch;
@@ -103,9 +102,8 @@ class CoreService
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setDoctrine(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;

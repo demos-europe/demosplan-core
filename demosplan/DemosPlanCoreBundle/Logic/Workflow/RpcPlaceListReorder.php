@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
@@ -61,11 +60,6 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     protected $conditionFactory;
 
     /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
-
-    /**
      * @var JsonSchemaValidator
      */
     protected $jsonValidator;
@@ -76,53 +70,27 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     protected $errorGenerator;
 
     /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var PlaceResourceType
-     */
-    private $placeResourceType;
-
-    /**
      * @var ProcedureService
      */
     protected $procedureService;
 
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-
-    public const JSON_SCHEMA_PATH = 'json-schema/rpc-workflowPlace-list-reorder-schema.json';
-    public const SUPPORTED_METHOD_NAME = 'workflowPlacesOfProcedure.reorder';
+    final public const JSON_SCHEMA_PATH = 'json-schema/rpc-workflowPlace-list-reorder-schema.json';
+    final public const SUPPORTED_METHOD_NAME = 'workflowPlacesOfProcedure.reorder';
 
     public function __construct(
         DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonSchemaValidator,
-        PermissionsInterface $permissions,
-        PlaceResourceType $placeResourceType,
+        private readonly PermissionsInterface $permissions,
+        private readonly PlaceResourceType $placeResourceType,
         ProcedureService $procedureService,
         RpcErrorGenerator $errorGenerator,
-        SortMethodFactory $sortMethodFactory,
-        TransactionService $transactionService
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly TransactionService $transactionService
     ) {
         $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
         $this->errorGenerator = $errorGenerator;
         $this->jsonValidator = $jsonSchemaValidator;
-        $this->permissions = $permissions;
-        $this->placeResourceType = $placeResourceType;
         $this->procedureService = $procedureService;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->transactionService = $transactionService;
     }
 
     public function supports(string $method): bool
@@ -140,9 +108,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     public function execute(?Procedure $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            function () use ($procedure, $rpcRequests): array {
-                return $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests);
-            });
+            fn (): array => $this->prepareAndExecuteAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool
@@ -175,7 +141,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
 
         if (!$this->checkIfAuthorized($procedureId)
         ) {
-            return array_map([$this->errorGenerator, 'accessDenied'], $rpcRequests);
+            return array_map($this->errorGenerator->accessDenied(...), $rpcRequests);
         }
 
         foreach ($rpcRequests as $rpcRequest) {
@@ -190,7 +156,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
                     $allPlacesOfProcedure
                 );
                 $listReorder->reorderEntityList();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
 
                 return $resultResponse;
@@ -205,7 +171,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         try {
             return $this->procedureService->isUserAuthorized($procedureId)
                 && $this->permissions->hasPermission('area_manage_segment_places');
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -225,7 +191,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         }
 
         /** @var array<int, Place> $places */
-        $places = $this->entityFetcher->listEntities($this->placeResourceType, [$procedureCondition], [$sortMethod]);
+        $places = $this->placeResourceType->listEntities([$procedureCondition], [$sortMethod]);
 
         $result = new ArrayCollection();
         /** @var Place $place */

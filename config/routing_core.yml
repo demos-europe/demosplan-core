@@ -1,3 +1,6 @@
+imports:
+    resource: routes/*
+
 csp_report:
     path: /nelmio/csp/report
     methods: [POST]

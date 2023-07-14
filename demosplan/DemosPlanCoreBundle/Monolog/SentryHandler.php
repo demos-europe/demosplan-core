@@ -30,14 +30,8 @@ use Throwable;
  */
 class SentryHandler implements HandlerInterface
 {
-    /**
-     * @var HandlerInterface
-     */
-    private $decoratedHandler;
-
-    public function __construct(HandlerInterface $decoratedHandler)
+    public function __construct(private readonly HandlerInterface $decoratedHandler)
     {
-        $this->decoratedHandler = $decoratedHandler;
     }
 
     /**
@@ -72,7 +66,7 @@ class SentryHandler implements HandlerInterface
                             } elseif ($value instanceof Throwable) {
                                 $decodedValue = $value->getMessage().' '.$value->getTraceAsString();
                             }
-                        } catch (JsonException $e) {
+                        } catch (JsonException) {
                             $decodedValue = $value;
                         }
                         $scope->setExtra($key, $decodedValue);

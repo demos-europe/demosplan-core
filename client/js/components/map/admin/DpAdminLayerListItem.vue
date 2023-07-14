@@ -20,7 +20,7 @@
     class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
-      'cursor--pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
+      'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
     }"
     @click="setActiveState"
     @mouseover="mouseOverElement"
@@ -28,7 +28,7 @@
     :id="layer.id">
     <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
-        class="fa fa-bars handle width-20 cursor--grab"
+        class="fa fa-bars handle width-20 cursor-grab"
         :title="Translator.trans('move')" />
     </div><!--
  --><div
@@ -88,7 +88,7 @@
    --><template
         v-if="(layer.type === 'GisLayer')">
 <!--
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
           <a
             v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
             @click.stop.prevent="toggleVisibilityGroup"
@@ -98,7 +98,7 @@
             <i :class="[iconClass,showGroupableIcon]" />
           </a>
         </div><!--
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
           <input
             type="checkbox"
             :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
@@ -111,7 +111,7 @@
             Show this Stuff for 'special category that looks like an Layer and hides all his children'
    --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
 <!--
-     --><div class="layout__item u-2-of-12 text--right">
+     --><div class="layout__item u-2-of-12 text-right">
           <input
             type="checkbox"
             @change.prevent="toggleHasDefaultVisibility"
@@ -122,10 +122,10 @@
 </template><!--
    --><div
         v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-        class="layout__item u-2-of-12 text--right">
+        class="layout__item u-2-of-12 text-right">
         <!-- spacer for groups -->
       </div><!--
-   --><div class="layout__item u-1-of-12 text--right">
+   --><div class="layout__item u-1-of-12 text-right">
         <a
           :href="editLink"
           data-cy="editLink">
@@ -316,15 +316,15 @@ export default {
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         } else if (this.hasGroupId) {
           if (toggleMyIconInSameGroup && this.currentGroupSize <= 2) {
             return 'fa-unlink color-highlight'
           } else {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color-highlight'
+              return 'fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor--default'
+              return 'fa-link color--grey cursor-default'
             }
           }
         } else {
@@ -338,7 +338,7 @@ export default {
 
       if (this.isHovered && this.thereIsAnActiveElement === false) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
@@ -350,18 +350,18 @@ export default {
           if (this.showCurrentIconState) {
             return 'fa-link color-highlight'
           } else {
-            return 'fa-unlink  color-highlight cursor--default'
+            return 'fa-unlink  color-highlight cursor-default'
           }
         }
       }
 
       if (this.isLinkedWithCurrentlyHovered && this.thereIsAnActiveElement === false) {
-        return 'fa-link color--grey cursor--default'
+        return 'fa-link color--grey cursor-default'
       }
 
       if (this.isHovered && this.thereIsAnActiveElement === true) {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
-          return 'fa-lock color--grey cursor--help'
+          return 'fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
@@ -373,7 +373,7 @@ export default {
           if (this.showCurrentIconState) {
             return 'fa-link color-highlight'
           } else {
-            return 'fa-unlink color--grey cursor--default'
+            return 'fa-unlink color--grey cursor-default'
           }
         }
       }
@@ -384,12 +384,12 @@ export default {
         } else {
           if (this.hasGroupId) {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor--default color-highlight'
+              return 'fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor--default'
+              return 'fa-link color--grey cursor-default'
             }
           } else {
-            return 'fa-unlink color--grey cursor--default'
+            return 'fa-unlink color--grey cursor-default'
           }
         }
       }

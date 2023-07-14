@@ -26,7 +26,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class MasterToebRepository extends CoreRepository implements ArrayInterface
+class MasterToebRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get a list of all mastertoeb entries from the DB, ordered be the name of the organisation (nulls last).

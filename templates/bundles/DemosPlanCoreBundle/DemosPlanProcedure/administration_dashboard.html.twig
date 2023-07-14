@@ -22,7 +22,7 @@
                 <div class="layout__item u-1-of-5">
                     {% if hasPermission('area_admin_boilerplates') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="boilerplates"
                             href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
                             {{ 'boilerplates'|trans }}
@@ -30,7 +30,7 @@
                     {% endif %}
                     {% if hasPermission('area_admin_statements_tag') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="tagAdministration"
                             href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}">
                             {{ 'tag.administration'|trans }}
@@ -38,7 +38,7 @@
                     {% endif %}
                     {% if hasPermission('area_manage_segment_places') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="places"
                             href="{{ path('DemosPlan_procedure_places_list', { 'procedureId': procedure}) }}"
                         >
@@ -47,7 +47,7 @@
                     {% endif %}
                     {% if hasPermission('area_admin_protocol') %}
                         <a
-                            class="display--block u-pb-0_25"
+                            class="block u-pb-0_25"
                             data-cy="protocol"
                             href="{{ path('dm_plan_report_table_view', {'procedureId': procedure}) }}"
                         >
@@ -83,23 +83,23 @@
                             <h4 class="u-mb-0 weight--bold">{{ 'statements.do.segment'|trans }}</h4>
                             {% if statementIdToBeSplit is not defined or statementIdToBeSplit == null %}
                                 <p class="u-mb-0 u-mt">
-                                    <i class="fa fa-check-circle u-mr-0_25 color-message-success-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    <i class="fa fa-check-circle u-mr-0_25 color-message-success-fill align-sub" style="font-size: 28px;"></i>
                                     {{ 'statements.all.segmented'|trans }}
                                 </p>
                             {% elseif statementIdToBeSplit is not null and splitStatementsLength <= 0 %}
                                 <p class="u-mb-0 u-mt">
-                                    <i class="fa fa-exclamation-circle u-mr-0_5 color-message-info-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    <i class="fa fa-exclamation-circle u-mr-0_5 color-message-info-fill align-sub" style="font-size: 28px;"></i>
                                     {{ 'statements.splittable.now'|trans({ count: segmentableStatementsCount })|wysiwyg }}
                                 </p>
                             {% elseif statementIdToBeSplit is not null and splitStatementsLength > 0 %}
                                 <p class="u-mb-0 u-mt">
-                                    <i class="fa fa-exclamation-circle u-mr-0_25 color-message-info-fill u-valign--sub" style="font-size: 28px;"></i>
+                                    <i class="fa fa-exclamation-circle u-mr-0_25 color-message-info-fill align-sub" style="font-size: 28px;"></i>
                                     {{ 'welcome.back.continue'|trans }}
                                 </p>
                             {% endif %}
 
                             {% if statementIdToBeSplit is defined and statementIdToBeSplit is not null %}
-                                <div class="u-mt text--right">
+                                <div class="u-mt text-right">
                                     <form method="post" action="{{ path('dplan_drafts_list_claim', {'statementId':statementIdToBeSplit, 'procedureId': procedure}) }}">
                                         {{ uiComponent('button', {
                                             type: 'submit',
@@ -125,7 +125,7 @@
                             {% if templateVars.statementsTotal|default(0) > 0 %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
                                     <p class="weight--bold">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.status'|trans({ count: 0 }) }}
                                     </p>
                                     <div
@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm">
                                     <p class="weight--bold u-pb">
-                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float--right']) }}
+                                        {{ contextualHelp('help.without.moved.statements', ['o-tooltip--question-circle','c-infolist__help u-ml-0_25 u-mt-0_125 float-right']) }}
                                         {{ 'statements.grouped.priority'|trans({ count: 0 }) }}
                                     </p>
                                     <div id="pieChart" class="c-chart__svg-wrapper"></div>
@@ -150,7 +150,7 @@
                                     <p class="weight--bold">{{ 'statements'|trans }}</p>
                                     {{ 'statements.none'|trans }}
                                     {% if hasPermission('feature_statement_data_input_orga') %}
-                                        <a class="btn-icns u-m-0 float--right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
+                                        <a class="btn-icns u-m-0 float-right" href="{{ path(newStatementPath, { 'procedureId': procedure }) }}">
                                             <i class="fa fa-plus" aria-hidden="true"></i>
                                             {{ 'statement.new'|trans }}
                                         </a>
@@ -236,7 +236,7 @@
                                                 <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
                                                     {{ procedure.title }}
                                                 </td>
-                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                <td data-selector="legendFreq" class="u-1-of-12 text-right">
                                                     {{ procedure.value }}
                                                 </td>
                                             </tr>
@@ -255,7 +255,7 @@
                                                 <td class="u-11-of-12 o-hellip--td o-hellip--nowrap" title="{{ procedure.title }}">
                                                     {{ procedure.title }}
                                                 </td>
-                                                <td data-selector="legendFreq" class="u-1-of-12 text--right">
+                                                <td data-selector="legendFreq" class="u-1-of-12 text-right">
                                                     {{ procedure.value }}
                                                 </td>
                                             </tr>
@@ -284,7 +284,7 @@
                     {% endif %}
 
                     <div class="box-shadow-1 space-inset-m">
-                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}display--inline-block{% endif %}">{{ 'survey'|trans }}</p>
+                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}inline-block{% endif %}">{{ 'survey'|trans }}</p>
                         {% if templateVars.procedureHasSurveys == true and survey.id is defined %}
                             <span class="u-ml-1_5 o-badge--light font-size-small" style="border-radius: 3px; padding: 1px 6px 3px 1px;">
                                 {{ survey.status|trans }}
@@ -294,7 +294,7 @@
                                 {% if templateVars.surveyStatistics.votes.sum > 0 %}
                                     <dp-survey-chart title="{{ survey.title }}" :votes="JSON.parse('{{ votes|json_encode|e('js', 'utf-8') }}')"></dp-survey-chart>
 
-                                    <a class="o-link--icon u-m-0 float--left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                    <a class="o-link--icon u-m-0 float-left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
                                         <i class="fa fa-pencil" aria-hidden="true"></i>
                                         {{ 'survey.comments.moderate'|trans }}
                                     </a>
@@ -304,14 +304,14 @@
                                         </span>
                                     {% endif %}
                                 {% endif %}
-                                <a class="o-link--icon u-m-0 float--right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
+                                <a class="o-link--icon u-m-0 float-right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                     {{ 'survey.edit'|trans }}
                                 </a>
                             </div>
                         {% else %}
                             <p>{{ 'survey.none'|trans }}</p>
-                            <a class="btn-icns u-m-0 float--right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
+                            <a class="btn-icns u-m-0 float-right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                 {{ 'survey.new'|trans }}
                             </a>

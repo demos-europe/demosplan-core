@@ -11,7 +11,6 @@
 
 //  utility classes affecting text
 //
-//  .caps
 //  .fontstyle--[normal|italic]
 //  .line-height--1_6
 //  .text-decoration-[none|underline]
@@ -19,24 +18,6 @@
 //  .weight--[normal|bold]
 //  .whitespace--[normal|nowrap]
 //  .line-clamp-3
-
-//  caps
-.caps {
-    text-transform: uppercase !important;
-}
-
-
-//  font-style
-.fontstyle {
-    &--normal {
-        font-style: normal !important;
-    }
-
-    &--italic {
-        font-style: italic !important;
-    }
-}
-
 
 //  line height
 .line-height {
@@ -69,25 +50,6 @@
     }
 }
 
-
-//  text-decoration
-.text-decoration {
-    &-none {
-        text-decoration: none !important;
-    }
-
-    &-underline {
-        text-decoration: underline !important;
-    }
-
-    &-underline--hover {
-        &:hover {
-            text-decoration: underline !important;
-        }
-    }
-}
-
-
 //  alignment
 $text-directions: (
     'left',
@@ -95,12 +57,6 @@ $text-directions: (
     'right',
     'justify'
 );
-
-@each $direction in $text-directions {
-    .text--#{$direction} {
-        text-align: #{$direction} !important;
-    }
-}
 
 @each $direction in $text-directions {
 
@@ -112,7 +68,7 @@ $text-directions: (
 
         @include media-query($alias) {
 
-            .text--#{$direction}-#{$alias} {
+            .text-#{$direction}-#{$alias} {
                 text-align: #{$direction} !important;
             }
         }
@@ -131,20 +87,6 @@ $text-directions: (
     &--bold {
         font-weight: $bold-font-weight !important;
         font-family: $bold-font-family !important;
-    }
-}
-
-.whitespace {
-    &--normal {
-        white-space: normal !important;
-    }
-
-    &--nowrap {
-        white-space: nowrap;
-    }
-
-    &--preline {
-        white-space: pre-line;
     }
 }
 

@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
@@ -65,29 +65,8 @@ use function is_string;
  */
 class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $procedureCoupleTokenRepository;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        ProcedureCoupleTokenRepository $procedureCoupleTokenRepository,
-        RpcErrorGenerator $rpcErrorGenerator
-    ) {
-        $this->procedureCoupleTokenRepository = $procedureCoupleTokenRepository;
-        $this->errorGenerator = $rpcErrorGenerator;
-        $this->currentUser = $currentUser;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ProcedureCoupleTokenRepository $procedureCoupleTokenRepository, private readonly RpcErrorGenerator $errorGenerator)
+    {
     }
 
     public function supports(string $method): bool
@@ -122,9 +101,9 @@ class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
                     'targetProcedure' => $targetProcedure,
                 ];
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $resultData);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
             }
         }

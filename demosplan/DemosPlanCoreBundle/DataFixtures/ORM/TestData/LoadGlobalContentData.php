@@ -17,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadGlobalContentData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $globalContent1 = new GlobalContent();
         $globalContent1->setType('faq');

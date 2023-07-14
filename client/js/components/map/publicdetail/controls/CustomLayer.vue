@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'display--none': isMobile }">
+  <div :class="{ 'hidden': isMobile }">
     <div :class="prefixClass('c-map__group')">
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
@@ -73,7 +73,12 @@ export default {
   methods: {
     emitAddLayer () {
       const { currentCapabilities, serviceType, url, name, layers, projection, matrixSet } = this.$refs.layerSettings
-      this.$root.$emit('addCustomlayer', { currentCapabilities, serviceType, url, name, layers, projection, tileMatrixSet: matrixSet })
+
+      if (currentCapabilities) {
+        this.$root.$emit('addCustomlayer', { currentCapabilities, serviceType, url, name, layers, projection, tileMatrixSet: matrixSet })
+      } else {
+        return dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
+      }
     },
 
     toggle () {

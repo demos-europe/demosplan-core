@@ -27,7 +27,7 @@
       />
 
       <dp-button
-        class="float--right"
+        class="float-right"
         :text="Translator.trans('unselect')"
         variant="outline"
         @click="resetSelection" />

@@ -41,62 +41,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
 {
-    /** @var DraftsInfoHandler */
-    private $draftsInfoHandler;
-
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /** @var DraftsInfoValidator */
-    private $draftsInfoValidator;
-
-    /**
-     * @var PlaceService
-     */
-    private $placeService;
-
-    /** @var TagService */
-    private $tagService;
-
-    /** @var TranslatorInterface */
-    private $translator;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var SegmentHandler */
-    private $segmentHandler;
-
-    /** @var StatementService */
-    private $statementService;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(
-        DraftsInfoHandler $draftsInfoHandler,
-        StatementHandler $statementHandler,
-        DraftsInfoValidator $draftsInfoValidator,
-        TagService $tagService,
-        TranslatorInterface $translator,
-        LoggerInterface $logger,
-        PlaceService $placeService,
-        SegmentHandler $segmentHandler,
-        StatementService $statementService,
-        UserService $userService
-    ) {
-        $this->draftsInfoHandler = $draftsInfoHandler;
-        $this->statementHandler = $statementHandler;
-        $this->draftsInfoValidator = $draftsInfoValidator;
-        $this->tagService = $tagService;
-        $this->translator = $translator;
-        $this->logger = $logger;
-        $this->placeService = $placeService;
-        $this->segmentHandler = $segmentHandler;
-        $this->statementService = $statementService;
-        $this->userService = $userService;
+    public function __construct(private readonly DraftsInfoHandler $draftsInfoHandler, private readonly StatementHandler $statementHandler, private readonly DraftsInfoValidator $draftsInfoValidator, private readonly TagService $tagService, private readonly TranslatorInterface $translator, private readonly LoggerInterface $logger, private readonly PlaceService $placeService, private readonly SegmentHandler $segmentHandler, private readonly StatementService $statementService, private readonly UserService $userService)
+    {
     }
 
     /**
@@ -138,9 +84,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
         // The segments are received potentially unsorted. Hence sort them by their position
         // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static function (array $draft1, array $draft2) {
-            return $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1;
-        });
+        usort($draftsList, static fn(array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {

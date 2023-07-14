@@ -27,7 +27,7 @@
         <dp-checkbox
           id="autoSwitchAction"
           v-model="actions.setEnabled.checked"
-          class="display--inline-block"
+          class="inline-block"
           disabled
           :label="{
             bold: actions.setEnabled.checked,
@@ -207,11 +207,11 @@ export default {
     this.stateOptions = [
       {
         value: '1',
-        label: 'published'
+        label: Translator.trans('published')
       },
       {
         value: '0',
-        label: 'unpublished'
+        label: Translator.trans('unpublished')
       }
     ]
   }

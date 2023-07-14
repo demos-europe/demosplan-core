@@ -7,13 +7,14 @@
   All rights reserved
 </license>
 
-<dp-modal
-  ref="recommendationModal"
-  content-classes="u-2-of-3">
+<template>
+  <dp-modal
+    ref="recommendationModal"
+    content-classes="u-2-of-3">
     <h3>{{ Translator.trans('segment.recommendation.insert.similar') }}</h3>
     <div class="layout u-mb">
       <div class="layout__item u-1-of-3">
-        <span class="display--block weight--bold">
+        <span class="block weight--bold">
           {{ Translator.trans('segment.tags') }}
         </span>
         <div class="bg-color--grey-light-2 u-p-0_25">
@@ -25,15 +26,15 @@
         </div>
       </div><!--
    --><div class="layout__item u-2-of-3">
-      <dp-label
-        :text="Translator.trans('search.text')"
-        for="searchField" />
-      <dp-search-field
-        @search="setSearchTerm"
-        @reset="setSearchTerm('')"
-        class="width--100p"
-        :placeholder="Translator.trans('search')" />
-    </div>
+        <dp-label
+          :text="Translator.trans('search.text')"
+          for="searchField" />
+        <dp-search-field
+          @search="setSearchTerm"
+          @reset="setSearchTerm('')"
+          class="width--100p"
+          :placeholder="Translator.trans('search')" />
+      </div>
     </div>
 
     <dp-loading v-if="isLoading" />
@@ -58,7 +59,8 @@
         {{ Translator.trans('statement.list.empty') }}
       </div>
     </template>
-</dp-modal>
+  </dp-modal>
+</template>
 
 <script>
 import { dataTableSearch, dpApi, DpLabel, DpLoading, DpModal, DpSearchField } from '@demos-europe/demosplan-ui'

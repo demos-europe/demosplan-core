@@ -75,14 +75,15 @@ class Config {
           /ol-.+/,
           /plyr-.+/,
           /uppy-.+/,
-          /color-.+/,
+          /^color-.+/,
           /tabs-component.*/
         ],
         deep: [
           /split-statement/
         ],
         greedy: [
-          /tooltip/
+          /tooltip/,
+          /swagger-ui/
         ]
       }
     }
@@ -90,7 +91,7 @@ class Config {
     this.cssPrefixExcludes = {
       externalClassPrefixes: [
         'ad-', // Classes for the a11y-datepicker
-        'cc-', // Classes for the cookieconsent banner (cc-banner etc)
+        'cc-', // Classes for the cookie consent banner (cc-banner etc)
         'ol-', // Classes for open layers (to prevent our overrides)
         'plupload_', // Classes for plUpload (to prevent our overrides)
         'v-tooltip', // V-tooltip

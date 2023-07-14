@@ -38,25 +38,10 @@ use UnexpectedValueException;
 
 class DemosPlanClaimAPIController extends APIController
 {
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
     public function __construct(
-        ProcedureHandler $procedureHandler,
-        StatementHandler $statementHandler,
-        UserService $userService,
+        private readonly ProcedureHandler $procedureHandler,
+        private readonly StatementHandler $statementHandler,
+        private readonly UserService $userService,
         LoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -76,32 +61,21 @@ class DemosPlanClaimAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->procedureHandler = $procedureHandler;
-        $this->statementHandler = $statementHandler;
-        $this->userService = $userService;
     }
 
     /**
-     * @Route(path="/api/1.0/statement/{statementId}/relationships/assignee",
-     *        methods={"PATCH"},
-     *        name="dplan_claim_statements_api",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
+    #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
     public function updateStatementAssignmentAction(string $statementId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($statementId, Statement::class);
     }
 
     /**
-     * @Route(path="/api/1.0/fragment/{entityId}/relationships/assignee",
-     *        methods={"PATCH"},
-     *        name="dplan_claim_fragments_api",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
+    #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
     public function updateFragmentAssignmentAction(string $entityId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($entityId, StatementFragment::class);

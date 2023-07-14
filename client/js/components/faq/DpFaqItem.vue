@@ -16,7 +16,7 @@
       <dp-multiselect
         v-if="availableGroupOptions.length > 1"
         :allow-empty="false"
-        :custom-label="props =>`${props.option.title}`"
+        :custom-label="option =>`${option.title}`"
         data-cy="selectedGroups"
         multiple
         :options="availableGroupOptions"
@@ -38,12 +38,12 @@
         </template>
       </dp-multiselect>
     </div><!--
- --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+ --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
         v-model="itemEnabled"
         class="u-mt-0_125" />
     </div><!--
- --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+ --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <a
         class="btn--blank o-link--default u-mh-0_25"
         :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"

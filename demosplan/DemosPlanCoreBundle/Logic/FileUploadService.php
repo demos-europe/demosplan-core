@@ -23,24 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileUploadService implements FileUploadServiceInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    public function __construct(FileService $fileService, LoggerInterface $logger, MessageBagInterface $messageBag)
+    public function __construct(private readonly FileService $fileService, private readonly LoggerInterface $logger, private readonly MessageBagInterface $messageBag)
     {
-        $this->fileService = $fileService;
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
     }
 
     /**
@@ -66,7 +50,7 @@ class FileUploadService implements FileUploadServiceInterface
         $savedFiles = [];
 
         try {
-            if (0 < count($fileBag)) {
+            if (0 < (is_countable($fileBag) ? count($fileBag) : 0)) {
                 $savedFiles = $this->handleFileBag(
                     $field,
                     $fileBag
@@ -78,7 +62,7 @@ class FileUploadService implements FileUploadServiceInterface
                 // array if multiupload is active, otherwise string
                 if (is_array($uploadedFiles)) {
                     $savedFiles = $this->handleUploadedFiles($uploadedFiles, $field);
-                } elseif (0 < strlen($uploadedFiles)) {
+                } elseif (0 < strlen((string) $uploadedFiles)) {
                     // Falls kein Feld definiert ist, nutze einen nummeric key
                     $key = $field ?? 0;
                     $uploadedFiles = [$key => $uploadedFiles];
@@ -188,7 +172,7 @@ class FileUploadService implements FileUploadServiceInterface
                 continue;
             }
 
-            $uploadedFiles = explode(',', $uploadedFilesString);
+            $uploadedFiles = explode(',', (string) $uploadedFilesString);
             foreach ($uploadedFiles as $uploadedFileHash) {
                 if ('' === $uploadedFileHash) {
                     continue;
@@ -221,7 +205,7 @@ class FileUploadService implements FileUploadServiceInterface
         if ($request->request->has('uploadedFiles')) {
             $uploadedFiles = $request->request->get('uploadedFiles');
             if (is_array($uploadedFiles)) {
-                return array_key_exists($key, $uploadedFiles) && 0 < strlen($uploadedFiles[$key]);
+                return array_key_exists($key, $uploadedFiles) && 0 < strlen((string) $uploadedFiles[$key]);
             }
 
             return true;

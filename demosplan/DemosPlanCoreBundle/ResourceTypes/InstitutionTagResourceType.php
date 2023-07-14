@@ -41,14 +41,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class InstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     protected function getProperties(): array
@@ -125,7 +119,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
     {
         $violations = new ConstraintViolationList([]);
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->label, [$tag, 'setLabel']);
+        $updater->ifPresent($this->label, $tag->setLabel(...));
         $updater->ifPresent($this->taggedInstitutions, function (Collection $taggedInstitutions) use ($tag, $violations) {
             $taggingViolations = $this->updateTaggedInstitutions($taggedInstitutions, $tag);
             $violations->addAll($taggingViolations);
@@ -206,10 +200,6 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     public function delete(object $tag): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_institution_tag_delete')) {
-            throw new InvalidArgumentException('Insufficient permissions');
-        }
-
         $owningOrganisation = $tag->getOwningOrganisation();
         $owningOrganisation->removeOwnInstitutionTag($tag);
         $violations = $this->validator->validate($owningOrganisation);
@@ -234,6 +224,11 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         return $resourceChange;
     }
 
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_institution_tag_delete'];
+    }
+
     /**
      * @param Collection<int, Orga> $currentTaggedInstitutions
      * @param Collection<int, Orga> $newTaggedInstitutions
@@ -244,9 +239,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $currentTaggedInstitutions,
         Collection $newTaggedInstitutions
     ): Collection {
-        return $newTaggedInstitutions->filter(static function (Orga $newOrga) use ($currentTaggedInstitutions): bool {
-            return !$currentTaggedInstitutions->contains($newOrga);
-        });
+        return $newTaggedInstitutions->filter(static fn (Orga $newOrga): bool => !$currentTaggedInstitutions->contains($newOrga));
     }
 
     /**
@@ -260,9 +253,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         Collection $newTaggedInstitutions
     ): Collection {
         return $currentTaggedInstitutions->filter(
-            static function (Orga $currentOrga) use ($newTaggedInstitutions): bool {
-                return !$newTaggedInstitutions->contains($currentOrga);
-            }
+            static fn (Orga $currentOrga): bool => !$newTaggedInstitutions->contains($currentOrga)
         );
     }
 

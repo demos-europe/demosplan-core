@@ -22,7 +22,7 @@
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text--center u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down"
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`">
           <div

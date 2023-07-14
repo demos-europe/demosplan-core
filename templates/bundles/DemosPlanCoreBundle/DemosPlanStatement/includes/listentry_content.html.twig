@@ -129,14 +129,14 @@
 <hr class="{{ 'border--top u-mh u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}" />
 
 {% if show_rejected is defined and statement.rejectedReason is defined and statement.rejectedReason != '' %}
-    <strong class="{{ 'flash-warning display--block u-mh u-mb-0_5 u-ph-0_5 u-pv-0_25 u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}">
+    <strong class="{{ 'flash-warning block u-mh u-mb-0_5 u-ph-0_5 u-pv-0_25 u-ml-0_5-palm u-mr-0_5-palm'|prefixClass }}">
         {{ "confirm.statement.rejected.reason"|trans }} "{{ statement.rejectedReason }}"
     </strong>
 {% endif %}
 
 <span class="{{ 'layout__item u-1-of-6 u-1-of-1-palm u-pl-palm u-pb-0_5-lap-up u-pb-0_25-palm weight--bold'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
         {{ "statementtext"|trans }}:
-</span><span class="{{ 'layout__item u-5-of-6 u-1-of-1-palm u-pl-palm u-pr-0_25-palm overflow-word-break u-pr'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
+</span><span class="{{ 'layout__item u-5-of-6 u-1-of-1-palm u-pl-palm u-pr-0_25-palm break-words u-pr'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
     {{ statement.text|default( "<p>" ~ "notspecified"|trans ~ "</p>" )|dpObscure|wysiwyg }}
 </span>
 

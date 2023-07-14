@@ -24,7 +24,7 @@
       type="button"
       @click.prevent="openModal"
       :class="{'color-highlight': noFilterApplied === false }"
-      class="btn--blank o-link--default display--inline-block u-mb-0 u-p-0 u-mt-0_125"
+      class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
       data-cy="openFilterModal">
       <i
         class="fa fa-lg fa-filter"
@@ -46,14 +46,13 @@
       <dp-loading v-if="isLoading" />
 
       <!-- Show filters -->
-      <template v-else-if="false === saveFilterSetView">
+      <template v-else-if="!saveFilterSetView">
         <h2 class="u-mb">
           {{ Translator.trans('filter.modalTitle') }}
         </h2>
 
         <!-- Select with saved filter sets -->
-        <div
-          v-if="userFilterSetSaveEnabled">
+        <div v-if="userFilterSetSaveEnabled">
           <dp-multiselect
             id="userFilterSets"v-model="selectedUserFilterSet"
             :custom-label="nameFromAttributes"
@@ -76,7 +75,7 @@
             </template>
           </dp-multiselect>
 
-          <div class="text--right u-mb u-pt-0_5">
+          <div class="text-right u-mb u-pt-0_5">
             <button
               type="button"
               class="btn btn--primary"
@@ -125,24 +124,24 @@
 
         <!-- Checkbox to indicate user wants to save the current filter set -->
         <template v-if="userFilterSetSaveEnabled">
-          <div class="layout__item u-1-of-3" /><!--
-       --><label
-          for="r_save_filter_set"
-          class="layout__item u-2-of-3 u-pt-0_5"
-          :class="{'color--grey': noFilterSelected}">
-          <input
-            id="r_save_filter_set"
-            type="checkbox"
-            name="r_save_filter_set"
-            :disabled="noFilterSelected"
-            data-cy="saveFilterSet"
-            v-model="saveFilterSet">
-          {{ Translator.trans('filter.saveFilterSet.label') }}
-        </label>
+          <div class="layout__item u-1-of-3" />
+          <label
+            for="r_save_filter_set"
+            class="layout__item u-2-of-3 u-pt-0_5"
+            :class="{'color--grey': noFilterSelected}">
+            <input
+              id="r_save_filter_set"
+              type="checkbox"
+              name="r_save_filter_set"
+              :disabled="noFilterSelected"
+              data-cy="saveFilterSet"
+              v-model="saveFilterSet">
+            {{ Translator.trans('filter.saveFilterSet.label') }}
+          </label>
         </template>
 
         <!-- Button row -->
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
           <button
             type="submit"
             class="btn btn--primary"

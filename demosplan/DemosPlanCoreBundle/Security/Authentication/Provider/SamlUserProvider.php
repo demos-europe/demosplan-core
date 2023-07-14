@@ -20,14 +20,8 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlUserProvider implements UserProviderInterface
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(UserService $userService)
+    public function __construct(private readonly UserService $userService)
     {
-        $this->userService = $userService;
     }
 
     public function loadUserByUsername($login): UserInterface

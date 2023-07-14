@@ -25,7 +25,7 @@ class ContextualHelpExtension extends ExtensionBase
         return [
             new TwigFunction(
                 'contextualHelp',
-                [$this, 'contextualHelp'], ['is_safe' => ['html']]
+                $this->contextualHelp(...), ['is_safe' => ['html']]
             ),
         ];
     }
@@ -53,7 +53,7 @@ class ContextualHelpExtension extends ExtensionBase
                     compact('helpText', 'cssClasses')
                 );
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         return $content;

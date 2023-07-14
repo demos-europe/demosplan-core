@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="text--right u-pv-0_5">
+    <div class="text-right u-pv-0_5">
       <a
         class="btn btn--primary"
         :href="pathForNewsCreation"
@@ -18,7 +18,7 @@
       </a>
     </div>
     <dp-bulk-edit-header
-      class="u-pb-0_5"
+      class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
       :selected-items-count="selectedItems.length"
       :selection-text="Translator.trans('news.notes')"
@@ -47,7 +47,7 @@
       <template v-slot:title="{ id, pId, title }">
         <div class="o-hellip__wrapper">
           <a
-            class="o-hellip display--block"
+            class="o-hellip block"
             data-cy="newsTitleLink"
             :href="generateEditPath(id, pId)">
             {{ title }}

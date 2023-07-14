@@ -30,18 +30,12 @@ class DemosPlanSimplifiedStatementController extends BaseController
     /**
      * Creates a new Statement from the simplified form.
      *
-     * @Route(
-     *     name="dplan_simplified_new_statement_create",
-     *     methods={"POST"},
-     *     path="/verfahren/{procedureId}/stellungnahmen/neu",
-     *     options={"expose": true}
-     * )
-     *
      * @throws MessageBagException
      * @throws UserNotFoundException
      *
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
+    #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]
     public function createAction(
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,

@@ -23,24 +23,8 @@ use Exception;
 
 class SurveyHandler
 {
-    /** @var SurveyService */
-    private $surveyService;
-
-    /** @var array */
-    private $surveyStatuses;
-
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    /** @var SurveyValidator */
-    private $surveyValidator;
-
-    public function __construct(SurveyService $surveyService, array $surveyStatuses, ProcedureHandler $procedureHandler, SurveyValidator $surveyValidator)
+    public function __construct(private readonly SurveyService $surveyService, private readonly array $surveyStatuses, private readonly ProcedureHandler $procedureHandler, private readonly SurveyValidator $surveyValidator)
     {
-        $this->surveyService = $surveyService;
-        $this->surveyStatuses = $surveyStatuses;
-        $this->procedureHandler = $procedureHandler;
-        $this->surveyValidator = $surveyValidator;
     }
 
     public function findById(string $id): ?Survey
@@ -113,7 +97,7 @@ class SurveyHandler
 
         $startDate = empty($surveyDataJson['startDate'])
             ? date('Y-m-d')
-            : date('Y-m-d', strtotime($surveyDataJson['startDate']));
+            : date('Y-m-d', strtotime((string) $surveyDataJson['startDate']));
         $surveyDataJson['startDate'] = $startDate;
 
         $procedureEndDate = $procedure->getPublicParticipationEndDate()->format('Y-m-d');
@@ -123,7 +107,7 @@ class SurveyHandler
 
         $endDate = empty($surveyDataJson['endDate'])
             ? $defaultDate
-            : date('Y-m-d', strtotime($surveyDataJson['endDate']));
+            : date('Y-m-d', strtotime((string) $surveyDataJson['endDate']));
         $surveyDataJson['endDate'] = $endDate;
 
         $surveyDataJson['surveyId'] = $surveyId;

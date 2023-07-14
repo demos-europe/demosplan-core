@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -35,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -107,87 +107,36 @@ class ExportService
      */
     protected $permissions;
 
-    /** @var AssessmentHandler */
-    private $assessmentHandler;
-
-    /** @var ExportReportService */
-    private $exportReportService;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var string
-     */
-    private $rendererPath;
-
-    /**
-     * @var string
-     */
-    private $rendererName;
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-    /** @var StatementService */
-    private $statementService;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var ZipExportService
-     */
-    private $zipExportService;
-
     public function __construct(
-        AssessmentHandler $assessmentHandler,
+        private readonly AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserInterface $currentUser,
         DraftStatementService $draftStatementService,
-        ElementsService $elementsService,
-        ExportReportService $exportReportService,
+        private readonly ElementsService $elementsService,
+        private readonly ExportReportService $exportReportService,
         FileService $serviceFile,
         LoggerInterface $logger,
         NewsOutput $newsOutput,
         ParagraphExporter $paragraphExporter,
         PermissionsInterface $permissions,
         ProcedureOutput $procedureOutput,
-        ProcedureService $procedureService,
-        StatementService $statementService,
+        private readonly ProcedureService $procedureService,
+        private readonly StatementService $statementService,
         TranslatorInterface $translator,
-        ZipExportService $zipExportService,
-        string $rendererName,
-        string $rendererPath
+        private readonly ZipExportService $zipExportService,
+        private readonly string $rendererName,
+        private readonly string $rendererPath
     ) {
-        $this->assessmentHandler = $assessmentHandler;
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
-        $this->currentUser = $currentUser;
         $this->draftStatementService = $draftStatementService;
-        $this->elementsService = $elementsService;
-        $this->exportReportService = $exportReportService;
         $this->logger = $logger;
         $this->newsOutput = $newsOutput;
         $this->paragraphExporter = $paragraphExporter;
         $this->permissions = $permissions;
         $this->procedureOutput = $procedureOutput;
-        $this->procedureService = $procedureService;
-        $this->rendererName = $rendererName;
-        $this->rendererPath = $rendererPath;
         $this->fileService = $serviceFile;
-        $this->statementService = $statementService;
         $this->translator = $translator;
-        $this->zipExportService = $zipExportService;
-        $this->currentProcedureService = $currentProcedureService;
     }
 
     /**
@@ -410,11 +359,11 @@ class ExportService
             $outputResult = $this->newsOutput->newsListHandler($procedureId, $manualSortScope);
 
             foreach ($outputResult as $news) {
-                if (0 !== strlen($news['pdf'])) {
+                if (0 !== strlen((string) $news['pdf'])) {
                     $this->zipExportService->addFilePathToZipStream($news['pdf'], $procedureName.'/Anhang/Aktuelles', $zip);
                 }
 
-                if (0 !== strlen($news['picture'])) {
+                if (0 !== strlen((string) $news['picture'])) {
                     $this->zipExportService->addFilePathToZipStream($news['picture'], $procedureName.'/Anhang/Aktuelles', $zip);
                 }
             }
@@ -435,7 +384,7 @@ class ExportService
     ): ZipStream {
         $rParams = [
             'filters' => [],
-            'request' => ['limit' => 1000000],
+            'request' => ['limit' => 1_000_000],
             'items'   => [],
             'sort'    => ToBy::createArray('submitDate', 'desc'),
         ];
@@ -491,7 +440,7 @@ class ExportService
 
         $rParams = [
             'filters' => [],
-            'request' => ['limit' => 1000000],
+            'request' => ['limit' => 1_000_000],
             'items'   => [],
             'sort'    => ToBy::createArray('submitDate', 'desc'),
         ];
@@ -521,7 +470,7 @@ class ExportService
             $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getStatements(),
-                [$this->statementService, 'getStatementsByIds']
+                $this->statementService->getStatementsByIds(...)
             );
             $folderName = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/'.$this->literals['attachment'].'/';
             $this->attachStatementFilesToZip($statementEntities, $folderName, $zip);
@@ -539,7 +488,7 @@ class ExportService
     {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
-            'request' => ['limit' => 1000000],
+            'request' => ['limit' => 1_000_000],
             'items'   => [],
         ];
 
@@ -550,7 +499,7 @@ class ExportService
             $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getStatements(),
-                [$this->statementService, 'getStatementsByIds']
+                $this->statementService->getStatementsByIds(...)
             );
             $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['originals'].'/Anhang/', $zip);
             $this->logger->info('abwaegung_list_original created', ['id' => $procedureId, 'name' => $procedureName]);
@@ -608,10 +557,10 @@ class ExportService
     {
         try {
             $procedureAsArray = $this->getProcedureOutput()->getProcedureWithPhaseNames($procedureId);
-            if (0 !== strlen($procedureAsArray['settings']['planDrawPDF'])) {
+            if (0 !== strlen((string) $procedureAsArray['settings']['planDrawPDF'])) {
                 $this->zipExportService->addFilePathToZipStream($procedureAsArray['settings']['planDrawPDF'], $procedureName.'/Planzeichnung', $zip);
             }
-            if (0 !== strlen($procedureAsArray['settings']['planPDF'])) {
+            if (0 !== strlen((string) $procedureAsArray['settings']['planPDF'])) {
                 $this->zipExportService->addFilePathToZipStream($procedureAsArray['settings']['planPDF'], $procedureName.'/Planzeichnung', $zip);
             }
             $this->logger->info('planning_documents created', ['id' => $procedureId, 'name' => $procedureName]);
@@ -672,9 +621,7 @@ class ExportService
         }
 
         $currentUserOrgaId = $this->currentUser->getUser()->getOrganisationId();
-        $containsCurrentUserOrga = collect($organisations)->filter(static function (Orga $orga) use ($currentUserOrgaId) {
-            return $orga->getId() === $currentUserOrgaId;
-        });
+        $containsCurrentUserOrga = collect($organisations)->filter(static fn (Orga $orga) => $orga->getId() === $currentUserOrgaId);
 
         return 0 < $containsCurrentUserOrga->count();
     }
@@ -699,7 +646,7 @@ class ExportService
             $outputResult = $draftStatementService->getDraftStatementList($procedureId, 'group', $filters, null, null, $user);
             $draftStatementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getResult(),
-                [$this->draftStatementService, 'getByIds']
+                $this->draftStatementService->getByIds(...)
             );
             $statementsFinalPdf = $draftStatementService->generatePdf($outputResult->getResult(), 'list_final_group', $procedureId);
             $this->zipExportService->addStringToZipStream(
@@ -726,7 +673,7 @@ class ExportService
             $outputResult = $draftStatementService->getDraftStatementList($procedureId, 'group', $filters, null, null, $user);
             $draftStatementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getResult(),
-                [$this->draftStatementService, 'getByIds']
+                $this->draftStatementService->getByIds(...)
             );
             $statementsReleasedPdf = $draftStatementService->generatePdf($outputResult->getResult(), 'list_released_group', $procedureId);
             $this->zipExportService->addStringToZipStream(
@@ -753,7 +700,7 @@ class ExportService
             $outputResult = $draftStatementService->getDraftStatementList($procedureId, 'ownCitizen', $filters, null, null, $user);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getResult(),
-                [$this->draftStatementService, 'getByIds']
+                $this->draftStatementService->getByIds(...)
             );
             $statementsCitizenPdf = $draftStatementService->generatePdf($outputResult->getResult(), 'list_final_group_citizen', $procedureId);
             $this->zipExportService->addStringToZipStream(
@@ -859,11 +806,7 @@ class ExportService
         string $fileNamePrefix,
         Collection $attachments
     ): void {
-        collect($attachments)->filter(static function (StatementAttachment $attachment): bool {
-            return StatementAttachment::SOURCE_STATEMENT === $attachment->getType();
-        })->map(function (StatementAttachment $attachment): FileInfo {
-            return $this->fileService->getFileInfo($attachment->getFile()->getId());
-        })->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+        collect($attachments)->filter(static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->map(fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo($attachment->getFile()->getId()))->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
             $this->zipExportService->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
         });
     }

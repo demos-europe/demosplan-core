@@ -42,7 +42,7 @@ class MultiTermsAggregation extends AbstractAggregation
      */
     public function addTerms(array $fields): void
     {
-        array_map([$this, 'addTerm'], $fields);
+        array_map($this->addTerm(...), $fields);
     }
 
     public function addTerm(string $field): void

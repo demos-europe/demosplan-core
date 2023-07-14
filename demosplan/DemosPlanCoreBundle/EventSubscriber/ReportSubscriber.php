@@ -24,17 +24,11 @@ class ReportSubscriber extends BaseEventSubscriber
      */
     protected $reportService;
 
-    /**
-     * @var ProcedureReportEntryFactory
-     */
-    private $procedureReportEntryFactory;
-
     public function __construct(
-        ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         ReportService $reportService
     ) {
         $this->reportService = $reportService;
-        $this->procedureReportEntryFactory = $procedureReportEntryFactory;
     }
 
     /**
@@ -64,7 +58,7 @@ class ReportSubscriber extends BaseEventSubscriber
                 return;
             }
             // speichere ggf. eine Änderung des Planungsanlasses im Report
-            $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', $inData['r_externalDesc']);
+            $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
             if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
                 $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
                     $procedureId,

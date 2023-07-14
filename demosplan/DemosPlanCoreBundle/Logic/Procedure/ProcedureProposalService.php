@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -17,42 +18,14 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 
 class ProcedureProposalService extends CoreService
 {
-    /** @var ProcedureService */
-    private $procedureService;
-
-    /** @var CurrentUserInterface */
-    private $currentUser;
-
-    /** @var ContentService */
-    private $contentService;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var ProcedureProposalRepository
-     */
-    private $procedureProposalRepository;
-
-    public function __construct(
-        ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        ProcedureProposalRepository $procedureProposalRepository,
-        ProcedureService $procedureService,
-        UserRepository $userRepository
-    ) {
-        $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
-        $this->procedureProposalRepository = $procedureProposalRepository;
-        $this->procedureService = $procedureService;
-        $this->userRepository = $userRepository;
+    public function __construct(private ContentService $contentService, private readonly CurrentUserInterface $currentUser, private readonly ProcedureProposalRepository $procedureProposalRepository, private readonly ProcedureService $procedureService, private readonly UserRepository $userRepository)
+    {
     }
 
     /**

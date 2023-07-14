@@ -22,14 +22,8 @@ use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 
 class UserLoginSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(UserService $userService)
+    public function __construct(private readonly UserService $userService)
     {
-        $this->userService = $userService;
     }
 
     public function onLogin(AuthenticationSuccessEvent $event): void

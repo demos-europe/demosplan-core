@@ -45,22 +45,8 @@ use InvalidArgumentException;
  */
 final class ProcedureNewsResourceType extends AbstractNewsResourceType implements DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var RoleService
-     */
-    private $roleService;
-
-    /**
-     * @var ManualListSortRepository
-     */
-    private $manualListSortRepository;
-
-    public function __construct(
-        ManualListSortRepository $manualListSortRepository,
-        RoleService $roleService
-    ) {
-        $this->roleService = $roleService;
-        $this->manualListSortRepository = $manualListSortRepository;
+    public function __construct(private readonly ManualListSortRepository $manualListSortRepository, private readonly RoleService $roleService)
+    {
     }
 
     public static function getName(): string
@@ -77,6 +63,11 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         $change->addEntityToDelete($entity);
 
         return $change;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['area_admin_news'];
     }
 
     public function getEntityClass(): string
@@ -179,13 +170,13 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
     {
         $news = new News();
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, [$news, 'setTitle']);
-        $updater->ifPresent($this->description, [$news, 'setDescription']);
-        $updater->ifPresent($this->text, [$news, 'setText']);
-        $updater->ifPresent($this->enabled, [$news, 'setEnabled']);
-        $updater->ifPresent($this->pictureTitle, [$news, 'setPictitle']);
-        $updater->ifPresent($this->pdfTitle, [$news, 'setPdftitle']);
-        $updater->ifPresent($this->procedure, [$news, 'setProcedure']);
+        $updater->ifPresent($this->title, $news->setTitle(...));
+        $updater->ifPresent($this->description, $news->setDescription(...));
+        $updater->ifPresent($this->text, $news->setText(...));
+        $updater->ifPresent($this->enabled, $news->setEnabled(...));
+        $updater->ifPresent($this->pictureTitle, $news->setPictitle(...));
+        $updater->ifPresent($this->pdfTitle, $news->setPdftitle(...));
+        $updater->ifPresent($this->procedure, $news->setProcedure(...));
         $updater->ifPresent($this->picture, static function (?File $picture) use ($news): void {
             if (null === $picture) {
                 $news->setPicture('');
@@ -214,7 +205,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
             }, $this->roleService->getUserRolesByGroupCodes([Role::GLAUTH]));
             $news->setRolesCollection($roles);
         });
-        $updater->ifPresent($this->designatedState, [$news, 'setDesignatedState']);
+        $updater->ifPresent($this->designatedState, $news->setDesignatedState(...));
         $updater->ifPresent($this->designatedSwitchDate, static function (?string $dateString) use ($news): void {
             if (null === $dateString) {
                 $news->setDesignatedSwitchDate(null);

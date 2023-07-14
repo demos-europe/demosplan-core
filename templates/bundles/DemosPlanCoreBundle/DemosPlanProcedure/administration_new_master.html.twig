@@ -9,7 +9,7 @@
         {{ "text.master.new"|trans }}
     </p>
 
-    {% set copyMasterOptions = [{ label: 'master.empty', value: templateVars.masterTemplateId }] %}
+    {% set copyMasterOptions = [{ label: 'master.empty'|trans, value: templateVars.masterTemplateId }] %}
     {% if templateVars.list.procedures is defined %}
         {% for procedure in templateVars.list.procedures %}
             {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default, value: procedure.ident|default }]) %}

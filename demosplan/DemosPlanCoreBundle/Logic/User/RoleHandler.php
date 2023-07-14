@@ -17,14 +17,8 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 
 class RoleHandler extends CoreHandler
 {
-    /**
-     * @var RoleService
-     */
-    private $roleService;
-
-    public function __construct(RoleService $roleService, MessageBag $messageBag)
+    public function __construct(private readonly RoleService $roleService, MessageBag $messageBag)
     {
-        $this->roleService = $roleService;
         parent::__construct($messageBag);
     }
 

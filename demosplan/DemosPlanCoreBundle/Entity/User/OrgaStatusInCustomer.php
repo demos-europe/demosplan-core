@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
  *    }
  * )
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository")
  */
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {
@@ -134,14 +134,9 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
 
     public function setStatus(string $status)
     {
-        switch ($status) {
-            case OrgaStatusInCustomerInterface::STATUS_ACCEPTED:
-            case OrgaStatusInCustomerInterface::STATUS_REJECTED:
-            case OrgaStatusInCustomerInterface::STATUS_PENDING:
-                $this->status = $status;
-                break;
-            default:
-                throw new InvalidArgumentException("Invalid status {$status}");
-        }
+        $this->status = match ($status) {
+            OrgaStatusInCustomerInterface::STATUS_ACCEPTED, OrgaStatusInCustomerInterface::STATUS_REJECTED, OrgaStatusInCustomerInterface::STATUS_PENDING => $status,
+            default => throw new InvalidArgumentException("Invalid status {$status}"),
+        };
     }
 }

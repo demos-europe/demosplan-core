@@ -19,8 +19,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadConsultationTokenData extends TestFixture implements DependentFixtureInterface
 {
-    public const CONSULTATION_TOKEN = 'consultationToken';
-    public const CONSULTATION_TOKEN_2 = 'consultationToken2';
+    final public const CONSULTATION_TOKEN = 'consultationToken';
+    final public const CONSULTATION_TOKEN_2 = 'consultationToken2';
 
     public function load(ObjectManager $manager): void
     {

@@ -42,10 +42,10 @@
             </ul>
         {% endif %}
 
-        <div class="cf">
+        <div class="flow-root">
             {% if hasPermission('feature_admin_element_edit') %}
                 <a
-                    class="btn btn--primary float--right"
+                    class="btn btn--primary float-right"
                     href="{{ path('DemosPlan_elements_administration_new',{'procedure':procedure }) }}"
                     data-cy="createElementCategory">
                     {{ "category.create"|trans }}
@@ -83,7 +83,7 @@
             }}
 
             <input
-                class="btn btn--primary u-mt-0_75 float--right"
+                class="btn btn--primary u-mt-0_75 float-right"
                 data-cy="submitImport"
                 type="submit"
                 value="{{ "import.verb"|trans }}">

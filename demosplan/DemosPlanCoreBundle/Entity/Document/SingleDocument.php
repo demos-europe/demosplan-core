@@ -95,9 +95,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      * @var string
      *
      * @ORM\Column(name="_sd_title", type="string", length=256, nullable=false)
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.heading", groups={SingleDocument::IMPORT_CREATION})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.heading', groups: [SingleDocument::IMPORT_CREATION])]
     protected $title = '';
 
     /**
@@ -120,9 +119,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface
      * @var string
      *
      * @ORM\Column(name="_sd_document", type="string", nullable=false, length=256)
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.file", groups={SingleDocument::IMPORT_CREATION})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.file', groups: [SingleDocument::IMPORT_CREATION])]
     protected $document = '';
 
     /**

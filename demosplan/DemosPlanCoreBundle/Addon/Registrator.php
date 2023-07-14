@@ -26,7 +26,7 @@ final class Registrator
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
-    private PackageInformation $packageInformation;
+    private readonly PackageInformation $packageInformation;
 
     private array $addons;
 

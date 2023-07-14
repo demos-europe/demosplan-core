@@ -10,20 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
 
@@ -34,48 +32,14 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     protected $fileService;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-    /**
-     * @var SingleDocumentVersionRepository
-     */
-    private $singleDocumentVersionRepository;
-
     public function __construct(
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
+        private readonly DateHelper $dateHelper,
+        private readonly EntityHelper $entityHelper,
         FileService $fileService,
-        SingleDocumentRepository $singleDocumentRepository,
-        SingleDocumentVersionRepository $singleDocumentVersionRepository
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
         $this->fileService = $fileService;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->singleDocumentVersionRepository = $singleDocumentVersionRepository;
     }
 
     /**
@@ -92,13 +56,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue(true, ['visible']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'visible'   => true,
+            'deleted'   => false,
+        ]);
 
         if (!$legacy) {
             return $result;
@@ -156,13 +118,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue($category, ['category']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'category'  => $category,
+            'deleted'   => false,
+        ]);
 
         $resArray = [];
         foreach ($result as $sd) {
@@ -199,12 +159,10 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
          * Filter und Suche wird über Elasticsearch umgesetzt
          *
         */
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'deleted'   => false,
+        ]);
 
         $resArray = [];
         foreach ($result as $sd) {
@@ -261,9 +219,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getVersions($singleDocumentId)
     {
-        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, ['singleDocument']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(SingleDocumentVersion::class, [$condition]);
+        return $this->singleDocumentVersionRepository->findBy(['singleDocument' => $singleDocumentId]);
     }
 
     /**
@@ -413,7 +369,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function getSingleDocumentInfo(SingleDocument $singleDocument): array
     {
         $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = \explode(':', $singleDocument->getDocument());
+        $documentStringParts = \explode(':', (string) $singleDocument->getDocument());
         if (count($documentStringParts) >= 4) {
             $fileInfo['name'] = $documentStringParts[0];
             $fileInfo['hash'] = $documentStringParts[1];
@@ -432,9 +388,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $procedureSingleDocs = $this->singleDocumentRepository->getSingleDocumentsByProcedureId($procedureId);
         $procedureSingleDocIds = array_map(
-            static function (SingleDocument $singleDocument) {
-                return $singleDocument->getId();
-            },
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
 
@@ -457,9 +411,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         $procedureSingleDocs = $this->getProcedureDocumentsByVisibleStatus($procedureId, $visible);
 
         return array_map(
-            static function (SingleDocument $singleDocument) {
-                return $singleDocument->getId();
-            },
+            static fn (SingleDocument $singleDocument) => $singleDocument->getId(),
             $procedureSingleDocs
         );
     }

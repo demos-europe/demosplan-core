@@ -2,6 +2,8 @@ framework:
     default_locale: "%locale%"
     translator:
         default_path: '%demosplan.project_dir%/translations'
-        fallback: de
+        fallbacks:
+            - de
         paths:
             - '%kernel.project_dir%/translations'
+
