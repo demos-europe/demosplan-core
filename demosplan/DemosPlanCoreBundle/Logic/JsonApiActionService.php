@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterfac
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceDeletionEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
@@ -25,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateFlushEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
@@ -76,6 +78,7 @@ class JsonApiActionService extends AbstractApiService
         private readonly JsonApiPaginationParser $paginationParser,
         JsonApiSortingParser $sortingParser,
         PaginatorFactory $paginatorFactory,
+        private readonly PermissionEvaluatorInterface $permissionEvaluator,
         PrefilledResourceTypeProvider $typeProvider,
         PropertyValuesGenerator $propertyValuesGenerator,
         private readonly ResourcePersister $resourcePersister,
@@ -275,6 +278,7 @@ class JsonApiActionService extends AbstractApiService
             throw new TypeRetrievalAccessException("Resource type is not deletable: {$resourceType::getName()}");
         }
 
+        $this->assertDeletionPermissions($resourceType, $resourceId);
         $entity = $resourceType->getEntityByTypeIdentifier($resourceId);
 
         $beforeDeletionEvent = new BeforeResourceDeletionEvent($entity, $resourceType);
@@ -285,6 +289,27 @@ class JsonApiActionService extends AbstractApiService
 
         $afterDeletionEvent = new AfterResourceDeletionEvent($resourceType);
         $this->eventDispatcher->dispatch($afterDeletionEvent);
+    }
+
+    /**
+     * Assert that all permissions that are required to delete this resource are enabled.
+     *
+     * @param DeletableDqlResourceTypeInterface<object> $resourceType
+     * @param non-empty-string                          $resourceId
+     */
+    private function assertDeletionPermissions(DeletableDqlResourceTypeInterface $resourceType, string $resourceId): void
+    {
+        array_map(
+            function (string $permission) use ($resourceType, $resourceId): void {
+                try {
+                    $this->permissionEvaluator->requirePermission($permission);
+                } catch (AccessDeniedException $exception) {
+                    $message = "Can't delete resource with ID `$resourceId`. Deletion of `{$resourceType::getName()}` resources is not allowed, permission missing: $permission";
+                    throw new BadRequestException($message, 0, $exception);
+                }
+            },
+            $resourceType->getRequiredDeletionPermissions()
+        );
     }
 
     protected function normalizeTypeName(string $typeName): string
