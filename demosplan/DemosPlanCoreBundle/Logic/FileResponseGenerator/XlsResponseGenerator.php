@@ -48,10 +48,10 @@ class XlsResponseGenerator extends FileResponseGeneratorAbstract
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-            $response->headers->set(
-                'Content-Disposition',
-                $this->nameGenerator->generateDownloadFilename($file['filename'])
-            );
+        $response->headers->set(
+            'Content-Disposition',
+            $this->nameGenerator->generateDownloadFilename($file['filename'])
+        );
 
         return $response;
     }
