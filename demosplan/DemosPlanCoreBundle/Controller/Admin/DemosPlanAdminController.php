@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -46,6 +47,7 @@ class DemosPlanAdminController extends BaseController
         Environment $twig,
         OrgaService $orgaService,
         CustomerService $customerProvider,
+        NameGenerator $nameGenerator,
         ProcedureService $procedureService,
         StatementService $statementService,
         UserService $userService,
@@ -118,7 +120,7 @@ class DemosPlanAdminController extends BaseController
         $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
         $response->setCharset('UTF-8');
 
         return $response;
