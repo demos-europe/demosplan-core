@@ -36,12 +36,12 @@ class PdfResponseGenerator extends FileResponseGeneratorAbstract
         $response = new Response($file['content'], 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
-        if ($this->nameGenerator) {
+
             $response->headers->set(
                 'Content-Disposition',
                 $this->nameGenerator->generateDownloadFilename($file['filename'])
             );
-        }
+
 
         return $response;
     }

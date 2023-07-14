@@ -47,12 +47,11 @@ class XlsResponseGenerator extends FileResponseGeneratorAbstract
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
-        if ($this->nameGenerator) {
+
             $response->headers->set(
                 'Content-Disposition',
                 $this->nameGenerator->generateDownloadFilename($file['filename'])
             );
-        }
 
         return $response;
     }
