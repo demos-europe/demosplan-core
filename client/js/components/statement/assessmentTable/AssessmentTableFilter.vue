@@ -238,7 +238,7 @@
             data-actionmenu>
             <button
               class="c-actionmenu__trigger"
-              data-cy="AssessmentTableFilter:Sorting"
+              data-cy="assessmentTableFilter:sorting"
               aria-haspopup="true"
               aria-expanded="false">
               <i
