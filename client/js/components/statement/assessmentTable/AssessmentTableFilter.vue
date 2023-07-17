@@ -254,7 +254,7 @@
                 :key="`${option.value}:${i}`"
                 class="c-actionmenu__menuitem"
                 :class="{'is-active': option.value === sort.value}"
-                :data-cy="`'AssessmentTableFilter:'${option.label}`"
+                :data-cy="`assessmentTableFilter:${option.label}`"
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"
