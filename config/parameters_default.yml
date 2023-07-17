@@ -20,6 +20,8 @@ parameters:
     # Maschinenlesbarer Prefix für das Projekt, z.B. Elasticsearchindex und RabbitMQ Queue
     project_prefix: "dplan"
     project_version: "0"
+    # core version used by the project
+    project_core_version: "0"
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
