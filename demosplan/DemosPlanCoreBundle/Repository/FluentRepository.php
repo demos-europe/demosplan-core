@@ -154,7 +154,8 @@ abstract class FluentRepository extends CoreRepository
     public function getEntityByIdentifier(string $id, array $conditions, array $identifierPropertyPath): object
     {
         $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPropertyPath);
-        $entities = $this->getEntities($conditions, [$identifierCondition], 0, 2);
+        $conditions[] = $identifierCondition;
+        $entities = $this->getEntities($conditions, [], 0, 2);
 
         return match (count($entities)) {
             0       => throw new InvalidArgumentException("No matching `{$this->getEntityName()}` entity found."),
