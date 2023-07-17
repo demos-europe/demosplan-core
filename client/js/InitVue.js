@@ -19,22 +19,47 @@ import {
   touchFriendlyUserbox
 } from '@DpJs/lib/core/libs'
 import { bootstrap } from '@DpJs/bootstrap'
-import { createApp } from 'vue'
 import DPVueCorePlugin from './plugins/DPVueCore'
-import HamburgerMenuButton from './components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
+import HamburgerMenuButton from './components/button/HamburgerMenuButton'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import PortalVue from 'portal-vue'
-// import { Tooltip } from '@demos-europe/demosplan-ui/src/directives/Tooltip'
+import Vue from 'vue'
+
+loadSentry()
+// Add plugins to Vue instance
+Vue.use(PortalVue)
+Vue.use(DPVueCorePlugin)
+
+// Register components that are used globally
+Vue.component('DpObscure', DpObscure)
+Vue.component('HamburgerMenuButton', HamburgerMenuButton)
+Vue.component('NotifyContainer', NotifyContainer)
+Vue.component('DpAccordion', DpAccordion)
+Vue.component('DpFlyout', DpFlyout)
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
+  Vue.prototype.Routing = window.Routing
+  Vue.prototype.Translator = window.Translator
+  Vue.prototype.hasPermission = window.hasPermission
+  Vue.config.productionTip = false
+
+  Vue.directive('tooltip', Tooltip)
+  Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
-    const app = createApp({
+    /* eslint-disable no-new */
+    const vm = new Vue({
+      el: '#app',
+      /*
+       * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
+       * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
+       */
+      components,
       store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
@@ -57,45 +82,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         }, 5)
       }
     })
-
-    app.config.globalProperties.dplan = window.dplan
-    app.config.globalProperties.Routing = window.Routing
-    app.config.globalProperties.Translator = window.Translator
-    app.config.globalProperties.hasPermission = window.hasPermission
-    app.config.globalProperties.h = window.h
-    app.config.productionTip = false
-
-    if (dplan?.settings?.debug) {
-      app.config.performance = false
-    }
-
-    loadSentry()
-
-    app.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
-    // app.directive('tooltip', Tooltip)
-
-    // Add plugins to Vue instance
-    app.use(PortalVue)
-    app.use(DPVueCorePlugin)
-
-    // Register components that are used globally
-    app.component('DpObscure', DpObscure)
-    app.component('HamburgerMenuButton', HamburgerMenuButton)
-    app.component('NotifyContainer', NotifyContainer)
-    app.component('DpAccordion', DpAccordion)
-    app.component('DpFlyout', DpFlyout)
-
-    Object.values(components).forEach(comp => {
-      if (comp) {
-        app.component(comp.name, comp)
-      } else {
-        console.log('at least one is undefined', components)
-      }
-    })
-
-    app.mount('#app')
-
-    Promise.resolve(app)
+    Promise.resolve(vm)
   })
 }
 
