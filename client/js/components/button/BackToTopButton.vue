@@ -7,7 +7,7 @@
     rounded
     :style="buttonPosition"
     :text="Translator.trans('back.to.top')"
-    data-cy="DpBackToTop"
+    data-cy="backToTop"
     variant="outline"
     @click="scrollTop" />
 </template>
