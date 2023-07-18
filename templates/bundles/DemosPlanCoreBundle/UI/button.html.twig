@@ -80,10 +80,6 @@
         disabled
     {% endif %}
 
-    {% if dataCy is defined %}
-        data-cy="{{ dataCy }}"
-    {% endif %}
-
 {% if attributes is defined %}
     {% for attr in attributes %}
         {{ attr }}
