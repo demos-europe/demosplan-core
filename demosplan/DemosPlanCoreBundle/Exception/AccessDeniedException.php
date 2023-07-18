@@ -52,7 +52,7 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
     {
         $additionalUserData = self::collectAdditionalUserData($user);
 
-        return new self("Es ist keine $permissionName Permission in einem Addons $addonIdentifier bekannt. $additionalUserData");
+        return new self("Es ist keine $permissionName Permission in einem Addon $addonIdentifier bekannt. $additionalUserData");
     }
 
     private static function collectAdditionalUserData(?User $user): string
