@@ -14,9 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
-use ReflectionClass;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use ReflectionClass;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
@@ -66,7 +66,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
                 } else {
                     $modifiedValues[$propertyName] = [
                         'old' => $oldValue,
-                        'new' => $newValue
+                        'new' => $newValue,
                     ];
                 }
             }
