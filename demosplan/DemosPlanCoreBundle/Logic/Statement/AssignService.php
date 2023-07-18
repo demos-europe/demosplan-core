@@ -13,12 +13,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssignService extends CoreService
 {
-    public function __construct(private readonly TokenStorageInterface $tokenStorage)
+    public function __construct(
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider)
     {
     }
 
@@ -58,7 +61,7 @@ class AssignService extends CoreService
         if (!$token instanceof TokenInterface) {
             return false;
         }
-        $user = $token->getUser();
+        $user = $this->userFromSecurityUserProvider->fromToken($token);
         if (!$user instanceof User) {
             return false;
         }
