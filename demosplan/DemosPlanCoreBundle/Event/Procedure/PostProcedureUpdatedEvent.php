@@ -12,21 +12,66 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
+use ReflectionClass;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
-    protected Procedure $procedure;
+    protected Procedure $procedureBeforeUpdate;
+    protected Procedure $procedureAfterUpdate;
 
-    public function __construct(Procedure $procedure)
+    public function __construct(Procedure $procedureBeforeUpdate, Procedure $procedureAfterUpdate)
     {
-        $this->procedure = $procedure;
+        $this->procedureBeforeUpdate = $procedureBeforeUpdate;
+        $this->procedureAfterUpdate = $procedureAfterUpdate;
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedureBeforeUpdate(): Procedure
     {
-        return $this->procedure;
+        return $this->procedureBeforeUpdate;
+    }
+
+    public function getProcedureAfterUpdate(): Procedure
+    {
+        return $this->procedureAfterUpdate;
+    }
+
+    public function getModifiedValues(): array
+    {
+        return $this->determineModifiedValues($this->procedureBeforeUpdate, $this->procedureAfterUpdate);
+    }
+
+    private function determineModifiedValues(EntityInterface $oldEntity, EntityInterface $newEntity): array
+    {
+        $modifiedValues = [];
+
+        $reflectionClass = new ReflectionClass($oldEntity);
+        $properties = $reflectionClass->getProperties();
+
+        foreach ($properties as $property) {
+            $propertyName = $property->getName();
+
+            $oldValue = $property->getValue($oldEntity);
+            $newValue = $property->getValue($newEntity);
+
+            if ($oldValue !== $newValue) {
+                if (is_object($oldValue) && is_object($newValue)) {
+                    $modifiedSubValues = $this->determineModifiedValues($oldValue, $newValue);
+                    if ([] !== $modifiedSubValues) {
+                        $modifiedValues[$propertyName] = $modifiedSubValues;
+                    }
+                } else {
+                    $modifiedValues[$propertyName] = [
+                        'old' => $oldValue,
+                        'new' => $newValue
+                    ];
+                }
+            }
+        }
+
+        return $modifiedValues;
     }
 }
