@@ -36,11 +36,17 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
         return $this->procedureAfterUpdate;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getModifiedValues(): array
     {
         return $this->determineModifiedValues($this->procedureBeforeUpdate, $this->procedureAfterUpdate);
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     private function determineModifiedValues(EntityInterface $oldEntity, EntityInterface $newEntity): array
     {
         $modifiedValues = [];
