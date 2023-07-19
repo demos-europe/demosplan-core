@@ -229,7 +229,7 @@ services:
                 id: 'app.user_info_collector'
                 priority: -99
 
-    demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory:
+    demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\FakeDataGeneratorFactory:
         arguments:
             - !tagged dplan.data.generator
 
