@@ -1112,15 +1112,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function updateProcedureObject(Procedure $procedureToUpdate)
     {
         try {
+            // todo: refactor this method so that there are differences between sourceProcedure and updatedProcedure
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:
             // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
             // clone the source-procedure and the procedure-settings before update for report entry
-            $sourceProcedure = clone $this->procedureRepository->get($procedureToUpdate->getId());
-            $sourceProcedureSettings = clone $sourceProcedure->getSettings();
-
             // set the cloned settings into the source procedure
-            $sourceProcedure->setSettings($sourceProcedureSettings);
+            $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
 
@@ -2454,9 +2452,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (null === $procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
-        $defaultMapHintText = $procedure->getProcedureUiDefinition()->getMapHintDefault();
-        $procedure->getSettings()->setMapHint($defaultMapHintText);
-        $this->updateProcedureObject($procedure);
+        $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
+        $data = [
+            'ident' => $procedureId,
+            'settings' => [
+                'mapHint' => $defaultMapHintText,
+            ],
+        ];
+        $this->updateProcedure($data);
     }
 
     /**
