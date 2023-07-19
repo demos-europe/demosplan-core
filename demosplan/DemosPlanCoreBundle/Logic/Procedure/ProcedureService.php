@@ -2454,7 +2454,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
         $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
         $data = [
-            'ident' => $procedureId,
+            'ident'    => $procedureId,
             'settings' => [
                 'mapHint' => $defaultMapHintText,
             ],
