@@ -20,11 +20,11 @@ use ReflectionClass;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
-
     public function __construct(
         readonly protected Procedure $procedureBeforeUpdate,
         readonly protected Procedure $procedureAfterUpdate
-    ){}
+    ) {
+    }
 
     public function getProcedureBeforeUpdate(): Procedure
     {
