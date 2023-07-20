@@ -1112,7 +1112,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function updateProcedureObject(Procedure $procedureToUpdate)
     {
         try {
-            // todo: refactor this method so that there are differences between sourceProcedure and updatedProcedure
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:
             // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
