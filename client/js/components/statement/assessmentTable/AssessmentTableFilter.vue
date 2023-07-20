@@ -238,6 +238,7 @@
             data-actionmenu>
             <button
               class="c-actionmenu__trigger"
+              data-cy="assessmentTableFilter:sorting"
               aria-haspopup="true"
               aria-expanded="false">
               <i
@@ -253,6 +254,7 @@
                 :key="`${option.value}:${i}`"
                 class="c-actionmenu__menuitem"
                 :class="{'is-active': option.value === sort.value}"
+                :data-cy="`assessmentTableFilter:${option.label}`"
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"

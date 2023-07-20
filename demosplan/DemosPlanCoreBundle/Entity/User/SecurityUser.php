@@ -66,10 +66,6 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
 
     public function isEqualTo(UserInterface $user): bool
     {
-        if (!$user instanceof self) {
-            return false;
-        }
-
         if ($this->getRoles() !== $user->getRoles()) {
             return false;
         }

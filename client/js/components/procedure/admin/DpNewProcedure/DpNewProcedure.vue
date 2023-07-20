@@ -92,6 +92,7 @@
             text: Translator.trans('master')
           }"
           name="r_copymaster"
+          data-cy="newProcedureForm:blueprintOptions"
           :options="blueprintOptions"
           :selected="masterBlueprintId"
           @select="setBlueprintData" />
@@ -146,6 +147,7 @@
           :hint="Translator.trans('internalnote.visibility.hint')"
           id="r_desc"
           :label="Translator.trans('internalnote')"
+          data-cy="newProcedureForm:internalNote"
           name="r_desc"
           reduced-height />
       </dp-form-row>
@@ -195,9 +197,10 @@
           :text="Translator.trans('save')"
           type="submit"
           @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
-          data-cy="saveNewProcedure" />
+          data-cy="newProcedureForm:saveNewProcedure" />
         <dp-button
           color="secondary"
+          data-cy="newProcedureForm:abort"
           :href="Routing.generate('DemosPlan_procedure_administration_get')"
           :text="Translator.trans('abort')" />
       </div>

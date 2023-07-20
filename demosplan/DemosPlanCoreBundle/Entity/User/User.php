@@ -275,9 +275,6 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     *     @RoleAllowedConstraint()
-     * })
-     *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */

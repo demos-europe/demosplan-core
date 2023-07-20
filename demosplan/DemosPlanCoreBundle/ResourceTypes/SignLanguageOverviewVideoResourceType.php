@@ -168,4 +168,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
 
         return $resourceChange;
     }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['field_sign_language_overview_video_edit'];
+    }
 }

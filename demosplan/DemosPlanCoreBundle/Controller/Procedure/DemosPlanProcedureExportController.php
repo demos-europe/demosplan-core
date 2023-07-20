@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Exception;
@@ -42,9 +43,10 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     public function titlePageExportAction(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
+        NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         TranslatorInterface $translator,
-        $procedure
+                               $procedure
     ) {
         // is the user permitted to view the procedure at all?
         if (!$permissions->ownsProcedure() && (!$currentUser->getUser()->isLoggedIn() || !$permissions->hasPermissionsetRead())) {
@@ -66,7 +68,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
 
         return $response;
     }
@@ -86,9 +88,10 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,
+        NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         Request $request,
-        $procedure
+                                $procedure
     ) {
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->get('orga_selected', []);
@@ -115,7 +118,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $response = new Response($file, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
 
         return $response;
     }

@@ -35,6 +35,8 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
 
         if ($user instanceof SecurityUser) {
             $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
+            // swap real User in token to be used later on when injecting TokenInterface
+            $this->getToken()->setUser($user);
         }
 
         if (!$user instanceof User) {
