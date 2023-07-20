@@ -53,13 +53,15 @@
 
             <div class="{{ 'layout__item u-2-of-3 u-1-of-1-lap-down u-pl-0-lap-down u-mb-0_5-lap-down'|prefixClass }}">
 
-                <p>
-                    {% if projectType == 'gateway' %}
-                        {{ "explanation.before.vote.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
-                    {% else %}
-                        {{ "explanation.before.vote.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
-                    {% endif %}
-                </p>
+                {% block vote_data %}
+                    <p>
+                        {% if projectType == 'gateway' %}
+                            {{ "explanation.before.vote.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                        {% else %}
+                            {{ "explanation.before.vote.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
+                        {% endif %}
+                    </p>
+                {% endblock vote_data %}
 
                 <p class="{{ 'flash flash-info'|prefixClass }}">
                     <i class="{{ 'fa fa-exclamation-circle u-mr-0_125'|prefixClass }}" aria-hidden="true"></i><strong>{{ "hint"|trans }}</strong>:
