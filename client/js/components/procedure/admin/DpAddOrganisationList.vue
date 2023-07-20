@@ -116,22 +116,20 @@ export default {
         return dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
       }
 
-      const invitePublicAgencies = publicAgenciesIds.map(id => {
-        return dpApi({
-          method: 'POST',
-          url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
-            procedureId: this.procedureId
-          }),
-          data: {
-            data: {
+      dpApi({
+        method: 'POST',
+        url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
+          procedureId: this.procedureId
+        }),
+        data: {
+          data: publicAgenciesIds.map(id => {
+            return {
               type: 'publicAffairsAgent',
               id: id
             }
-          }
-        })
+          })
+        }
       })
-
-      Promise.all(invitePublicAgencies)
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
           this.getInstitutions({ procedureId: this.procedureId })
