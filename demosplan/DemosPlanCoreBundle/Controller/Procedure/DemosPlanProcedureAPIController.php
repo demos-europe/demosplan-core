@@ -136,6 +136,11 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the assessment table.
      *
+     * @Route("/api/1.0/procedures/{procedureId}/statementemptyfilters",
+     *     methods={"GET"},
+     *     name="dp_api_procedure_get_statement_empty_filters",
+     *     options={"expose": true}
+     * )
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return APIResponse
@@ -465,8 +470,11 @@ class DemosPlanProcedureAPIController extends APIController
      * @DplanPermissions("area_admin_invitable_institution")
      */
     #[Route(path: '/api/1.0/procedure/{procedureId}/relationships/invitedPublicAffairsAgents', methods: ['POST'], name: 'dplan_api_procedure_add_invited_public_affairs_bodies', options: ['expose' => true])]
-    public function addInvitedPublicAffairsAgentsAction(Request $request, ResourceLinkageFactory $linkageFactory, string $procedureId): JsonResponse
-    {
+    public function addInvitedPublicAffairsAgentsAction(
+        Request $request,
+        ResourceLinkageFactory $linkageFactory,
+        string $procedureId
+    ): JsonResponse {
         // Check if normalizer succeeded, even if we don't need its object here
         if (null === $this->requestData) {
             throw BadRequestException::normalizerFailed();
