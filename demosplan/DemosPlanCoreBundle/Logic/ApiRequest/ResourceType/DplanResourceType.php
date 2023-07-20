@@ -677,7 +677,12 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->allConditionsApply(...$this->getAccessConditions());
+        $accessConditions = $this->getAccessConditions();
+        if ([] === $accessConditions) {
+            return $this->conditionFactory->true();
+        }
+
+        return $this->conditionFactory->allConditionsApply(...$accessConditions);
     }
 
     /**
