@@ -38,7 +38,7 @@
         display: none;
         position: absolute;
         background-color: $dp-color-white;
-        z-index: $z-flyout;
+        z-index: $dp-z-flyout;
         text-align: left;
 
         > * {

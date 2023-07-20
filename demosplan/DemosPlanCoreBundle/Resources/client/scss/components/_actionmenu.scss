@@ -69,7 +69,7 @@
 
     // If js is disabled in browser, enable tabbing through all the menu elements
     .nojs & {
-        z-index: $z-fixed;
+        z-index: $dp-z-flyout;
 
         &:hover .c-actionmenu__menu,
         .c-actionmenu__trigger:focus + .c-actionmenu__menu {
@@ -88,7 +88,7 @@
         &:active,
         &.is-expanded,
         &__trigger:focus {
-            z-index: $z-fixed;
+            z-index: $dp-z-flyout;
 
             & .c-actionmenu__menu {
                 display: block;
