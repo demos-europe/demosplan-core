@@ -64,9 +64,9 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
      * the file is used if access should be restricted. Also note that this property is
      * checked when the actual file bytes are requested.
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     public function isReferencable(): bool

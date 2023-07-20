@@ -78,21 +78,21 @@ class ReportEntryResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
             $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
-        );
+        ];
     }
 
     public function getDefaultSortMethods(): array
