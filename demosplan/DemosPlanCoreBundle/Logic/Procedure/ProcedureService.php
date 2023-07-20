@@ -1080,7 +1080,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
             $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($procedure),
+                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
             );
 
@@ -1122,17 +1122,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
             // clone the source-procedure and the procedure-settings before update for report entry
-            $sourceProcedure = clone $this->procedureRepository->get($procedureToUpdate->getId());
-            $sourceProcedureSettings = clone $sourceProcedure->getSettings();
-
             // set the cloned settings into the source procedure
-            $sourceProcedure->setSettings($sourceProcedureSettings);
+            $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
 
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
@@ -1141,6 +1134,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
+
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
@@ -1172,9 +1170,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 throw new \InvalidArgumentException('Ident is missing');
             }
 
+            $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
             $procedure = $this->procedureRepository->update($data['ident'], $data);
             $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($procedure),
+                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
             );
 
@@ -2466,9 +2465,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (null === $procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
-        $defaultMapHintText = $procedure->getProcedureUiDefinition()->getMapHintDefault();
-        $procedure->getSettings()->setMapHint($defaultMapHintText);
-        $this->updateProcedureObject($procedure);
+        $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
+        $data = [
+            'ident'    => $procedureId,
+            'settings' => [
+                'mapHint' => $defaultMapHintText,
+            ],
+        ];
+        $this->updateProcedure($data);
     }
 
     /**
