@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
@@ -138,7 +140,8 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         // get real User from SecurityUser that was saved in token
         $user = $this->userFromSecurityUserProvider->fromToken($token);
         $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
-
+        // set department in token. By that user can create draft statement
+        $user->getDepartment();
         // swap real User in token for the login procedure
         $token->setUser($user);
 
