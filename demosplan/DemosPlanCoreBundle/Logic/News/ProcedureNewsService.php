@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureNewsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -27,7 +28,7 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use InvalidArgumentException;
 
-class ProcedureNewsService extends CoreService
+class ProcedureNewsService extends CoreService implements ProcedureNewsServiceInterface
 {
     /**
      * @var FileService
