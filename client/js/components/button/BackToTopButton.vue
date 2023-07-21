@@ -52,7 +52,7 @@ export default {
       this.scrollPos = document.documentElement.scrollTop
       const fromBottom = (this.contentHeight - 10 - this.footerheight > this.scrollPos) ? 10 : -this.contentHeight + 10 + this.footerheight + this.scrollPos
 
-      this.buttonPosition = `bottom: ${fromBottom}px; left: ${this.positionFromLeft}px; position: sticky; z-index: 1`
+      this.buttonPosition = `bottom: ${fromBottom}px; left: ${this.positionFromLeft -80}px; position: sticky; z-index: 1`
     },
 
     scrollTop () {
@@ -73,7 +73,7 @@ export default {
       this.calculateSizes()
       this.calculatePosition()
     })
-      .observe(this.containerElement)
+      .observe(document.getElementById('app'))
   }
 }
 
