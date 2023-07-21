@@ -47,7 +47,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(EntityInterface $oldEntity, EntityInterface $newEntity): array
+    private function determineModifiedValues(object $oldEntity, object $newEntity): array
     {
         $modifiedValues = [];
 
