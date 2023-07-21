@@ -250,9 +250,16 @@
                 font-weight: bold;
             }
 
-            ul,
-            ol {
+            ul, ol {
                 padding-left: 1rem;
+            }
+
+            ul {
+                list-style: disc;
+            }
+
+            ol {
+                list-style: decimal;
             }
 
             li > p,

@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\FakeDataGeneratorFactory;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
