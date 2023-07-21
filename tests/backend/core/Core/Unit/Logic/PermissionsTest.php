@@ -3173,6 +3173,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
+                    'field_statement_public_allowed',
                 ],
             ],
             'data input #2'                     => [
@@ -3255,6 +3256,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
+                    'field_statement_public_allowed',
                 ],
             ],
         ];

@@ -587,7 +587,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PROCEDURE_DATA_INPUT)) { // Datenerfassung
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
-                'feature_procedure_get_base_data',  // receive basic procedure data// Publish statements
+                'feature_procedure_get_base_data',  // receive basic procedure data
             ]);
 
             $this->disablePermissions([
