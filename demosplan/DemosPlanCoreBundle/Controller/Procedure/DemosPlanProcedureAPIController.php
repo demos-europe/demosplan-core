@@ -141,6 +141,7 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_empty_filters",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return APIResponse
