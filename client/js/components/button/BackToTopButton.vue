@@ -1,5 +1,6 @@
 <template>
   <dp-button
+    class="sticky z-above-zero"
     :class="{ 'hide-visually': hide }"
     hide-text
     icon="arrow-up"
@@ -52,7 +53,7 @@ export default {
       this.scrollPos = document.documentElement.scrollTop
       const fromBottom = (this.contentHeight - 10 - this.footerheight > this.scrollPos) ? 10 : -this.contentHeight + 10 + this.footerheight + this.scrollPos
 
-      this.buttonPosition = `bottom: ${fromBottom}px; left: ${this.positionFromLeft -80}px; position: sticky; z-index: 1`
+      this.buttonPosition = `bottom: ${fromBottom}px; left: ${this.positionFromLeft -80}px`
     },
 
     scrollTop () {
