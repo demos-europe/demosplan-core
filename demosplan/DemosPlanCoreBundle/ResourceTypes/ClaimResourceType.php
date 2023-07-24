@@ -61,8 +61,8 @@ final class ClaimResourceType extends DplanResourceType
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 }
