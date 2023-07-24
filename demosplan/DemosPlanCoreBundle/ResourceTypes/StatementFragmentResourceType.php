@@ -169,7 +169,6 @@ final class StatementFragmentResourceType extends DplanResourceType
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->statement->procedure->id),
-            $this->conditionFactory->propertyHasValue(false, $this->deleted), // FIXME: cdr: this should not work, there is no `deleted` property in `StatementFragment` nor is `deleted` set up as alias in this resource type
             $this->conditionFactory->propertyHasValue(false, $this->statement->deleted)
         ];
     }
