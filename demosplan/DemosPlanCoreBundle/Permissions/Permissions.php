@@ -1185,12 +1185,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return match ($operator) {
             'AND' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry && $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry && $this->hasPermission($permission),
                 true
             ),
             'OR' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry || $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry || $this->hasPermission($permission),
                 false
             ),
             default => throw PermissionException::invalidPermissionCheckOperator($operator),
