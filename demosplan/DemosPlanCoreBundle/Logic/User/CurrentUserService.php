@@ -33,10 +33,12 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
     {
         $user = $this->getToken()->getUser();
 
+        // This might occur when user is fetched from session after
+        // it has been replaced by the SecurityUser. One example is the
+        // collection of data for the symfony toolbar
         if ($user instanceof SecurityUser) {
-            $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
-            // swap real User in token to be used later on when injecting TokenInterface
-            $this->getToken()->setUser($user);
+
+            return $this->userFromSecurityUserProvider->fromSecurityUser($user);
         }
 
         if (!$user instanceof User) {
