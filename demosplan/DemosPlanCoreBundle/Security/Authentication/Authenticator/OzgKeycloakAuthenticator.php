@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,7 +63,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->info('doctrine transaction commit.');
                     $request->getSession()->set('userId', $user->getId());
 
-                    return new SecurityUser($user);
+                    return new User($user);
                 } catch (Exception $e) {
                     $this->entityManager->getConnection()->rollBack();
                     $this->logger->info('doctrine transaction rollback.');
