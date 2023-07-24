@@ -545,6 +545,11 @@
         "website": "Unknown"
     },
     {
+        "package": "tailwindcss",
+        "license": "MIT",
+        "website": "https://tailwindcss.com/"
+    },
+    {
         "package": "terser-webpack-plugin",
         "license": "MIT",
         "website": "https://github.com/webpack-contrib/terser-webpack-plugin"
