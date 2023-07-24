@@ -78,6 +78,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
         return $modifiedValues;
     }
+
     public function getProcedure(): ProcedureInterface
     {
         return $this->getProcedure();
