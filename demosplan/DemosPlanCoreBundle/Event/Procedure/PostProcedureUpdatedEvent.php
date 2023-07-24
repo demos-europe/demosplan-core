@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
@@ -76,5 +77,9 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
         }
 
         return $modifiedValues;
+    }
+    public function getProcedure(): ProcedureInterface
+    {
+        return $this->getProcedure();
     }
 }
