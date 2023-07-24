@@ -34,7 +34,7 @@ class AiApiUserProvider implements UserProviderInterface
             throw new UserNotFoundException('Invalid username');
         }
 
-        return $this->userService->getValidUser($username);
+        return $this->getApiUser();
     }
 
     /**
@@ -45,7 +45,7 @@ class AiApiUserProvider implements UserProviderInterface
      */
     public function refreshUser(UserInterface $user): UserInterface
     {
-        return $user;
+        return $this->getApiUser();
     }
 
     /**
@@ -53,8 +53,13 @@ class AiApiUserProvider implements UserProviderInterface
      *
      * @param string $class
      */
-    public function supportsClass($class): string
+    public function supportsClass($class): bool
     {
-        return AiApiUser::class;
+        return AiApiUser::class === $class;
+    }
+
+    private function getApiUser(): AiApiUser
+    {
+        return new AiApiUser($this->customerService->getCurrentCustomer());
     }
 }
