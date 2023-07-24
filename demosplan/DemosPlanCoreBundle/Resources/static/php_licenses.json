@@ -653,5 +653,10 @@
         "license": "MIT",
         "package": "yectep/phpspreadsheet-bundle",
         "website": "https://github.com/eightyknots/phpspreadsheet-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "zenstruck/foundry",
+        "website": "https://github.com/zenstruck/foundry"
     }
 ]
