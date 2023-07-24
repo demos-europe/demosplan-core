@@ -22,19 +22,19 @@ class ApiUserProvider implements UserProviderInterface
     {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $login
-     */
-    public function loadUserByUsername($login): UserInterface
+    public function loadUserByUsername(string $username): UserInterface
+    {
+        return $this->loadUserByIdentifier($username);
+    }
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
     {
         // avoid database call if anonymous user calls API
-        if (User::ANONYMOUS_USER_NAME === $login) {
+        if (User::ANONYMOUS_USER_NAME === $identifier) {
             return new AnonymousUser();
         }
 
-        $user = $this->userService->findDistinctUserByEmailOrLogin($login);
+        $user = $this->userService->findDistinctUserByEmailOrLogin($identifier);
 
         if (!$user instanceof User) {
             $user = new AnonymousUser();

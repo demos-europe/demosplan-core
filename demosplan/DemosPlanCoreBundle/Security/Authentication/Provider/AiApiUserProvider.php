@@ -23,14 +23,14 @@ class AiApiUserProvider implements UserProviderInterface
     ) {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $username
-     */
-    public function loadUserByUsername($username): UserInterface
+    public function loadUserByUsername(string $username): UserInterface
     {
-        if (AiApiUser::AI_API_USER_LOGIN !== $username) {
+        return $this->loadUserByIdentifier($username);
+    }
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        if (AiApiUser::AI_API_USER_LOGIN !== $identifier) {
             throw new UserNotFoundException('Invalid username');
         }
 
