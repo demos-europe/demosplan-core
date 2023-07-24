@@ -139,10 +139,6 @@
 
                         {% block component_part %}{% endblock component_part %}
 
-                        {% block base_backtotop %}
-                            <back-to-top-button></back-to-top-button>
-                        {% endblock base_backtotop %}
-
                     </section><!--
 
                  -->{% block base_aside %}<!--
@@ -171,6 +167,10 @@
                             </div>
                         </aside>
                     {% endblock base_aside %}
+
+                    {% block base_backtotop %}
+                        <back-to-top-button></back-to-top-button>
+                    {% endblock base_backtotop %}
 
                 {% endblock maincontent_section %}
             </main>
