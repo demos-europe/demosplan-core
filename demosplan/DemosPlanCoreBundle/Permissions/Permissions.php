@@ -588,6 +588,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
                 'feature_procedure_get_base_data',  // receive basic procedure data
+                'field_statement_public_allowed'
             ]);
 
             $this->disablePermissions([
