@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class FaqRepository extends CoreRepository
+class FaqRepository extends FluentRepository
 {
     /**
      * Update or save Faq.

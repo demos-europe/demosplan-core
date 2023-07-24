@@ -129,5 +129,6 @@ willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
+zenstruck/foundry: MIT
 
-As of 21.06.2023 07:06
+As of 24.07.2023 07:03

@@ -13,17 +13,13 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,15 +73,11 @@ class DemosPlanDepartmentController extends BaseController
     public function listDepartmentsAction(
         CurrentUserService $currentUser,
         CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         OrgaService $orgaService,
         Request $request,
-        SortMethodFactory $sortMethodFactory,
         UserHandler $userHandler,
         $orgaId)
     {
-        $condition = [];
         $templateVars = [];
         $requestPost = $request->request;
         // Hole die User Entity
@@ -103,13 +95,7 @@ class DemosPlanDepartmentController extends BaseController
         // Falls es sich um den SupportUser handelt, hole alle Orgas des customers,
         // damit er zwischen der orgas wechseln kann
         if (in_array(Role::PLATFORM_SUPPORT, $userRoles, true)) {
-            $condition[] = $conditionFactory->propertyHasValue(
-                $customerHandler->getCurrentCustomer()->getId(),
-                ['statusInCustomers', 'customer']
-            );
-            $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
-            $sortMethod = $sortMethodFactory->propertyAscending(['name']);
-            $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
+            $orgaList = $orgaService->getOrgasInCustomer($customerHandler->getCurrentCustomer());
         }
 
         $templateVars['orgaList'] = $orgaList;

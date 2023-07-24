@@ -25,7 +25,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class BoilerplateRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class BoilerplateRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Fetch all boilerplates for a certain procedure.

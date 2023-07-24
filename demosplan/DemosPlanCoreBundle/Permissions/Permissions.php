@@ -588,7 +588,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
                 'feature_procedure_get_base_data',  // receive basic procedure data
-                'field_statement_public_allowed',  // Publish statements
             ]);
 
             $this->disablePermissions([
@@ -1128,10 +1127,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
-        if (null === $resolvablePermission
-            || !$this->isResolvablePermissionEnabled($resolvablePermission)) {
-            throw AccessDeniedException::missingPermission($permissionName, $this->user);
+        if (null === $resolvablePermission) {
+            throw AccessDeniedException::unknownAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
+        if (!$this->isResolvablePermissionEnabled($resolvablePermission)) {
+            throw AccessDeniedException::missingAddonPermission($permissionName, $addonIdentifier, $this->user);
+        }
+    }
+
+    public function requireAllPermissions(array $permissionIdentifiers): void
+    {
+        // Simply checks each permission individually for now.
+        // Optimizations may be implemented in the future.
+        array_map([$this, 'requirePermission'], $permissionIdentifiers);
     }
 
     public function isPermissionEnabled($permissionIdentifier): bool
@@ -1177,12 +1185,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return match ($operator) {
             'AND' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry && $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry && $this->hasPermission($permission),
                 true
             ),
             'OR' => array_reduce(
                 $permissions,
-                fn(bool $carry, string $permission) => $carry || $this->hasPermission($permission),
+                fn (bool $carry, string $permission) => $carry || $this->hasPermission($permission),
                 false
             ),
             default => throw PermissionException::invalidPermissionCheckOperator($operator),
@@ -1333,14 +1341,10 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     protected function getAddonPermission(string $permissionName, string $addonIdentifier): ?ResolvablePermission
     {
-        if (!array_key_exists($addonIdentifier, $this->addonPermissionCollections)) {
-            return null;
-        }
-
-        return $this->addonPermissionCollections[$addonIdentifier]->getResolvablePermission($permissionName);
+        return $this->addonPermissionCollections[$addonIdentifier]?->getResolvablePermission($permissionName);
     }
 
-    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission)
+    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission): bool
     {
         return $this->permissionResolver->isPermissionEnabled(
             $resolvablePermission,

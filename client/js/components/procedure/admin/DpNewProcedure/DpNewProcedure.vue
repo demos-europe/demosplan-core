@@ -54,7 +54,7 @@
       <addon-wrapper hook-name="procedure.fields" />
 
       <template v-if="hasPermission('feature_use_plis')">
-        <dp-form-row>
+        <dp-form-row class="u-mb-0_75">
           <dp-select
             id="r_plisId"
             :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
@@ -70,7 +70,9 @@
             class="list-style-none" />
         </dl>
       </template>
-      <dp-form-row v-else>
+      <dp-form-row
+        class="u-mb-0_75"
+        v-else>
         <dp-input
           data-cy="newProcedureTitle"
           id="r_name"
@@ -80,7 +82,9 @@
           :required="requireField"
           type="text" />
       </dp-form-row>
-      <dp-form-row v-if="hasPermission('feature_procedure_templates')">
+      <dp-form-row
+        class="u-mb-0_75"
+        v-if="hasPermission('feature_procedure_templates')">
         <dp-select
           id="blueprint"
           :label="{
@@ -88,6 +92,7 @@
             text: Translator.trans('master')
           }"
           name="r_copymaster"
+          data-cy="newProcedureForm:blueprintOptions"
           :options="blueprintOptions"
           :selected="masterBlueprintId"
           @select="setBlueprintData" />
@@ -124,7 +129,7 @@
         type="hidden"
         :value="procedureTypes[0].id">
 
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-input
           id="main-email"
           data-cy="agencyMainEmailAddress"
@@ -137,11 +142,12 @@
           type="email"
           :value="mainEmail" />
       </dp-form-row>
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-text-area
           :hint="Translator.trans('internalnote.visibility.hint')"
           id="r_desc"
           :label="Translator.trans('internalnote')"
+          data-cy="newProcedureForm:internalNote"
           name="r_desc"
           reduced-height />
       </dp-form-row>
@@ -191,9 +197,10 @@
           :text="Translator.trans('save')"
           type="submit"
           @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
-          data-cy="saveNewProcedure" />
+          data-cy="newProcedureForm:saveNewProcedure" />
         <dp-button
           color="secondary"
+          data-cy="newProcedureForm:abort"
           :href="Routing.generate('DemosPlan_procedure_administration_get')"
           :text="Translator.trans('abort')" />
       </div>

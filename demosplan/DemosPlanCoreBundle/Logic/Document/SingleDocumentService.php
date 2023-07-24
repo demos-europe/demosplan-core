@@ -14,7 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -23,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
 
@@ -36,8 +34,6 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
 
     public function __construct(
         private readonly DateHelper $dateHelper,
-        private readonly DqlConditionFactory $conditionFactory,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         FileService $fileService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
@@ -60,13 +56,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue(true, ['visible']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'visible'   => true,
+            'deleted'   => false,
+        ]);
 
         if (!$legacy) {
             return $result;
@@ -124,13 +118,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue($category, ['category']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'category'  => $category,
+            'deleted'   => false,
+        ]);
 
         $resArray = [];
         foreach ($result as $sd) {
@@ -167,12 +159,10 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
          * Filter und Suche wird über Elasticsearch umgesetzt
          *
         */
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
+        $result = $this->singleDocumentRepository->findBy([
+            'procedure' => $procedureId,
+            'deleted'   => false,
+        ]);
 
         $resArray = [];
         foreach ($result as $sd) {
@@ -229,9 +219,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getVersions($singleDocumentId)
     {
-        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, ['singleDocument']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(SingleDocumentVersion::class, [$condition]);
+        return $this->singleDocumentVersionRepository->findBy(['singleDocument' => $singleDocumentId]);
     }
 
     /**

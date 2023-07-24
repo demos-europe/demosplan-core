@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Repository\Workflow;
 
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use Doctrine\ORM\NoResultException;
 
-class PlaceRepository extends CoreRepository
+class PlaceRepository extends FluentRepository
 {
     /**
      * @throws NoResultException

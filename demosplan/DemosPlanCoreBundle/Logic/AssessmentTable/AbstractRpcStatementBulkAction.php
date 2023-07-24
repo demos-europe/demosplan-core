@@ -12,17 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\DBAL\ConnectionException;
@@ -53,11 +52,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      * @var CurrentUserInterface
      */
     protected $currentUser;
-
-    /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
 
     /**
      * @var JsonSchemaValidator
@@ -98,7 +92,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
         CurrentUserInterface $currentUser,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonValidator,
         ProcedureResourceType $procedureResourceType,
         ProcedureService $procedureService,
@@ -111,7 +104,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser;
-        $this->entityFetcher = $entityFetcher;
         $this->jsonValidator = $jsonValidator;
         $this->procedureResourceType = $procedureResourceType;
         $this->procedureService = $procedureService;
@@ -181,7 +173,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$idCondition, $procedureCondition]);
+        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
     }
 
     /**

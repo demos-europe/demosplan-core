@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;

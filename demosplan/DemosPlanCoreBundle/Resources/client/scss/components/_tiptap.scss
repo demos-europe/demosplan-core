@@ -250,9 +250,16 @@
                 font-weight: bold;
             }
 
-            ul,
-            ol {
+            ul, ol {
                 padding-left: 1rem;
+            }
+
+            ul {
+                list-style: disc;
+            }
+
+            ol {
+                list-style: decimal;
             }
 
             li > p,
@@ -412,7 +419,7 @@
         white-space: nowrap;
         overflow: hidden;
         padding: 0;
-        box-shadow: $dp-box-shadow-1;
+        box-shadow: $dp-box-shadow;
     }
 
     &__list-item {

@@ -13,24 +13,26 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use ReflectionException;
 
 class ParagraphService extends CoreService
 {
-    public function __construct(private readonly DateHelper $dateHelper, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly EntityHelper $entityHelper, private readonly ParagraphRepository $paragraphRepository, private readonly ParagraphVersionRepository $paragraphVersionRepository, private readonly SortMethodFactory $sortMethodFactory)
-    {
+    public function __construct(
+        private readonly DateHelper $dateHelper,
+        private readonly EntityHelper $entityHelper,
+        private readonly ParagraphRepository $paragraphRepository,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository
+    ) {
     }
 
     /**
@@ -82,15 +84,14 @@ class ParagraphService extends CoreService
      */
     public function getParaDocumentObjectList($procedureId, $elementId): array
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue($elementId, ['element']),
-            $this->conditionFactory->propertyHasAnyOfValues([1, 2], ['visible']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
+        return $this->paragraphRepository->findBy([
+            'procedure' => $procedureId,
+            'element'   => $elementId,
+            'visible'   => [1, 2],
+            'deleted'   => false,
+        ], [
+            'order' => Criteria::ASC,
+        ]);
     }
 
     /**
@@ -155,13 +156,12 @@ class ParagraphService extends CoreService
      */
     public function getParaDocumentAdminListAll($procedureId)
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
-        ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
-
-        $result = $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
+        $result = $this->paragraphRepository->findBy([
+            'procedure' => $procedureId,
+            'deleted'   => false,
+        ], [
+            'order' => Criteria::ASC,
+        ]);
 
         // Convert result to array
         $resArray = [];
@@ -667,17 +667,16 @@ class ParagraphService extends CoreService
     public function getParagraphDocumentAdminListAsObjects($procedureId, $elementId, bool $nullParentOnly = false): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
-            $this->conditionFactory->propertyHasValue($elementId, ['element']),
-            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            'procedure' => $procedureId,
+            'element'   => $elementId,
+            'deleted'   => false,
         ];
+
         if ($nullParentOnly) {
-            $conditions[] = $this->conditionFactory->propertyIsNull(['parent']);
+            $conditions['parent'] = null;
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
-
-        return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
+        return $this->paragraphRepository->findBy($conditions, ['order' => Criteria::ASC]);
     }
 
     /**

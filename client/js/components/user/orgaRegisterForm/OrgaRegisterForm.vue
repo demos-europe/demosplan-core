@@ -25,7 +25,7 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('register.email')" />
           <fieldset>
-            <dp-form-row :class="prefixClass('space-stack-s')">
+            <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
               <dp-input
                 id="r_organame"
                 data-cy="orga"
@@ -84,7 +84,7 @@
           </fieldset>
 
           <fieldset>
-            <dp-form-row :class="prefixClass('u-mb-0_25 u-mt-0_25 space-stack-s')">
+            <dp-form-row :class="prefixClass('u-mb-0_75 u-mt-0_25 space-stack-s')">
               <legend class="font-size-medium is-label u-mb-0_25 u-mt">
                 {{ Translator.trans('organisation.administration') }}
               </legend>

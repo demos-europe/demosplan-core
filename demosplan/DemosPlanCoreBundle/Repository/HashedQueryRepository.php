@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Exception;
 
-class HashedQueryRepository extends CoreRepository
+class HashedQueryRepository extends FluentRepository
 {
     use RepositoryLegacyShizzle;
 

@@ -10,16 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\NotAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
@@ -33,6 +35,8 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
 
         if ($user instanceof SecurityUser) {
             $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
+            // swap real User in token to be used later on when injecting TokenInterface
+            $this->getToken()->setUser($user);
         }
 
         if (!$user instanceof User) {
@@ -42,7 +46,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(User $user, Customer $customer = null): void
+    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);

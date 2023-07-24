@@ -196,6 +196,7 @@
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
                                     name="r_submitted_date"
+                                    data-cy="submitterForm:submittedDate"
                                     value="{{ app.request.get('r_submitted_date') }}"
                                     :calendars-before="2"
                                     max-date="{{ 'now'|date('d.m.Y') }}"
@@ -211,6 +212,7 @@
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
                                     name="r_authored_date"
+                                    data-cy="submitterForm:authoredDate"
                                     value="{{ app.request.get('r_authored_date') }}"
                                     :calendars-before="2"
                                     :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
@@ -225,6 +227,7 @@
                                         tooltip: Translator.trans('explanation.statement.submit.type')
                                     }"
                                     name="r_submit_type"
+                                    data-cy="submitterForm:submitType"
                                     :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
                                     selected="{{ selectedSubmitType }}"></dp-select>
                             </div>
@@ -238,6 +241,7 @@
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
                                     }"
                                     name="r_internId"
+                                    data-cy="submitterForm:internId"
                                     pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
                                     value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
@@ -262,6 +266,7 @@
                                 </label>
                                 <dp-multiselect
                                     class="o-form__control-wrapper"
+                                    data-cy="submitterForm:procedurePublicPhase"
                                     label="name"
                                     :options="phases"
                                     required
@@ -313,6 +318,7 @@
                             v-model="values.element"
                             class="o-form__control-wrapper u-mb-0_75"
                             label="title"
+                            data-cy="submitterForm:elements"
                             :options="elements"
                             track-by="id"
                             @input="checkForParagraphsAndFiles()">
@@ -332,6 +338,7 @@
                                 v-model="values.paragraph"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
+                                data-cy="submitterForm:paragraph"
                                 :options="paragraph[values.element.id]"
                                 required
                                 track-by="id">
@@ -352,6 +359,7 @@
                                 v-model="values.document"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
+                                data-cy="submitterForm:document"
                                 :options="documents[values.element.id]"
                                 required
                                 track-by="id">
@@ -383,6 +391,7 @@
                                     v-model="values.counties"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
+                                    data-cy="submitterForm:counties"
                                     multiple
                                     :options="counties"
                                     track-by="id"
@@ -416,6 +425,7 @@
                                     v-model="values.municipalities"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
+                                    data-cy="submitterForm:municipalities"
                                     multiple
                                     :options="municipalities"
                                     track-by="id"
@@ -445,6 +455,7 @@
                                     v-model="values.priorityAreas"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
+                                    data-cy="submitterForm:priorityAreas"
                                     multiple
                                     :options="priorityAreas"
                                     track-by="id"
@@ -475,6 +486,7 @@
                             :group-select="false"
                             group-values="tags"
                             label="name"
+                            data-cy="submitterForm:tags"
                             multiple
                             :options="tags"
                             track-by="id"
@@ -508,6 +520,7 @@
                             :value="values.text"
                             class="o-form__control-tiptap u-mb-0_75"
                             hidden-input="r_text"
+                            data-cy="submitterForm:statementText"
                             required
                             :toolbar-items="{
                                 insertAndDelete: true,

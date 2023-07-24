@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use Exception;
 
-class SurveyVoteRepository extends CoreRepository
+class SurveyVoteRepository extends FluentRepository
 {
     /**
      * Get all votes of a specific procedure.
