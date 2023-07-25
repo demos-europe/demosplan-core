@@ -275,8 +275,6 @@ export default {
     },
 
     extractDataFromWMSCapabilities () {
-      const isProjectionInOptions = this.findProjectionInOptions
-
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
         this.addLayerToOptions(this.currentCapabilities.Capability.Layer.Layer, 'Name')
@@ -294,7 +292,7 @@ export default {
             projectionsFromSource: availableCRS.join(', '),
             availableProjectionsFromSystem: this.availableProjections.join(', ')
           }))
-        } else if (isProjectionInOptions === false) {
+        } else if (this.findProjectionInOptions() === false) {
           this.projection = this.projectionOptions[0].value
         }
       }
