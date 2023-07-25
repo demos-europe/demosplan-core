@@ -41,7 +41,7 @@ parameters:
         - 'cdnjs.cloudflare.com'
 
     rabbitmq_routing_disabled: true
-    tex2pdf_url: "http://pdflatex_api"
+    tex2pdf_url: "http://pdflatex_api_nginx:8080"
     docx_importer_route: "http://docx_importer"
 
     gateway_url: '/app_dev.php/dplan/login'
