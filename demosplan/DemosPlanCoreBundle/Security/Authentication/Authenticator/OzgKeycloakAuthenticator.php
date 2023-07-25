@@ -63,7 +63,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->info('doctrine transaction commit.');
                     $request->getSession()->set('userId', $user->getId());
 
-                    return new User($user);
+                    return $user;
                 } catch (Exception $e) {
                     $this->entityManager->getConnection()->rollBack();
                     $this->logger->info('doctrine transaction rollback.');
