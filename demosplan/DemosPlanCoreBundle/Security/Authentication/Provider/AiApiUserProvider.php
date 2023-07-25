@@ -50,12 +50,7 @@ class AiApiUserProvider implements UserProviderInterface
         return $this->getApiUser();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $class
-     */
-    public function supportsClass($class): bool
+    public function supportsClass(string $class): bool
     {
         return AiApiUser::class === $class;
     }

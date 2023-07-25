@@ -51,12 +51,7 @@ class ApiUserProvider implements UserProviderInterface
         return $this->loadUserByIdentifier($user->getUserIdentifier());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $class
-     */
-    public function supportsClass($class): bool
+    public function supportsClass(string $class): bool
     {
         return User::class === $class;
     }
