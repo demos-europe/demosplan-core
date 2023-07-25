@@ -533,15 +533,12 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
 
     /**
      * @param User $user
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
-        $user->setPassword($newEncodedPassword);
-        $user->setAlternativeLoginPassword($newEncodedPassword);
+        $user->setPassword($newHashedPassword);
+        $user->setAlternativeLoginPassword($newHashedPassword);
 
         // execute the queries on the database
         $this->getEntityManager()->flush();
