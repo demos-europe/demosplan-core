@@ -64,7 +64,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
 
     public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
-        $userEntity = $this->loadUserByLogin($user->getUsername());
+        $userEntity = $this->loadUserByLogin($user->getUserIdentifier());
         $this->userRepository->upgradePassword($userEntity, $newHashedPassword);
     }
 
