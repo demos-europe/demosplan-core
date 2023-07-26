@@ -37,7 +37,7 @@
 
 <div class="{{ 'layout__item u-2-of-3 u-1-of-1-lap-down u-pl-0-lap-down u-mb-0_5-lap-down'|prefixClass }}">
 
-    {% block vote_data %}
+    {% block user_data_hint %}
         <p>
             {% if projectType == 'gateway' %}
                 {{ "explanation.before.vote.data.user.change"|trans({
@@ -49,7 +49,7 @@
                     label: 'profile'|trans })|wysiwyg }}
             {% endif %}
         </p>
-    {% endblock vote_data %}
+    {% endblock user_data_hint %}
 
     <p class="{{ 'flash flash-info'|prefixClass }}">
         <i
