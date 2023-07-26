@@ -34,7 +34,7 @@
 </dl>
 
 <div class="{{ 'layout__item u-2-of-3 u-1-of-1-lap-down u-pl-0-lap-down u-mb-0_5-lap-down'|prefixClass }}">
-    {% block vote_data %}
+    {% block user_data_hint %}
         <p>
             {% if projectType == 'gateway' %}
                 {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
@@ -42,7 +42,7 @@
                 {{ "explanation.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
             {% endif %}
         </p>
-    {% endblock vote_data %}
+    {% endblock user_data_hint %}
 
     <p class="{{ 'flash flash-info'|prefixClass }}">
         <i class="{{ 'fa fa-info-circle u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
