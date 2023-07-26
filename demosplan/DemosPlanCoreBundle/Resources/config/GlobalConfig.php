@@ -279,6 +279,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $mapDefaultProjection;
 
+    protected string $projectCoreVersion;
     /**
      * @var string
      */
@@ -685,6 +686,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->urlPathPrefix = trim($parameterBag->get('url_path_prefix'));
 
         // Programmversion
+        $this->projectCoreVersion = $parameterBag->get('project_core_version');
         $this->projectVersion = $parameterBag->get('project_version');
 
         $this->gatewayURL = $parameterBag->get('gateway_url');
@@ -1234,6 +1236,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProxyTrusted(): array
     {
         return $this->proxyTrusted;
+    }
+
+    public function getProjectCoreVersion(): string
+    {
+        return $this->projectCoreVersion;
     }
 
     public function getProjectVersion(): string
