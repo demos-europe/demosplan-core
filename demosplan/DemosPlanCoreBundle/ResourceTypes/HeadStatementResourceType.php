@@ -36,9 +36,9 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         return $this->currentUser->hasAllPermissions('area_admin_assessmenttable', 'feature_statement_cluster');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isDirectlyAccessible(): bool
