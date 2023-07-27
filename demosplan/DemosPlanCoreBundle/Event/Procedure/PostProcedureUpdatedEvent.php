@@ -46,18 +46,18 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(object $oldEntity, object $newEntity): array
+    private function determineModifiedValues(object $oldObject, object $newObject): array
     {
         $modifiedValues = [];
 
-        $reflectionClass = new ReflectionClass($oldEntity);
+        $reflectionClass = new ReflectionClass($oldObject);
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
             $propertyName = $property->getName();
 
-            $oldValue = $property->getValue($oldEntity);
-            $newValue = $property->getValue($newEntity);
+            $oldValue = $property->getValue($oldObject);
+            $newValue = $property->getValue($newObject);
 
             if ($oldValue !== $newValue) {
                 if (is_object($oldValue) && is_object($newValue)) {
