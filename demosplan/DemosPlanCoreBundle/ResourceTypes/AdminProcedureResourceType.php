@@ -141,14 +141,15 @@ final class AdminProcedureResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_procedures');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        $conditions = $this->procedureService->getAdminProcedureConditions(
+        $adminProcedureConditions = $this->procedureService->getAdminProcedureConditions(
             false,
             $this->currentUser->getUser()
         );
-        $conditions[] = $this->procedureResourceType->getResourceTypeCondition();
 
-        return $this->conditionFactory->allConditionsApply(...$conditions);
+        $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
+
+        return array_merge($adminProcedureConditions, $resourceTypeConditions);
     }
 }

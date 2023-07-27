@@ -43,9 +43,9 @@ final class MasterToebResourceType extends DplanResourceType
         );
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isReferencable(): bool
