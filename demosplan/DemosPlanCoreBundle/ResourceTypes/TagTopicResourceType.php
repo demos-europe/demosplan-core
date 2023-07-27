@@ -56,18 +56,18 @@ final class TagTopicResourceType extends DplanResourceType implements CreatableD
         );
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
             // there is currently no use case in which all tags for all procedures need to be requested
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->procedure->id
-        )];
+        );
     }
 
     public function isCreatable(): bool

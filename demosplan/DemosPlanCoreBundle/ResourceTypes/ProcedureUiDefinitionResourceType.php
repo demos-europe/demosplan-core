@@ -35,23 +35,23 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureUiDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             // if the user provided no procedure it must be a one with the permission to
             // access the list of ProcedureTypes and should be restricted to ProcedureUiDefinitions
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
-            return [
+            return $this->conditionFactory->allConditionsApply(
                 $this->conditionFactory->propertyIsNull($this->procedure),
-                $this->conditionFactory->propertyIsNotNull($this->procedureType),
-            ];
+                $this->conditionFactory->propertyIsNotNull($this->procedureType)
+            );
         }
 
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $currentProcedure->getId(),
             $this->procedure->id
-        )];
+        );
     }
 
     public function getEntityClass(): string

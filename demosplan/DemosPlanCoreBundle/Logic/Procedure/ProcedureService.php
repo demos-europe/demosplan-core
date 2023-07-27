@@ -96,7 +96,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
@@ -613,7 +612,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @return list<ClauseFunctionInterface<bool>>
+     * @return array<int, FunctionInterface<bool>>
      */
     public function getAdminProcedureConditions(bool $template, User $user): array
     {

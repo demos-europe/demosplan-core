@@ -39,7 +39,7 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
         flex-direction: column;
         will-change: transform;
         pointer-events: all;
-        box-shadow: $dp-box-shadow-xl;
+        box-shadow: $dp-box-shadow-4;
         overflow-y: auto;
 
         @include media-query('desk-down') {

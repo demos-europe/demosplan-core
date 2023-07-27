@@ -7,22 +7,12 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@import
-    'animation',
-    'anonymized',
-    'border',
-    'border-radius',
-    'box-shadow',
-    'color',
-    'display-visibility',
-    'float',
-    'font-size',
-    'height',
-    'list-style',
-    'obscure',
-    'positioning',
-    'spacing',
-    'text',
-    'transition',
-    'width',
-    'z-index';
+//  Utility classes: float
+
+// @TODO when refactoring to tailwind, we must first define breakpoints in Tailwind.
+
+.float-right-lap-up {
+    @include media-query('lap-up') {
+        float: right;
+    }
+}

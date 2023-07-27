@@ -29,8 +29,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
 
 /**
@@ -74,9 +75,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return 'Statement';
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->buildAccessConditions($this);
+        return $this->buildAccessCondition($this);
     }
 
     /**
@@ -94,13 +95,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * prefixed with `statement`, as this is the name of the relationship from the
      * {@link StatementAttachmentResourceType} to the {@link StatementResourceType}.
      *
-     * @return list<ClauseFunctionInterface<bool>>
+     * @return FunctionInterface<bool>
      */
-    public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
+    public function buildAccessCondition(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): FunctionInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
         $configuredProcedures = $procedure
@@ -133,7 +134,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $conditions[] = $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id);
         }
 
-        return $conditions;
+        return $this->conditionFactory->allConditionsApply(...$conditions);
     }
 
     public function updateObject(object $object, array $properties): ResourceChange

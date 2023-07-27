@@ -52,17 +52,17 @@ final class BoilerplateResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_boilerplates');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->procedure->id
-        )];
+        );
     }
 
     public function getDefaultSortMethods(): array

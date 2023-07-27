@@ -53,14 +53,14 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         return true;
     }
 
-    public function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyIsNotNull($this->original),
             $this->conditionFactory->propertyHasValue(true, $this->clusterStatement),
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
@@ -70,7 +70,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        ];
+        );
     }
 
     public function getDefaultSortMethods(): array

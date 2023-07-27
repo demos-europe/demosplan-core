@@ -26,12 +26,12 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class OrgaTypeResourceType extends DplanResourceType
 {
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $this->currentCustomerService->getCurrentCustomer()->getId(),
             $this->orgaStatusInCustomers->customer->id
-        )];
+        );
     }
 
     public function getEntityClass(): string

@@ -67,10 +67,10 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         // if a segment can be accessed then all its comments can be read
-        return [];
+        return $this->conditionFactory->true();
     }
 
     public function isCreatable(): bool

@@ -33,9 +33,9 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementFieldDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
         // todo: allow accessFilter by modelling bidirectional relationship of between StatementFieldDefinition and StatementFormDefinition
         // to ensure related ProcedureType and ProcedureType is available here
     }

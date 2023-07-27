@@ -64,14 +64,14 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
         return $this->currentUser->hasPermission('area_admin_faq');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $customer->getId(),
             $this->faqCategory->customer->id
-        )];
+        );
     }
 
     protected function getProperties(): array

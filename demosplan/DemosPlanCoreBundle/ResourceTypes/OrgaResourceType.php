@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -100,7 +99,7 @@ final class OrgaResourceType extends DplanResourceType
         return 'Orga';
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $extendedOrgaAccess = $this->currentUser->hasAnyPermissions(
             'area_manage_orgadata',
@@ -114,14 +113,18 @@ final class OrgaResourceType extends DplanResourceType
 
         // permissions allow the user to access all organisation resources
         if ($extendedOrgaAccess) {
-            return $mandatoryConditions;
+            return $this->conditionFactory->allConditionsApply(
+                ...$mandatoryConditions
+            );
         }
 
-        // if no special permissions are given, the user can at least access its own organisation
         $organisationId = $this->currentUser->getUser()->getOrga()->getId();
-        $mandatoryConditions[] = $this->conditionFactory->propertyHasValue($organisationId, $this->id);
 
-        return $mandatoryConditions;
+        // if no special permissions are given, the user can at least access its own organisation
+        return $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue($organisationId, $this->id),
+            ...$mandatoryConditions
+        );
     }
 
     /**
@@ -130,7 +133,7 @@ final class OrgaResourceType extends DplanResourceType
      * Depending on the permission you may need to add additional conditions to reduce the set of
      * {@link Orga} entities in the database further.
      *
-     * @return list<ClauseFunctionInterface<bool>>
+     * @return array<int, FunctionInterface<bool>>
      */
     public function getMandatoryConditions(): array
     {

@@ -90,17 +90,17 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         return $this->currentUser->hasPermission('area_admin_news');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->pId),
             $this->conditionFactory->propertyHasValue(false, $this->deleted)
-        ];
+        );
     }
 
     public function isCreatable(): bool

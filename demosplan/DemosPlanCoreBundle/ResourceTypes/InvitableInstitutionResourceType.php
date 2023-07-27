@@ -65,11 +65,11 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
             || $this->currentUser->hasPermission('feature_institution_tag_read');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
@@ -87,7 +87,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
                 $customer->getId(),
                 $this->statusInCustomers->customer->id
             ),
-        ];
+        );
     }
 
     protected function getProperties(): array

@@ -33,9 +33,9 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureTypeResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
     }
 
     public function getEntityClass(): string

@@ -30,7 +30,7 @@
         padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .8;
         width: 30em;
 
-        box-shadow: $dp-box-shadow-md;
+        box-shadow: $dp-box-shadow-2;
 
         @include media-query('palm') {
             width: 100%;

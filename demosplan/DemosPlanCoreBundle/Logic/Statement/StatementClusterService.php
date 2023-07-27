@@ -112,11 +112,13 @@ class StatementClusterService extends CoreService
     public function getClustersOfProcedure(string $procedureId)
     {
         $sortMethods = $this->clusterStatementResourceType->getDefaultSortMethods();
-        $conditions = $this->clusterStatementResourceType->getAccessConditions();
-        $conditions[] = $this->conditionFactory->propertyHasValue(
-            $procedureId,
-            $this->clusterStatementResourceType->procedure->id
-        );
+        $conditions = [
+            $this->clusterStatementResourceType->getAccessCondition(),
+            $this->conditionFactory->propertyHasValue(
+                $procedureId,
+                $this->clusterStatementResourceType->procedure->id
+            ),
+        ];
 
         return $this->statementRepository->getEntities($conditions, $sortMethods);
     }

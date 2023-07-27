@@ -76,9 +76,9 @@ final class PriorityAreaResourceType extends DplanResourceType
         return false;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
     }
 
     protected function getProperties(): array

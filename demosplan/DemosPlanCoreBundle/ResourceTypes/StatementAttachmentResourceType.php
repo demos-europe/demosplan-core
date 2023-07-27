@@ -66,11 +66,11 @@ final class StatementAttachmentResourceType extends DplanResourceType implements
         return true;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         // The access to an attachment is allowed only if access to the corresponding
         // statement is granted.
-        return $this->statementResourceType->buildAccessConditions($this->statement, true);
+        return $this->statementResourceType->buildAccessCondition($this->statement, true);
     }
 
     protected function getProperties(): array

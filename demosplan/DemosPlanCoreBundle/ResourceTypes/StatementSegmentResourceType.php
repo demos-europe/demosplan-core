@@ -85,11 +85,11 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
         $procedureId = $procedure->getId();
@@ -102,10 +102,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
+        return $this->conditionFactory->propertyHasAnyOfValues(
             $procedureIds,
-            $this->parentStatementOfSegment->procedure->id
-        )];
+            $this->parentStatement->procedure->id
+        );
     }
 
     /**

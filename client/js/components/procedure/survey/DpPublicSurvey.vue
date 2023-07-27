@@ -139,7 +139,7 @@
               {{ Translator.trans('explanation.noentries') }}
             </p>
           </div>
-          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up sm:float-right')">
+          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up float-right-lap-up')">
             <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-down u-mr-0_25')"

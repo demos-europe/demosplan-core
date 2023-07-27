@@ -67,18 +67,18 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
      * @throws PathException
      * @throws CustomerNotFoundException
      */
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
         $invitedOrgaIds = $procedure->getOrganisation()->map(
             static fn (Orga $orga): string => $orga->getId()
         );
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(true, $this->showlist),
             $this->conditionFactory->propertyHasValue(
@@ -102,7 +102,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 $invitedOrgaIds->toArray(),
                 $this->id
             ),
-        ];
+        );
     }
 
     public function getDefaultSortMethods(): array

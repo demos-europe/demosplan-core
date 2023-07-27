@@ -61,13 +61,13 @@ final class SingleDocumentResourceType extends DplanResourceType
         return false;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         if ($this->currentUser->hasPermission('area_admin_single_document')) {
-            return [];
+            return $this->conditionFactory->true();
         }
 
-        return [$this->conditionFactory->propertyHasValue(true, $this->visible)];
+        return $this->conditionFactory->propertyHasValue(true, $this->visible);
     }
 
     protected function getProperties(): array

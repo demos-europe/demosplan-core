@@ -10,7 +10,7 @@
 <template>
   <button
     class="c-publicindex__handle o-link--default text-left absolute"
-    :class="{ 'shadow-md': !isOpen }"
+    :class="{ 'box-shadow-2': !isOpen }"
     type="button"
     @click="$emit('input', !isOpen)">
     <i

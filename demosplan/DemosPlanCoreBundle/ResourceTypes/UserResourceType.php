@@ -144,11 +144,11 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         );
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         // Without this permission users can use their own User resource only.
         if ($this->currentUser->hasPermission('area_manage_users')) {
-            return [];
+            return $this->conditionFactory->true();
         }
         $currentProcedure = $this->currentProcedureService->getProcedure();
         $user = $this->currentUser->getUser();
@@ -158,10 +158,10 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         if ($userAuthorized) {
             // allow access to all users when working inside a procedure to request assignees of statements or segments
             // TODO: split into AssigneeResourceType to differentiate between claiming and normal (more restricted) user accesses
-            return [];
+            return $this->conditionFactory->true();
         }
 
-        return [$this->conditionFactory->propertyHasValue($user->getId(), $this->id)];
+        return $this->conditionFactory->propertyHasValue($user->getId(), $this->id);
     }
 
     public function isReferencable(): bool

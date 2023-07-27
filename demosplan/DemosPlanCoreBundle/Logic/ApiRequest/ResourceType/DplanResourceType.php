@@ -50,7 +50,6 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
@@ -665,24 +664,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         $conditions[] = $this->schemaPathProcessor->processAccessCondition($this);
 
         return $conditions;
-    }
-
-    /**
-     * @return list<ClauseFunctionInterface<bool>>
-     */
-    abstract protected function getAccessConditions(): array;
-
-    /**
-     * @deprecated use and implement {@link DplanResourceType::getAccessConditions()} instead
-     */
-    public function getAccessCondition(): PathsBasedInterface
-    {
-        $accessConditions = $this->getAccessConditions();
-        if ([] === $accessConditions) {
-            return $this->conditionFactory->true();
-        }
-
-        return $this->conditionFactory->allConditionsApply(...$accessConditions);
     }
 
     /**

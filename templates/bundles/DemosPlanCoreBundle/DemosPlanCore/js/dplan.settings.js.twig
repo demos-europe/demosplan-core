@@ -22,7 +22,6 @@ window.dplan = {
     },
 
     permissions             :  JSON.parse("{{ exposedPermissions|default([])|json_encode }}"),
-    projectCoreVersion      : "{{ projectCoreVersion|default('') }}",
     projectName             : "{{ projectName|default('') }}",
     projectVersion          : "{{ projectVersion|default('') }}",
     loggedIn                : Boolean({{ loggedin|default(0) }}),

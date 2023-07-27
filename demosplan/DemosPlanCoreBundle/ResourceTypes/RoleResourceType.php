@@ -53,14 +53,14 @@ final class RoleResourceType extends DplanResourceType
         return false;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $projectRoleCodes = $this->globalConfig->getRolesAllowed();
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
+        return $this->conditionFactory->propertyHasAnyOfValues(
             $projectRoleCodes,
             $this->code
-        )];
+        );
     }
 
     protected function getProperties(): array

@@ -57,18 +57,18 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         return $this->currentUser->hasPermission('area_statement_segmentation');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
         // for now all places can be read by anyone if they are available
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->procedure->id
-        )];
+        );
     }
 
     public function isReferencable(): bool

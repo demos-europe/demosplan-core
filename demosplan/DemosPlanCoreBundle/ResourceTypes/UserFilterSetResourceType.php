@@ -64,17 +64,17 @@ class UserFilterSetResourceType extends DplanResourceType
         return true;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $user = $this->currentUser->getUser();
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        ];
+        );
     }
 }

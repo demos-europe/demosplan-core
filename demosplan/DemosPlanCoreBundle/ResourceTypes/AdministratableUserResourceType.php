@@ -71,7 +71,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_list');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $conditions = [
             // always get non-deleted users only
@@ -102,7 +102,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             );
         }
 
-        return $conditions;
+        return $this->conditionFactory->allConditionsApply(...$conditions);
     }
 
     public function getQuery(): AbstractQuery

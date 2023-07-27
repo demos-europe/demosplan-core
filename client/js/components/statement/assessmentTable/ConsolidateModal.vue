@@ -197,7 +197,7 @@
           ref="clusterSelect" />
       </fieldset>
       <dp-button
-        class="sm:float-right"
+        class="float-right-lap-up"
         :busy="isLoading"
         :text="Translator.trans('send')"
         @click.prevent="submitCluster" />

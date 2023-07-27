@@ -49,17 +49,17 @@ final class ConsultationTokenResourceType extends DplanResourceType implements U
         return $this->currentUser->hasPermission('area_admin_consultations');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [$this->conditionFactory->propertyHasValue(
+        return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->originalStatement->procedure->id
-        )];
+        );
     }
 
     /**

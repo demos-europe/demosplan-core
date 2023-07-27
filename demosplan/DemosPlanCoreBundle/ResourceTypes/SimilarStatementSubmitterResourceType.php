@@ -96,16 +96,16 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return true;
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
         $procedureId = $procedure->getId();
 
-        return [$this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id)];
+        return $this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id);
     }
 
     /**

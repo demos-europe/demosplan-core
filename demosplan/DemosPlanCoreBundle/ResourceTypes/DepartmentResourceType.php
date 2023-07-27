@@ -48,9 +48,9 @@ final class DepartmentResourceType extends DplanResourceType
         return 'Department';
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
     }
 
     public function isReferencable(): bool

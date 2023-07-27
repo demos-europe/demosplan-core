@@ -66,9 +66,9 @@ final class CustomerResourceType extends DplanResourceType
         );
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
     }
 
     public function isReferencable(): bool

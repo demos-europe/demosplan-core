@@ -51,20 +51,20 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return [$this->conditionFactory->false()];
+            return $this->conditionFactory->false();
         }
 
-        return [
+        return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyIsNull($this->original->id),
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        ];
+        );
     }
 
     public function isReferencable(): bool

@@ -39,9 +39,9 @@ final class UserRoleInCustomerResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_json_api_user');
     }
 
-    protected function getAccessConditions(): array
+    public function getAccessCondition(): PathsBasedInterface
     {
-        return [];
+        return $this->conditionFactory->true();
     }
 
     public function isReferencable(): bool
