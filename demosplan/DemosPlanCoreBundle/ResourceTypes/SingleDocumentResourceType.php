@@ -82,7 +82,7 @@ final class SingleDocumentResourceType extends DplanResourceType
                 $this->createAttribute($this->title)
                     ->readable(true)->filterable()->sortable(),
                 $this->createAttribute($this->fileInfo)
-                    ->readable(true, fn(SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
+                    ->readable(true, fn (SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
                 $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order),
             ]);
         }

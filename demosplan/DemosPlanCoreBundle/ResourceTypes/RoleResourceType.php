@@ -84,7 +84,7 @@ final class RoleResourceType extends DplanResourceType
                 ->filterable()
                 ->sortable(),
             $this->createAttribute($this->name)
-                ->readable(true, static fn(Role $role): string =>
+                ->readable(true, static fn (Role $role): string =>
                     // Role->name is no longer found in database. It is added on doctrine postLoad
                     // event via RoleEntityListener. This allows the use of correctly translated
                     // names, but it can't be filtered or sorted at the moment.

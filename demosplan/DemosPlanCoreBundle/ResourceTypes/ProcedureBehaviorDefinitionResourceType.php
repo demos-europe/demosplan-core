@@ -75,10 +75,10 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->allowedToEnableMap->getAsNamesInDotNotation() => $object->setAllowedToEnableMap($value),
-                $this->hasPriorityArea->getAsNamesInDotNotation() => $object->setHasPriorityArea($value),
+                $this->allowedToEnableMap->getAsNamesInDotNotation()     => $object->setAllowedToEnableMap($value),
+                $this->hasPriorityArea->getAsNamesInDotNotation()        => $object->setHasPriorityArea($value),
                 $this->participationGuestOnly->getAsNamesInDotNotation() => $object->setParticipationGuestOnly($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                                  => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 

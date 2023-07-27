@@ -35,7 +35,6 @@ use function is_dir;
 use function min;
 use function realpath;
 use function strncasecmp;
-use function strpos;
 use function substr;
 use function trim;
 

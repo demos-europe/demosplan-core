@@ -237,6 +237,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
-        return array_map(static fn(PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
+        return array_map(static fn (PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
     }
 }

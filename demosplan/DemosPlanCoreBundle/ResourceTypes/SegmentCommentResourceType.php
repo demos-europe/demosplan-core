@@ -123,7 +123,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         $segment = $this->createToOneRelationship($this->segment);
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
-            $creationDate->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
+            $creationDate->readable(false, fn (SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
             $text->readable();
             $submitter->readable();
             $place->readable();

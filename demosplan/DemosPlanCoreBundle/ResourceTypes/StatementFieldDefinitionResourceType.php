@@ -52,9 +52,9 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->enabled->getAsNamesInDotNotation() => $object->setEnabled($value),
+                $this->enabled->getAsNamesInDotNotation()  => $object->setEnabled($value),
                 $this->required->getAsNamesInDotNotation() => $object->setRequired($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                    => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 

@@ -70,8 +70,8 @@ final class StatementFragmentResourceType extends DplanResourceType
     {
         $properties = [
             $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->displayId)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getDisplayId()),
-            $this->createAttribute($this->text)->readable(true, fn(StatementFragment $fragment): string => $this->htmlSanitizer->purify($fragment->getText())),
+            $this->createAttribute($this->displayId)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getDisplayId()),
+            $this->createAttribute($this->text)->readable(true, fn (StatementFragment $fragment): string => $this->htmlSanitizer->purify($fragment->getText())),
             $this->createAttribute($this->created)->readable(true),
             $this->createAttribute($this->modified)->readable(true),
             $this->createAttribute($this->assignedToFbDate)->readable(true),
@@ -82,14 +82,14 @@ final class StatementFragmentResourceType extends DplanResourceType
                 ->aliasedPath($this->element->title),
             $this->createAttribute($this->elementId)->readable(true)
                 ->aliasedPath($this->element->id),
-            $this->createAttribute($this->paragraphTitle)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getParagraphTitle()),
+            $this->createAttribute($this->paragraphTitle)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getParagraphTitle()),
             $this->createAttribute($this->paragraphId)->readable(true)
                 ->aliasedPath($this->paragraph->id),
-            $this->createAttribute($this->paragraphParentTitle)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getParagraphParentTitle()),
+            $this->createAttribute($this->paragraphParentTitle)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getParagraphParentTitle()),
             $this->createAttribute($this->paragraphParentId)->readable(true)
                 ->aliasedPath($this->paragraph->paragraph->id),
-            $this->createAttribute($this->documentParentTitle)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getDocumentParentTitle()),
-            $this->createAttribute($this->documentParentId)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getDocumentParentId()),
+            $this->createAttribute($this->documentParentTitle)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getDocumentParentTitle()),
+            $this->createAttribute($this->documentParentId)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getDocumentParentId()),
         ];
 
         // Only include fields if allowed by permissions. see function cleanFragments()
@@ -103,7 +103,7 @@ final class StatementFragmentResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_statements_fragment_vote')) {
-            $properties[] = $this->createAttribute($this->vote)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getVote());
+            $properties[] = $this->createAttribute($this->vote)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getVote());
         }
 
         if ($this->currentUser->hasPermission('feature_statements_fragment_advice')) {
