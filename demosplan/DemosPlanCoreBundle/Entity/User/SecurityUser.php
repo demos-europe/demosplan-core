@@ -24,6 +24,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
     private readonly ?string $password;
     private readonly array  $roles;
     private readonly ?string $login;
+    private readonly ?string $salt;
 
     public function __construct(User $user)
     {
@@ -32,6 +33,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         $this->password = $user->getPassword();
         $this->login = $user->getLogin();
         $this->roles = $user->getDplanRolesArray();
+        $this->salt = $user->getSalt();
     }
 
     public function getRoles(): array
@@ -46,7 +48,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
 
     public function getSalt(): ?string
     {
-        return null;
+        return $this->salt;
     }
 
     public function getUsername(): string
