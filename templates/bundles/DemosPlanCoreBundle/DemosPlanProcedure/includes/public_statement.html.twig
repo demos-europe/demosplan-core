@@ -15,20 +15,20 @@
                         {% if vote.uId == userId %}
                             {% set hasVoted = true %}
                         {% endif %}
-                    {% endfor %}
 
-                    {% if hasVoted %}
-                        <strong class="{{ 'float-right color--grey'|prefixClass }}">{{ 'statement.is.voted'|trans }}</strong>
-                    {% else %}
-                        <a
-                            class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float-right'|prefixClass }}"
-                            title="{{ 'statement.vote.description'|trans }}"
-                            aria-label="{{ 'statement'|trans }} {{ statement.externId|default }} {{ 'statement.vote.description'|trans }}"
-                            href="{{ path('DemosPlan_statement_public_vote', {'statementID': statement.ident, 'procedure': procedure}) }}">
-                            <i class="{{ 'fa fa-comment-o'|prefixClass }}" aria-hidden="true"></i>
-                            {{ 'statement.vote'|trans }}
-                        </a>
-                    {% endif %}
+                        {% if hasVoted %}
+                            <strong class="{{ 'float-right color--grey'|prefixClass }}">{{ 'statement.is.voted'|trans }}</strong>
+                        {% else %}
+                            <a
+                                class="{{ 'u-mb-0_5 u-mt-0_25 btn btn--primary float-right'|prefixClass }}"
+                                title="{{ 'statement.vote.description'|trans }}"
+                                aria-label="{{ 'statement'|trans }} {{ statement.externId|default }} {{ 'statement.vote.description'|trans }}"
+                                href="{{ path('DemosPlan_statement_public_vote', {'statementID': statement.ident, 'procedure': procedure}) }}">
+                                <i class="{{ 'fa fa-comment-o'|prefixClass }}" aria-hidden="true"></i>
+                                {{ 'statement.vote'|trans }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 {% endif %}
             {% endif %}
 
