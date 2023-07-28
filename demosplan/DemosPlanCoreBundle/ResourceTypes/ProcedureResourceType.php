@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -83,13 +84,13 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $user = $this->currentUser->getUser();
         $userOrganisation = $user->getOrga();
         // users without organisation get no access to any procedure
         if (null === $userOrganisation) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $procedure = $this->currentProcedureService->getProcedure();
@@ -104,32 +105,33 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         }
 
         // check for owning organisation
-        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->owningOrganisation->id);
+        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->orga->id);
         // check for invited organisation
-        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->invitedOrganisations->id);
+        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->organisation->id);
         // check for allowed planning offices
         $planningOfficesCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->planningOffices->id);
 
-        return $this->conditionFactory->allConditionsApply(
-            $this->getResourceTypeCondition(),
-            // users only get access to a procedure if they are either in the organisation owning the procedure
-            // or if they are in an organisation that was invited to the procedure (e.g. public interest bodies).
-            $this->conditionFactory->anyConditionApplies(
-                $owningOrgaCondition,
-                $invitedOrgaCondition,
-                $dataInputCondition,
-                $planningOfficesCondition
-            )
+        $conditions = $this->getResourceTypeConditions();
+
+        // users only get access to a procedure if they are either in the organisation owning the procedure
+        // or if they are in an organisation that was invited to the procedure (e.g. public interest bodies).
+        $conditions[] = $this->conditionFactory->anyConditionApplies(
+            $owningOrgaCondition,
+            $invitedOrgaCondition,
+            $dataInputCondition,
+            $planningOfficesCondition
         );
+
+        return $conditions;
     }
 
     /**
      * Defines the condition that must be met by {@link Procedure} entities to be considered
      * a procedure resource at all, independent of authorizations.
      *
-     * @return FunctionInterface<bool>
+     * @return list<ClauseFunctionInterface<bool>>
      */
-    public function getResourceTypeCondition(): FunctionInterface
+    public function getResourceTypeConditions(): array
     {
         // procedure resources can never be blueprints
         $noBlueprintCondition = $this->conditionFactory->anyConditionApplies(
@@ -145,11 +147,11 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         // only procedure templates are tied to a customer
         $customerCondition = $this->conditionFactory->propertyIsNull($this->customer);
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $noBlueprintCondition,
             $undeletedCondition,
             $customerCondition
-        );
+        ];
     }
 
     public function isReferencable(): bool

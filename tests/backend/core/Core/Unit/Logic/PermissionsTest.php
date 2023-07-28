@@ -471,7 +471,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
                     'feature_statement_data_input_orga',
-                    'feature_statements_fragment_consideration',
                     'feature_statements_fragment_edit',
                     'feature_statements_fragment_list',
                     'feature_statements_fragment_vote',
@@ -490,6 +489,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_adjustments_general_location',
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
+                    'feature_statements_fragment_consideration',
                     'area_statement_fragments_department_archive',
                     'area_statement_segmentation',
                     'area_statements',
@@ -1380,7 +1380,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_statement_data_input_orga',
                     'feature_statements_fragment_advice',
-                    'feature_statements_fragment_consideration',
                     'feature_statements_fragment_edit',
                     'feature_statements_fragment_list',
                 ],
@@ -1397,6 +1396,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_adjustments_general_location',
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
+                    'feature_statements_fragment_consideration',
                     'area_statement_fragments_department_archive',
                     'area_statement_segmentation',
                     'area_statements',
@@ -1475,7 +1475,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_sort_orga_name',
                     'feature_public_index_map',
                     'feature_statement_meta_house_number_export',
-                    'feature_statements_fragment_consideration',
                     'feature_statements_fragment_edit',
                     'feature_statements_fragment_list',
                     'feature_statements_fragment_vote',
@@ -1547,6 +1546,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
                     'feature_statements_fragment_advice',
+                    'feature_statements_fragment_consideration',
                     'feature_statements_fragment_consideration_advice',
                     'feature_statements_fragment_update_complete',
                     'feature_statements_vote_may_vote',
@@ -3102,7 +3102,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_get_base_data',
                     'feature_procedure_single_document_upload_zip',
 //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -3174,6 +3173,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
+                    'field_statement_public_allowed',
                 ],
             ],
             'data input #2'                     => [
@@ -3188,7 +3188,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
 //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
-                    'field_statement_public_allowed',
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
@@ -3257,6 +3256,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
+                    'field_statement_public_allowed',
                 ],
             ],
         ];

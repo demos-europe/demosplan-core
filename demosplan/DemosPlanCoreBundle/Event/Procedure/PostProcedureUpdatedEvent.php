@@ -12,21 +12,75 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use ReflectionClass;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
-    protected Procedure $procedure;
-
-    public function __construct(Procedure $procedure)
-    {
-        $this->procedure = $procedure;
+    public function __construct(
+        readonly protected Procedure $procedureBeforeUpdate,
+        readonly protected Procedure $procedureAfterUpdate
+    ) {
     }
 
-    public function getProcedure(): Procedure
+    public function getProcedureBeforeUpdate(): Procedure
     {
-        return $this->procedure;
+        return $this->procedureBeforeUpdate;
+    }
+
+    public function getProcedureAfterUpdate(): Procedure
+    {
+        return $this->procedureAfterUpdate;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function getModifiedValues(): array
+    {
+        return $this->determineModifiedValues($this->procedureBeforeUpdate, $this->procedureAfterUpdate);
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function determineModifiedValues(EntityInterface $oldEntity, EntityInterface $newEntity): array
+    {
+        $modifiedValues = [];
+
+        $reflectionClass = new ReflectionClass($oldEntity);
+        $properties = $reflectionClass->getProperties();
+
+        foreach ($properties as $property) {
+            $propertyName = $property->getName();
+
+            $oldValue = $property->getValue($oldEntity);
+            $newValue = $property->getValue($newEntity);
+
+            if ($oldValue !== $newValue) {
+                if (is_object($oldValue) && is_object($newValue)) {
+                    $modifiedSubValues = $this->determineModifiedValues($oldValue, $newValue);
+                    if ([] !== $modifiedSubValues) {
+                        $modifiedValues[$propertyName] = $modifiedSubValues;
+                    }
+                } else {
+                    $modifiedValues[$propertyName] = [
+                        'old' => $oldValue,
+                        'new' => $newValue,
+                    ];
+                }
+            }
+        }
+
+        return $modifiedValues;
+    }
+
+    public function getProcedure(): ProcedureInterface
+    {
+        return $this->getProcedure();
     }
 }

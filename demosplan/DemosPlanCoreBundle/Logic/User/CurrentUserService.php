@@ -25,18 +25,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
-    public function __construct(private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider, private readonly PermissionsInterface $permissions, private readonly TokenStorageInterface $tokenStorage)
-    {
+    public function __construct(
+        private readonly PermissionsInterface $permissions,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider
+    ) {
     }
 
     public function getUser(): User
     {
         $user = $this->getToken()->getUser();
 
+        // This might occur when user is fetched from session after it has been
+        // replaced by the SecurityUser. One example is the collection of data
+        // for the symfony toolbar
         if ($user instanceof SecurityUser) {
-            $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
-            // swap real User in token to be used later on when injecting TokenInterface
-            $this->getToken()->setUser($user);
+
+            return $this->userFromSecurityUserProvider->fromSecurityUser($user);
         }
 
         if (!$user instanceof User) {

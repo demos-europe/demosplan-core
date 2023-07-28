@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use Doctrine\Common\Collections\Collection;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
@@ -92,11 +93,11 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $adminConditions = [
@@ -116,7 +117,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         $ownsProcedure = $this->procedureAccessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure);
         if ($ownsProcedure && $this->currentUser->hasPermission('feature_admin_element_edit')) {
-            return $this->conditionFactory->allConditionsApply(...$adminConditions);
+            return $adminConditions;
         }
 
         $publicConditions = $adminConditions;
@@ -133,13 +134,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         // without owning the procedure and administration permissions users are only
         // allowed to see enabled elements
         $publicConditions[] = $this->conditionFactory->propertyHasValue(true, $this->enabled);
-        $publicConditions[] = $this->createNestingCondition();
+        $nestingConditions = $this->createNestingConditions();
 
-        return $this->conditionFactory->allConditionsApply(...$publicConditions);
+        return array_merge($publicConditions, $nestingConditions);
     }
 
     /**
-     * Like {@link PlanningDocumentCategoryResourceType::getAccessCondition} we need to limit
+     * Like {@link PlanningDocumentCategoryResourceType::getAccessConditions} we need to limit
      * access here too. Who is allowed to access properties like {@link $fileInfo} or
      * {@link $filePathWithHash}, who is not?
      *
@@ -260,11 +261,11 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * approach and check each potential parent individually, resulting in a large query with
      * many joins for large values of {@link Elements::MAX_PARENTS_COUNT}.
      *
-     * @return FunctionInterface<bool>
+     * @return list<ClauseFunctionInterface<bool>>
      *
      * @throws PathException
      */
-    private function createNestingCondition(): FunctionInterface
+    private function createNestingConditions(): array
     {
         $conditions = [];
         $parentPath = $this->parent;
@@ -281,7 +282,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentPath = $parentPath->parent;
         }
 
-        return $this->conditionFactory->allConditionsApply(...$conditions);
+        return $conditions;
     }
 
     /**
