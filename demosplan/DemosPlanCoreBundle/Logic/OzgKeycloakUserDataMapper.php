@@ -426,9 +426,13 @@ class OzgKeycloakUserDataMapper
         $availableRequestedRoles = [];
         foreach ($requestedRoleCodes as $roleCode) {
             if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
+                $this->logger->info('try to fetch role entity for role code', [$roleCode]);
                 $availableRequestedRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current available requested roles', [$availableRequestedRoles]);
             } else {
+                $this->logger->info('try to fetch role entity for not allowed role code', [$roleCode]);
                 $unavailableRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
             }
         }
         if (0 !== count($unavailableRoles)) {
