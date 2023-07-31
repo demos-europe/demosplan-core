@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use Stringable;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
@@ -81,6 +81,7 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
+
     /**
      * Checks for existing mandatory data.
      */
@@ -115,6 +116,7 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
             throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
         }
     }
+
     /**
      * Mapping of roles of customer based on string-comparison.
      * Example of data structure of $groups:
@@ -136,6 +138,7 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
             }
         }
     }
+
     public function __toString(): string
     {
         $customerRoleRelationString = '';
