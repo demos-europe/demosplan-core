@@ -32,7 +32,7 @@ return [
     Symfony\Bundle\TwigBundle\TwigBundle::class                                        => ['all' => true],
     Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle::class                            => ['all' => true],
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class                           => ['all' => true],
-    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
+    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['all' => true],
     Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class                          => ['test' => true],
     Liip\TestFixturesBundle\LiipTestFixturesBundle::class                              => ['test' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class                          => ['test' => true, 'dev' => true],
