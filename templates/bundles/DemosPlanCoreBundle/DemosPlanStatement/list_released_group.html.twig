@@ -20,7 +20,7 @@
         %}
     {% endblock %}
 
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
 
     <div class="o-page__padded--spaced u-pv">
 
