@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use Stringable;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
@@ -52,6 +53,13 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
     protected string $organisationId = '';
     protected string $firstName = '';
     protected string $lastName = '';
+    private readonly string $keycloakGroupRoleString;
+
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
+        $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
+    }
+
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {
         $userInformation = $resourceOwner->toArray();
@@ -122,7 +130,7 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
     {
         foreach ($groups as $group) {
             $subGroups = explode('/', $group);
-            if (str_contains($subGroups[1], 'Beteiligung-Berechtigung')) {
+            if (str_contains($subGroups[1], $this->keycloakGroupRoleString)) {
                 $subdomain = strtolower(explode('-', $subGroups[2])[0]);
                 $this->customerRoleRelations[$subdomain][] = $subGroups[3];
             }
