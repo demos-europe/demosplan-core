@@ -1415,9 +1415,9 @@
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
 "@demos-europe/demosplan-ui@^0":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.9.tgz#2fa436f90a8472bc1c1a7920457925fac8a2caaf"
-  integrity sha512-A0YrTnvbdanGybpw/tO/CwWpFLBBJo2ZR5jcUA1aG0qvonlgUAgVXeP11QOGSd8hidpYc3rgYAAemeRTSF6+cA==
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.10.tgz#bf3d3cca0278cbc597dfe2422df310046fbb5b33"
+  integrity sha512-xYfcXlHEBC0lnXk5r7nqXi8K3vqoyo5tsLZFKLu5VVITx6EYfu4b8dHc0XIxaMmGRa/1oIbxGkSX2oJEVj61lg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@uppy/core" "^3.0.1"
@@ -2275,7 +2275,7 @@
     "@uppy/utils" "^5.3.0"
     namespace-emitter "^2.0.1"
 
-"@uppy/core@^3.0.1":
+"@uppy/core@^3.0.1", "@uppy/core@^3.2.0":
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.2.1.tgz#5cf38508f674529ea8302c99cd42b5bb3d93cd21"
   integrity sha512-vqNwhVcJb9N4Mx1AhDvq4YrjGzqQiy5i2YA2LP/NODVBowMnHK4+g/gFOkZF8dHnKwnvVizZK/vR1K6CXocrGg==
@@ -2284,20 +2284,6 @@
     "@uppy/store-default" "^3.0.3"
     "@uppy/utils" "^5.4.0"
     lodash "^4.17.21"
-    mime-match "^1.0.2"
-    namespace-emitter "^2.0.1"
-    nanoid "^4.0.0"
-    preact "^10.5.13"
-
-"@uppy/core@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@uppy/core/-/core-3.2.0.tgz#4ccd2110f7fd797fb5b13a3048880c77c5f40bd5"
-  integrity sha512-w/jdNCIdmxt4uPt4UBPfzmQ7HanIE73GiKKeHtZo6Gp+HWOsUhY7DBimGUk3IsX/vMJTSB2+RhZAUOBGRaP5fA==
-  dependencies:
-    "@transloadit/prettier-bytes" "0.0.9"
-    "@uppy/store-default" "^3.0.3"
-    "@uppy/utils" "^5.3.0"
-    lodash.throttle "^4.1.1"
     mime-match "^1.0.2"
     namespace-emitter "^2.0.1"
     nanoid "^4.0.0"
