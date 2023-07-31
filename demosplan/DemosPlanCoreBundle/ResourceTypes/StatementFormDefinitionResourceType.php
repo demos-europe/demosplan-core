@@ -25,7 +25,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementFormDefinitionResourceType extends DplanResourceType
 {
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedureTypeEditAllowed = $this->currentUser->hasPermission('area_procedure_type_edit');
 
@@ -33,24 +33,24 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         // then allow access to those StatementFormDefinition
         // that are not connected to a specific procedure.
         if ($procedureTypeEditAllowed) {
-            return $this->conditionFactory->allConditionsApply(
+            return [
                 $this->conditionFactory->propertyIsNotNull($this->procedureType),
-                $this->conditionFactory->propertyIsNull($this->procedure)
-            );
+                $this->conditionFactory->propertyIsNull($this->procedure),
+            ];
         }
 
         // If no edit permission for ProcedureType and not authenticated for any procedure, deny any reads.
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         // If no edit permission for ProcedureType, allow access to StatementFormDefinitions
         // connected to the given Procedure.
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($currentProcedure->getId(), $this->procedure->id),
             $this->conditionFactory->propertyIsNull($this->procedureType)
-        );
+        ];
     }
 
     public function getEntityClass(): string

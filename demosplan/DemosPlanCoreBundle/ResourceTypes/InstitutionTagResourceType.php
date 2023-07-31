@@ -98,18 +98,18 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $userOrga = $this->currentUser->getUser()->getOrga();
 
         if (null === $userOrga) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
             $this->owningOrganisation->id
-        );
+        )];
     }
 
     /**

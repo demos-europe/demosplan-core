@@ -1,4 +1,4 @@
-{%  if app.user.loggedIn == true and hasPermission('area_combined_participation_area') %}
+{%  if currentUser.loggedIn == true and hasPermission('area_combined_participation_area') %}
     {% set extendTwig = '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 {% else %}
     {% set extendTwig = '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
@@ -33,8 +33,8 @@
             link: path('DemosPlan_procedure_public_detail', {'procedure': procedure}) ~ '#_procedureDetailsDocumentlist',
             link_caption: 'plandocuments.all'|trans,
             width_css: {
-                col1: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-toolbar',
-                col2: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-canvas'
+                col1: currentUser.loggedIn == true ? 'u-1-of-1' : 'width-map-toolbar',
+                col2: currentUser.loggedIn == true ? 'u-1-of-1' : 'width-map-canvas'
             },
             cssClasses: '',
             content_heading: 'plandocuments'|trans ~ ': '  ~ getProcedureName(proceduresettings),
@@ -44,7 +44,7 @@
     {% endblock page_header %}
 
     {# content #}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
         <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}
