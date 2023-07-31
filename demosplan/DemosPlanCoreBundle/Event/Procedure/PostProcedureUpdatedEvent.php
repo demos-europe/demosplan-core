@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
@@ -47,18 +46,18 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(EntityInterface $oldEntity, EntityInterface $newEntity): array
+    private function determineModifiedValues(object $oldObject, object $newObject): array
     {
         $modifiedValues = [];
 
-        $reflectionClass = new ReflectionClass($oldEntity);
+        $reflectionClass = new ReflectionClass($oldObject);
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
             $propertyName = $property->getName();
 
-            $oldValue = $property->getValue($oldEntity);
-            $newValue = $property->getValue($newEntity);
+            $oldValue = $property->getValue($oldObject);
+            $newValue = $property->getValue($newObject);
 
             if ($oldValue !== $newValue) {
                 if (is_object($oldValue) && is_object($newValue)) {
