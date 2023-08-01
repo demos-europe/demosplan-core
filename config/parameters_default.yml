@@ -330,6 +330,8 @@ parameters:
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
     oauth_keycloak_realm: ''
+    # roles may be granted via keycloak groups
+    keycloak_group_role_string: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
