@@ -8868,10 +8868,10 @@ svgo@^3.0.2:
     csso "^5.0.5"
     picocolors "^1.0.0"
 
-swagger-ui-dist@^4.18.3:
-  version "4.18.3"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.18.3.tgz#5529b7ca19d442c1adf0aea0802fff45c1ea29b5"
-  integrity sha512-QW280Uvt234+TLo9NMPRa2Sj17RoorbQlR2eEY4R6Cs0LbdXhiO14YWX9OPBkBdiN64GQYz4zU8wlHLVi81lBg==
+swagger-ui-dist@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.3.0.tgz#5ebed7b8b4c17cfd81b6e667761a50f0f8f07aa6"
+  integrity sha512-v4+Lw9cCCPSWqg34lOxzoq3DwCkZcPrUq/m35g/4KN8lFlr9wsRGkdFBjhO87dH63xz0k36lpa/B9SEF50ia+Q==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
