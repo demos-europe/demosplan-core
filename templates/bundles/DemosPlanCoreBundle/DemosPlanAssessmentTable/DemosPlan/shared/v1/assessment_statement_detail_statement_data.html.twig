@@ -852,7 +852,7 @@
                     {# Caseworker #}
                     {# not editable / always disabled #}
                     {% if hasPermission('field_statement_meta_case_worker_name') %}
-                        <div class="layout--flush {% if hasPermission('feature_statement_cluster') %}u-mb-0_75{% endif %} inline-block u-1-of-1-desk-down u-3-of-4-desk-up">
+                        <div class="layout--flush {% if hasPermission('feature_statement_cluster') %}u-mb-0_75{% endif %} inline-block u-1-of-1">
                             {% block official_label %}
                                 {{ uiComponent('form.label', {
                                     id: 'caseWorkerName',
