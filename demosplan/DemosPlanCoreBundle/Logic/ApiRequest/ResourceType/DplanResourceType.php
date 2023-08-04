@@ -82,8 +82,15 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function isExposedAsRelationship(): bool
     {
-        return $this->dplanResourceTypeService->isExposedAsRelationship($this);
+        return $this->isAvailable() && $this->isReferencable();
     }
+
+    /**
+     * @deprecated Move the permission-checks from the overrides of this method to the
+     *             {@link self::getProperties()} method of the referencing resource type instead.
+     *             Afterward, return `true` in the override of this method.
+     */
+    abstract public function isReferencable(): bool;
 
     /**
      * Convert the given array to an array with different mapping.

@@ -212,11 +212,6 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
         return $this->getEntityByTypeIdentifier($type, $id);
     }
 
-    public function isExposedAsRelationship(JsonApiResourceTypeInterface $type): bool
-    {
-        return $type->isAvailable() && $type->isReferencable();
-    }
-
     public function isExposedAsPrimaryResource(JsonApiResourceTypeInterface $type): bool
     {
         return $type->isAvailable() && $type->isDirectlyAccessible();
