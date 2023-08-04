@@ -173,15 +173,17 @@ export default {
     },
 
     selectionContainsUnclaimedFragments () {
-      return Object.keys(this.selectedElements)
-        .map(id => this.fragments[id] || [])
-        .map(storeFragment => storeFragment.fragments || [])
-        .reduce((acc, fragments) => {
-          return [...acc, ...fragments]
-        })
-        .filter(fragment => {
-          return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
-        }).length > 0
+      if (hasPermission('area_statements_fragment')) {
+        return Object.keys(this.selectedElements)
+          .map(id => this.fragments[id] || [])
+          .map(storeFragment => storeFragment.fragments || [])
+          .reduce((acc, fragments) => {
+            return [...acc, ...fragments]
+          })
+          .filter(fragment => {
+            return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
+          }).length > 0
+      }
     },
 
     selectionContainsUnclaimedStatements () {
