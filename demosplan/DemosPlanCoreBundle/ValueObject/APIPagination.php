@@ -12,35 +12,19 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
 
-/**
- * Class APIPagination.
- *
- * @method int    getSize()
- * @method int    getNumber()
- * @method string getSortBy()
- * @method string getSortDirection()
- * @method self   setSize(int $size)
- * @method self   setNumber(int $number)
- * @method self   setSortBy(string $sortBy)
- * @method self   setSortDirection(string $sortDirection)
- */
 class APIPagination extends ValueObject implements ApiPaginationInterface
 {
     /**
      * Number of items on a page.
-     *
-     * @var int
      */
-    protected $size;
+    protected int $size;
 
     /**
      * Page number.
-     *
-     * @var int
      */
-    protected $number;
-    protected $sortBy;
-    protected $sortDirection;
+    protected int $number;
+    protected string $sortBy;
+    protected string $sortDirection;
 
     /**
      * @param string $sortString
@@ -70,5 +54,65 @@ class APIPagination extends ValueObject implements ApiPaginationInterface
         }
 
         return ToBy::createArray($this->getSortBy(), $this->getSortDirection());
+    }
+
+    public function getSize(): int
+    {
+        $this->checkIfLocked();
+
+        return $this->size;
+    }
+
+    public function getNumber(): int
+    {
+        $this->checkIfLocked();
+
+        return $this->number;
+    }
+
+    public function getSortBy(): string
+    {
+        $this->checkIfLocked();
+
+        return $this->sortBy;
+    }
+
+    public function getSortDirection(): string
+    {
+        $this->checkIfLocked();
+
+        return $this->sortDirection;
+    }
+
+    public function setSize(int $size): ApiPaginationInterface
+    {
+        $this->verifySettability('size');
+        $this->size = $size;
+
+        return $this;
+    }
+
+    public function setNumber(int $number): ApiPaginationInterface
+    {
+        $this->verifySettability('number');
+        $this->number = $number;
+
+        return $this;
+    }
+
+    public function setSortBy(string $sortBy): ApiPaginationInterface
+    {
+        $this->verifySettability('sortBy');
+        $this->sortBy = $sortBy;
+
+        return $this;
+    }
+
+    public function setSortDirection(string $sortDirection): ApiPaginationInterface
+    {
+        $this->verifySettability('sortDirection');
+        $this->sortDirection = $sortDirection;
+
+        return $this;
     }
 }

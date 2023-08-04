@@ -168,9 +168,8 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
         return $this->getRepository($type)->getEntityIdentifiers($conditions, $sortMethods, $entityIdentifierProperty);
     }
 
-    public function getAccessCondition(JsonApiResourceTypeInterface $type): PathsBasedInterface
+    public function getAccessCondition(array $accessConditions): PathsBasedInterface
     {
-        $accessConditions = $type->getAccessConditions();
         if ([] === $accessConditions) {
             return $this->conditionFactory->true();
         }
