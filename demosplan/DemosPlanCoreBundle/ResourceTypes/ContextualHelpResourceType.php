@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<ContextualHelp>
@@ -34,6 +33,11 @@ final class ContextualHelpResourceType extends DplanResourceType
     public function getEntityClass(): string
     {
         return ContextualHelp::class;
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     public function isAvailable(): bool

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;

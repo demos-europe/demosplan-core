@@ -1563,11 +1563,13 @@ class StatementFragmentService extends CoreService
     protected function getFragmentElasticsearchRepository(): FragmentElasticsearchRepository
     {
         return new FragmentElasticsearchRepository(
+            $this->conditionFactory,
             $this->esStatementFragmentType,
             $this->managerRegistry,
             $this->globalConfig,
             $this->getLogger(),
             $this->translator,
+            $this->sortMethodFactory,
             $this->elementService,
             $this->paragraphService,
             StatementFragment::class

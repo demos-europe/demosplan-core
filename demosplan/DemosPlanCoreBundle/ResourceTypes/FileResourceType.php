@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<File>
@@ -42,6 +41,11 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
     public static function getName(): string
     {
         return 'File';
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     public function isAvailable(): bool

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<GisLayer>
@@ -72,6 +71,11 @@ final class GisLayerResourceType extends DplanResourceType
     public function getEntityClass(): string
     {
         return GisLayer::class;
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     public function isAvailable(): bool
@@ -137,20 +141,20 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createToOneRelationship($this->contextualHelp, true)
                 ->readable(true),
             $this->createAttribute($this->serviceType)
-                ->readable(true, static fn(GisLayer $gisLayer): string => $gisLayer->getServiceType()),
+                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getServiceType()),
             $this->createAttribute($this->isBaseLayer)
-                ->readable(true, static fn(GisLayer $gisLayer): bool => $gisLayer->isBaseLayer()),
+                ->readable(true, static fn (GisLayer $gisLayer): bool => $gisLayer->isBaseLayer()),
             $this->createAttribute($this->url)
-                ->readable(true, static fn(GisLayer $gisLayer): string => $gisLayer->getUrl()),
+                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getUrl()),
             $this->createAttribute($this->categoryId)
-                ->readable(true, static fn(GisLayer $gisLayer): string => $gisLayer->getCategoryId()),
+                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getCategoryId()),
             $this->createAttribute($this->visibilityGroupId)
-                ->readable(true, static fn(GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
+                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
         ];
 
         if ($this->currentUser->hasPermission('area_admin_map')) {
             $properties[] = $this->createAttribute($this->createdAt)
-                ->readable(true, fn(GisLayer $gisLayer): string => $this->formatDate($gisLayer->getCreateDate()));
+                ->readable(true, fn (GisLayer $gisLayer): string => $this->formatDate($gisLayer->getCreateDate()));
         }
 
         return $properties;
