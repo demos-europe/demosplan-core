@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * Boilerplate means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints".
@@ -45,6 +44,11 @@ final class BoilerplateResourceType extends DplanResourceType
     public function getEntityClass(): string
     {
         return Boilerplate::class;
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     public function isAvailable(): bool
@@ -90,9 +94,9 @@ final class BoilerplateResourceType extends DplanResourceType
             $this->createAttribute($this->procedureId)
                 ->readable(true)->aliasedPath($this->procedure->id),
             $this->createAttribute($this->text)->sortable()
-                ->readable(true, fn(Boilerplate $boilerplate): string => $this->htmlSanitizer->purify($boilerplate->getText()), true),
+                ->readable(true, fn (Boilerplate $boilerplate): string => $this->htmlSanitizer->purify($boilerplate->getText()), true),
             $this->createAttribute($this->categoriesTitle)
-                ->readable(true, fn(Boilerplate $boilerplate): array => $boilerplate->getCategoryTitles()),
+                ->readable(true, fn (Boilerplate $boilerplate): array => $boilerplate->getCategoryTitles()),
             // defaultInclude used because of recursion
             $this->createToOneRelationship($this->group, true)->readable(true),
         ];

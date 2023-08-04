@@ -344,7 +344,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_admin_new_procedure',  // Neues Verfahren anlegen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
                 'feature_statements_fragment_edit',  // Edit StatementFragment
                 'feature_statements_fragment_list',  // List StatementFragments
                 'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben
@@ -368,8 +367,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
-
                 'feature_statements_fragment_edit',  // Edit StatementFragments
                 'feature_statements_fragment_list',  // List StatementFragments
                 'field_statement_recommendation',
@@ -391,7 +388,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_statement_fragments_department_archive',  // Edit StatementFragments
                 'area_statements_fragment',  // Area StatementFragments
                 'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
-                'feature_statements_fragment_consideration_advice',  // Empfehlungstext zu Datensatz abgeben
                 'feature_statements_fragment_edit',  // Edit StatementFragments
                 'feature_statements_fragment_list',  // List StatementFragments
                 'feature_statements_fragment_update_complete',  // Bearbeitung eines Datensatzes abschliessen
@@ -417,7 +413,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_json_api_get', // allow get requests to generic api
                 'feature_procedure_export_include_public_interest_bodies_member_list',
-                'feature_statements_fragment_consideration',  // Begründung zu Datensatz speichern
                 'feature_statements_fragment_edit',  // Edit StatementFragments
                 'feature_statements_fragment_list',  // List StatementFragments
                 'feature_statements_fragment_vote',  // Votum zu Datensatz abgeben

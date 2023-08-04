@@ -6,6 +6,7 @@ parameters:
     demosplan.project_dir: ''
     demosplan.project_name: ''
     demosplan.project_version: ''
+    demosplan.project_core_version: ''
 
 imports:
     - { resource: "allowedMimeTypes.yml" }

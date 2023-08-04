@@ -20,6 +20,8 @@ parameters:
     # Maschinenlesbarer Prefix für das Projekt, z.B. Elasticsearchindex und RabbitMQ Queue
     project_prefix: "dplan"
     project_version: "0"
+    # core version used by the project
+    project_core_version: "0"
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
@@ -330,6 +332,8 @@ parameters:
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
     oauth_keycloak_realm: ''
+    # roles may be granted via keycloak groups
+    keycloak_group_role_string: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
