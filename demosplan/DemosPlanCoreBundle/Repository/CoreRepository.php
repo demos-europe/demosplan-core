@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -33,9 +33,9 @@ use Tightenco\Collect\Support\Collection;
 /**
  * @template T of object
  *
- * @template-extends ServiceEntityRepository<T>
+ * @template-extends FluentRepository<T>
  */
-abstract class CoreRepository extends ServiceEntityRepository
+abstract class CoreRepository extends FluentRepository
 {
     /**
      * @var LoggerInterface

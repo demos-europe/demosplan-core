@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Query\Exists;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -47,11 +49,13 @@ class FragmentElasticsearchRepository extends CoreRepository
     protected $translator;
 
     public function __construct(
+        DqlConditionFactory $conditionFactory,
         Index $fragmentSearchType,
         ManagerRegistry $registry,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         TranslatorInterface $translator,
+        SortMethodFactory $sortMethodFactory,
         ElementsService $elementsService,
         ParagraphService $paragraphService,
         string $entityClass
@@ -63,7 +67,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         $this->elementsService = $elementsService;
         $this->paragraphService = $paragraphService;
 
-        parent::__construct($registry, $entityClass);
+        parent::__construct($conditionFactory, $registry, $sortMethodFactory, $entityClass);
     }
 
     /**

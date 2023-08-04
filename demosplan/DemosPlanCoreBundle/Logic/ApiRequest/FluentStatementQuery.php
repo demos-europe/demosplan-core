@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\DqlFluentQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
