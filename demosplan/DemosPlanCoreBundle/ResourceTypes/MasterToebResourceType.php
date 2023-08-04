@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<MasterToeb>
@@ -38,7 +37,7 @@ final class MasterToebResourceType extends DplanResourceType
     {
         return $this->ident->getAsNames();
     }
-    
+
     public function isAvailable(): bool
     {
         return $this->currentUser->hasAnyPermissions(

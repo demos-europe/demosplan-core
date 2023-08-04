@@ -145,7 +145,7 @@ abstract class CoreRepository extends FluentRepository
             return $all[$randomKeys];
         } else {
             return array_map(
-                fn($key) => $all[$key],
+                fn ($key) => $all[$key],
                 $randomKeys
             );
         }
@@ -479,7 +479,7 @@ abstract class CoreRepository extends FluentRepository
             ]
         )->merge($additionalAllowedTags)
             ->flatMap(
-                fn($tagName) => ["<{$tagName}>", "</{$tagName}>"]
+                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
         return strip_tags($text, $allowedTags);

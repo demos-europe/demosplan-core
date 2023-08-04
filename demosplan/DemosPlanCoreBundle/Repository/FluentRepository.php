@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -27,7 +26,6 @@ use Pagerfanta\Pagerfanta;
  */
 abstract class FluentRepository extends CoreRepository
 {
-
     /**
      * Will provide access to all entities matching the given condition via a paginator.
      * The entities will be sorted by the specified sorting.

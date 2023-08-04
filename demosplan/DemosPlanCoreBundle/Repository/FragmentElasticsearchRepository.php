@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Elastica\Query\Exists;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
+use Elastica\Query\Exists;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;

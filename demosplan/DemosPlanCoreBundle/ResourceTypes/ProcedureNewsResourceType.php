@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use InvalidArgumentException;
 
 /**
@@ -58,7 +57,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
     {
         return $this->ident->getAsNames();
     }
-    
+
     /**
      * @param News $entity
      */
@@ -104,7 +103,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
 
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->pId),
-            $this->conditionFactory->propertyHasValue(false, $this->deleted)
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
         ];
     }
 
