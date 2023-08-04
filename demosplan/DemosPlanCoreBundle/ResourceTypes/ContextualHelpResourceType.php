@@ -36,6 +36,11 @@ final class ContextualHelpResourceType extends DplanResourceType
         return ContextualHelp::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return true;

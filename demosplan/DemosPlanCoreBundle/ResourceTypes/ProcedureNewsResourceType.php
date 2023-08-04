@@ -54,6 +54,11 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         return 'ProcedureNews';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+    
     /**
      * @param News $entity
      */

@@ -34,6 +34,11 @@ final class MasterToebResourceType extends DplanResourceType
         return 'MasterToeb';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+    
     public function isAvailable(): bool
     {
         return $this->currentUser->hasAnyPermissions(

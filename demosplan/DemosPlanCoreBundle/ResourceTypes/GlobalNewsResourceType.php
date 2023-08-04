@@ -43,6 +43,11 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
         return 'GlobalNews';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+    
     /**
      * @param GlobalContent $entity
      *

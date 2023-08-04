@@ -44,6 +44,11 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
         return 'File';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         // Currently the File resource needs to be exposed for statement import and assessment table.

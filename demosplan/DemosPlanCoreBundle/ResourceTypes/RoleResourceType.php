@@ -38,6 +38,11 @@ final class RoleResourceType extends DplanResourceType
         return Role::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+    
     public function isAvailable(): bool
     {
         return true;

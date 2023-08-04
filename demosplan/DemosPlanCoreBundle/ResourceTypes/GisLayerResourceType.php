@@ -74,6 +74,11 @@ final class GisLayerResourceType extends DplanResourceType
         return GisLayer::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return true;

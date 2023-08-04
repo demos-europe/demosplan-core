@@ -47,6 +47,11 @@ final class BoilerplateResourceType extends DplanResourceType
         return Boilerplate::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('area_admin_boilerplates');
