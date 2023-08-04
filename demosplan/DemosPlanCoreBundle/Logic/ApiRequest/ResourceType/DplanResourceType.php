@@ -18,10 +18,12 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -37,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\DqlQuerying\Utilities\JoinFinder;
@@ -47,13 +48,10 @@ use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\Contracts\SortMethodInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\ConditionEvaluator;
@@ -64,7 +62,6 @@ use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
 use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -83,11 +80,12 @@ use function is_array;
  * @template T of object
  *
  * @template-extends CachingResourceType<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
+ * @template-extends JsonApiResourceTypeInterface<T>
  * @template-extends IteratorAggregate<int, non-empty-string>
  *
  * @property-read End $id
  */
-abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface
+abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface, JsonApiResourceTypeInterface
 {
     use PropertyAutoPathTrait;
 
@@ -113,6 +111,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected ?Sorter $sorter;
     protected ?JoinFinder $joinFinder;
     protected ?FluentRepository $repository;
+    protected ?DplanResourceTypeService $dplanResourceTypeService;
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
@@ -349,17 +348,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->isAvailable() && $this->isReferencable();
     }
 
-    abstract public function isAvailable(): bool;
-
-    abstract public function isDirectlyAccessible(): bool;
-
-    /**
-     * @deprecated Move the permission-checks from the overrides of this method to the
-     *             {@link self::getProperties()} method of the referencing resource type instead.
-     *             Afterward, return `true` in the override of this method.
-     */
-    abstract public function isReferencable(): bool;
-
     /**
      * Convert the given array to an array with different mapping.
      *
@@ -386,30 +374,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
             })->all();
     }
 
-    /**
-     * Will return all entities matching the given condition with the specified sorting.
-     *
-     * For all properties accessed while filtering/sorting it is checked if:
-     *
-     * * the given type and the types in the property paths are
-     *  {@link TypeInterface::isAvailable() available at all} and
-     *  {@link TransferableTypeInterface readable}
-     * * the property is available for
-     *  {@link FilterableTypeInterface::getFilterableProperties() filtering}/
-     *  {@link SortableTypeInterface::getSortableProperties() sorting}
-     *
-     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
-     *                                                        higher priority. Ie. a second sort method
-     *                                                        will be applied to each subset individually
-     *                                                        that resulted from the first sort method.
-     *                                                        The array keys will be ignored.
-     *
-     * @return array<int,T>
-     *
-     * @throws AccessException thrown if the resource type denies the currently logged in user
-     *                         the access to the resource type needed to fulfill the request
-     */
     public function listEntities(array $conditions, array $sortMethods = []): array
     {
         $this->assertDirectlyAvailable();
@@ -420,20 +384,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->repository->getEntities($conditions, $sortMethods);
     }
 
-    /**
-     * Unlike {@link FluentRepository::getEntitiesForPage} this method accepts conditions and sort methods using the
-     * schema of a resource type instead of the schema of the backing entity.
-     *
-     * It will automatically check access rights and apply aliases before creating a
-     * {@link QueryBuilder} and using it to create the returned {@link DemosPlanPaginator}.
-     *
-     * @param array<int, ClauseFunctionInterface<bool>> $conditions
-     * @param array<int, OrderBySortMethodInterface>    $sortMethods
-     *
-     * @throws MappingException
-     * @throws PaginationException
-     * @throws PathException
-     */
     public function getEntityPaginator(
         APIPagination $pagination,
         array $conditions,
@@ -448,32 +398,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->repository->getEntitiesForPage($conditions, $sortMethods, $pagePagination);
     }
 
-    /**
-     * Will return all entities matching the given condition with the specified sorting. The dataObjects array is the data source from which
-     * matching entities will be returned (This is the only difference to the listEntities function above!).
-     *
-     * For all properties accessed while filtering/sorting it is checked if:
-     *
-     * * the given type and the types in the property paths are
-     *   {@link TypeInterface::isAvailable() available at all} and
-     *   {@link TransferableTypeInterface readable}
-     * * the property is available for
-     *   {@link FilterableTypeInterface::getFilterableProperties() filtering}/
-     *   {@link SortableTypeInterface::getSortableProperties() sorting}
-     *
-     * @param array<int,T>                       $dataObjects
-     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
-     *                                                        higher priority. Ie. a second sort method
-     *                                                        will be applied to each subset individually
-     *                                                        that resulted from the first sort method.
-     *                                                        The array keys will be ignored.
-     *
-     * @return array<int, T>
-     *
-     * @throws AccessException thrown if the resource type denies the currently logged in user
-     *                         the access to the resource type needed to fulfill the request
-     */
     public function listPrefilteredEntities(
         array $dataObjects,
         array $conditions = [],
@@ -491,13 +415,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return array_values($entities);
     }
 
-    /**
-     * @return T
-     *
-     * @throws AccessException          thrown if the resource type denies the currently logged in user
-     *                                  the access to the resource type needed to fulfill the request
-     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
-     */
     public function getEntityAsReadTarget(string $id): object
     {
         if (!$this->isDirectlyAccessible()) {
@@ -507,9 +424,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->getEntityByTypeIdentifier($id);
     }
 
-    /**
-     * @param array<int, ClauseFunctionInterface<bool>> $conditions
-     */
     public function getEntityCount(array $conditions): int
     {
         $this->assertDirectlyAvailable();
@@ -519,13 +433,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->repository->getEntityCount($conditions);
     }
 
-    /**
-     * @return T
-     *
-     * @throws AccessException          thrown if the resource type denies the currently logged in user
-     *                                  the access to the resource type needed to fulfill the request
-     * @throws InvalidArgumentException thrown if no entity with the given ID and resource type was found
-     */
     public function getEntityByTypeIdentifier(string $id): object
     {
         if (!$this->isAvailable()) {
@@ -540,19 +447,6 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         }
     }
 
-    /**
-     * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
-     *                                                        higher priority. I.e. a second sort method
-     *                                                        will be applied to each subset individually
-     *                                                        that resulted from the first sort method.
-     *                                                        The array keys will be ignored.
-     *
-     * @return array<int, string> the identifiers of the entities, sorted by the given $sortMethods
-     *
-     * @throws AccessException thrown if the resource type denies the currently logged in user
-     *                         the access to the resource type needed to fulfill the request
-     */
     public function listEntityIdentifiers(
         array $conditions,
         array $sortMethods

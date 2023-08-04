@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
+
 /**
  * Class APIPagination.
  *
@@ -22,7 +24,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
  * @method self   setSortBy(string $sortBy)
  * @method self   setSortDirection(string $sortDirection)
  */
-class APIPagination extends ValueObject
+class APIPagination extends ValueObject implements ApiPaginationInterface
 {
     /**
      * Number of items on a page.
@@ -61,11 +63,6 @@ class APIPagination extends ValueObject
         $this->setSortBy($sortString);
     }
 
-    /**
-     * @return array|null
-     *
-     * @deprecated sorting should be handled independent from pagination, use {@link JsonApiSortingParser}
-     */
     public function getSort()
     {
         if (null === $this->getSortBy() || null === $this->getSortDirection()) {
