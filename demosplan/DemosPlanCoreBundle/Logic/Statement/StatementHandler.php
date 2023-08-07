@@ -1913,7 +1913,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (Role::CITIZEN === $role) {
             $public = $this->statementService->getStatementsByProcedureId(
                 $procedureId,
-                ['publicVerified' => true],
+                ['publicVerified' => Statement::PUBLICATION_APPROVED],
                 null,
                 null,
                 1_000_000
