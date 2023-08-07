@@ -173,19 +173,15 @@ export default {
     },
 
     selectionContainsUnclaimedFragments () {
-      if (hasPermission('area_statements_fragment')) {
-        return Object.keys(this.selectedElements)
-          .map(id => this.fragments[id] || [])
-          .map(storeFragment => storeFragment.fragments || [])
-          .reduce((acc, fragments) => {
-            return [...acc, ...fragments]
-          })
-          .filter(fragment => {
-            return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
-          }).length > 0
-      } else {
-        return false
-      }
+      return Object.keys(this.selectedElements)
+        .map(id => this.fragments[id] || [])
+        .map(storeFragment => storeFragment.fragments || [])
+        .reduce((acc, fragments) => {
+          return [...acc, ...fragments]
+        })
+        .filter(fragment => {
+          return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
+        }).length > 0
     },
 
     selectionContainsUnclaimedStatements () {
@@ -349,7 +345,7 @@ export default {
         isAllowed = false
       }
 
-      if (this.selectionContainsUnclaimedFragments && hasPermission('area_statements_fragment')) {
+      if (hasPermission('area_statements_fragment') && this.selectionContainsUnclaimedFragments) {
         this.triggerWarning('warning.edit.selection.fragments.not.claimed')
         isAllowed = false
       }
