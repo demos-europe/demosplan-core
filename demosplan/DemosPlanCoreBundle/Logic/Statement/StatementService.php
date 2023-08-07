@@ -1772,21 +1772,11 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Der angemeldete Benutzer zeichnet eine Stellungnahme mit.
-     *
-     * @param string $statementId ID der Stellungnahme
-     *
-     * @return StatementVote|bool
+     * Add user vote to statement.
      */
-    public function addVote($statementId, User $user)
+    public function addVote(string $statementId, User $user): StatementVote|bool
     {
         try {
-            $data = [
-                'statement' => $statementId,
-                'user'      => $user->getId(),
-                'firstName' => $user->getFirstname(),
-                'lastName'  => $user->getLastname(),
-            ];
 
             // only one vote per user per statement
             $vote = $this->statementVoteRepository->findOneBy([
@@ -1796,13 +1786,33 @@ class StatementService extends CoreService implements StatementServiceInterface
                 'active'    => true, ]);
 
             // user already voted this statement?
-            if (null === $vote) {
-                $vote = $this->statementVoteRepository->add($data);
-            }
+            if ($vote instanceof StatementVote) {
+                $this->messageBag->add('error', 'error.statement.marked.voted');
 
-            return $vote;
+                return $vote;
+            }
+            $statement = $this->statementRepository->get($statementId);
+
+            $newVote = new StatementVote();
+            $newVote->setStatement($statement);
+            $newVote->setUser($user);
+            $newVote->setFirstName($user->getFirstname());
+            $newVote->setLastName($user->getLastname());
+
+            $existingVotes = $statement->getVotes();
+            $existingVotes->add($newVote);
+
+            $statement->setVotes($existingVotes->toArray());
+
+             $this->statementRepository->updateObject($statement);
+
+            $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
+
+            return $newVote;
+
         } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
+            $this->messageBag->add('error', 'error.statement.marked.voted');
 
             return false;
         }

@@ -745,18 +745,10 @@ class DemosPlanStatementController extends BaseController
 
         $templateVars['user'] = $this->currentUser->getUser();
 
-        // Mitzeichnen einer Stellungnahme
-
         $requestPost = $request->request->all();
         if (\array_key_exists('action', $requestPost) && 'confirmVotePublicStatement' === $requestPost['action']) {
-            // Füge dem Statement eine Mitzeichnung hinzu
-            $isVoteCast = $statementService->addVote($statementID, $this->currentUser->getUser());
-
-            if (false !== $isVoteCast) {
-                $this->getMessageBag()->add('confirm', 'confirm.statement.marked.voted');
-            } else {
-                $this->getMessageBag()->add('error', 'error.statement.marked.voted');
-            }
+            // add vote to statement
+            $statementService->addVote($statementID, $this->currentUser->getUser());
 
             return $this->redirectToRoute(
                 'DemosPlan_procedure_public_detail',
