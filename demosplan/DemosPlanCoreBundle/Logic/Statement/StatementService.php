@@ -1777,7 +1777,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function addVote(string $statementId, User $user): StatementVote|bool
     {
         try {
-
             // only one vote per user per statement
             $vote = $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
@@ -1804,12 +1803,11 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             $statement->setVotes($existingVotes->toArray());
 
-             $this->statementRepository->updateObject($statement);
+            $this->statementRepository->updateObject($statement);
 
             $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
 
             return $newVote;
-
         } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
             $this->messageBag->add('error', 'error.statement.marked.voted');
