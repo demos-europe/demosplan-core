@@ -3504,20 +3504,20 @@
         },
         {
             "name": "enqueue/dsn",
-            "version": "0.10.8",
+            "version": "0.10.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/dsn.git",
-                "reference": "729fabaae6b24189d14598033b174bd72e825e9a"
+                "reference": "f4991fe46dd01477deb566727170341b255e8479"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/729fabaae6b24189d14598033b174bd72e825e9a",
-                "reference": "729fabaae6b24189d14598033b174bd72e825e9a",
+                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/f4991fe46dd01477deb566727170341b255e8479",
+                "reference": "f4991fe46dd01477deb566727170341b255e8479",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3|^8.0"
+                "php": "^7.4|^8.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
@@ -3553,7 +3553,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2021-02-09T12:01:28+00:00"
+            "time": "2023-03-23T09:50:55+00:00"
         },
         {
             "name": "enqueue/elastica-bundle",
@@ -3607,22 +3607,22 @@
         },
         {
             "name": "enqueue/enqueue",
-            "version": "0.10.18",
+            "version": "0.10.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue.git",
-                "reference": "fdd4ab8d70038711f076c2165df27afe5eb25191"
+                "reference": "9273d0760b40594bfc721c36117824f660a388df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue/zipball/fdd4ab8d70038711f076c2165df27afe5eb25191",
-                "reference": "fdd4ab8d70038711f076c2165df27afe5eb25191",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue/zipball/9273d0760b40594bfc721c36117824f660a388df",
+                "reference": "9273d0760b40594bfc721c36117824f660a388df",
                 "shasum": ""
             },
             "require": {
                 "enqueue/dsn": "^0.10",
                 "enqueue/null": "^0.10",
-                "php": "^7.3|^8.0",
+                "php": "^7.4|^8.0",
                 "psr/container": "^1.1 || ^2.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "queue-interop/amqp-interop": "^0.8.2",
@@ -3648,12 +3648,12 @@
                 "enqueue/stomp": "0.10.x-dev",
                 "enqueue/test": "0.10.x-dev",
                 "phpunit/phpunit": "^9.5",
-                "symfony/config": "^5.1|^6.0",
-                "symfony/console": "^5.1|^6.0",
-                "symfony/dependency-injection": "^5.1|^6.0",
-                "symfony/event-dispatcher": "^5.1|^6.0",
-                "symfony/http-kernel": "^5.1|^6.0",
-                "symfony/yaml": "^5.1|^6.0"
+                "symfony/config": "^5.4|^6.0",
+                "symfony/console": "^5.41|^6.0",
+                "symfony/dependency-injection": "^5.4|^6.0",
+                "symfony/event-dispatcher": "^5.4|^6.0",
+                "symfony/http-kernel": "^5.4|^6.0",
+                "symfony/yaml": "^5.4|^6.0"
             },
             "suggest": {
                 "enqueue/amqp-ext": "AMQP transport (based on php extension)",
@@ -3662,9 +3662,9 @@
                 "enqueue/redis": "Redis transport",
                 "enqueue/sqs": "Amazon AWS SQS transport",
                 "enqueue/stomp": "STOMP transport",
-                "symfony/config": "^5.1|^6.0",
-                "symfony/console": "^5.1|^6.0 If you want to use cli commands",
-                "symfony/dependency-injection": "^5.1|^6.0"
+                "symfony/config": "^5.4|^6.0",
+                "symfony/console": "^5.4|^6.0 If you want to use cli commands",
+                "symfony/dependency-injection": "^5.4|^6.0"
             },
             "type": "library",
             "extra": {
@@ -3699,33 +3699,33 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2023-02-26T03:18:02+00:00"
+            "time": "2023-03-23T09:50:55+00:00"
         },
         {
             "name": "enqueue/enqueue-bundle",
-            "version": "0.10.18",
+            "version": "0.10.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue-bundle.git",
-                "reference": "32d1884ff33e6c0e34d106fb84e2181384b8191e"
+                "reference": "3eab4e7172ab0b4c021351bcdb5f44957c4e6789"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue-bundle/zipball/32d1884ff33e6c0e34d106fb84e2181384b8191e",
-                "reference": "32d1884ff33e6c0e34d106fb84e2181384b8191e",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue-bundle/zipball/3eab4e7172ab0b4c021351bcdb5f44957c4e6789",
+                "reference": "3eab4e7172ab0b4c021351bcdb5f44957c4e6789",
                 "shasum": ""
             },
             "require": {
                 "enqueue/enqueue": "^0.10",
                 "enqueue/null": "^0.10",
-                "php": "^7.3|^8.0",
+                "php": "^7.4|^8.0",
                 "queue-interop/amqp-interop": "^0.8.2",
                 "queue-interop/queue-interop": "^0.8",
-                "symfony/framework-bundle": "^5.1|^6.0"
+                "symfony/framework-bundle": "^5.4|^6.0"
             },
             "require-dev": {
                 "alcaeus/mongo-php-adapter": "^1.0",
-                "doctrine/doctrine-bundle": "^2.0",
+                "doctrine/doctrine-bundle": "^2.3.2",
                 "doctrine/mongodb-odm-bundle": "^3.5|^4.3",
                 "enqueue/amqp-bunny": "0.10.x-dev",
                 "enqueue/amqp-ext": "0.10.x-dev",
@@ -3742,9 +3742,10 @@
                 "enqueue/test": "0.10.x-dev",
                 "php-amqplib/php-amqplib": "^3.0",
                 "phpunit/phpunit": "^9.5",
-                "symfony/browser-kit": "^5.1|^6.0",
-                "symfony/expression-language": "^5.1|^6.0",
-                "symfony/yaml": "^5.1|^6.0"
+                "symfony/browser-kit": "^5.4|^6.0",
+                "symfony/expression-language": "^5.4|^6.0",
+                "symfony/validator": "^5.4|^6.0",
+                "symfony/yaml": "^5.4|^6.0"
             },
             "suggest": {
                 "enqueue/async-command": "If want to run Symfony command via message queue",
@@ -3783,7 +3784,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2023-02-26T03:18:02+00:00"
+            "time": "2023-03-23T09:50:55+00:00"
         },
         {
             "name": "enqueue/fs",
@@ -3851,20 +3852,20 @@
         },
         {
             "name": "enqueue/null",
-            "version": "0.10.18",
+            "version": "0.10.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/null.git",
-                "reference": "7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea"
+                "reference": "c7174da80c59b04391c5194cebe46b6f85d79fb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/null/zipball/7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea",
-                "reference": "7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea",
+                "url": "https://api.github.com/repos/php-enqueue/null/zipball/c7174da80c59b04391c5194cebe46b6f85d79fb4",
+                "reference": "c7174da80c59b04391c5194cebe46b6f85d79fb4",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3|^8.0",
+                "php": "^7.4|^8.0",
                 "queue-interop/queue-interop": "^0.8"
             },
             "require-dev": {
@@ -3904,7 +3905,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2023-02-26T03:18:02+00:00"
+            "time": "2023-03-23T09:50:55+00:00"
         },
         {
             "name": "erusev/parsedown",
