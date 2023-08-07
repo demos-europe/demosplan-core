@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonContractUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
@@ -70,6 +72,12 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
 
     private function loadUserByLogin(string $login): User
     {
+        // avoid database call for anonymous user
+        if (AddonContractUserInterface::ANONYMOUS_USER_LOGIN === $login) {
+
+           return new AnonymousUser();
+        }
+
         $userEntity = $this->userRepository->findOneBy(['login' => $login]);
         if (!$userEntity) {
             throw new UserNotFoundException(sprintf('No user found for "%s"', $login));
