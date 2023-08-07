@@ -183,6 +183,8 @@ export default {
           .filter(fragment => {
             return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
           }).length > 0
+      } else {
+        return false
       }
     },
 
