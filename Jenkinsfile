@@ -24,12 +24,12 @@ def cancelPreviousBuilds() {
 
 def _dockerExecAsUser(String command, String containerName) {
     sh "echo $containerName"
-    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
+    return String.format('docker exec --user $(whoami) %s /bin/bash -c "%s"', containerName, command)
 }
 
 def _dockerExecAsRoot(String command, String containerName) {
     sh "echo $containerName"
-    return String.format('docker exec %s /bin/zsh -c "%s"', containerName, command)
+    return String.format('docker exec %s /bin/bash -c "%s"', containerName, command)
 }
 
 pipeline {
