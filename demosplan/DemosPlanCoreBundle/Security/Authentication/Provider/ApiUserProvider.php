@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonContractUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -30,7 +31,7 @@ class ApiUserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         // avoid database call if anonymous user calls API
-        if (User::ANONYMOUS_USER_NAME === $identifier) {
+        if (AddonContractUserInterface::ANONYMOUS_USER_LOGIN === $identifier) {
             return new AnonymousUser();
         }
 
