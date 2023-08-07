@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -74,8 +73,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
     {
         // avoid database call for anonymous user
         if (AddonContractUserInterface::ANONYMOUS_USER_LOGIN === $login) {
-
-           return new AnonymousUser();
+            return new AnonymousUser();
         }
 
         $userEntity = $this->userRepository->findOneBy(['login' => $login]);
