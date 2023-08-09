@@ -38,7 +38,6 @@ final class UserFactory extends ModelFactory
     {
         return [
             'deleted' => false,
-            'flags' => [],
             'providedByIdentityProvider' => false,
         ];
     }
