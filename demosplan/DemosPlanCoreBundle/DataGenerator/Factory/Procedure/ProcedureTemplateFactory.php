@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 
-namespace demosplan\DemosPlanCoreBundle\Tests\Factory\Procedure;
+namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -9,12 +9,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 final class ProcedureTemplateFactory extends ProcedureFactory
 {
-    private GlobalConfigInterface $globalConfig;
-
     public function __construct(GlobalConfigInterface $globalConfig)
     {
-        parent::__construct();
-        $this->globalConfig = $globalConfig;
+        parent::__construct($globalConfig);
     }
 
     protected function getDefaults(): array
