@@ -37,8 +37,11 @@ final class OrgaFactory extends ModelFactory
 
     protected function getDefaults(): array
     {
+        $slug = SlugFactory::createOne()->object();
+
         return [
-            'currentSlug' => SlugFactory::new(),
+            'addSlug' => $slug,
+            'currentSlug' => $slug,
             'dataProtection' => self::faker()->text(400),
             'deleted' => false,
             'imprint' => self::faker()->text(400),
