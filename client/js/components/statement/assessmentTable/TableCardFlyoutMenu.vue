@@ -19,7 +19,7 @@
     <!-- Original statement view (statement entity only) -->
     <a
       v-if="entity === 'statement' && statementOriginalId"
-      :href="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId })"
+      :href="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, fragment: `itemdisplay_${$parent.statement.originalId}` })"
       rel="noopener">
       {{ Translator.trans('statement.original') }}
     </a>
