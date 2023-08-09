@@ -56,7 +56,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      *
      * @var CustomerInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCounties", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCounties")
      *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
@@ -67,7 +67,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      *
      * @var CountyInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="customerCounties", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="customerCounties")
      *
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
