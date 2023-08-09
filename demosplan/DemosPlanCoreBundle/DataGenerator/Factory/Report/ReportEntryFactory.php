@@ -4,7 +4,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Report;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
@@ -36,11 +35,11 @@ final class ReportEntryFactory extends ModelFactory
         parent::__construct();
     }
 
-    protected function getDefaults(Customer $customer = null): array
+    protected function getDefaults(): array
     {
         return [
             'category' => 'add',
-            'customer' => $customer,
+            'customer' => CustomerFactory::new(),
             'group' => 'statement',
             'identifier' => self::faker()->uuid(),
             'identifierType' => 'generated',
