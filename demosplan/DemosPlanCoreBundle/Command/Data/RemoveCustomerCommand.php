@@ -68,7 +68,7 @@ class RemoveCustomerCommand extends CoreCommand
         }
 
         try {
-            $customer = $this->getCustomerToRemove($customerName);
+            $customer = $this->customerRepository->findOneBy(['name' => $customerName]);
             if (null === $customer) {
                 $output->writeln(
                     'Customer with name '. $customerName .' not found.',
@@ -79,14 +79,19 @@ class RemoveCustomerCommand extends CoreCommand
             }
 
             $this->deleteRelatedBlueprint($customer);
-            $this->deleteRolesOfUsersOfCustomer($customer);
-            $this->deleteOrgaTypesOfCustomer($customer);
-            $this->deleteCountiesOfCustomer($customer);
+            $this->deleteRelationsToRolesOfUsers($customer);
+            $this->deleteRelationsToOrgaTypes($customer);
+            $this->deleteRelationsToCounties($customer);
             $this->deleteReportsOfCustomer($customer);
             $this->deleteCustomer($customer);
 
 
-            return (int) Command::SUCCESS;
+            $output->writeln(
+                "Customer '$customerName' was successfully removed.",
+                OutputInterface::VERBOSITY_NORMAL
+            );
+
+            return Command::SUCCESS;
         } catch (Exception $e) {
             $output->writeln(
                 'Something went wrong during customer deletion: '.$e->getMessage(),
@@ -112,35 +117,34 @@ class RemoveCustomerCommand extends CoreCommand
     private function deleteRelatedBlueprint(Customer $customer): void
     {
         $blueprintOfCustomer = $customer->getDefaultProcedureBlueprint();
+        //Detach blueprint form customer to avoid doctrine exception caused by "new" procedure found on customer.
+        $customer->setDefaultProcedureBlueprint(null);
         if (null !== $blueprintOfCustomer) {
             $this->procedureRepository->deleteProcedures([$blueprintOfCustomer->getId()]);
+            $this->customerRepository->persistAndDelete([$customer], []);
         }
     }
 
-    private function getCustomerToRemove(string $customerName): Customer|null
+    private function deleteRelationsToRolesOfUsers(Customer $customer): void
     {
-        return $this->customerRepository->findOneBy(['name' => $customerName]);
-    }
-
-    private function deleteRolesOfUsersOfCustomer(Customer $customer): void
-    {
-        $userRoles = $customer->getUserRoles();
+        $userRoles = $customer->getUserRoles()->toArray();
         $this->customerRepository->persistAndDelete([], $userRoles);
     }
 
     /**
      * OrgaStatusInCustomer == relation_customer_orga_orga_type
      */
-    private function deleteOrgaTypesOfCustomer(Customer $customer): void
+    private function deleteRelationsToOrgaTypes(Customer $customer): void
     {
-        $orgaStatuses = $customer->getOrgaStatuses();
+        $orgaStatuses = $customer->getOrgaStatuses()->toArray();
+
         $this->customerRepository->persistAndDelete([], $orgaStatuses);
     }
 
-    private function deleteCountiesOfCustomer(Customer $customer): void
+    private function deleteRelationsToCounties(Customer $customer): void
     {
-        $counties = $customer->getCustomerCounties();
-        $this->customerRepository->persistAndDelete([], $counties->toArray());
+        $customerCounties = $customer->getCustomerCounties()->toArray();
+        $this->customerRepository->persistAndDelete([], $customerCounties);
     }
 
     private function deleteReportsOfCustomer(Customer $customer): void
