@@ -16,13 +16,13 @@
     <template v-if="step === 1">
       <slot name="step-1" />
 
-      <div class="u-mt cf">
+      <div class="u-mt flow-root">
         <dp-button
           color="secondary"
           :href="sanitizedReturnLink"
           :text="Translator.trans('bulk.edit.actions.back.to.list')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :disabled="!valid"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
@@ -33,14 +33,14 @@
     <template v-if="step === 2">
       <slot name="step-2" />
 
-      <div class="u-mt cf">
+      <div class="u-mt flow-root">
         <dp-button
           color="secondary"
           icon="chevron-left"
           :text="Translator.trans('bulk.edit.actions.edit')"
           @click="$emit('edit')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :busy="busy"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"

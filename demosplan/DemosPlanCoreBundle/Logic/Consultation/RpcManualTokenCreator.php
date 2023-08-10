@@ -28,36 +28,8 @@ use stdClass;
 
 class RpcManualTokenCreator implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    public function __construct(
-        PermissionsInterface $permissions,
-        RpcErrorGenerator $errorGenerator,
-        ConsultationTokenService $consultationTokenService,
-        JsonSchemaValidator $jsonSchemaValidator
-    ) {
-        $this->errorGenerator = $errorGenerator;
-        $this->permissions = $permissions;
-        $this->consultationTokenService = $consultationTokenService;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly RpcErrorGenerator $errorGenerator, private readonly ConsultationTokenService $consultationTokenService, private readonly JsonSchemaValidator $jsonSchemaValidator)
+    {
     }
 
     public function execute(?Procedure $procedure, $rpcRequests): array
@@ -83,11 +55,11 @@ class RpcManualTokenCreator implements RpcMethodSolverInterface
                 );
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

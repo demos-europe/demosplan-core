@@ -35,7 +35,7 @@
                             {% for project in projects %}
                                 {% if project.current == true %}
                                     <a
-                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        class="c-actionmenu__menuitem whitespace-normal"
                                         data-actionmenu-menuitem
                                         data-actionmenu-current
                                         aria-disabled="true"
@@ -47,7 +47,7 @@
                                         href="{{ project.url }}"
                                         data-actionmenu-menuitem
                                         aria-label="{{ project.ariaName }}"
-                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        class="c-actionmenu__menuitem whitespace-normal"
                                         role="menuitem">{{ project.name|wysiwyg }}</a>
                                 {% endif %}
                             {% endfor %}
@@ -95,7 +95,7 @@
     {% if noNav is not defined or not noNav %}
         <nav class="o-page__nav" aria-label="{{ 'menu.primary'|trans }}" role="navigation">
 
-            <ul id="jumpNavigation" class="c-nav position--relative" role="menubar">
+            <ul id="jumpNavigation" class="c-nav relative" role="menubar">
 
                 {# Helper Checkbox for CSS-only menu-folding #}
                 <input id="responsive-menu-helper-checkbox" class="c-nav__menu-helper-checkbox" type="checkbox" hidden />
@@ -119,6 +119,7 @@
                             <li class="c-nav__item{{ route_name == 'core_home' ? ' current' : '' }}" role="menuitem">
                                 <a
                                     href="{{ path('core_home') }}"
+                                    data-cy="headerNav:home"
                                     {% if route_name == 'core_home' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
                                 >
                                     {{ "home"|trans }}
@@ -129,6 +130,7 @@
                         <li class="c-nav__item{{ route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] ? ' current' : '' }}" role="menuitem">
                             <a
                                 href="{{ path("DemosPlan_globalnews_news") }}"
+                                data-cy="headerNav:news"
                                 {% if route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
                             >
                                 {{ "news"|trans }}
@@ -138,6 +140,7 @@
                         <li class="c-nav__item{{ route_name == 'DemosPlan_misccontent_static_information' ? ' current' : '' }}" role="menuitem">
                             <a
                                 href="{{ path('DemosPlan_misccontent_static_information') }}"
+                                data-cy="headerNav:aboutProject"
                                 {% if route_name == 'DemosPlan_misccontent_static_information' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
                             >
                                 {{ "about.project"|trans }}
@@ -147,6 +150,7 @@
                         <li class="c-nav__item{{ route_name == 'DemosPlan_faq' ? ' current' : '' }}" role="menuitem">
                             <a
                                 href="{{ path("DemosPlan_faq") }}"
+                                data-cy="headerNav:faq"
                                 {% if route_name == 'DemosPlan_faq' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
                             >
                                 {{ "faq"|trans }}

@@ -22,31 +22,9 @@ use Exception;
 
 class ProcedureProposalHandler extends CoreHandler
 {
-    /**
-     * @var ProcedureProposalService
-     */
-    private $procedureProposalService;
-    /**
-     * @var ApiResourceService
-     */
-    private $resourceService;
-    /**
-     * @var MapService
-     */
-    private $mapService;
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
-
-    public function __construct(ArrayHelper $arrayHelper, MessageBag $messageBag, ProcedureProposalService $procedureProposalService, ApiResourceService $resourceService, MapService $mapService)
+    public function __construct(private readonly ArrayHelper $arrayHelper, MessageBag $messageBag, private readonly ProcedureProposalService $procedureProposalService, private readonly ApiResourceService $resourceService, private readonly MapService $mapService)
     {
         parent::__construct($messageBag);
-
-        $this->arrayHelper = $arrayHelper;
-        $this->mapService = $mapService;
-        $this->procedureProposalService = $procedureProposalService;
-        $this->resourceService = $resourceService;
     }
 
     /**
@@ -85,13 +63,13 @@ class ProcedureProposalHandler extends CoreHandler
             }
             if ('strip_tags' === $settingKey) {
                 foreach ($settingValue as $fieldName) {
-                    $output[$fieldName] = strip_tags($output[$fieldName]);
+                    $output[$fieldName] = strip_tags((string) $output[$fieldName]);
                 }
             }
             if ('files' === $settingKey) {
                 foreach ($settingValue as $fieldName) {
                     if (array_key_exists('uploadedFiles', $input) && '' !== $input['uploadedFiles']) {
-                        $output[$fieldName] = explode(',', $input[$fieldName]);
+                        $output[$fieldName] = explode(',', (string) $input[$fieldName]);
                     }
                 }
             }

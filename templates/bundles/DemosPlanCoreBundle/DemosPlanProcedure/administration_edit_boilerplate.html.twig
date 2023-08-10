@@ -12,7 +12,7 @@
         :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
         <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
             <form
-                class="layout cf"
+                class="layout flow-root"
                 name="xsubmititem"
                 action='{{ path('DemosPlan_procedure_boilerplate_edit',{'procedure': procedure, 'boilerplateId': form.vars.value.id|default('new') }) }}'
                 method="post"
@@ -56,7 +56,7 @@
                             value="{{ cat.id }}"
                             name="r_boilerplateCategory[][id]"
                             {% if cat.id in form.vars.value.categories|map(x => x.id) %}checked{% endif %}/>
-                        <label for="{{ cat.id }}" class="display--inline-block u-mr">{{ cat.title|trans }}</label>
+                        <label for="{{ cat.id }}" class="inline-block u-mr">{{ cat.title|trans }}</label>
                     {% endfor %}
                 </div><!-- Textbausteine in Gruppe
 
@@ -70,7 +70,7 @@
                     <dp-multiselect
                         v-model="boilerplateGroup"
                         :allow-empty="false"
-                        class="display--inline-block u-valign--middle u-mb"
+                        class="inline-block align-middle u-mb"
                         data-cy="selectBoilerplateGroup"
                         label="title"
                         :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
@@ -97,7 +97,7 @@
                     </dp-editor>
                 </div>
 
-                <div class="text--right u-mt-0_5 space-inline-s">
+                <div class="text-right u-mt-0_5 space-inline-s">
                     <button
                         class="btn btn--primary"
                         data-cy="saveBoilerplate"

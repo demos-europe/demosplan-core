@@ -12,276 +12,37 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
-use Carbon\Carbon;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
-use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Properties\UpdatableRelationship;
-use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use IteratorAggregate;
-use Psr\Log\LoggerInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
-use function collect;
-use function in_array;
-use function is_array;
 
 /**
  * @template T of object
  *
  * @template-extends CachingResourceType<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
+ * @template-extends JsonApiResourceTypeInterface<T>
  * @template-extends IteratorAggregate<int, non-empty-string>
  *
  * @property-read End $id
  */
-abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface
+abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface, JsonApiResourceTypeInterface
 {
     use PropertyAutoPathTrait;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    protected $currentUser;
-    /**
-     * @var CurrentProcedureService
-     */
-    protected $currentProcedureService;
-    /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    protected $messageBag;
-    /**
-     * @var ResourceTypeService
-     */
-    protected $resourceTypeService;
-    /**
-     * @var TransformerLoader
-     */
-    protected $transformerLoader;
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-    /**
-     * @var CustomerService
-     */
-    protected $currentCustomerService;
-
-    protected DqlConditionFactory $conditionFactory;
-
-    private TypeProviderInterface $typeProvider;
-
-    /**
-     * @var WrapperObjectFactory
-     */
-    protected $wrapperFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    protected $sortMethodFactory;
-
-    /**
-     * @var ApiLogger
-     */
-    protected $apiLogger;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
-
-    /**
-     * @var MessageFormatter
-     */
-    private $messageFormatter;
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setCurrentProcedureService(CurrentProcedureService $currentProcedureService): void
-    {
-        $this->currentProcedureService = $currentProcedureService;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setCustomerService(CustomerService $customerService): void
-    {
-        $this->currentCustomerService = $customerService;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setCurrentUserService(CurrentUserInterface $currentUserService): void
-    {
-        $this->currentUser = $currentUserService;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
-    {
-        $this->globalConfig = $globalConfig;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setMessageBag(MessageBagInterface $messageBag): void
-    {
-        $this->messageBag = $messageBag;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setResourceTypeService(ResourceTypeService $resourceTypeService): void
-    {
-        $this->resourceTypeService = $resourceTypeService;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setTransformerLoader(TransformerLoader $transformerLoader): void
-    {
-        $this->transformerLoader = $transformerLoader;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setTranslator(TranslatorInterface $translator): void
-    {
-        $this->translator = $translator;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setConditionFactory(DqlConditionFactory $conditionFactory): void
-    {
-        $this->conditionFactory = $conditionFactory;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setTypeProvider(PrefilledResourceTypeProvider $typeProvider): void
-    {
-        $this->typeProvider = $typeProvider;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setWrapperFactory(EntityWrapperFactory $wrapperFactory): void
-    {
-        $this->wrapperFactory = $wrapperFactory;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setSortMethodFactory(SortMethodFactory $sortMethodFactory): void
-    {
-        $this->sortMethodFactory = $sortMethodFactory;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setApiLogger(ApiLogger $apiLogger): void
-    {
-        $this->apiLogger = $apiLogger;
-    }
-
-    /**
-     * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
-     */
-    public function setEventDispatcher(TraceableEventDispatcher $eventDispatcher): void
-    {
-        $this->eventDispatcher = $eventDispatcher;
-    }
+    use DplanResourceTypeTrait;
 
     /**
      * @param array<string, mixed> $parameters
@@ -290,7 +51,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function addCreationErrorMessage(array $parameters): void
     {
-        $this->messageBag->add('error', 'generic.error');
+        $this->dplanResourceTypeService->addCreationErrorMessage($parameters);
     }
 
     public function getDefaultSortMethods(): array
@@ -305,30 +66,15 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     public function getInternalProperties(): array
     {
-        $properties = array_map(static function (string $className): ?string {
-            $classImplements = class_implements($className);
-            if (is_array($classImplements) && in_array(ResourceTypeInterface::class, $classImplements, true)) {
-                /* @var ResourceTypeInterface $className */
-                return $className::getName();
-            }
-
-            return null;
-        }, $this->getAutoPathProperties());
-
-        $event = new GetInternalPropertiesEvent($properties, $this);
-        $this->eventDispatcher->dispatch($event);
-
-        return array_map(
-            fn (?string $typeIdentifier): ?TypeInterface => null === $typeIdentifier
-                ? null
-                : $this->typeProvider->requestType($typeIdentifier)->getInstanceOrThrow(),
-            $event->getProperties(),
+        return $this->dplanResourceTypeService->getInternalProperties(
+            $this,
+            $this->getAutoPathProperties()
         );
     }
 
     public function isExposedAsPrimaryResource(): bool
     {
-        return $this->isAvailable() && $this->isDirectlyAccessible();
+        return $this->dplanResourceTypeService->isExposedAsPrimaryResource($this);
     }
 
     /**
@@ -339,14 +85,10 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->isAvailable() && $this->isReferencable();
     }
 
-    abstract public function isAvailable(): bool;
-
-    abstract public function isDirectlyAccessible(): bool;
-
     /**
      * @deprecated Move the permission-checks from the overrides of this method to the
      *             {@link self::getProperties()} method of the referencing resource type instead.
-     *             Afterwards, return `true` in the override of this method.
+     *             Afterward, return `true` in the override of this method.
      */
     abstract public function isReferencable(): bool;
 
@@ -365,55 +107,72 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     protected function toProperties(PropertyPathInterface ...$propertyPaths): array
     {
-        return collect($propertyPaths)
-            ->mapWithKeys(static function (PropertyPathInterface $propertyPath): array {
-                $key = $propertyPath->getAsNamesInDotNotation();
-                $value = $propertyPath instanceof ResourceTypeInterface
-                    ? new UpdatableRelationship([])
-                    : null;
+        return $this->dplanResourceTypeService->toProperties($propertyPaths);
+    }
 
-                return [$key => $value];
-            })->all();
+    public function listEntities(array $conditions, array $sortMethods = []): array
+    {
+        return $this->dplanResourceTypeService->listEntities($this, $conditions, $sortMethods);
+    }
+
+    public function getEntityPaginator(
+        ApiPaginationInterface $pagination,
+        array $conditions,
+        array $sortMethods = []
+    ): DemosPlanPaginator {
+        return $this->dplanResourceTypeService->getEntityPaginator($this, $pagination, $conditions, $sortMethods);
+    }
+
+    public function listPrefilteredEntities(
+        array $dataObjects,
+        array $conditions = [],
+        array $sortMethods = []
+    ): array {
+        return $this->dplanResourceTypeService->listPrefilteredEntities($this, $dataObjects, $conditions, $sortMethods);
+    }
+
+    public function getEntityAsReadTarget(string $id): object
+    {
+        return $this->dplanResourceTypeService->getEntityAsReadTarget($this, $id);
+    }
+
+    public function getEntityCount(array $conditions): int
+    {
+        return $this->dplanResourceTypeService->getEntityCount($this, $conditions);
+    }
+
+    public function getEntityByTypeIdentifier(string $id): object
+    {
+        return $this->dplanResourceTypeService->getEntityByTypeIdentifier($this, $id);
+    }
+
+    public function listEntityIdentifiers(
+        array $conditions,
+        array $sortMethods
+    ): array {
+        return $this->dplanResourceTypeService->listEntityIdentifiers($this, $conditions, $sortMethods);
     }
 
     protected function processProperties(array $properties): array
     {
-        $event = new GetPropertiesEvent($this, $properties);
-        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
-
-        return $event->getProperties();
-    }
-
-    protected function getWrapperFactory(): WrapperObjectFactory
-    {
-        return $this->wrapperFactory;
-    }
-
-    protected function getTypeProvider(): TypeProviderInterface
-    {
-        return $this->typeProvider;
-    }
-
-    protected function getLogger(): LoggerInterface
-    {
-        return $this->logger;
+        return $this->dplanResourceTypeService->processProperties($this, $properties);
     }
 
     protected function formatDate(?DateTime $date): ?string
     {
-        if (null === $date) {
-            return null;
-        }
-
-        return Carbon::instance($date)->toIso8601String();
+        return $this->dplanResourceTypeService->formatDate($date);
     }
 
-    protected function getMessageFormatter(): MessageFormatter
-    {
-        if (null === $this->messageFormatter) {
-            $this->messageFormatter = new MessageFormatter();
-        }
+    /**
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    abstract protected function getAccessConditions(): array;
 
-        return $this->messageFormatter;
+    /**
+     * @deprecated use and implement {@link DplanResourceType::getAccessConditions()} instead
+     */
+    public function getAccessCondition(): PathsBasedInterface
+    {
+        return $this->dplanResourceTypeService->getAccessCondition($this->getAccessConditions());
     }
 }

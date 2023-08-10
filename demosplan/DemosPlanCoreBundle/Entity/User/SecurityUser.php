@@ -12,17 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class SecurityUser implements UserInterface, EquatableInterface, PasswordAuthenticatedUserInterface
 {
-    private string $id;
-    private ?string $email;
-    private ?string $password;
-    private array  $roles;
-    private ?string $login;
+    private readonly string $id;
+    private readonly ?string $email;
+    private readonly ?string $password;
+    private readonly array  $roles;
+    private readonly ?string $login;
+    private readonly ?string $salt;
 
     public function __construct(User $user)
     {
@@ -31,6 +33,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         $this->password = $user->getPassword();
         $this->login = $user->getLogin();
         $this->roles = $user->getDplanRolesArray();
+        $this->salt = $user->getSalt();
     }
 
     public function getRoles(): array
@@ -45,7 +48,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
 
     public function getSalt(): ?string
     {
-        return null;
+        return $this->salt;
     }
 
     public function getUsername(): string
@@ -65,10 +68,6 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
 
     public function isEqualTo(UserInterface $user): bool
     {
-        if (!$user instanceof self) {
-            return false;
-        }
-
         if ($this->getRoles() !== $user->getRoles()) {
             return false;
         }
@@ -78,5 +77,10 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         }
 
         return true;
+    }
+
+    public function isLoggedIn(): bool
+    {
+        return !in_array(RoleInterface::GUEST, $this->roles, true);
     }
 }

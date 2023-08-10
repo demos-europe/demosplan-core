@@ -15,7 +15,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class ManifestConfiguration implements ConfigurationInterface
 {
-    public const MANIFEST_ROOT = 'demosplan_addon';
+    final public const MANIFEST_ROOT = 'demosplan_addon';
 
     public function getConfigTreeBuilder(): TreeBuilder
     {

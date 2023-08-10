@@ -353,10 +353,10 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     {
         $path = $this->getPath();
         $filename = $this->getHash();
-        if (!is_string($filename) || '' === $filename || '..' === $filename || false !== strpos($filename, '/')) {
+        if (!is_string($filename) || '' === $filename || '..' === $filename || str_contains($filename, '/')) {
             throw new InvalidDataException(sprintf('invalid filename: %s', $filename));
         }
-        $delimiter = '/' === substr($path, -1) ? '' : '/';
+        $delimiter = str_ends_with($path, '/') ? '' : '/';
 
         return $path.$delimiter.$filename;
     }

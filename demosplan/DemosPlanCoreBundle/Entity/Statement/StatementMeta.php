@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -19,32 +21,29 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_statement_meta")
- * @ORM\Entity
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository")
  */
-class StatementMeta extends CoreEntity implements UuidEntityInterface
+class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
 {
-    public const USER_GROUP = 'userGroup';
-    public const USER_ORGANISATION = 'userOrganisation';
-    public const USER_POSITION = 'userPosition';
-    public const USER_STATE = 'userState';
-    public const SUBMITTER_ROLE = 'submitterRole';
-    public const USER_PHONE = 'userPhone';
-    public const SUBMITTER_ROLE_CITIZEN = 'citizen';
-    public const SUBMITTER_ROLE_PUBLIC_AGENCY = 'publicagency';
     /**
      * @var string|null
      *
      * @ORM\Column(name="_stm_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="meta", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     protected $statement;
@@ -58,8 +57,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidAuthorNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidAuthorNull')]
     protected $authorName = '';
 
     /**
@@ -82,24 +81,24 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_submit_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidSubmitNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidSubmitNull')]
     protected $submitName = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_stm_orga_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaNameNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaNameNull')]
     protected $orgaName = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_stm_orga_department_name", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaDepartmentNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaDepartmentNull')]
     protected $orgaDepartmentName = '';
 
     /**
@@ -129,9 +128,10 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaPostalNull")
+     *
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaPostalNull')]
     protected $orgaPostalCode = '';
 
     /**
@@ -139,8 +139,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the city of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_city", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaCityNull")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaCityNull')]
     protected $orgaCity = '';
 
     /**
@@ -148,9 +148,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the email address of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_email", type="string", length=255, nullable=false)
-     * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaMailNull")
-     * @Assert\Email(groups={Statement::IMPORT_VALIDATION}, message = "email.address.invalid")
      */
+    #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaMailNull')]
+    #[Assert\Email(groups: [Statement::IMPORT_VALIDATION], message: 'email.address.invalid')]
     protected $orgaEmail = '';
 
     /**
@@ -169,12 +169,12 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
 
     /**
      * Will be stored as JSON in DB with keys defined as constants:
-     * {@link StatementMeta::USER_GROUP},
-     * {@link StatementMeta::USER_ORGANISATION},
-     * {@link StatementMeta::USER_POSITION},
-     * {@link StatementMeta::USER_STATE},
-     * {@link StatementMeta::SUBMITTER_ROLE},
-     * {@link StatementMeta::USER_PHONE}.
+     * {@link StatementMetaInterface::USER_GROUP},
+     * {@link StatementMetaInterface::USER_ORGANISATION},
+     * {@link StatementMetaInterface::USER_POSITION},
+     * {@link StatementMetaInterface::USER_STATE},
+     * {@link StatementMetaInterface::SUBMITTER_ROLE},
+     * {@link StatementMetaInterface::USER_PHONE}.
      *
      * @var array|null
      *
@@ -203,9 +203,9 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     /**
      * Set author.
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
-    public function setStatement(Statement $statement)
+    public function setStatement(StatementInterface $statement)
     {
         $this->statement = $statement;
 
@@ -215,7 +215,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     /**
      * Get Statement.
      *
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -227,7 +227,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      */
     public function getStatementId()
     {
-        if (is_null($this->statementId) && $this->statement instanceof Statement) {
+        if (is_null($this->statementId) && $this->statement instanceof StatementInterface) {
             $this->statementId = $this->statement->getIdent();
         }
 
@@ -359,7 +359,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $caseWorkerName
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setCaseWorkerName($caseWorkerName)
     {
@@ -399,7 +399,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaStreet
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaStreet($orgaStreet)
     {
@@ -421,7 +421,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaPostalCode
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaPostalCode($orgaPostalCode)
     {
@@ -443,7 +443,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaCity
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaCity($orgaCity)
     {
@@ -465,7 +465,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *
      * @param string $orgaEmail
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setOrgaEmail($orgaEmail)
     {
@@ -551,7 +551,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @param string $key
      * @param mixed  $value
      *
-     * @return StatementMeta
+     * @return StatementMetaInterface
      */
     public function setMiscDataValue($key, $value)
     {

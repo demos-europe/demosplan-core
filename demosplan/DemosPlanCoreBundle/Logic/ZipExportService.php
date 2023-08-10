@@ -16,9 +16,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
-
-use function get_class;
-
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -36,20 +33,8 @@ class ZipExportService
      */
     private $filesAdded = [];
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(FileService $fileService, LoggerInterface $logger)
+    public function __construct(private readonly FileService $fileService, private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
-        $this->fileService = $fileService;
     }
 
     /**
@@ -97,7 +82,7 @@ class ZipExportService
         string $fileNamePrefix
     ): void {
         $path = Utf8::toAscii($folderPath.$fileNamePrefix.$fileInfo->getFileName());
-        $pathHash = md5($path);
+        $pathHash = md5((string) $path);
         if (in_array($pathHash, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
 
@@ -154,8 +139,8 @@ class ZipExportService
         DemosFilesystem $fs,
         string $fileFolderPath,
         ZipStream $zip,
-        string ...$fileStrings): void
-    {
+        string ...$fileStrings
+    ): void {
         foreach ($fileStrings as $fileString) {
             try {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($fileString);
@@ -171,10 +156,10 @@ class ZipExportService
                 }
 
                 $this->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->logger->warning('Could not add file to Zip',
                     [
-                        'fileString' => $fileString ?? '',
+                        'fileString' => $fileString,
                         'path'       => '',
                     ]
                 );
@@ -216,7 +201,7 @@ class ZipExportService
     private function checkIfSavable(object $writer): void
     {
         if (!($writer instanceof WriterInterface || $writer instanceof PDF)) {
-            throw InvalidParameterTypeException::fromTypes(get_class($writer), [WriterInterface::class, PDF::class]);
+            throw InvalidParameterTypeException::fromTypes($writer::class, [WriterInterface::class, PDF::class]);
         }
     }
 }

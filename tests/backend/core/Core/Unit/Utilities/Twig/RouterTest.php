@@ -19,9 +19,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 class RouterTest extends FunctionalTestCase
 {
+    use ProphecyTrait;
+
     protected $urlPrefixProcedure = '/verfahren/';
     protected $urlSuffixProcedure = '/public/detail';
     protected $urlPrefixReport = '/report/view/';

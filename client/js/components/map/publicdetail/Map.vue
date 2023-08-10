@@ -36,7 +36,7 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
@@ -451,12 +451,6 @@ export default {
       }
     },
 
-    deleteCustomAjaxHeaders () {
-      if ($.ajaxSettings.headers) {
-        delete $.ajaxSettings.headers['X-Requested-With']
-      }
-    },
-
     bindLoadingEvents (source) {
       /*
        *  Only bind to ol source instances
@@ -607,25 +601,18 @@ export default {
       })
 
       if (serviceType === 'wmts') {
-        // Delete custom Ajax headers as they may not be allowed by cors
-        this.deleteCustomAjaxHeaders()
         const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
         const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
-        $.ajax({
-          dataType: 'xml',
-          url: url || '',
-          async: false,
-          success: response => {
-            const result = this.parser.read(response)
+        externalApi(url)
+          .then(response => {
+            const result = this.parser.read(response.data)
             options = optionsFromCapabilities(result, {
               layer: layerArray[0] || '',
               matrixSet: layer.attributes.tileMatrixSet
             })
 
             source = new WMTS({ ...options, layers: layerArray })
-          }
-        })
-        this.restoreCustomAjaxHeaders()
+          })
       } else if (serviceType === 'wms') {
         // @TODO find out why 'SERVICE=WMS&' is added twice to url
         url = layer.attributes.url ? layer.attributes.url : null
@@ -1010,12 +997,12 @@ export default {
                         /*
                          * Roll back to this one when we can handle procedure versions
                          * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                         *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                         *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                          *     Translator.trans('procedure.goto') +
                          *     '</a>';
                          */
                         const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                         Translator.trans('procedures.all.show') +
                         '</a>'
                         this.showPopup('contentPopup', {
@@ -1343,12 +1330,12 @@ export default {
                     /*
                      * Roll back to this one when we can handle procedure versions
                      * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                     *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                      *     Translator.trans('procedure.goto') +
                      *     '</a>';
                      */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                       Translator.trans('procedures.all.show') +
                       '</a>'
                       this.showPopup('contentPopup', {
@@ -1690,14 +1677,6 @@ export default {
       }
     },
 
-    restoreCustomAjaxHeaders () {
-      $.ajaxSetup({
-        headers: {
-          'X-Requested-With': 'dplan'
-        }
-      })
-    },
-
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this.projectionName].x, suggestion.data[this.projectionName].y]
@@ -1753,7 +1732,7 @@ export default {
       let label = ''
 
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        label = this.procedureSettings.copyright.replace('{year}', currentYear)
+        label = this.procedureSettings.copyright.replace('{currentYear}', currentYear)
       } else {
         label = Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
@@ -1951,7 +1930,7 @@ export default {
             .replace(/___id___/g, content.key)
           // Specialcase priorityArea with key 'Sonderregel' should not have an html view
           if (content.key === 'Sonderregel') {
-            $('#popupContent').find('a').first().removeClass(this.prefixClass('display--block')).hide()
+            $('#popupContent').find('a').first().removeClass(this.prefixClass('block')).hide()
           }
         } else if (templateId === 'miscPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)

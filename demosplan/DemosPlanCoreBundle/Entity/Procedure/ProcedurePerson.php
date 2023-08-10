@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,9 +22,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository")
  */
-class ProcedurePerson implements UuidEntityInterface
+class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet
@@ -38,68 +40,44 @@ class ProcedurePerson implements UuidEntityInterface
     private $id;
 
     /**
-     * @var Procedure
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
-     */
-    private $procedure;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
-     *
-     * @Assert\NotBlank(allowNull=false, normalizer="trim")
-     */
-    private $fullName;
-
-    /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetName;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $streetNumber;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $city;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     private $postalCode;
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @Assert\NotBlank(allowNull=true, normalizer="trim")
-     *
-     * @Assert\Email()
      */
+    #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[Assert\Email]
     private $emailAddress;
 
     /**
@@ -122,10 +100,17 @@ class ProcedurePerson implements UuidEntityInterface
      */
     private Collection $similarForeignStatements;
 
-    public function __construct(string $fullName, Procedure $procedure)
+    public function __construct(/**
+     * @ORM\Column(type="text", nullable=false)
+     */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    private string $fullName, /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
+     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
+     */
+    private Procedure $procedure)
     {
-        $this->fullName = $fullName;
-        $this->procedure = $procedure;
         $this->similarForeignStatements = new ArrayCollection();
     }
 
@@ -222,7 +207,7 @@ class ProcedurePerson implements UuidEntityInterface
     /**
      * Adds the given statement to the similarForeignStatements if not already containing.
      */
-    public function addSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function addSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if (!$this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->add($similarForeignStatement);
@@ -233,7 +218,7 @@ class ProcedurePerson implements UuidEntityInterface
         }
     }
 
-    public function removeSimilarForeignStatement(Statement $similarForeignStatement): void
+    public function removeSimilarForeignStatement(StatementInterface $similarForeignStatement): void
     {
         if ($this->similarForeignStatements->contains($similarForeignStatement)) {
             $this->similarForeignStatements->removeElement($similarForeignStatement);

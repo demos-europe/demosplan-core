@@ -265,9 +265,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         $segments = array_merge($editedSegments, $uneditedSegments);
 
-        usort($segments, static function (Segment $a, Segment $b): int {
-            return strcmp($a->getAssigneeId(), $b->getAssigneeId());
-        });
+        usort($segments, static fn(Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
 
         return $segments;
     }

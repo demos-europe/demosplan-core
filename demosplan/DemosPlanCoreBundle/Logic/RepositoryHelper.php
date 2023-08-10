@@ -17,14 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class RepositoryHelper
 {
-    /**
-     * @var ManagerRegistry
-     */
-    private $managerRegistry;
-
-    public function __construct(ManagerRegistry $managerRegistry)
+    public function __construct(private readonly ManagerRegistry $managerRegistry)
     {
-        $this->managerRegistry = $managerRegistry;
     }
 
     public function getRepository(string $entityClass): CoreRepository

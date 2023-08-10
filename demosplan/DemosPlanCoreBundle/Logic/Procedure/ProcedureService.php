@@ -13,8 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
@@ -37,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\NewProcedureAdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureUpdatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -46,7 +49,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
@@ -58,7 +60,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -94,12 +95,11 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
@@ -152,55 +152,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     protected $entityContentChangeService;
 
     /**
-     * @var string
-     */
-    private $environment;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /** @var CustomerService */
-    private $customerService;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ProcedureElasticsearchRepository
-     */
-    private $procedureElasticsearchRepository;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
-
-    /**
-     * @var ProcedureTypeService
-     */
-    private $procedureTypeService;
-    /**
-     * @var PhasePermissionsetLoader
-     */
-    private $phasePermissionsetLoader;
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
      * @var EntityPreparator
      */
     protected $entityPreparator;
@@ -210,247 +161,67 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     protected $fieldConfigurator;
 
-    /**
-     * @var MasterTemplateService
-     */
-    private $masterTemplateService;
-
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    /**
-     * @var BoilerplateRepository
-     */
-    private $boilerplateRepository;
-
-    /**
-     * @var BoilerplateGroupRepository
-     */
-    private $boilerplateGroupRepository;
-
-    /**
-     * @var InstitutionMailRepository
-     */
-    private $institutionMailRepository;
-
-    /**
-     * @var ProcedureSubscriptionRepository
-     */
-    private $procedureSubscriptionRepository;
-
-    /**
-     * @var TagTopicRepository
-     */
-    private $tagTopicRepository;
-
-    /**
-     * @var GisLayerCategoryRepository
-     */
-    private $gisLayerCategoryRepository;
-
-    /**
-     * @var NewsRepository
-     */
-    private $newsRepository;
-
-    /**
-     * @var ElementsRepository
-     */
-    private $elementsRepository;
-
-    /**
-     * @var NotificationReceiverRepository
-     */
-    private $notificationReceiverRepository;
-
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
-
-    /**
-     * @var SettingRepository
-     */
-    private $settingRepository;
-
-    /**
-     * @var BoilerplateCategoryRepository
-     */
-    private $boilerplateCategoryRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var ProcedureToLegacyConverter
-     */
-    private $procedureToLegacyConverter;
-
-    /**
-     * @var PlaceRepository
-     */
-    private $placeRepository;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var EntityContentChangeRepository
-     */
-    private $entityContentChangeRepository;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var Plis
-     */
-    private $plis;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        BoilerplateCategoryRepository $boilerplateCategoryRepository,
-        BoilerplateGroupRepository $boilerplateGroupRepository,
-        BoilerplateRepository $boilerplateRepository,
+        private readonly BoilerplateCategoryRepository $boilerplateCategoryRepository,
+        private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
+        private readonly BoilerplateRepository $boilerplateRepository,
         ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        CustomerService $customerService,
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        ElementsRepository $elementsRepository,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly CustomerService $customerService,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsRepository $elementsRepository,
         ElementsService $elementsService,
-        EntityContentChangeRepository $entityContentChangeRepository,
+        private readonly EntityContentChangeRepository $entityContentChangeRepository,
         EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        EntityManagerInterface $entityManager,
+        private readonly EntityHelper $entityHelper,
+        private readonly EntityManagerInterface $entityManager,
         EntityPreparator $entityPreparator,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         FieldConfigurator $fieldConfigurator,
         FileService $fileService,
-        GisLayerCategoryRepository $gisLayerCategoryRepository,
-        GlobalConfigInterface $globalConfig,
+        private readonly GisLayerCategoryRepository $gisLayerCategoryRepository,
+        private readonly GlobalConfigInterface $globalConfig,
         LocationService $locationService,
-        MasterTemplateService $masterTemplate,
-        MessageBagInterface $messageBag,
-        NewsRepository $newsRepository,
-        NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly MasterTemplateService $masterTemplateService,
+        private readonly MessageBagInterface $messageBag,
+        private readonly NewsRepository $newsRepository,
+        private readonly NotificationReceiverRepository $notificationReceiverRepository,
         ObjectPersisterInterface $esProcedurePersister,
-        OrgaService $orgaService,
-        ParagraphRepository $paragraphRepository,
+        private readonly OrgaService $orgaService,
+        private readonly ParagraphRepository $paragraphRepository,
         Permissions $permissions,
-        PhasePermissionsetLoader $phasePermissionsetLoader,
-        PlaceRepository $placeRepository,
-        Plis $plis,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureElasticsearchRepository $procedureElasticsearchRepository,
-        ProcedureRepository $procedureRepository,
-        ProcedureSubscriptionRepository $procedureSubscriptionRepository,
-        ProcedureToLegacyConverter $procedureToLegacyConverter,
-        ProcedureTypeService $procedureTypeService,
-        SettingRepository $settingRepository,
-        SingleDocumentRepository $singleDocumentRepository,
-        SortMethodFactory $sortMethodFactory,
-        StatementRepository $statementRepository,
-        TagTopicRepository $tagTopicRepository,
-        InstitutionMailRepository $institutionMailRepository,
-        TranslatorInterface $translator,
+        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
+        private readonly PlaceRepository $placeRepository,
+        private readonly Plis $plis,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureElasticsearchRepository $procedureElasticsearchRepository,
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
+        private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
+        private readonly ProcedureTypeService $procedureTypeService,
+        private readonly SettingRepository $settingRepository,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly InstitutionMailRepository $institutionMailRepository,
+        private readonly TranslatorInterface $translator,
         UserService $userService,
-        ValidatorInterface $validator,
-        string $environment
+        private readonly ValidatorInterface $validator,
+        private readonly string $environment
     ) {
-        $this->boilerplateCategoryRepository = $boilerplateCategoryRepository;
-        $this->boilerplateGroupRepository = $boilerplateGroupRepository;
-        $this->boilerplateRepository = $boilerplateRepository;
-        $this->conditionFactory = $conditionFactory;
         $this->contentService = $contentService;
-        $this->currentUser = $currentUser;
-        $this->customerService = $customerService;
-        $this->dateHelper = $dateHelper;
-        $this->elementsRepository = $elementsRepository;
         $this->elementsService = $elementsService;
-        $this->entityContentChangeRepository = $entityContentChangeRepository;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->entityManager = $entityManager;
         $this->entityPreparator = $entityPreparator;
-        $this->environment = $environment;
         $this->esProcedurePersister = $esProcedurePersister;
-        $this->eventDispatcher = $eventDispatcher;
         $this->fieldConfigurator = $fieldConfigurator;
         $this->fileService = $fileService;
-        $this->gisLayerCategoryRepository = $gisLayerCategoryRepository;
         $this->locationService = $locationService;
-        $this->masterTemplateService = $masterTemplate;
-        $this->newsRepository = $newsRepository;
-        $this->notificationReceiverRepository = $notificationReceiverRepository;
-        $this->orgaService = $orgaService;
-        $this->paragraphRepository = $paragraphRepository;
         $this->permissions = $permissions;
-        $this->phasePermissionsetLoader = $phasePermissionsetLoader;
-        $this->placeRepository = $placeRepository;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->procedureElasticsearchRepository = $procedureElasticsearchRepository;
-        $this->procedureRepository = $procedureRepository;
-        $this->procedureSubscriptionRepository = $procedureSubscriptionRepository;
-        $this->procedureToLegacyConverter = $procedureToLegacyConverter;
-        $this->procedureTypeService = $procedureTypeService;
-        $this->settingRepository = $settingRepository;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->tagTopicRepository = $tagTopicRepository;
-        $this->institutionMailRepository = $institutionMailRepository;
-        $this->translator = $translator;
         $this->userService = $userService;
-        $this->validator = $validator;
-        $this->statementRepository = $statementRepository;
-
-        $this->plis = $plis;
-        $this->messageBag = $messageBag;
-        $this->globalConfig = $globalConfig;
     }
 
     public function getPermissions(): Permissions
@@ -559,9 +330,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $entitiesToPersist = array_filter(
             $entitiesToPersist,
-            static function (?object $entityToPersist): bool {
-                return null !== $entityToPersist;
-            }
+            static fn (?object $entityToPersist): bool => null !== $entityToPersist
         );
 
         $this->procedureRepository->updateObjects($entitiesToPersist);
@@ -610,7 +379,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen($inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen((string) $inData['r_name']);
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -619,7 +388,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 if (!$hasName) {
                     $inData = $this->checkProcedureDataNoJS($inData);
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Probleme beim LGV, Verfahren sollen auch ohne Startkartenausschnitt angelegt werden können
             }
         }
@@ -642,7 +411,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // Frage die LGV PLIS-Datenbank ab, was für Verfahren angelegt sind
             try {
                 $templateVars['plisProcedures'] = $this->plis->getLgvPlisProcedureList();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $templateVars['plisProcedures'] = [];
             }
         }
@@ -785,7 +554,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100000000)
+    public function getDeletedProcedures($limit = 100_000_000)
     {
         try {
             return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
@@ -830,14 +599,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
 
-            $procedureList = $this->entityFetcher->listEntitiesUnrestricted(
-                Procedure::class,
-                $conditions,
-                $sortMethods
-            );
+            $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
             if ($toLegacy) {
-                $procedureList = \collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
+                $procedureList = \collect($procedureList)->map($this->procedureToLegacyConverter->convertToLegacy(...))->all();
             }
 
             return $toLegacy ? $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray() : $procedureList;
@@ -848,7 +613,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @return array<int, FunctionInterface<bool>>
+     * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
@@ -1019,16 +784,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
         // planning offices needs to get all Orga members that are planners
         if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
-            return $usersOfOrganisation->filter(static function (User $user): bool {
-                return $user->isPlanner();
-            });
+            return $usersOfOrganisation->filter(static fn (User $user): bool => $user->isPlanner());
         }
 
         // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
-            static function (User $user): bool {
-                return $user->isPlanningAgency() || $user->isHearingAuthority();
-            }
+            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
         );
 
         // filter users who may not administer this Procedure
@@ -1039,9 +800,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if ($excludeProcedureAuthorizedUsers && $this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $authorizedUserIds = $procedure->getAuthorizedUserIds();
             $usersOfOrganisation = $usersOfOrganisation->filter(
-                static function (User $user) use ($authorizedUserIds): bool {
-                    return \in_array($user->getId(), $authorizedUserIds);
-                }
+                static fn (User $user): bool => \in_array($user->getId(), $authorizedUserIds)
             );
         }
 
@@ -1065,12 +824,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         try {
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
-            $data['settings']['emailTitle'] = $data['settings']['emailTitle'] ?? '';
+            $data['settings']['emailTitle'] ??= '';
             if ('' === $data['settings']['emailTitle']) {
-                $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
+                $data['settings']['emailTitle'] =
+                    $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
 
-            // Wrap creation of procedure in a transaction to be able to validate the whole procedure including subentities
+            // Wrap creation of procedure in a transaction to be able to validate the whole procedure
+            // including subentities
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
@@ -1091,15 +852,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $newProcedure = $this->copyFromBlueprint($data, $blueprintId, $newProcedure);
             }
 
-            $violationList = $this->validator->validate($newProcedure, null, [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]);
+            $violationList = $this->validator->validate(
+                $newProcedure,
+                null,
+                [Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED]
+            );
             if (0 !== $violationList->count()) {
                 $doctrineConnection->rollBack();
                 throw ViolationsException::fromConstraintViolationList($violationList);
             }
 
             try {
-                $this->prepareReportFromProcedureService
-                    ->addReportOnProcedureCreate($this->procedureToLegacyConverter->convertToLegacy($newProcedure), $newProcedure);
+                $this->prepareReportFromProcedureService->addReportOnProcedureCreate(
+                    $this->procedureToLegacyConverter->convertToLegacy($newProcedure),
+                    $newProcedure
+                );
             } catch (Exception $e) {
                 $doctrineConnection->rollBack();
                 $this->logger->warning('Add Report in addProcedure() failed Message: ', [$e]);
@@ -1108,7 +875,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']), PostNewProcedureCreatedEventInterface::class);
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                PostNewProcedureCreatedEventInterface::class
+            );
+
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
@@ -1229,7 +999,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $numberOfDeletedDraftStatementVersions = $this->deleteDraftStatementVersions($procedure);
             $this->getLogger()->info($numberOfDeletedDraftStatementVersions.' DraftStatementVersions were deleted.');
 
-            $filesToDelete = $repository->deleteRelatedEntitiesOfProcedure($procedureId);
+            $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
             // delete pregenerated zips in filedirectory/procedure
             $filesPath = $fileService->getFilesPathAbsolute();
@@ -1249,27 +1019,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 );
             }
 
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id' => $procedureId,
-            ];
-
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id'                => $procedureId,
-                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
-            ];
-
-            // Necessary data for the PostProcedureDeletedEvent
-            $procedureData = [
-                'id'                => $procedureId,
-                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
-            ];
-
             // delete Procedure
             $repository->delete($procedureId);
 
-            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData), PostProcedureDeletedEventInterface::class);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureDeletedEvent($procedureId),
+                PostProcedureDeletedEventInterface::class
+            );
 
             $this->logger->info('Procedure deleted: '.$procedureId);
         } finally {
@@ -1292,7 +1048,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function updateProcedure($data)
     {
         try {
-            $data['ident'] = $data['ident'] ?? $data['id'];
+            $data['ident'] ??= $data['id'];
             if (!isset($data['ident'])) {
                 throw new \InvalidArgumentException('Ident is missing');
             }
@@ -1306,15 +1062,22 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             // Update exportSettings
             if (\array_key_exists('exportSettings', $data)) {
-                $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
+                $this->entityPreparator->prepareEntity(
+                    $data['exportSettings'],
+                    $origSourceRepos->getDefaultExportFieldsConfiguration()
+                );
             }
 
             try {
                 $data['currentUser'] = $this->currentUser->getUser();
-            } catch (UserNotFoundException $e) {
+            } catch (UserNotFoundException) {
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
@@ -1354,11 +1117,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
             // clone the source-procedure and the procedure-settings before update for report entry
-            $sourceProcedure = clone $this->procedureRepository->get($procedureToUpdate->getId());
-            $sourceProcedureSettings = clone $sourceProcedure->getSettings();
-
             // set the cloned settings into the source procedure
-            $sourceProcedure->setSettings($sourceProcedureSettings);
+            $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
 
@@ -1369,6 +1129,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
+
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
+                PostProcedureUpdatedEventInterface::class
+            );
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
@@ -1400,7 +1165,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 throw new \InvalidArgumentException('Ident is missing');
             }
 
+            $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            $this->eventDispatcher->dispatch(
+                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
+                PostProcedureUpdatedEventInterface::class
+            );
+
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
             if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
@@ -1784,7 +1555,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $data['procedure'] = $this->getProcedure($procedureId);
 
             return $this->boilerplateRepository->add($data);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
         }
 
@@ -1828,7 +1599,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             try {
                 $groupToDelete = $this->getBoilerplateGroup($groupId);
                 $this->deleteBoilerplateGroup($groupToDelete);
-            } catch (TypeError|Exception $e) {
+            } catch (TypeError|Exception) {
                 $allDeleted = false;
             }
         }
@@ -2018,7 +1789,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         // use global default blueprint as default anyway:
         $masterTemplateId = $this->getMasterTemplateId();
-        $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
+        $incomingCopyMasterId ??= $masterTemplateId;
 
         // T15664: in case of globalMasterBlueprint is set,
         // use customer master blueprint if existing, (instead of global masterblueprint)
@@ -2109,7 +1880,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($organisations as $organisation) {
                 $this->detachOrganisation($procedure, $organisation);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -2520,7 +2291,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
-        if (false !== \stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
+        if (false !== \stripos((string) Role::PRIVATE_PLANNING_AGENCY, (string) $user->getRole())) {
             $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
             $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);
@@ -2528,11 +2299,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
-        $foreignProcedures = $this->entityFetcher->listEntitiesUnrestricted(
-            Procedure::class,
-            $conditions,
-            [$sortMethod]
-        );
+        $foreignProcedures = $this->procedureRepository->getEntities($conditions, [$sortMethod]);
 
         $unauthorizedProcedures = [];
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
@@ -2562,11 +2329,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            Procedure::class,
-            $conditions,
-            [$sortMethod]
-        );
+        return $this->procedureRepository->getEntities($conditions, [$sortMethod]);
     }
 
     /**
@@ -2584,9 +2347,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $inAccessibleProcedures = $this->getInaccessibleProcedures($user, $procedureIdToExclude);
         $inAccessibleProcedures =
-            \collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
-                return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
-            });
+            \collect($inAccessibleProcedures)->mapWithKeys(fn (Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $inAccessibleProcedures->toArray();
     }
@@ -2615,9 +2376,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         );
 
         $accessibleProcedures =
-            \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
-                return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
-            });
+            \collect($accessibleProcedures)->mapWithKeys(fn (Procedure $procedure) => [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]]);
 
         return $accessibleProcedures->toArray();
     }
@@ -2635,9 +2394,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $user = $this->currentUser->getUser();
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
-        $authorizedUserIds = $authorizedUsers->transform(static function (User $user) {
-            return $user->getId();
-        });
+        $authorizedUserIds = $authorizedUsers->transform(static fn (User $user) => $user->getId());
         if ($authorizedUserIds->contains($user->getId())) {
             return true;
         }
@@ -2695,9 +2452,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (null === $procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
-        $defaultMapHintText = $procedure->getProcedureUiDefinition()->getMapHintDefault();
-        $procedure->getSettings()->setMapHint($defaultMapHintText);
-        $this->updateProcedureObject($procedure);
+        $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
+        $data = [
+            'ident'    => $procedureId,
+            'settings' => [
+                'mapHint' => $defaultMapHintText,
+            ],
+        ];
+        $this->updateProcedure($data);
     }
 
     /**
@@ -2976,7 +2738,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->placeRepository->persistEntities($newPlaces);
     }
 
-    public function getMasterTemplateId()
+    public function getMasterTemplateId(): string
     {
         return $this->masterTemplateService->getMasterTemplateId();
     }

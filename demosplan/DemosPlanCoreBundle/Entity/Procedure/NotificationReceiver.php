@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\NotificationReceiverInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository")
  */
-class NotificationReceiver extends CoreEntity implements UuidEntityInterface
+class NotificationReceiver extends CoreEntity implements UuidEntityInterface, NotificationReceiverInterface
 {
     /**
      * @var string|null
@@ -42,7 +44,7 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface
     protected $label;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="notificationReceivers")
      *
@@ -95,7 +97,7 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {

@@ -25,12 +25,7 @@ use Tightenco\Collect\Support\Collection;
  */
 class MapImageToPolygonCropper
 {
-    public const MARGIN_TO_POLYGON = 200;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    final public const MARGIN_TO_POLYGON = 200;
 
     /**
      * @var int
@@ -42,9 +37,8 @@ class MapImageToPolygonCropper
      */
     protected $minWidth = 256;
 
-    public function __construct(Filesystem $filesystem)
+    public function __construct(private readonly Filesystem $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     private function getPolygonExtentCoordinates(Feature $feature): array

@@ -19,27 +19,8 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 
 class UserFilterSetService extends CoreService
 {
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var UserFilterSetRepository
-     */
-    private $userFilterSetRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    public function __construct(
-        ProcedureRepository $procedureRepository,
-        UserFilterSetRepository $userFilterSetRepository,
-        UserRepository $userRepository
-    ) {
-        $this->procedureRepository = $procedureRepository;
-        $this->userFilterSetRepository = $userFilterSetRepository;
-        $this->userRepository = $userRepository;
+    public function __construct(private readonly ProcedureRepository $procedureRepository, private readonly UserFilterSetRepository $userFilterSetRepository, private readonly UserRepository $userRepository)
+    {
     }
 
     /**

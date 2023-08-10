@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Stringable;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
@@ -23,41 +25,40 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getFirstName()
  * @method string getLastName()
  */
-class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterface
+class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterface, Stringable
 {
     /**
      * @var array<int, array<int,string>>
      */
     protected array $customerRoleRelations = [];
-
     /**
      * E-mail-address of the provided user.
      */
     protected string $emailAddress = '';
-
     /**
      * Unique abbreviation of chosen login name of the provided user.
      */
     protected string $userName = '';
-
     /**
      * Unique ID of the provided user.
      */
     protected string $userId = '';
-
     /**
      * Name of the provided organisation.
      */
     protected string $organisationName = '';
-
     /**
      * Unique identifier of the provided organisation.
      */
     protected string $organisationId = '';
-
     protected string $firstName = '';
-
     protected string $lastName = '';
+    private readonly string $keycloakGroupRoleString;
+
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
+        $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
+    }
 
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {
@@ -131,7 +132,7 @@ class OzgKeycloakUserData extends ValueObject implements KeycloakUserDataInterfa
     {
         foreach ($groups as $group) {
             $subGroups = explode('/', $group);
-            if (str_contains($subGroups[1], 'Beteiligung-Berechtigung')) {
+            if (str_contains($subGroups[1], $this->keycloakGroupRoleString)) {
                 $subdomain = strtolower(explode('-', $subGroups[2])[0]);
                 $this->customerRoleRelations[$subdomain][] = $subGroups[3];
             }

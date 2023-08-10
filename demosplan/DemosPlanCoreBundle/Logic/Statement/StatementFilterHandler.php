@@ -21,15 +21,10 @@ class StatementFilterHandler extends CoreHandler
 {
     /** @var Permissions */
     protected $permissions;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
 
-    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, TranslatorInterface $translator)
+    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
-        $this->translator = $translator;
         $this->permissions = $permissions;
     }
 
@@ -166,9 +161,7 @@ class StatementFilterHandler extends CoreHandler
     {
         $translator = $this->translator;
         $statusLabels = collect($this->getFormParameter('statement_status'))
-            ->transform(function ($transkey) use ($translator) {
-                return $translator->trans($transkey);
-            })
+            ->transform(fn($transkey) => $translator->trans($transkey))
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);

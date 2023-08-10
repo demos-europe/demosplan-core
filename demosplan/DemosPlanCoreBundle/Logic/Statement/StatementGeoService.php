@@ -11,10 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetFilePathAbsoluteEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\GetDatasheetFilePathAbsoluteEvent;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
@@ -26,6 +28,7 @@ use LineString;
 use Point;
 use Polygon;
 use SimpleXMLElement;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -35,64 +38,29 @@ use Twig\Error\SyntaxError;
 class StatementGeoService extends CoreService
 {
     /**
-     * @var HttpCall
-     */
-    private $httpCall;
-
-    /**
      * @var Environment
      */
     protected $twig;
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-    /**
-     * @var PriorityAreaService
-     */
-    private $priorityAreaService;
-    /**
-     * @var CountyService
-     */
-    private $countyService;
-    /**
-     * @var MunicipalityService
-     */
-    private $municipalityService;
-    /**
-     * @var StatementAttributeRepository
-     */
-    private $statementAttributeRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
 
     /**
-     * @var DatasheetService
+     * @var EventDispatcherInterface
      */
-    private $datasheetService;
+    protected $eventDispatcher;
 
     public function __construct(
-        DatasheetService $datasheetService,
-        CountyService $countyService,
+        private readonly DatasheetService $datasheetService,
+        private readonly CountyService $countyService,
         Environment $twig,
-        GlobalConfigInterface $globalConfig,
-        HttpCall $httpCall,
-        MunicipalityService $municipalityService,
-        PriorityAreaService $priorityAreaService,
-        StatementAttributeRepository $statementAttributeRepository,
-        StatementService $statementService
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly HttpCall $httpCall,
+        private readonly MunicipalityService $municipalityService,
+        private readonly PriorityAreaService $priorityAreaService,
+        private readonly StatementAttributeRepository $statementAttributeRepository,
+        private readonly StatementService $statementService,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->countyService = $countyService;
-        $this->httpCall = $httpCall;
-        $this->municipalityService = $municipalityService;
-        $this->priorityAreaService = $priorityAreaService;
-        $this->statementAttributeRepository = $statementAttributeRepository;
-        $this->statementService = $statementService;
         $this->twig = $twig;
-        $this->globalConfig = $globalConfig;
-        $this->datasheetService = $datasheetService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -110,7 +78,7 @@ class StatementGeoService extends CoreService
                 return $data;
             }
 
-            $tempStatementId = random_int(1, 99999999);
+            $tempStatementId = random_int(1, 99_999_999);
 
             // collect geometries
             $geometries = [
@@ -231,10 +199,9 @@ class StatementGeoService extends CoreService
             if (array_key_exists('priorityAreas', $data)) {
                 foreach ($data['priorityAreas'] as $priorityAreaString) {
                     $area = $allAreas->filter(
-                        function ($entry) use ($priorityAreaString) {
+                        fn($entry) =>
                             /* @var PriorityArea $entry */
-                            return $entry->getKey() === $priorityAreaString;
-                        }
+                            $entry->getKey() === $priorityAreaString
                     );
                     if (1 === $area->count()) {
                         $statementData['priorityAreas'][] = $area->first();
@@ -248,10 +215,9 @@ class StatementGeoService extends CoreService
             if (array_key_exists('counties', $data)) {
                 foreach ($data['counties'] as $countyString) {
                     $county = $allCounties->filter(
-                        function ($entry) use ($countyString) {
+                        fn($entry) =>
                             /* @var County $entry */
-                            return $entry->getName() == $countyString;
-                        }
+                            $entry->getName() == $countyString
                     );
                     if (1 == $county->count()) {
                         $statementData['counties'][] = $county->first();
@@ -263,10 +229,9 @@ class StatementGeoService extends CoreService
             if (array_key_exists('municipalities', $data)) {
                 foreach ($data['municipalities'] as $municipalityString) {
                     $municipality = $allMunicipalities->filter(
-                        function ($entry) use ($municipalityString) {
+                        fn($entry) =>
                             /* @var Municipality $entry */
-                            return $entry->getName() == $municipalityString;
-                        }
+                            $entry->getName() == $municipalityString
                     );
                     if (1 == $municipality->count()) {
                         $statementData['municipalities'][] = $municipality->first();
@@ -372,7 +337,7 @@ class StatementGeoService extends CoreService
     {
         $this->httpCall->setContentType('text/xml');
         $response = $this->httpCall->request('POST', $path, $data);
-        if (false !== stripos($response['body'], 'ows:ExceptionText')) {
+        if (false !== stripos((string) $response['body'], 'ows:ExceptionText')) {
             $this->getLogger()->error('Error in GeoRequest: '.DemosPlanTools::varExport($response, true));
         }
 
@@ -388,7 +353,7 @@ class StatementGeoService extends CoreService
      */
     protected function parseGeoResponse($geoResults, $responseGet, $type)
     {
-        if (200 == $responseGet['responseCode'] && false === stripos('<ExceptionReport', $responseGet['body'])) {
+        if (200 == $responseGet['responseCode'] && false === stripos('<ExceptionReport', (string) $responseGet['body'])) {
             $xml = new SimpleXMLElement($responseGet['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');
 
@@ -440,7 +405,7 @@ class StatementGeoService extends CoreService
         $type = 'verschneidung_stellungnahmen_polygone';
 
         foreach ($polygons as $wktItem) {
-            preg_match('/POLYGON[\s]*\({1,2}([0-9\. ,]*)/', $wktItem, $coords);
+            preg_match('/POLYGON[\s]*\({1,2}([0-9\. ,]*)/', (string) $wktItem, $coords);
             if (0 < count($coords)) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
@@ -498,7 +463,7 @@ class StatementGeoService extends CoreService
         $type = 'verschneidung_stellungnahmen_linien';
 
         foreach ($linestrings as $wktItem) {
-            preg_match('/LINESTRING[\s]*\((.*)\)/', $wktItem, $coords);
+            preg_match('/LINESTRING[\s]*\((.*)\)/', (string) $wktItem, $coords);
             if (0 < count($coords)) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
@@ -561,7 +526,7 @@ class StatementGeoService extends CoreService
         $type = 'verschneidung_stellungnahmen_punkte';
 
         foreach ($points as $wktItem) {
-            preg_match('/POINT[\s]*\((.*)\)/', $wktItem, $coords);
+            preg_match('/POINT[\s]*\((.*)\)/', (string) $wktItem, $coords);
             if (0 < count($coords)) {
                 $coordinates->push(str_replace(' ', ',', $coords[1]));
             }
@@ -620,8 +585,15 @@ class StatementGeoService extends CoreService
      */
     private function doesWind4PriorityAreaFileExist(string $fileName): bool
     {
+        /** @var GetDatasheetFilePathAbsoluteEvent $event * */
+        $event = $this->eventDispatcher->dispatch(
+            new GetDatasheetFilePathAbsoluteEvent(),
+            GetDatasheetFilePathAbsoluteEventInterface::class
+        );
+        $datasheetAbsolutePah = $event->getDatasheetFilePathAbsolute();
+
         return file_exists(
-            $this->globalConfig->getDatasheetFilePathAbsolute().
+            $datasheetAbsolutePah.
             '/version4/pdf/'.
             $fileName.
             '.pdf'

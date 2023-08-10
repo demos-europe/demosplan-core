@@ -12,43 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationHandler;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 
 class ProcedureListService extends CoreService
 {
-    /**
-     * @var Breadcrumb
-     */
-    private $breadcrumb;
-    /**
-     * @var LocationHandler
-     */
-    private $locationHandler;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(
-        Breadcrumb $breadcrumb,
-        CurrentUserInterface $currentUser,
-        FileService $fileService,
-        LocationHandler $locationHandler
-    ) {
-        $this->breadcrumb = $breadcrumb;
-        $this->locationHandler = $locationHandler;
-        $this->currentUser = $currentUser;
-        $this->fileService = $fileService;
+    public function __construct(private readonly Breadcrumb $breadcrumb, private readonly CurrentUserInterface $currentUser, private readonly FileService $fileService, private readonly LocationHandler $locationHandler)
+    {
     }
 
     /**
@@ -59,7 +32,7 @@ class ProcedureListService extends CoreService
         array $templateVars): string
     {
         $nResults = isset($templateVars['list']['procedurelist'])
-            ? count($templateVars['list']['procedurelist'])
+            ? is_countable($templateVars['list']['procedurelist']) ? count($templateVars['list']['procedurelist']) : 0
             : 0;
 
         $location = $this->locationHandler->findByArs($ars);
@@ -75,7 +48,7 @@ class ProcedureListService extends CoreService
         array $templateVars): string
     {
         $nResults = isset($templateVars['list']['procedurelist'])
-            ? count($templateVars['list']['procedurelist'])
+            ? is_countable($templateVars['list']['procedurelist']) ? count($templateVars['list']['procedurelist']) : 0
             : 0;
 
         $location = $this->locationHandler->findByMunicipalCode($gkz);

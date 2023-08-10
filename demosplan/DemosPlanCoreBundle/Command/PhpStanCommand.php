@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -61,14 +62,14 @@ class PhpStanCommand extends CoreCommand
         $configSavePath = $this->writeConfig($input);
 
         if ($input->getOption('only-dump-config')) {
-            return 0;
+            return Command::SUCCESS;
         }
 
         $path = $input->getArgument('path');
 
         $level = (int) $input->getOption('level');
 
-        return $this->doRunPhpStan($input, $output, $configSavePath, $path, $level);
+        return (int) $this->doRunPhpStan($input, $output, $configSavePath, $path, $level);
     }
 
     protected function writeConfig(InputInterface $input): string

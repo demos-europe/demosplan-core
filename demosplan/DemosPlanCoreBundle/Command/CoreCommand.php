@@ -72,7 +72,7 @@ abstract class CoreCommand extends Command
                     ),
                 ]
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->writeln('<warning>Output might not be logged!</warning>');
         }
 

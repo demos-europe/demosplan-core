@@ -39,9 +39,7 @@ abstract class ProcedureTimestampSorter implements ProcedureSorterInterface
 
         // split collection into groups
         $groups = $procedureCollection->groupBy(
-            static function ($procedure/* , $key */) use ($currTimestamp) {
-                return $currTimestamp <= $procedure['sortValue'] ? 0 : 1;
-            }
+            static fn($procedure) => $currTimestamp <= $procedure['sortValue'] ? 0 : 1
         );
 
         // sort the first group (future) ascending and the second group (past) descending and return them

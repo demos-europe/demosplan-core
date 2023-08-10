@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\SubmitterExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,15 +28,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanSubmitterController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_submitters_list",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/submitters/list")
-     *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
     public function listAction(string $procedureId): Response
     {
         return $this->renderTemplate(
@@ -49,15 +45,9 @@ class DemosPlanSubmitterController extends BaseController
     }
 
     /**
-     * @Route(
-     *      name="dplan_admin_procedure_submitter_export",
-     *      path="/verfahren/{procedureId}/einreicher/export",
-     *      methods={"GET"},
-     *      options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         FileResponseGeneratorStrategy $responseGenerator,

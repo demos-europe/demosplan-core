@@ -8,15 +8,13 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //  define breakpoints, the vars are built into object usable throughout the project
-//  to make the breakpoints overwritable in _settings.project.dplan.scss
-$lap-start:       621px !default;
-$desk-start:      905px !default;
-$desk-wide-start: 1201px !default;
+$palm-end:        $dp-breakpoints-sm;
+$lap-end:         $dp-breakpoints-md;
+$desk-end:        $dp-breakpoints-lg;
 
-//  additional vars are being calculated from given breakpoints
-$palm-end:        $lap-start - 1px;
-$lap-end:         $desk-start - 1px;
-$desk-end:        $desk-wide-start - 1px;
+$lap-start:       $palm-end + 1px;
+$desk-start:      $lap-end + 1px;
+$desk-wide-start: $desk-end + 1px;
 
 //  breakpoints
 //

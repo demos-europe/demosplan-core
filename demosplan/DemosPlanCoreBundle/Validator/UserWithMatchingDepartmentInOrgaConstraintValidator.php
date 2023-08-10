@@ -18,12 +18,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class UserWithMatchingDepartmentInOrgaConstraintValidator extends ConstraintValidator
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     public function validate($value, Constraint $constraint): void

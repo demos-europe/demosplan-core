@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SegmentRepository extends CoreRepository
+class SegmentRepository extends FluentRepository
 {
     /**
      * @return array<Segment>
@@ -84,7 +84,7 @@ class SegmentRepository extends CoreRepository
             ->getQuery();
         $segments = $query->getResult();
 
-        return 0 === count($segments) ? 0 : $segments[0]['orderInProcedure'];
+        return 0 === (is_countable($segments) ? count($segments) : 0) ? 0 : $segments[0]['orderInProcedure'];
     }
 
     /**
@@ -134,7 +134,7 @@ class SegmentRepository extends CoreRepository
         foreach ($segmentIds as $segmentId) {
             try {
                 $segment = $this->getEntityManager()->getReference(Segment::class, $segmentId);
-            } catch (ORMException $e) {
+            } catch (ORMException) {
                 $segment = $this->find($segmentId);
             }
             $this->getEntityManager()->refresh($segment);

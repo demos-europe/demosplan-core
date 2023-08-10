@@ -26,11 +26,11 @@
     <div class="layout__item u-1-of-2 u-pl-0">
 
         {% if hasPermission('feature_statements_fragment_add') %}
-            <label class="u-mb-0_25 cf" for="r_tags[]">
+            <label class="u-mb-0_25 flow-root" for="r_tags[]">
                 {{ "tags.assigned"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -96,11 +96,11 @@
 
         {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
             {% if hasPermission('field_statement_county') %}
-                <label class="u-mb-0_25 u-mt cf" for="r_counties[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_counties[]">
                     {{ "counties"|trans }}
 
                     <button
-                        class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                        class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                         type="button"
                         title="{{ "field.empty"|trans }}"
                         aria-label="{{ "field.empty"|trans }}"
@@ -137,11 +137,11 @@
             {% endif %}
 
             {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_municipalities[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_municipalities[]">
                 {{ "municipalities"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -180,11 +180,11 @@
             {% endif %}
 
             {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_priorityAreas[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_priorityAreas[]">
                 {{ "priorityAreas.all"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -262,7 +262,7 @@
                 <dp-multiselect
                     v-model="department"
                     :allow-empty="false"
-                    class="display--inline-block"
+                    class="inline-block"
                     label="name"
                     :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
                     track-by="name">
@@ -290,7 +290,7 @@
         {% endif %}
 
         {# form actions #}
-        <div class="text--right u-mt space-inline-s">
+        <div class="text-right u-mt space-inline-s">
 
             <button id="fragmentSubmitButton" type="submit" class="btn btn--primary" name="save" data-cy="submitButton">
                 {{ 'fragment.create'|trans }}

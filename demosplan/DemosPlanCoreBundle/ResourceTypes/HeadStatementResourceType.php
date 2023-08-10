@@ -36,9 +36,9 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         return $this->currentUser->hasAllPermissions('area_admin_assessmenttable', 'feature_statement_cluster');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isDirectlyAccessible(): bool
@@ -55,9 +55,7 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
     {
         $properties = parent::getProperties();
         $properties[] = $this->createToManyRelationship($this->statements, true)
-            ->readable(true, static function (Statement $statement): Collection {
-                return $statement->getCluster();
-            });
+            ->readable(true, static fn(Statement $statement): Collection => $statement->getCluster());
         $properties[] = $this->createAttribute($this->authorName)
             ->readable(true)->filterable()->aliasedPath($this->meta->authorName);
         $properties[] = $this->createAttribute($this->submitName)

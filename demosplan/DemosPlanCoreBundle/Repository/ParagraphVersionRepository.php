@@ -21,7 +21,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class ParagraphVersionRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ParagraphVersionRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get a paragraph.
@@ -290,7 +290,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
         return $paragraphVersion;
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -300,7 +300,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

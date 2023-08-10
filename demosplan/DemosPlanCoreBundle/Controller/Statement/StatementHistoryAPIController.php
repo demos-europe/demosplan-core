@@ -25,14 +25,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class StatementHistoryAPIController extends APIController
 {
     /**
-     * @Route("/api/1.0/StatementHistory/{statementId}",
-     *     methods={"GET"},
-     *     name="dplan_api_statement_history_get",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("feature_statement_content_changes_view")
      */
+    #[Route(path: '/api/1.0/StatementHistory/{statementId}', methods: ['GET'], name: 'dplan_api_statement_history_get', options: ['expose' => true])]
     public function getAction(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,

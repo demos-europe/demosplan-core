@@ -37,20 +37,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 final class PlaceResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var PlaceRepository
-     */
-    private $placeRepository;
-
-    public function __construct(PlaceRepository $placeRepository, ValidatorInterface $validator)
+    public function __construct(private readonly PlaceRepository $placeRepository, private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
-        $this->placeRepository = $placeRepository;
     }
 
     public static function getName(): string
@@ -69,18 +57,18 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         return $this->currentUser->hasPermission('area_statement_segmentation');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         // for now all places can be read by anyone if they are available
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->procedure->id
-        );
+        )];
     }
 
     public function isReferencable(): bool
@@ -127,8 +115,8 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
     public function updateObject(object $object, array $properties): ResourceChange
     {
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->name, [$object, 'setName']);
-        $updater->ifPresent($this->description, [$object, 'setDescription']);
+        $updater->ifPresent($this->name, $object->setName(...));
+        $updater->ifPresent($this->description, $object->setDescription(...));
 
         $violations = $this->validator->validate($object);
         if (0 !== $violations->count()) {
@@ -167,7 +155,7 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         $procedure->addSegmentPlace($place);
 
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->description, [$place, 'setDescription']);
+        $updater->ifPresent($this->description, $place->setDescription(...));
 
         $violations = $this->validator->validate($place);
         if (0 !== $violations->count()) {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
@@ -41,57 +41,8 @@ use function in_array;
 
 class StatementSynchronizer
 {
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var StatementCopier
-     */
-    private $statementCopier;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUserProvider;
-
-    public function __construct(
-        CurrentUserInterface $currentUserProvider,
-        StatementCopier $statementCopier,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        StatementRepository $statementRepository,
-        StatementService $statementService,
-        TransactionService $transactionService,
-        ValidatorInterface $validator
-    ) {
-        $this->currentUserProvider = $currentUserProvider;
-        $this->statementCopier = $statementCopier;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->statementRepository = $statementRepository;
-        $this->statementService = $statementService;
-        $this->transactionService = $transactionService;
-        $this->validator = $validator;
+    public function __construct(private readonly CurrentUserInterface $currentUserProvider, private readonly StatementCopier $statementCopier, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly StatementRepository $statementRepository, private readonly StatementService $statementService, private readonly TransactionService $transactionService, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**
@@ -326,9 +277,7 @@ class StatementSynchronizer
             $fileContainerCopies[] = $newFileContainer;
         }
 
-        $targetStatement->setFiles(array_map(static function (FileContainer $fileContainer): string {
-            return $fileContainer->getFileString();
-        }, $fileContainerCopies));
+        $targetStatement->setFiles(array_map(static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
 
         return $fileContainers;
     }

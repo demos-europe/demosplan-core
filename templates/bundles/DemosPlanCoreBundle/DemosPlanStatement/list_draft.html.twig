@@ -1,7 +1,7 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
 {% block demosplanbundlecontent %}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}"><div>
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}"><div>
 
     {% set owndraftText = "text.statements.owndraft"|trans %}
     {% set permissionSubmit = 'feature_statements_released_group_submit' %}
@@ -36,7 +36,7 @@
     {% endblock %}
 
     <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
-        <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
+        <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
 
             {#  filter fieldsets  #}
             {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
@@ -55,7 +55,7 @@
             data-dp-validate="draftForm"
             novalidate>
 
-            <fieldset class="{{ 'u-ml u-pb-0_5 cf'|prefixClass }}">
+            <fieldset class="{{ 'u-ml u-pb-0_5 flow-root'|prefixClass }}">
 
                 {% if templateVars.list.statementlist|length > 0 %}
                     {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}

@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Exception;
 
-class MailRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
+class MailRepository extends FluentRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -155,7 +155,7 @@ class MailRepository extends CoreRepository implements ImmutableArrayInterface, 
     public function replacePlaceholder($string, array $placeholder)
     {
         foreach ($placeholder as $toReplace => $value) {
-            $string = preg_replace('/\$\{'.$toReplace.'\}/', $value, $string);
+            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, $string);
         }
 
         return $string;

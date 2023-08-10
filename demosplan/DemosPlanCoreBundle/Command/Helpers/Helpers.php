@@ -32,28 +32,12 @@ class Helpers
      */
     protected $helper;
 
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        CustomerRepository $customerRepository,
-        GlobalConfigInterface $globalConfig,
-        RoleRepository $roleRepository
+        private readonly CustomerRepository $customerRepository,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly RoleRepository $roleRepository
     ) {
-        $this->roleRepository = $roleRepository;
         $this->helper = new QuestionHelper();
-        $this->customerRepository = $customerRepository;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -100,8 +84,6 @@ class Helpers
         );
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
-        return $availableCustomers->first(function (Customer $customer) use ($answer) {
-            return $answer === $customer->getSubdomain();
-        });
+        return $availableCustomers->first(fn (Customer $customer) => $answer === $customer->getSubdomain());
     }
 }

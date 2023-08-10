@@ -33,23 +33,23 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             // if the user provided no procedure it must be a one with the permission to
             // access the list of ProcedureTypes and should be restricted to ProcedureBehaviorDefinitions
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
-            return $this->conditionFactory->allConditionsApply(
+            return [
                 $this->conditionFactory->propertyIsNull($this->procedure),
                 $this->conditionFactory->propertyIsNotNull($this->procedureType)
-            );
+            ];
         }
 
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $currentProcedure->getId(),
             $this->procedure->id
-        );
+        )];
     }
 
     public function getEntityClass(): string
@@ -74,19 +74,12 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->allowedToEnableMap->getAsNamesInDotNotation():
-                    $object->setAllowedToEnableMap($value);
-                    break;
-                case $this->hasPriorityArea->getAsNamesInDotNotation():
-                    $object->setHasPriorityArea($value);
-                    break;
-                case $this->participationGuestOnly->getAsNamesInDotNotation():
-                    $object->setParticipationGuestOnly($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->allowedToEnableMap->getAsNamesInDotNotation() => $object->setAllowedToEnableMap($value),
+                $this->hasPriorityArea->getAsNamesInDotNotation() => $object->setHasPriorityArea($value),
+                $this->participationGuestOnly->getAsNamesInDotNotation() => $object->setParticipationGuestOnly($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

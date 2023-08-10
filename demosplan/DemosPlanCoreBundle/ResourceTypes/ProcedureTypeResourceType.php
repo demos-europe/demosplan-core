@@ -33,9 +33,9 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class ProcedureTypeResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function getEntityClass(): string
@@ -63,16 +63,11 @@ final class ProcedureTypeResourceType extends DplanResourceType implements Updat
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->name->getAsNamesInDotNotation():
-                    $object->setName($value);
-                    break;
-                case $this->description->getAsNamesInDotNotation():
-                    $object->setDescription($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->name->getAsNamesInDotNotation() => $object->setName($value),
+                $this->description->getAsNamesInDotNotation() => $object->setDescription($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

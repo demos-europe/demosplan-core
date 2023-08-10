@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
+use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -52,7 +53,8 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             self::$container->get(MessageBagInterface::class),
             self::$container->get(ParagraphRepository::class),
             self::$container->get(ParagraphService::class),
-            self::$container->get(RouterInterface::class)
+            self::$container->get(RouterInterface::class),
+            self::$container->get(RpcClient::class),
         );
     }
 

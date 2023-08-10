@@ -23,11 +23,11 @@ class DateExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('dplanDate', [$this, 'dateFilter']),
-            new TwigFilter('isoDate', [$this, 'dateIsoFilter']),
+            new TwigFilter('dplanDate', $this->dateFilter(...)),
+            new TwigFilter('isoDate', $this->dateIsoFilter(...)),
             new TwigFilter(
                 'dplanDateAnnotated',
-                [$this, 'annotatingDateFilter'],
+                $this->annotatingDateFilter(...),
                 ['is_safe' => ['html']]
             ),
         ];
@@ -53,7 +53,7 @@ class DateExtension extends ExtensionBase
             if (is_numeric($timestamp)) {
                 $dateResult = date($format, $timestamp);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         return $dateResult;

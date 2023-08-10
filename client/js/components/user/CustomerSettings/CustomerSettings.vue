@@ -176,7 +176,7 @@
       </customer-settings-section>
 
       <!-- Button row -->
-      <div class="text--right space-inline-s">
+      <div class="text-right space-inline-s">
         <button
           type="submit"
           class="btn btn--primary"

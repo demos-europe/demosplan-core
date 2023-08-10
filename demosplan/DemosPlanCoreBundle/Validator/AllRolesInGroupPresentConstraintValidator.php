@@ -21,14 +21,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class AllRolesInGroupPresentConstraintValidator extends ConstraintValidator
 {
-    /**
-     * @var RoleService
-     */
-    private $roleService;
-
-    public function __construct(RoleService $roleService)
+    public function __construct(private readonly RoleService $roleService)
     {
-        $this->roleService = $roleService;
     }
 
     public function validate($value, Constraint $constraint): void

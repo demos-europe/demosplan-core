@@ -17,13 +17,11 @@ use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
@@ -35,19 +33,18 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class GlobalNewsResourceType extends AbstractNewsResourceType implements DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var ManualListSortRepository
-     */
-    private $manualListSortRepository;
-
-    public function __construct(ManualListSortRepository $manualListSortRepository)
+    public function __construct(private readonly ManualListSortRepository $manualListSortRepository)
     {
-        $this->manualListSortRepository = $manualListSortRepository;
     }
 
     public static function getName(): string
     {
         return 'GlobalNews';
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     /**
@@ -57,13 +54,15 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('area_admin_globalnews')) {
-            throw new BadRequestException("deletion of GlobalNews not allowed: {$entity->getId()}");
-        }
         $resourceChange = new ResourceChange($entity, $this, []);
         $resourceChange->addEntityToDelete($entity);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['area_admin_globalnews'];
     }
 
     public function getEntityClass(): string
@@ -92,9 +91,9 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     /**
      * @throws PathException
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     /**
@@ -156,14 +155,14 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     {
         $news = new GlobalContent();
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, [$news, 'setTitle']);
-        $updater->ifPresent($this->description, [$news, 'setDescription']);
-        $updater->ifPresent($this->text, [$news, 'setText']);
-        $updater->ifPresent($this->pictureTitle, [$news, 'setPictitle']);
-        $updater->ifPresent($this->pdfTitle, [$news, 'setPdftitle']);
-        $updater->ifPresent($this->enabled, [$news, 'setEnabled']);
-        $updater->ifPresent($this->roles, [$news, 'setRolesCollection']);
-        $updater->ifPresent($this->categories, [$news, 'setCategoriesCollection']);
+        $updater->ifPresent($this->title, $news->setTitle(...));
+        $updater->ifPresent($this->description, $news->setDescription(...));
+        $updater->ifPresent($this->text, $news->setText(...));
+        $updater->ifPresent($this->pictureTitle, $news->setPictitle(...));
+        $updater->ifPresent($this->pdfTitle, $news->setPdftitle(...));
+        $updater->ifPresent($this->enabled, $news->setEnabled(...));
+        $updater->ifPresent($this->roles, $news->setRolesCollection(...));
+        $updater->ifPresent($this->categories, $news->setCategoriesCollection(...));
         $updater->ifPresent($this->pdf, static function (?File $pdfFile) use ($news): void {
             if (null === $pdfFile) {
                 $news->setPdf('');

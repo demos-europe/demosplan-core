@@ -3,12 +3,12 @@
         {% apply spaceless %}
             <div class="layout--flush">
                 <i
-                    class="fa fa-paperclip color--grey width-16 display--inline"
+                    class="fa fa-paperclip color--grey width-16 inline"
                     aria-hidden="true"
                     title="{{ 'statement.files.uploaded'|trans }}">
                 </i>
 
-                <span class="layout__item overflow-word-break display--inline">
+                <span class="layout__item break-words inline">
                     {# attached file #}
                     {% for file in statement.files|default([]) %}
                         {% if file|length > 0 %}

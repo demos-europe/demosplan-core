@@ -176,7 +176,7 @@
           <!-- Einreichungsdatum, Verfassungsdatum -->
           <div
             class="u-mv"
-            :class="{ 'u-pr-0_5 u-1-of-2 display--inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-label
               :text="Translator.trans('statement.date.submitted')"
               :hint="Translator.trans('explanation.statement.date')"
@@ -193,7 +193,7 @@
           </div><!--
        --><div
             class="u-mb"
-            :class="{ 'u-pl-0_5 u-1-of-2 display--inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-label
               :text="Translator.trans('statement.date.authored')"
               :hint="Translator.trans('explanation.statement.date.authored')"
@@ -211,7 +211,7 @@
           <!-- Art der Einreichung, Eingangsnummer -->
           <div
             class="u-mb"
-            :class="{ 'u-pr-0_5 u-1-of-2 display--inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-select
               id="r_submit_type"
               :label="{
@@ -225,7 +225,7 @@
        --><div
             v-if="hasPermission('field_statement_intern_id')"
             class="u-mb"
-            :class="{ 'u-pl-0_5 u-1-of-2 display--inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
             <dp-input
               id="r_internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
@@ -365,7 +365,9 @@ import {
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin
+  , hasOwnProp
 } from '@demos-europe/demosplan-ui'
+import dayjs from 'dayjs'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -587,8 +589,10 @@ export default {
 
   mounted () {
     this.setInitialValues()
-    // Synchronize values.authoredDate with the date value provided by data.
-    this.$set(this.values, 'authoredDate', this.values.submitter.date)
+    // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
+    if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
+      this.$set(this.values, 'authoredDate', dayjs(this.values.submitter.date).format('DD.MM.YYYY'))
+    }
   }
 }
 </script>

@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * Boilerplate means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints".
@@ -33,14 +32,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class BoilerplateResourceType extends DplanResourceType
 {
-    /**
-     * @var HTMLSanitizer
-     */
-    private $htmlSanitizer;
-
-    public function __construct(HTMLSanitizer $htmlSanitizer)
+    public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public static function getName(): string
@@ -53,22 +46,27 @@ final class BoilerplateResourceType extends DplanResourceType
         return Boilerplate::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('area_admin_boilerplates');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $procedure->getId(),
             $this->procedure->id
-        );
+        )];
     }
 
     public function getDefaultSortMethods(): array
@@ -96,13 +94,9 @@ final class BoilerplateResourceType extends DplanResourceType
             $this->createAttribute($this->procedureId)
                 ->readable(true)->aliasedPath($this->procedure->id),
             $this->createAttribute($this->text)->sortable()
-                ->readable(true, function (Boilerplate $boilerplate): string {
-                    return $this->htmlSanitizer->purify($boilerplate->getText());
-                }, true),
+                ->readable(true, fn (Boilerplate $boilerplate): string => $this->htmlSanitizer->purify($boilerplate->getText()), true),
             $this->createAttribute($this->categoriesTitle)
-                ->readable(true, function (Boilerplate $boilerplate): array {
-                    return $boilerplate->getCategoryTitles();
-                }),
+                ->readable(true, fn (Boilerplate $boilerplate): array => $boilerplate->getCategoryTitles()),
             // defaultInclude used because of recursion
             $this->createToOneRelationship($this->group, true)->readable(true),
         ];

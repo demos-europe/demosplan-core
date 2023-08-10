@@ -10,15 +10,20 @@
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
+use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\FunctionalTestCase;
+use Twig\Environment;
 
 class HoneypotTest extends FunctionalTestCase
 {
@@ -31,7 +36,13 @@ class HoneypotTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FloodControlService::class);
+        $this->sut = new FloodControlService(
+            $this->createMock(Environment::class),
+            $this->createMock(FloodRepository::class),
+            $this->createMock(GlobalConfigInterface::class),
+            $this->createMock(MessageBagInterface::class),
+        );
+        $this->sut->setLogger(new NullLogger());
     }
 
     /**

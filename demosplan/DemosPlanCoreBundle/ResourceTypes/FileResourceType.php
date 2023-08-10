@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<File>
@@ -44,6 +43,11 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
         return 'File';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         // Currently the File resource needs to be exposed for statement import and assessment table.
@@ -64,9 +68,9 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
      * the file is used if access should be restricted. Also note that this property is
      * checked when the actual file bytes are requested.
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     public function isReferencable(): bool
@@ -105,7 +109,7 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $id->filterable()->sortable();
             $hash->readable(true)->filterable()->sortable();
-            $filename->readable(true, [self::class, 'getFileName']);
+            $filename->readable(true, self::getFileName(...));
         }
 
         if ($this->currentUser->hasPermission('field_sign_language_overview_video_edit')) {

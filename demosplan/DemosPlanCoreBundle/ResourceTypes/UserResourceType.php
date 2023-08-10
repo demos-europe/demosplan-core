@@ -47,14 +47,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class UserResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, UserResourceTypeInterface
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     public function getEntityClass(): string
@@ -150,11 +144,11 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         );
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         // Without this permission users can use their own User resource only.
         if ($this->currentUser->hasPermission('area_manage_users')) {
-            return $this->conditionFactory->true();
+            return [];
         }
         $currentProcedure = $this->currentProcedureService->getProcedure();
         $user = $this->currentUser->getUser();
@@ -164,10 +158,10 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         if ($userAuthorized) {
             // allow access to all users when working inside a procedure to request assignees of statements or segments
             // TODO: split into AssigneeResourceType to differentiate between claiming and normal (more restricted) user accesses
-            return $this->conditionFactory->true();
+            return [];
         }
 
-        return $this->conditionFactory->propertyHasValue($user->getId(), $this->id);
+        return [$this->conditionFactory->propertyHasValue($user->getId(), $this->id)];
     }
 
     public function isReferencable(): bool
@@ -194,25 +188,15 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
             $this->createAttribute($this->deleted)->filterable()->sortable(),
             $this->createAttribute($this->roleInCustomers)->filterable()->sortable(),
             $this->createAttribute($this->profileCompleted)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isProfileCompleted();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isAccessConfirmed();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isAccessConfirmed()),
             $this->createAttribute($this->invited)
-                ->readable(true, static function (User $user): bool {
-                    return $user->isInvited();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->isInvited()),
             $this->createAttribute($this->newsletter)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNewsletter();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static function (User $user): bool {
-                    return $user->getNoPiwik();
-                }),
+                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles, true)
                 ->readable(true, static function (User $user): array {
                     $roles = [];
@@ -228,13 +212,9 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
                     return $roles;
                 }),
             $this->createToOneRelationship($this->department, true)
-                ->readable(true, static function (User $user) {
-                    return $user->getDepartment();
-                }),
+                ->readable(true, static fn(User $user) => $user->getDepartment()),
             $this->createToOneRelationship($this->orga, true)
-                ->readable(true, static function (User $user) {
-                    return $user->getOrga();
-                }),
+                ->readable(true, static fn(User $user) => $user->getOrga()),
         ];
     }
 }

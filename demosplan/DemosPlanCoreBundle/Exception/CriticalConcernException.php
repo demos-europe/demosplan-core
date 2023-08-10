@@ -17,17 +17,11 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
 class CriticalConcernException extends DemosException
 {
     /**
-     * @var array<string, array<int, EventConcern>>
-     */
-    private $concerns;
-
-    /**
      * @param array<string, array<int, EventConcern>> $concerns
      */
-    public function __construct(string $userMsg, array $concerns)
+    public function __construct(string $userMsg, private readonly array $concerns)
     {
         parent::__construct($userMsg);
-        $this->concerns = $concerns;
     }
 
     /**

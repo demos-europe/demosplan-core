@@ -10,7 +10,7 @@
         {{ (contextualHelp.ident is not null ? 'contextual.help.edit' : 'contextual.help.new')|trans }}
     </h1>
 
-    <form class="u-mb cf" action="{{ path(formAction, formParameters)  }}" method="post" >
+    <form class="u-mb flow-root" action="{{ path(formAction, formParameters)  }}" method="post" >
         <input type="hidden" value="{{ contextualHelp.ident|default }}" name="r_ident">
         <input type="hidden" value="save" name="r_action">
 

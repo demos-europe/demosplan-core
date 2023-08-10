@@ -20,27 +20,19 @@ class HistoryTimeTransformer extends BaseTransformer
 {
     protected $type = 'HistoryTime';
 
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
-    public function __construct(EntityContentChangeService $entityContentChangeService)
+    public function __construct(private readonly EntityContentChangeService $entityContentChangeService)
     {
         parent::__construct();
-        $this->entityContentChangeService = $entityContentChangeService;
     }
 
     public function transform(HistoryTime $historyTime): array
     {
         $entityType = $historyTime->getEntityType();
-        $fieldNames = array_map(function (string $fieldName) use ($entityType): string {
-            return $this->entityContentChangeService->getMappingValue(
-                $fieldName,
-                $entityType,
-                'translationKey'
-            );
-        }, $historyTime->getFieldNames());
+        $fieldNames = array_map(fn(string $fieldName): string => $this->entityContentChangeService->getMappingValue(
+            $fieldName,
+            $entityType,
+            'translationKey'
+        ), $historyTime->getFieldNames());
 
         return [
             'id'                                           => 'thisNeverGetsUsed_'.$historyTime->getCreated(),

@@ -8,9 +8,9 @@
 </license>
 
 <template>
-  <div class="display--block u-mb-0_5 u-pv-0_5 border--top cf">
+  <div class="block u-mb-0_5 u-pv-0_5 border--top flow-root">
     <label
-      class="display--inline-block u-m-0"
+      class="inline-block u-m-0"
       for="customLatitude">
       {{ Translator.trans('coordinate.right.value') }}
     </label>
@@ -23,7 +23,7 @@
       class="c-ol-map__select width-120 u-mr">
 
     <label
-      class="display--inline-block u-m-0"
+      class="inline-block u-m-0"
       for="customLongitude">
       {{ Translator.trans('coordinate.top.value') }}
     </label>
@@ -39,7 +39,7 @@
       @click.prevent="addMarker"
       :disabled="!isCoordinatesValid"
       ref="myBtnCoordinates"
-      class="btn btn--primary float--right">
+      class="btn btn--primary float-right">
       {{ Translator.trans('coordinate.location.submite') }}
     </button>
   </div>

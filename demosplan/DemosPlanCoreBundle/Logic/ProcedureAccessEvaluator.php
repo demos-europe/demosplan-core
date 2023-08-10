@@ -18,50 +18,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
 
 class ProcedureAccessEvaluator
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var CustomerService
-     */
-    private $currentCustomerProvider;
-
-    public function __construct(
-        DqlConditionFactory $conditionFactory,
-        CustomerService $currentCustomerProvider,
-        EntityFetcher $entityFetcher,
-        GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger
-    ) {
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
-        $this->entityFetcher = $entityFetcher;
-        $this->conditionFactory = $conditionFactory;
-        $this->currentCustomerProvider = $currentCustomerProvider;
+    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly CustomerService $currentCustomerProvider, private readonly EntityFetcher $entityFetcher, private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
@@ -176,12 +140,8 @@ class ProcedureAccessEvaluator
     public function filterNonOwnedProcedureIds(User $user, Procedure ...$procedures): array
     {
         return collect($procedures)
-            ->filter(function (Procedure $procedure) use ($user): bool {
-                return $this->isOwningProcedure($user, $procedure);
-            })
-            ->map(static function (Procedure $procedure): string {
-                return $procedure->getId();
-            })
+            ->filter(fn (Procedure $procedure): bool => $this->isOwningProcedure($user, $procedure))
+            ->map(static fn (Procedure $procedure): string => $procedure->getId())
             ->all();
     }
 

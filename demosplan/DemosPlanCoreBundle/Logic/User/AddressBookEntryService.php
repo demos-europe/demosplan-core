@@ -13,51 +13,20 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 
 class AddressBookEntryService extends CoreService
 {
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var AddressBookEntryRepository
-     */
-    private $addressBookEntryRepository;
-
-    public function __construct(AddressBookEntryRepository $addressBookEntryRepository, DqlConditionFactory $conditionFactory, EntityFetcher $entityFetcher, MessageBagInterface $messageBag, SortMethodFactory $sortMethodFactory)
-    {
-        $this->addressBookEntryRepository = $addressBookEntryRepository;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->messageBag = $messageBag;
-        $this->sortMethodFactory = $sortMethodFactory;
+    public function __construct(
+        private readonly AddressBookEntryRepository $addressBookEntryRepository,
+        private readonly MessageBagInterface $messageBag
+    ) {
     }
 
     /**
@@ -107,11 +76,11 @@ class AddressBookEntryService extends CoreService
     public function getAddressBookEntries(array $addressBookEntryIds)
     {
         try {
-            return $this->entityFetcher->listEntitiesUnrestricted(
-                AddressBookEntry::class,
-                [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, ['id'])],
-                [$this->sortMethodFactory->propertyAscending(['name'])]
-            );
+            return $this->addressBookEntryRepository->findBy([
+                'id' => $addressBookEntryIds,
+            ], [
+                'name' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);
             throw $e;

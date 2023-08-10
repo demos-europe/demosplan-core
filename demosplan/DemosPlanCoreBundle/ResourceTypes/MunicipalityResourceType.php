@@ -66,9 +66,9 @@ final class MunicipalityResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     protected function getProperties(): array
@@ -76,9 +76,7 @@ final class MunicipalityResourceType extends DplanResourceType
         return [
             $this->createAttribute($this->id)->readable(true),
             // @improve T22478
-            $this->createAttribute($this->name)->readable(true, static function (Municipality $municipality): string {
-                return $municipality->getName();
-            }),
+            $this->createAttribute($this->name)->readable(true, static fn(Municipality $municipality): string => $municipality->getName()),
         ];
     }
 }

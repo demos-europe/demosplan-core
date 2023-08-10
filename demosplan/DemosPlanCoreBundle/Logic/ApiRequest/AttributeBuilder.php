@@ -27,20 +27,8 @@ class AttributeBuilder
      */
     private $optionals = [];
 
-    /**
-     * @var Scope
-     */
-    private $scope;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    public function __construct(Scope $scope, string $type)
+    public function __construct(private readonly Scope $scope, private readonly string $type)
     {
-        $this->scope = $scope;
-        $this->type = $type;
     }
 
     public function add(PropertyPathInterface $path, callable $callback): self

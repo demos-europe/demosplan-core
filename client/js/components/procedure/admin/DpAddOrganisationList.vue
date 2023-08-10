@@ -13,6 +13,7 @@
     class="u-mt-0_5">
     <dp-data-table-extended
       ref="dataTable"
+      class="u-mt-0_5"
       :header-fields="headerFields"
       :table-items="rowItems"
       is-selectable
@@ -22,14 +23,14 @@
       :init-items-per-page="itemsPerPage">
       <template v-slot:footer>
         <div class="u-pt-0_5">
-          <div class="u-1-of-3 display--inline-block">
+          <div class="u-1-of-3 inline-block">
             <span
               class="weight--bold line-height--1_6"
               v-if="selectedItems.length">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div><!--
-       --><div class="u-2-of-3 text--right display--inline-block space-inline-s">
+       --><div class="u-2-of-3 text-right inline-block space-inline-s">
             <dp-button
               data-cy="addPublicAgency"
               :text="Translator.trans('invitable_institution.add')"
@@ -116,22 +117,20 @@ export default {
         return dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
       }
 
-      const invitePublicAgencies = publicAgenciesIds.map(id => {
-        return dpApi({
-          method: 'POST',
-          url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
-            procedureId: this.procedureId
-          }),
-          data: {
-            data: {
+      dpApi({
+        method: 'POST',
+        url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
+          procedureId: this.procedureId
+        }),
+        data: {
+          data: publicAgenciesIds.map(id => {
+            return {
               type: 'publicAffairsAgent',
               id: id
             }
-          }
-        })
+          })
+        }
       })
-
-      Promise.all(invitePublicAgencies)
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
           this.getInstitutions({ procedureId: this.procedureId })

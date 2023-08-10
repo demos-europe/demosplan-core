@@ -20,7 +20,7 @@ class AiApiAuthenticator extends JWTTokenAuthenticator
     /**
      * Jwt payload may be given as URL query parameter "jwt".
      */
-    public const JWT_TOKEN_PARAMETER = 'jwt';
+    final public const JWT_TOKEN_PARAMETER = 'jwt';
 
     protected function getTokenExtractor(): TokenExtractorInterface
     {

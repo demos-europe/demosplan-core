@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadOpenGeoDbData extends TestFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $openGeoDbEntry = new OpenGeoDbShortTable();
         $openGeoDbEntry

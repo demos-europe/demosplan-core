@@ -32,10 +32,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -48,13 +50,16 @@ use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Foundry\Test\Factories;
 
 class FunctionalTestCase extends WebTestCase
 {
+    use Factories;
     use MonoKernelTrait;
+    // use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
 
     /** @var object System under Test */
     protected $sut;
@@ -73,8 +78,8 @@ class FunctionalTestCase extends WebTestCase
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    /** @var CurrentUserInterface */
-    protected $currentUserInterface;
+    /** @var CurrentUserService */
+    protected $currentUserService;
 
     protected function loadFixtures()
     {
@@ -84,9 +89,10 @@ class FunctionalTestCase extends WebTestCase
     {
         parent::setUp();
 
-        self::bootKernel(['environment' => 'test', 'debug' => true]);
+        self::bootKernel(['environment' => 'test', 'debug' => false]);
 
-        $this->currentUserInterface = self::$container->get(CurrentUserInterface::class);
+        $this->currentUserService = self::$container->get(CurrentUserService::class);
+        $this->entityManager = self::$container->get(EntityManagerInterface::class);
         $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
         $this->tokenStorage = self::$container->get('security.token_storage');
 
@@ -133,11 +139,12 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function logIn(UserInterface $user)
     {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')
-            ->willReturn($user);
-        $token->method('getRoleNames')
-            ->willReturn($user->getDplanRolesArray());
+        $tokenMockMethods = [
+            new MockMethodDefinition('getUser', $user),
+            new MockMethodDefinition('getRoleNames', $user->getDplanRolesArray()),
+        ];
+        $token = $this->getMock(PostAuthenticationToken::class, $tokenMockMethods);
+
         $this->tokenStorage->setToken($token);
     }
 
@@ -148,11 +155,11 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function enablePermissions(array $permissionsToEnable): void
     {
-        $this->currentUserInterface->getPermissions()->initPermissions(
+        $this->currentUserService->getPermissions()->initPermissions(
             $this->tokenStorage->getToken()->getUser()
         );
 
-        $this->currentUserInterface->getPermissions()->enablePermissions($permissionsToEnable);
+        $this->currentUserService->getPermissions()->enablePermissions($permissionsToEnable);
     }
 
     /**
@@ -160,22 +167,15 @@ class FunctionalTestCase extends WebTestCase
      */
     protected function disablePermissions(array $permissionsToDisable): void
     {
-        $this->currentUserInterface->getPermissions()->initPermissions(
+        $this->currentUserService->getPermissions()->initPermissions(
             $this->tokenStorage->getToken()->getUser()
         );
 
-        $this->currentUserInterface->getPermissions()->disablePermissions($permissionsToDisable);
+        $this->currentUserService->getPermissions()->disablePermissions($permissionsToDisable);
     }
 
     public function getEntityManager(): EntityManager
     {
-        // lazy load entity manager
-        if (!$this->entityManager instanceof EntityManager) {
-            $this->entityManager = $this->getContainer()
-                ->get('doctrine')
-                ->getManager();
-        }
-
         return $this->entityManager;
     }
 
@@ -337,7 +337,7 @@ class FunctionalTestCase extends WebTestCase
             ->select('entity')
             ->from($entityClass, 'entity')
             ->andWhere('entity.id IN (:ids)')
-            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $ids, ArrayParameterType::STRING)
             ->getQuery()->getResult();
 
         return $result;

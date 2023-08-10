@@ -24,7 +24,7 @@
 
 
 {%- block checkbox_widget -%}
-    {%- set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' cursor--pointer weight--normal')|trim}) -%}
+    {%- set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' cursor-pointer weight--normal')|trim}) -%}
     {{ form_label(form) }}
     <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
     </label>
@@ -54,7 +54,7 @@
 {%- block submit_widget -%}
     {%- set type = type|default('submit') -%}
     {# Setze die Standardklasse des Labels #}
-    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' float--right')|trim}) %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' float-right')|trim}) %}
     {%- if label is empty -%}
         {% set label = 'save' %}
     {%- endif -%}

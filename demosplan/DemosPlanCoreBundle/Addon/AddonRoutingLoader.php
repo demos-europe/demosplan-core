@@ -25,7 +25,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     private const PATH_TO_CONTROLLERS_FROM_ADDONROOT = '/src/Controller';
 
     public function __construct(
-        private AddonRegistry $addonRegistry,
+        private readonly AddonRegistry $addonRegistry,
         FileLocatorInterface $locator,
         AnnotationClassLoader $loader
     ) {

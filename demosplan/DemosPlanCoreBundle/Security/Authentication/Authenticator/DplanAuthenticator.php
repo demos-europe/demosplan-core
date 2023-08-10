@@ -12,22 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
-use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -36,8 +32,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class DplanAuthenticator extends AbstractAuthenticator
 {
@@ -78,12 +72,12 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
 
     public function __construct(
-        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
         UserMapperInterface $authenticator,
         LoggerInterface $logger,
         MessageBagInterface $messageBag,
         TraceableEventDispatcher $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
+        private readonly UserService $userService,
     ) {
         $this->userMapper = $authenticator;
         $this->eventDispatcher = $eventDispatcher;
@@ -133,13 +127,22 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
             return new RedirectResponse($this->urlGenerator->generate($this->verificationRoute));
         }
 
-        // get real User from SecurityUser that was saved in token
-        $user = $this->userFromSecurityUserProvider->fromToken($token);
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            $this->logger->error('user not found', ['user' => $user]);
+            throw new AuthenticationException('User not found');
+        }
         $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)
-        $publicAgencyUser = $request->getSession()->get('session2User');
+        $publicAgencyUserId = $request->getSession()->get('session2UserId');
+        $publicAgencyUser = null;
+        try {
+            $publicAgencyUser = $this->userService->getSingleUser($publicAgencyUserId);
+        } catch (Exception) {
+            // no public agency user found
+        }
         if ($publicAgencyUser instanceof User) {
             $this->logger->info('User has multiple users');
 

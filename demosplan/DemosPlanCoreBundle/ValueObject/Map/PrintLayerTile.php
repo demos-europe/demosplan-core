@@ -27,11 +27,6 @@ use Psr\Log\InvalidArgumentException;
 class PrintLayerTile extends ValueObject
 {
     /**
-     * @var PrintLayerTilePosition
-     */
-    private $position;
-
-    /**
      * @var string
      */
     protected $layerTitle;
@@ -64,7 +59,7 @@ class PrintLayerTile extends ValueObject
     public function __construct(
         string $layerTitle,
         string $imageDirectoryPath,
-        PrintLayerTilePosition $position,
+        private readonly PrintLayerTilePosition $position,
         CoordinatesViewport $viewport,
         int $tileSize,
         string $url,
@@ -78,7 +73,6 @@ class PrintLayerTile extends ValueObject
         }
         $this->layerTitle = $layerTitle;
         $this->imageDirectoryPath = $imageDirectoryPath;
-        $this->position = $position;
         $this->viewport = $viewport;
         $this->tileSize = $tileSize;
         $this->url = $url;

@@ -8,7 +8,6 @@
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
 @babel/runtime: MIT
-@demos-europe/demosplan-utils: MIT
 @demos-europe/dp-consent: MIT
 @efrane/vuex-json-api: MIT
 @fullhuman/postcss-purgecss: MIT
@@ -77,7 +76,6 @@ leaflet.markercluster: MIT
 lscache: Apache-2.0
 mini-css-extract-plugin: MIT
 node-notifier: MIT
-normalize.css: MIT
 ol: BSD-2-Clause
 plyr: MIT
 portal-vue: MIT
@@ -99,7 +97,7 @@ purgecss-webpack-plugin: MIT
 qs: BSD-3-Clause
 raf: MIT
 regenerator-runtime: MIT
-sass: MIT
+sass-embedded: MIT
 sass-loader: MIT
 source-map-loader: MIT
 source-sans-pro: OFL-1.1
@@ -109,6 +107,7 @@ striptags: MIT
 stylelint: MIT
 stylelint-config-standard-scss: MIT
 swagger-ui-dist: Apache-2.0
+tailwindcss: MIT
 terser-webpack-plugin: MIT
 timers-browserify: MIT
 tippy.js: MIT
@@ -133,4 +132,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 05.01.2023 15:27
+As of 24.07.2023 07:03
