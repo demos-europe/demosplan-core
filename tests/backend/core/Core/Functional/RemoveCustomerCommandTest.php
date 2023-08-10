@@ -24,15 +24,32 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
 
     /**
      * Related ReportEntries should be deleted.
+     * todo; check procedures. sollten procedures des customers gelöscht werden wenn customer gelöscht wird?
+     * todo: orgas löschen? (wenn nur in diesem customer), Verfahren löschen?, ReportEntries löschen?
+     * im command prüfen, welche procedures über die orga(kommune!) mit dem customter to delete verbunden sind
+     * 1. Verfahren grundsätzlich nicht löschen, ReportEntries "detachen" dazu müssen diese Refactored werden.
+     * 2. Erstmal "irgendwie" Reportentries werden glöscht, Verfahren bleiben bestehen
+     *
+     * 3. Sowohl Verafhren als auch Reportentries löschen. Was ist mit Verfahren die mehreren
+     *      Mandanten zugeordnet werden können? fehlermeldung schmeissen
+     *
+     * Bonus: Was ist eigentlich mir Orgas
+     * Verfahren werden gelöscht für diesen fall aber nicht pauschal?! -> ja weil dsgvo
+     *
+     *
+     * wenn orga mehr als einem mandaten zugewiesen ist, wird eine fehlermeldung ausgegebn
+     *
+     *
+     *
      */
     public function testReportsOnDeleteCustomer(): void
     {
         FullCustomerStory::load();
+        /** @var Customer[] $customers */
         $customers = $this->getEntries(Customer::class, ['name' => FullCustomerStory::NAME]);
         static::assertNotEmpty($customers);
         static::assertInstanceOf(Customer::class, $customers[0]);
-        $testCustomer = $customers[0];
-        $testCustomerId = $testCustomer->getId();
+        $testCustomerId = $customers[0]->getId();
 
         $relatedReports = $this->getEntries(ReportEntry::class, ['customer' => $testCustomerId]);
         static::assertNotEmpty($relatedReports);
@@ -45,6 +62,22 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
 
         $relatedReports = $this->getEntries(ReportEntry::class, ['customer' => $testCustomerId]);
         static::assertEmpty($relatedReports);
+    }
+
+    /**
+     * Related ReportEntries should be deleted.
+     */
+    public function testBlueprintOnDeleteCustomer()
+    {
+        //todo
+    }
+
+    /**
+     * Related procedures should be deleted.
+     */
+    public function testProcedureOnDeleteCustomer()
+    {
+        //todo
     }
 
     /**

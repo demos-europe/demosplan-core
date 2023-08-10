@@ -78,11 +78,16 @@ class RemoveCustomerCommand extends CoreCommand
                 return Command::INVALID;
             }
 
+            $this->checkForSingleOrgaCustomerRelation($customer);
+
+            $this->trydeleteOrgasOfCustomer($customer); // reports of customers is missleading
             $this->deleteRelatedBlueprint($customer);
             $this->deleteRelationsToRolesOfUsers($customer);
             $this->deleteRelationsToOrgaTypes($customer);
             $this->deleteRelationsToCounties($customer);
-            $this->deleteReportsOfCustomer($customer);
+            //do not delete reports which are related to the custer, because this is a misleading relation!
+            $this->deleteReportsOfProcedures($customer); // reports of customers is missleading
+
             $this->deleteCustomer($customer);
 
 
@@ -147,10 +152,11 @@ class RemoveCustomerCommand extends CoreCommand
         $this->customerRepository->persistAndDelete([], $customerCounties);
     }
 
-    private function deleteReportsOfCustomer(Customer $customer): void
+    private function deleteReportsOfProcedures(Customer $customer): void
     {
-        $reports = $this->reportRepository->findBy(['customer' => $customer->getId()]);
-        $this->reportRepository->persistAndDelete([], $reports);
+        //fixme:
+//        $reports = $this->reportRepository->findBy(['customer' => $customer->getId()]);
+//        $this->reportRepository->persistAndDelete([], $reports);
     }
 
     private function deleteCustomer(Customer $customer): void
@@ -169,5 +175,25 @@ class RemoveCustomerCommand extends CoreCommand
         }
 
         return $name;
+    }
+
+    /**
+     * Only in case of there is only a single Orga related to the cusomter,
+     * th
+     */
+    private function trydeleteOrgasOfCustomer(Customer $customer)
+    {
+        //todo
+    }
+
+    /**
+     * The only case we can proceed with deleting a customer is,
+     * if the related organisations of the "customerToDelete", are only related to this single customer!
+     *
+     */
+    private function checkForSingleOrgaCustomerRelation(Customer $customerToDelete)
+    {
+        //in case of mulitiple customers on one of the related orgas of the $customerToDelete
+        // (throw exception and) abort deletion
     }
 }
