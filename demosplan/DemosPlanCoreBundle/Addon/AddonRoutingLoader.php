@@ -22,8 +22,6 @@ use Symfony\Component\Routing\RouteCollection;
 
 class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoaderInterface
 {
-    private const PATH_TO_CONTROLLERS_FROM_ADDONROOT = '/src/Controller';
-
     public function __construct(
         private readonly AddonRegistry $addonRegistry,
         FileLocatorInterface $locator,
