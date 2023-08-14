@@ -1281,7 +1281,7 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.1.1.tgz#c9c61d9fe5ca5ac664e1153bb0aa0eba1c6d6308"
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
-"@demos-europe/demosplan-ui@^0.1.11":
+"@demos-europe/demosplan-ui@^0":
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.11.tgz#7bf3ca0dc6ab7cbb37b6279aae5820ea8640da6e"
   integrity sha512-OdJiOQNjsBLEUzmZYkPO1RgqBW+aiIEEQRR3DbDN6OoXroekGlvHfvoS76W2hqhWtYt1d8/JSBB76AhVpywdIA==
