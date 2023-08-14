@@ -1283,9 +1283,9 @@
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
 "@demos-europe/demosplan-ui@^0":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.10.tgz#bf3d3cca0278cbc597dfe2422df310046fbb5b33"
-  integrity sha512-xYfcXlHEBC0lnXk5r7nqXi8K3vqoyo5tsLZFKLu5VVITx6EYfu4b8dHc0XIxaMmGRa/1oIbxGkSX2oJEVj61lg==
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.1.11.tgz#7bf3ca0dc6ab7cbb37b6279aae5820ea8640da6e"
+  integrity sha512-OdJiOQNjsBLEUzmZYkPO1RgqBW+aiIEEQRR3DbDN6OoXroekGlvHfvoS76W2hqhWtYt1d8/JSBB76AhVpywdIA==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@uppy/core" "^3.0.1"
