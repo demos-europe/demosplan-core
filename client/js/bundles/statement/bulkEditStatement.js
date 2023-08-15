@@ -29,4 +29,8 @@ const components = {
   DpBulkEditStatement
 }
 
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
+}
+
 initialize(components, stores)

@@ -26,8 +26,11 @@ const components = {
 
 const stores = {
   assessmentTableStore,
-  boilerplates: BoilerplatesStore,
   fragmentStore
+}
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
 }
 
 initialize(components, stores).then(() => {

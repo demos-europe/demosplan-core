@@ -20,13 +20,16 @@ import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   assessmentTable: AssessmentTableStore,
-  boilerplates: BoilerplatesStore,
   fragment: FragmentStore,
   statement: StatementStore
 }
 
 const components = {
   DpBulkEditFragment
+}
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
 }
 
 initialize(components, stores)

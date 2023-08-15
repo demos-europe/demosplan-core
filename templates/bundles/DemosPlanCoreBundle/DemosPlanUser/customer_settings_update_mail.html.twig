@@ -48,6 +48,7 @@
                     value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
                     <template v-slot:modal="modalProps">
                         <dp-boiler-plate-modal
+                            v-if="hasPermission('area_admin_boilerplates')"
                             ref="boilerPlateModal"
                             boiler-plate-type="email"
                             procedure-id="{{ procedure }}"
@@ -56,6 +57,7 @@
                     </template>
                     <template v-slot:button>
                         <button
+                            v-if="hasPermission('area_admin_boilerplates')"
                             class="{{ 'menubar__button'|prefixClass }}"
                             type="button"
                             v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
