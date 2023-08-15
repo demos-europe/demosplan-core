@@ -12,11 +12,9 @@
         </p>
     {% endif %}
 
-    {% set imprintUrl = app.request.schemeAndHttpHost ~ '/impressum' %}
-
     <customer-settings
         current-customer-id="{{ templateVars.customer.id }}"
-        imprint-url="{{ imprintUrl }}"
+        imprint-url="{{ templateVars.imprintUrl }}"
         :init-layer-url="JSON.parse('{{ map.publicBaselayer|json_encode|e('js', 'utf-8') }}')"
         :init-layer="JSON.parse('{{ map.publicBaselayerLayers|json_encode|e('js', 'utf-8') }}')"
         map-attribution="{{ map.mapAttribution }}"
