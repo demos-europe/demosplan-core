@@ -1,6 +1,9 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 {% block demosplanbundlecontent %}
 
+{% set lastIndex = templateVars.draftStatementVersions|length - 1 %}
+{% set draftStatementVersions =  templateVars.draftStatementVersions %}
+
     {% block title_text %}
         {#  pageheader - display procedure title + nav link #}
         {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with {
@@ -22,10 +25,14 @@
         data-cy="versionsStatementContainer">
 
         {% if templateVars.draftStatementVersions is defined and  templateVars.draftStatementVersions|length > 0 %}
-            {% for statement in templateVars.draftStatementVersions %}
-                <h2>{{ "date"|trans }}: {{ statement.versionDate|default()|dplanDate('d.m.Y | H:i') }}</h2>
+
+            {% for index, statement in templateVars.draftStatementVersions if index < lastIndex %}
+                <h2>{{ "date"|trans }}: {{ statement.versionDate|dplanDate('d.m.Y | H:i') }}</h2>
                 {{ statement.text|wysiwyg }}
             {% endfor %}
+
+            <h2>{{ "date"|trans }}: {{ templateVars.draftStatementVersions[lastIndex].createdDate|dplanDate('d.m.Y | H:i') }}</h2>
+            {{ templateVars.draftStatementVersions[lastIndex].text|wysiwyg }}
         {% else %}
             <p>
                 {{ "explanation.versions"|trans }}
