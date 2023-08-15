@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
@@ -40,13 +48,13 @@ final class OrgaFactory extends ModelFactory
         $slug = SlugFactory::createOne()->object();
 
         return [
-            'addSlug' => $slug,
-            'currentSlug' => $slug,
+            'addSlug'        => $slug,
+            'currentSlug'    => $slug,
             'dataProtection' => self::faker()->text(400),
-            'deleted' => false,
-            'imprint' => self::faker()->text(400),
-            'showlist' => true,
-            'showname' => true,
+            'deleted'        => false,
+            'imprint'        => self::faker()->text(400),
+            'showlist'       => true,
+            'showname'       => true,
         ];
     }
 

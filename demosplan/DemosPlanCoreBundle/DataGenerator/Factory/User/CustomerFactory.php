@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -40,18 +48,18 @@ final class CustomerFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'accessibilityExplanation' => self::faker()->text(),
-            'baseLayerLayers' => 'de_basemapde_web_raster_farbe',
-            'baseLayerUrl' => self::faker()->url(),
-            'dataProtection' => self::faker()->text(65535),
-            'imprint' => self::faker()->text(400),
-            'mapAttribution' => 'Lizenzrechtliche Angaben im <a href="/impressum">Impressum</a>',
-            'name' => self::faker()->country(),
+            'accessibilityExplanation'            => self::faker()->text(),
+            'baseLayerLayers'                     => 'de_basemapde_web_raster_farbe',
+            'baseLayerUrl'                        => self::faker()->url(),
+            'dataProtection'                      => self::faker()->text(65535),
+            'imprint'                             => self::faker()->text(400),
+            'mapAttribution'                      => 'Lizenzrechtliche Angaben im <a href="/impressum">Impressum</a>',
+            'name'                                => self::faker()->country(),
             'overviewDescriptionInSimpleLanguage' => self::faker()->text(),
-            'signLanguageOverviewDescription' => self::faker()->text(),
-            'subdomain' => self::faker()->countryCode(),
-            'termsOfUse' => self::faker()->text(4000),
-            'xplanning' => '',
+            'signLanguageOverviewDescription'     => self::faker()->text(),
+            'subdomain'                           => self::faker()->countryCode(),
+            'termsOfUse'                          => self::faker()->text(4000),
+            'xplanning'                           => '',
         ];
     }
 

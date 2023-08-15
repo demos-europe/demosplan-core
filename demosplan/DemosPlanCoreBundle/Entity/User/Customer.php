@@ -35,6 +35,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 {
     /**
      * @var string|null
+     *
      * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -215,8 +216,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
          */
         private string $subdomain,
         string $mapAttribution = ''
-    )
-    {
+    ) {
         $this->mapAttribution = $mapAttribution;
         $this->userRoles = new ArrayCollection();
         $this->orgaStatuses = new ArrayCollection();

@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -19,7 +27,6 @@ use Tests\Base\FunctionalTestCase;
 
 class RemoveCustomerCommandTest extends FunctionalTestCase
 {
-
     use CommandTesterTrait;
 
     /**
@@ -28,7 +35,7 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      * todo: orgas löschen? (wenn nur in diesem customer), Verfahren löschen?, ReportEntries löschen?
      * im command prüfen, welche procedures über die orga(kommune!) mit dem customter to delete verbunden sind
      * 1. Verfahren grundsätzlich nicht löschen, ReportEntries "detachen" dazu müssen diese Refactored werden.
-     * 2. Erstmal "irgendwie" Reportentries werden glöscht, Verfahren bleiben bestehen
+     * 2. Erstmal "irgendwie" Reportentries werden glöscht, Verfahren bleiben bestehen.
      *
      * 3. Sowohl Verafhren als auch Reportentries löschen. Was ist mit Verfahren die mehreren
      *      Mandanten zugeordnet werden können? fehlermeldung schmeissen
@@ -38,9 +45,6 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      *
      *
      * wenn orga mehr als einem mandaten zugewiesen ist, wird eine fehlermeldung ausgegebn
-     *
-     *
-     *
      */
     public function testReportsOnDeleteCustomer(): void
     {
@@ -69,7 +73,7 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      */
     public function testBlueprintOnDeleteCustomer()
     {
-        //todo
+        // todo
     }
 
     /**
@@ -77,7 +81,7 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      */
     public function testProcedureOnDeleteCustomer()
     {
-        //todo
+        // todo
     }
 
     /**
@@ -235,10 +239,8 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
         static::assertEmpty($relatedOrgaStatusInCustomers);
     }
 
-
     private function getCommandTester(): CommandTester
     {
         return $this->getCommandTesterByName(self::bootKernel(), 'dplan:data:remove-customer');
     }
-
 }

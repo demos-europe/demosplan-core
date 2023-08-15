@@ -1,5 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
@@ -71,7 +80,7 @@ class RemoveCustomerCommand extends CoreCommand
             $customer = $this->customerRepository->findOneBy(['name' => $customerName]);
             if (null === $customer) {
                 $output->writeln(
-                    'Customer with name '. $customerName .' not found.',
+                    'Customer with name '.$customerName.' not found.',
                     OutputInterface::VERBOSITY_NORMAL
                 );
 
@@ -85,11 +94,10 @@ class RemoveCustomerCommand extends CoreCommand
             $this->deleteRelationsToRolesOfUsers($customer);
             $this->deleteRelationsToOrgaTypes($customer);
             $this->deleteRelationsToCounties($customer);
-            //do not delete reports which are related to the custer, because this is a misleading relation!
+            // do not delete reports which are related to the custer, because this is a misleading relation!
             $this->deleteReportsOfProcedures($customer); // reports of customers is missleading
 
             $this->deleteCustomer($customer);
-
 
             $output->writeln(
                 "Customer '$customerName' was successfully removed.",
@@ -107,7 +115,6 @@ class RemoveCustomerCommand extends CoreCommand
         }
     }
 
-
     private function askCustomerName(InputInterface $input, OutputInterface $output): string
     {
         $questionName = new Question('Please enter the full name of the customer to remove:', 'default');
@@ -122,7 +129,7 @@ class RemoveCustomerCommand extends CoreCommand
     private function deleteRelatedBlueprint(Customer $customer): void
     {
         $blueprintOfCustomer = $customer->getDefaultProcedureBlueprint();
-        //Detach blueprint form customer to avoid doctrine exception caused by "new" procedure found on customer.
+        // Detach blueprint form customer to avoid doctrine exception caused by "new" procedure found on customer.
         $customer->setDefaultProcedureBlueprint(null);
         if (null !== $blueprintOfCustomer) {
             $this->procedureRepository->deleteProcedures([$blueprintOfCustomer->getId()]);
@@ -137,7 +144,7 @@ class RemoveCustomerCommand extends CoreCommand
     }
 
     /**
-     * OrgaStatusInCustomer == relation_customer_orga_orga_type
+     * OrgaStatusInCustomer == relation_customer_orga_orga_type.
      */
     private function deleteRelationsToOrgaTypes(Customer $customer): void
     {
@@ -154,7 +161,7 @@ class RemoveCustomerCommand extends CoreCommand
 
     private function deleteReportsOfProcedures(Customer $customer): void
     {
-        //fixme:
+        // fixme:
 //        $reports = $this->reportRepository->findBy(['customer' => $customer->getId()]);
 //        $this->reportRepository->persistAndDelete([], $reports);
     }
@@ -179,21 +186,20 @@ class RemoveCustomerCommand extends CoreCommand
 
     /**
      * Only in case of there is only a single Orga related to the cusomter,
-     * th
+     * th.
      */
     private function trydeleteOrgasOfCustomer(Customer $customer)
     {
-        //todo
+        // todo
     }
 
     /**
      * The only case we can proceed with deleting a customer is,
      * if the related organisations of the "customerToDelete", are only related to this single customer!
-     *
      */
     private function checkForSingleOrgaCustomerRelation(Customer $customerToDelete)
     {
-        //in case of mulitiple customers on one of the related orgas of the $customerToDelete
+        // in case of mulitiple customers on one of the related orgas of the $customerToDelete
         // (throw exception and) abort deletion
     }
 }

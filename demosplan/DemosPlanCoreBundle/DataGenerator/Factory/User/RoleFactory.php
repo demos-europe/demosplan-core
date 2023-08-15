@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -37,8 +45,8 @@ final class RoleFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'code' => Role::PLANNING_AGENCY_ADMIN,
-            'name' => 'Fachplaner-Admin',
+            'code'      => Role::PLANNING_AGENCY_ADMIN,
+            'name'      => 'Fachplaner-Admin',
             'groupCode' => Role::GLAUTH,
             'groupName' => 'Kommune',
         ];
