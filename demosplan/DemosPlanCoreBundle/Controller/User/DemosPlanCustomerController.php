@@ -31,6 +31,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanCustomerController extends BaseController
@@ -45,7 +46,8 @@ class DemosPlanCustomerController extends BaseController
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        RouterInterface $router
     ): Response {
         try {
             // Using a resource instead of the unrestricted entity is done here to easily notice
@@ -63,6 +65,7 @@ class DemosPlanCustomerController extends BaseController
             $templateVars = [
                 'customer'      => $customerResource,
                 'projectDomain' => $this->getGlobalConfig()->getProjectDomain(),
+                'imprintUrl'    => $router->generate('DemosPlan_misccontent_static_imprint', [], RouterInterface::ABSOLUTE_URL),
             ];
 
             return $this->renderTemplate(
