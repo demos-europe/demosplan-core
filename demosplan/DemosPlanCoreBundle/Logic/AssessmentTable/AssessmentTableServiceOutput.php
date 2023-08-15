@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -42,7 +43,6 @@ use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -331,7 +331,7 @@ class AssessmentTableServiceOutput
      */
     public function buildOriginalStatementDocxExport(Procedure $procedure, array $presentableOriginalStatements): PhpWord
     {
-        $phpWord = $this->initializePhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->setDefaultFontSize(9);
 
         $section = $phpWord->addSection();
@@ -523,20 +523,6 @@ class AssessmentTableServiceOutput
     public function selectProcedureName(Procedure $procedure, bool $isPublicUser): string
     {
         return $isPublicUser ? $procedure->getExternalName() : $procedure->getName();
-    }
-
-    protected function initializePhpWord(): PhpWord
-    {
-        $phpWord = new PhpWord();
-        // avoid problems with < in statementTexts T3921
-        Settings::setOutputEscapingEnabled(true);
-        // https://stackoverflow.com/questions/33267654/
-        $phpWord->getSettings()->setUpdateFields(true);
-
-        // http://phpword.readthedocs.org/en/latest/index.html
-        // https://github.com/PHPOffice/PHPWord
-
-        return $phpWord;
     }
 
     /**
