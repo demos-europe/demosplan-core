@@ -254,7 +254,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_street',
             'field_statement_meta_submit_name',
             'field_statement_phase',
-            'field_statement_polygon',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
