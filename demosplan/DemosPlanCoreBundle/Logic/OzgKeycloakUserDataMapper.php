@@ -64,7 +64,7 @@ class OzgKeycloakUserDataMapper
         'Redaktion'                         => Role::CONTENT_EDITOR,
         'Privatperson-Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
-        'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT
+        'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
     ];
 
     public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
@@ -426,9 +426,13 @@ class OzgKeycloakUserDataMapper
         $availableRequestedRoles = [];
         foreach ($requestedRoleCodes as $roleCode) {
             if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
+                $this->logger->info('try to fetch role entity for role code', [$roleCode]);
                 $availableRequestedRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current available requested roles', [$availableRequestedRoles]);
             } else {
+                $this->logger->info('try to fetch role entity for not allowed role code', [$roleCode]);
                 $unavailableRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
+                $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
             }
         }
         if (0 !== count($unavailableRoles)) {
