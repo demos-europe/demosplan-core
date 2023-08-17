@@ -125,12 +125,14 @@ export default {
 
     dataCyEndDate: {
       type: String,
-      required: false
+      required: false,
+      default: ''
     },
 
     dataCyStartDate: {
       type: String,
-      required: false
+      required: false,
+      default: ''
     },
 
     /**
