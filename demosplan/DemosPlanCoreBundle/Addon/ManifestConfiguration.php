@@ -29,8 +29,8 @@ class ManifestConfiguration implements ConfigurationInterface
         $rootChildren->scalarNode('permissionInitializer')->isRequired()->end();
         $rootChildren->arrayNode('controller_paths')
             ->defaultValue(['/src/Controller'])
+            ->treatNullLike(['/src/Controller'])
             ->scalarPrototype()->end()
-            ->beforeNormalization()->castToArray()
             ->end();
 
         $ui = $rootChildren->arrayNode('ui')->children();
