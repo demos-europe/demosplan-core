@@ -47,6 +47,7 @@ class DraftStatementRepository extends FluentRepository implements ArrayInterfac
             ->setParameter('draftStatementId', $draftStatementId)
             ->setParameter('organisationId', $organisationId)
             ->orderBy('draftStatementVersion.versionDate', 'DESC')
+            ->orderBy('draftStatementVersion.lastModifiedDate', 'DESC')
             ->getQuery();
 
         try {
