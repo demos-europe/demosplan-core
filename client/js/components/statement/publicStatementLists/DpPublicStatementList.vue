@@ -261,8 +261,8 @@ export default {
       const statementParagraph = (paragraph && paragraph.title) || Translator.trans('notspecified')
       const text = statement.text
 
-      const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate) }
-      const transformedCreatedDate = formatDate(createdDate)
+      const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate, 'DD.MM.YYYY HH:mm') }
+      const transformedCreatedDate = formatDate(createdDate, 'DD.MM.YYYY HH:mm')
 
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 
