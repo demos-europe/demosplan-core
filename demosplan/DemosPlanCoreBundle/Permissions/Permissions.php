@@ -1038,7 +1038,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 $this->checkPermission($permissionToTest);
             }
         } else {
-            // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
+            // Give devs a hint that the permissions here need to be reworked
             $this->logger->info('Dieser Bereich hat keine explizite Permission angegeben! '
                         .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
