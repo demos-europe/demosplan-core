@@ -20,43 +20,51 @@
         %}
     {% endblock title_text %}
 
-
-
     {#  tabs - navigation  #}
-
     <nav
-        class="{{ 'o-page__padded c-tabs js__tabs'|prefixClass }}"
-        data-tabs="statementList"
         aria-label="{{ 'tabs.navigate'|trans }}"
-    >
+        class="{{ 'o-page__padded c-tabs js__tabs'|prefixClass }}"
+        data-tabs="statementList">
         {% apply spaceless %}
 
             <ul class="{{ 'c-tabs__titles c-tabs__titles--2 u-m-0 u-pt-0_5 text-right'|prefixClass }}">
 
                 <li class="{{ 'c-tabs__title u-nojs-hide--inline-block is-active-tab'|prefixClass }}">
-                    <a class="{{ 'c-tabs__title-button'|prefixClass }}" href="#myStatementsList" aria-label="{{ 'statements.yours'|trans }}">
+                    <a
+                        aria-label="{{ 'statements.yours'|trans }}"
+                        class="{{ 'c-tabs__title-button'|prefixClass }}"
+                        href="#myStatementsList">
                         {{ 'statements.yours'|trans }}
                     </a>
                 </li>
 
                 {% if hasPermission('feature_statements_vote') and hasPermission('feature_statements_vote_may_vote') %}
                     <li class="{{ 'c-tabs__title u-nojs-hide--inline-block u-ml-0_5 '|prefixClass }}">
-                        <a class="{{ 'c-tabs__title-button'|prefixClass }}" href="#votedStatementsList" aria-label="{{ 'statements.voted'|trans }}">
+                        <a
+                            aria-label="{{ 'statements.voted'|trans }}"
+                            class="{{ 'c-tabs__title-button'|prefixClass }}"
+                            href="#votedStatementsList">
                             {{  'statements.voted'|trans }}
                         </a>
                     </li>
                 {% endif %}
-
             </ul>
         {% endapply %}
     </nav>
 
-    <div data-tabs-content="statementList" class="{{ 'o-page__padded u-pv-0_5'|prefixClass }}">
+    <div
+        class="{{ 'o-page__padded u-pv-0_5'|prefixClass }}"
+        data-tabs-content="statementList">
 
-        <div id="myStatementsList" class="{{ 'c-tabs__panel u-mh-0_5 is-active-tab'|prefixClass }}">
+        <div
+            id="myStatementsList"
+            class="{{ 'c-tabs__panel u-mh-0_5 is-active-tab'|prefixClass }}">
 
-            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
-                  method="post">
+            <form
+                action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
+                class="{{ 'layout flow-root'|prefixClass }}"
+                method="post"
+                name="sortform">
 
                 {# filter fieldsets  #}
                 {% include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig' with {
@@ -67,6 +75,7 @@
                     'show_filter_sort_option_department'    : true } %}
 
                 {% if templateVars.list.statementlist|length > 0 %}
+
                     {# save / revert sorting of table entries #}
                     {% if hasPermission('feature_statements_manualsort') %}
                         <fieldset class="{{ 'flow-root layout__item u-pb-0_5'|prefixClass }}">
@@ -77,6 +86,7 @@
 
                                 <p class="{{ 'layout__item u-2-of-3 lbl'|prefixClass }}">
                                     <span class="{{ 'line-height--1_6 u-mb-0_25'|prefixClass }}">
+
                                         {% if ( templateVars.list.manuallySorted == true ) %}
                                             {{ "sort.set"|trans }}
                                         {% else %}
@@ -90,18 +100,18 @@
 
                                     <input
                                         class="{{ 'btn btn--primary u-ph-0_5'|prefixClass }}"
-                                        type="submit"
-                                        name="saveManualsort"
-                                        value="{{ "save"|trans }}"
                                         data-form-actions-confirm="{{ "check.sort.save"|trans }}"
-                                        data-form-actions-manualsort="item_check[]">
+                                        data-form-actions-manualsort="item_check[]"
+                                        name="saveManualsort"
+                                        type="submit"
+                                        value="{{ "save"|trans }}">
 
                                     <input
                                         class="{{ 'btn btn--secondary u-ph-0_5'|prefixClass }}"
-                                        type="submit"
+                                        data-form-actions-confirm="{{ "check.sort.reset"|trans }}"
                                         name="resetManualsort"
-                                        value="{{ "reset"|trans }}"
-                                        data-form-actions-confirm="{{ "check.sort.reset"|trans }}">
+                                        type="submit"
+                                        value="{{ "reset"|trans }}">
 
                                 </div>
 
@@ -113,7 +123,10 @@
                     {# form controls above entry table (check all, print, email) #}
                     <fieldset class="{{ 'layout__item u-pb-0 flow-root'|prefixClass }}">
 
-                        <input type="hidden" name="action" value="statementPublish">
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="statementPublish">
 
                         {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
@@ -124,7 +137,6 @@
 
                 <dp-public-statement-list
                     class="layout__item"
-                    :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
                     :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
                     procedure-id="{{ templateVars.procedure|default('') }}"
                     show-author
@@ -133,18 +145,27 @@
                     show-pdf-download
                     show-publish
                     show-versions
+                    :statements="JSON.parse('{{ templateVars.list.votedStatements|convertToLegacy|default([])|json_encode|e('js', 'utf-8') }}')"
                     target="final_group"></dp-public-statement-list>
             </form>
         </div>
 
-        <div id="votedStatementsList" class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}">
-
-            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+        <div
+            class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}"
+            id="votedStatementsList">
+            <form
+                action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
+                class="{{ 'layout flow-root'|prefixClass }}"
+                method="post"
+                name="sortform2">
 
                 {# form controls above entry table (check all, print, email) #}
                 <fieldset class="{{ 'flow-root layout__item u-pb-0'|prefixClass }}">
 
-                    <input type="hidden" name="action" value="statementPublish">
+                    <input
+                        name="action"
+                        type="hidden"
+                        value="statementPublish">
 
                     {#
                         @TODO make export and Print work here for "real" statements, not only for statementDrafs like above
@@ -158,13 +179,12 @@
                 </fieldset>
                 <dp-public-statement-list
                     class="layout__item"
-                    :statements="JSON.parse('{{ templateVars.list.votedStatements|convertToLegacy|default([])|json_encode|e('js', 'utf-8') }}')"
                     :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
                     procedure-id="{{ templateVars.procedure|default('') }}"
+                    :statements="JSON.parse('{{ templateVars.list.votedStatements|convertToLegacy|default([])|json_encode|e('js', 'utf-8') }}')"
                     target="final_group"></dp-public-statement-list>
             </form>
         </div>
-
     </div>
 
 {% endblock %}

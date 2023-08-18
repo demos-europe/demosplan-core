@@ -16,29 +16,17 @@
         class="c-public-statement__header"
         :class="{'border--bottom': isOpen}">
         <div class="layout__item u-11-of-12 u-1-of-4-desk-up align-sub u-pl-0">
-          <div class="inline-block u-mr-0_5">
-            <input
-              v-if="showCheckbox"
-              type="checkbox"
-              :id="number"
-              name="item_check[]"
-              :value="id">
-            <label
-              :for="number"
-              data-cy="statementNumber"
-              class="inline u-mb-0 u-ml-0_25">{{ number || '' }}</label>
-          </div><!--
-       --><div class="inline-block">
+        <div class="inline-block">
             <span
               class="u-mr-0_25 c-public-statement__tooltip"
-              v-tooltip="renderTooltipContent(tooltipContent)">#</span>
+              v-tooltip="renderTooltipContent(tooltipContent)">#{{ externId }}</span>
             <span>{{ headerContent }}</span>
             <button
               v-if="unsavedChangesItem"
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
-              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
-              v-bind="unsavedChangesItem.attrs">
+              v-bind="unsavedChangesItem.attrs"
+              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
               <i
                 class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
                 v-tooltip="Translator.trans('unsaved.changes')" />
@@ -54,8 +42,8 @@
               <button
                 v-if="item.type === 'button'"
                 class="btn--blank o-link--default align-middle"
-                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
-                v-bind="item.attrs">
+                v-bind="item.attrs"
+                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
                 {{ item.text }}
               </button>
               <a
@@ -67,8 +55,8 @@
               </a>
               <h4
                 v-else-if="item.type === 'heading'"
-                v-bind="item.attrs"
-                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle">
+                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle"
+                v-bind="item.attrs">
                 {{ item.text }}
               </h4>
             </div>
@@ -88,14 +76,14 @@
                 <button
                   v-if="item.type === 'button'"
                   class="btn--blank o-link--default"
-                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
-                  v-bind="item.attrs">
+                  v-bind="item.attrs"
+                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
                   {{ item.text }}
                 </button>
                 <h4
                   v-if="item.type === 'heading'"
-                  v-bind="item.attrs"
-                  class="color--grey u-mb-0 u-mt-0_25 font-size-small">
+                  class="color--grey u-mb-0 u-mt-0_25 font-size-small"
+                  v-bind="item.attrs">
                   {{ item.text }}
                 </h4>
               </div>
@@ -103,9 +91,9 @@
           </div><!--
        --><div class="inline">
             <button
-              @click="isOpen = false === isOpen"
+              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle"
               type="button"
-              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle">
+              @click="isOpen = false === isOpen">
               <i
                 class="fa"
                 :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
@@ -179,10 +167,10 @@
           <div class="inline-block u-2-of-3 u-1-of-1-palm">
             <button
               v-if="Object.keys(polygon).length > 0"
+              :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
               class="btn--blank o-link--default"
               type="button"
-              @click.prevent.stop="$emit('open-map-modal', polygon)"
-              :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
+              @click.prevent.stop="$emit('open-map-modal', polygon)">
               {{ Translator.trans('see') }}
             </button>
             <span v-else>
@@ -287,6 +275,11 @@ export default {
       required: false,
       default: ''
     },
+    externId: {
+      type: String,
+      required: false,
+      default: ''
+    },
     id: {
       type: String,
       required: true
@@ -380,10 +373,8 @@ export default {
     },
 
     headerContent () {
-      const user = this.showAuthor ? `${this.user} | ` : ''
-
       return this.submittedDate
-        ? `${user}${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}`
+        ? `${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}`
         : `${Translator.trans('date.created')} ${this.createdDate} ${Translator.trans('clock')}`
     },
 

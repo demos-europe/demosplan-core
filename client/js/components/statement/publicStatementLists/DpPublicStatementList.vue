@@ -23,13 +23,13 @@
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
         :key="idx"
-        v-bind="statement"
-        @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
-        :show-checkbox="showCheckbox" />
+        :show-checkbox="showCheckbox"
+        v-bind="statement"
+        @open-map-modal="openMapModal"
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
     </draggable>
     <dp-map-modal
       ref="mapModal"
@@ -83,71 +83,58 @@ export default {
       required: false,
       default: () => ([])
     },
-
     procedureId: {
       type: String,
       required: true
     },
-
     showAuthor: {
       type: Boolean,
       required: false,
       default: false
-
     },
-
     showCheckbox: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showDelete: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showEdit: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showEmail: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showPdfDownload: {
       type: Boolean,
       default: false
     },
-
     showPublish: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showReject: {
       type: Boolean,
       required: false,
       default: false
     },
-
     showVersions: {
       type: Boolean,
       required: false,
       default: false
     },
-
     statements: {
       type: Array,
       required: true
     },
-
     target: {
       type: String,
       required: true
@@ -220,22 +207,23 @@ export default {
     transformStatement (statement) {
       const {
         document,
+        dName,
         element,
+        externId,
         files,
         ident,
-        paragraph,
-        statementAttributes,
         number,
-        uName,
-        dName,
         oName,
+        paragraph,
         phase,
         polygon,
         elementId,
         paragraphId,
+        rejectedReason,
         showToAll,
+        statementAttributes,
         submitted,
-        rejectedReason
+        uName
       } = statement
 
       // Depending on `votedStatement` or `own Statement`, we receive one or the other from the Backend
@@ -268,24 +256,25 @@ export default {
 
       return {
         attachments,
-        ...county,
         createdDate: transformedCreatedDate,
         department: dName,
         document: statementDocument,
+        elementId,
+        externId,
         id: ident,
+        isPublished: showToAll,
+        number,
         organisation: oName,
         paragraph: statementParagraph,
+        paragraphId,
         phase,
         polygon: transformedPolygon,
-        ...priorityAreas,
-        ...transformedSubmitDate,
+        rejectedReason,
         text,
-        number,
         user: uName,
-        elementId,
-        paragraphId,
-        isPublished: showToAll,
-        rejectedReason
+        ...county,
+        ...priorityAreas,
+        ...transformedSubmitDate
       }
     },
 
