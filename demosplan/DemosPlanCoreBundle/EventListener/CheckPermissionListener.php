@@ -76,7 +76,7 @@ class CheckPermissionListener
         try {
             $dplanPermissions = $this->getDplanPermissions($reflectionMethod);
 
-            // perform initialize with permissions from annotation
+            // perform initialize with permissions from attribute or annotation
             $this->initializeService->initialize($dplanPermissions);
         } catch (Exception $e) {
             // fallback if everything fails
