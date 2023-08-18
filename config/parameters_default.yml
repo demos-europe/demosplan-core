@@ -154,9 +154,15 @@ parameters:
     database_port: "3306"
     database_user: "user"
 
+    # route to tex2pdf service without trailing slash
+    tex2pdf_url: ""
+
     #RabbitMQ setting with default values
     rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
     rabbitmq_routing_disabled: false
+
+    # Route to docxImporter without trailing slash
+    docx_importer_route: ""
 
     # dsn used for sending emails https://symfony.com/doc/current/mailer.html#transport-setup
     # may be something like <transport>://<user>:<password>@<host>:<port>

@@ -8,3 +8,4 @@ doctrine_migrations:
             executed_at_column_name: 'migration_executed_at'
     organize_migrations: "BY_YEAR_AND_MONTH"
     custom_template: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/DoctrineMigrations/migration.tpl"
+    enable_profiler: false

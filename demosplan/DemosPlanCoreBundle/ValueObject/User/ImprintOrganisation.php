@@ -14,26 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\User;
 
 final class ImprintOrganisation
 {
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $imprint;
-
-    public function __construct(string $id, string $name, string $imprint)
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $imprint)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->imprint = $imprint;
     }
 
     public function getId(): string

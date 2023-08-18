@@ -451,7 +451,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             &.is-active {
                 background-color: $dp-color-highlight;
-                border: $dp-color-highlight;
+                border-color: $dp-color-highlight;
             }
         }
 

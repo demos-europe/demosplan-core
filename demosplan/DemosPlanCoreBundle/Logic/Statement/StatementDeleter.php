@@ -33,42 +33,8 @@ use Doctrine\ORM\ORMException;
 
 class StatementDeleter extends CoreService
 {
-    protected AssignService $assignService;
-    protected PermissionsInterface $permissions;
-    protected StatementFragmentService $statementFragmentService;
-    protected ConsultationTokenService $consultationTokenService;
-    protected StatementAttachmentService $statementAttachmentService;
-    private StatementRepository $statementRepository;
-    private StatementReportEntryFactory $statementReportEntryFactory;
-    private ReportService $reportService;
-    private MessageBagInterface $messageBag;
-    private EntityContentChangeService $entityContentChangeService;
-    private StatementService $statementService;
-
-    public function __construct(
-        AssignService $assignService,
-        PermissionsInterface $permissions,
-        StatementFragmentService $statementFragmentService,
-        ConsultationTokenService $consultationTokenService,
-        StatementAttachmentService $statementAttachmentService,
-        StatementRepository $statementRepository,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        ReportService $reportService,
-        MessageBagInterface $messageBag,
-        EntityContentChangeService $entityContentChangeService,
-        StatementService $statementService
-    ) {
-        $this->assignService = $assignService;
-        $this->permissions = $permissions;
-        $this->statementFragmentService = $statementFragmentService;
-        $this->consultationTokenService = $consultationTokenService;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->statementRepository = $statementRepository;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->reportService = $reportService;
-        $this->messageBag = $messageBag;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->statementService = $statementService;
+    public function __construct(protected AssignService $assignService, protected PermissionsInterface $permissions, protected StatementFragmentService $statementFragmentService, protected ConsultationTokenService $consultationTokenService, protected StatementAttachmentService $statementAttachmentService, private readonly StatementRepository $statementRepository, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly ReportService $reportService, private readonly MessageBagInterface $messageBag, private readonly EntityContentChangeService $entityContentChangeService, private readonly StatementService $statementService)
+    {
     }
 
     /**

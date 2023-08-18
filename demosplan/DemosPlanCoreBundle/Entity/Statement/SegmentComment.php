@@ -25,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository")
  */
 class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 {
@@ -51,9 +51,8 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * )
      *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
-     *
-     * @Assert\NotNull
      */
+    #[Assert\NotNull]
     protected $segment;
 
     /**
@@ -94,11 +93,9 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
-     * @Assert\NotBlank
-     *
-     * @Assert\Length(min=1, max=65536)
      */
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 1, max: 65536)]
     protected $text;
 
     public function __construct(Segment $segment, User $submitter, Place $place, string $text)

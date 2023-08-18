@@ -12,6 +12,7 @@ import { axisBottom, axisLeft } from 'd3-axis'
 import { max, sum } from 'd3-array'
 import { scaleBand, scaleLinear } from 'd3-scale'
 import { format } from 'd3-format'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { interpolate } from 'd3-interpolate'
 import Legend from './Legend'
 import { select } from 'd3-selection'
@@ -72,7 +73,7 @@ export default class BarPieChart {
     }
 
     Object.assign(this, { ...defaults, ...options })
-    this.fData = this.fData.map((el, idx) => ({ ...el, index: idx }))
+    this.fData = this.fData.map((el, idx) => ({ ...el, index: idx })).filter(el => hasOwnProp(el, 'Category'))
 
     // Calculate total frequency by segment for all state.
     this.tF = this.categoryDefinition.map((d, idx) => ({

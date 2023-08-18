@@ -24,9 +24,9 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 {
-    public const FALSE = 'FALSE';
+    final public const FALSE = 'FALSE';
 
-    public const NOT_SIZE = 'NOT SIZE';
+    final public const NOT_SIZE = 'NOT SIZE';
 
     protected PathsBasedConditionFactoryInterface $conditionFactory;
 

@@ -17,21 +17,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormOptionsResolver
 {
-    public const STATEMENT_STATUS = 'statement_status';
-    public const STATEMENT_FRAGMENT_ADVICE_VALUES = 'statement_fragment_advice_values';
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    final public const STATEMENT_STATUS = 'statement_status';
+    final public const STATEMENT_FRAGMENT_ADVICE_VALUES = 'statement_fragment_advice_values';
 
-    public function __construct(GlobalConfigInterface $globalConfig, TranslatorInterface $translator)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly TranslatorInterface $translator)
     {
-        $this->globalConfig = $globalConfig;
-        $this->translator = $translator;
     }
 
     public function resolve(string $type, string $key): string

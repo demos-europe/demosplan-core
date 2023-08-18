@@ -33,7 +33,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DocumentHandler extends CoreHandler
 {
-    public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
+    final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
 
     /**
      * @var SingleDocumentHandler
@@ -51,67 +51,22 @@ class DocumentHandler extends CoreHandler
      */
     protected $elementsPaths = [];
 
-    /**
-     * @var ParagraphService
-     */
-    private $paragraphService;
-    /**
-     * @var FileService
-     */
-    private $fileService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ElementHandler
-     */
-    private $elementHandler;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var SingleDocumentService
-     */
-    private $singleDocumentService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
     public function __construct(
-        CurrentUserService $currentUser,
-        ElementHandler $elementHandler,
+        private readonly CurrentUserService $currentUser,
+        private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
-        FileService $fileService,
+        private readonly FileService $fileService,
         MessageBag $messageBag,
-        ParagraphService $paragraphService,
-        ProcedureService $procedureService,
+        private readonly ParagraphService $paragraphService,
+        private readonly ProcedureService $procedureService,
         SingleDocumentHandler $singleDocumentHandler,
-        SingleDocumentService $singleDocumentService,
-        TranslatorInterface $translator,
-        ValidatorInterface $validator
+        private readonly SingleDocumentService $singleDocumentService,
+        private readonly TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
     ) {
         parent::__construct($messageBag);
-        $this->paragraphService = $paragraphService;
-        $this->fileService = $fileService;
-        $this->translator = $translator;
         $this->elementsService = $elementsService;
-        $this->elementHandler = $elementHandler;
         $this->singleDocumentHandler = $singleDocumentHandler;
-        $this->currentUser = $currentUser;
-        $this->procedureService = $procedureService;
-        $this->singleDocumentService = $singleDocumentService;
-        $this->validator = $validator;
     }
 
     /**
@@ -213,12 +168,12 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = utf8_decode($entry['title']);
+            $fileName = utf8_decode((string) $entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
                 if (is_array($keys) &&
                     isset($request[$keys[0]]) &&
-                    0 < strlen($request[$keys[0]])
+                    0 < strlen((string) $request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
                 }
@@ -354,7 +309,7 @@ class DocumentHandler extends CoreHandler
             }
         }
         // Sortiere die Elements natürlichsprachig
-        usort($result, [__CLASS__, 'sortElementsAlphabetically']);
+        usort($result, [self::class, 'sortElementsAlphabetically']);
 
         return $result;
     }
@@ -369,7 +324,7 @@ class DocumentHandler extends CoreHandler
      */
     public static function sortElementsAlphabetically($a, $b)
     {
-        return strnatcasecmp($a['title'], $b['title']);
+        return strnatcasecmp((string) $a['title'], (string) $b['title']);
     }
 
     /**

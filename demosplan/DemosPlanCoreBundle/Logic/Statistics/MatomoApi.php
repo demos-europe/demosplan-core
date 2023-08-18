@@ -30,11 +30,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class MatomoApi
 {
     /**
-     * @var HttpClientInterface
-     */
-    private $client;
-
-    /**
      * @var string
      */
     private $matomoURL;
@@ -46,34 +41,18 @@ class MatomoApi
      * @var int
      */
     private $matomoSiteId;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
 
     public function __construct(
-        HttpClientInterface $httpClient,
-        LoggerInterface $logger,
+        private readonly HttpClientInterface $client,
+        private readonly LoggerInterface $logger,
         ParameterBagInterface $parameterBag,
-        ProcedureRepository $procedureRepository,
-        RouterInterface $router
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly RouterInterface $router
     ) {
-        $this->client = $httpClient;
         // @improve T24944
         $this->matomoURL = sprintf('%s://%s', $parameterBag->get('url_scheme'), $parameterBag->get('piwik_url'));
         $this->matomoToken = $parameterBag->get('matomo_token');
         $this->matomoSiteId = $parameterBag->get('piwik_site_id');
-        $this->logger = $logger;
-        $this->procedureRepository = $procedureRepository;
-        $this->router = $router;
     }
 
     /**
@@ -95,7 +74,7 @@ class MatomoApi
             'idSite'        => $this->matomoSiteId,
             'format'        => 'JSON',
         ];
-        $query = array_merge($baseQuery, $additionalQueryValues);
+        $query = [...$baseQuery, ...$additionalQueryValues];
         $response = $this->client->request('GET', $this->matomoURL, [
             'query' => $query,
         ]);

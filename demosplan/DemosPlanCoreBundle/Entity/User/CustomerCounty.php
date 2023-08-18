@@ -76,12 +76,10 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
     /**
      * @var string
      *
-     * @Assert\NotNull()
-     *
-     * @Assert\Email()
-     *
      * @ORM\Column(type="text", length=255, options={"default":""}, nullable=false)
      */
+    #[Assert\NotNull]
+    #[Assert\Email]
     protected $eMailAddress;
 
     public function getId(): ?string

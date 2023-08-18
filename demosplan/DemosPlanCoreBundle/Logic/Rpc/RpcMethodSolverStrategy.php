@@ -24,45 +24,10 @@ use Psr\Log\LoggerInterface;
 class RpcMethodSolverStrategy
 {
     /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var iterable<RpcMethodSolverInterface>
-     */
-    private $rpcMethodSolvers;
-
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var RpcValidator
-     */
-    private $rpcValidator;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param iterable<RpcMethodSolverInterface> $rpcMethodSolvers
      */
-    public function __construct(
-        iterable $rpcMethodSolvers,
-        CurrentProcedureService $currentProcedureService,
-        LoggerInterface $logger,
-        RpcErrorGenerator $errorGenerator,
-        RpcValidator $rpcValidator
-    ) {
-        $this->currentProcedureService = $currentProcedureService;
-        $this->rpcMethodSolvers = $rpcMethodSolvers;
-        $this->errorGenerator = $errorGenerator;
-        $this->rpcValidator = $rpcValidator;
-        $this->logger = $logger;
+    public function __construct(private readonly iterable $rpcMethodSolvers, private readonly CurrentProcedureService $currentProcedureService, private readonly LoggerInterface $logger, private readonly RpcErrorGenerator $errorGenerator, private readonly RpcValidator $rpcValidator)
+    {
     }
 
     /**
@@ -139,7 +104,7 @@ class RpcMethodSolverStrategy
         array $transactionalMethods,
         RpcMethodSolverInterface $methodSolver
     ): array {
-        $solverClass = get_class($methodSolver);
+        $solverClass = $methodSolver::class;
 
         if (isset($transactionalMethods[$solverClass])) {
             $transactionalMethods[$solverClass]['rpcRequests'][] = $rpcRequest;

@@ -27,15 +27,11 @@ class DemosPlanResponseListener
     /** @var GlobalConfigInterface */
     protected $globalConfig;
 
-    /** @var TransformMessageBagService */
-    private $transformMessageBagService;
-
     public function __construct(
         GlobalConfig $globalConfig,
-        TransformMessageBagService $transformMessageBagService
+        private readonly TransformMessageBagService $transformMessageBagService
     ) {
         $this->globalConfig = $globalConfig;
-        $this->transformMessageBagService = $transformMessageBagService;
     }
 
     /**

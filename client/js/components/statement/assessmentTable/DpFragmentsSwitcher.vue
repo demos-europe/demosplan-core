@@ -34,13 +34,13 @@ statements and fragments is now in DpAssessmentTableCard.vue
     </dp-switcher>
     <div
       v-if="isFiltered && showFragmentResults"
-      class="display--inline-block u-valign--top u-pv-0_25 float--right">
-      <p class="display--inline-block u-mb-0 u-mr">
+      class="inline-block align-top u-pv-0_25 float-right">
+      <p class="inline-block u-mb-0 u-mr">
         {{ Translator.trans('found.fragments', {hits: filteredFragmentsLength, sum: totalFragmentsLength}) }}
       </p>
       <label
         :for="'show-all-fragments' + statementId"
-        class="display--inline-block u-mb-0">
+        class="inline-block u-mb-0">
         <input
           type="checkbox"
           name="show-all-fragments"

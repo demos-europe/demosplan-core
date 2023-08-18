@@ -16,11 +16,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DatasheetService
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDatasheetVersion(string $procedureId)

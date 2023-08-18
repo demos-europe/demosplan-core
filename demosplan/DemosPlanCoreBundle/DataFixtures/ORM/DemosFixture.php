@@ -19,11 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class DemosFixture extends AbstractFixture
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     /**

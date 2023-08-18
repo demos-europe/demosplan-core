@@ -18,14 +18,8 @@ use function is_array;
 
 class ElasticsearchFilterArrayTransformer
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
@@ -92,7 +86,7 @@ class ElasticsearchFilterArrayTransformer
                     return 0;
                 }
 
-                return \strnatcasecmp($a['label'], $b['label']);
+                return \strnatcasecmp((string) $a['label'], (string) $b['label']);
             }
         );
 
@@ -105,7 +99,7 @@ class ElasticsearchFilterArrayTransformer
      */
     public function generateFilterArrayFromEsFragmentsMissing($bucket, $key): array
     {
-        $aggregationCount = count($bucket[$key]['statements']['buckets']);
+        $aggregationCount = is_countable($bucket[$key]['statements']['buckets']) ? count($bucket[$key]['statements']['buckets']) : 0;
         // aggregations only are top 10, add other doc count to sum
         $aggregationCount = array_key_exists('sum_other_doc_count', $bucket[$key]['statements']) ?
             $aggregationCount + $bucket[$key]['statements']['sum_other_doc_count'] : $aggregationCount;

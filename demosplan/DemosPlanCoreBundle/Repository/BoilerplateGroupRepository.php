@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class BoilerplateGroupRepository extends CoreRepository implements ObjectInterface
+class BoilerplateGroupRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -130,7 +130,7 @@ class BoilerplateGroupRepository extends CoreRepository implements ObjectInterfa
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

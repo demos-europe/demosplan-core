@@ -18,7 +18,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureTypeData extends ProdFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $statementFormDefinition = new StatementFormDefinition();
         $manager->persist($statementFormDefinition);

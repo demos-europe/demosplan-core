@@ -28,22 +28,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProcedureFormData extends ValueObject
 {
     /**
-     * @Assert\Type(type=EmailAddressVO::class)
-     *
      * @var EmailAddressVO
      */
+    #[Assert\Type(type: EmailAddressVO::class)]
     protected $agencyMainEmailAddress;
 
     /**
-     * @Assert\Type(type=Collection::class)
-     * @Assert\Count(max=100)
-     * @Assert\NotNull()
-     * @Assert\All({
-     *     @Assert\Type(type=EmailAddressVO::class)
-     * })
-     *
      * @var Collection<int, EmailAddressVO>
      */
+    #[Assert\Type(type: Collection::class)]
+    #[Assert\Count(max: 100)]
+    #[Assert\NotNull]
+    #[Assert\All([new Assert\Type(type: EmailAddressVO::class)])]
     protected $agencyExtraEmailAddresses;
 
     /**
@@ -60,16 +56,12 @@ class ProcedureFormData extends ValueObject
         } else {
             $this->agencyMainEmailAddress = new EmailAddressVO($procedure->getAgencyMainEmailAddress());
             $this->agencyExtraEmailAddresses = $procedure->getAgencyExtraEmailAddresses()->map(
-                static function (EmailAddress $emailAddress): EmailAddressVO {
-                    return new EmailAddressVO($emailAddress->getFullAddress());
-                }
+                static fn(EmailAddress $emailAddress): EmailAddressVO => new EmailAddressVO($emailAddress->getFullAddress())
             );
             $this->allowedSegmentAccessProcedureIds = $procedure
                 ->getSettings()
                 ->getAllowedSegmentAccessProcedures()
-                ->map(static function (Procedure $allowedProcedure): string {
-                    return $allowedProcedure->getId();
-                })
+                ->map(static fn(Procedure $allowedProcedure): string => $allowedProcedure->getId())
                 ->getValues();
         }
     }
@@ -121,9 +113,7 @@ class ProcedureFormData extends ValueObject
     public function getAgencyExtraEmailAddressesFullStrings(): array
     {
         return $this->agencyExtraEmailAddresses->map(
-            function (EmailAddressVO $address): string {
-                return $address->getFullAddress();
-            }
+            fn(EmailAddressVO $address): string => $address->getFullAddress()
         )->toArray();
     }
 

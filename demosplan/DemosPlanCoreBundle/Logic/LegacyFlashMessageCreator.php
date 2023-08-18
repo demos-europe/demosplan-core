@@ -18,19 +18,8 @@ use UnexpectedValueException;
 
 class LegacyFlashMessageCreator
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    public function __construct(TranslatorInterface $translator, MessageBagInterface $messageBag)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly MessageBagInterface $messageBag)
     {
-        $this->translator = $translator;
-        $this->messageBag = $messageBag;
     }
 
     /**

@@ -19,10 +19,11 @@ import {
   ToggleSideMenu,
   touchFriendlyUserbox
 } from '@DpJs/lib/core/libs'
+import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
 import { createApp } from 'vue'
 import DPVueCorePlugin from './plugins/DPVueCore'
-import HamburgerMenuButton from './components/button/HamburgerMenuButton'
+import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'

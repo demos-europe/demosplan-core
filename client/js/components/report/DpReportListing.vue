@@ -14,7 +14,7 @@
 
   <div v-else>
     <div
-      class="float--right u-mt-0_25"
+      class="float-right u-mt-0_25"
       v-if="hasPermission('feature_export_protocol')">
       <a :href="Routing.generate('dplan_export_report', { procedureId })">
         <i

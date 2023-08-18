@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -31,17 +32,6 @@ class DemosPlanAdminController extends BaseController
     /**
      * Generiert die HTML Seite für die Statistik.
      *
-     * @Route(
-     *     name="DemosPlan_statistics",
-     *     path="/statistik",
-     *     defaults={"format": "html", "part": "all"},
-     * )
-     * @Route(
-     *     name="DemosPlan_statistics_csv",
-     *     path="/statistik/{part}/csv",
-     *     defaults={"format": "csv"},
-     * )
-     *
      * @DplanPermissions("area_statistics")
      *
      * @param string $part
@@ -51,10 +41,13 @@ class DemosPlanAdminController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]
+    #[Route(name: 'DemosPlan_statistics_csv', path: '/statistik/{part}/csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
         Environment $twig,
         OrgaService $orgaService,
         CustomerService $customerProvider,
+        NameGenerator $nameGenerator,
         ProcedureService $procedureService,
         StatementService $statementService,
         UserService $userService,
@@ -84,11 +77,11 @@ class DemosPlanAdminController extends BaseController
                 $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
 
                 // speichere die Anzahl der Phasen zwischen
-                if (0 < strlen($procedureData['phase'])) {
+                if (0 < strlen((string) $procedureData['phase'])) {
                     // Wenn der key num noch nicht vorhanden ist, lege ihn an
                     isset($internalPhases[$procedureData['phase']]['num']) ? $internalPhases[$procedureData['phase']]['num']++ : $internalPhases[$procedureData['phase']]['num'] = 1;
                 }
-                if (0 < strlen($procedureData['publicParticipationPhase'])) {
+                if (0 < strlen((string) $procedureData['publicParticipationPhase'])) {
                     isset($externalPhases[$procedureData['publicParticipationPhase']]['num'])
                         ? $externalPhases[$procedureData['publicParticipationPhase']]['num']++
                         : $externalPhases[$procedureData['publicParticipationPhase']]['num'] = 1;
@@ -115,9 +108,7 @@ class DemosPlanAdminController extends BaseController
         }
 
         // set csv Escaper
-        $twig->getExtension('Twig_Extension_Core')->setEscaper('csv', function ($twigEnv, $string, $charset) {
-            return str_replace('"', '""', $string);
-        });
+        $twig->getExtension('EscaperExtension')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
@@ -129,7 +120,7 @@ class DemosPlanAdminController extends BaseController
         $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
         $response->setCharset('UTF-8');
 
         return $response;

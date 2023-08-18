@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -20,22 +21,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(CurrentUserInterface $currentUserProvider, CustomerService $currentCustomerProvider, TranslatorInterface $translator)
+    public function __construct(CurrentUserInterface $currentUserProvider, CustomerService $currentCustomerProvider, private readonly TranslatorInterface $translator)
     {
         parent::__construct($currentUserProvider, $currentCustomerProvider);
-        $this->translator = $translator;
     }
 
     public function createRegisterInvitationEntry(
@@ -151,6 +145,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         Procedure $coupledProcedure,
         User $user
     ): ReportEntry {
+        $messageData = [];
         $messageData['sourceProcedure'] = $coupledProcedure->getName();
 
         return $this->createProcedureCoupleEntry($procedureIdToCreateTheReportEntryFor, $coupledProcedure, $user, $messageData);
@@ -163,6 +158,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $procedureIdToCreateTheReportEntryFor,
         Procedure $coupledProcedure
     ): ReportEntry {
+        $messageData = [];
         $messageData['targetProcedure'] = $coupledProcedure->getName();
 
         return $this->createProcedureCoupleEntry($procedureIdToCreateTheReportEntryFor, $coupledProcedure, null, $messageData);
@@ -251,7 +247,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $message = [
             'procedureId'   => $procedureId,
             'ident'         => $procedureId,
-            'receiverCount' => count($statementMailAddresses),
+            'receiverCount' => is_countable($statementMailAddresses) ? count($statementMailAddresses) : 0,
             'mailSubject'   => $preparationMail->getMailSubject(),
             'mailBody'      => $preparationMail->getMailBody(),
         ];
@@ -278,7 +274,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     {
         try {
             $currentUser = $this->currentUserProvider->getUser();
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
             $currentUser = new AnonymousUser();
         }
 

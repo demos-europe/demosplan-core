@@ -158,7 +158,7 @@ class MapProjectionConverterTest extends UnitTestCase
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
         $fileContents = $this->getFileContents($geoJsonFilesDir.'/convertedGeoJson2.json');
 
-        return str_replace(["\n", "\t", ' ', "\r"], '', trim($fileContents));
+        return str_replace(["\n", "\t", ' ', "\r"], '', trim($fileContents, ''));
     }
 
     private function getFileContents(string $fullPath): string

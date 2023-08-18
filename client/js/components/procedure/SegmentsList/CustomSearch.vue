@@ -9,7 +9,7 @@
 
 <template>
   <div class="flex space-inline-s">
-    <div class="position--relative">
+    <div class="relative">
       <dp-input
         has-icon
         :id="id"
@@ -17,7 +17,7 @@
         @enter="$emit('search', currentSearchTerm)" />
       <dp-flyout
         align="left"
-        class="u-top-0 u-right-0 position--absolute"
+        class="u-top-0 u-right-0 absolute"
         :has-menu="false"
         :padded="false">
         <template #trigger>
@@ -32,7 +32,7 @@
               class="weight--bold"
               v-text="Translator.trans('search.custom.limit_fields')" />
             <button
-              class="btn--blank o-link--default flex-item-end"
+              class="btn--blank o-link--default ml-auto"
               v-text="Translator.trans('search.custom.toggle_all')"
               @click="toggleAllFields(selectedFields.length < fields.length)" />
           </div>

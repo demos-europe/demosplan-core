@@ -132,8 +132,8 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
     public function updateObject(object $object, array $properties): ResourceChange
     {
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->title, [$object, 'setTitle']);
-        $updater->ifPresent($this->description, [$object, 'setDescription']);
+        $updater->ifPresent($this->title, $object->setTitle(...));
+        $updater->ifPresent($this->description, $object->setDescription(...));
 
         $resourceChange = new ResourceChange($object, $this, $properties);
         $resourceChange->addEntityToPersist($object);
@@ -167,5 +167,10 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange->addEntityToPersist($customer);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['field_sign_language_overview_video_edit'];
     }
 }

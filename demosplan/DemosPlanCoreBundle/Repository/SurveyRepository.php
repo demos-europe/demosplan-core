@@ -10,6 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class SurveyRepository extends CoreRepository
+class SurveyRepository extends FluentRepository
 {
 }

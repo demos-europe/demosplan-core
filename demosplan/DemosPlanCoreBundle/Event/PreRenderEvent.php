@@ -15,30 +15,12 @@ use Symfony\Component\HttpFoundation\Response;
 class PreRenderEvent extends DPlanEvent
 {
     /**
-     * @var string
-     */
-    protected $view;
-
-    /**
-     * @var array
-     */
-    protected $parameters;
-
-    /**
-     * @var Response
-     */
-    protected $response;
-
-    /**
      * @param string   $view       The view name
      * @param array    $parameters An array of parameters to pass to the view
      * @param Response $response   A response instance
      */
-    public function __construct($view, $parameters, $response)
+    public function __construct(protected $view, protected $parameters, protected $response)
     {
-        $this->view = $view;
-        $this->parameters = $parameters;
-        $this->response = $response;
     }
 
     public function addParameter($key, $value)

@@ -10,36 +10,23 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\NotAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(
-        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
-        PermissionsInterface $permissions,
-        TokenStorageInterface $tokenStorage
-    ) {
-        $this->tokenStorage = $tokenStorage;
-        $this->permissions = $permissions;
+    public function __construct(private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider, private readonly PermissionsInterface $permissions, private readonly TokenStorageInterface $tokenStorage)
+    {
     }
 
     public function getUser(): User
@@ -57,7 +44,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(User $user, Customer $customer = null): void
+    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);

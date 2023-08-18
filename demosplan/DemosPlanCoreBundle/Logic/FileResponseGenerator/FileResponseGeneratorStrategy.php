@@ -16,19 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileResponseGeneratorStrategy
 {
-    /** @var iterable<FileResponseGeneratorAbstract> */
-    private $generators;
-
-    /** @var LoggerInterface */
-    private $logger;
-
     /**
      * @param iterable<FileResponseGeneratorAbstract> $generators
      */
-    public function __construct(iterable $generators, LoggerInterface $loggerInterface)
+    public function __construct(private readonly iterable $generators, private readonly LoggerInterface $logger)
     {
-        $this->generators = $generators;
-        $this->logger = $loggerInterface;
     }
 
     /**

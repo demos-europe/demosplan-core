@@ -23,7 +23,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadDraftStatementData extends TestFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var ParagraphVersion $paragraphVersion */
         $paragraphVersion = $this->getReference('testParagraph2Version');

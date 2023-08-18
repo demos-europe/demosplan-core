@@ -18,7 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\UserLoginSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 use Tests\Base\FunctionalTestCase;
+use Tests\Base\MockMethodDefinition;
 
 class UserLoginSubscriberTest extends FunctionalTestCase
 {
@@ -45,14 +48,19 @@ class UserLoginSubscriberTest extends FunctionalTestCase
 
         $this->userService = self::$container->get(UserService::class);
         $this->tokenStorage = self::$container->get('security.token_storage');
-        $this->sut = new UserLoginSubscriber($this->tokenStorage, $this->userService);
+        $this->sut = new UserLoginSubscriber($this->userService);
         $this->logIn($this->testUser);
     }
 
     public function testLoginUserLastLogin()
     {
+        $tokenMockMethods = [
+            new MockMethodDefinition('getUser', $this->testUser),
+        ];
+        $token = $this->getMock(TokenInterface::class, $tokenMockMethods);
+        $event = new AuthenticationSuccessEvent($token);
         $formerLogin = new Carbon($this->testUser->getLastLogin());
-        $this->sut->onLogin();
+        $this->sut->onLogin($event);
         self::assertNotNull($this->testUser->getLastLogin());
         $afterLogin = new Carbon($this->testUser->getLastLogin());
         self::assertTrue($afterLogin->greaterThan($formerLogin));

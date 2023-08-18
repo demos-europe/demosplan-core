@@ -16,14 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ParametersProviderSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var ViewRenderer
-     */
-    private $viewRenderer;
-
-    public function __construct(ViewRenderer $viewRenderer)
+    public function __construct(private readonly ViewRenderer $viewRenderer)
     {
-        $this->viewRenderer = $viewRenderer;
     }
 
     public static function getSubscribedEvents(): array

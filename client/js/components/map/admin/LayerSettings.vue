@@ -30,7 +30,7 @@
       }"
       name="r_url"
       required
-      @input="getLayerCapabilities"
+      @blur="getLayerCapabilities"
       @enter="getLayerCapabilities" />
 
     <dp-select
@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, dpRpc, DpSelect } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 
 export default {
@@ -275,6 +275,8 @@ export default {
     },
 
     extractDataFromWMSCapabilities () {
+      const isProjectionInOptions = this.findProjectionInOptions
+
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
         this.addLayerToOptions(this.currentCapabilities.Capability.Layer.Layer, 'Name')
@@ -292,7 +294,7 @@ export default {
             projectionsFromSource: availableCRS.join(', '),
             availableProjectionsFromSystem: this.availableProjections.join(', ')
           }))
-        } else if (this.projectionOptions.includes(this.projection) === false) {
+        } else if (isProjectionInOptions === false) {
           this.projection = this.projectionOptions[0].value
         }
       }
@@ -386,24 +388,37 @@ export default {
       })
     },
 
+    findProjectionInOptions () {
+      return this.projectionOptions.some(obj => {
+        return obj.value === this.projection
+      })
+    },
+
     getLayerCapabilities: debounce(function () {
+      this.clearSelections()
       this.isLoading = true
       // Don't fetch anything if there is no url
       if (this.url === '') {
-        this.resetDropdowns()
         return
       }
 
       const url = this.handleUrlParams(this.url)
+      const hasWMTSType = url.toLowerCase().includes('wmts')
       let parser = null
-      dpRpc('map.get_capabilities', { url })
+
+      if (hasWMTSType && !hasPermission('feature_map_wmts')) {
+        const urlInput = document.getElementById('r_url')
+        urlInput.classList.add('is-invalid')
+
+        return dplan.notify.notify('error', Translator.trans('maplayer.capabilities.invalid.type'))
+      }
+
+      externalApi(url)
         .then(response => {
-          this.serviceType = (response.data['0'].result.type === 'wmts') ? 'wmts' : 'wms'
+          this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
-          return response.data['0'].result.xml
-        })
-        .then(async responseData => {
-          this.currentCapabilities = await parser.read(responseData)
+          this.currentCapabilities = parser.read(response.data)
+
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
@@ -411,13 +426,17 @@ export default {
         })
         .catch(err => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
-          console.log(err)
-          this.resetDropdowns()
+
+          if (err.code === 'ERR_NETWORK') {
+            dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
+          }
+
+          this.clearSelections()
         })
-        .then(() => {
+        .finally(() => {
           this.isLoading = false
         })
-    }, 1000),
+    }),
 
     handleUrlParams (url) {
       const upperUrl = url.toUpperCase()
@@ -443,7 +462,8 @@ export default {
       return url
     },
 
-    resetDropdowns () {
+    clearSelections () {
+      this.currentCapabilities = null
       this.layersOptions = []
       this.matrixSetOptions = []
       this.projectionOptions = this.availableProjections

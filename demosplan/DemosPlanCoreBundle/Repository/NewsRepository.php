@@ -18,7 +18,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class NewsRepository extends CoreRepository implements ArrayInterface
+class NewsRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get a news entry from DB by id.

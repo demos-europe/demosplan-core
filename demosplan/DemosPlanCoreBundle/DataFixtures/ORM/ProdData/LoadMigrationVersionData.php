@@ -37,7 +37,7 @@ class LoadMigrationVersionData extends ProdFixture
         return $versionNumbers;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $versionNumbers = $this->getMigrationVersions();
 

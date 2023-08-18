@@ -23,9 +23,9 @@ initialize(components).then(() => {
   radios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       if (radio.value === 'new') {
-        newBoilerplateForm.classList.remove(prefixClass('display--none'))
+        newBoilerplateForm.classList.remove(prefixClass('hidden'))
       } else {
-        newBoilerplateForm.classList.add(prefixClass('display--none'))
+        newBoilerplateForm.classList.add(prefixClass('hidden'))
       }
     })
   })

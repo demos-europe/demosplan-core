@@ -9,7 +9,7 @@
 
 <template>
   <!-- second template is needed because we have two root-elements-->
-  <div class="display--inline-block">
+  <div class="inline-block">
     <!--if all items are claimed and at least one statement in this procedure is chosen, go to group edit or if claiming is not enabled in project -->
     <a
       class="o-link--default u-mr-0_5"

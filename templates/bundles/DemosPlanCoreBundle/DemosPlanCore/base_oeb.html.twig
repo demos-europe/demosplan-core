@@ -28,7 +28,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundle('style-public.css') }}
+            {{ webpackBundles(['demosplan-ui.css', 'style-public.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}
@@ -79,7 +79,7 @@
                     {% include '@DemosPlanCore/DemosPlanCore/includes/base_oeb_header.html.twig' %}
                 {% endblock header %}
 
-                <main id="jumpContent" class="{{ 'o-page__main layout--flush cf'|prefixClass }}" role="main">
+                <main id="jumpContent" class="{{ 'o-page__main layout--flush flow-root'|prefixClass }}" role="main">
 
                     {% block maincontent_section %}
                         <section class="{{ 'layout__item'|prefixClass }} {% block base_mainsection_classes %}{% endblock base_mainsection_classes %}" {% block data_attrs %}{% endblock data_attrs %}>

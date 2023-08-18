@@ -49,11 +49,11 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             throw new AuthenticationException('Error during authentication', 0, $e);
         }
 
-        $login = trim($request->request->get('r_useremail'));
+        $login = trim($request->request->get('r_useremail', ''));
         $request->getSession()->set(Security::LAST_USERNAME, $login);
         $credentialsVO = new Credentials();
         $credentialsVO->setLogin($login);
-        $credentialsVO->setPassword(trim($request->request->get('password')));
+        $credentialsVO->setPassword(trim($request->request->get('password', '')));
         $credentialsVO->setToken($request->request->get('_csrf_token'));
         $credentialsVO->lock();
 

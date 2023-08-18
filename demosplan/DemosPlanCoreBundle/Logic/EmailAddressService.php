@@ -15,14 +15,8 @@ use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 
 class EmailAddressService extends CoreService
 {
-    /**
-     * @var EmailAddressRepository
-     */
-    private $emailAddressRepository;
-
-    public function __construct(EmailAddressRepository $emailAddressRepository)
+    public function __construct(private readonly EmailAddressRepository $emailAddressRepository)
     {
-        $this->emailAddressRepository = $emailAddressRepository;
     }
 
     /**

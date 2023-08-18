@@ -40,7 +40,7 @@ useful info about the component:
           v-model="fragmentSelected"
           :disabled="Object.keys(selectedElements).length > 0"
           :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false">
-        <v-popover class="display--inline-block u-ml-0_125 weight--bold">
+        <v-popover class="inline-block u-ml-0_125 weight--bold">
           {{ fragment.displayId }}
           <template v-slot:popover>
             <div>
@@ -52,7 +52,7 @@ useful info about the component:
 
         <!-- Navigation for fragment history, delete, assign to other user -->
         <table-card-flyout-menu
-          class="float--right"
+          class="float-right"
           :current-user-id="currentUserId"
           entity="fragment"
           :entity-id="fragment.id"
@@ -63,7 +63,7 @@ useful info about the component:
           @fragment-delete="deleteFragment" />
       </div><!--
    --><dp-claim
-        class="c-at-item__row-icon display--inline-block"
+        class="c-at-item__row-icon inline-block"
         entity-type="fragment"
         :assigned-id="(fragment.assignee?.id || '')"
         :assigned-name="(fragment.assignee?.name || '')"
@@ -98,7 +98,7 @@ useful info about the component:
               :editable="isClaimed && fragment.voteAdvice === null"
               :label-grid-cols="5" />
             <div
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float--right"
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float-right"
               v-if="reviewerEditing">
               <input
                 id="notifyOrga"
@@ -106,15 +106,15 @@ useful info about the component:
                 v-model="notifyOrga">
               <label
                 for="notifyOrga"
-                class="display--inline-block u-mb-0_25">{{ Translator.trans('fragment.notify.reviewer') }}</label>
+                class="inline-block u-mb-0_25">{{ Translator.trans('fragment.notify.reviewer') }}</label>
             </div>
           </div>
         </template>
         <template v-else>
-          <div class="display--inline-block u-1-of-2 weight--bold u-pr-0_5 u-valign--top u-mt-0_25">
+          <div class="inline-block u-1-of-2 weight--bold u-pr-0_5 align-top u-mt-0_25">
             {{ Translator.trans('fragment.assign.reviewer') }}:
           </div><!--
-         --><div class="display--inline-block u-1-of-2 lbl__hint u-ph-0_5 u-mt-0_25">
+         --><div class="inline-block u-1-of-2 lbl__hint u-ph-0_5 u-mt-0_25">
             <template v-if="fragment.archivedOrgaName === null && fragment.archivedDepartmentName === null && fragment.voteAdvice !== null">
               {{ hasPermission('feature_statements_fragment_advice') ? Translator.trans("fragment.assign.reviewer.voteAdvice.pending.reset") : Translator.trans('fragment.assign.reviewer.voteAdvice.pending') }}
             </template>
@@ -178,10 +178,10 @@ useful info about the component:
               :editable="editableVoteAdvice && fragment.archivedOrgaName === null && isClaimed"
               :label-grid-cols="2" />
             <template v-else>
-              <div class="display--inline-block u-2-of-8 weight--bold u-valign--top u-mt-0_25">
+              <div class="inline-block u-2-of-8 weight--bold align-top u-mt-0_25">
                 {{ Translator.trans('fragment.voteAdvice.short') }}:
               </div><!--
-           --><div class="display--inline-block u-6-of-8 flash-warning lbl__hint u-ph-0_25 u-mt-0_25">
+           --><div class="inline-block u-6-of-8 flash-warning lbl__hint u-ph-0_25 u-mt-0_25">
                 {{ Translator.trans('fragment.voteAdvice.assigned') }}
               </div>
             </template>
@@ -211,10 +211,10 @@ useful info about the component:
             :label-grid-cols="2" />
 
             <div
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float--right"
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float-right"
               v-if="tagsEditing && hasPermission('feature_optional_tag_propagation')">
               <label
-                class="display--inline-block u-mb-0_25"
+                class="inline-block u-mb-0_25"
                 :for="`r_forward_tags_to_statements_${fragment.id}`">
                 <input
                   type="checkbox"
@@ -278,7 +278,7 @@ useful info about the component:
 <!--
      --><div class="layout__item c-at-item__row u-1-of-1">
           <dp-edit-field-single-select
-            class="position--relative"
+            class="relative"
             label="document"
             :entity-id="fragment.id"
             field-key="elementId"
@@ -291,7 +291,7 @@ useful info about the component:
 
           <!--PARAGRAPH-->
           <dp-edit-field-single-select
-            class="position--relative"
+            class="relative"
             label="paragraph"
             :label-grid-cols="2"
             :entity-id="fragment.id"
@@ -306,7 +306,7 @@ useful info about the component:
           <!--FILE-->
           <dp-edit-field-single-select
             v-if="hasPermission('feature_single_document_fragment') && elementHasFiles"
-            class="position--relative"
+            class="relative"
             label="file"
             :label-grid-cols="2"
             :entity-id="fragment.id"
@@ -322,7 +322,7 @@ useful info about the component:
       <!--TEXT and CONSIDERATION / considerationAdvice - either consideration field or considerationAdvice field is displayed, depending on permissions -->
       <div class="layout--flush">
 <!--
-     --><div class="display--flex">
+     --><div class="flex">
           <tiptap-edit-text
             title="fragment.text"
             class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right"

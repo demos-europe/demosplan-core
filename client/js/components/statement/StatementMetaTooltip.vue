@@ -8,10 +8,10 @@
 </license>
 
 <template>
-  <div class="c-statement-meta-tooltip cf">
+  <div class="c-statement-meta-tooltip flow-root">
     <button
       v-if="toggleButton"
-      class="btn--blank o-link--default float--right"
+      class="btn--blank o-link--default float-right"
       @click="$emit('toggle')">
       {{ Translator.trans('information.pin') }}
     </button>
