@@ -28,8 +28,8 @@ class ManifestConfiguration implements ConfigurationInterface
         $rootChildren->scalarNode('entry')->isRequired()->end();
         $rootChildren->scalarNode('permissionInitializer')->isRequired()->end();
         $rootChildren->arrayNode('controller_paths')
-            ->defaultValue(['/src/Controller'])
-            ->treatNullLike(['/src/Controller'])
+            ->defaultValue([AddonInfo::DEFAULT_CONTROLLER_PATH])
+            ->treatNullLike([AddonInfo::DEFAULT_CONTROLLER_PATH])
             ->scalarPrototype()->end()
             ->end();
 
