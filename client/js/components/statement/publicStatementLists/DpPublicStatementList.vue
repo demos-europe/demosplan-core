@@ -206,8 +206,8 @@ export default {
 
     transformStatement (statement) {
       const {
-        document,
         dName,
+        document,
         element,
         externId,
         files,
