@@ -6790,10 +6790,10 @@ ol@7.3.0:
     pbf "3.2.1"
     rbush "^3.0.1"
 
-ol@^7.3.0, ol@~7.4.0:
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/ol/-/ol-7.4.0.tgz#935436c0843d1f939972e076d4fcb130530ce9d7"
-  integrity sha512-bgBbiah694HhC0jt8ptEFNRXwgO8d6xWH3G97PCg4bmn9Li5nLLbi59oSrvqUI6VPVwonPQF1YcqJymxxyMC6A==
+ol@^7.3.0, ol@~7.5.1:
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/ol/-/ol-7.5.1.tgz#76e7a8b2cabf36124ce3123d22af08e7c4e86087"
+  integrity sha512-CFXDhO8YdQt7I+zwrGYSONo/ZM2oLr7vUvxqpLEUyy+USaQjUeE8L6FBOWIPboopGVhnSVYd5hdEirn9ifKBZQ==
   dependencies:
     earcut "^2.2.3"
     geotiff "^2.0.7"
