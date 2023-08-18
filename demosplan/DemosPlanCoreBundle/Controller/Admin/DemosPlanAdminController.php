@@ -23,6 +23,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
+use Twig\Extension\EscaperExtension;
 
 /**
  * Stellt Adminfunktionen zur Verfügung.
@@ -108,7 +109,7 @@ class DemosPlanAdminController extends BaseController
         }
 
         // set csv Escaper
-        $twig->getExtension('EscaperExtension')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
+        $twig->getExtension(EscaperExtension::class)->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
