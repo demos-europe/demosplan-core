@@ -41,6 +41,11 @@ final class AddonInfo
         return $this->permissionInitializer;
     }
 
+    public function getControllerPaths(): array
+    {
+        return $this->config['manifest']['controller_paths'];
+    }
+
     public function hasUIHooks(): bool
     {
         return array_key_exists('ui', $this->config['manifest']);

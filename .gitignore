@@ -23,6 +23,15 @@ phpstan.neon
 logs
 /docker-compose.override.yml
 
+# Core project
+/projects/core/app/cache/*
+/projects/core/app/logs/*
+/projects/core/web/css/*
+/projects/core/web/fonts
+/projects/core/web/img
+/projects/core/web/js
+/projects/core/web/video
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php

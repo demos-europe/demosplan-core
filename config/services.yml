@@ -45,6 +45,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
 
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
+
     DemosEurope\DemosplanAddon\Contracts\ApiClientInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
 
@@ -226,7 +229,7 @@ services:
                 id: 'app.user_info_collector'
                 priority: -99
 
-    demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory:
+    demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\FakeDataGeneratorFactory:
         arguments:
             - !tagged dplan.data.generator
 
@@ -414,7 +417,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
     Doctrine\ORM\EntityManager:
@@ -738,6 +740,9 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureNewsServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService'
 
     demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
@@ -1318,5 +1323,7 @@ services:
 
     # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'

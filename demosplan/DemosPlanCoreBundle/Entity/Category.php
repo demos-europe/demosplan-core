@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table(name="_category")
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CategoryRepository")
  */
 class Category extends CoreEntity implements UuidEntityInterface
 {

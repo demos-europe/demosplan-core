@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -42,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -78,7 +78,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
 use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
@@ -150,7 +149,6 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly EntityFetcher $entityFetcher,
         private readonly AssessmentHandler $assessmentHandler,
         private readonly Environment $twig,
         private readonly PermissionsInterface $permissions,
@@ -445,20 +443,21 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // save status counts
-        $esResultMeta = $statementQueryResult->getFilterSet();
-        $aggregations = $esResultMeta['filters'];
+        $aggregations = $statementQueryResult->getFilterSet()['filters'];
         foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-            $statusValue = $aggregationBucket['value'];
-            $statusCount = $aggregationBucket['count'];
-            $statementStatusData[$statusValue]['count'] = $statusCount;
+            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                $statusValue = $aggregationBucket['value'];
+                $statusCount = $aggregationBucket['count'];
+                $statementStatusData[$statusValue]['count'] = $statusCount;
 
-            // add link with filterhash to assessment table
-            if (0 < $statusCount) {
-                $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                    $statusValue,
-                    $procedureId,
-                    'statement'
-                );
+                // add link with filterhash to assessment table
+                if (0 < $statusCount) {
+                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                        $statusValue,
+                        $procedureId,
+                        'statement'
+                    );
+                }
             }
         }
 
@@ -2143,7 +2142,7 @@ class DemosPlanProcedureController extends BaseController
 
         $emailTextAdded = '';
         if ($this->permissions->hasPermission('feature_email_invitable_institution_additional_invitation_text')) {
-            $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $procedureAsArray['agencyMainEmailAddress']);
+            $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $procedureAsArray['agencyMainEmailAddress'] ?? '');
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
         if (\array_key_exists('sendInvitationEmail', $requestPost)) {
@@ -2786,7 +2785,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
+        $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
         $procedureTypeResources = array_map(fn (object $entity) => $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
 
         $templateVars['procedureTypes'] = $procedureTypeResources;

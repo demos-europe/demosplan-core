@@ -17,23 +17,24 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 
 class TagService extends CoreService
 {
-    public function __construct(private readonly BoilerplateRepository $boilerplateRepository, private readonly DqlConditionFactory $conditionFactory, private readonly EntityFetcher $entityFetcher, private readonly TagRepository $tagRepository, private readonly TagResourceType $tagResourceType, private readonly TagTopicRepository $tagTopicRepository)
-    {
+    public function __construct(
+        private readonly BoilerplateRepository $boilerplateRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository
+    ) {
     }
 
     /**
@@ -259,7 +260,7 @@ class TagService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         ];
 
-        $tags = $this->entityFetcher->listEntitiesUnrestricted(Tag::class, $conditions);
+        $tags = $this->tagRepository->getEntities($conditions, []);
 
         $count = count($tags);
         if (1 < $count) {

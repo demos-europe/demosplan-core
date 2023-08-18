@@ -69,7 +69,7 @@
 
     // If js is disabled in browser, enable tabbing through all the menu elements
     .nojs & {
-        z-index: $z-fixed;
+        z-index: $dp-z-flyout;
 
         &:hover .c-actionmenu__menu,
         .c-actionmenu__trigger:focus + .c-actionmenu__menu {
@@ -88,7 +88,7 @@
         &:active,
         &.is-expanded,
         &__trigger:focus {
-            z-index: $z-fixed;
+            z-index: $dp-z-flyout;
 
             & .c-actionmenu__menu {
                 display: block;
@@ -145,7 +145,7 @@
         padding-top: 10px;
 
         background-color: $dp-color-white;
-        box-shadow: $dp-box-shadow-1;
+        box-shadow: $dp-box-shadow;
 
         // Keep long words like "Planfeststellungsverfahren" on one line
         hyphens: none;

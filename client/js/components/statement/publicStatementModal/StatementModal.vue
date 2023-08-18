@@ -129,6 +129,7 @@
           <dp-editor
             :class="prefixClass('u-mb')"
             hidden-input="r_text"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             id="statementText"
             :toolbar-items="{
               mark: true,
@@ -146,6 +147,7 @@
             id="confirmPrivacy"
             :checked="formData.r_privacy === 'on'"
             data-cy="privacyCheck"
+            :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.privacy')"
             :label="{
               text: Translator.trans('explanation.statement.privacy')
             }"
@@ -551,6 +553,7 @@
           :checked="formData.r_gdpr_consent === 'on'"
           :class="prefixClass('u-mv-0_5')"
           data-cy="gdprCheck"
+          :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.data_protection')"
           :label="{
             text: Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })
           }"

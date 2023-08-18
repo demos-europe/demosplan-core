@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -35,14 +36,12 @@ use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementFragmentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
@@ -57,6 +56,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
@@ -64,7 +64,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Exception\ClientException;
@@ -125,7 +124,6 @@ class StatementFragmentService extends CoreService
         private readonly ElasticSearchService $searchService,
         ElementsService $elementService,
         EntityContentChangeService $entityContentChangeService,
-        private readonly EntityFetcher $entityFetcher,
         private readonly EntityHelper $entityHelper,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly ManagerRegistry $managerRegistry,
@@ -343,14 +341,14 @@ class StatementFragmentService extends CoreService
         // only fields to return
         $versions = \collect($fragment['versions'])
             ->filter(
-                fn($version) => array_key_exists('modifiedByDepartmentId', $version)
+                fn ($version) => array_key_exists('modifiedByDepartmentId', $version)
                     && $version['modifiedByDepartmentId'] == $departmentId
             )->filter(
                 function ($version) use (&$currentValues) {
                     return $this->hasModifiedValues($version, $currentValues);
                 }
             )
-            ->transform(fn($fragment) => \collect($fragment)
+            ->transform(fn ($fragment) => \collect($fragment)
                 ->only($fieldsToReturn)
                 ->toArray())
             ->values()
@@ -369,11 +367,11 @@ class StatementFragmentService extends CoreService
     public function getStatementFragmentsStatement($statementId)
     {
         try {
-            return $this->entityFetcher->listEntitiesUnrestricted(
-                StatementFragment::class,
-                [$this->conditionFactory->propertyHasValue($statementId, ['statement'])],
-                [$this->sortMethodFactory->propertyAscending(['sortIndex'])]
-            );
+            return $this->statementFragmentRepository->findBy([
+                'statement' => $statementId,
+            ], [
+                'sortIndex' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment List', [$e]);
 
@@ -1565,11 +1563,13 @@ class StatementFragmentService extends CoreService
     protected function getFragmentElasticsearchRepository(): FragmentElasticsearchRepository
     {
         return new FragmentElasticsearchRepository(
+            $this->conditionFactory,
             $this->esStatementFragmentType,
             $this->managerRegistry,
             $this->globalConfig,
             $this->getLogger(),
             $this->translator,
+            $this->sortMethodFactory,
             $this->elementService,
             $this->paragraphService,
             StatementFragment::class

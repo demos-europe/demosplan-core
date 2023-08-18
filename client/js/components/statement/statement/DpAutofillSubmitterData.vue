@@ -110,6 +110,7 @@
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_name')"
         id="r_orga_name"
+        data-cy="submitterForm:orgaName"
         class="layout__item u-1-of-2 u-mb-0_75"
         :label="{
           text: Translator.trans('invitable_institution')
@@ -121,6 +122,7 @@
    --><dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name')"
         id="r_orga_department_name"
+        data-cy="submitterForm:orgaDepartmentName"
         class="layout__item u-1-of-2 u-mb-0_75"
         :label="{
           text: translateFieldLabel({ field: 'department', label: 'department' })
@@ -257,6 +259,7 @@ export default {
             {
               permission: 'field_statement_meta_submit_name',
               field: 'name',
+              dataCy: 'submitterForm:authorName',
               label: Translator.trans('statement.form.name'),
               name: 'r_author_name',
               type: 'text',
@@ -266,6 +269,7 @@ export default {
               permission: 'field_statement_meta_email',
               label: Translator.trans('statement.fieldset.emailAddress'),
               field: 'email',
+              dataCy: 'submitterForm:orgaEmail',
               name: 'r_orga_email',
               type: 'email',
               width: 'u-1-of-2',
@@ -274,6 +278,7 @@ export default {
             },
             {
               field: 'phone',
+              dataCy: 'submitterForm:Phone',
               name: 'r_phone',
               type: 'tel', // Type number and tel allow letters so pattern is set
               label: Translator.trans('statement.fieldset.phoneNumber'),
@@ -286,6 +291,7 @@ export default {
             {
               permission: 'field_statement_meta_street',
               field: 'street',
+              dataCy: 'submitterForm:orgaStreet',
               name: 'r_orga_street',
               type: 'text',
               width: 'u-4-of-10'
@@ -293,6 +299,7 @@ export default {
             {
               permission: 'field_statement_meta_street',
               field: 'nr',
+              dataCy: 'submitterForm:houseNumber',
               name: 'r_houseNumber',
               type: 'text',
               label: Translator.trans('street.number.short'),
@@ -301,6 +308,7 @@ export default {
             {
               permission: 'field_statement_meta_postal_code',
               field: 'postalCode',
+              dataCy: 'submitterForm:orgaPostalcode',
               label: Translator.trans('postalcode'),
               name: 'r_orga_postalcode',
               width: 'u-2-of-12',
@@ -310,6 +318,7 @@ export default {
             {
               permission: 'field_statement_meta_city',
               field: 'city',
+              dataCy: 'submitterForm:orgaCity',
               name: 'r_orga_city',
               width: 'u-4-of-12',
               type: 'text'
@@ -492,7 +501,8 @@ export default {
             value: this.submitterData[curr.field],
             required: isRequiredInFormDefinition,
             type: curr.type,
-            width: curr.width
+            width: curr.width,
+            dataCy: curr.dataCy
           })
         }
         return acc

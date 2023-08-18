@@ -15,7 +15,7 @@
         v-tooltip="{
           boundariesElement: body,
           content: Translator.trans('segment.recommendation.other.procedure') + ': ' + procedureName,
-          classes: 'u-z-super'
+          classes: 'z-ultimate'
         }"
         :aria-label="Translator.trans('more.information')"
         class="fa fa-info-circle" />
@@ -27,7 +27,7 @@
       <button
         class="btn--blank o-link--default"
         :aria-label="Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'u-z-super' }"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'z-ultimate' }"
         v-if="canExpand"
         @click="toggleExpanded">
         <i
@@ -37,7 +37,7 @@
       </button>
       <button
         :aria-label="Translator.trans('segment.recommendation.paste')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'u-z-super' }"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'z-ultimate' }"
         class="btn--blank o-link--default"
         @click="$emit('insert-recommendation')">
         <i

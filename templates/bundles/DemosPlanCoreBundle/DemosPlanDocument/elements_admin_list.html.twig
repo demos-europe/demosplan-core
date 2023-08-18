@@ -65,7 +65,7 @@
         <p>
             {{ "text.elementimport.fileupload"|trans }}
         </p>
-        <form action="{{ path('DemosPlan_element_import', {'procedure':procedure }) }}" method="post" enctype="multipart/form-data">
+        <form action="{{ path('DemosPlan_element_import', {'procedureId':procedure }) }}" method="post" enctype="multipart/form-data">
 
             {{
                 fileupload(

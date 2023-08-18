@@ -114,7 +114,7 @@ export default {
     tooltipContent () {
       return {
         content: Translator.trans('boilerplates.categories.explanation'),
-        classes: 'u-z-modal-window'
+        classes: 'z-modal'
       }
     }
   },

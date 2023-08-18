@@ -66,7 +66,7 @@
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
         </p>
         <dp-anonymize-text
-          class="overflow-y-auto max-height-500"
+          class="u-mb u-p-0_25 overflow-y-auto max-height-500"
           :value="anonymizeText"
           @change="text => anonymizeText = text" />
       </div>

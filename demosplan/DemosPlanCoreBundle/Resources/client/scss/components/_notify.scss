@@ -20,7 +20,7 @@
     position: fixed;
     bottom: 0;
     right: 0;
-    z-index: $z-super;
+    z-index: $dp-z-ultimate;
     margin: 0 $inuit-base-spacing-unit--small;
 
     &__message {
@@ -30,7 +30,7 @@
         padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .8;
         width: 30em;
 
-        box-shadow: $dp-box-shadow-2;
+        box-shadow: $dp-box-shadow-md;
 
         @include media-query('palm') {
             width: 100%;

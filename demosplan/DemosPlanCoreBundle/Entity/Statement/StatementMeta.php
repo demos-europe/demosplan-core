@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Table(name="_statement_meta")
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository")
  */
 class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
 {

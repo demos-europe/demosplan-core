@@ -81,7 +81,7 @@
                     :aria-label="Translator.trans('contextual.help')"
                     v-tooltip="{
                       content: Translator.trans('annotator.modify.explanation'),
-                      classes: 'u-z-super'
+                      classes: 'z-ultimate'
                     }"
                     class="fa fa-question-circle float-right u-mt-0_125" />
                 </p>
@@ -263,7 +263,7 @@ export default {
       return Object.entries(this.labelTranslations)
         .map(([key, value]) => {
           return {
-            label: value,
+            label: Translator.trans(value),
             value: key
           }
         })

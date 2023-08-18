@@ -30,7 +30,7 @@
       }"
       name="r_url"
       required
-      @input="getLayerCapabilities"
+      @blur="getLayerCapabilities"
       @enter="getLayerCapabilities" />
 
     <dp-select
@@ -292,7 +292,7 @@ export default {
             projectionsFromSource: availableCRS.join(', '),
             availableProjectionsFromSystem: this.availableProjections.join(', ')
           }))
-        } else if (this.projectionOptions.includes(this.projection) === false) {
+        } else if (this.findProjectionInOptions() === false) {
           this.projection = this.projectionOptions[0].value
         }
       }
@@ -383,6 +383,12 @@ export default {
             dplan.notify.warning(Translator.trans('matrixset.no.supported.projections'))
           }
         }
+      })
+    },
+
+    findProjectionInOptions () {
+      return this.projectionOptions.some(obj => {
+        return obj.value === this.projection
       })
     },
 

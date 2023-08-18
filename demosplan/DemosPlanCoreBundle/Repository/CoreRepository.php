@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -33,9 +33,9 @@ use Tightenco\Collect\Support\Collection;
 /**
  * @template T of object
  *
- * @template-extends ServiceEntityRepository<T>
+ * @template-extends FluentRepository<T>
  */
-abstract class CoreRepository extends ServiceEntityRepository
+abstract class CoreRepository extends FluentRepository
 {
     /**
      * @var LoggerInterface
@@ -145,7 +145,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             return $all[$randomKeys];
         } else {
             return array_map(
-                fn($key) => $all[$key],
+                fn ($key) => $all[$key],
                 $randomKeys
             );
         }
@@ -479,7 +479,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             ]
         )->merge($additionalAllowedTags)
             ->flatMap(
-                fn($tagName) => ["<{$tagName}>", "</{$tagName}>"]
+                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
         return strip_tags($text, $allowedTags);
@@ -496,7 +496,7 @@ abstract class CoreRepository extends ServiceEntityRepository
         return $this->getEntityManager()->getUnitOfWork()->getOriginalEntityData($entity);
     }
 
-    protected function validate(object $entityToValidate)
+    protected function validate(object $entityToValidate): void
     {
         $violations = $this->validator->validate($entityToValidate);
         if (0 !== $violations->count()) {

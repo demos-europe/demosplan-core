@@ -22,6 +22,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
@@ -31,6 +32,7 @@ export default {
 
   components: {
     DetailViewFinalEmailBody,
+    DpBoilerPlateModal,
     DpButton,
     DpDatepicker,
     DpMapModal,

@@ -14,10 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Row;
@@ -25,8 +26,6 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\Jc;
@@ -65,8 +64,7 @@ class SegmentsExporter
      */
     public function export(Procedure $procedure, Statement $statement): WriterInterface
     {
-        $phpWord = new PhpWord();
-        Settings::setOutputEscapingEnabled(true);
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
@@ -179,7 +177,7 @@ class SegmentsExporter
     {
         $table = $this->addSegmentsTableHeader($section);
         $sortedSegments = $statement->getSegmentsOfStatement()->toArray();
-        uasort($sortedSegments, static fn(Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
+        uasort($sortedSegments, static fn (Segment $segmentA, Segment $segmentB) => $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment);

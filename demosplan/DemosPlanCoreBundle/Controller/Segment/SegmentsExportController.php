@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
@@ -39,6 +40,7 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte/export', options: ['expose' => true])]
     public function exportAction(
+        NameGenerator $nameGenerator,
         ProcedureHandler $procedureHandler,
         SegmentsExporter $exporter,
         Slugify $slugify,
@@ -59,7 +61,7 @@ class SegmentsExportController extends BaseController
                     .'-'
                     .$statement->getExternId().'.docx';
 
-        $this->setResponseHeaders($response, $filename);
+        $this->setResponseHeaders($response, $filename, $nameGenerator);
 
         return $response;
     }
@@ -69,6 +71,7 @@ class SegmentsExportController extends BaseController
      */
     #[Route(name: 'dplan_statement_segments_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/gruppiert', options: ['expose' => true])]
     public function exportByStatementsFilterAction(
+        NameGenerator $nameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
@@ -87,7 +90,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'), $nameGenerator);
 
         return $response;
     }
@@ -98,6 +101,7 @@ class SegmentsExportController extends BaseController
     #[Route(name: 'dplan_statement_xls_export', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/export/xlsx', options: ['expose' => true])]
     public function exportByStatementsFilterXlsAction(
         JsonApiActionService $jsonApiActionService,
+        NameGenerator $nameGenerator,
         ProcedureHandler $procedureHandler,
         Request $request,
         SegmentsByStatementsExporter $exporter,
@@ -122,7 +126,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename(
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename(
             $exporter->getSynopseFileName($procedure, 'xlsx'))
         );
 
@@ -171,13 +175,16 @@ class SegmentsExportController extends BaseController
         );
     }
 
-    private function setResponseHeaders(StreamedResponse $response, string $filename): void
-    {
+    private function setResponseHeaders(
+        StreamedResponse $response,
+        string $filename,
+        NameGenerator $nameGenerator
+    ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
     }
 }

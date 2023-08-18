@@ -21,7 +21,7 @@
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex items-start">
-        <div class="relative u-z-content-above u-mt-0_75">
+        <div class="relative z-above-zero u-mt-0_75">
           <input
             type="checkbox"
             :checked="selected"

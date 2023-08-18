@@ -11,7 +11,7 @@
             }"
             name="r_receiver"
             :options="JSON.parse('{{ [
-                { label: 'statements.no_county_selected', value: 'none' }
+                { label: 'statements.no_county_selected'|trans, value: 'none' }
             ]|merge(templateVars.notificationReceivers|map(receiver => { label: receiver.label, value: receiver.id }))|json_encode|e('js') }}')"
             required>
         </dp-select>

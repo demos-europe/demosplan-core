@@ -13,8 +13,9 @@
     <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
       <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
         <form
+          ref="loginForm"
           :action="Routing.generate('DemosPlan_user_login')"
-          data-dp-validate
+          data-dp-validate="loginForm"
           method="post"
           name="login">
           <h2
@@ -24,7 +25,7 @@
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
 
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_useremail"
               data-cy="username"
@@ -55,7 +56,8 @@
               :class="prefixClass('u-mt')"
               data-cy="submit"
               :text="Translator.trans('login')"
-              type="submit" />
+              type="submit"
+              @click.prevent="submit" />
           </dp-form-row>
           <a
             :class="prefixClass('o-link--default')"
@@ -106,7 +108,7 @@
 </template>
 
 <script>
-import { DpButton, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpFormRow, DpInput, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SamlLoginForm',
@@ -117,7 +119,7 @@ export default {
     DpInput
   },
 
-  mixins: [prefixClassMixin],
+  mixins: [prefixClassMixin, dpValidateMixin],
 
   props: {
     isSaml: {
@@ -135,6 +137,14 @@ export default {
     csrfToken: {
       type: String,
       required: true
+    }
+  },
+
+  methods: {
+    submit () {
+      this.dpValidateAction('loginForm', () => {
+        this.$refs.loginForm.submit()
+      }, false)
     }
   }
 }

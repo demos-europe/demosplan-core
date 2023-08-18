@@ -61,9 +61,9 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->allConditionsApply(
+        return [
             // for now the access to SignLanguageOverviewVideos is limited to the ones uploaded
             // in the current customer
             $this->conditionFactory->propertyHasValue(
@@ -75,8 +75,8 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             $this->conditionFactory->propertiesEqual(
                 $this->id->getAsNames(),
                 $this->customerContext->signLanguageOverviewVideos->id->getAsNames()
-            )
-        );
+            ),
+        ];
     }
 
     protected function getProperties(): array
@@ -167,5 +167,10 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange->addEntityToPersist($customer);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['field_sign_language_overview_video_edit'];
     }
 }
