@@ -455,6 +455,10 @@
 
                                     <dp-date-range-picker
                                         class="u-2-of-4"
+                                        :data-cy="{
+                                            endDate: 'administrationEditForm:endDate',
+                                            startDate: 'administrationEditForm:startDate'
+                                        }"
                                         start-id="r_startdate"
                                         start-name="r_startdate"
                                         start-value="{{ proceduresettings.startDate|default|dplanDate }}"
@@ -473,6 +477,8 @@
                                         :available-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
                                             label: internalPhase.name,
                                             value: internalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                        data-cy-end-date="administrationEditForm:designatedEndDate"
+                                        data-cy-start-date="administrationEditForm:designatedStartDate"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.settings.designatedEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.settings.designatedPhase }}"
@@ -580,7 +586,10 @@
                                     } %}
                                     <dp-date-range-picker
                                         class="u-2-of-4"
-                                        data-cy="publicParticipationStartDate"
+                                        :data-cy="{
+                                            endDate: 'administrationEditForm:publicParticipationEndDate',
+                                            startDate: 'administrationEditForm:publicParticipationStartDate'
+                                        }"
                                         start-id="r_publicParticipationStartDate"
                                         start-name="r_publicParticipationStartDate"
                                         start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
@@ -599,6 +608,8 @@
                                         :available-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
                                             label: externalPhase.name,
                                             value: externalPhase.key})|json_encode|e('js', 'utf-8') }}')"
+                                        data-cy-end-date="administrationEditForm:designatedPublicEndDate"
+                                        data-cy-start-date="administrationEditForm:designatedPublicStartDate"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.settings.designatedPublicEndDate|default|dplanDate }}"
                                         init-selected-phase="{{ proceduresettings.settings.designatedPublicPhase }}"

@@ -127,8 +127,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure): PhpWord
     {
-        $phpWord = new PhpWord();
-        Settings::setOutputEscapingEnabled(true);
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
         $this->exportStatement($section, $statement);

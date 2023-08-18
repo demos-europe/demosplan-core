@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -21,7 +20,6 @@ class AiApiUserProvider implements UserProviderInterface
 {
     public function __construct(
         protected readonly UserService $userService,
-        protected readonly CustomerService $customerService
     ) {
     }
 
@@ -55,8 +53,13 @@ class AiApiUserProvider implements UserProviderInterface
         return AiApiUser::class === $class;
     }
 
-    private function getApiUser(): AiApiUser
+    private function getApiUser(): UserInterface
     {
-        return new AiApiUser($this->customerService->getCurrentCustomer());
+        $userEntity = $this->userService->getValidUser(AiApiUser::AI_API_USER_LOGIN);
+        if (!$userEntity) {
+            throw new UserNotFoundException('No AiApiUser found');
+        }
+
+        return $userEntity;
     }
 }
