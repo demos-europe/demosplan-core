@@ -11,7 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 use Doctrine\Common\Annotations\Reader;
@@ -100,15 +101,15 @@ class CheckPermissionListener
         $dplanPermissions = [];
 
         // Check if there is a DplanPermissions-Attribute. If so, get the permissions
-        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions::class);
+        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(AttributeDplanPermissions::class);
         if (0 < count($dplanPermissionsAttributes)) {
             $dplanPermissions = $dplanPermissionsAttributes[0]->newInstance()->getPermissions();
         }
 
         // If dplanPermissions is still empty, check for annotation
         if ([] === $dplanPermissions) {
-            /** @var DplanPermissions $dplanPermissionsAnnotation */
-            $dplanPermissionsAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, DplanPermissions::class);
+            /** @var AnnotationDplanPermissions $dplanPermissionsAnnotation */
+            $dplanPermissionsAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, AnnotationDplanPermissions::class);
 
             if (null !== $dplanPermissionsAnnotation) {
                 $dplanPermissions = $dplanPermissionsAnnotation->getPermissions();
