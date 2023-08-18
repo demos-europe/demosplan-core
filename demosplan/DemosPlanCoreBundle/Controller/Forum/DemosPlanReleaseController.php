@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Twig\Extension\EscaperExtension;
 
 class DemosPlanReleaseController extends DemosPlanForumBaseController
 {
@@ -834,7 +835,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['exportDate'] = date('d.m.Y');
 
         // set csv Escaper
-        $twig->getExtension('EscaperExtension')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
+        $twig->getExtension(EscaperExtension::class)->setEscaper(
+            'csv',
+            fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
+        );
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_export.csv.twig', [
             'templateVars' => $templateVars,
