@@ -85,11 +85,11 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
 
-    Object.values(components).forEach(comp => {
-      if (comp) {
-        app.component(comp.name, comp)
+    Object.keys(components).forEach(comp => {
+      if (components[comp]) {
+        app.component(components[comp].name, components[comp])
       } else {
-        console.log('at least one is undefined', components)
+        console.log(`${components[comp]} is undefined}`, components)
       }
     })
 
