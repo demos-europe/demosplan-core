@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import draggable from 'vuedraggable'
@@ -246,10 +246,8 @@ export default {
 
       let county = {}
       if (hasPermission('field_statement_county')) {
-        county = statementAttributes.county && this.counties
-          .find(c => c.value === statementAttributes.county)
-          .filter(c => hasOwnProp(c, 'label'))
-        county = { county: county.label || Translator.trans('notspecified') }
+        county = statementAttributes.county && this.counties.find(c => c.value === statementAttributes.county)
+        county = { county: (county && county.label) || Translator.trans('notspecified') }
       }
 
       let priorityAreas = {}
