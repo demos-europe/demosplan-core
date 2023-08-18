@@ -1767,7 +1767,6 @@ export default {
     },
 
     redrawMap () {
-      const map = this.map
       this.map.updateSize()
       this.map.getView().fit(this.initialExtent, this.map.getSize())
     },
@@ -1910,7 +1909,6 @@ export default {
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
-        constrainOnlyCenter: true,
         constrainResolution: true
       })
     },
