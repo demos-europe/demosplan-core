@@ -602,17 +602,21 @@ export default {
 
       if (serviceType === 'wmts') {
         const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
-        const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
-        externalApi(url)
-          .then(response => {
-            const result = this.parser.read(response.data)
+        url = this.addGetCapabilityParamToUrl(layer.attributes.url)
+        $.ajax({
+          dataType: 'xml',
+          url: url || '',
+          async: false,
+          success: response => {
+            const result = this.parser.read(response)
             options = optionsFromCapabilities(result, {
               layer: layerArray[0] || '',
               matrixSet: layer.attributes.tileMatrixSet
             })
 
             source = new WMTS({ ...options, layers: layerArray })
-          })
+          }
+        })
       } else if (serviceType === 'wms') {
         // @TODO find out why 'SERVICE=WMS&' is added twice to url
         url = layer.attributes.url ? layer.attributes.url : null
