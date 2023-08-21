@@ -43,6 +43,9 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated Loading fixture data via Foundry-Factories instead.
+ */
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 {
     final public const TESTPROCEDURE = 'testProcedure';
