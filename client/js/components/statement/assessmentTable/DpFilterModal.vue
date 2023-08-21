@@ -188,7 +188,7 @@
         </div>
 
         <!-- Button row -->
-        <div class="text-right space-inline-s">
+        <div class="text--right...
           <button
             class="btn btn--primary"
             :class="{'pointer-events-none': disabledInteractions}"
