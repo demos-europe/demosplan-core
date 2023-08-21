@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\DemosFixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 abstract class TestFixture extends DemosFixture implements FixtureGroupInterface
 {

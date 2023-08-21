@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadProcedureProposalData extends TestFixture
 {

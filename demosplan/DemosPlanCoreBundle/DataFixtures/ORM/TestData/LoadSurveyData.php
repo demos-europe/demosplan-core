@@ -18,7 +18,7 @@ use Doctrine\Persistence\ObjectManager;
 use Exception;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadSurveyData extends TestFixture implements DependentFixtureInterface
 {

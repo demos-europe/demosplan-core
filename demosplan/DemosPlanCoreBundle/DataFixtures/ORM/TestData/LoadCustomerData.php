@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadCustomerData extends TestFixture
 {

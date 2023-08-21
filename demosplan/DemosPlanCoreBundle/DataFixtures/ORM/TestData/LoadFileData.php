@@ -20,7 +20,7 @@ use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadFileData extends TestFixture implements DependentFixtureInterface
 {

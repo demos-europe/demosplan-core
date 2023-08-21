@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadLocationData extends TestFixture
 {

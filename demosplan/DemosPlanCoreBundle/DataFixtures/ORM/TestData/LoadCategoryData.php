@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Category;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadCategoryData extends TestFixture
 {

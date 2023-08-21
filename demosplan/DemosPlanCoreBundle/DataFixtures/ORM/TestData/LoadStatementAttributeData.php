@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadStatementAttributeData extends TestFixture
 {

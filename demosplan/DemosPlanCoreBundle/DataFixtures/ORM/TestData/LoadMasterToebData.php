@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadMasterToebData extends TestFixture
 {
