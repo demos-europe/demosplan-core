@@ -19,6 +19,7 @@ import {
   ToggleSideMenu,
   touchFriendlyUserbox
 } from '@DpJs/lib/core/libs'
+import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
@@ -79,17 +80,18 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.use(DPVueCorePlugin)
 
     // Register components that are used globally
+    app.component('BackToTopButton', BackToTopButton)
     app.component('DpObscure', DpObscure)
-    app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('NotifyContainer', NotifyContainer)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
+    app.component('HamburgerMenuButton', HamburgerMenuButton)
 
-    Object.values(components).forEach(comp => {
-      if (comp) {
-        app.component(comp.name, comp)
+    Object.keys(components).forEach(comp => {
+      if (components[comp]) {
+        app.component(components[comp].name, components[comp])
       } else {
-        console.log('at least one is undefined', components)
+        console.log(`${components[comp]} is undefined}`, components)
       }
     })
 

@@ -38,10 +38,10 @@
           :id="`r_role_${role.value}`"
           v-model="currentRole"><!--
      --><label
-        class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
-        :for="`r_role_${role.value}`">
-        {{ Translator.trans(role.label) }}
-      </label>
+          class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
+          :for="`r_role_${role.value}`">
+          {{ Translator.trans(role.label) }}
+        </label>
       </template>
     </div><!--
     Assuming t_role defaults to value=0 if feature_institution_participation is set to false:

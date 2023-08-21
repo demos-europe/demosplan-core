@@ -115,125 +115,125 @@
       </div>
     </template>
 
-  <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
-    <div class="u-1-of-1 c-public-statement__content-item">
-      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-        {{ Translator.trans('organisation') }}
+    <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+      <div class="u-1-of-1 c-public-statement__content-item">
+        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          {{ Translator.trans('organisation') }}
+        </div><!--
+     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+          {{ organisation || '-' }}
+        </div>
       </div><!--
-    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-        {{ organisation || '-' }}
+   --><div class="u-1-of-1 c-public-statement__content-item">
+        <div
+            v-if="showAuthor"
+            class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('authored.by') }}
+      </div><!--
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ authoredBy }}
       </div>
     </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
-      <div
-        v-if="showAuthor"
-        class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('authored.by') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ authoredBy }}
-        </div>
+ --><div class="u-1-of-1 c-public-statement__content-item">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('department') }}
       </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('department') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ department || '-' }}
-        </div>
-      </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('phase') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ phase || '-' }}
-        </div>
-      </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('document') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ document }}
-        </div>
-      </div><!--
-   --><div
-        v-if="hasPermission('feature_documents_new_statement')"
-        class="u-1-of-1 c-public-statement__content-item">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('paragraph') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ paragraph }}
-        </div>
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ department || '-' }}
       </div>
+    </div><!--
+ --><div class="u-1-of-1 c-public-statement__content-item">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('phase') }}
       </div><!--
-  --><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
-      <div class="u-1-of-1 c-public-statement__content-item">
-        <template v-if="hasPermission('field_statement_location')">
-          <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-            {{ Translator.trans('location') }}
-          </div>
-          <div class="inline-block u-2-of-3 u-1-of-1-palm">
-            <button
-              v-if="Object.keys(polygon).length > 0"
-              class="btn--blank o-link--default"
-              type="button"
-              @click.prevent.stop="$emit('open-map-modal', polygon)"
-              :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
-              {{ Translator.trans('see') }}
-            </button>
-            <span v-else>
-              -
-            </span>
-          </div>
-        </template>
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ phase || '-' }}
+      </div>
+    </div><!--
+ --><div class="u-1-of-1 c-public-statement__content-item">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('document') }}
       </div><!--
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ document }}
+      </div>
+    </div><!--
+ --><div
+      v-if="hasPermission('feature_documents_new_statement')"
+      class="u-1-of-1 c-public-statement__content-item">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('paragraph') }}
+      </div><!--
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ paragraph }}
+      </div>
+    </div>
+  </div>
+  <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+    <div class="u-1-of-1 c-public-statement__content-item">
+      <template v-if="hasPermission('field_statement_location')">
+        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          {{ Translator.trans('location') }}
+        </div>
+        <div class="inline-block u-2-of-3 u-1-of-1-palm">
+          <button
+            v-if="Object.keys(polygon).length > 0"
+            class="btn--blank o-link--default"
+            type="button"
+            @click.prevent.stop="$emit('open-map-modal', polygon)"
+            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
+            {{ Translator.trans('see') }}
+          </button>
+          <span v-else>
+            -
+          </span>
+        </div>
+      </template>
+    </div><!--
+ --><div
+      class="u-1-of-1 c-public-statement__content-item"
+      v-if="priorityAreas !== null">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('potential.areas') }}
+      </div><!--
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+        {{ renderPriorityAreas(priorityAreas) }}
+      </div>
+    </div><!--
    --><div
         class="u-1-of-1 c-public-statement__content-item"
-        v-if="priorityAreas !== null">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('potential.areas') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-          {{ renderPriorityAreas(priorityAreas) }}
-        </div>
+        v-if="county !== null">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('county') }}
       </div><!--
-     --><div
-          class="u-1-of-1 c-public-statement__content-item"
-          v-if="county !== null">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('county') }}
-        </div><!--
-     --><div class="inline-block u-2-of-3 u-1-of-1-palm">
-        {{ county }}
-        </div>
+   --><div class="inline-block u-2-of-3 u-1-of-1-palm">
+      {{ county }}
+      </div>
+    </div><!--
+ --><div class="u-1-of-1 c-public-statement__content-item">
+      <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+        {{ Translator.trans('attachments') }}
       </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
-        <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-          {{ Translator.trans('attachments') }}
-        </div><!--
-     --><div
-          class="inline-block u-2-of-3 u-1-of-1-palm break-words"
-          v-cleanhtml="renderAttachments(attachments)" />
-        </div>
+   --><div
+        class="inline-block u-2-of-3 u-1-of-1-palm break-words"
+        v-cleanhtml="renderAttachments(attachments)" />
       </div>
-      <dp-inline-notification
-        v-if="rejectedReason"
-        class="u-mt"
-        type="info">
-        <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
-        <div>{{ rejectedReason }}</div>
-      </dp-inline-notification>
-      <div class="u-1-of-1 u-mt">
-        <div class="c-public-statement__label">
-          {{ Translator.trans('statementtext') }}
-        </div>
-        <div
-          class="break-words"
-          v-cleanhtml="text" />
+    </div>
+    <dp-inline-notification
+      v-if="rejectedReason"
+      class="u-mt"
+      type="info">
+      <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
+      <div>{{ rejectedReason }}</div>
+    </dp-inline-notification>
+    <div class="u-1-of-1 u-mt">
+      <div class="c-public-statement__label">
+        {{ Translator.trans('statementtext') }}
       </div>
+      <div
+        class="break-words"
+        v-cleanhtml="text" />
+    </div>
   </dp-table-card>
 </template>
 
