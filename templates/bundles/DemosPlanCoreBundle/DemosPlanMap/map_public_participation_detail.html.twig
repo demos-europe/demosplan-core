@@ -278,7 +278,7 @@
 
             {# Display getFeatureInfo Tool only if set #}
             {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
+                <li>
                     <button
                         type="button"
                         id="criteriaButton"
@@ -297,7 +297,7 @@
 
             {# Drawing of procedure #}
             {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
+                <li>
                     <a
                         class="{{ 'c-map__tool o-link--default'|prefixClass }}"
                         target="_blank"

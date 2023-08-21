@@ -64,7 +64,7 @@
       </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
-      <ul class="list-style-none">
+      <ul>
         <li
           v-for="link in permittedLinks"
           class="layout__item"
