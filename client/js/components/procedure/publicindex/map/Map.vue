@@ -9,7 +9,7 @@
 
 <template>
   <l-map
-    class="c-publicindex__map u-z-content"
+    class="c-publicindex__map isolate"
     ref="map"
     :zoom="initialZoom"
     :center="initialLocation"
