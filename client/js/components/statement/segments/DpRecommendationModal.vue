@@ -59,7 +59,8 @@
         {{ Translator.trans('statement.list.empty') }}
       </div>
     </template>
-</dp-modal>
+  </dp-modal>
+</template>
 
 <script>
 import { dataTableSearch, dpApi, DpLabel, DpLoading, DpModal, DpSearchField } from '@demos-europe/demosplan-ui'
