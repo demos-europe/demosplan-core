@@ -137,11 +137,10 @@
                     >
                     {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility'|trans }}
                 </label>
-                <div class="o-tooltip o-tooltip--question-circle inline-block">
-                    <div class="o-tooltip__content" aria-hidden="true">
-                        {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}
-                    </div>
-                </div>
+                <dp-tooltip-icon
+                    icon="fa-question-circle"
+                    text="{{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}">
+                </dp-tooltip-icon>
             {% endif %}
 
 
