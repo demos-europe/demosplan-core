@@ -48,7 +48,8 @@
         {# Assignment (a.k.a. Claim) #}
         {% if hasPermission('feature_statement_assignment') %}
             {% if statement.assignee.id|default != currentUser.ident %}
-                <a class="c-actionmenu__trigger inline-block u-mr-0_5"
+                <a
+                  class="c-actionmenu__trigger inline-block u-mr-0_5"
                     href="{{ href_assign }}"
                     data-cy="claim"
                     v-tooltip="'{{ text }}'">
