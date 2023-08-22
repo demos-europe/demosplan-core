@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadMigrationVersionData extends ProdFixture
 {

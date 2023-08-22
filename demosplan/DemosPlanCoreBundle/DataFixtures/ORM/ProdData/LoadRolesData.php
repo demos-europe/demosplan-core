@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadRolesData extends ProdFixture
 {

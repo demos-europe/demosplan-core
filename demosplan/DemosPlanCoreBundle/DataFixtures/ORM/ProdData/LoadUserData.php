@@ -27,7 +27,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * @deprecated Loading fixture data via Foundry-Factories instead.
+ * @deprecated loading fixture data via Foundry-Factories instead
  */
 class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
