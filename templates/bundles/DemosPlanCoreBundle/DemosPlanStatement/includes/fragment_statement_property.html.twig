@@ -3,12 +3,9 @@
         {{ propertyName|default|trans }}:
     </div>
 
-    <ul class="o-list o-list--csv o-tooltip o-hellip--nowrap layout__item u-2-of-3 u-3-of-4-desk u-3-of-4-lap u-1-of-1-palm u-pl-palm">
-        <div class="o-tooltip__content">
-            <ul class="o-list o-list--csv">
-                {% block tooltip %}{% endblock tooltip %}
-            </ul>
-        </div>
+    <ul
+        class="o-list o-list--csv o-hellip--nowrap layout__item u-2-of-3 u-3-of-4-desk u-3-of-4-lap u-1-of-1-palm u-pl-palm"
+        v-tooltip="`<ul class='o-list o-list--csv'>{% block tooltip %}{% endblock tooltip %}</ul>`">
         {% block visibleContent %}{% endblock visibleContent %}
     </ul>
 {% endif %}
