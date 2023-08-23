@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Story;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureTemplateFactory;
@@ -22,9 +30,7 @@ final class OrgaHasMultipleRelatedCustomerStory extends Story
      * - Customer-County (new Counties)
      * - Customer-User-Role (new User and new Role)
      * - Customer-OrgaType (new Orga and new OrgaType)
-     * - Customer-Report (new ReportEntries)
-     *
-     * @return void
+     * - Customer-Report (new ReportEntries).
      */
     public function build(): void
     {

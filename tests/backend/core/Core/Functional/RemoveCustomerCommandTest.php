@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -37,7 +36,6 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      * Related ReportEntries should be deleted.
      * Reports of a customer are not identfied by the "customter" field of a report,
      * but by the procedure(Id) created by the orga which is related to a customer to delete.
-     *
      */
     public function testReportsOnDeleteCustomer(): void
     {
@@ -82,7 +80,7 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
      */
     public function testBlueprintOnDeleteCustomer(): void
     {
-        FullCustomerStory::load();/** @var Customer[] $customers */
+        FullCustomerStory::load(); /** @var Customer[] $customers */
         $customers = $this->getEntries(Customer::class, ['name' => FullCustomerStory::NAME]);
         static::assertNotEmpty($customers);
         static::assertInstanceOf(Customer::class, $customers[0]);
@@ -186,7 +184,7 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
 
     /**
      * Related orgas should be deleted, in case of the only relation of the orgas to a customer is,
-     * to the customer which will be deleted.'
+     * to the customer which will be deleted.'.
      */
     public function testOrgasOnDeleteCustomer(): void
     {
@@ -214,7 +212,6 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
 
         OrgaHasMultipleRelatedCustomerStory::load();
         $totalAmountOfOrgasBeforeDeletion = $this->countEntries(Orga::class);
-
 
         $commandTester = $this->getCommandTester();
         $commandTester->setInputs([FullCustomerStory::NAME]);

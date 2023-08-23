@@ -27,7 +27,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use function PHPUnit\Framework\throwException;
 
 class RemoveCustomerCommand extends CoreCommand
 {
@@ -143,7 +142,7 @@ class RemoveCustomerCommand extends CoreCommand
 
     private function deleteRelationsToRolesOfUsers(Customer $customer): void
     {
-        $this->customerRepository->persistAndDelete([],  $customer->getUserRoles()->toArray());
+        $this->customerRepository->persistAndDelete([], $customer->getUserRoles()->toArray());
     }
 
     /**
@@ -153,7 +152,7 @@ class RemoveCustomerCommand extends CoreCommand
     {
         $this->checkForUniqueCustomerForCustomerOrganisations($customer);
 
-        $this->customerRepository->persistAndDelete([],  $customer->getOrgas()->toArray());
+        $this->customerRepository->persistAndDelete([], $customer->getOrgas()->toArray());
         $this->customerRepository->persistAndDelete([], $customer->getOrgaStatuses()->toArray());
     }
 
@@ -192,7 +191,7 @@ class RemoveCustomerCommand extends CoreCommand
      */
     private function trydeleteOrgasOfCustomer(Customer $customer)
     {
-        //todo: delete related organisations and handle relations of orgas (user, deaprtments, etc.)
+        // todo: delete related organisations and handle relations of orgas (user, deaprtments, etc.)
     }
 
     /**
@@ -203,24 +202,18 @@ class RemoveCustomerCommand extends CoreCommand
      */
     private function checkForUniqueCustomerForCustomerOrganisations(Customer $customerToDelete): void
     {
-        foreach ($customerToDelete->getOrgas()as $orgas)
-        {
-            if ($orgas->getCustomers()->count() > 1)
-            {
-                throw new DemosException(
-                    'There are organisations of this customer, which are not only in this customer.
-                    The proceeding is not defined for this case.'
-                );
-
+        foreach ($customerToDelete->getOrgas()as $orgas) {
+            if ($orgas->getCustomers()->count() > 1) {
+                throw new DemosException('There are organisations of this customer, which are not only in this customer.
+                    The proceeding is not defined for this case.');
             }
         }
     }
 
     private function deleteRelatedProcedures(object $customer)
     {
-        //fixme: delete procedures which are created by orgas which will be deleted
+        // fixme: delete procedures which are created by orgas which will be deleted
         // delete related statements, reports,  etc.
         $this->deleteReportsOfProcedures($customer);
-
     }
 }
