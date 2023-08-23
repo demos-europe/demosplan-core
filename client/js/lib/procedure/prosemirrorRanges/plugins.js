@@ -19,9 +19,9 @@ import {
   serializeRange
 } from '@DpJs/lib/procedure/prosemirrorRanges/utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
-import { Plugin, PluginKey } from 'prosemirror-state'
+import { Plugin, PluginKey } from '@demos-europe/demosplan-ui'
 import { rangeMark, rangeSelectionMark } from '@DpJs/lib/procedure/prosemirrorRanges/marks'
-import { Schema } from 'prosemirror-model'
+import { Schema } from '@demos-europe/demosplan-ui'
 
 /**
  *
