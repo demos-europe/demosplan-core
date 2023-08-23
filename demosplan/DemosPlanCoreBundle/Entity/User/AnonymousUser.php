@@ -20,7 +20,7 @@ class AnonymousUser extends FunctionalUser
     public function __construct()
     {
         $this->id = self::ANONYMOUS_USER_ID;
-        $this->login = self::ANONYMOUS_USER_NAME;
+        $this->login = self::ANONYMOUS_USER_LOGIN;
         $this->lastname = self::ANONYMOUS_USER_NAME;
         $this->functionalOrga = new Orga();
         $this->functionalOrga->setId(self::ANONYMOUS_USER_ORGA_ID);
