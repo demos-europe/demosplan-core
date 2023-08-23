@@ -308,8 +308,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 }
 
                 $em->remove($em->getReference(Procedure::class, $procedureId));
-                $em->getRepository(ReportEntry::class)
-                    ->deleteByProcedure($procedureId);
+                $em->getRepository(ReportEntry::class)->deleteByProcedure($procedureId);
             }
             $em->flush();
 

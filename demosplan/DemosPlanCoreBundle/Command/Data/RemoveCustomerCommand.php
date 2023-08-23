@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use function PHPUnit\Framework\throwException;
 
 class RemoveCustomerCommand extends CoreCommand
 {
@@ -67,6 +69,9 @@ class RemoveCustomerCommand extends CoreCommand
         );
     }
 
+    /**
+     * @throws DemosException
+     */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
@@ -87,15 +92,14 @@ class RemoveCustomerCommand extends CoreCommand
                 return Command::INVALID;
             }
 
-            $this->checkForSingleOrgaCustomerRelation($customer);
+            $this->checkForUniqueCustomerForCustomerOrganisations($customer);
 
-            $this->trydeleteOrgasOfCustomer($customer); // reports of customers is missleading
             $this->deleteRelatedBlueprint($customer);
             $this->deleteRelationsToRolesOfUsers($customer);
-            $this->deleteRelationsToOrgaTypes($customer);
+            $this->deleteRelatedOrganisations($customer);
             $this->deleteRelationsToCounties($customer);
             // do not delete reports which are related to the custer, because this is a misleading relation!
-            $this->deleteReportsOfProcedures($customer); // reports of customers is missleading
+            $this->deleteRelatedProcedures($customer);
 
             $this->deleteCustomer($customer);
 
@@ -130,38 +134,36 @@ class RemoveCustomerCommand extends CoreCommand
     {
         $blueprintOfCustomer = $customer->getDefaultProcedureBlueprint();
         // Detach blueprint form customer to avoid doctrine exception caused by "new" procedure found on customer.
-        $customer->setDefaultProcedureBlueprint(null);
+//        $customer->setDefaultProcedureBlueprint(null);
         if (null !== $blueprintOfCustomer) {
+//            $this->customerRepository->persistAndDelete([$customer], []);
             $this->procedureRepository->deleteProcedures([$blueprintOfCustomer->getId()]);
-            $this->customerRepository->persistAndDelete([$customer], []);
         }
     }
 
     private function deleteRelationsToRolesOfUsers(Customer $customer): void
     {
-        $userRoles = $customer->getUserRoles()->toArray();
-        $this->customerRepository->persistAndDelete([], $userRoles);
+        $this->customerRepository->persistAndDelete([],  $customer->getUserRoles()->toArray());
     }
 
     /**
      * OrgaStatusInCustomer == relation_customer_orga_orga_type.
      */
-    private function deleteRelationsToOrgaTypes(Customer $customer): void
+    private function deleteRelatedOrganisations(Customer $customer): void
     {
-        $orgaStatuses = $customer->getOrgaStatuses()->toArray();
+        $this->checkForUniqueCustomerForCustomerOrganisations($customer);
 
-        $this->customerRepository->persistAndDelete([], $orgaStatuses);
+        $this->customerRepository->persistAndDelete([],  $customer->getOrgas()->toArray());
+        $this->customerRepository->persistAndDelete([], $customer->getOrgaStatuses()->toArray());
     }
 
     private function deleteRelationsToCounties(Customer $customer): void
     {
-        $customerCounties = $customer->getCustomerCounties()->toArray();
-        $this->customerRepository->persistAndDelete([], $customerCounties);
+        $this->customerRepository->persistAndDelete([], $customer->getCustomerCounties()->toArray());
     }
 
     private function deleteReportsOfProcedures(Customer $customer): void
     {
-        // fixme:
 //        $reports = $this->reportRepository->findBy(['customer' => $customer->getId()]);
 //        $this->reportRepository->persistAndDelete([], $reports);
     }
@@ -190,16 +192,35 @@ class RemoveCustomerCommand extends CoreCommand
      */
     private function trydeleteOrgasOfCustomer(Customer $customer)
     {
-        // todo
+        //todo: delete related organisations and handle relations of orgas (user, deaprtments, etc.)
     }
 
     /**
      * The only case we can proceed with deleting a customer is,
      * if the related organisations of the "customerToDelete", are only related to this single customer!
+     *
+     * @throws DemosException
      */
-    private function checkForSingleOrgaCustomerRelation(Customer $customerToDelete)
+    private function checkForUniqueCustomerForCustomerOrganisations(Customer $customerToDelete): void
     {
-        // in case of mulitiple customers on one of the related orgas of the $customerToDelete
-        // (throw exception and) abort deletion
+        foreach ($customerToDelete->getOrgas()as $orgas)
+        {
+            if ($orgas->getCustomers()->count() > 1)
+            {
+                throw new DemosException(
+                    'There are organisations of this customer, which are not only in this customer.
+                    The proceeding is not defined for this case.'
+                );
+
+            }
+        }
+    }
+
+    private function deleteRelatedProcedures(object $customer)
+    {
+        //fixme: delete procedures which are created by orgas which will be deleted
+        // delete related statements, reports,  etc.
+        $this->deleteReportsOfProcedures($customer);
+
     }
 }

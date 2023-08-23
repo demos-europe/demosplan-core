@@ -48,6 +48,7 @@ final class OrgaFactory extends ModelFactory
         $slug = SlugFactory::createOne()->object();
 
         return [
+            'name'           => self::faker()->company(),
             'addSlug'        => $slug,
             'currentSlug'    => $slug,
             'dataProtection' => self::faker()->text(400),

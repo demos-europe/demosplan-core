@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -21,7 +23,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Story\FullCustomerStory;
+use demosplan\DemosPlanCoreBundle\Story\OrgaHasMultipleRelatedCustomerStory;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
 
@@ -31,31 +35,36 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
 
     /**
      * Related ReportEntries should be deleted.
-     * todo; check procedures. sollten procedures des customers gelöscht werden wenn customer gelöscht wird?
-     * todo: orgas löschen? (wenn nur in diesem customer), Verfahren löschen?, ReportEntries löschen?
-     * im command prüfen, welche procedures über die orga(kommune!) mit dem customter to delete verbunden sind
-     * 1. Verfahren grundsätzlich nicht löschen, ReportEntries "detachen" dazu müssen diese Refactored werden.
-     * 2. Erstmal "irgendwie" Reportentries werden glöscht, Verfahren bleiben bestehen.
+     * Reports of a customer are not identfied by the "customter" field of a report,
+     * but by the procedure(Id) created by the orga which is related to a customer to delete.
      *
-     * 3. Sowohl Verafhren als auch Reportentries löschen. Was ist mit Verfahren die mehreren
-     *      Mandanten zugeordnet werden können? fehlermeldung schmeissen
-     *
-     * Bonus: Was ist eigentlich mir Orgas
-     * Verfahren werden gelöscht für diesen fall aber nicht pauschal?! -> ja weil dsgvo
-     *
-     *
-     * wenn orga mehr als einem mandaten zugewiesen ist, wird eine fehlermeldung ausgegebn
      */
     public function testReportsOnDeleteCustomer(): void
     {
         FullCustomerStory::load();
         /** @var Customer[] $customers */
         $customers = $this->getEntries(Customer::class, ['name' => FullCustomerStory::NAME]);
-        static::assertNotEmpty($customers);
+        static::assertCount(1, $customers);
         static::assertInstanceOf(Customer::class, $customers[0]);
+        /** @var Customer $customer */
+        $customer = $customers[0];
         $testCustomerId = $customers[0]->getId();
 
-        $relatedReports = $this->getEntries(ReportEntry::class, ['customer' => $testCustomerId]);
+        $relatedReports = [];
+        static::assertNotEmpty($customer->getCustomerCounties());
+        static::assertNotEmpty($customer->getOrgaStatuses());
+        static::assertNotEmpty($customer->getOrgas());
+
+        foreach ($customer->getOrgas() as $orga) {
+            static::assertNotEmpty($orga->getProcedures());
+            foreach ($orga->getProcedures() as $procedure) {
+                $relatedReports = array_merge(
+                    $relatedReports,
+                    $this->getEntries(ReportEntry::class, ['identifier' => $procedure->getId()])
+                );
+            }
+        }
+
         static::assertNotEmpty($relatedReports);
         static::assertInstanceOf(ReportEntry::class, $relatedReports[0]);
 
@@ -69,11 +78,29 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
     }
 
     /**
-     * Related ReportEntries should be deleted.
+     * Related Blueprints should be deleted.
      */
-    public function testBlueprintOnDeleteCustomer()
+    public function testBlueprintOnDeleteCustomer(): void
     {
-        // todo
+        FullCustomerStory::load();/** @var Customer[] $customers */
+        $customers = $this->getEntries(Customer::class, ['name' => FullCustomerStory::NAME]);
+        static::assertNotEmpty($customers);
+        static::assertInstanceOf(Customer::class, $customers[0]);
+        $testCustomerId = $customers[0]->getId();
+
+        /** @var Procedure[] $relatedBlueprints */
+        $relatedBlueprints = $this->getEntries(Procedure::class, ['customer' => $testCustomerId]);
+        static::assertNotEmpty($relatedBlueprints);
+        static::assertInstanceOf(Procedure::class, $relatedBlueprints[0]);
+        static::assertTrue($relatedBlueprints[0]->isCustomerMasterBlueprint());
+
+        $commandTester = $this->getCommandTester();
+        $commandTester->setInputs([FullCustomerStory::NAME]);
+        $commandTester->execute([]);
+        $commandTester->assertCommandIsSuccessful();
+
+        $relatedBlueprint = $this->getEntries(Procedure::class, ['customer' => $testCustomerId]);
+        static::assertEmpty($relatedBlueprint);
     }
 
     /**
@@ -158,12 +185,36 @@ class RemoveCustomerCommandTest extends FunctionalTestCase
     }
 
     /**
-     * Related orgas should not be deleted.
+     * Related orgas should be deleted, in case of the only relation of the orgas to a customer is,
+     * to the customer which will be deleted.'
      */
     public function testOrgasOnDeleteCustomer(): void
     {
         FullCustomerStory::load();
         $totalAmountOfOrgasBeforeDeletion = $this->countEntries(Orga::class);
+        /** @var Customer[] $customers */
+        $customers = $this->getEntries(Customer::class, ['name' => FullCustomerStory::NAME]);
+        static::assertCount(2, $customers[0]->getOrgaStatuses());
+        static::assertCount(2, $customers[0]->getOrgas());
+
+        $commandTester = $this->getCommandTester();
+        $commandTester->setInputs([FullCustomerStory::NAME]);
+        $commandTester->execute([]);
+        $commandTester->assertCommandIsSuccessful();
+
+        static::assertSame($totalAmountOfOrgasBeforeDeletion - 2, $this->countEntries(Orga::class));
+    }
+
+    /**
+     * Throw an exception in case of a related orga has more than one customer!
+     */
+    public function testExceptionOnDeleteCustomer(): void
+    {
+        $this->expectException(DemosException::class);
+
+        OrgaHasMultipleRelatedCustomerStory::load();
+        $totalAmountOfOrgasBeforeDeletion = $this->countEntries(Orga::class);
+
 
         $commandTester = $this->getCommandTester();
         $commandTester->setInputs([FullCustomerStory::NAME]);
