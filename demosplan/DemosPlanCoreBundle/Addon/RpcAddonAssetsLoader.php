@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
@@ -32,7 +32,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
         return 'addons.assets.load' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
