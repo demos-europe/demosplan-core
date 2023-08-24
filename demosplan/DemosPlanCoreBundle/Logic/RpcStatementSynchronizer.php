@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -73,7 +74,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
     {
     }
 
-    public function execute(?Procedure $sourceProcedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $sourceProcedure, $rpcRequests): array
     {
         if (null === $sourceProcedure) {
             throw new AccessDeniedException('Procedure authorization required');

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
@@ -60,7 +61,7 @@ class RpcElementsBulkEditor implements RpcMethodSolverInterface
         return self::ELEMENTS_BULK_EDIT_METHOD === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $resultResponse = [];
         $rpcRequests = is_object($rpcRequests)
