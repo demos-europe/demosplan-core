@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -20,7 +20,7 @@ class SegmentRepository extends FluentRepository
     /**
      * @return array<Segment>
      */
-    public function findByProcedure(Procedure $procedure): array
+    public function findByProcedure(ProcedureInterface $procedure): array
     {
         return $this->findBy(['procedure' => $procedure]);
     }
