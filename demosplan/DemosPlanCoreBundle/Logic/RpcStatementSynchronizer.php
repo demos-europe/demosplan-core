@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -249,7 +249,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         }
 
         return collect($apiListResult->getList())->mapWithKeys(
-            static fn(Statement $statement): array => [$statement->getId() => $statement]
+            static fn (Statement $statement): array => [$statement->getId() => $statement]
         )->all();
     }
 
@@ -266,7 +266,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         ]);
 
         return array_map(
-            static fn(EntitySyncLink $connection): string => $connection->getSourceId(),
+            static fn (EntitySyncLink $connection): string => $connection->getSourceId(),
             $synchronizedStatements
         );
     }

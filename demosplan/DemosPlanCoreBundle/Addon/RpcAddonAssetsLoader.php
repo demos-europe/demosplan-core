@@ -13,11 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
