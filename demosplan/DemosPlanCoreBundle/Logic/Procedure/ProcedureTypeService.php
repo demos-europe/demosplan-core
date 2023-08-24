@@ -21,9 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeExc
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
-use demosplan\DemosPlanCoreBundle\Logic\TwigableWrapperObject;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
@@ -45,7 +43,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
     public function __construct(
-        private readonly EntityWrapperFactory $entityWrapperFactory,
         private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,
         private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureTypeRepository $procedureTypeRepository,
@@ -430,20 +427,19 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
     }
 
     /**
-     * @return array<int, TwigableWrapperObject>
+     * @return array<int, ProcedureType>
      *
      * @throws PathException
      */
-    public function getAllProcedureTypeResources(): array
+    public function getAllProcedureTypes(): array
     {
         if (!$this->procedureTypeResourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
-        $entities = $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
 
-        return array_map(fn (object $entity): TwigableWrapperObject => $this->entityWrapperFactory->createWrapper($entity, $this->procedureTypeResourceType), $entities);
+        return $this->procedureTypeResourceType->listEntities([], [$nameSorting]);
     }
 
     public function getProcedureTypeByName(string $name): ?ProcedureType
