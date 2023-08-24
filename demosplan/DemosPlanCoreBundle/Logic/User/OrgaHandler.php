@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;

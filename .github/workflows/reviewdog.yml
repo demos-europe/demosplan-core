@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: reviewdog/action-setup@v1.0.4
+      - uses: reviewdog/action-setup@v1.0.6
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2

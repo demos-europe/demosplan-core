@@ -13,8 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\GetDatasheetVersionEventInterface;
+use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class GetDatasheetVersionEvent implements GetDatasheetVersionEventInterface
+class GetDatasheetVersionEvent extends DPlanEvent implements GetDatasheetVersionEventInterface
 {
     private int $datasheetVersion = 0;
 

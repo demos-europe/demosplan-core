@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -108,7 +109,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_export', path: '/news/export')]
-    public function globalnewsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator)
+    public function globalnewsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator)
     {
         $pdfName = $translator->trans('news.global.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -117,7 +118,7 @@ class DemosPlanNewsController extends BaseController
             'news.global.export'
         );
 
-        return $this->handleNewsExport($pdfContent, $pdfName);
+        return $this->handleNewsExport($pdfContent, $pdfName, $nameGenerator);
     }
 
     /**
@@ -130,7 +131,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_export', path: '/verfahren/{procedure}/aktuelles/export')]
-    public function newsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, string $procedure)
+    public function newsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator, string $procedure)
     {
         $pdfName = $translator->trans('news.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -139,7 +140,7 @@ class DemosPlanNewsController extends BaseController
             'news.export'
         );
 
-        return $this->handleNewsExport($pdfContent, $pdfName);
+        return $this->handleNewsExport($pdfContent, $pdfName, $nameGenerator);
     }
 
     /**
@@ -745,8 +746,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * @throws Exception
      */
-    protected function handleNewsExport(string $pdfContent, string $pdfName): Response
-    {
+    protected function handleNewsExport(
+        string $pdfContent,
+        string $pdfName,
+        NameGenerator $nameGenerator
+    ): Response {
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 
         if ('' === $pdfContent) {
@@ -756,7 +760,7 @@ class DemosPlanNewsController extends BaseController
         $response = new Response($pdfContent, 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($pdfName));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
 
         return $response;
     }

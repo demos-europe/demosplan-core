@@ -207,11 +207,11 @@ export default {
     this.stateOptions = [
       {
         value: '1',
-        label: 'published'
+        label: Translator.trans('published')
       },
       {
         value: '0',
-        label: 'unpublished'
+        label: Translator.trans('unpublished')
       }
     ]
   }

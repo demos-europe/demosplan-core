@@ -1,4 +1,4 @@
-{%  if app.user.loggedIn == true and hasPermission('area_combined_participation_area') %}
+{%  if currentUser.loggedIn == true and hasPermission('area_combined_participation_area') %}
     {% set extendTwig = '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 {% else %}
     {% set extendTwig = '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
@@ -10,15 +10,15 @@
 {% block a11y_jump_markers %}
     {% if hasPermission('feature_new_statement') %}
         {{ parent() }}
-        <li class="{{ 'list-style-none u-nojs-show--inline-block'|prefixClass }}">
+        <li class="{{ 'u-nojs-show--inline-block'|prefixClass }}">
             <a href="#statementModalTitle">{{ 'jumpTo.statement'|trans }}</a>
         </li>
-        <li class="{{ 'list-style-none u-nojs-hide--inline-block'|prefixClass }}">
+        <li class="{{ 'u-nojs-hide--inline-block'|prefixClass }}">
             <a href="#" data-jump-to-statement="{# This attribute is used as a hook to append an EventListener in PublicParagraphDocument.js #}">{{ 'jumpTo.statement'|trans }}</a>
         </li>
 
         {% if templateVars.list.documentlist|length > 0 %}
-            <li class="{{ 'list-style-none'|prefixClass }}">
+            <li>
                 <a href="#elementTitle">{{ 'jumpTo.elementContent'|trans }}</a>
             </li>
         {% endif %}
@@ -33,8 +33,8 @@
             link: path('DemosPlan_procedure_public_detail', {'procedure': procedure}) ~ '#_procedureDetailsDocumentlist',
             link_caption: 'plandocuments.all'|trans,
             width_css: {
-                col1: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-toolbar',
-                col2: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-canvas'
+                col1: currentUser.loggedIn == true ? 'u-1-of-1' : 'width-map-toolbar',
+                col2: currentUser.loggedIn == true ? 'u-1-of-1' : 'width-map-canvas'
             },
             cssClasses: '',
             content_heading: 'plandocuments'|trans ~ ': '  ~ getProcedureName(proceduresettings),
@@ -44,7 +44,7 @@
     {% endblock page_header %}
 
     {# content #}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
         <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}

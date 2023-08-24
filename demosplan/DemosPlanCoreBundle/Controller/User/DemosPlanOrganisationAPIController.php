@@ -24,17 +24,15 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
@@ -91,25 +89,19 @@ class DemosPlanOrganisationAPIController extends APIController
     #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function listAction(
         CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         OrgaResourceType $orgaResourceType,
+        OrgaService $orgaService,
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
-        SortMethodFactory $sortMethodFactory,
         JsonApiPaginationParser $paginationParser
     ) {
-        $condition = [];
         try {
             if ($permissions->hasPermission('area_organisations_view_of_customer') ||
                 $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
-                $condition[] = $conditionFactory->propertyHasValue($currentCustomer->getId(), ['statusInCustomers', 'customer']);
-                $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
-                $sortMethod = $sortMethodFactory->propertyAscending(['name']);
-                $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
+                $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
                 $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
                 $filterRegisterStatus = $filter['registerStatus'] ?? '';
                 $orgaSubdomain = $currentCustomer->getSubdomain();

@@ -37,8 +37,25 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
 
         return new self("Der Zugriff ist nicht gestattet $additionalUserData");
     }
+    /**
+     * @param non-empty-string $permissionName
+     * @param non-empty-string $addonIdentifier
+     */
+    public static function missingAddonPermission(string $permissionName, string $addonIdentifier, User $user = null): self
+    {
+        $additionalUserData = self::collectAdditionalUserData($user);
 
-    public static function missingPermission(string $permission, User $user = null): self
+        return new self("Der Zugriff auf $permissionName im Addon $addonIdentifier ist nicht gestattet. $additionalUserData");
+    }
+
+    public static function unknownAddonPermission(string $permissionName, string $addonIdentifier, User $user = null): self
+    {
+        $additionalUserData = self::collectAdditionalUserData($user);
+
+        return new self("Es ist keine $permissionName Permission in einem Addon $addonIdentifier bekannt. $additionalUserData");
+    }
+
+    private static function collectAdditionalUserData(?User $user): string
     {
         $additionalUserData = '';
 
@@ -51,7 +68,17 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
                 );
         }
 
-        return new self("Der Zugriff auf {$permission} ist nicht gestattet. {$additionalUserData}");
+        return $additionalUserData;
+    }
+
+    /**
+     * @param non-empty-string $permission
+     */
+    public static function missingPermission(string $permission, User $user = null): self
+    {
+        $additionalUserData = self::collectAdditionalUserData($user);
+
+        return new self("Der Zugriff auf $permission ist nicht gestattet. $additionalUserData");
     }
 
     /**

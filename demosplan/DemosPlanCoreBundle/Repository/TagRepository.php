@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class TagRepository extends CoreRepository implements ObjectInterface
+class TagRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.

@@ -37,7 +37,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         parent::__construct($entityManager);
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         // create defaultcustomer
         $customer = new Customer('demos', 'demos');

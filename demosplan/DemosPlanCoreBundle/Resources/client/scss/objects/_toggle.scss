@@ -33,7 +33,7 @@
         //  apply trigger styles only for js capable devices
         html:not(.nojs) & {
             position: relative;
-            z-index: $z-content-above;
+            z-index: $dp-z-above-zero;
 
             cursor: pointer;
         }
@@ -84,7 +84,7 @@
         //      * instances of .o-toggle which are not .o-toggle--transition
         html:not(.nojs) .o-toggle:not(.is-disabled-toggle, .o-toggle--not-animated, .o-toggle--transition) & {
 
-            display: none;
+            display: none !important;
 
             opacity: 0;
 
@@ -94,13 +94,13 @@
 
             //  active state
             &.is-active {
-                display: block;
+                display: block !important;
 
                 animation: toggle-in .5s ease-in-out;
                 animation-fill-mode: forwards;
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
 
@@ -112,27 +112,27 @@
 
             //  helper class toggled by javascript to make the reverse animation visible
             &.is-visible {
-                display: block;
+                display: block !important;
 
                 opacity: 1;
 
                 transform: translateY(0);
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
         }
 
         //  simple version that only shows/hides content without animation
         html:not(.nojs) .o-toggle.o-toggle--not-animated & {
-            display: none;
+            display: none !important;
 
             &.is-active {
-                display: block;
+                display: block !important;
 
                 &.table-row {
-                    display: table-row;
+                    display: table-row !important;
                 }
             }
         }

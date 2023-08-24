@@ -11,8 +11,6 @@
 namespace Tests\Base;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -35,11 +33,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -54,15 +50,16 @@ use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Foundry\Test\Factories;
 
 class FunctionalTestCase extends WebTestCase
 {
+    use Factories;
     use MonoKernelTrait;
+    // use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
 
     /** @var object System under Test */
     protected $sut;

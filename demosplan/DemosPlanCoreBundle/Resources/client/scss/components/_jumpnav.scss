@@ -17,7 +17,7 @@
     position: absolute;
     top: $inuit-base-spacing-unit--small;
     left: $inuit-base-spacing-unit--small;
-    z-index: $z-super;
+    z-index: $dp-z-ultimate;
 
     a {
         @include keyboard-focus {

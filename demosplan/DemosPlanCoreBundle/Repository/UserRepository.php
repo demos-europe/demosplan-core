@@ -30,6 +30,8 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use LogicException;
 use RuntimeException;
@@ -38,17 +40,21 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection;
 
-class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+class UserRepository extends FluentRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
      */
     final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
-    public function __construct(// 12 hours
-    private readonly CacheInterface $cache, ManagerRegistry $registry, string $entityClass)
-    {
-        parent::__construct($registry, $entityClass);
+    public function __construct(
+        private readonly CacheInterface $cache,
+        DqlConditionFactory $dqlConditionFactory,
+        ManagerRegistry $registry,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass
+    ) {
+        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -527,15 +533,12 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
     /**
      * @param User $user
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
-        $user->setPassword($newEncodedPassword);
-        $user->setAlternativeLoginPassword($newEncodedPassword);
+        $user->setPassword($newHashedPassword);
+        $user->setAlternativeLoginPassword($newHashedPassword);
 
         // execute the queries on the database
         $this->getEntityManager()->flush();

@@ -110,6 +110,7 @@
 
     <dp-data-table-extended
       ref="dataTable"
+      class="u-mb u-mt-0_5 max-width-100p"
       :header-fields="headerFields"
       has-flyout
       :default-sort-order="{ direction: 1, key: 'submitterName' }"
@@ -118,8 +119,7 @@
       is-sortable
       :table-items="tokens"
       @updated:sortOrder="setSortOptions"
-      track-by="tokenId"
-      class="u-mb max-width-100p">
+      track-by="tokenId">
       <template v-slot:submitterName="rowData">
         <div class="o-hellip__wrapper">
           <div

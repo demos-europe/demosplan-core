@@ -451,12 +451,6 @@ export default {
       }
     },
 
-    deleteCustomAjaxHeaders () {
-      if ($.ajaxSettings.headers) {
-        delete $.ajaxSettings.headers['X-Requested-With']
-      }
-    },
-
     bindLoadingEvents (source) {
       /*
        *  Only bind to ol source instances
@@ -593,64 +587,9 @@ export default {
     },
 
     createLayerSource (layer) {
-      let options
-      let source
-      let url
-      const serviceType = layer.attributes.serviceType
-
-      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
-      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
-      const projection = new Projection({
-        code: projectionLabel,
-        units: this.projectionUnits,
-        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
-      })
-
-      if (serviceType === 'wmts') {
-        // Delete custom Ajax headers as they may not be allowed by cors
-        this.deleteCustomAjaxHeaders()
-        const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
-        const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
-        $.ajax({
-          dataType: 'xml',
-          url: url || '',
-          async: false,
-          success: response => {
-            const result = this.parser.read(response)
-            options = optionsFromCapabilities(result, {
-              layer: layerArray[0] || '',
-              matrixSet: layer.attributes.tileMatrixSet
-            })
-
-            source = new WMTS({ ...options, layers: layerArray })
-          }
-        })
-        this.restoreCustomAjaxHeaders()
-      } else if (serviceType === 'wms') {
-        // @TODO find out why 'SERVICE=WMS&' is added twice to url
-        url = layer.attributes.url ? layer.attributes.url : null
-        if (url) {
-          //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
-          const indexOfService = url.indexOf('SERVICE')
-          if (indexOfService > 0) {
-            url = url.slice(0, indexOfService)
-          }
-        }
-
-        source = new TileWMS({
-          url: url,
-          params: {
-            LAYERS: layer.attributes.layers || '',
-            FORMAT: 'image/png',
-            VERSION: layer.attributes.layerVersion || '1.3.0'
-          },
-          projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
-          tileGrid: new TileGrid({
-            origin: getTopLeft(projection.getExtent()),
-            resolutions: this.resolutions
-          })
-        })
-      }
+      const source = (layer.attributes.serviceType === 'wmts')
+        ? this.getWMTSSource(layer)
+        : this.getWMSSource(layer)
 
       this.bindLoadingEvents(source)
 
@@ -1600,6 +1539,60 @@ export default {
       return layers
     },
 
+    getWMTSSource (layer) {
+      const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
+      const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
+
+      return $.ajax({
+        dataType: 'xml',
+        url: url || '',
+        async: false,
+        success: response => {
+          const result = this.parser.read(response)
+          const options = optionsFromCapabilities(result, {
+            layer: layerArray[0] || '',
+            matrixSet: layer.attributes.tileMatrixSet
+          })
+
+          return new WMTS({ ...options, layers: layerArray })
+        }
+      })
+    },
+
+    getWMSSource (layer) {
+      // @TODO find out why 'SERVICE=WMS&' is added twice to url
+      let url = layer.attributes.url || null
+      if (url) {
+        //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
+        const indexOfService = url.indexOf('SERVICE')
+        if (indexOfService > 0) {
+          url = url.slice(0, indexOfService)
+        }
+      }
+
+      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
+      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
+      const projection = new Projection({
+        code: projectionLabel,
+        units: this.projectionUnits,
+        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
+      })
+
+      return new TileWMS({
+        url: url,
+        params: {
+          LAYERS: layer.attributes.layers || '',
+          FORMAT: 'image/png',
+          VERSION: layer.attributes.layerVersion || '1.3.0'
+        },
+        projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
+        tileGrid: new TileGrid({
+          origin: getTopLeft(projection.getExtent()),
+          resolutions: this.resolutions
+        })
+      })
+    },
+
     getXMLPart (xml, needle) {
       const $xml = $(xml)
 
@@ -1688,14 +1681,6 @@ export default {
           el.parent().append('<i class="' + this.prefixClass('fa fa-2x fa-long-arrow-right c-actionbox__arrow') + '" aria-hidden="true"></i>')
         }
       }
-    },
-
-    restoreCustomAjaxHeaders () {
-      $.ajaxSetup({
-        headers: {
-          'X-Requested-With': 'dplan'
-        }
-      })
     },
 
     //  Animate map to given coordinate when user selects an item from search-location
@@ -1788,7 +1773,6 @@ export default {
     },
 
     redrawMap () {
-      const map = this.map
       this.map.updateSize()
       this.map.getView().fit(this.initialExtent, this.map.getSize())
     },
@@ -1931,7 +1915,6 @@ export default {
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
-        constrainOnlyCenter: true,
         constrainResolution: true
       })
     },

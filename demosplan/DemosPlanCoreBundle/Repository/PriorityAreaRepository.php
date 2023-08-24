@@ -10,17 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 
-class PriorityAreaRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class PriorityAreaRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.

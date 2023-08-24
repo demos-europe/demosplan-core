@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -34,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
@@ -253,7 +253,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             $messages = collect($mandatoryErrors)->map(
-                fn($array) => collect($array)->only('message'))->flatten()->toArray();
+                fn ($array) => collect($array)->only('message'))->flatten()->toArray();
 
             throw new ContentMandatoryFieldsException($messages, 'Mandatory fields are missing');
         }

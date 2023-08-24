@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -38,7 +41,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use UnexpectedValueException;
 
-class FaqHandler extends CoreHandler
+class FaqHandler extends CoreHandler implements FaqHandlerInterface
 {
     /**
      * @var ContentService
@@ -62,7 +65,9 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * Gets enabled faqs of a category.
+     * Get all (enabled and disabled) faqs of a category.
+     *
+     * @return array<int, FaqInterface>
      */
     public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
     {
@@ -70,13 +75,24 @@ class FaqHandler extends CoreHandler
     }
 
     /**
-     * Get all (enabled and disabled) faqs of a category.
+     * Gets enabled faqs of a category.
+     * takes user-roles into account.
      *
      * @return array<int, FaqInterface>
      */
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
         return $this->faqService->getEnabledFaqList($faqCategory, $user);
+    }
+
+    /**
+     * Get all enabled faqs of a category regardless of user role restrictions.
+     *
+     * @return array<int, FaqInterface>
+     */
+    public function getAllEnabledFaqsRegardlessOfUserRoleRestrictions(FaqCategoryInterface $faqCategory): array
+    {
+        return $this->faqService->getAllEnabledFaqForCategoryRegardlessOfUserRoles($faqCategory);
     }
 
     /**

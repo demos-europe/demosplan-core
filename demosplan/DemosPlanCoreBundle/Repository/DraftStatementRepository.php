@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -28,10 +26,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class DraftStatementRepository extends CoreRepository implements ArrayInterface
+class DraftStatementRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Gib eine Liste der Versionen der Stellungnahme zurück.
@@ -47,6 +47,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             ->setParameter('draftStatementId', $draftStatementId)
             ->setParameter('organisationId', $organisationId)
             ->orderBy('draftStatementVersion.versionDate', 'DESC')
+            ->orderBy('draftStatementVersion.lastModifiedDate', 'DESC')
             ->getQuery();
 
         try {

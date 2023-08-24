@@ -32,8 +32,14 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    public function __construct(private readonly ClientRegistry $clientRegistry, private readonly EntityManagerInterface $entityManager, private readonly KeycloakUserDataInterface $keycloakUserData, private readonly LoggerInterface $logger, private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper, private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly ClientRegistry $clientRegistry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly KeycloakUserDataInterface $keycloakUserData,
+        private readonly LoggerInterface $logger,
+        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface $router
+    ) {
     }
 
     public function supports(Request $request): ?bool

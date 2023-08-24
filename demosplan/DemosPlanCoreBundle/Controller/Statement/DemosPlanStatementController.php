@@ -46,6 +46,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
@@ -68,6 +69,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -91,8 +93,18 @@ use Twig\Error\SyntaxError;
  */
 class DemosPlanStatementController extends BaseController
 {
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions)
-    {
+    private NameGenerator $nameGenerator;
+
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService,
+                                private readonly CurrentUserService $currentUser,
+                                private readonly DraftStatementHandler $draftStatementHandler,
+                                private readonly DraftStatementService $draftStatementService,
+                                private readonly Environment $twig,
+                                private readonly MailService $mailService,
+                                private readonly PermissionsInterface $permissions,
+                                NameGenerator $nameGenerator
+    ) {
+        $this->nameGenerator = $nameGenerator;
     }
 
     /**
@@ -109,13 +121,15 @@ class DemosPlanStatementController extends BaseController
      */
     #[Route(name: 'DemosPlan_statement_list_released_group_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/freigabenGruppe/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'releasedGroup'])]
     #[Route(name: 'DemosPlan_statement_list_final_group_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/endfassungenGruppe/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'finalGroup'])]
+    #[Route(name: 'DemosPlan_statement_list_final_citizen_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/endfassungenCitizen/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'finalCitizen'])]
     #[Route(name: 'DemosPlan_statement_single_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/single/pdf', defaults: ['type' => 'single'], options: ['expose' => true])]
     public function pdfAction(
         CurrentProcedureService $currentProcedureService,
         Request $request,
+        NameGenerator $nameGenerator,
         TranslatorInterface $translator,
-        $procedure,
-        $type
+                                $procedure,
+                                $type
     ) {
         $itemsToExport = null;
         $draftStatementList = [];
@@ -146,7 +160,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
 
         return $response;
     }
@@ -731,18 +745,10 @@ class DemosPlanStatementController extends BaseController
 
         $templateVars['user'] = $this->currentUser->getUser();
 
-        // Mitzeichnen einer Stellungnahme
-
         $requestPost = $request->request->all();
         if (\array_key_exists('action', $requestPost) && 'confirmVotePublicStatement' === $requestPost['action']) {
-            // Füge dem Statement eine Mitzeichnung hinzu
-            $isVoteCast = $statementService->addVote($statementID, $this->currentUser->getUser());
-
-            if (false !== $isVoteCast) {
-                $this->getMessageBag()->add('confirm', 'confirm.statement.marked.voted');
-            } else {
-                $this->getMessageBag()->add('error', 'error.statement.marked.voted');
-            }
+            // add vote to statement
+            $statementService->addVote($statementID, $this->currentUser->getUser());
 
             return $this->redirectToRoute(
                 'DemosPlan_procedure_public_detail',
@@ -1669,8 +1675,12 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws Exception
      */
-    protected function createPdfDraftStatement($draftStatementList, $type, Procedure $procedure, $itemsToExport = null)
-    {
+    protected function createPdfDraftStatement(
+        $draftStatementList,
+        $type,
+        Procedure $procedure,
+        $itemsToExport = null
+    ) {
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure->getId(), $itemsToExport);
 
         if ('' === $file->getContent()) {
@@ -1682,7 +1692,7 @@ class DemosPlanStatementController extends BaseController
         $response = new Response($file->getContent(), 200);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
 
         return $response;
     }

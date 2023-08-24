@@ -98,7 +98,7 @@ class EntityFetcherTest extends FunctionalTestCase
 
         $this->enablePermissions(['area_admin_procedures', 'area_search_submitter_in_procedures']);
         $expected = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-        $actual = $this->sut->getEntityAsReadTarget($this->procedureResourceType, $expected->getId());
+        $actual = $this->procedureResourceType->getEntityAsReadTarget($expected->getId());
         self::assertSame($expected, $actual);
     }
 
@@ -109,7 +109,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitName');
-        $statements = $this->sut->listEntities($this->statementResourceType, [$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -126,7 +126,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('submitDate');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'submitDate');
-        $statements = $this->sut->listEntities($this->statementResourceType, [$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -143,7 +143,7 @@ class EntityFetcherTest extends FunctionalTestCase
         $sortMethods = $this->sortingParser->createFromQueryParamValue('initialOrganisationName');
 
         $referenceStatements = $this->getStatementListSortedBySubmitName($this->testProcedure->getId(), 'initialOrganisationName');
-        $statements = $this->sut->listEntities($this->statementResourceType, [$this->condition], $sortMethods);
+        $statements = $this->statementResourceType->listEntities([$this->condition], $sortMethods);
 
         static::assertSameSize($referenceStatements, $statements);
         $count = 0;
@@ -161,7 +161,7 @@ class EntityFetcherTest extends FunctionalTestCase
 
     public function testListProcedures(): void
     {
-        $procedures = $this->sut->listEntities($this->procedureResourceType, []);
+        $procedures = $this->procedureResourceType->listEntities([]);
         self::assertNotEmpty($procedures);
     }
 

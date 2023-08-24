@@ -73,7 +73,12 @@ export default {
   methods: {
     emitAddLayer () {
       const { currentCapabilities, serviceType, url, name, layers, projection, matrixSet } = this.$refs.layerSettings
-      this.$root.$emit('addCustomlayer', { currentCapabilities, serviceType, url, name, layers, projection, tileMatrixSet: matrixSet })
+
+      if (currentCapabilities) {
+        this.$root.$emit('addCustomlayer', { currentCapabilities, serviceType, url, name, layers, projection, tileMatrixSet: matrixSet })
+      } else {
+        return dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
+      }
     },
 
     toggle () {
