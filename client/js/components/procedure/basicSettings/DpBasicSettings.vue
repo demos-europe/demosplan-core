@@ -10,6 +10,7 @@
 <script>
 import {
   dpApi,
+  DpAddonWrapper
   DpButton,
   DpDateRangePicker,
   DpDatetimePicker,
@@ -19,7 +20,7 @@ import {
   DpMultiselect,
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@demos-europe/demosplan-ui'
+import DpAddonWrapper from '@demos-europe/demosplan-ui'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 
@@ -27,7 +28,7 @@ export default {
   name: 'DpBasicSettings',
 
   components: {
-    AddonWrapper,
+    DpAddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
     DpDateRangePicker,

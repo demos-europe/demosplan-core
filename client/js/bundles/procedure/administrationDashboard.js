@@ -12,7 +12,7 @@
  */
 
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@demos-europe/demosplan-ui'
+import DpAddonWrapper from '@demos-europe/demosplan-ui'
 import DpDashboardTaskCard from '@DpJs/components/procedure/DpDashboardTaskCard'
 import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
@@ -21,7 +21,7 @@ import ProcedureAnalyticsChart from '@DpJs/components/procedure/charts/Procedure
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 const components = {
-  AddonWrapper,
+  DpAddonWrapper,
   DpContextualHelp,
   DpDashboardTaskCard,
   DpStatementSegmentsStatusCharts,

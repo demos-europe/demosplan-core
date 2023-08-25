@@ -51,7 +51,7 @@
         class="hide-visually"
         v-text="Translator.trans('procedure.data')" />
 
-      <addon-wrapper hook-name="procedure.fields" />
+      <dp-addon-wrapper hook-name="procedure.fields" />
 
       <template v-if="hasPermission('feature_use_plis')">
         <dp-form-row class="u-mb-0_75">
@@ -222,14 +222,14 @@ import {
   DpTextArea,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@demos-europe/demosplan-ui'
+import DpAddonWrapper from '@demos-europe/demosplan-ui'
 import CoupleTokenInput from './CoupleTokenInput'
 import { mapState } from 'vuex'
 
 export default {
   name: 'DpNewProcedure',
   components: {
-    AddonWrapper,
+    DpAddonWrapper,
     CoupleTokenInput,
     DpButton,
     DpDateRangePicker,

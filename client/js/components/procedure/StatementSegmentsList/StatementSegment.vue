@@ -114,7 +114,7 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <addon-wrapper
+            <dp-addon-wrapper
               ref="addonWrapper"
               :addon-props="addonProps"
               hook-name="recommendation.modal"
@@ -295,7 +295,7 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@demos-europe/demosplan-ui'
+import DpAddonWrapper from '../../../../../addons-bkp/cache/demosplan-addon-demospipes-f_T29585_similar_segments_ui/client/DpAddonWrapper.vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 
@@ -305,7 +305,7 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
+    DpAddonWrapper,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
@@ -552,7 +552,7 @@ export default {
     },
 
     openRecommendationModal () {
-      this.$refs.addonWrapper.$refs[this.refRecModal].toggleModal('open')
+      this.$refs.addonWrapper
     },
 
     /**

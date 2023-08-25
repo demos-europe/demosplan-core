@@ -15,10 +15,10 @@
         'title': title
         }
     %}
-    <addon-wrapper
+    <dp-addon-wrapper
         hook-name="split.statements"
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
-    </addon-wrapper>
+    </dp-addon-wrapper>
 {% endblock %}
 
 {% block javascripts %}

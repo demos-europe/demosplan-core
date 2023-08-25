@@ -325,12 +325,12 @@
                     </procedure-analytics-chart>
                 {% endif %}
 
-                <addon-wrapper
+                <dp-addon-wrapper
                     hook-name="dashboard.views"
                     :addon-props="{
                         'procedureId': '{{ procedure }}'
                     }">
-                </addon-wrapper>
+                </dp-addon-wrapper>
             </div>
         </div>
     {% endapply %}
