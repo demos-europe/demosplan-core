@@ -129,6 +129,7 @@ class DemosPlanAdminController extends BaseController
             'csv',
             fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
         );
+
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
