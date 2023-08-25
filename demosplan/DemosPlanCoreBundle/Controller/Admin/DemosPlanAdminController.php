@@ -35,7 +35,7 @@ class DemosPlanAdminController extends BaseController
         RoleInterface::API_AI_COMMUNICATOR,
         RoleInterface::GUEST,
         RoleInterface::PROSPECT,
-        RoleInterface::CITIZEN
+        RoleInterface::CITIZEN,
     ];
 
     /**
