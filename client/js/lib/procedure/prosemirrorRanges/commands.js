@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { Decoration, DecorationSet, TextSelection } from '@demos-europe/demosplan-ui/DpProsemirror'
+import { Decoration, DecorationSet, TextSelection } from '@demos-europe/demosplan-ui/src/lib/DpProsemirror'
 import { flattenNode, getMarks, splitsExistingRange } from '@DpJs/lib/procedure/prosemirrorRanges/utilities'
 import { v4 as uuidv4 } from 'uuid'
 

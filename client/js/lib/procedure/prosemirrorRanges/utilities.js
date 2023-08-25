@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { DOMSerializer, TextSelection } from '@demos-europe/demosplan-ui/DpProsemirror'
+import { DOMSerializer, TextSelection } from '@demos-europe/demosplan-ui/src/lib/DpProsemirror'
 import { setRange } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
 import tippy from 'tippy.js'
 
