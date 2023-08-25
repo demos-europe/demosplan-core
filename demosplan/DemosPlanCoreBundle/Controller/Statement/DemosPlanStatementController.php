@@ -2405,7 +2405,7 @@ class DemosPlanStatementController extends BaseController
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['fileName' => $fileName]);
             } catch (UnexpectedWorksheetNameException $exception) {
-                if ($exception->getIncomingTitle() == 'Abschnitte') {
+                if ('Abschnitte' == $exception->getIncomingTitle()) {
                     $this->getMessageBag()->add('error', 'error.wrong.selected.importer');
                 } else {
                     $this->getMessageBag()->add('error', 'error.worksheet.name',
