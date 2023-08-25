@@ -47,10 +47,8 @@ $tooltip-width: 400px;
     }
 }
 
-//  Tooltip styles used by the Js and Vue implementation
-//  Templates:
-//  * client/js/lib/core/libs/Tooltips.js
-//  * @demos-europe/demosplan-ui/src/directives/Tooltip/Tooltip.js
+//  Tooltip styles used by the Vue implementation
+//  Template: @demos-europe/demosplan-ui/src/components/DpTooltip/utils/tooltip.js
 .tooltip {
     z-index: $dp-z-tooltip;
 

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <li class="c-at-item list-style-none">
+  <li class="c-at-item">
     <a
       class="o-link--offset"
       :id="`viewMode_${elementId}`" />

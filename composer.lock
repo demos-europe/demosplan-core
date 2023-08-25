@@ -1289,16 +1289,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.7",
+            "version": "v0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "e69b2a04ea48dac6caede064f26a6681902b01a0"
+                "reference": "93c3263b46a03640588f8a64e30d6e719f04b37d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/e69b2a04ea48dac6caede064f26a6681902b01a0",
-                "reference": "e69b2a04ea48dac6caede064f26a6681902b01a0",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/93c3263b46a03640588f8a64e30d6e719f04b37d",
+                "reference": "93c3263b46a03640588f8a64e30d6e719f04b37d",
                 "shasum": ""
             },
             "require": {
@@ -1315,6 +1315,7 @@
                 "symfony/http-foundation": "5.*.*",
                 "symfony/security-bundle": "5.*.*",
                 "symfony/security-core": "5.*.*",
+                "symfony/stopwatch": "5.*.*",
                 "symfony/validator": "5.*.*",
                 "symfony/yaml": "5.*.*",
                 "tightenco/collect": "~8.83.0"
@@ -1335,9 +1336,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.7"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.8"
             },
-            "time": "2023-08-04T15:40:28+00:00"
+            "time": "2023-08-24T13:04:55+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

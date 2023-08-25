@@ -69,7 +69,7 @@
 
                     {% block list %}
                         {# wrapper outside of include because it is included also via publicProcedureListJsonAction #}
-                        <ul data-procedurelist-content class="{{ 'c-procedurelist list-style-none'|prefixClass }}">
+                        <ul data-procedurelist-content class="{{ 'c-procedurelist'|prefixClass }}">
                             {% if templateVars.list.procedurelist|length > 0 %}
                                 {% include '@DemosPlanCore/DemosPlanProcedure/public_index_list.html.twig' %}
                             {% endif %}

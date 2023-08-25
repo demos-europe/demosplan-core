@@ -1,10 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ webpackBundle('statement-listFinalGroup.js') }}
-{% endblock javascripts %}
-
 {% block demosplanbundlecontent %}
 
     {% set counties = templateVars.counties|map(c => { label: c.name, value: c.id }) %}
@@ -173,3 +168,8 @@
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-listFinalGroup.js') }}
+{% endblock javascripts %}

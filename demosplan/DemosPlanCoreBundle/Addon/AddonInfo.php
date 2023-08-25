@@ -14,6 +14,8 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 
 final class AddonInfo
 {
+    public const DEFAULT_CONTROLLER_PATH = '/src/Controller';
+
     /**
      * @param array<string,mixed> $config
      */
@@ -43,7 +45,7 @@ final class AddonInfo
 
     public function getControllerPaths(): array
     {
-        return $this->config['manifest']['controller_paths'];
+        return $this->config['manifest']['controller_paths'] ?? [self::DEFAULT_CONTROLLER_PATH];
     }
 
     public function hasUIHooks(): bool
