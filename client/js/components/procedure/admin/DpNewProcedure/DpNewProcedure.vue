@@ -222,7 +222,7 @@ import {
   DpTextArea,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@demos-europe/demosplan-ui'
 import CoupleTokenInput from './CoupleTokenInput'
 import { mapState } from 'vuex'
 
