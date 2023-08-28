@@ -114,11 +114,33 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <addon-wrapper
-              ref="addonWrapper"
-              :addon-props="addonProps"
-              hook-name="recommendation.modal"
-              :ref-component="refRecModal" />
+            <dp-modal
+              ref="recommendationModal"
+              class="recommendation-modal"
+              content-classes="u-2-of-3">
+              <div class="display--inline-block">
+                <h3 class="u-mb">
+                  {{ Translator.trans('segment.recommendation.insert.similar') }}
+                  <dp-icon icon="ai" />
+                  <dp-tabs>
+                    <dp-tab
+                      :id="tabOptions.name"
+                      :label="tabOptions.label">
+                      <addon-wrapper
+                        :addon-props="addonProps"
+                        hook-name="recommendation.modal"
+                        :ref-component="refRecModal" />
+                    </dp-tab>
+                    <dp-tab
+                      :id="tabOptions.name"
+                      :label="tabOptions.label">
+                      <addon-wrapper
+                        :addon-props="addonProps"
+                        hook-name="oracle.recommendation.tab"
+                        :ref-component="refRecModal" />
+                    </dp-tab>
+                  </dp-tabs>
+            </dp-modal>
           </template>
           <template v-slot:button>
             <button
