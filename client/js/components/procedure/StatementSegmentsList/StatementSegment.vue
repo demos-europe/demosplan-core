@@ -121,19 +121,17 @@
               <div class="display--inline-block">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
-                  <dp-icon icon="ai" />
-                  <dp-tabs>
-                    <dp-tab>
-                      <addon-wrapper
-                        hook-name="tag.recommendation.tab"
-                        ref-component="" />
-                    </dp-tab>
-                    <dp-tab>
-                      <addon-wrapper
-                        hook-name="oracle.recommendation.tab"
-                        :ref-component="refRecModal" />
-                    </dp-tab>
-                  </dp-tabs>
+                </h3>
+              </div>
+              <dp-icon icon="ai" />
+              <dp-tabs>
+                <dp-tab label="tag basiert" id="1">
+                  <addon-wrapper hook-name="tag.recommendation.tab"/>
+                </dp-tab>
+                <dp-tab label="ai basiert" id="2">
+                  <addon-wrapper hook-name="oracle.recommendation.tab" />
+                </dp-tab>
+              </dp-tabs>
             </dp-modal>
           </template>
           <template v-slot:button>
@@ -574,7 +572,7 @@ export default {
     },
 
     openRecommendationModal () {
-      this.$refs.addonWrapper.$refs['recommendationModal'].toggleModal()
+      this.$refs.recommendationModal.toggle()
     },
 
     /**
