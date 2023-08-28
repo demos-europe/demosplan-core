@@ -18,6 +18,7 @@ import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpTable from '@DpJs/components/statement/assessmentTable/DpTable'
 import FilterStore from '@DpJs/store/statement/Filter'
 import FragmentStore from '@DpJs/store/statement/Fragment'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
