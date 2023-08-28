@@ -11,49 +11,49 @@ All rights reserved
   <li class="flex flex-items-start space-inline-xs u-pr-0_5">
     <div class="flex flex-nowrap">
       <button
-          :aria-label="Translator.trans('segment.recommendation.paste')"
-          v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'u-z-super' }"
-          class="btn--blank color--grey"
-          @click="$emit('insert-recommendation')">
+        :aria-label="Translator.trans('segment.recommendation.paste')"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'u-z-super' }"
+        class="btn--blank color--grey"
+        @click="$emit('insert-recommendation')">
         <i
           class="fa fa-files-o color--grey"
           aria-hidden="true" />
       </button>
     </div>
     <div
-        v-if="fromOtherProcedure"
-        class="min-width-m">
+      v-if="fromOtherProcedure"
+      class="min-width-m">
       <i
-          v-tooltip="{
+        v-tooltip="{
           boundariesElement: body,
           content: Translator.trans('segment.recommendation.other.procedure') + ': ' + procedureName ?? '',
           classes: 'u-z-super'
         }"
-          :aria-label="Translator.trans('more.information')"
-          class="fa fa-info-circle" />
+        :aria-label="Translator.trans('more.information')"
+        class="fa fa-info-circle" />
     </div>
     <div
-        v-if="isContentRec"
-        class="flex flex-nowrap">
+      v-if="isContentRec"
+      class="flex flex-nowrap">
       <dp-badge
-          class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
-          size="smaller"
-          :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
+        class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
+        size="smaller"
+        :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
     </div>
     <div
-        class="flex-grow"
-        v-cleanhtml="recommendationText" />
+      class="flex-grow"
+      v-cleanhtml="recommendationText" />
     <div class="flex flex-nowrap space-inline-s">
       <button
-          class="btn--blank o-link--default"
-          :aria-label="Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open')"
-          v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'u-z-super' }"
-          v-if="canExpand"
-          @click="toggleExpanded">
+        class="btn--blank o-link--default"
+        :aria-label="Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open')"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'u-z-super' }"
+        v-if="canExpand"
+        @click="toggleExpanded">
         <i
-            aria-hidden="true"
-            class="fa"
-            :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'" />
+          aria-hidden="true"
+          class="fa"
+          :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'" />
       </button>
     </div>
   </li>
@@ -102,7 +102,8 @@ export default {
 
     recommendationScore: {
       type: Number,
-      required: true
+      required: false,
+      default: 0
     },
 
     searchTerm: {
@@ -132,12 +133,12 @@ export default {
       const shouldTruncate = !this.isExpanded && this.canExpand
 
       const shortDisplayText = this.searchTerm !== ''
-          ? this.shortText.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>') + '...'
-          : this.shortText
+        ? this.shortText.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>') + '...'
+        : this.shortText
 
       const fullText = this.searchTerm !== ''
-          ? this.recommendation.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>')
-          : this.recommendation
+        ? this.recommendation.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>')
+        : this.recommendation
 
       return shouldTruncate ? shortDisplayText : fullText
     },
@@ -162,3 +163,4 @@ export default {
   }
 }
 </script>
+
