@@ -98,8 +98,7 @@
     "vue2-leaflet-markercluster": "^3.1.0",
     "vuedraggable": "^2.24.3",
     "vuejs-datepicker": "^1.5.4",
-    "vuex": "^3.6.2",
-    "yarn-deduplicate": "^6.0.2"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.22.10",
