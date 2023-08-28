@@ -250,9 +250,7 @@
                     linkButton: true
                 }"
                 value="{{ news.text }}">
-                {% if hasPermission('area_admin_boilerplates') %}
-                    {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplates_modal.html.twig' %}
-                {% endif %}
+                {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplates_modal.html.twig' %}
             </dp-editor>
         </div>
 

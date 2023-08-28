@@ -210,26 +210,7 @@
                     linkButton: true
                 }"
                 value="{{ templateVars.prefill.r_text|default }}">
-                <template v-slot:modal="modalProps">
-                    <dp-boiler-plate-modal
-                        v-if="hasPermission('area_admin_boilerplates')"
-                        ref="boilerPlateModal"
-                        boiler-plate-type="news.notes"
-                        editor-id="newsText"
-                        procedure-id="{{ procedure }}"
-                        @insert="text => modalProps.handleInsertText(text)">
-                    </dp-boiler-plate-modal>
-                </template>
-                <template v-slot:button>
-                    <button
-                        v-if="hasPermission('area_admin_boilerplates')"
-                        class="{{ 'menubar__button'|prefixClass }}"
-                        type="button"
-                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
-                        @click.stop="$refs.boilerPlateModal.toggleModal()">
-                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
-                    </button>
-                </template>
+                {% include '@DemosPlanCore/DemosPlanNews/includes/news_editor_boilerplates_modal.html.twig' %}
             </dp-editor>
         </div>
 
