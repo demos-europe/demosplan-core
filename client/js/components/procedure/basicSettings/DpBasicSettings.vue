@@ -10,7 +10,7 @@
 <script>
 import {
   dpApi,
-  DpAddonWrapper,
+  AddonWrapper,
   DpButton,
   DpDateRangePicker,
   DpDatetimePicker,
@@ -27,7 +27,7 @@ export default {
   name: 'DpBasicSettings',
 
   components: {
-    DpAddonWrapper,
+    AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
     DpDateRangePicker,

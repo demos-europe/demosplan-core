@@ -222,14 +222,14 @@ import {
   DpTextArea,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import DpAddonWrapper from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
 import { mapState } from 'vuex'
 
 export default {
   name: 'DpNewProcedure',
   components: {
-    DpAddonWrapper,
+    AddonWrapper,
     CoupleTokenInput,
     DpButton,
     DpDateRangePicker,
