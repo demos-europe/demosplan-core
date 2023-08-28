@@ -123,19 +123,13 @@
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                   <dp-icon icon="ai" />
                   <dp-tabs>
-                    <dp-tab
-                      :id="tabOptions.name"
-                      :label="tabOptions.label">
+                    <dp-tab>
                       <addon-wrapper
-                        :addon-props="addonProps"
-                        hook-name="recommendation.modal"
-                        :ref-component="refRecModal" />
+                        hook-name="tag.recommendation.tab"
+                        ref-component="" />
                     </dp-tab>
-                    <dp-tab
-                      :id="tabOptions.name"
-                      :label="tabOptions.label">
+                    <dp-tab>
                       <addon-wrapper
-                        :addon-props="addonProps"
                         hook-name="oracle.recommendation.tab"
                         :ref-component="refRecModal" />
                     </dp-tab>
@@ -312,7 +306,10 @@ import {
   DpCheckbox,
   DpIcon,
   DpLabel,
+  DpModal,
   DpMultiselect,
+  DpTab,
+  DpTabs,
   prefixClassMixin,
   VPopover
 } from '@demos-europe/demosplan-ui'
@@ -334,11 +331,14 @@ export default {
     DpClaim,
     DpIcon,
     DpLabel,
+    DpModal,
     DpMultiselect,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
+    DpTab,
+    DpTabs,
     VPopover
   },
 
