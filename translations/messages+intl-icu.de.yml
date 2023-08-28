@@ -1229,6 +1229,7 @@ error.userStory.voting.reset: "Ihre Bewertung konnte nicht zurückgesetzt werden
 error.userStory.voting: "Die Bewertung konnte nicht gespeichert werden."
 error.without.authorization: "Sie sind zu dieser Aktion nicht autorisiert."
 error.worksheet.name: "Bitte wählen Sie einen gültigen Titel ({expectedTitles}) für das Arbeitsblatt {worksheetTitle}."
+error.wrong.selected.importer: "Sie haben die Option Stellungnahmen importieren genutzt um Abschnitte zu importieren. Bitte wählen Sie die korrekte Option aus und importieren Sie Ihre Datei erneut."
 error.wrong.password: "Falsches Passwort"
 error: "Fehler"
 error.internal: "Ein interner Fehler ist aufgetreten"
