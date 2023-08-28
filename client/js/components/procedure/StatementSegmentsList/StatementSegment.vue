@@ -295,7 +295,7 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpAddonWrapper from '../../../../../addons-bkp/cache/demosplan-addon-demospipes-f_T29585_similar_segments_ui/client/DpAddonWrapper.vue'
+import DpAddonWrapper from '@demos-europe/demosplan-ui'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 
@@ -552,7 +552,7 @@ export default {
     },
 
     openRecommendationModal () {
-      this.$refs.addonWrapper
+      this.$refs.addonWrapper.$refs['recommendationModal'].toggleModal()
     },
 
     /**
