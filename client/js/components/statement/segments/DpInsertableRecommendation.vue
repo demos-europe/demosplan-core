@@ -38,7 +38,7 @@ All rights reserved
       <dp-badge
           class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
           size="smaller"
-          text="45% Gewissheit" />
+          :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
     </div>
     <div
         class="flex-grow"
@@ -97,6 +97,11 @@ export default {
 
     recommendation: {
       type: String,
+      required: true
+    },
+
+    recommendationScore: {
+      type: Number,
       required: true
     },
 
