@@ -114,7 +114,7 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <dp-addon-wrapper
+            <addon-wrapper
               ref="addonWrapper"
               :addon-props="addonProps"
               hook-name="recommendation.modal"
