@@ -159,7 +159,6 @@ class OrgaHandler extends CoreHandler
             'ccEmail2',
             'copySpec',
             'cssvars',
-            'email2',
             'emailNotificationEndingPhase',
             'emailNotificationNewStatement',
             'participationEmail',
