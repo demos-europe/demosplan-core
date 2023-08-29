@@ -125,11 +125,21 @@
               </div>
               <dp-icon icon="ai" />
               <dp-tabs>
-                <dp-tab label="tag basiert" id="1">
-                  <addon-wrapper hook-name="tag.recommendation.tab" :addon-props="addonProps"/>
+                <dp-tab
+                  label="Vorschläge zu Schlagworten"
+                  id="recTags">
+                  <addon-wrapper
+                    ref="tagTab"
+                    hook-name="tag.recommendation.tab"
+                    :addon-props="addonProps"/>
                 </dp-tab>
-                <dp-tab label="ai basiert" id="2">
-                  <addon-wrapper hook-name="oracle.recommendation.tab" />
+                <dp-tab
+                  label="Vorschläge zu inhaltlicher Ähnlichkeit"
+                  id="recContent">
+                  <addon-wrapper
+                    ref="oracleTab"
+                    hook-name="oracle.recommendation.tab"
+                    :addon-props="addonProps"/>
                 </dp-tab>
               </dp-tabs>
             </dp-modal>
