@@ -123,8 +123,12 @@
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
               </div>
-              <dp-icon icon="ai" />
-              <dp-tabs>
+              <dp-icon
+                v-if="isAiTabActive"
+                icon="ai" />
+              <dp-tabs
+                :active-id="activeId"
+                @change="(id) => setActiveTabId(id)">
                 <dp-tab
                   label="Vorschläge zu Schlagworten"
                   id="recTags">
@@ -393,6 +397,7 @@ export default {
 
   data () {
     return {
+      activeId: 'recTags',
       addonProps: {
         segmentId: this.segment.id,
         procedureId: this.procedureId
@@ -446,6 +451,10 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
+    },
+
+    isAiTabActive () {
+      return this.activeId === 'recContent'
     },
 
     isAssignedToMe () {
@@ -633,6 +642,10 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    setActiveTabId () {
+      this.activeId = this.activeId === 'recContent' ? 'recTags' : 'recContent'
     },
 
     showComments () {
