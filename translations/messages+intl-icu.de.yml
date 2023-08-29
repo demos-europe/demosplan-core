@@ -2894,6 +2894,8 @@ segments.import: "Abschnitte importieren"
 segments.import.error.submitType: "Unbekannte Einreichungsart {value}, valide Arten sind: {translatedSubmitTypes}."
 segments.none.yet: "Es sind noch keine Abschnitte vorhanden."
 segments.recommendations.create: "Erwiderungen verfassen"
+segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
+segments.recommendations.tags: "Vorschläge zu Schlagworten"
 items.selected.multi.page: |
     {count, plural,
         =1 { Element ausgewählt (u.U. nicht auf Seite 1). }

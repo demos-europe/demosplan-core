@@ -118,30 +118,29 @@
               ref="recommendationModal"
               class="recommendation-modal"
               content-classes="u-2-of-3">
-              <div class="inline-block">
+              <div class="flex width-100p">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
+                <dp-icon
+                  v-if="isAiTabActive"
+                  class="inline-block"
+                  icon="ai" />
               </div>
-              <dp-icon
-                v-if="isAiTabActive"
-                icon="ai" />
               <dp-tabs
                 :active-id="activeId"
                 @change="(id) => setActiveTabId(id)">
                 <dp-tab
-                  label="Vorschläge zu Schlagworten"
+                  :label="Translator.trans('segments.recommendations.tags')"
                   id="recTags">
                   <addon-wrapper
-                    ref="tagTab"
                     hook-name="tag.recommendation.tab"
                     :addon-props="addonProps"/>
                 </dp-tab>
                 <dp-tab
-                  label="Vorschläge zu inhaltlicher Ähnlichkeit"
+                  :label="Translator.trans('segments.recommendations.oracle')"
                   id="recContent">
                   <addon-wrapper
-                    ref="oracleTab"
                     hook-name="oracle.recommendation.tab"
                     :addon-props="addonProps"/>
                 </dp-tab>
