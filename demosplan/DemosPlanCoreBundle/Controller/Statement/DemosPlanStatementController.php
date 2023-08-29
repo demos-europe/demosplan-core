@@ -2405,11 +2405,15 @@ class DemosPlanStatementController extends BaseController
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['fileName' => $fileName]);
             } catch (UnexpectedWorksheetNameException $exception) {
-                $this->getMessageBag()->add('error', 'error.worksheet.name',
-                    [
-                        'worksheetTitle' => $exception->getIncomingTitle(),
-                        'expectedTitles' => $exception->getExpectedTitles(),
-                    ]);
+                if ('Abschnitte' === $exception->getIncomingTitle()) {
+                    $this->getMessageBag()->add('error', 'error.wrong.selected.importer');
+                } else {
+                    $this->getMessageBag()->add('error', 'error.worksheet.name',
+                        [
+                            'worksheetTitle' => $exception->getIncomingTitle(),
+                            'expectedTitles' => $exception->getExpectedTitles(),
+                        ]);
+                }
             } catch (RowAwareViolationsException $error) {
                 $this->getMessageBag()->add('error', 'statements.import.error.document.summary', ['doc' => $fileName]);
                 $this->getMessageBag()->add('error', 'statements.import.error.line.summary', ['lineNr' => $error->getRow()]);
