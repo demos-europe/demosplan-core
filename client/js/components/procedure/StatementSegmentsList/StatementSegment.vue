@@ -122,10 +122,6 @@
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
-                <dp-icon
-                  v-if="isAiTabActive"
-                  class="inline-block"
-                  icon="ai" />
               </div>
               <dp-tabs
                 :active-id="activeId"
