@@ -450,6 +450,7 @@
                 {% endblock planningDocuments %}
 
                 {# Statements #}
+                {% block statements %}
                 {% if hasPermission("area_statements_public_published_public") and templateVars.publicStatements.statements|length > 0 and templateVars.procedureSettings.procedure.publicParticipationPublicationEnabled %}
                     <section
                         class="{{ 'c-tabs__panel layout--flush'|prefixClass }}"
@@ -490,6 +491,7 @@
 
                     </section>
                 {% endif %}
+                {% endblock statements %}
 
                 {# Survey #}
                 {% if hasPermission('area_survey') and templateVars.survey|length > 0 and (templateVars.survey.status != 'configuration' or ownsProcedure(proceduresettings)) %}
