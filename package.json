@@ -68,7 +68,7 @@
     "fscreen": "^1.2.0",
     "intl-messageformat": "^10.5.0",
     "ismobilejs": "^1.1.1",
-    "jquery": "^3.7.0",
+    "jquery": "^3.7.1",
     "js-base64": "^3.7.5",
     "json-api-normalizer": "^1.0.4",
     "leaflet": "^1.9.4",
