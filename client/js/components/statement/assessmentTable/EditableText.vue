@@ -122,7 +122,7 @@ import { Base64 } from 'js-base64'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 
 export default {
-  name: 'TiptapEditText',
+  name: 'EditableText',
 
   components: {
     DpBoilerPlateModal,

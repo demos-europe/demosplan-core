@@ -14,7 +14,7 @@
     </h2>
 
     <ul class="u-m-0">
-      <li class="list-style-none">
+      <li>
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-calendar"
@@ -27,7 +27,7 @@
           class="u-m-0 inline"
           v-cleanhtml="period" />
       </li>
-      <li class="list-style-none">
+      <li>
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-puzzle-piece"
@@ -40,7 +40,7 @@
           {{ phaseName }}
         </p>
       </li>
-      <li class="list-style-none">
+      <li>
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-university"
@@ -54,7 +54,6 @@
         </p>
       </li>
       <li
-        class="list-style-none"
         v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
         <h3 class="u-m-0 inline">
           <i
@@ -68,7 +67,7 @@
           {{ Translator.trans('statements.submitted.institution') }}: {{ procedure.statementSubmitted }}
         </p>
       </li>
-      <li class="list-style-none u-mt-0_5">
+      <li class="u-mt-0_5">
         <h3 class="u-mb-0_25 weight--normal">
           <i
             class="c-publicindex__icon-content fa fa-file-text-o"

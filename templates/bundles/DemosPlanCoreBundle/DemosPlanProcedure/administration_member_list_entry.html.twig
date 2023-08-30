@@ -23,9 +23,10 @@
                 <br>
                 {% if orga.masterToeb is defined %}
                     {% for key, district in districts %}
-                        <span class="o-tooltip inline-block u-mr-0_25">
+                        <span
+                          class="inline-block u-mr-0_25"
+                          v-tooltip="'{{ district.name }}'">
                             <span class="font-size-smaller">{{ district.short }}</span>: {{ attribute(orga.masterToeb, key)|default('') }}
-                            <span class="o-tooltip__content">{{ district.name }}</span>
                         </span>
                     {% endfor %}
                 {% endif %}

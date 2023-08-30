@@ -254,7 +254,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_street',
             'field_statement_meta_submit_name',
             'field_statement_phase',
-            'field_statement_polygon',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
@@ -1039,9 +1038,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 $this->checkPermission($permissionToTest);
             }
         } else {
-            // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
-            $this->logger->info('Dieser Bereich hat kein explizites Permission angegeben! '
-                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', \debug_backtrace(0, 4));
+            // Give devs a hint that the permissions here need to be reworked
+            $this->logger->info('This area has no explicit permission specified! '
+                        .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
     }
 

@@ -87,6 +87,7 @@
                         <td>
                             <input
                                 id="boilerplate_delete:{{ boilerplate.ident|default('') }}"
+                                data-cy="administrationListBoilerplate:boilerplateDelete"
                                 name="boilerplate_delete[]"
                                 class="u-ml-0_5"
                                 type="checkbox"
@@ -108,6 +109,7 @@
                         <td class="text-center">
                             <a
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
+                                data-cy="administrationListBoilerplate:boilerplateEdit"
                                 class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything">
                                 <i
                                     class="fa fa-pencil"
@@ -118,6 +120,7 @@
                                 class="btn--blank o-link--default"
                                 value="{{ boilerplate.id }}"
                                 name="boilerplateDeleteItem"
+                                data-cy="administrationListBoilerplate:boilerplateDeleteItem"
                                 data-form-actions-confirm="{{ 'check.boilerplate.delete'|trans({ boilerplate: boilerplate.title }) }}"
                                 data-form-actions-confirm-simple
                                 title="{{ "topic.delete" |trans }}">
@@ -140,6 +143,7 @@
                     <td>
                         <input
                             id="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}"
+                            data-cy="administrationListBoilerplate:boilerplateGroupSelectAll"
                             name="boilerplateGroupIdsTo_delete[]"
                             class="u-ml-0_5"
                             type="checkbox"
@@ -168,16 +172,21 @@
                     <td></td>
                     <td class="text-center">
                         <dp-flyout>
-                            <a href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}">
+                            <a
+                                href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}"
+                                data-cy="administrationListBoilerplate:addNewBoilerplate">
                                 {{ 'boilerplate.generate' |trans }}
                             </a>
-                            <a href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': boilerplateGroup.id}) }}">
+                            <a
+                                href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': boilerplateGroup.id}) }}"
+                                data-cy="administrationListBoilerplate:boilerplateGroupEdit">
                                 {{ 'group.edit' |trans }}
                             </a>
                             <button
                                 class="btn--blank o-link--default"
                                 value="{{ boilerplateGroup.id }}"
                                 name="boilerplateGroupDeleteAllContent"
+                                data-cy="administrationListBoilerplate:boilerplateGroupDelete"
                                 data-form-actions-confirm="{{ "check.boilerplateGroup.delete"|trans({ boilerplateGroup: boilerplateGroup.title }) }}"
                                 data-form-actions-confirm-simple>
                                 {{ 'group.delete' |trans }}
@@ -188,6 +197,7 @@
                         {% if boilerplateGroup.boilerplates|length > 0 %}
                             <div
                                 class="text-right u-pr-0_5 o-toggle__trigger js__toggleAnything is-active-toggle"
+                                data-cy="administrationListBoilerplate:boilerplateGroupToggle"
                                 data-toggle="#{{ boilerplateGroup.id|default }}">
                                 <i class="fa o-toggle__icon--angle" aria-hidden="true"></i>
                             </div>

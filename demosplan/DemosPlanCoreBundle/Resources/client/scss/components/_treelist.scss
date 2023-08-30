@@ -51,7 +51,7 @@
 
     &__header.is-fixed,
     &__footer.is-fixed {
-        z-index: $z-fixed;
+        z-index: $dp-z-fixed;
     }
 
     &__header.is-fixed.is-top::after,

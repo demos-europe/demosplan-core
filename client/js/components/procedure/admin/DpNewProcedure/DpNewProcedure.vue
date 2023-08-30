@@ -67,7 +67,7 @@
             class="weight--bold" />
           <dd
             id="js__plisPlanungsanlass"
-            class="list-style-none" />
+            class="u-m-0" />
         </dl>
       </template>
       <dp-form-row
