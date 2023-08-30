@@ -429,6 +429,7 @@ export default {
         name: Translator.trans('not.assigned'),
         id: 'noAssigneeId'
       })
+
       return assigneeOptions
     },
 
@@ -440,6 +441,7 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
+
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -473,6 +475,7 @@ export default {
       if (this.segment.hasRelationship('tags')) {
         return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
+
       return '-'
     },
 
@@ -724,6 +727,7 @@ export default {
           }
         }
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
