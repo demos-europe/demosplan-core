@@ -326,7 +326,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import loadAsyncComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'StatementSegment',
@@ -585,20 +585,6 @@ export default {
         })
     },
 
-    loadAsyncComponents (hookName) {
-      const addons = loadAddonComponents(hookName)
-      for (const addon in addons) {
-        eval(addon)
-        this.$options.components[addon.entry] = window[addon.entry].default
-
-        this.asyncComponents.push({
-          name: addon.entry,
-          label: addon.options.label,
-          id: addon.options.id
-        })
-      }
-    },
-
     openBoilerPlate () {
       this.$refs.boilerPlateModal.toggleModal()
     },
@@ -836,7 +822,7 @@ export default {
         }
       })
 
-    this.loadAsyncComponents('segment.recommendationModal.tabs')
+    this.asyncComponents = loadAsyncComponents('segment.recommendationModal.tabs')
   }
 }
 </script>
