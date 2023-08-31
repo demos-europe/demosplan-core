@@ -1,6 +1,7 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import Vue from 'vue'
 
-export default function loadAddonComponents (hookName) {
+function loadAddonComponents (hookName) {
   const params = {
     hookName: hookName
   }
@@ -20,4 +21,17 @@ export default function loadAddonComponents (hookName) {
         addons.push(content)
       }
     })
+}
+
+export default function loadAsyncComponents (hookName) {
+  const addons = loadAddonComponents(hookName)
+  for (const addon in addons) {
+    eval(addon)
+    Vue.options.components[addon.entry] = window[addon.entry].default
+
+    return {
+      name: addon.entry,
+      options: addon.options ?? ''
+    }
+  }
 }
