@@ -1326,6 +1326,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
+    DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
