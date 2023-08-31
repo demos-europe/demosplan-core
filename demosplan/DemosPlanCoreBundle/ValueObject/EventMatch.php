@@ -3,8 +3,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-
-class EventMatch
+class EventMatch extends UnnamedEventMatch
 {
     /**
      * @var array<int, string>
@@ -12,40 +11,28 @@ class EventMatch
     private array $filesOfUsage = [];
 
     public function __construct(
-        protected readonly string $filePath,
-        protected readonly string $nameSpace,
+        string $filePath,
+        string $nameSpace,
         protected readonly string $className,
-        protected readonly ?string $matchingParent,
-        protected readonly bool $matchingName
+        ?string $matchingParent,
+        protected readonly bool $isEventLikeName
     ) {
-    }
-
-    public function __toString(): string
-    {
-        return $this->nameSpace ."\\". $this->className;
-//        return implode(' ', compact($this->nameSpace, $this->className, $this->matchingParent, $this->matchingName));
+        parent::__construct($filePath, $nameSpace, $matchingParent);
     }
 
     public function toArray(): array
     {
-        return [
-            'filePath'          => $this->filePath,
-            'nameSpace'         => $this->nameSpace,
-            'className'         => $this->className,
-            'matchingParent'    => $this->matchingParent,
-            'matchingName'      => $this->matchingName,
-            'filesOfUsage'      => $this->getUsages(),
-        ];
-    }
+        $result = parent::toArray();
+        $result['isEventLikeName'] = $this->isEventLikeName;
+        $result['className'] = $this->className;
+        $result['filesOfUsage'] = $this->getUsages();
 
-    public function getClassName(): string
-    {
-        return $this->className;
+        return $result;
     }
 
     public function addUsage(string $filePath): void
     {
-        $this->filesOfUsage[] = $filePath;
+        $this->filesOfUsage[] = str_replace(DIRECTORY_SEPARATOR, "\\", $filePath);
     }
 
     public function getUsages(): array
@@ -58,9 +45,13 @@ class EventMatch
         return $this->filesOfUsage;
     }
 
-    public function getFilePath(): string
+    public function __toString(): string
     {
-        return $this->filePath;
+        return parent::__toString().', '.$this->className;
     }
 
+    public function getClassName(): string
+    {
+        return $this->className;
+    }
 }
