@@ -124,21 +124,21 @@
                 </h3>
               </div>
               <dp-tabs
+                v-if="allComponentsLoaded"
                 :active-id="activeId"
                 @change="(id) => setActiveTabId(id)">
                 <dp-tab
-                  :label="Translator.trans('segments.recommendations.tags')"
-                  id="recTags">
-                  <addon-wrapper
-                    hook-name="tag.recommendation.tab"
-                    :addon-props="addonProps"/>
-                </dp-tab>
-                <dp-tab
-                  :label="Translator.trans('segments.recommendations.oracle')"
-                  id="recContent">
-                  <addon-wrapper
-                    hook-name="oracle.recommendation.tab"
-                    :addon-props="addonProps"/>
+                  v-for="(component, idx) in asyncComponents"
+                  :key="idx"
+                  :id="component.id"
+                  :label="Translator.trans(component.label)">
+                  <slot>
+                    <keep-alive>
+                      <component
+                        class="u-mt"
+                        :is="component.name" />
+                    </keep-alive>
+                  </slot>
                 </dp-tab>
               </dp-tabs>
             </dp-modal>
@@ -315,6 +315,7 @@ import {
   DpLabel,
   DpModal,
   DpMultiselect,
+  dpRpc,
   DpTab,
   DpTabs,
   prefixClassMixin,
@@ -392,7 +393,8 @@ export default {
 
   data () {
     return {
-      activeId: 'recTags',
+      activeId: '',
+      allComponentsLoaded: false,
       addonProps: {
         segmentId: this.segment.id,
         procedureId: this.procedureId
@@ -448,10 +450,6 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
-    },
-
-    isAiTabActive () {
-      return this.activeId === 'recContent'
     },
 
     isAssignedToMe () {
