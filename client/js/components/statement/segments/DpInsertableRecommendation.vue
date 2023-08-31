@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <li class="flex flex-items-start space-inline-xs u-pr-0_5">
+  <li class="flex flex-start space-inline-xs u-pr-0_5">
     <div class="flex flex-nowrap">
       <button
         :aria-label="Translator.trans('segment.recommendation.paste')"
