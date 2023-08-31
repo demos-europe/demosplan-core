@@ -28,7 +28,7 @@ class EventFinder extends CoreCommand
     protected static $defaultDescription = '';
 
     private const OPTION_START_PATHS = 'startPaths';
-    private const OPTION_PARENTS = 'parent';
+    private const OPTION_PARENTS = 'parents';
 
     private array $unnamedEventMatches = [];
     private array $namedEventMatches = [];
@@ -44,7 +44,7 @@ class EventFinder extends CoreCommand
             self::OPTION_PARENTS,
             'p',
             InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-            'The parent class(es) which will be used as filter to determine the correct event-classes.'
+            'The parent class name(s) which will be used as filter to determine the correct event-classes.'
         );
 
         //-s path/to/dir/one -s path/to/dir/two
