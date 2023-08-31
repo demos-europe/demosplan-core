@@ -1,6 +1,6 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
-export default function loadComponents (hookName) {
+export default function loadAddonComponents (hookName) {
   const params = {
     hookName: hookName
   }
@@ -19,7 +19,5 @@ export default function loadComponents (hookName) {
 
         addons.push(content)
       }
-
-      return addons
     })
 }

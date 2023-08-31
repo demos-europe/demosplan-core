@@ -131,7 +131,7 @@
                   v-for="(component, idx) in asyncComponents"
                   :key="idx"
                   :id="component.id"
-                  :label="Translator.trans(component.label)">
+                  :label="Translator.trans(component.title)">
                   <slot>
                     <keep-alive>
                       <component
@@ -315,7 +315,6 @@ import {
   DpLabel,
   DpModal,
   DpMultiselect,
-  dpRpc,
   DpTab,
   DpTabs,
   prefixClassMixin,
@@ -325,6 +324,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'StatementSegment',
@@ -583,6 +583,20 @@ export default {
         })
     },
 
+    loadAsyncComponents (hookName) {
+      const addons = loadAddonComponents(hookName)
+      for (const addon in addons) {
+        eval(addon)
+        this.$options.components[addon.entry] = window[addon.entry].default
+
+        this.asyncComponents.push({
+          name: addon.entry,
+          label: addon.options.label,
+          id: addon.options.id
+        })
+      }
+    },
+
     openBoilerPlate () {
       this.$refs.boilerPlateModal.toggleModal()
     },
@@ -819,6 +833,8 @@ export default {
           this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
         }
       })
+
+    this.loadAsyncComponents('segment.recommendationModal.tabs')
   }
 }
 </script>
