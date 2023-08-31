@@ -84,6 +84,8 @@
         margin: $inuit-base-spacing-unit 0 0;
         height: auto;
     }
+
+    // can be removed in favor of implementing a contrast prop in DpLabel
     &.recommendation-modal {
         li:hover {
             background-color: $dp-color-background-light;
