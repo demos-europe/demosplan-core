@@ -135,6 +135,8 @@
                   <slot>
                     <keep-alive>
                       <component
+                        :procedure-id="addonProps.procedureId",
+                        :segment-id="addonProps.segmentId"
                         class="u-mt"
                         :is="component.name" />
                     </keep-alive>
