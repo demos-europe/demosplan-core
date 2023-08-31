@@ -4,7 +4,7 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 /**
- * Used to store various informations as string of (event) classes found in any directories.
+ * Used to store various information as string of (event) classes found in any directories.
  */
 class EventMatch extends UnnamedEventMatch
 {
