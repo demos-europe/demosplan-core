@@ -657,8 +657,8 @@ export default {
         })
     },
 
-    setActiveTabId () {
-      this.activeId = this.activeId === 'recContent' ? 'recTags' : 'recContent'
+    setActiveTabId (id) {
+      this.activeId = id
     },
 
     showComments () {
