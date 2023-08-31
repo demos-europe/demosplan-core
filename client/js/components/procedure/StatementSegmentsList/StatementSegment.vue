@@ -394,11 +394,12 @@ export default {
   data () {
     return {
       activeId: '',
-      allComponentsLoaded: false,
       addonProps: {
         segmentId: this.segment.id,
         procedureId: this.procedureId
       },
+      allComponentsLoaded: false,
+      asyncComponents: [],
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
