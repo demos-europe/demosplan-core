@@ -32,6 +32,7 @@ class EventFinder extends CoreCommand
 
     private array $unnamedEventMatches = [];
     private array $namedEventMatches = [];
+
     /**
      * The list of events, created by this command may be incomplete and/or contains false-positives,
      * caused by limited options to identify relevant events as such, while event classes are not loaded.
@@ -54,7 +55,6 @@ class EventFinder extends CoreCommand
             'Start path(s), where to search for event classes.'
         );
     }
-
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
