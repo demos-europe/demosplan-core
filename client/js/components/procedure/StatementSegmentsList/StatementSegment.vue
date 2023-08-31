@@ -326,7 +326,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import loadAsyncComponents from '@DpJs/lib/addon/loadAddonComponents'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'StatementSegment',
@@ -822,7 +822,7 @@ export default {
         }
       })
 
-    this.asyncComponents = loadAsyncComponents('segment.recommendationModal.tabs')
+    this.asyncComponents = loadAddonComponents('oracle.recommendation.tab')
   }
 }
 </script>
