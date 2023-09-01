@@ -10,6 +10,7 @@
 <script>
 import {
   dpApi,
+  AddonWrapper,
   DpButton,
   DpDateRangePicker,
   DpDatetimePicker,
@@ -19,7 +20,6 @@ import {
   DpMultiselect,
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 

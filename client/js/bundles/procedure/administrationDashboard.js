@@ -12,7 +12,7 @@
  */
 
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '../../../../client/js/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpDashboardTaskCard from '@DpJs/components/procedure/DpDashboardTaskCard'
 import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
