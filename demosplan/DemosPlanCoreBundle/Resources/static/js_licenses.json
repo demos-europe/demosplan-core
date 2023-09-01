@@ -426,53 +426,13 @@
     },
     {
         "package": "postcss-preset-env",
-        "license": "CC0-1.0",
+        "license": "MIT-0",
         "website": "https://github.com/csstools/postcss-plugins/tree/main/plugin-packs/postcss-preset-env#readme"
     },
     {
         "package": "proj4",
         "license": "MIT",
         "website": "https://proj4js.github.io/proj4js/"
-    },
-    {
-        "package": "prosemirror-history",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-model",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-schema-basic",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-schema-list",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-state",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-tables",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-utils",
-        "license": "Apache-2.0",
-        "website": "https://github.com/eshvedai"
-    },
-    {
-        "package": "prosemirror-view",
-        "license": "MIT",
-        "website": "Unknown"
     },
     {
         "package": "purgecss-webpack-plugin",
@@ -563,11 +523,6 @@
         "package": "tippy.js",
         "license": "MIT",
         "website": "https://atomiks.github.io/tippyjs/"
-    },
-    {
-        "package": "tooltip.js",
-        "license": "MIT",
-        "website": "Unknown"
     },
     {
         "package": "util",
