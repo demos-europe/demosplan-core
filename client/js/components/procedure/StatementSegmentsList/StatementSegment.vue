@@ -134,7 +134,7 @@
                   :label="Translator.trans(component.options.title)">
                   <slot>
                     <component
-                      :procedure-id="addonProps.procedureId",
+                      :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
                       class="u-mt"
                       :is="component.name" />
@@ -824,6 +824,10 @@ export default {
       .then((response) => {
         this.asyncComponents = response
         this.allComponentsLoaded = true
+
+        response.forEach(component => {
+          this.$options.components[component.name] = window[component.name].default
+        })
     })
   }
 }

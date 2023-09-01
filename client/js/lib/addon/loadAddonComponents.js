@@ -24,7 +24,6 @@ export default async function loadAddonComponents (hookName) {
         })
 
         eval(content)
-        Vue.options.components[addon.entry] = window[addon.entry].default
       }
 
       return addons
