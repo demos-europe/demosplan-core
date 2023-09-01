@@ -14,6 +14,9 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadCategoryData extends TestFixture
 {
     final public const TEST_CATEGORY_FAQ = 'testCategoryFaq';

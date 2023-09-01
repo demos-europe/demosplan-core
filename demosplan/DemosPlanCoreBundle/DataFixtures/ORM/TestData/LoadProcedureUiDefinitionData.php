@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureUiDefinitionData extends TestFixture
 {
     // for procedureTypes

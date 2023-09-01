@@ -31,6 +31,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadStatementData extends TestFixture implements DependentFixtureInterface
 {
     protected $manager;

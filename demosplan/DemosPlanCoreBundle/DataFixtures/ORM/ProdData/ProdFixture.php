@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\DemosFixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 abstract class ProdFixture extends DemosFixture implements FixtureGroupInterface
 {
     /**
