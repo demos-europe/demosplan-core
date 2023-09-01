@@ -249,7 +249,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
-
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
