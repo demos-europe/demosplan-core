@@ -820,7 +820,7 @@ export default {
         }
       })
 
-    Promise.resolve(loadAddonComponents('segment.recommendationModal.tab'))
+    loadAddonComponents('segment.recommendationModal.tab')
       .then((response) => {
         this.asyncComponents = response
         this.allComponentsLoaded = true

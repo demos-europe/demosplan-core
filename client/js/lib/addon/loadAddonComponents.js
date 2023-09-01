@@ -5,7 +5,7 @@ export default async function loadAddonComponents (hookName) {
     hookName: hookName
   }
 
-  return dpRpc('addons.assets.load', params)
+  return await dpRpc('addons.assets.load', params)
     .then(response => checkResponse(response))
     .then(response => {
       const result = response[0].result
