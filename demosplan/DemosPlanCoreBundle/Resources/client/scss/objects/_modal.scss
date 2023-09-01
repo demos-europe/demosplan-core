@@ -85,7 +85,7 @@
         height: auto;
     }
 
-    // can be removed in favor of implementing a contrast prop in DpLabel
+    // Can be removed in favor of implementing an `inverted` prop in DpBadge
     &.recommendation-modal {
         li:hover {
             background-color: $dp-color-background-light;
