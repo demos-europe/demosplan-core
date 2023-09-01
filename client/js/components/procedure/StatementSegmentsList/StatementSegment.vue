@@ -130,16 +130,14 @@
                 <dp-tab
                   v-for="(component, idx) in asyncComponents"
                   :key="idx"
-                  :id="component.id"
-                  :label="Translator.trans(component.title)">
+                  :id="component.options.id"
+                  :label="Translator.trans(component.options.title)">
                   <slot>
-                    <keep-alive>
-                      <component
-                        :procedure-id="addonProps.procedureId",
-                        :segment-id="addonProps.segmentId"
-                        class="u-mt"
-                        :is="component.name" />
-                    </keep-alive>
+                    <component
+                      :procedure-id="addonProps.procedureId",
+                      :segment-id="addonProps.segmentId"
+                      class="u-mt"
+                      :is="component.name" />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -822,7 +820,11 @@ export default {
         }
       })
 
-    this.asyncComponents = loadAddonComponents('oracle.recommendation.tab')
+    Promise.resolve(loadAddonComponents('oracle.recommendation.tab'))
+      .then((response) => {
+        this.asyncComponents = response
+        this.allComponentsLoaded = true
+    })
   }
 }
 </script>

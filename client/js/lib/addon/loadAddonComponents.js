@@ -1,17 +1,16 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 import Vue from 'vue'
 
-export default function loadAddonComponents (hookName) {
+export default async function loadAddonComponents (hookName) {
   const params = {
     hookName: hookName
   }
-
-  const addons = []
 
   return dpRpc('addons.assets.load', params)
     .then(response => checkResponse(response))
     .then(response => {
       const result = response[0].result
+      const addons = []
 
       for (const key of Object.keys(result)) {
         const addon = result[key]
