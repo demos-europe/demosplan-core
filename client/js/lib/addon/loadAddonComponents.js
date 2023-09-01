@@ -1,5 +1,4 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
-import Vue from 'vue'
 
 export default async function loadAddonComponents (hookName) {
   const params = {
