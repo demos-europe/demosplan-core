@@ -184,7 +184,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_assessmenttable_export',
             'feature_data_protection_text_customized_view',
             'feature_documents_category_use_file',
-            'feature_documents_category_use_paragraph',
             'feature_imprint_text_customized_view',
             'feature_json_api_get',
             'feature_json_api_list',
@@ -194,7 +193,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_participation_area_procedure_detail_map_use_baselayerbox',
             'feature_procedure_filter_any',
             'feature_procedure_filter_external_orga_name',
-            'feature_procedure_single_document_upload_zip',
             'feature_procedure_sort_any',
             'feature_procedure_sort_orga_name',
             'feature_send_final_email_cc_to_self',
@@ -205,7 +203,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_statements_released_group_email',
             'field_county_list',
             'field_municipality_list',
-            'field_news_pdf',
             'field_priority_area_list',
             'field_procedure_administration',
             'field_procedure_documents',
@@ -213,7 +210,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_procedure_paragraphs',
             'field_procedure_phase',
             'field_procedure_recommendation_version',
-            'field_procedure_single_document_title',
             'field_statement_extern_id',
             'field_statement_feedback',
             'field_statement_file',
@@ -256,7 +252,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::ORGANISATION_ADMINISTRATION)) {         // Fachplaner-Masteruser GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
-                'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_json_api_create',
@@ -280,7 +275,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
@@ -294,7 +288,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
@@ -326,7 +319,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_WORKER, Role::HEARING_AUTHORITY_WORKER])) {         // Fachplaner-Sachbearbeiter GLAUTH Kommune
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
-                'area_mydata_organisation',  // Organisation sehen
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
@@ -347,7 +339,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PUBLIC_AGENCY_COORDINATION)) {         // Institutions-Koordination GPSORG
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_mydata_organisation',  // Daten der Organisation
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_statements_vote_may_vote',
             ]);
@@ -355,7 +346,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasAnyOfRoles([Role::PUBLIC_AGENCY_WORKER, Role::PUBLIC_AGENCY_COORDINATION])) { // Institutions-Koordination oder Institutions-Sachbearbeitung
             $this->enablePermissions([
-                'area_mydata_organisation',  // Organisation sehen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_procedure_filter_internal_phase', // sort for internal phases in procedure list
                 'feature_procedure_filter_internal_phase_permissionset', // filter for internal phases permissionset in procedure list
@@ -406,13 +396,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasRole(Role::PLATFORM_SUPPORT)) {         // Verfahrenssupport GTSUPP Verfahrenssupport
             $this->enablePermissions([
-                'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
                 'area_manage_orgadata',  // Abteilungenverwalten
-                'area_mydata_organisation',  // Daten der Organisation
-                'area_organisations',
                 'area_organisations_view',
                 'area_organisations_view_of_customer',
-                'area_platformtools',  // Menübereich Plattformtools
                 'area_preferences',  // Einstellungen
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
@@ -427,7 +413,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
                 'area_admin_faq',  // Verwalten
                 'feature_json_api_update', // needed to administrate FAQ items
-                'area_platformtools',
                 'area_preferences',  // Einstellungen
                 'field_statement_recommendation',
             ]);
