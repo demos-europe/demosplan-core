@@ -283,10 +283,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
             ]);
-
-            $this->disablePermissions([
-                'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
-            ]);
         }
 
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune
@@ -335,14 +331,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_filter_internal_phase', // sort for internal phases in procedure list
                 'feature_procedure_filter_internal_phase_permissionset', // filter for internal phases permissionset in procedure list
             ]);
-
-            // double role invitable institution and planner
-            if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER])) { // Fachplaner-Admin oder Fachplaner-Sachbearbeiter
-                $this->disablePermissions([
-                    'feature_procedure_filter_internal_phase',  // filter for internal phases in procedure list
-                    'feature_procedure_filter_internal_phase_permissionset',  // filter for internal phases permissionset in procedure list
-                ]);
-            }
         }
 
         if ($this->user->hasAnyOfRoles([
@@ -355,14 +343,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_statement_public_allowed_needs_verification',  // Publishing statements needs verification
                 'field_statement_recommendation',
             ]);
+        }
 
-            $this->disablePermissions([
-                'area_main_procedures',  // Menüitem Planverfahren
-                'area_mydata',  // Meine Daten
-                'area_participants_internal',  // Übersicht Teilnehmende intern
+        if ($this->user->allRolesExept([Role::GUEST, Role::PROSPECT])) {
+            $this->enablePermissions([
+                'area_mydata',
                 'area_portal_user',  // Portal des Users
                 'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
-                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
                 'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
@@ -414,10 +401,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_statements_vote_may_vote',  // May vote other citizens statements
                 'field_statement_recommendation',
             ]);
-
-            $this->disablePermissions([
-                'feature_procedure_single_document_upload_zip',  // citizens are not allowed to upload documents into procedures at all, hence do not allow for zip upload
-            ]);
         }
 
         if ($this->user->hasRole(Role::BOARD_MODERATOR)) { // Moderator
@@ -425,18 +408,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_forum_thread_edit',  // einen Thread im Forum bearbeiten
                 'field_statement_recommendation',
             ]);
-
-            $this->disablePermissions([
-                'area_participants_internal',  // Übersicht Teilnehmende intern
-            ]);
         }
 
         if ($this->user->hasRole(Role::PROCEDURE_CONTROL_UNIT)) { // fachliche Leitstelle
             $this->enablePermissions([
                 'field_statement_recommendation',
-            ]);
-            $this->disablePermissions([
-                'area_participants_internal',  // Übersicht Teilnehmende intern
             ]);
         }
 
@@ -445,10 +421,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_statement_data_input_orga',  // Create new submitted statements
                 'feature_procedure_get_base_data',  // receive basic procedure data
             ]);
+        }
 
-            $this->disablePermissions([
+        if($this->user->allRolesExept([Role::PROCEDURE_DATA_INPUT,])){
+            $this->enablePermissions([
                 'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
-                'field_send_final_email', // Schlussmitteilung versenden
             ]);
         }
 
