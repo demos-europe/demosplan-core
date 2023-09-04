@@ -24,7 +24,7 @@ use Webmozart\Assert\Assert;
 
 class EventFinder extends CoreCommand
 {
-    protected static $defaultName = 'dplan:documentation:generate:demos-event-list';
+    protected static $defaultName = 'dplan:documentation:generate:event-list';
     protected static $defaultDescription = '';
 
     private const OPTION_START_PATHS = 'startPaths';
