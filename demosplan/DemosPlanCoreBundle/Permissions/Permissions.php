@@ -423,7 +423,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             ]);
         }
 
-        if($this->user->allRolesExept([Role::PROCEDURE_DATA_INPUT,])){
+        if ($this->user->allRolesExept([Role::PROCEDURE_DATA_INPUT])) {
             $this->enablePermissions([
                 'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
             ]);
