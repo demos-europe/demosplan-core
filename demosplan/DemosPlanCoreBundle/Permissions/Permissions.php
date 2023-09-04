@@ -180,16 +180,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_main_file',
             'area_main_procedures',
             'area_mydata',
-            'area_mydata_password',
             'area_participants_internal',
             'area_portal_user',
             'feature_assessmenttable_export',
-            'feature_assessmenttable_single_statement_pdf',
-            'feature_assessmenttable_use_pager',
             'feature_data_protection_text_customized_view',
             'feature_documents_category_use_file',
             'feature_documents_category_use_paragraph',
-            'feature_email_invitable_institution_additional_invitation_text',
             'feature_imprint_text_customized_view',
             'feature_json_api_get',
             'feature_json_api_list',
@@ -198,7 +194,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_map_use_drawing_tools',
             'feature_map_use_location_relation',
             'feature_original_statements_export',
-            'feature_original_statements_use_pager',
             'feature_participation_area_procedure_detail_map_use_baselayerbox',
             'feature_procedure_filter_any',
             'feature_procedure_filter_external_orga_name',
@@ -267,7 +262,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
-                'area_manage_users',  // User verwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
@@ -275,14 +269,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_delete',
                 'feature_json_api_list',
                 'feature_json_api_update',
-                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_statement_recommendation',
             ]);
         }
@@ -415,7 +403,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_organisations',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
-                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
@@ -435,11 +422,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
                 'field_statement_recommendation',
@@ -478,8 +460,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasRole(Role::BOARD_MODERATOR)) { // Moderator
             $this->enablePermissions([
-                'feature_forum_dev_release_edit',  // Release für Weiterentwicklung bearbeiten
-                'feature_forum_dev_story_edit', // UserStory für Weiterentwicklung bearbeiten
                 'feature_forum_thread_edit',  // einen Thread im Forum bearbeiten
                 'field_statement_recommendation',
             ]);
