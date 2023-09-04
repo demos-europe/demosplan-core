@@ -62,7 +62,7 @@ class EventFinder extends CoreCommand
             $startPaths = $input->getOption(self::OPTION_START_PATHS);
             $targetParentClassNames = $input->getOption(self::OPTION_PARENTS);
             //add root-path of demosplan will be searched anyway
-            $startPaths[] = DemosPlanPath::getRootPath().'demosplan';
+            $startPaths[] = DemosPlanPath::getRootPath('demosplan');
 
             $phpFilePaths = self::findPhpClassFilesInDirectories($startPaths);
             $this->collectEventMatches($phpFilePaths, $targetParentClassNames);
