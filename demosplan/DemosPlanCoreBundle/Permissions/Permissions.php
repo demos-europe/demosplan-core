@@ -189,36 +189,27 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_json_rpc_post',
             'feature_map_use_drawing_tools',
             'feature_original_statements_export',
-            'feature_participation_area_procedure_detail_map_use_baselayerbox',
             'feature_procedure_filter_any',
             'feature_procedure_filter_external_orga_name',
             'feature_procedure_sort_any',
             'feature_procedure_sort_orga_name',
-            'feature_send_final_email_cc_to_self',
             'feature_statements_draft_email',
             'feature_statements_draft_release',
             'feature_statements_final_email',
             'feature_statements_released_email',
             'feature_statements_released_group_email',
-            'field_county_list',
-            'field_municipality_list',
-            'field_priority_area_list',
-            'field_procedure_administration',
             'field_procedure_documents',
             'field_procedure_name',
             'field_procedure_paragraphs',
-            'field_procedure_phase',
             'field_procedure_recommendation_version',
             'field_statement_extern_id',
             'field_statement_feedback',
             'field_statement_file',
             'field_statement_meta_address',
             'field_statement_meta_case_worker_name',
-            'field_statement_meta_city',
             'field_statement_meta_email',
             'field_statement_meta_orga_department_name',
             'field_statement_meta_orga_name',
-            'field_statement_meta_postal_code',
             'field_statement_meta_submit_name',
             'field_statement_phase',
             'field_statement_priority',
@@ -266,7 +257,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
             $this->enablePermissions([
                 'field_statement_recommendation',
-                'feature_admin_export_procedure_in_detail_view', // Verfahren exportieren in der Detailseite
             ]);
         }
 
@@ -289,7 +279,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_procedure_export_include_public_interest_bodies_member_list',
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
@@ -310,7 +299,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_WORKER)) {
             $this->enablePermissions([
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'field_statement_recommendation',
             ]);
         }
@@ -320,7 +308,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_json_api_get', // allow get requests to generic api
                 'feature_procedure_export_include_public_interest_bodies_member_list',
             ]);
