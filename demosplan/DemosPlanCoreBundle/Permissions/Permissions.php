@@ -178,7 +178,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_demosplan',
             'area_imprint_text',
             'area_main_file',
-            'area_main_procedures',
             'area_mydata',
             'area_portal_user',
             'feature_assessmenttable_export',
@@ -383,7 +382,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasRole(Role::CUSTOMER_MASTER_USER)) {
             $this->enablePermissions([
-                'area_organisations',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit_all_fields',
@@ -399,7 +397,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_organisations_view',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
-                'area_statistics',  // Statistiken
                 'feature_orga_get',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
