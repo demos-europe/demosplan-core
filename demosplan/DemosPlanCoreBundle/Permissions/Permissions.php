@@ -332,7 +332,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
                 'feature_procedure_report_general',
-                'feature_procedure_report_statements',
             ]);
         }
 
