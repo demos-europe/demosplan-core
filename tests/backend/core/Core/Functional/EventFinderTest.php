@@ -16,25 +16,20 @@ class EventFinderTest extends FunctionalTestCase
     {
         $commandTester = $this->getCommandTester();
 
-        //how to set options?
-        $commandTester->setInputs(
-            [
-                '-p DPlanEvent',
-                '-s /srv/www/addons/vendor/demos-europe',
-            ]
-        );
+        $commandTester->execute([
+            '-p' => ['DPlanEvent'],
+            '-s' => ['/srv/www/addons/vendor/demos-europe'],
+        ]);
 
-//        static::assertStringContainsString('matchingParent', implode(',', $commandTester->getInput()->getOptions()));
-
-        $commandTester->execute([]);
         $commandTester->assertCommandIsSuccessful();
         $output = $commandTester->getDisplay();
-//        static::assertStringContainsString('matchingParent', $output);
-//        static::assertStringContainsString('matchingParent: DPlanEvent', $output);
-//        static::assertStringContainsString('className": "RpcEvent', $output);
-//        static::assertStringContainsString('className": "BeforeResourceUpdateEvent', $output);
-//        static::assertStringContainsString('className": "ProcedureEditedEvent', $output);
 
+        //asserting some of the found events. Most likely this will be change, so this test needs to be adjusted.
+        static::assertStringContainsString('"className": "DPlanEvent"', $output);
+        static::assertStringContainsString('"matchingParent": "DPlanEvent"', $output);
+        static::assertStringContainsString('"className": "RpcEvent', $output);
+        static::assertStringContainsString('"className": "BeforeResourceUpdateEvent', $output);
+        static::assertStringContainsString('"className": "ProcedureEditedEvent', $output);
         static::assertStringContainsString('"className": "PostProcedureDeletedEvent', $output);
         static::assertStringContainsString('"className": "StatementUpdatedEvent', $output);
         static::assertStringContainsString('"className": "StatementCreatedEvent', $output);
