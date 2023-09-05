@@ -3,16 +3,16 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
@@ -37,39 +37,16 @@ class ServiceOutput
      */
     protected $fileService;
 
-    /**
-     * @var ProcedureNewsService
-     */
-    private $procedureNewsService;
-
-    /**
-     * @var GlobalNewsHandler
-     */
-    private $globalNewsHandler;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         Environment $twig,
         FileService $serviceFiles,
-        GlobalNewsHandler $globalNewsHandler,
-        LoggerInterface $logger,
-        ProcedureNewsService $procedureNewsService,
+        private readonly GlobalNewsHandler $globalNewsHandler,
+        private readonly LoggerInterface $logger,
+        private readonly ProcedureNewsService $procedureNewsService,
         ServiceImporter $serviceImporter
     ) {
-        $this->currentUser = $currentUser;
         $this->fileService = $serviceFiles;
-        $this->globalNewsHandler = $globalNewsHandler;
-        $this->logger = $logger;
-        $this->procedureNewsService = $procedureNewsService;
         $this->serviceImporter = $serviceImporter;
         $this->twig = $twig;
     }
@@ -147,7 +124,7 @@ class ServiceOutput
         $pictures = [];
         $i = 0;
         foreach ($outputResult as $singleNews) {
-            if (0 < strlen($singleNews['picture'])) {
+            if (0 < strlen((string) $singleNews['picture'])) {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($singleNews['picture']);
                 if (is_file($fileInfo->getAbsolutePath())) {
                     $fileContent = file_get_contents($fileInfo->getAbsolutePath());

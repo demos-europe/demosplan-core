@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,49 +17,26 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 class StatementListHandlerResult
 {
     /**
-     * @var array
-     */
-    protected $activeFilters;
-
-    /**
      * @var ToBy
      */
     protected $activeSort;
 
     /**
-     * @var array
+     * @param mixed[] $activeFilters
+     * @param mixed[] $filters
+     * @param string|bool $manuallySorted
+     * @param mixed[] $sort
+     * @param mixed[] $statementList
      */
-    protected $filters;
-
-    /**
-     * @var string|bool
-     */
-    protected $manuallySorted;
-
-    /**
-     * @var array
-     */
-    protected $sort;
-
-    /**
-     * @var array
-     */
-    protected $statementList;
-
     public function __construct(
-        $statementList,
-        $filters,
-        $sort,
+        protected $statementList,
+        protected $filters,
+        protected $sort,
         ToBy $activeSort,
-        $manuallySorted,
-        $activeFilters
+        protected $manuallySorted,
+        protected $activeFilters
     ) {
-        $this->statementList = $statementList;
-        $this->filters = $filters;
-        $this->sort = $sort;
         $this->activeSort = $activeSort;
-        $this->manuallySorted = $manuallySorted;
-        $this->activeFilters = $activeFilters;
     }
 
     public function getActiveFilters(): array

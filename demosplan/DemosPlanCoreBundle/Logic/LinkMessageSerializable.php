@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,9 +15,6 @@ use Symfony\Component\Routing\RouterInterface;
 
 class LinkMessageSerializable extends MessageSerializable
 {
-    protected $routeName = '';
-    protected $routeParameters = [];
-    protected $linkText = '';
     protected $parsedUrl = '';
 
     /**
@@ -32,14 +29,11 @@ class LinkMessageSerializable extends MessageSerializable
         $severity,
         $text,
         $textParameters = [],
-        $routeName = '',
-        $routeParameters = [],
-        $linkText = ''
+        protected $routeName = '',
+        protected $routeParameters = [],
+        protected $linkText = ''
     ) {
         parent::__construct($severity, $text, $textParameters);
-        $this->routeName = $routeName;
-        $this->routeParameters = $routeParameters;
-        $this->linkText = $linkText;
     }
 
     /**

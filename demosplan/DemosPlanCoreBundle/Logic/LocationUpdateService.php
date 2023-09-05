@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -33,20 +33,10 @@ class LocationUpdateService
      * @var ObjectManager
      */
     protected $em;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var OpenGeoDbService
-     */
-    private $openGeoDbService;
 
-    public function __construct(ManagerRegistry $registry, LoggerInterface $logger, OpenGeoDbService $openGeoDbService)
+    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger, private readonly OpenGeoDbService $openGeoDbService)
     {
         $this->em = $registry->getManager();
-        $this->logger = $logger;
-        $this->openGeoDbService = $openGeoDbService;
     }
 
     /**
@@ -115,8 +105,8 @@ class LocationUpdateService
                          ->setMunicipalCode($row[2].$row[3].$row[4].$row[6])
                          ->setName($row[7])
                          ->setPostcode($row[13])
-                         ->setLon((float) str_replace(',', '.', $row[14]))
-                         ->setLat((float) str_replace(',', '.', $row[15]));
+                         ->setLon((float) str_replace(',', '.', (string) $row[14]))
+                         ->setLat((float) str_replace(',', '.', (string) $row[15]));
                     $locations[] = $location;
                     break;
                 default:

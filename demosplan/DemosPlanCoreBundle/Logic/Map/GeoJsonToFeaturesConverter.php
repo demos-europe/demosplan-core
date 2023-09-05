@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,45 +32,10 @@ use Tightenco\Collect\Support\Collection;
 
 class GeoJsonToFeaturesConverter
 {
-    /**
-     * @var ImageManager
-     */
-    private $imageManager;
+    final public const DEFAULT_TILE_SIZE = 256;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var UrlFileReader
-     */
-    private $urlFileReader;
-
-    /**
-     * @var WktToGeoJsonConverter
-     */
-    private $wktToGeoJsonConverter;
-
-    public const DEFAULT_TILE_SIZE = 256;
-
-    /**
-     * @var MapProjectionConverter
-     */
-    private $mapProjectionConverter;
-
-    public function __construct(
-        ImageManager $imageManager,
-        LoggerInterface $logger,
-        MapProjectionConverter $mapProjectionConverter,
-        UrlFileReader $urlFileReader,
-        WktToGeoJsonConverter $wktToGeoJsonConverter
-    ) {
-        $this->imageManager = $imageManager;
-        $this->logger = $logger;
-        $this->mapProjectionConverter = $mapProjectionConverter;
-        $this->urlFileReader = $urlFileReader;
-        $this->wktToGeoJsonConverter = $wktToGeoJsonConverter;
+    public function __construct(private readonly ImageManager $imageManager, private readonly LoggerInterface $logger, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader, private readonly WktToGeoJsonConverter $wktToGeoJsonConverter)
+    {
     }
 
     /**
@@ -120,7 +85,7 @@ class GeoJsonToFeaturesConverter
         $result = new Collection();
         foreach ($feature->properties->metadata->printLayers ?? [] as $printLayer) {
             $imagesDirectoryPath = DemosPlanPath::getTemporaryPath(
-                md5($printLayer->layerTitle).'-'.Uuid::uuid().'/'
+                md5((string) $printLayer->layerTitle).'-'.Uuid::uuid().'/'
             );
             $test = new PrintLayer(
                 $printLayer->isBaseLayer ?? false,

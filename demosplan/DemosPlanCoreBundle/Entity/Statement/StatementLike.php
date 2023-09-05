@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,39 +11,47 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementLikeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="statement_likes")
+ *
  * @ORM\Entity
  */
-class StatementLike implements UuidEntityInterface
+class StatementLike implements UuidEntityInterface, StatementLikeInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="likes")
+     *
      * @ORM\JoinColumn(name="st_id", referencedColumnName="_st_id", onDelete="CASCADE")
      */
     protected $statement;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT", nullable=true)
      */
     protected $user;
@@ -59,6 +67,7 @@ class StatementLike implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -68,7 +77,7 @@ class StatementLike implements UuidEntityInterface
      */
     public function getUId()
     {
-        if (is_null($this->uId) && $this->user instanceof User) {
+        if (is_null($this->uId) && $this->user instanceof UserInterface) {
             $this->uId = $this->user->getId();
         }
 
@@ -83,7 +92,7 @@ class StatementLike implements UuidEntityInterface
     /**
      * @param string $id
      *
-     * @return StatementLike
+     * @return StatementLikeInterface
      */
     public function setId($id)
     {
@@ -93,7 +102,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -101,9 +110,9 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
-     * @return StatementLike
+     * @return StatementLikeInterface
      */
     public function setStatement($statement)
     {
@@ -113,7 +122,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @return User
+     * @return UserInterface
      */
     public function getUser()
     {
@@ -121,9 +130,9 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @param User $user
+     * @param UserInterface $user
      *
-     * @return StatementLike
+     * @return StatementLikeInterface
      */
     public function setUser($user)
     {
@@ -143,7 +152,7 @@ class StatementLike implements UuidEntityInterface
     /**
      * @param DateTime $createdDate
      *
-     * @return StatementLike
+     * @return StatementLikeInterface
      */
     public function setCreatedDate($createdDate)
     {

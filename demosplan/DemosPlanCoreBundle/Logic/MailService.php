@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,15 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
@@ -58,56 +54,24 @@ class MailService extends CoreService
      * @var MailerInterface
      */
     protected $mailer;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var MailRepository
-     */
-    private $mailRepository;
     /**
      * @var GlobalConfigInterface
      */
     private $globalConfig;
 
     public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MailerInterface $mailer,
-        MailRepository $mailRepository,
-        SortMethodFactory $sortMethodFactory,
-        TranslatorInterface $translator
+        private readonly MailRepository $mailRepository,
+        private readonly TranslatorInterface $translator
     ) {
-        $this->conditionFactory = $conditionFactory;
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
         $this->emailSystem = $globalConfig->getEmailSystem();
-        $this->entityFetcher = $entityFetcher;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->mailer = $mailer;
-        $this->mailRepository = $mailRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->translator = $translator;
     }
 
     /**
@@ -183,7 +147,7 @@ class MailService extends CoreService
                 continue;
             }
 
-            if (preg_match("/^\w:/", $filename)) {
+            if (preg_match("/^\w:/", (string) $filename)) {
                 $this->logger->warning("Ignoring attachment created on a Windows™ system: $filename");
             } else {
                 $attachment = $this->mailRepository->createAttachment($filename);
@@ -313,7 +277,7 @@ class MailService extends CoreService
                     $isValidFromAddress = preg_match(
                         '/'.$this->globalConfig
                             ->getEmailFromDomainValidRegex().'/',
-                        $fromInitial[0]
+                        (string) $fromInitial[0]
                     );
                     if (1 === $isValidFromAddress) {
                         $from = $fromInitial[0];
@@ -480,19 +444,13 @@ class MailService extends CoreService
      */
     public function getMailsToSend(int $limit = 200): array
     {
-        $conditions = [
-            $this->conditionFactory->propertyHasValue('new', ['status']),
-            $this->conditionFactory->valueSmallerEqualsThan(20, ['sendAttempt']),
-        ];
-        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
+        $conditions = Criteria::create()
+            ->where(Criteria::expr()->eq('status', 'new'))
+            ->andWhere(Criteria::expr()->lte('sendAttempt', 20))
+            ->orderBy(['createdDate' => Criteria::DESC])
+            ->setMaxResults($limit);
 
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            MailSend::class,
-            $conditions,
-            [$sortMethod],
-            0,
-            $limit
-        );
+        return $this->mailRepository->matching($conditions)->toArray();
     }
 
     /**
@@ -534,8 +492,8 @@ class MailService extends CoreService
                 return '';
             }
 
-            if (false !== strpos($field, ',')) {
-                return $this->checkEMailField(explode(',', $field), $addEmailAsName);
+            if (str_contains((string) $field, ',')) {
+                return $this->checkEMailField(explode(',', (string) $field), $addEmailAsName);
             }
 
             $checkResult = $this->checkEMail($field);

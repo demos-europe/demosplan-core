@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,21 +22,11 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 class StatementIdsInProcedureVO extends ValueObject implements Countable
 {
     /**
-     * @var string
-     */
-    protected $procedureId;
-
-    /** @var string[] */
-    protected $statementIds;
-
-    /**
      * @param string   $procedureId
      * @param string[] $statementIds
      */
-    public function __construct($procedureId, $statementIds)
+    public function __construct(protected $procedureId, protected $statementIds)
     {
-        $this->procedureId = $procedureId;
-        $this->statementIds = $statementIds;
     }
 
     public function count(): int

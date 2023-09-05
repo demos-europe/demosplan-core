@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <dl :class="prefixClass(`survey-chart ${ branded ? 'survey-chart--branded' : null } border position--relative u-ml-0 cf`)">
+  <dl :class="prefixClass(`survey-chart ${ branded ? 'survey-chart--branded' : null } border relative u-ml-0 flow-root`)">
     <dt
       v-text="title"
       :class="prefixClass('hide-visually')" />
@@ -18,19 +18,19 @@
     </dd>
 
     <dd
-      :class="prefixClass('survey-chart__bar u-m-0 float--left position--relative')"
+      :class="prefixClass('survey-chart__bar u-m-0 float-left relative')"
       :style="{ 'width': `calc(${votes.percentagePositive}% - 1px)` }">
       <span
-        :class="prefixClass('survey-chart__bar-inner position--absolute u-bottom-0 u-left-0 whitespace--nowrap')">
+        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-left-0 whitespace-nowrap')">
         {{ Translator.trans('affirmative') }}: <strong>{{ votes.nPositive }}</strong> ({{ votes.percentagePositive }}%)
       </span>
     </dd>
 
     <dd
-      :class="prefixClass('survey-chart__bar u-m-0 float--right position--relative')"
+      :class="prefixClass('survey-chart__bar u-m-0 float-right relative')"
       :style="{ 'width': `${votes.percentageNegative}%` }">
       <span
-        :class="prefixClass('survey-chart__bar-inner position--absolute u-bottom-0 u-right-0 whitespace--nowrap')">
+        :class="prefixClass('survey-chart__bar-inner absolute u-bottom-0 u-right-0 whitespace-nowrap')">
         {{ Translator.trans('negative') }}: <strong>{{ votes.nNegative }}</strong> ({{ votes.percentageNegative }}%)
       </span>
     </dd>

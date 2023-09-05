@@ -3,14 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -31,13 +30,14 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Validator\Validation;
 
-class StatementFragmentRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class StatementFragmentRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -329,7 +329,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     {
         try {
             return $this->findAll();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -405,25 +405,25 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $entity->setDisplayId($data['displayId']);
         }
 
-        if (array_key_exists('statementId', $data) && 36 === strlen(trim($data['statementId']))) {
+        if (array_key_exists('statementId', $data) && 36 === strlen(trim((string) $data['statementId']))) {
             $entity->setStatement($em->getReference(Statement::class, $data['statementId']));
         }
-        if (array_key_exists('procedureId', $data) && 36 === strlen(trim($data['procedureId']))) {
+        if (array_key_exists('procedureId', $data) && 36 === strlen(trim((string) $data['procedureId']))) {
             $entity->setProcedure($em->getReference(Procedure::class, $data['procedureId']));
         }
 
         if (array_key_exists('departmentId', $data)) {
             $entity->setDepartment(null);
-            if (36 === strlen(trim($data['departmentId']))) {
+            if (36 === strlen(trim((string) $data['departmentId']))) {
                 $entity->setDepartment($em->getReference(Department::class, $data['departmentId']));
                 $entity->setAssignedToFbDate(new DateTime());
             }
         }
 
-        if (array_key_exists('modifiedByDepartmentId', $data) && 36 === strlen($data['modifiedByDepartmentId'])) {
+        if (array_key_exists('modifiedByDepartmentId', $data) && 36 === strlen((string) $data['modifiedByDepartmentId'])) {
             $entity->setModifiedByDepartment($em->getReference(Department::class, $data['modifiedByDepartmentId']));
         }
-        if (array_key_exists('modifiedByUserId', $data) && 36 === strlen($data['modifiedByUserId'])) {
+        if (array_key_exists('modifiedByUserId', $data) && 36 === strlen((string) $data['modifiedByUserId'])) {
             $entity->setModifiedByUser($em->getReference(User::class, $data['modifiedByUserId']));
         }
 

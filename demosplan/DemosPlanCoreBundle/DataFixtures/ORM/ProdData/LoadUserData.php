@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,25 +26,21 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
-    private UserService $userService;
-    private UserHandler $userHandler;
-    private OrgaService $orgaService;
-
     public function __construct(
         EntityManagerInterface $entityManager,
-        OrgaService $orgaService,
-        UserHandler $userHandler,
-        UserService $userService
+        private readonly OrgaService $orgaService,
+        private readonly UserHandler $userHandler,
+        private readonly UserService $userService
     ) {
         parent::__construct($entityManager);
-        $this->userService = $userService;
-        $this->userHandler = $userHandler;
-        $this->orgaService = $orgaService;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         // create defaultcustomer
         $customer = new Customer('demos', 'demos');

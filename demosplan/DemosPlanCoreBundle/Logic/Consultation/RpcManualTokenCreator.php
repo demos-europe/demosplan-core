@@ -5,22 +5,22 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
@@ -28,39 +28,11 @@ use stdClass;
 
 class RpcManualTokenCreator implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    public function __construct(
-        PermissionsInterface $permissions,
-        RpcErrorGenerator $errorGenerator,
-        ConsultationTokenService $consultationTokenService,
-        JsonSchemaValidator $jsonSchemaValidator
-    ) {
-        $this->errorGenerator = $errorGenerator;
-        $this->permissions = $permissions;
-        $this->consultationTokenService = $consultationTokenService;
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly RpcErrorGenerator $errorGenerator, private readonly ConsultationTokenService $consultationTokenService, private readonly JsonSchemaValidator $jsonSchemaValidator)
+    {
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -83,11 +55,11 @@ class RpcManualTokenCreator implements RpcMethodSolverInterface
                 );
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

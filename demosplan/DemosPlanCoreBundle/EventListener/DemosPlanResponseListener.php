@@ -3,20 +3,21 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SecurityUserProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Custom Eventlistener
@@ -24,31 +25,29 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
  */
 class DemosPlanResponseListener
 {
-    /** @var GlobalConfigInterface */
-    protected $globalConfig;
-
-    /** @var TransformMessageBagService */
-    private $transformMessageBagService;
-
     public function __construct(
-        GlobalConfig $globalConfig,
-        TransformMessageBagService $transformMessageBagService
+        private readonly SecurityUserProvider $securityUserProvider,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly TransformMessageBagService $transformMessageBagService
     ) {
-        $this->globalConfig = $globalConfig;
-        $this->transformMessageBagService = $transformMessageBagService;
     }
 
-    /**
-     * Perform search task and orga branding.
-     */
     public function onKernelResponse(ResponseEvent $event)
     {
-        // handle Messages on Redirects
+        $this->handleMessagesOnRedirects($event);
+        $this->xhrResponsesNeedToGetMessagesIntoData($event);
+        $this->transformTokenUserObjectToSecurityUserObject();
+    }
+
+    private function handleMessagesOnRedirects(ResponseEvent $event): void
+    {
         if (Response::HTTP_FOUND === $event->getResponse()->getStatusCode()) {
             $this->transformMessageBagService->transformMessageBagToFlashes();
         }
+    }
 
-        // Xhr Responses need to get messages into data
+    private function xhrResponsesNeedToGetMessagesIntoData(ResponseEvent $event): void
+    {
         if ($event->getResponse() instanceof JsonResponse) {
             $responseContent = Json::decodeToArray($event->getResponse()->getContent());
             $messageBagMessages = $this->transformMessageBagService->transformMessageBagToResponseFormat();
@@ -70,5 +69,35 @@ class DemosPlanResponseListener
                 $event->getResponse()->setStatusCode(Response::HTTP_OK);
             }
         }
+    }
+
+    /**
+     * Authentication is done with the special SecurityUser, not with the User
+     * entity. One of the reasons is that the objects gets serialized
+     * in the session between requests and the doctrine entity with all its dependencies
+     * may be huge to serialize. Therefore, we use the special SecurityUser that has only
+     * those properties that are needed for authorization. During the request it
+     * is swapped by the User entity {@see SecurityUserProvider::refreshUser()}.
+     */
+    private function transformTokenUserObjectToSecurityUserObject(): void
+    {
+        // unauthenticated requests do not have a token
+        $existingToken = $this->tokenStorage->getToken();
+        if (null === $existingToken) {
+            return;
+        }
+
+        // subrequests may already have SecurityUser as user
+        // once be got rid of the subrequests triggered in twig by `render()` calls,
+        // this can be removed
+        if ($existingToken->getUser() instanceof SecurityUser) {
+            return;
+        }
+
+        $securityUser = $this->securityUserProvider->getSecurityUser(
+            $existingToken->getUser()?->getLogin() ?? ''
+        );
+
+        $existingToken->setUser($securityUser);
     }
 }

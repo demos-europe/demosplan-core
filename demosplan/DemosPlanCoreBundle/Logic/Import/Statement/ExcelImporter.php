@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
@@ -35,19 +36,17 @@ use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
@@ -74,7 +73,7 @@ class ExcelImporter extends CoreService
     private const SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC = 'Unbekannt';
     private const SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC = 'unbekannt';
     private const SUBMIT_TYPE_COLUMN = 'Art der Einreichung';
-    public const STATEMENT_ID = 'Stellungnahme ID';
+    final public const STATEMENT_ID = 'Stellungnahme ID';
     private const PUBLIC_STATEMENT = 'publicStatement';
     private const STATEMENT_TEXT = 'Stellungnahmetext';
 
@@ -91,40 +90,10 @@ class ExcelImporter extends CoreService
         self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC  => Statement::SUBMIT_TYPE_UNKNOWN,
     ];
 
-    public const PUBLIC = 'Öffentlichkeit';
-    public const INSTITUTION = 'Institution';
+    final public const PUBLIC = 'Öffentlichkeit';
+    final public const INSTITUTION = 'Institution';
 
     private $notNullConstraint;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var StatementValidator
-     */
-    private $statementValidator;
 
     /**
      * @var Statement[]
@@ -148,96 +117,27 @@ class ExcelImporter extends CoreService
      */
     private $errors;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var PlaceService
-     */
-    private $placeService;
-    /**
-     * @var TagService
-     */
-    private $tagService;
-    /**
-     * @var TagValidator
-     */
-    private $tagValidator;
-    /**
-     * @var SegmentValidator
-     */
-    private $segmentValidator;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var StatementCopier
-     */
-    private $statementCopier;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var TagResourceType
-     */
-    private $tagResourceType;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
     public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
-        DqlConditionFactory $conditionFactory,
-        EntityManagerInterface $entityManager,
-        EntityFetcher $entityFetcher,
-        ElementsService $elementsService,
-        OrgaService $orgaService,
-        PlaceService $placeService,
-        SegmentValidator $segmentValidator,
-        StatementService $statementService,
-        StatementValidator $statementValidator,
-        TagResourceType $tagResourceType,
-        TagService $tagService,
-        TagValidator $tagValidator,
-        TranslatorInterface $translator,
-        ValidatorInterface $validator,
-        StatementCopier $statementCopier
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ElementsService $elementsService,
+        private readonly OrgaService $orgaService,
+        private readonly PlaceService $placeService,
+        private readonly SegmentValidator $segmentValidator,
+        private readonly StatementService $statementService,
+        private readonly StatementValidator $statementValidator,
+        private readonly TagResourceType $tagResourceType,
+        private readonly TagService $tagService,
+        private readonly TagValidator $tagValidator,
+        private readonly TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator,
+        private readonly StatementCopier $statementCopier
     ) {
-        $this->orgaService = $orgaService;
-        $this->currentUser = $currentUser;
-        $this->elementsService = $elementsService;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->statementService = $statementService;
-        $this->statementValidator = $statementValidator;
-        $this->validator = $validator;
-        $this->placeService = $placeService;
-
         $this->generatedStatements = [];
         $this->generatedSegments = [];
         $this->errors = [];
-        $this->tagService = $tagService;
-        $this->tagValidator = $tagValidator;
-        $this->segmentValidator = $segmentValidator;
-        $this->translator = $translator;
-        $this->entityManager = $entityManager;
-        $this->statementCopier = $statementCopier;
-        $this->conditionFactory = $conditionFactory;
-        $this->tagResourceType = $tagResourceType;
-        $this->entityFetcher = $entityFetcher;
 
         $this->notNullConstraint = new Assert\NotBlank(['message' => 'segment.import.error.metadata.statement.id']);
     }
@@ -329,9 +229,7 @@ class ExcelImporter extends CoreService
 
         foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
             $statementIterator = $row->getCellIterator('A', $metaDataWorksheet->getHighestColumn());
-            $statement = array_map(static function (Cell $cell) {
-                return $cell->getValue();
-            }, \iterator_to_array($statementIterator));
+            $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
 
             if ($this->isEmpty($statement)) {
                 continue;
@@ -421,9 +319,7 @@ class ExcelImporter extends CoreService
         $segments = [];
         foreach ($segmentsWorksheet->getRowIterator(2) as $segmentLine => $row) {
             $segmentIterator = $row->getCellIterator('A', $segmentsWorksheet->getHighestColumn());
-            $segmentData = array_map(function (Cell $cell) {
-                return $this->replaceLineBreak($cell->getValue());
-            }, \iterator_to_array($segmentIterator));
+            $segmentData = array_map(fn (Cell $cell) => $this->replaceLineBreak($cell->getValue()), \iterator_to_array($segmentIterator));
 
             if ($this->isEmpty($segmentData)) {
                 continue;
@@ -502,14 +398,11 @@ class ExcelImporter extends CoreService
      */
     private function getPublicStatement(string $statementType): string
     {
-        switch ($statementType) {
-            case self::INSTITUTION:
-                return Statement::INTERNAL;
-            case self::PUBLIC:
-                return Statement::EXTERNAL;
-            default:
-                throw new UnexpectedWorksheetNameException($statementType, [self::PUBLIC, self::INSTITUTION]);
-        }
+        return match ($statementType) {
+            self::INSTITUTION => Statement::INTERNAL,
+            self::PUBLIC      => Statement::EXTERNAL,
+            default           => throw new UnexpectedWorksheetNameException($statementType, [self::PUBLIC, self::INSTITUTION]),
+        };
     }
 
     /**
@@ -522,9 +415,7 @@ class ExcelImporter extends CoreService
         return empty(
             array_filter(
                 $input,
-                static function ($field) {
-                    return null !== $field && (!is_string($field) || '' !== trim($field));
-                }
+                static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
             )
         );
     }
@@ -864,12 +755,9 @@ class ExcelImporter extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
         );
 
-        $matchingTags = $this->entityFetcher->listPrefilteredEntities($this->tagResourceType, $this->generatedTags, [$titleCondition]);
+        $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
         if ([] === $matchingTags) {
-            $matchingTags = $this->entityFetcher->listEntities(
-                $this->tagResourceType,
-                [$titleCondition]
-            );
+            $matchingTags = $this->tagResourceType->listEntities([$titleCondition]);
         }
 
         return $matchingTags[0] ?? null;

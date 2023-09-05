@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -40,13 +40,6 @@ class DraftsInfoApiController extends APIController
     /**
      * Gets the Statement's text with the segmented info.
      *
-     * @Route(
-     *     name="dplan_drafts_list_edit_ajax",
-     *     methods="GET",
-     *     path="/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list",
-     *     options={"expose": true}
-     * )
-     *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
@@ -54,6 +47,7 @@ class DraftsInfoApiController extends APIController
      *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
     public function editAction(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
@@ -80,13 +74,6 @@ class DraftsInfoApiController extends APIController
     /**
      * Saves a Statement's draft segment (text + tags).
      *
-     * @Route(
-     *      name="dplan_drafts_list_save",
-     *      methods="PATCH",
-     *      path="/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}",
-     *      options={"expose": true}
-     * )
-     *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
@@ -94,6 +81,7 @@ class DraftsInfoApiController extends APIController
      *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
     public function saveAction(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
@@ -120,13 +108,6 @@ class DraftsInfoApiController extends APIController
     /**
      * Confirms the Statement's drafts info so they are converted to Segment entities.
      *
-     * @Route(
-     *     name="dplan_drafts_list_confirm",
-     *     methods="POST",
-     *     path="/verfahren/{procedureId}/drafts-list/confirm",
-     *     options={"expose": true}
-     * )
-     *
      * @throws LockedByAssignmentException
      * @throws MessageBagException
      * @throws QueryException
@@ -136,6 +117,7 @@ class DraftsInfoApiController extends APIController
      *
      * @DplanPermissions("area_statement_segmentation")
      */
+    #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
     public function confirmDraftsAction(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,
@@ -203,6 +185,7 @@ class DraftsInfoApiController extends APIController
         StatementHandler $statementHandler,
         string $data
     ): JsonResponse {
+        $responseData = [];
         $draftsInfoArray = Json::decodeToArray($data);
         $procedureId = $draftsInfoHandler->extractProcedureId($draftsInfoArray);
         $nextStatement = $statementHandler->getSegmentableStatement(

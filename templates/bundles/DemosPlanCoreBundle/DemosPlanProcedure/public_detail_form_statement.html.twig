@@ -1,0 +1,203 @@
+{% apply spaceless %}
+
+    <fieldset class="{{ 'c-statement__step o-toggle is-visible'|prefixClass }}" id="statement" tabindex="-1">
+
+        {# statement data #}
+        <div class="{{ 'c-statement__toggle-target u-mb-0_25 is-active flow-root'|prefixClass }}" data-toggle-id="statementData" id="statementData">
+
+            {% if not loggedin %}
+                <div class="{{ 'c-statement__formhint flash-info u-mb-0_5'|prefixClass }}">
+                    <i class="{{ 'c-statement__hint-icon fa fa-lg fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
+                    <span class="{{ 'block u-ml'|prefixClass }}">
+                        {% if templateVars.procedureUiDefinition is defined %}
+                            {{ templateVars.procedureUiDefinition.statementFormHintStatement|wysiwyg }}
+                        {% else %}
+                            {{ templateVars.procedure.procedureUiDefinition.statementFormHintStatement|wysiwyg }}
+                        {% endif %}
+
+                        {# For Nojs, the "mandatory fields"-hint is only shown once above the form, since there is no multistep flow. #}
+                        {{ 'error.mandatoryfields'|trans }}
+                    </span>
+                </div>
+            {% endif %}
+
+            {% if loggedin %}
+
+                {% if hasPermission('feature_elements_use_negative_report') %}
+
+                    {# Display radios to choose negative statement only if category is enabled #}
+                    {% if templateVars.planningDocumentsHasNegativeStatement|default == true %}
+                        <div class="{{ 'layout__item u-1-of-1-palm u-ph-0 u-mv-0_75 text-right'|prefixClass }}">
+
+                            <label class="{{ 'u-m-0 inline-block'|prefixClass }}" for="negative_report_false">
+                                <input
+                                    type="radio"
+                                    id="negative_report_false"
+                                    name="r_isNegativeReport"
+                                    value="0"
+                                    checked
+                                > {{ 'public.participation.participate'|trans }}
+                            </label>
+
+                            <label class="{{ 'u-m-0 u-ml inline-block'|prefixClass }}" for="negative_report_true">
+                                <input
+                                    type="radio"
+                                    id="negative_report_true"
+                                    name="r_isNegativeReport"
+                                    value="1"
+                                > {{ 'indicationerror'|trans }}
+                            </label>
+
+                            <span
+                                class="{{ 'o-tooltip o-tooltip--question-circle u-ml-0_5'|prefixClass }}"
+                                v-tooltip="'{{ 'link.title.indicationerror'|trans }}'">
+                            </span>
+
+                        </div>
+                    {% else %}
+                        <input type="hidden" name="r_isNegativeReport" value="0">
+                    {% endif %}
+
+                {% endif %}
+
+            {% endif %}
+
+            <p id="c-statement-hint-statement" class="{{ 'flash-error c-statement__formhint hidden'|prefixClass }}" role="alert" aria-live="assertive">
+                <i class="{{ 'c-statement__hint-icon fa fa-lg fa-exclamation-circle'|prefixClass }}" aria-hidden="true"></i>
+                <a href="#" class="{{ 'block u-ml'|prefixClass }}" tabindex="0">
+                    {{ "error.mandatoryfields"|trans }}
+                </a>
+            </p>
+
+            {# statement text #}
+            <label class="{{ 'u-mb-0_5 weight--bold'|prefixClass }}" for="r_text" title="{{ 'statements.required.field'|trans }}">
+                {{ "statement.detail.form.statement_text"|trans }}<span aria-hidden="true">*</span>
+            </label>
+            <textarea
+                aria-label="{{ "statement.detail.form.statement_text"|trans }}"
+                name="r_text"
+                id="r_text"
+                required
+            >{{ templateVars.request.r_text|default()|wysiwyg }}</textarea>
+
+            {# privacy / public allowed checkboxes #}
+            <div class="{{ 'u-mb'|prefixClass }}">
+                {% if not loggedin %}
+                    <label class="{{ 'u-mb-0'|prefixClass }}" title="{{ 'statements.required.field'|trans }}">
+                        <input
+                            type="checkbox"
+                            name="r_privacy"
+                            required
+                            {% if templateVars.request.r_privacy is defined %}
+                                checked
+                            {% endif %}
+                            aria-labelledby="explanation-statement-privacy"
+                            data-cy="privacyCheck"
+                            style="margin-right: 5px; margin-bottom: 4px;">
+                        <span id="explanation-statement-privacy" aria-hidden="true">{{ "explanation.statement.privacy"|trans }}<span aria-hidden="true">*</span></span>
+                    </label>
+                {% endif %}
+                {# Citizens/Institutions have to make the decision to publish their statement on submitting #}
+                {% if hasPermission('field_statement_public_allowed')
+                    and proceduresettings.publicParticipationPublicationEnabled
+                    and hasPermission('feature_statement_public_allowed_needs_verification')
+                %}
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="r_makePublic"
+                            {% if templateVars.request.r_makePublic is defined %}
+                                checked
+                            {% endif %}
+                            aria-labelledby="explanation-statement-public"
+                            style="margin-right: 5px; margin-bottom: 4px;">
+                        <span id="explanation-statement-public" aria-hidden="true">
+                            {{- "explanation.statement.public"|trans({ projectName: projectName })|wysiwyg -}}
+
+                            {#  while published statements of citizens do not show their name,
+                                the orga name of institutions is shown on statements published by them. #}
+                            {% if hasPermission('feature_statement_publish_name') %}
+                                {{ "explanation.statement.public.organame"|trans }}
+                            {% else %}
+                                {{ "explanation.statement.public.noname"|trans }}
+                            {% endif %}
+                        </span>
+                    </label>
+                {% endif %}
+            </div>
+
+            {# document reference #}
+            {% if templateVars.statement.elementId is defined and templateVars.draftStatement.ident is not defined %}
+                {% if hasPermission('field_statement_add_assignment') %}
+                    {# this is only no-js fallback #}
+                    <p class="{{ 'u-mb-0_25'|prefixClass }}">
+                        {{ "element.assigned"|trans }}
+                    </p>
+                    <p class="{{ 'u-mb-0_5'|prefixClass }}" data-statement-state-feedback="element">
+                        Dokument: {{ templateVars.statement.elementTitle|default() }}<br>
+                        Kapitel: {{ templateVars.statement.paragraphTitle|default() }}<br>
+                        {# Datei: {{ templateVars.statement.documentTitle|default() }} #}
+                    </p>
+                {% endif %}
+            {% endif %}
+
+            {# location reference #}
+            {% apply spaceless %}
+                <div class="{{ 'layout'|prefixClass }}">
+                    {% for formGroup in statementFields|default([]) %}
+                        <div class="{{ 'layout__item u-1-of-1 u-mb'|prefixClass }}">
+                            {% include '@DemosPlanCore/DemosPlanProcedure/includes/formGroups/form_group_' ~ formGroup.name ~ '.html.twig' with {
+                                'required': formGroup.required|default(false)
+                            } %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endapply %}
+        </div>
+
+        {# additional data: files, represent_orga #}
+        {% if hasPermission('field_statement_file') or hasPermission('feature_statements_represent_orga') %}
+            <div class="{{ 'u-mt u-mb-0_25'|prefixClass }}">
+                {% if hasPermission('field_statement_file') %}
+                    <div class="{{ 'layout__item u-1-of-2 u-pl-0'|prefixClass }}" data-statement-state-feedback="file_exists">
+                        <p class="{{ 'weight--bold u-mb-0_25'|prefixClass }}">
+                            {{ "attachments" |trans }}
+                        </p>
+
+                        <div class="{{ 'hidden o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file', {'hash': '---hash---'}) }}">
+                            <a href="#" target="_blank"></a>
+                            <label class="{{ 'lbl--text inline-block u-mb-0_25 u-ml'|prefixClass }}">
+                                <input value="---hash---" name="delete_file[]" type="checkbox">
+                                {{ "attachment.delete"|trans }}
+                            </label>
+                        </div>
+
+                    </div>
+                    <div class="{{ 'layout__item u-1-of-2 u-pl-0 u-1-of-1-palm'|prefixClass }}" data-statement-state-feedback="file_new">
+                        <p class="{{ 'weight--bold'|prefixClass }}">
+                            {{ "upload.files" |trans }}
+                        </p>
+                        <div>
+                            {{ fileupload( 'r_file', 'hide', 'pdf-img-zip', 'form.button.upload.files', 20, false, '', false, '', '0', 0, false) }}
+                        </div>
+
+                    </div>
+                {% endif -%}
+
+                {%- if hasPermission('feature_statements_represent_orga') %}
+                    <div class="{{ 'layout__item u-1-of-1 u-pl-0'|prefixClass }}">
+                        <p class="{{ 'weight--bold'|prefixClass }}" id="representedInstitution">
+                            {{ "statement.representation.creation" |trans }}
+                        </p>
+                        <label class="{{ 'u-mb-0_5 color--grey'|prefixClass }}">
+                            <input type="text" class="{{ 'layout__item u-3-of-8 u-1-of-1-palm'|prefixClass }}" id ="r_represents" name="r_represents" placeholder="vertretene Institution" value="{{ templateVars.request.r_represents|default() }}" aria-labelledby="representedInstitution">
+                        </label>
+                    </div>
+                {% endif -%}
+
+            </div>
+        {% endif %}
+
+    </fieldset>
+
+{% endapply %}

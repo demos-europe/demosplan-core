@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,13 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\FakeDataGeneratorFactory;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -38,26 +39,13 @@ class ReplaceFilesCommand extends CoreCommand
 {
     public static $defaultName = 'dplan:data:replace-files';
 
-    /**
-     * @var FileRepository
-     */
-    private $fileRepository;
-
-    /**
-     * @var FakeDataGeneratorFactory
-     */
-    private $generatorFactory;
-
     public function __construct(
-        FakeDataGeneratorFactory $generatorFactory,
-        FileRepository $fileRepository,
+        private readonly FakeDataGeneratorFactory $generatorFactory,
+        private readonly FileRepository $fileRepository,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-
-        $this->fileRepository = $fileRepository;
-        $this->generatorFactory = $generatorFactory;
     }
 
     public function configure(): void
@@ -104,7 +92,7 @@ class ReplaceFilesCommand extends CoreCommand
             $this->generateDummyForFile($file, $slot, $output, $dryRun, $directory);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
@@ -119,11 +107,11 @@ class ReplaceFilesCommand extends CoreCommand
     ): void {
         $filename = $file->getFilename();
 
-        if (strrpos($filename, 'â')) {
+        if (strrpos((string) $filename, 'â')) {
             $filename = 'Corrupted file name, most likely from wrong encoding';
         }
 
-        $extension = mb_strtolower(substr($filename, strrpos($filename, '.') + 1));
+        $extension = mb_strtolower(substr((string) $filename, strrpos($filename, '.') + 1));
 
         if (!in_array($extension, FakeDataGeneratorFactory::FAKEABLE_EXTENSIONS, true)) {
             $output->warning("Non-fakable file extension: {$extension}");
@@ -165,7 +153,7 @@ class ReplaceFilesCommand extends CoreCommand
      */
     private function getStoragePath(File $file, string $targetDirectory): string
     {
-        if ('/' !== substr($targetDirectory, -1)) {
+        if (!str_ends_with($targetDirectory, '/')) {
             $targetDirectory .= '/';
         }
         $dir = $targetDirectory;

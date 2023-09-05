@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -24,16 +24,10 @@ class UserMapper implements UserMapperInterface
      */
     protected $userService;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
     public function __construct(
-        RequestStack $requestStack,
+        private RequestStack $requestStack,
         UserService $userService
     ) {
-        $this->requestStack = $requestStack;
         $this->userService = $userService;
     }
 
@@ -42,7 +36,7 @@ class UserMapper implements UserMapperInterface
      */
     public function getValidUser(Credentials $credentials): ?User
     {
-        return $this->userService->getValidUser(trim($credentials->getLogin()));
+        return $this->userService->getValidUser(trim($credentials->getLogin() ?? ''));
     }
 
     public function setRequestStack(RequestStack $requestStack): UserMapper

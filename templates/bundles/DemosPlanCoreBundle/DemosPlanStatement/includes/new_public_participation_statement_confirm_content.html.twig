@@ -1,0 +1,171 @@
+<h3>{{ "mydata"|trans }}</h3>
+
+<dl class="{{ 'layout__item layout--flush u-1-of-3 u-pl-0 u-1-of-1-lap-down'|prefixClass }}">
+
+    <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "name"|trans }}</dt>
+
+    <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.firstname|default("---") }} {{ templateVars.user.lastname|default("----") }}</dd>
+
+    <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "email"|trans }}</dt>
+
+    <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.email|default("----") }}</dd>
+
+    {# until the user has no address in our system, we dont want him to see unneccessary information #}
+    {# in gateway mode the address comes from there #}
+    {% if projectType == 'gateway' %}
+
+        <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "street"|trans }}</dt>
+
+        <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.address.street|default("----") }}</dd>
+
+        <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "street.number"|trans }}</dt>
+
+        <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.address.houseNumber|default("----") }}</dd>
+
+        <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "postalcode"|trans }}</dt>
+
+        <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.address.postalcode|default("----") }}</dd>
+
+        <dt class="{{ 'layout__item u-1-of-4 u-mb u-mr'|prefixClass }}">{{ "city.name"|trans }}</dt>
+
+        <dd class="{{ 'layout__item u-7-of-12 u-ml'|prefixClass }}">{{ templateVars.user.address.city|default("----") }}</dd>
+    {% endif  %}
+
+</dl>
+
+<div class="{{ 'layout__item u-2-of-3 u-1-of-1-lap-down u-pl-0-lap-down u-mb-0_5-lap-down'|prefixClass }}">
+    {% block user_data_hint %}
+        <p>
+            {% if projectType == 'gateway' %}
+                {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+            {% else %}
+                {{ "explanation.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
+            {% endif %}
+        </p>
+    {% endblock user_data_hint %}
+
+    <p class="{{ 'flash flash-info'|prefixClass }}">
+        <i class="{{ 'fa fa-info-circle u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+        <strong>{{ "hint"|trans }}</strong>: {{ "explanation.claim.possibility"|trans|wysiwyg }} {{ "explanation.feedback.email"|trans }}
+    </p>
+
+    {% if (templateVars.procedure.procedureUiDefinition.statementFormHintRecheck != '') %}
+        <p>
+            <i class="{{ 'fa fa-info-circle'|prefixClass }}" aria-hidden="true"></i>
+            {{ templateVars.procedure.procedureUiDefinition.statementFormHintRecheck|default|wysiwyg }}
+        </p>
+    {% endif %}
+
+</div>
+
+<h3>{{ "statements.public.submit"|trans }}</h3>
+
+<form action="{{ path(templateVars.actionPath,{'procedure':procedure}) }}" method="post"
+      name="js__publicStatementForm">
+    <input name="action" type="hidden" value="confirmSubmitPublicStatement">
+    {% for statementToSubmitId in templateVars.statementsToSubmitIds %}
+        <input name="item_check[]" type="hidden" value="{{ statementToSubmitId }}">
+    {% endfor %}
+
+    <ul class="{{ 'o-list u-mb-0_5'|prefixClass }}">
+
+        {% for statement in templateVars.statementList %}
+            {% block statement_entry %}
+
+                <li class="o-list__item">
+
+                    {%  include '@DemosPlanCore/DemosPlanStatement/includes/listentry_header.html.twig' %}
+
+                    {%  include '@DemosPlanCore/DemosPlanStatement/includes/listentry_content.html.twig'
+                        with  { 'target'            : 'draft',
+                        'show_rejected'     : true,
+                        'show_author'       : true } %}
+
+                </li>
+
+            {% endblock %}
+        {% endfor %}
+
+    </ul>
+
+    {{ uiComponent('form.row', {
+        omitCssPrefix: false,
+        elements: [
+            {
+                label: {
+                text: 'explanation.statement.privacy'|trans
+            },
+                control: {
+                name: 'r_privacy',
+                checked: false,
+                value: 'on',
+                datacy: 'gdprCheck'
+            },
+                required: true,
+                type: 'checkbox',
+                id: 'r_privacy',
+                elementSize: 'full',
+            },
+        ]
+    }) }}
+
+
+    {% if hasPermission('feature_statement_gdpr_consent_submit') %}
+        {% set orgaId = branding.orgaId|default %}
+        {%  set label_text = 'confirm.gdpr.consent'|trans({ link: path('DemosPlan_misccontent_static_dataprotection') }) %}
+        {% if orgaId != '' %}
+            {%  set label_text = 'confirm.gdpr.consent'|trans({ link: path('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId }) %}
+        {% endif %}
+        {{ uiComponent('form.row', {
+            omitCssPrefix: false,
+            elements: [
+                {
+                    label: {
+                    text: label_text
+                },
+                    control: {
+                    name: 'r_gdpr_consent',
+                    checked: false,
+                    value: 'on',
+                    datacy: 'gdprCheck'
+                },
+                    required: true,
+                    type: 'checkbox',
+                    id: 'r_gdpr_consent',
+                    elementSize: 'full',
+                },
+            ]
+        }) }}
+    {% endif %}
+
+    {%- if hasPermission('feature_require_locality_confirmation') %}
+
+        {{ uiComponent('form.row', {
+            omitCssPrefix: false,
+            elements: [
+                {
+                    label: { text: 'statement.confirm.terms'|trans({ path: path('DemosPlan_misccontent_terms_of_use') }) },
+                    control: { name: 'r_confirm_locality', checked: false, value: 'on', },
+                    required: true,
+                    type: 'checkbox',
+                    id: 'r_confirm_locality',
+                    elementSize: 'full',
+                },
+            ]
+        }) }}
+    {% endif -%}
+
+    <div class="{{ 'text-right space-inline-s'|prefixClass }}">
+        <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" name="submit_item_status" value="{{ "submit.now"|trans }}" data-cy="submitStatement">
+        <a class="{{ 'btn btn--secondary'|prefixClass }}" href="{{ path('DemosPlan_statement_list_draft', {'procedure': procedure}) }}">
+            {{ "abort"|trans }}
+        </a>
+    </div>
+
+</form>
+<dp-map-modal
+    ref="mapModal"
+    procedure-id="{{ procedure }}"
+    map-options-route="dplan_api_map_options_public"
+>
+</dp-map-modal>

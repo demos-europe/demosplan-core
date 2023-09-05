@@ -21,7 +21,7 @@
         {% if full_width|default(false) != true %}
 
             {# link in left corner of pageheader #}
-                <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 cf u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+                <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 flow-root u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
                 {# additional link to be inserted via link_caption / link #}
                     {% if link_caption|default != '' %}
@@ -58,7 +58,7 @@
                         hasPermission('area_admin') and
                         ownsProcedure(proceduresettings)
                     %}
-                        <a class="{{ 'btn btn--outline-reversed btn--primary btn--rounded float--right u-mt-0_25 u-mr'|prefixClass }}" href="{{ path('DemosPlan_procedure_dashboard', {'procedure': procedure}) }}">
+                        <a class="{{ 'btn btn--outline-reversed btn--primary btn--rounded float-right u-mt-0_25 u-mr'|prefixClass }}" href="{{ path('DemosPlan_procedure_dashboard', {'procedure': procedure}) }}">
                             <i class="{{ 'fa fa-pencil u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.edit'|trans }}
                         </a>
                     {% endif %}
@@ -79,7 +79,7 @@
             <div class="{{ (classes ~ ' ' ~ width_css.col2|default('u-3-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down u-pr u-pl-lap-up u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
                 {# heading #}
-                <h1 class="{{ 'c-pageheader__title o-hellip display--block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
+                <h1 class="{{ 'c-pageheader__title o-hellip block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
                 >
                     {{ content_heading|wysiwyg }}
                 </h1>

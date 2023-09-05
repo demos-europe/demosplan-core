@@ -5,21 +5,21 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCoordinateDataFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
@@ -28,29 +28,8 @@ use Throwable;
 
 class ProcedureGeolocatorRpcMethod implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var MapCoordinateDataFetcher
-     */
-    private $mapCoordinateDataFetcher;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        MapCoordinateDataFetcher $mapCoordinateDataFetcher,
-        RpcErrorGenerator $errorGenerator
-    ) {
-        $this->currentUser = $currentUser;
-        $this->errorGenerator = $errorGenerator;
-        $this->mapCoordinateDataFetcher = $mapCoordinateDataFetcher;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly MapCoordinateDataFetcher $mapCoordinateDataFetcher, private readonly RpcErrorGenerator $errorGenerator)
+    {
     }
 
     public function supports(string $method): bool
@@ -58,7 +37,7 @@ class ProcedureGeolocatorRpcMethod implements RpcMethodSolverInterface
         return 'procedure.locate' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -69,11 +48,11 @@ class ProcedureGeolocatorRpcMethod implements RpcMethodSolverInterface
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }
@@ -114,7 +93,7 @@ class ProcedureGeolocatorRpcMethod implements RpcMethodSolverInterface
             $result->id = $rpcRequest->id;
 
             return $result;
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             return $this->errorGenerator->serverError($rpcRequest);
         }
     }

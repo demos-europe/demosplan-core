@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,11 +38,10 @@ class AddressBookEntryVO extends ValueObject
     protected $organisation;
 
     /**
-     * @Assert\NotBlank(message = "email.address.invalid")
-     * @Assert\Email(message = "email.address.invalid")
-     *
      * @var string
      */
+    #[Assert\NotBlank(message: 'email.address.invalid')]
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $emailAddress;
 
     public function __construct(string $name, string $emailAddress, Orga $organisation)

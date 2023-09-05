@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -41,6 +41,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -158,7 +159,7 @@ class RemoveUserDataCommand extends CoreCommand
             // in case of this command should be workable for HH too.
             // _master_toeb
             // _master_toeb_versions
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         // #1: independent::
@@ -196,7 +197,7 @@ class RemoveUserDataCommand extends CoreCommand
         // depended on draftstatements:
         $this->removeUserDataFromDraftStatementVersions();
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function removeUserDataFromUsers(): void
@@ -555,7 +556,7 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function anonymizeStatementMiscData(?array $miscData): ?string
     {
-        if (0 === count($miscData)) {
+        if (0 === count((array) $miscData)) {
             return null;
         }
 
@@ -581,7 +582,7 @@ class RemoveUserDataCommand extends CoreCommand
                 $userName = $this->map($parts[0], $this->faker->name);
                 $organisationName = $this->map($parts[1], $this->faker->company);
                 $userRole = $this->map($parts[2], 'FachplanerAdmin');
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $userName = $this->faker->name;
                 $organisationName = $this->faker->company;
                 $userRole = 'FachplanerAdmin';
@@ -767,7 +768,7 @@ class RemoveUserDataCommand extends CoreCommand
                     $statementFragment->setArchivedOrgaName($this->map($statementFragment->getArchivedOrgaName(), $this->faker->company));
                     $statementFragment->setArchivedDepartmentName($this->map($statementFragment->getArchivedDepartmentName(), $this->faker->colorName));
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $relatedDepartment = null; // related Department is not existing getDepartment() leads to exception
             }
 

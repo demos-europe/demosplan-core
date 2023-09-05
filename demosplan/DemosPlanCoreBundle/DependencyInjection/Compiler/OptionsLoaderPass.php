@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,7 +23,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class OptionsLoaderPass implements CompilerPassInterface
 {
-    public const OVERRIDABLE_CONFIGS = [
+    final public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
     ];
@@ -33,15 +33,13 @@ class OptionsLoaderPass implements CompilerPassInterface
         $fileLocator = new FileLocator([
             DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
-            DemosPlanPath::getRootPath('demosplan/DemosPlanProcedureBundle/Resources/config'),
-            DemosPlanPath::getProjectPath('app/Resources/DemosPlanProcedureBundle/config'),
+            DemosPlanPath::getConfigPath('procedure'),
+            DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config/procedure'),
         ]);
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {
             $configs = collect($fileLocator->locate($overridableConfig, null, false))
-                ->map(static function ($configFile) {
-                    return Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT);
-                })
+                ->map(static fn ($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
                 ->toArray();
 
             $configuration = new $configClassName();

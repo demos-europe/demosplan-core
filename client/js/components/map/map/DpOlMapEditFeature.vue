@@ -78,7 +78,7 @@
         })
       }"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor--default': disabled }">
+      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor-default': disabled }">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -148,14 +148,14 @@ export default {
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
       disabled: true,
-      zIndexSuper: false,
+      zIndexUltimate: false,
       targets: Array.isArray(this.target) ? this.target : [this.target]
     }
   },
 
   computed: {
     tooltipClass () {
-      return this.zIndexSuper ? 'u-z-super' : null
+      return this.zIndexUltimate ? 'z-ultimate' : ''
     },
 
     map () {
@@ -210,7 +210,7 @@ export default {
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
       if (isNaN(z)) {
-        return this.getZIndex(element.parentNode)
+        return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
 
       return z
@@ -276,7 +276,7 @@ export default {
      * once it has been refactored to use an upto date version of v-tooltip.
      */
     if (this.getZIndex(this.$refs.rootElement) > 9999) {
-      this.zIndexSuper = true
+      this.zIndexUltimate = true
     }
   }
 }

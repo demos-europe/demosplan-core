@@ -23,7 +23,7 @@
         </template>
         <template v-slot:content="rowData">
           <div
-            class="overflow-word-break"
+            class="break-words"
             v-cleanhtml="rowData.attributes.message" />
         </template>
         <template v-slot:user="rowData">
@@ -43,7 +43,7 @@
      --><div class="layout__item u-1-of-2">
         <dp-loading
           v-if="isLoading"
-          class="u-mt-0_5 float--right" />
+          class="u-mt-0_5 float-right" />
         </div>
       </div>
     </template>

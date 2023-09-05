@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,36 +26,11 @@ use Throwable;
 
 class MapCoordinateDataFetcher
 {
-    /**
-     * @var Provider
-     */
-    private $nominatim;
+    private readonly Provider $nominatim;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var LocationService
-     */
-    private $locationService;
-
-    /**
-     * @var MapProjectionConverter
-     */
-    private $mapProjectionConverter;
-
-    public function __construct(
-        LocationService $locationService,
-        LoggerInterface $logger,
-        MapProjectionConverter $mapProjectionConverter,
-        Provider $dplanGeocoder
-    ) {
+    public function __construct(private readonly LocationService $locationService, private readonly LoggerInterface $logger, private readonly MapProjectionConverter $mapProjectionConverter, private readonly Provider $dplanGeocoder)
+    {
         $this->nominatim = $dplanGeocoder;
-        $this->logger = $logger;
-        $this->locationService = $locationService;
-        $this->mapProjectionConverter = $mapProjectionConverter;
     }
 
     /**

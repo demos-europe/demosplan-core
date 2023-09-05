@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,14 +17,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexFilesListener implements EventSubscriberInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(FileService $fileService)
+    public function __construct(private readonly FileService $fileService)
     {
-        $this->fileService = $fileService;
     }
 
     /**

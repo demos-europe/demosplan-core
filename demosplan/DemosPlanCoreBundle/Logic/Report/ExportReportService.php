@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,37 +13,23 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExportReportService extends CoreService
 {
-    /** @var ReportMessageConverter */
-    private $messageConverter;
-
     /** @var array */
     private $styles;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ReportRepository
-     */
-    private $reportRepository;
 
-    public function __construct(ReportMessageConverter $messageConverter, ReportRepository $reportRepository, TranslatorInterface $translator)
+    public function __construct(private readonly ReportMessageConverter $messageConverter, private readonly ReportRepository $reportRepository, private readonly TranslatorInterface $translator)
     {
         $this->initializeStyles();
-        $this->messageConverter = $messageConverter;
-        $this->reportRepository = $reportRepository;
-        $this->translator = $translator;
     }
 
     /**
@@ -91,7 +77,7 @@ class ExportReportService extends CoreService
      */
     public function generateProcedureReport(array $reportInfo, array $reportMeta, string $format = 'PDF')
     {
-        $phpWord = new PhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection();
 
         $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');
@@ -184,7 +170,7 @@ class ExportReportService extends CoreService
         $messageParts = $this->getMessageParts($reportEntry);
         $cell = $table->addCell($this->styles['descriptionCellWidth']);
         foreach ($messageParts as $messagePart) {
-            $message = strip_tags($messagePart);
+            $message = strip_tags((string) $messagePart);
             $cellText = $cell->addText($message, $this->styles['baseFont']);
             $cellText->setParagraphStyle($this->styles['paragraph']);
         }

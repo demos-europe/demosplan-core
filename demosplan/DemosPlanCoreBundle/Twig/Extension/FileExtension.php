@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,15 +26,9 @@ class FileExtension extends ExtensionBase
      */
     protected $fileService;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(ContainerInterface $container, Environment $twig, FileService $fileService)
+    public function __construct(ContainerInterface $container, private readonly Environment $twig, FileService $fileService)
     {
         parent::__construct($container);
-        $this->twig = $twig;
         $this->fileService = $fileService;
     }
 
@@ -46,15 +40,15 @@ class FileExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('getFile', [$this, 'getFileFilter']),
-            new TwigFilter('humanFilesize', [$this, 'formatHumanFilesize']),
+            new TwigFilter('getFile', $this->getFileFilter(...)),
+            new TwigFilter('humanFilesize', $this->formatHumanFilesize(...)),
         ];
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('fileupload', [$this, 'fileupload'], ['is_safe' => ['html']]),
+            new TwigFunction('fileupload', $this->fileupload(...), ['is_safe' => ['html']]),
         ];
     }
 

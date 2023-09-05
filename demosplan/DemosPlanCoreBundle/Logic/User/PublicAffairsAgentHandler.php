@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,19 +22,13 @@ use Exception;
 
 class PublicAffairsAgentHandler extends CoreHandler
 {
-    /**
-     * @var OrgaHandler
-     */
-    private $orgaHandler;
-
     protected function getOrgaHandler(): OrgaHandler
     {
         return $this->orgaHandler;
     }
 
-    public function __construct(OrgaHandler $orgaHandler, MessageBag $messageBag)
+    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBag $messageBag)
     {
-        $this->orgaHandler = $orgaHandler;
         parent::__construct($messageBag);
     }
 
@@ -50,9 +44,7 @@ class PublicAffairsAgentHandler extends CoreHandler
     public function getFromResourceLinkage(ToManyResourceLinkage $resourceLinkage): array
     {
         return array_map(
-            function (ResourceIdentifierObject $resourceIdentifierObject): Orga {
-                return $this->getFromResourceIdentifierObject($resourceIdentifierObject);
-            },
+            fn(ResourceIdentifierObject $resourceIdentifierObject): Orga => $this->getFromResourceIdentifierObject($resourceIdentifierObject),
             $resourceLinkage->getResourceIdentifierObjects()
         );
     }
@@ -102,9 +94,7 @@ class PublicAffairsAgentHandler extends CoreHandler
         // using collect we retrieve all elements before using
         // laravels Collection::contains.
         return collect($orga->getAllUsers())->contains(
-            static function (User $user) {
-                return $user->isPublicAgency();
-            }
+            static fn(User $user) => $user->isPublicAgency()
         );
     }
 }

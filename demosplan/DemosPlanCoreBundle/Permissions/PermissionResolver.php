@@ -5,21 +5,21 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
@@ -31,6 +31,8 @@ use EDT\Querying\Utilities\ConditionEvaluator;
 use InvalidArgumentException;
 use Ramsey\Uuid\Type\TypeInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
 
 /**
  * @phpstan-import-type DrupalFilterGroup from DrupalFilterParser
@@ -56,21 +58,19 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
 
-    private ConditionEvaluator $conditionEvaluator;
-
     /**
      * @var DrupalFilterParser<ClauseFunctionInterface<bool>>
      */
-    private DrupalFilterParser $filterParser;
+    private readonly DrupalFilterParser $filterParser;
 
-    private DrupalFilterValidator $filterValidator;
+    private readonly DrupalFilterValidator $filterValidator;
 
     public function __construct(
-        ConditionEvaluator $conditionEvaluator,
-        DqlConditionFactory $conditionFactory,
+        private readonly ConditionEvaluator $conditionEvaluator,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityFetcher $entityFetcher,
         ValidatorInterface $validator
     ) {
-        $this->conditionEvaluator = $conditionEvaluator;
         $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
         $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
         $this->filterParser = new DrupalFilterParser(
@@ -147,13 +147,25 @@ class PermissionResolver implements PermissionFilterValidatorInterface
             return [] === $conditions;
         }
 
-        foreach ($conditions as $condition) {
-            if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
-                return false;
+        if ($evaluationTarget instanceof FunctionalUser) {
+            foreach ($conditions as $condition) {
+                if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
+                    return false;
+                }
             }
+
+            return true;
         }
 
-        return true;
+        $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
+
+        return [] !== $this->entityFetcher->listEntitiesUnrestricted(
+            $evaluationTarget::class,
+            $conditions,
+            [],
+            0,
+            1
+        );
     }
 
     /**
@@ -184,19 +196,12 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {
-                switch ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
-                    case ResolvablePermission::CURRENT_CUSTOMER_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $customer);
-                        break;
-                    case ResolvablePermission::CURRENT_PROCEDURE_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $procedure);
-                        break;
-                    case ResolvablePermission::CURRENT_USER_ID:
-                        $filterList[$filterName] = $this->adjustCondition($conditionWrapper, $user);
-                        break;
-                    default:
-                        throw new InvalidArgumentException('Invalid value for parameter usage.');
-                }
+                $filterList[$filterName] = match ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
+                    ResolvablePermission::CURRENT_CUSTOMER_ID => $this->adjustCondition($conditionWrapper, $customer),
+                    ResolvablePermission::CURRENT_PROCEDURE_ID => $this->adjustCondition($conditionWrapper, $procedure),
+                    ResolvablePermission::CURRENT_USER_ID => $this->adjustCondition($conditionWrapper, $user),
+                    default => throw new InvalidArgumentException('Invalid value for parameter usage.'),
+                };
             }
         }
 

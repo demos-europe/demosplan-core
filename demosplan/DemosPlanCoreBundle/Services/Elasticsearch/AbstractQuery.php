@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Elastica\Query\AbstractQuery as AbstractQueryES;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -91,10 +91,6 @@ abstract class AbstractQuery
     /** @var GlobalConfigInterface */
     protected $globalConfig;
     /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
      * @var TranslatorInterface
      */
     protected $translator;
@@ -102,11 +98,10 @@ abstract class AbstractQuery
     /**
      * @throws UserNotFoundException
      */
-    public function __construct(GlobalConfigInterface $globalConfig, TranslatorInterface $translator, CurrentUserInterface $currentUser)
+    public function __construct(GlobalConfigInterface $globalConfig, TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
     {
         $this->globalConfig = $globalConfig;
         $this->translator = $translator;
-        $this->currentUser = $currentUser;
 
         $queryDefinition = $globalConfig->getElasticsearchQueryDefinition();
         $this->isValidConfiguration($queryDefinition);
@@ -170,7 +165,7 @@ abstract class AbstractQuery
             $configuredFields[$scope] = [];
             foreach ($searchTypeDefinition as $searchName => $searchDefinition) {
                 // $searchDefinition may not be set at all
-                $searchDefinition = $searchDefinition ?? [];
+                $searchDefinition ??= [];
                 $titleKey = $searchDefinition['titleKey'] ?? '';
                 $boost = $searchDefinition['boost'] ?? 1;
 
@@ -253,9 +248,7 @@ abstract class AbstractQuery
             : $this->configuredFilters[self::SCOPE_ALL] ?? [];
 
         // Get available filters by scope.
-        $scopedFilters = array_map(function (string $scope): array {
-            return $this->configuredFilters[$scope] ?? [];
-        }, $this->scopes);
+        $scopedFilters = array_map(fn (string $scope): array => $this->configuredFilters[$scope] ?? [], $this->scopes);
 
         return array_merge($configuredFilters, ...$scopedFilters);
     }
@@ -342,9 +335,7 @@ abstract class AbstractQuery
             return '' === $filter || null === $filter;
         }
         if (is_array($filter)) {
-            $filters = collect($filter)->reject(static function ($filterEntry) {
-                return '' === $filterEntry || null === $filterEntry;
-            });
+            $filters = collect($filter)->reject(static fn ($filterEntry) => '' === $filterEntry || null === $filterEntry);
 
             return 0 === $filters->count();
         }
@@ -553,10 +544,9 @@ abstract class AbstractQuery
         if (array_key_exists($type, $this->filters)) {
             $this->filters[$type] = collect($this->filters[$type])
                 // remove Filter
-                ->filter(function ($filter) use ($fieldName) {
+                ->filter(fn ($filter) =>
                     /* @var FilterInterface $filter */
-                    return $fieldName !== $filter->getField();
-                })
+                    $fieldName !== $filter->getField())
                 // reset keys
                 ->values()
                 // convert to array
@@ -632,7 +622,7 @@ abstract class AbstractQuery
         $sorts = !is_array($sorts) ? [$sorts] : $sorts;
         foreach ($sorts as $sort) {
             if (!$sort instanceof Sort) {
-                throw new InvalidArgumentException('Must be a Sort array, there is, at least one '.get_class($sort).' element');
+                throw new InvalidArgumentException('Must be a Sort array, there is, at least one '.$sort::class.' element');
             }
         }
 

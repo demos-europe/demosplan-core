@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,8 +29,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class SubmitterValueObject extends ValueObject
 {
-    public const LIST_CITIZEN = 'citizen';
-    public const LIST_INSTITUTION = 'institution';
+    final public const LIST_CITIZEN = 'citizen';
+    final public const LIST_INSTITUTION = 'institution';
 
     /** @var string */
     protected $entityId;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,11 +30,8 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
      */
     protected array $permissions = [];
 
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**
@@ -92,5 +89,13 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
             ]),
             $this->permissions
         );
+    }
+
+    /**
+     * @return ResolvablePermission[]
+     */
+    public function getResolvePermissions(): array
+    {
+        return $this->permissions;
     }
 }

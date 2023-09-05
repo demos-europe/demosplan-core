@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,12 +27,12 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class OrgaStatusInCustomerResourceType extends DplanResourceType
 {
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $this->currentCustomerService->getCurrentCustomer()->getId(),
             $this->customer->id
-        );
+        )];
     }
 
     public function getEntityClass(): string

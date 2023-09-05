@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,27 +27,15 @@ use Twig\TwigFunction;
  */
 class UIExtension extends ExtensionBase
 {
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(CacheInterface $cache, ContainerInterface $container, Environment $twig)
+    public function __construct(private readonly CacheInterface $cache, ContainerInterface $container, private readonly Environment $twig)
     {
         parent::__construct($container);
-        $this->cache = $cache;
-        $this->twig = $twig;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('uiComponent', [$this, 'renderUiComponent'], ['is_safe' => ['html']]),
+            new TwigFunction('uiComponent', $this->renderUiComponent(...), ['is_safe' => ['html']]),
         ];
     }
 

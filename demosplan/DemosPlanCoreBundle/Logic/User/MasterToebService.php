@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
@@ -35,63 +36,18 @@ class MasterToebService extends CoreService
      */
     protected $serviceUser;
 
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var MasterToebRepository
-     */
-    private $masterToebRepository;
-
-    /**
-     * @var MasterToebVersionRepository
-     */
-    private $masterToebVersionRepository;
-
-    /**
-     * @var MasterPublicAgencyReportEntryFactory
-     */
-    private $masterPublicAgencyReportEntryFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
-        DateHelper $dateHelper,
-        EntityHelper $entityHelper,
-        GlobalConfigInterface $globalConfig,
-        MasterPublicAgencyReportEntryFactory $masterPublicAgencyReportEntryFactory,
-        MasterToebRepository $masterToebRepository,
-        MasterToebVersionRepository $masterToebVersionRepository,
-        ReportService $reportService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DateHelper $dateHelper,
+        private readonly EntityHelper $entityHelper,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MasterPublicAgencyReportEntryFactory $masterPublicAgencyReportEntryFactory,
+        private readonly MasterToebRepository $masterToebRepository,
+        private readonly MasterToebVersionRepository $masterToebVersionRepository,
+        private readonly ReportService $reportService,
         UserService $serviceUser
     ) {
-        $this->currentUser = $currentUser;
-        $this->dateHelper = $dateHelper;
-        $this->entityHelper = $entityHelper;
-        $this->masterPublicAgencyReportEntryFactory = $masterPublicAgencyReportEntryFactory;
-        $this->masterToebRepository = $masterToebRepository;
-        $this->masterToebVersionRepository = $masterToebVersionRepository;
-        $this->reportService = $reportService;
         $this->serviceUser = $serviceUser;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -461,9 +417,7 @@ class MasterToebService extends CoreService
         /** @var Orga $result */
         foreach ($results as $result) {
             $userNames = $result->getUsers()->map(
-                static function (User $user): string {
-                    return $user->getFullname();
-                })->toArray();
+                static fn (User $user): string => $user->getFullname())->toArray();
             $departmentNames = [];
             /** @var Department $orgaDepartment */
             foreach ($result->getDepartments() as $orgaDepartment) {
@@ -510,9 +464,7 @@ class MasterToebService extends CoreService
 
             $arrayOfResults[] = $masterToebArray;
         }
-        usort($arrayOfResults, function ($a, $b) {
-            return strcmp(strtolower($a['orgaName']), strtolower($b['orgaName']));
-        });
+        usort($arrayOfResults, fn ($a, $b) => strcmp(strtolower((string) $a['orgaName']), strtolower((string) $b['orgaName'])));
 
         return $arrayOfResults;
     }

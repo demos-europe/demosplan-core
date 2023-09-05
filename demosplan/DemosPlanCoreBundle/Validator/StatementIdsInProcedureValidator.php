@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,12 +20,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class StatementIdsInProcedureValidator extends ConstraintValidator
 {
-    /** @var StatementService */
-    private $statementService;
-
-    public function __construct(StatementService $statementService)
+    public function __construct(private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
     }
 
     /**
@@ -49,10 +45,9 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
         $statementIds = $statementIdsInProcedure->getStatementIds();
 
         $statementsInProcedure = $this->statementService->getStatementsInProcedureWithId($procedureId, $statementIds);
-        $statementsInProcedure = collect($statementsInProcedure)->filter(function ($statement) {
+        $statementsInProcedure = collect($statementsInProcedure)->filter(fn($statement) =>
             /* @var Statement $statement */
-            return !$statement->isPlaceholder();
-        })->all();
+            !$statement->isPlaceholder())->all();
         $invalidStatementIdsCount = count($statementIds) - count($statementsInProcedure);
 
         if (0 === count($statementsInProcedure)) {
@@ -60,10 +55,9 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
                 ->setParameter('{{ invalidStatementCount }}', $invalidStatementIdsCount)
                 ->addViolation();
         } elseif (0 !== $invalidStatementIdsCount) {
-            $statementsInProcedureExternIds = collect($statementsInProcedure)->map(function ($statement) {
+            $statementsInProcedureExternIds = collect($statementsInProcedure)->map(fn($statement) =>
                 /* @var Statement $statement */
-                return $statement->getExternId();
-            })->all();
+                $statement->getExternId())->all();
             $this->context->buildViolation($constraint->getSomeNotFoundMessage())
                 ->setParameter('{{ invalidStatementCount }}', $invalidStatementIdsCount)
                 ->setParameter('{{ validStatementsCount }}', count($statementsInProcedure))

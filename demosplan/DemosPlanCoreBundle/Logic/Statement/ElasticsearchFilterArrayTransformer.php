@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,16 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Psr\Log\LoggerInterface;
 
+use function is_array;
+
 class ElasticsearchFilterArrayTransformer
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
@@ -40,14 +36,24 @@ class ElasticsearchFilterArrayTransformer
     public function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!\is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
+        if ((!is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
             return $filter;
         }
 
         foreach ($bucket as $entry) {
+            $key = $entry[$labelKey];
+            if (is_array($key)) {
+                // In case of a multi term aggregation there are multiple values that
+                // need to be concatenated to be usable by the following logic. Please
+                // note that as of now multi term aggregations are not intended to be
+                // used in UI filters anyway. Thus, this line primarily attempts to
+                // circumvent errors, instead of providing actual thought through support
+                // for multi term aggregations in UI filters.
+                $key = implode('+', $key);
+            }
             $filterEntry = [
                 'count' => $entry[$countKey],
-                'label' => \array_key_exists($entry[$labelKey], $labelMap) ? $labelMap[$entry[$labelKey]] : $entry[$labelKey],
+                'label' => $labelMap[$key] ?? $key,
                 'value' => $entry[$valueKey],
             ];
             // Setze einen Stadardwert, wenn kein Label angegeben ist
@@ -80,7 +86,7 @@ class ElasticsearchFilterArrayTransformer
                     return 0;
                 }
 
-                return \strnatcasecmp($a['label'], $b['label']);
+                return \strnatcasecmp((string) $a['label'], (string) $b['label']);
             }
         );
 
@@ -93,7 +99,7 @@ class ElasticsearchFilterArrayTransformer
      */
     public function generateFilterArrayFromEsFragmentsMissing($bucket, $key): array
     {
-        $aggregationCount = count($bucket[$key]['statements']['buckets']);
+        $aggregationCount = is_countable($bucket[$key]['statements']['buckets']) ? count($bucket[$key]['statements']['buckets']) : 0;
         // aggregations only are top 10, add other doc count to sum
         $aggregationCount = array_key_exists('sum_other_doc_count', $bucket[$key]['statements']) ?
             $aggregationCount + $bucket[$key]['statements']['sum_other_doc_count'] : $aggregationCount;

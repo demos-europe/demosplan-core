@@ -51,7 +51,7 @@
                   </button>
                 </div>
                 <span
-                  class="u-valign--middle u-ml-0_5"
+                  class="align-middle u-ml-0_5"
                   id="elementSelectLabel">
                   {{ Translator.trans('select.or.edit') }}
                 </span>
@@ -67,7 +67,7 @@
                   </button>
                 </div>
                 <span
-                  class="u-valign--middle u-ml-0_5"
+                  class="align-middle u-ml-0_5"
                   id="elementDrawLabel">
                   {{ Translator.trans('element.add') }}
                 </span>
@@ -81,9 +81,9 @@
                     :aria-label="Translator.trans('contextual.help')"
                     v-tooltip="{
                       content: Translator.trans('annotator.modify.explanation'),
-                      classes: 'u-z-super'
+                      classes: 'z-ultimate'
                     }"
-                    class="fa fa-question-circle float--right u-mt-0_125" />
+                    class="fa fa-question-circle float-right u-mt-0_125" />
                 </p>
                 <div>
                   <button
@@ -94,7 +94,7 @@
                     <i class="fa fa-trash" />
                   </button>
                   <span
-                    class="u-valign--middle u-ml-0_5"
+                    class="align-middle u-ml-0_5"
                     :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
                     id="elementDeleteLabel">
                     {{ Translator.trans('element.delete') }}
@@ -109,7 +109,7 @@
                     <i class="fa fa-tag" />
                   </button>
                   <span
-                    class="u-valign--middle u-ml-0_5"
+                    class="align-middle u-ml-0_5"
                     :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
                     id="formatChangeLabel">
                     {{ Translator.trans('format.change') }}
@@ -263,7 +263,7 @@ export default {
       return Object.entries(this.labelTranslations)
         .map(([key, value]) => {
           return {
-            label: value,
+            label: Translator.trans(value),
             value: key
           }
         })
@@ -485,7 +485,7 @@ export default {
         },
         sort: 'pageSortIndex',
         fields: {
-          AnnotatedStatementPdfPage:[
+          AnnotatedStatementPdfPage: [
             'id',
             'url',
             'width',
@@ -493,13 +493,13 @@ export default {
             'geoJson',
             'annotatedStatementPdf'
           ].join(),
-          AnnotatedStatementPdf:[
+          AnnotatedStatementPdf: [
             'status',
             'text',
             'file',
             'procedure',
             'statement',
-            'annotatedStatementPdfPages',
+            'annotatedStatementPdfPages'
           ].join()
         },
         include: ['annotatedStatementPdf'].join()

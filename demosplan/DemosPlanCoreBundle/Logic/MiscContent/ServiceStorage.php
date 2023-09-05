@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,23 +23,13 @@ class ServiceStorage
      * @var MailService
      */
     protected $service;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var LegacyFlashMessageCreator
-     */
-    private $legacyFlashMessageCreator;
 
     public function __construct(
-        LegacyFlashMessageCreator $legacyFlashMessageCreator,
+        private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         MailService $service,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
-        $this->legacyFlashMessageCreator = $legacyFlashMessageCreator;
         $this->service = $service;
-        $this->translator = $translator;
     }
 
     /**
@@ -66,7 +56,7 @@ class ServiceStorage
         // is set and not empty
         foreach ($mandatoryFields as $mandatoryField) {
             if (!array_key_exists($mandatoryField['key'], $request)
-                || '' === trim($request[$mandatoryField['key']])) {
+                || '' === trim((string) $request[$mandatoryField['key']])) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
                     'message' => $this->legacyFlashMessageCreator->createFlashMessage(

@@ -62,13 +62,13 @@
       <!-- Components that depend on OpenLayers instance are mounted after map is initialized -->
       <div v-if="Boolean(map)">
         <!-- Controls -->
-        <div :class="prefixClass('c-ol-map__controls cf')">
+        <div :class="prefixClass('c-ol-map__controls flow-root')">
           <slot
             :map="map"
             name="controls" />
-          <div :class="prefixClass('float--right')">
+          <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
+              :class="prefixClass('u-mb inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
@@ -85,7 +85,7 @@
               @selected="zoomToSuggestion" />
 
             <dp-ol-map-scale-select
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 u-valign--top')"
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
               v-if="_options.scaleSelect" />
           </div>
         </div>
@@ -95,6 +95,7 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
+          :attributions="options?.defaultAttribution"
           :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
@@ -104,7 +105,7 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading
           v-if="!Boolean(map)"
@@ -114,7 +115,7 @@
       <!-- These blocks make it possible to set colors in _map.scss which then are read by map script -->
       <div
         ref="mapDrawStyles"
-        :class="prefixClass('display--none')">
+        :class="prefixClass('hidden')">
         <span :class="prefixClass('c-map__draw-fill')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-stroke')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-image')">&nbsp;</span>
@@ -353,7 +354,6 @@ export default {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
           html.classList.toggle(this.prefixClass('fullscreen-mode'))
-          this.updateMapInstance()
         }, false)
       })
     },

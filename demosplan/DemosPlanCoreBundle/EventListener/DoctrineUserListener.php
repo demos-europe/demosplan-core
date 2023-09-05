@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Exception;
 
 class DoctrineUserListener
@@ -42,7 +42,7 @@ class DoctrineUserListener
             $customer = $this->customerService->getCurrentCustomer();
             $user->setCurrentCustomer($customer);
             $user->setRolesAllowed($this->rolesAllowed);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // bad luck :-(
         }
     }

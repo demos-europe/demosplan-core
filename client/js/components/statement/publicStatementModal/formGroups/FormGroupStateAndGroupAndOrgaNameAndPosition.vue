@@ -21,7 +21,7 @@
         :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
         :title="required ? Translator.trans('statements.required.field') : false">
         <span
-          :class="prefixClass('display--block')"
+          :class="prefixClass('block')"
           id="statement-detail-state">
           {{ Translator.trans('state') }}
           <span
@@ -53,7 +53,7 @@
       :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
       :title="required ? Translator.trans('statements.required.field') : false">
       <span
-        :class="prefixClass('display--block')"
+        :class="prefixClass('block')"
         id="statement-detail-organisation">
         {{ Translator.trans('organisation') }}
         <span
@@ -96,7 +96,7 @@
         for="r_userPosition"
         :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')">
         <span
-          :class="prefixClass('display--block')"
+          :class="prefixClass('block')"
           id="statement-detail-position">
           {{ Translator.trans('position') }}
         </span>

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,11 +19,11 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -41,29 +41,18 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected $serviceImport;
     /** @var SimpleSpreadsheetService */
     protected $simpleSpreadsheetService;
-    /** @var EditorService */
-    private $editorService;
     /** @var array */
     private $supportedTypes = ['xls', 'xlsx'];
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var FormOptionsResolver
-     */
-    private $formOptionsResolver;
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
-        EditorService $editorService,
+        private readonly EditorService $editorService,
         Environment $twig,
-        FormOptionsResolver $formOptionsResolver,
+        private readonly FormOptionsResolver $formOptionsResolver,
         LoggerInterface $logger,
-        PermissionsInterface $permissions,
+        private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
@@ -79,9 +68,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $requestStack,
             $statementHandler
         );
-        $this->editorService = $editorService;
-        $this->formOptionsResolver = $formOptionsResolver;
-        $this->permissions = $permissions;
         $this->serviceImport = $serviceImport;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
         $this->twig = $twig;
@@ -199,23 +185,13 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     public function selectFormat(string $formatIdentifier): array
     {
-        switch ($formatIdentifier) {
-            case 'topicsAndTags':
-                $columnsDefinition = $this->createColumnsDefinitionForTopicsAndTags();
-                break;
-            case 'potentialAreas':
-                $columnsDefinition = $this->createColumnsDefinitionForPotentialAreas();
-                break;
-            case 'statements':
-                $columnsDefinition = $this->createColumnsDefinitionForStatementsOrSegments(true);
-                break;
-            case 'segments':
-                $columnsDefinition = $this->createColumnsDefinitionForStatementsOrSegments(false);
-                break;
-            default:
-                $columnsDefinition = $this->createColumnsDefinitionDefault();
-                break;
-        }
+        $columnsDefinition = match ($formatIdentifier) {
+            'topicsAndTags' => $this->createColumnsDefinitionForTopicsAndTags(),
+            'potentialAreas' => $this->createColumnsDefinitionForPotentialAreas(),
+            'statements' => $this->createColumnsDefinitionForStatementsOrSegments(true),
+            'segments' => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            default => $this->createColumnsDefinitionDefault(),
+        };
 
         return $columnsDefinition;
     }
@@ -411,7 +387,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
             // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
-                $isUsingDotNotation = str_contains($attributeKey, '.');
+                $isUsingDotNotation = str_contains((string) $attributeKey, '.');
                 $isSortable = false;
                 if (!$isUsingDotNotation) {
                     if (!array_key_exists($attributeKey, $statement)) {
@@ -467,13 +443,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
 
             // allow dot notation in export definition
-            $explodedParts = explode('.', $attributeKey);
+            $explodedParts = explode('.', (string) $attributeKey);
             switch (count($explodedParts)) {
                 case 2:
-                    if ('authoredDate' === $explodedParts[1]) {
-                        $timestamp = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                        $statementArray[$explodedParts[0]][$explodedParts[1]] = date('d-m-Y', $timestamp);
-                    }
                     $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
                     break;
                 case 3:

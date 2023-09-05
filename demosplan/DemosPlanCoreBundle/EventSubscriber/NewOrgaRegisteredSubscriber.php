@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,17 +16,11 @@ use Psr\Log\LoggerInterface;
 
 class NewOrgaRegisteredSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var OrgaChangesNotifier
-     */
-    private $orgaChangesNotifier;
-
     public function __construct(
-        OrgaChangesNotifier $orgaChangesNotifier,
+        private readonly OrgaChangesNotifier $orgaChangesNotifier,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
-        $this->orgaChangesNotifier = $orgaChangesNotifier;
     }
 
     public static function getSubscribedEvents(): array

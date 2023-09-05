@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,30 +12,18 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\FilterHashException;
+use demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Exception\FilterHashException;
-use demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
 
 class HashedQueryService
 {
-    /**
-     * @var HashedQueryRepository
-     */
-    private $hashedQueryRepository;
-
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    public function __construct(HashedQueryRepository $hashedQueryRepository, ProcedureRepository $procedureRepository)
+    public function __construct(private readonly HashedQueryRepository $hashedQueryRepository, private readonly ProcedureRepository $procedureRepository)
     {
-        $this->hashedQueryRepository = $hashedQueryRepository;
-        $this->procedureRepository = $procedureRepository;
     }
 
     public function findHashedQueryWithHash(?string $filterSetHash): ?HashedQuery

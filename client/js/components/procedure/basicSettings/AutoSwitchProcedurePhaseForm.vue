@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="cf">
+  <div class="flow-root">
     <dp-checkbox
       :id="checkboxId"
       v-model="autoSwitchPhase"
@@ -61,6 +61,10 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
+            :data-cy="{
+                endDate: dataCyEndDate,
+                startDate: dataCyStartDate
+            }"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -117,6 +121,18 @@ export default {
     availablePhases: {
       type: Object,
       default: () => ({})
+    },
+
+    dataCyEndDate: {
+      type: String,
+      required: false,
+      default: 'endDate'
+    },
+
+    dataCyStartDate: {
+      type: String,
+      required: false,
+      default: 'startDate'
     },
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -72,13 +72,9 @@ class FilterUiDataProvider
     {
         return collect($filter->getGroupedConditions())
             ->flatMap(
-                static function (array $conditionGroup): array {
-                    return $conditionGroup;
-                }
+                static fn (array $conditionGroup): array => $conditionGroup
             )->filter(
-                static function (array $condition) {
-                    return array_key_exists('path', $condition);
-                }
+                static fn (array $condition) => array_key_exists('path', $condition)
             )->pluck('path')->containsStrict($path);
     }
 }

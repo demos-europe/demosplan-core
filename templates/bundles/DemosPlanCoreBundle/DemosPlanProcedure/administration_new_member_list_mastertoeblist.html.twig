@@ -1,0 +1,66 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock stylesheets %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationNewMemberListMastertoeblist.js']) }}
+{% endblock javascripts %}
+
+{% block component_part %}
+    {# Page Header #}
+    {% if hasPermission('area_report_mastertoeblist') %}
+        {% set subnav = [{
+                href: path('DemosPlan_procedure_member_index',{'procedure': procedure}),
+                label: 'invitable_institution.list.back'|trans,
+                icon: 'fa-arrow-circle-left'
+            },
+            {
+                href: path('DemosPlan_user_mastertoeblist_report', {'procedure': procedure }),
+                label: 'invitable_institution.master.report'|trans,
+                icon: 'fa-bell'
+        }] %}
+    {% else %}
+        {% set subnav = null %}
+    {% endif %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'invitable_institution.add'|trans,
+        subnav: subnav
+    } %}
+
+    {% set fields = [
+        { field: 'ident', value: 'ident'},
+        { field: 'orgaName', value: "orgaName"|trans({}, "master-toeb-list") },
+        { field: 'departmentName', value:  "departmentName"|trans({}, "master-toeb-list") },
+        { field: 'sign', value: "sign"|trans({}, "master-toeb-list") },
+        { field: 'email', value: "email"|trans({}, "master-toeb-list") },
+        { field: 'ccEmail', value: "ccEmail"|trans({}, "master-toeb-list") },
+        { field: 'contactPerson', value: "contactPerson"|trans({}, "master-toeb-list") },
+        { field: 'registered', value: "registered"|trans({}, "master-toeb-list") },
+        { field: 'memo', value: "memo"|trans({}, "master-toeb-list") },
+        { field: 'districtHHMitte', value: "districtHHMitte"|trans({}, "master-toeb-list") },
+        { field: 'districtAltona', value: "districtAltona"|trans({}, "master-toeb-list") },
+        { field: 'districtEimsbuettel', value: "districtEimsbuettel"|trans({}, "master-toeb-list") },
+        { field: 'districtHHNord', value: "districtHHNord"|trans({}, "master-toeb-list") },
+        { field: 'districtWandsbek', value: "districtWandsbek"|trans({}, "master-toeb-list") },
+        { field: 'districtBergedorf', value: "districtBergedorf"|trans({}, "master-toeb-list") },
+        { field: 'districtHarburg', value: "districtHarburg"|trans({}, "master-toeb-list") },
+        { field: 'districtBsu', value: "districtBsu"|trans({}, "master-toeb-list") },
+        { field: 'documentRoughAgreement', value: "documentRoughAgreement"|trans({}, "master-toeb-list") },
+        { field: 'documentAgreement', value: "documentAgreement"|trans({}, "master-toeb-list") },
+        { field: 'documentNotice', value: "documentNotice"|trans({}, "master-toeb-list") },
+        { field: 'documentAssessment', value: "documentAssessment"|trans({}, "master-toeb-list") }
+    ] %}
+
+    <form method="post" id="orgalistForm" class="flow-root" action="">
+        <dp-master-toeb-list
+            user-id="{{ currentUser.ident|default }}"
+            :fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"
+            :items="JSON.parse('{{ templateVars.orgas|default([])|json_encode|e('js', 'utf-8') }}')"
+            :is-editable="false"
+            procedure-id="{{ procedure }}"></dp-master-toeb-list>
+    </form>
+{% endblock component_part %}

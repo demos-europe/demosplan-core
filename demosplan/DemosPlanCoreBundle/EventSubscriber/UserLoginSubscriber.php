@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,14 +22,8 @@ use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 
 class UserLoginSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(UserService $userService)
+    public function __construct(private readonly UserService $userService)
     {
-        $this->userService = $userService;
     }
 
     public function onLogin(AuthenticationSuccessEvent $event): void

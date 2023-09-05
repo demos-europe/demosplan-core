@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -78,15 +78,6 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
      * @var OrgaService
      */
     protected $orgaService;
-    /**
-     * @var HttpCall
-     */
-    private $httpCall;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
 
     /**
      * Variable set when user needs to be redirected to a distinct verification route
@@ -100,11 +91,11 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         AddressService $addressService,
         CustomerHandler $customerHandler,
         GlobalConfigInterface $globalConfig,
-        HttpCall $httpCall,
+        private readonly HttpCall $httpCall,
         LoggerInterface $logger,
         OrgaService $orgaService,
         UserService $userService,
-        RequestStack $requestStack
+        private RequestStack $requestStack
     ) {
         $this->customerHandler = $customerHandler;
         $this->addressService = $addressService;
@@ -113,8 +104,6 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         $this->logger = $logger;
         $this->globalConfig = $globalConfig;
         $this->userService = $userService;
-        $this->httpCall = $httpCall;
-        $this->requestStack = $requestStack;
     }
 
     /**
@@ -341,7 +330,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         // die XML Doppeldekodierung, die aus dem GW kommt wird von DOMElement::getAttribute() einfach decodiert:
         //  Testplanungsb&amp;amp;#252;ro => Testplanungsb&amp;#252;ro
         $string = Utf8::filter($string);
-        $string = html_entity_decode($string, ENT_QUOTES);
+        $string = html_entity_decode((string) $string, ENT_QUOTES);
 
         return trim($string);
     }
@@ -392,8 +381,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         foreach ($this->data['roles'] as $role) {
             $rolesFound = $this->findRole($role['ROLENAME']);
             if (0 === $rolesFound->count()) {
-                $roleFound = $rolesFound->first();
-                $roles[] = $roleFound['role'];
+                $roles[] = $role['ROLENAME'];
                 $this->logger->debug('Unknown Role found', [$role['ROLENAME']]);
             }
         }
@@ -408,10 +396,9 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
      */
     protected function findRole($roleName): Collection
     {
-        return $this->roles->filter(function ($value) use ($roleName) {
+        return $this->roles->filter(fn($value) =>
             // compare filtered strings to avoid encoding problems
-            return Utf8::filter($value['key']) === Utf8::filter($roleName);
-        })->values();
+            Utf8::filter($value['key']) === Utf8::filter($roleName))->values();
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -33,6 +33,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateData($in, $out): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $sut = $this->createSut(
             $out['postalCode'],
             $out['city'],
@@ -90,6 +92,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateDataException($in, $out, $exception): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $this->expectException($exception);
 
         $sut = $this->createSut(

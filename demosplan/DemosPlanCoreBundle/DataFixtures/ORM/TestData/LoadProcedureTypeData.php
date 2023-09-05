@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,11 +15,14 @@ use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeExc
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureTypeData extends TestFixture implements DependentFixtureInterface
 {
-    public const _1 = 'testProcedureType1';
-    public const BPLAN = 'testProcedureType_bplan';
-    public const BRK = 'BRK';
+    final public const _1 = 'testProcedureType1';
+    final public const BPLAN = 'testProcedureType_bplan';
+    final public const BRK = 'BRK';
 
     private $manager;
 

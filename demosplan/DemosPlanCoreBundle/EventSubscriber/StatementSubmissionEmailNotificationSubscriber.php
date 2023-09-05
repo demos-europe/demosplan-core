@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,27 +22,8 @@ use Exception;
 
 class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var StatementSubmissionNotifier
-     */
-    private $statementSubmissionNotifier;
-    /**
-     * @var GdprConsentRevokeTokenService
-     */
-    private $gdprConsentRevokeTokenService;
-
-    public function __construct(
-        PermissionsInterface $permissions,
-        StatementSubmissionNotifier $statementSubmissionNotifier,
-        GdprConsentRevokeTokenService $gdprConsentRevokeTokenService
-    ) {
-        $this->gdprConsentRevokeTokenService = $gdprConsentRevokeTokenService;
-        $this->permissions = $permissions;
-        $this->statementSubmissionNotifier = $statementSubmissionNotifier;
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly StatementSubmissionNotifier $statementSubmissionNotifier, private readonly GdprConsentRevokeTokenService $gdprConsentRevokeTokenService)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -55,7 +36,7 @@ class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
 
     public function notifyMultiple(MultipleStatementsSubmittedEvent $event): void
     {
-        if (0 < count($event->getSubmittedStatements())) {
+        if (0 < (is_countable($event->getSubmittedStatements()) ? count($event->getSubmittedStatements()) : 0)) {
             if (!$event->isPublic()) {
                 // Use Statements instead of DraftStatements because ConsultationToken is required later,
                 // which cant be found with information of the DraftStatements

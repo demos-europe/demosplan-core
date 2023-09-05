@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,18 +30,12 @@ class DemosPlanSimplifiedStatementController extends BaseController
     /**
      * Creates a new Statement from the simplified form.
      *
-     * @Route(
-     *     name="dplan_simplified_new_statement_create",
-     *     methods={"POST"},
-     *     path="/verfahren/{procedureId}/stellungnahmen/neu",
-     *     options={"expose": true}
-     * )
-     *
      * @throws MessageBagException
      * @throws UserNotFoundException
      *
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
+    #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]
     public function createAction(
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,

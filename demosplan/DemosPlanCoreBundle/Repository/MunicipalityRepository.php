@@ -3,24 +3,24 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 
-class MunicipalityRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class MunicipalityRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -95,7 +95,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return CoreEntity
      */
-    public function update($entityId, array $data)
+    public function update($entityId, array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -182,7 +182,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
                 ->getQuery();
 
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -209,7 +209,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

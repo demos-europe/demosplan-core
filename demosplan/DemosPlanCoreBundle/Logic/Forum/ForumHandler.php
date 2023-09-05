@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -45,38 +45,22 @@ class ForumHandler extends CoreHandler
      * @var Environment
      */
     protected $twig;
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var FlashMessageHandler
-     */
-    private $flashMessageHandler;
 
     public function __construct(
         Environment $twig,
-        FlashMessageHandler $flashMessageHandler,
+        private readonly FlashMessageHandler $flashMessageHandler,
         ForumService $forumService,
         MailService $mailService,
         MessageBag $messageBag,
-        OrgaService $orgaService,
-        TranslatorInterface $translator,
+        private readonly OrgaService $orgaService,
+        private readonly TranslatorInterface $translator,
         UserService $userService
     ) {
         parent::__construct($messageBag);
         $this->forumService = $forumService;
         $this->mailService = $mailService;
-        $this->orgaService = $orgaService;
-        $this->translator = $translator;
         $this->twig = $twig;
         $this->userService = $userService;
-        $this->flashMessageHandler = $flashMessageHandler;
     }
 
     /**
@@ -107,7 +91,7 @@ class ForumHandler extends CoreHandler
         $threadEntryUpdated = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
+        if (!array_key_exists('r_text', $data) || '' === trim((string) $data['r_text'])) {
             $mandatoryError = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -164,7 +148,7 @@ class ForumHandler extends CoreHandler
         $threadEntry = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
+        if (!array_key_exists('r_text', $data) || '' === trim((string) $data['r_text'])) {
             $mandatoryError = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -277,7 +261,7 @@ class ForumHandler extends CoreHandler
         $mandatoryErrors = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -285,7 +269,7 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (!array_key_exists('r_phase', $data) || '' === trim($data['r_phase'])) {
+        if (!array_key_exists('r_phase', $data) || '' === trim((string) $data['r_phase'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -299,24 +283,24 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen($data['r_title'])) {
+        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && 0 < strlen($data['r_phase'])) {
+        if (array_key_exists('r_phase', $data) && 0 < strlen((string) $data['r_phase'])) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen($data['r_description'])) {
+        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $release['description'] = $data['r_description'];
         }
         if (array_key_exists('r_startdate', $data)) {
             if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime($data['r_startdate']);
+                $release['startDate'] = strtotime((string) $data['r_startdate']);
             }
         }
         if (array_key_exists('r_enddate', $data)) {
             if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime($data['r_enddate']);
+                $release['endDate'] = strtotime((string) $data['r_enddate']);
             }
         }
 
@@ -336,7 +320,7 @@ class ForumHandler extends CoreHandler
         $mandatoryErrors = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -344,7 +328,7 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (!array_key_exists('r_phase', $data) || '' === trim($data['r_phase'])) {
+        if (!array_key_exists('r_phase', $data) || '' === trim((string) $data['r_phase'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -358,24 +342,24 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen($data['r_title'])) {
+        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && 0 < strlen($data['r_phase'])) {
+        if (array_key_exists('r_phase', $data) && 0 < strlen((string) $data['r_phase'])) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen($data['r_description'])) {
+        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $release['description'] = $data['r_description'];
         }
         if (array_key_exists('r_startdate', $data)) {
             if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime($data['r_startdate']);
+                $release['startDate'] = strtotime((string) $data['r_startdate']);
             }
         }
         if (array_key_exists('r_enddate', $data)) {
             if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime($data['r_enddate']);
+                $release['endDate'] = strtotime((string) $data['r_enddate']);
             }
         }
 
@@ -492,7 +476,7 @@ class ForumHandler extends CoreHandler
         $userStory = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryError = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -505,11 +489,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen($data['r_title'])) {
+        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen($data['r_description'])) {
+        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $userStory['description'] = $data['r_description'];
         }
         if (array_key_exists('r_onlineVotes', $data)) {
@@ -535,7 +519,7 @@ class ForumHandler extends CoreHandler
         $userStory = [];
 
         // Überprüfe Pflichtfelder
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryError = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -548,11 +532,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen($data['r_title'])) {
+        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen($data['r_description'])) {
+        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $userStory['description'] = $data['r_description'];
         }
 
@@ -613,6 +597,7 @@ class ForumHandler extends CoreHandler
      */
     protected function sentNotificationEmail($data)
     {
+        $vars = [];
         // hole alle User mit der Rolle Moderator
         $role = Role::BOARD_MODERATOR;
         $allUsersWithRole = $this->userService->getUsersOfRole($role);
@@ -628,7 +613,7 @@ class ForumHandler extends CoreHandler
 
             // Generiere eine Teaser vom ersten Beitragstext
             // bereinige die Textvariable von Tags
-            $entryTextNoTags = strip_tags($firstEntry['text']);
+            $entryTextNoTags = strip_tags((string) $firstEntry['text']);
             if (0 < strlen($entryTextNoTags)) {
                 // Kürze den Text und speicher das Ergebnis in der MailVariable
                 $shortText = substr($entryTextNoTags, 0, 150).'...';
@@ -643,7 +628,7 @@ class ForumHandler extends CoreHandler
 
         // generiere eine Teaser vom Beitragstext
         // bereinige die Textvariable von Tags
-        $entryTextNoTags = strip_tags($data['text']);
+        $entryTextNoTags = strip_tags((string) $data['text']);
         if (0 < strlen($entryTextNoTags)) {
             // Kürze den Text und speicher das Ergebnis in der MailVariable
             $shortText = substr($entryTextNoTags, 0, 150).'...';
@@ -728,7 +713,7 @@ class ForumHandler extends CoreHandler
                     'extern',
                     $vars
                 );
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getLogger()->warning(sprintf('Email konnte nicht an den Moderator %s verschickt werden', $user['email']));
             }
         }
@@ -775,7 +760,7 @@ class ForumHandler extends CoreHandler
                 'extern',
                 $vars
             );
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getLogger()->warning(sprintf('Email konnte nicht an den Autor %s verschickt werden', $data['starterEntryAuthor']['uemail']));
         }
     }

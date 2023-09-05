@@ -6,7 +6,7 @@
     {# the orga of the current user has to handle the draftstatements, not the ownerorga of the proceudre#}
     {% set isDefaultSubmissionProcess = currentUser.orga.submissionType|default(defaultSubmissionType) == defaultSubmissionType %}
     <nav
-        class="{{ 'c-pageheader__flyout c-flyout display--inline-block u-ml-lap-up u-mt-0_25-palm'|prefixClass }}"
+        class="{{ 'c-pageheader__flyout c-flyout inline-block u-ml-lap-up u-mt-0_25-palm'|prefixClass }}"
         data-actionmenu aria-label="{{ 'procedure.statements.mine'|trans }}"
         data-cy="flyOutActionMenu">
 
@@ -69,8 +69,7 @@
                     class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
                     data-cy="statementsGrouprelease"
                     href="{{ path('DemosPlan_statement_list_released_group',{'procedure':procedure}) }}"
-                    data-actionmenu-menuitem
-                >
+                    data-actionmenu-menuitem>
                     {{ "statements.grouprelease"|trans }}
                     <span class="{{ 'o-badge o-badge--small'|prefixClass}} {{ statementCounts.groupReleased > 0 ? 'o-badge--alert'|prefixClass : 'o-badge--light'|prefixClass }}">
                         {{ statementCounts.groupReleased }}
@@ -88,7 +87,8 @@
                 <a
                     class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
                     data-cy="statementsOwnsubmit"
-                    href="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure}) }}" data-actionmenu-menuitem>
+                    href="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure}) }}"
+                    data-actionmenu-menuitem>
                     {% if ('RCITIZ' in roles or not isDefaultSubmissionProcess) %}
                         {% if ('RCITIZ' not in roles) %}
                             {{ "statements.final"|trans }}
@@ -106,8 +106,7 @@
                     class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
                     data-cy="statementsVoted"
                     href="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure, '_fragment':'votedStatementsList'}) }}"
-                    data-actionmenu-menuitem
-                >
+                    data-actionmenu-menuitem>
                     {{ "statements.voted"|trans }}
                     <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.voted }}</span>
                 </a>
@@ -118,8 +117,7 @@
                     class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
                     data-cy="statementsPublic"
                     href="{{ path('DemosPlan_statement_list_public',{'procedure':procedure}) }}"
-                    data-actionmenu-menuitem
-                >
+                    data-actionmenu-menuitem>
                     {{ "statements.public"|trans }}
                     <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.public }}</span>
                 </a>

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,16 +28,11 @@ class MapHandler extends CoreHandler
      * @var MapService
      */
     protected $mapService;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
 
-    public function __construct(MapService $mapService, MessageBagInterface $messageBag, EntityManagerInterface $entityManager)
+    public function __construct(MapService $mapService, MessageBagInterface $messageBag, private readonly EntityManagerInterface $entityManager)
     {
         $this->mapService = $mapService;
         parent::__construct($messageBag);
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -61,7 +56,7 @@ class MapHandler extends CoreHandler
     public function addGisLayerCategory(array $gisLayerCategoryData)
     {
         if (false === array_key_exists('name', $gisLayerCategoryData)
-            || '' === trim($gisLayerCategoryData['name'])) {
+            || '' === trim((string) $gisLayerCategoryData['name'])) {
             throw new InvalidArgumentException('No Name given');
         }
 
@@ -288,7 +283,7 @@ class MapHandler extends CoreHandler
     {
         try {
             return $this->mapService->deleteGisLayerCategory($gisLayerCategoryId);
-        } catch (AttachedChildException $e) {
+        } catch (AttachedChildException) {
             $gisLayerCategory = $this->getGisLayerCategory($gisLayerCategoryId);
 
             $categoryName = $gisLayerCategory instanceof GisLayerCategory ? $gisLayerCategory->getName() : '';

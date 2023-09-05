@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,13 +17,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadFaqData extends TestFixture implements DependentFixtureInterface
 {
-    public const FAQ_GUEST = 'testFaqGuest';
-    public const FAQ_PLANNER = 'testFaqPlanner';
-    public const FAQ_PLANNER_BB = 'testFaqPlannerBB';
+    final public const FAQ_GUEST = 'testFaqGuest';
+    final public const FAQ_PLANNER = 'testFaqPlanner';
+    final public const FAQ_PLANNER_BB = 'testFaqPlannerBB';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Customer $customer */
         $customer = $this->getReference('testCustomer');

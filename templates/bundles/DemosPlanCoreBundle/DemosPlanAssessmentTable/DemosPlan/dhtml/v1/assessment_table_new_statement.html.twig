@@ -55,7 +55,7 @@
                     {{ "user.details"|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
                     {% apply spaceless %}
 
                         <dp-autofill-submitter-data
@@ -166,7 +166,7 @@
                     {{ 'statement'|trans }}
                 </legend>
 
-                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf">
+                <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
 
                     {% apply spaceless -%}{# start row #}
                         {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
@@ -196,6 +196,7 @@
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
                                     name="r_submitted_date"
+                                    data-cy="submitterForm:submittedDate"
                                     value="{{ app.request.get('r_submitted_date') }}"
                                     :calendars-before="2"
                                     max-date="{{ 'now'|date('d.m.Y') }}"
@@ -211,6 +212,7 @@
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
                                     name="r_authored_date"
+                                    data-cy="submitterForm:authoredDate"
                                     value="{{ app.request.get('r_authored_date') }}"
                                     :calendars-before="2"
                                     :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
@@ -225,6 +227,7 @@
                                         tooltip: Translator.trans('explanation.statement.submit.type')
                                     }"
                                     name="r_submit_type"
+                                    data-cy="submitterForm:submitType"
                                     :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
                                     selected="{{ selectedSubmitType }}"></dp-select>
                             </div>
@@ -238,6 +241,7 @@
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
                                     }"
                                     name="r_internId"
+                                    data-cy="submitterForm:internId"
                                     pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
                                     value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
@@ -262,13 +266,14 @@
                                 </label>
                                 <dp-multiselect
                                     class="o-form__control-wrapper"
-                                    :options="phases"
-                                    :value="values.phase"
-                                    @input="setPhaseValue"
-                                    track-by="key"
+                                    data-cy="submitterForm:procedurePublicPhase"
                                     label="name"
-                                    required>
-                                    <template v-slot:option="props">
+                                    :options="phases"
+                                    required
+                                    track-by="key"
+                                    :value="values.phase"
+                                    @input="setPhaseValue">
+                                    <template v-slot:option="{ props }">
                                         <span class="weight--normal">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </span>
@@ -310,14 +315,14 @@
                             {{ "plandocument"|trans }}
                         </label>
                         <dp-multiselect
-                            class="o-form__control-wrapper u-mb-0_75"
-                            :options="elements"
                             v-model="values.element"
-                            track-by="id"
+                            class="o-form__control-wrapper u-mb-0_75"
                             label="title"
-                            @input="checkForParagraphsAndFiles()"
-                        >
-                            <template v-slot:option="props">
+                            data-cy="submitterForm:elements"
+                            :options="elements"
+                            track-by="id"
+                            @input="checkForParagraphsAndFiles()">
+                            <template v-slot:option="{ props }">
                                 {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             </template>
                         </dp-multiselect>
@@ -330,14 +335,14 @@
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="paragraph[values.element.id]"
                                 v-model="values.paragraph"
-                                track-by="id"
+                                class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
-                            >
-                                <template v-slot:option="props">
+                                data-cy="submitterForm:paragraph"
+                                :options="paragraph[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
                                     {% verbatim %}{{ props.option.title }}{% endverbatim %}
                                 </template>
                             </dp-multiselect>
@@ -351,14 +356,14 @@
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="documents[values.element.id]"
                                 v-model="values.document"
-                                track-by="id"
+                                class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
-                            >
-                                <template v-slot:option="props">
+                                data-cy="submitterForm:document"
+                                :options="documents[values.element.id]"
+                                required
+                                track-by="id">
+                                <template v-slot:option="{ props }">
                                     {% verbatim %}{{ props.option.title }}{% endverbatim %}
                                 </template>
                             </dp-multiselect>
@@ -375,7 +380,7 @@
                         {# editable for all statements, not just manual ones #}
                         {% if hasPermission('field_statement_county') %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "counties"|trans }}
                                 </strong>
                                 <p v-if="countiesPromptAdded" class="lbl__hint">
@@ -383,18 +388,18 @@
                                     {{ 'data.autocompleted.recheck'|trans }}
                                 </p>
                                 <dp-multiselect
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    v-model="values.counties"
+                                    class="layout__item u-1-of-1 inline-block"
+                                    label="name"
+                                    data-cy="submitterForm:counties"
                                     multiple
                                     :options="counties"
-                                    v-model="values.counties"
-                                    @input="sortSelected('counties')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('counties')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -409,7 +414,7 @@
                         {# editable for all statements, not just manual ones #}
                         {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled == true %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <p v-if="countiesPromptAdded" class="lbl__hint">
@@ -417,18 +422,18 @@
                                     {{ 'data.autocompleted.recheck'|trans }}
                                 </p>
                                 <dp-multiselect
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    v-model="values.municipalities"
+                                    class="layout__item u-1-of-1 inline-block"
+                                    label="name"
+                                    data-cy="submitterForm:municipalities"
                                     multiple
                                     :options="municipalities"
-                                    v-model="values.municipalities"
-                                    @input="sortSelected('municipalities')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('municipalities')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                                         <span class="multiselect__tag">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                             <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -443,22 +448,22 @@
                         {# editable for all statements, not just manual ones #}
                         {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled == true %}
                             <div class="layout--flush u-mb">
-                                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    class="layout__item u-1-of-1 display--inline-block"
+                                    v-model="values.priorityAreas"
+                                    class="layout__item u-1-of-1 inline-block"
+                                    label="name"
+                                    data-cy="submitterForm:priorityAreas"
                                     multiple
                                     :options="priorityAreas"
-                                    v-model="values.priorityAreas"
-                                    @input="sortSelected('priorityAreas')"
                                     track-by="id"
-                                    label="name"
-                                >
-                                    <template v-slot:option="props">
+                                    @input="sortSelected('priorityAreas')">
+                                    <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
-                                    <template v-slot:tag="props">
+                                    <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -475,17 +480,18 @@
                             {{ "tags"|trans }}
                         </label>
                         <dp-multiselect
-                            class="o-form__control-wrapper u-mb-0_75"
-                            multiple
-                            :options="tags"
                             v-model="values.tags"
-                            @input="sortSelected('tags')"
-                            track-by="id"
-                            label="name"
+                            class="o-form__control-wrapper u-mb-0_75"
+                            group-label="title"
                             :group-select="false"
                             group-values="tags"
-                            group-label="title" >
-                            <template v-slot:option="props">
+                            label="name"
+                            data-cy="submitterForm:tags"
+                            multiple
+                            :options="tags"
+                            track-by="id"
+                            @input="sortSelected('tags')">
+                            <template v-slot:option="{ props }">
                                 <span v-if="props.option.$isLabel">
                                 {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
                                 </span>
@@ -493,7 +499,7 @@
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 </span>
                             </template>
-                            <template v-slot:tag="props">
+                            <template v-slot:tag="{ props }">
                                 <span class="multiselect__tag">
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -514,6 +520,7 @@
                             :value="values.text"
                             class="o-form__control-tiptap u-mb-0_75"
                             hidden-input="r_text"
+                            data-cy="submitterForm:statementText"
                             required
                             :toolbar-items="{
                                 insertAndDelete: true,
@@ -562,7 +569,7 @@
                         <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
                             <statement-voter
                                 id="dp-new-statement-voter"
-                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 cf"
+                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
                                 readonly="{{ readonly|default('') }}"
                                 is-manual="true"
                             ></statement-voter>
@@ -599,7 +606,7 @@
             {% endif %}
 
 
-            <div class="text--right u-mv-0_5 space-inline-s">
+            <div class="text-right u-mv-0_5 space-inline-s">
                 <button
                     class="btn btn--primary"
                     @click.prevent="dpValidateAction('newStatementForm', submit)"

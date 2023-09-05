@@ -5,15 +5,17 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -24,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -69,81 +70,11 @@ use stdClass;
  */
 class RpcStatementSynchronizer implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $tokenRepository;
-
-    /**
-     * @var DrupalFilterParser
-     */
-    private $filterParser;
-
-    /**
-     * @var JsonApiActionService
-     */
-    private $jsonApiActionService;
-
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var StatementSynchronizer
-     */
-    private $statementSynchronizer;
-
-    /**
-     * @var EntitySyncLinkRepository
-     */
-    private $entitySyncLinkRepository;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    public function __construct(
-        DqlConditionFactory $conditionFactory,
-        DrupalFilterParser $filterParser,
-        EntitySyncLinkRepository $entitySyncLinkRepository,
-        JsonApiActionService $jsonApiActionService,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
-        ProcedureCoupleTokenRepository $tokenRepository,
-        RpcErrorGenerator $errorGenerator,
-        StatementResourceType $statementResourceType,
-        StatementSynchronizer $statementSynchronizer
-    ) {
-        $this->errorGenerator = $errorGenerator;
-        $this->permissions = $permissions;
-        $this->tokenRepository = $tokenRepository;
-        $this->filterParser = $filterParser;
-        $this->jsonApiActionService = $jsonApiActionService;
-        $this->statementResourceType = $statementResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->statementSynchronizer = $statementSynchronizer;
-        $this->entitySyncLinkRepository = $entitySyncLinkRepository;
-        $this->messageBag = $messageBag;
+    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly DrupalFilterParser $filterParser, private readonly EntitySyncLinkRepository $entitySyncLinkRepository, private readonly JsonApiActionService $jsonApiActionService, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions, private readonly ProcedureCoupleTokenRepository $tokenRepository, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementResourceType $statementResourceType, private readonly StatementSynchronizer $statementSynchronizer)
+    {
     }
 
-    public function execute(?Procedure $sourceProcedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $sourceProcedure, $rpcRequests): array
     {
         if (null === $sourceProcedure) {
             throw new AccessDeniedException('Procedure authorization required');
@@ -191,13 +122,13 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
                     $actuallySynchronizedStatementsCount,
                     count($alreadySynchronizedStatementIds)
                 );
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException) {
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
@@ -318,9 +249,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         }
 
         return collect($apiListResult->getList())->mapWithKeys(
-            static function (Statement $statement): array {
-                return [$statement->getId() => $statement];
-            }
+            static fn (Statement $statement): array => [$statement->getId() => $statement]
         )->all();
     }
 
@@ -337,9 +266,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         ]);
 
         return array_map(
-            static function (EntitySyncLink $connection): string {
-                return $connection->getSourceId();
-            },
+            static fn (EntitySyncLink $connection): string => $connection->getSourceId(),
             $synchronizedStatements
         );
     }

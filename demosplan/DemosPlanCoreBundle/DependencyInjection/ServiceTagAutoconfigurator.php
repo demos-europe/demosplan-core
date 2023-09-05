@@ -5,16 +5,16 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodAddonSolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -46,7 +46,7 @@ final class ServiceTagAutoconfigurator
     private const CLASS_MAP = [
         self::DEPLOYMENT_STRATEGIES => StrategyInterface::class,
         self::FAKE_DATA_GENERATOR   => DataGeneratorInterface::class,
-        self::RPC_METHOD_SOLVERS    => RpcMethodAddonSolverInterface::class,
+        self::RPC_METHOD_SOLVERS    => RpcMethodSolverInterface::class,
     ];
 
     public static function configure(ContainerBuilder $containerBuilder): void

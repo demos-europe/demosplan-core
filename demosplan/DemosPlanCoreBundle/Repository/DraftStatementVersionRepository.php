@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -35,7 +35,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     {
         try {
             return $this->findOneBy(['draftStatement' => $statementId]);
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -63,7 +63,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             }
 
             return $draftStatementVersion;
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -262,7 +262,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @return bool
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

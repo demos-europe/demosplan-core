@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,14 +17,8 @@ use Exception;
 
 class PriorityAreaService extends CoreService
 {
-    /**
-     * @var PriorityAreaRepository
-     */
-    private $priorityAreaRepository;
-
-    public function __construct(PriorityAreaRepository $priorityAreaRepository)
+    public function __construct(private readonly PriorityAreaRepository $priorityAreaRepository)
     {
-        $this->priorityAreaRepository = $priorityAreaRepository;
     }
 
     /**
@@ -56,7 +50,7 @@ class PriorityAreaService extends CoreService
     {
         try {
             return $this->priorityAreaRepository->getAll();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -71,10 +65,9 @@ class PriorityAreaService extends CoreService
         $priorityAreas = $this->getAllPriorityAreas();
 
         return \collect($priorityAreas)->map(
-            function (PriorityArea $priorityArea) {
+            fn(PriorityArea $priorityArea) =>
                 // use 'name' instead of 'key' to make it working in twig
-                return ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()];
-            }
+                ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()]
         )
             ->sortBy('name')
             ->values()

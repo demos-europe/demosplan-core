@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,17 +38,12 @@ class HttpCall
      * @var LoggerInterface
      */
     protected $logger;
-    /**
-     * @var HttpClientInterface
-     */
-    private $client;
 
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        HttpClientInterface $client,
+        private readonly HttpClientInterface $client,
         LoggerInterface $logger
     ) {
-        $this->client = $client;
         $this->logger = $logger;
         $this->proxyEnabled = $globalConfig->isProxyEnabled();
         $this->proxyHost = $globalConfig->getProxyHost();

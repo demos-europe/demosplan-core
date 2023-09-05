@@ -3,51 +3,45 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\NotAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     public function __construct(
-        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
-        PermissionsInterface $permissions,
-        TokenStorageInterface $tokenStorage
+        private readonly PermissionsInterface $permissions,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider
     ) {
-        $this->tokenStorage = $tokenStorage;
-        $this->permissions = $permissions;
     }
 
     public function getUser(): User
     {
         $user = $this->getToken()->getUser();
 
+        // This might occur when user is fetched from session after it has been
+        // replaced by the SecurityUser. One example is the collection of data
+        // for the symfony toolbar
         if ($user instanceof SecurityUser) {
-            $user = $this->userFromSecurityUserProvider->fromSecurityUser($user);
+
+            return $this->userFromSecurityUserProvider->fromSecurityUser($user);
         }
 
         if (!$user instanceof User) {
@@ -57,7 +51,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(User $user, Customer $customer = null): void
+    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);

@@ -1,0 +1,122 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: form.vars.value.id is defined and form.vars.value.id != '' ? 'boilerplate.edit'|trans : 'boilerplate.generate'|trans
+    } %}
+
+    {% set selectedGroup = { id: form.vars.value.group.id|default(''), title: form.vars.value.group.title|default('-') } %}
+
+    <dp-edit-boilerplate
+        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
+        <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
+            <form
+                class="layout flow-root"
+                name="xsubmititem"
+                action='{{ path('DemosPlan_procedure_boilerplate_edit',{'procedure': procedure, 'boilerplateId': form.vars.value.id|default('new') }) }}'
+                method="post"
+                enctype="multipart/form-data"
+                data-dp-validate>
+                <input name="action" type="hidden" value="boilerplateedit">
+                <input name="r_ident" type="hidden" value="{{ form.vars.value.id }}">
+                <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
+
+                <label class="layout__item u-1-of-4" for="r_title">
+                    {{ "title"|trans }}*
+                </label><!--
+             --><div class="layout__item u-3-of-4 u-pl-0">
+                    {{ uiComponent('form.row', {
+                        elements: [
+                            {
+                                label: {},
+                                control: { name: 'r_title'|trans, attributes: ['data-cy=boilerplateTitle'], required: true  },
+                                maxCharCount: 250,
+                                value: form.vars.value.title,
+                                id: 'r_title',
+                                type: 'text',
+                                style: 'inline-block'
+                            }
+                        ]
+                    }) }}
+                </div>
+
+                <label class="layout__item u-1-of-4" for="r_boilerplateCategory">
+                    {{ "area.category.show"|trans }}
+                </label><!--
+             --><div
+                    data-cy="areaCategoryShow"
+                    class="layout__item u-3-of-4 u-pl-0">
+                    <p class="lbl__hint">{{ 'boilerplates.category.hint'|trans }}</p>
+                    {% for cat in boilerplateCategories %}
+                        <input
+                            type="checkbox"
+                            id="{{ cat.id }}"
+                            data-cy="{{ cat.title|trans }}"
+                            value="{{ cat.id }}"
+                            name="r_boilerplateCategory[][id]"
+                            {% if cat.id in form.vars.value.categories|map(x => x.id) %}checked{% endif %}/>
+                        <label for="{{ cat.id }}" class="inline-block u-mr">{{ cat.title|trans }}</label>
+                    {% endfor %}
+                </div><!-- Textbausteine in Gruppe
+
+            -->
+                <label class="layout__item u-1-of-4" for="r_boilerplateGroup">
+                    {{ "group"|trans }}
+                </label><!--
+             --><div class="layout__item u-3-of-4 u-pl-0">
+                    {% set boilerplatesGroups = [{ id: '', title: '-'}] %}
+                    {% set boilerplatesGroups = boilerplatesGroups|merge(boilerplateGroupsOfProcedure|map(group => { id: group.id, title: group.title })) %}
+                    <dp-multiselect
+                        v-model="boilerplateGroup"
+                        :allow-empty="false"
+                        class="inline-block align-middle u-mb"
+                        data-cy="selectBoilerplateGroup"
+                        label="title"
+                        :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id"
+                        @input="val => setBoilerplateGroup(val)">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                        </template>
+                    </dp-multiselect>
+                    <input type="hidden" :value="boilerplateGroup.id" name="r_boilerplateGroup[id]"/>
+                </div><!--
+
+
+         --><label class="layout__item u-1-of-4" for="r_text">
+                    {{ "text"|trans }}*
+                </label><!--
+         --><div class="layout__item u-3-of-4 u-pl-0">
+                    <dp-editor
+                        editor-id="boilerplateText"
+                        hidden-input="r_text"
+                        required
+                        :toolbar-items="{ linkButton: true }"
+                        value="{{ form.vars.value.text }}">
+                    </dp-editor>
+                </div>
+
+                <div class="text-right u-mt-0_5 space-inline-s">
+                    <button
+                        class="btn btn--primary"
+                        data-cy="saveBoilerplate"
+                        name="saveBoilerplate"
+                        type="submit">
+                        {{ "save"|trans }}
+                    </button>
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+                        {{ "abort"|trans }}
+                    </a>
+                </div>
+
+            </form>
+        </template>
+    </dp-edit-boilerplate>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationEditBoilerplate.js']) }}
+{% endblock javascripts %}

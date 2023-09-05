@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,20 +17,8 @@ use Psr\Log\LoggerInterface;
 
 class AddressService
 {
-    /**
-     * @var AddressRepository
-     */
-    private $addressRepository;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(AddressRepository $addressRepository, LoggerInterface $logger)
+    public function __construct(private readonly AddressRepository $addressRepository, private readonly LoggerInterface $logger)
     {
-        $this->addressRepository = $addressRepository;
-        $this->logger = $logger;
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,56 +13,22 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 
 class RpcMethodSolverStrategy
 {
     /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var iterable<RpcMethodSolverInterface>
-     */
-    private $rpcMethodSolvers;
-
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var RpcValidator
-     */
-    private $rpcValidator;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param iterable<RpcMethodSolverInterface> $rpcMethodSolvers
      */
-    public function __construct(
-        iterable $rpcMethodSolvers,
-        CurrentProcedureService $currentProcedureService,
-        LoggerInterface $logger,
-        RpcErrorGenerator $errorGenerator,
-        RpcValidator $rpcValidator
-    ) {
-        $this->currentProcedureService = $currentProcedureService;
-        $this->rpcMethodSolvers = $rpcMethodSolvers;
-        $this->errorGenerator = $errorGenerator;
-        $this->rpcValidator = $rpcValidator;
-        $this->logger = $logger;
+    public function __construct(private readonly iterable $rpcMethodSolvers, private readonly CurrentProcedureService $currentProcedureService, private readonly LoggerInterface $logger, private readonly RpcErrorGenerator $errorGenerator, private readonly RpcValidator $rpcValidator)
+    {
     }
 
     /**
@@ -139,7 +105,7 @@ class RpcMethodSolverStrategy
         array $transactionalMethods,
         RpcMethodSolverInterface $methodSolver
     ): array {
-        $solverClass = get_class($methodSolver);
+        $solverClass = $methodSolver::class;
 
         if (isset($transactionalMethods[$solverClass])) {
             $transactionalMethods[$solverClass]['rpcRequests'][] = $rpcRequest;

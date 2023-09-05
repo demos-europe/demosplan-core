@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,6 +32,8 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
@@ -39,8 +41,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\BulkDeleteResult;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use InvalidArgumentException;
@@ -88,64 +88,30 @@ class AssessmentTableServiceStorage
      */
     protected $messageBag;
 
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var PrepareReportFromProcedureService
-     */
-    private $prepareReportFromProcedureService;
-    /**
-     * @var StatementAttachmentService
-     */
-    private $statementAttachmentService;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
     public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUser,
-        ElementsService $elementsService,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly ElementsService $elementsService,
         GlobalConfigInterface $config,
         IndexManager $indexManager,
         MailService $mailService,
         MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
-        PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        StatementAttachmentService $statementAttachmentService,
+        private readonly PermissionsInterface $permissions,
+        private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly StatementAttachmentService $statementAttachmentService,
         StatementHandler $statementHandler,
         StatementService $statementService,
         FileService $fileService,
         UserService $userService
     ) {
         $this->config = $config;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->elementsService = $elementsService;
         $this->mailService = $mailService;
         $this->messageBag = $messageBag;
-        $this->permissions = $permissions;
-        $this->prepareReportFromProcedureService = $prepareReportFromProcedureService;
         $this->statementHandler = $statementHandler;
         $this->statementService = $statementService;
         $this->userService = $userService;
-        $this->statementAttachmentService = $statementAttachmentService;
         $this->fileService = $fileService;
         $this->setElasticsearchIndexManager($indexManager);
-        $this->currentUser = $currentUser;
     }
 
     protected function getMessageBag(): MessageBagInterface
@@ -276,7 +242,7 @@ class AssessmentTableServiceStorage
             $statementArray['paragraphId'] = '';
         }
 
-        if (array_key_exists('element_new', $rParams['request']) && 0 < strlen($rParams['request']['element_new'])) {
+        if (array_key_exists('element_new', $rParams['request']) && 0 < strlen((string) $rParams['request']['element_new'])) {
             $statementArray['elementId'] = $rParams['request']['element_new'];
 
             $statementArray = $this->updateFieldInStatementArray(
@@ -343,7 +309,7 @@ class AssessmentTableServiceStorage
         if (array_key_exists('clusterName', $rParams['request'])) {
             $statementArray['name'] = $rParams['request']['clusterName'];
             $maxLength = 200;
-            $actualLength = strlen($statementArray['name']);
+            $actualLength = strlen((string) $statementArray['name']);
             if ($maxLength < $actualLength) {
                 throw StatementNameTooLongException::create($actualLength, $maxLength);
             }
@@ -369,7 +335,7 @@ class AssessmentTableServiceStorage
         try {
             $statementArray = $this->validateStatementData($statementArray);
             $updatedStatement = $statementService->updateStatement($statementArray, false, $ignoreCluster);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->getMessageBag()->add('error', 'error.statement.update');
 
             return;
@@ -548,9 +514,7 @@ class AssessmentTableServiceStorage
                 }
             )
             ->filter(
-                static function ($item) {
-                    return 0 < count($item);
-                }
+                static fn ($item) => 0 < (is_countable($item) ? count($item) : 0)
             )
             ->flatten()
             ->unique();
@@ -646,13 +610,13 @@ class AssessmentTableServiceStorage
 
             // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
             $syntaxEmailErrors = [];
-            if (array_key_exists('send_emailCC', $rParams['request']) && 0 !== strlen($rParams['request']['send_emailCC'])) {
+            if (array_key_exists('send_emailCC', $rParams['request']) && 0 !== strlen((string) $rParams['request']['send_emailCC'])) {
                 // zerlege den string in die einzelnen E-Mail-Adressen
-                $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $rParams['request']['send_emailCC']);
+                $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $rParams['request']['send_emailCC']);
                 // überprüfe jede dieser mails
                 foreach ($mailsCC as $mail) {
                     // lösche alle Freizeichen am Anfang und Ende
-                    $mailForCc = trim($mail);
+                    $mailForCc = trim((string) $mail);
                     // Überprüfe, ob die E-Mail-Adresse korrekt ist
                     if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
                         // wenn ja, gebe sie weiter
@@ -675,7 +639,7 @@ class AssessmentTableServiceStorage
             $from = $procedure->getAgencyMainEmailAddress();
 
             if (null !== $statement) {
-                $attachments = array_map([$this, 'createSendableAttachment'], $rParams['emailAttachments'] ?? []);
+                $attachments = array_map($this->createSendableAttachment(...), $rParams['emailAttachments'] ?? []);
                 $attachmentNames = array_column($attachments, 'name');
                 // Bürger Stellungnahmen
                 if (Statement::EXTERNAL === $statement->getPublicStatement()) {
@@ -792,7 +756,7 @@ class AssessmentTableServiceStorage
                                 $attachments
                             );
                             // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                            $emailcc = '';
+                            $emailcc = [];
                             // speicher ab, wann die Schlussmitteilung verschickt wurde
                             $this->statementService->setSentAssessment($statement->getId());
                             $this->prepareReportFromProcedureService->addReportFinalMail(
@@ -813,7 +777,7 @@ class AssessmentTableServiceStorage
             } else {
                 $error = true;
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->getMessageBag()->add('error', 'error.statement.final.send.noemail');
 
             return;
@@ -853,9 +817,9 @@ class AssessmentTableServiceStorage
                     ++$unsuccessful;
                 }
             }
-        } catch (CopyException $e) {
+        } catch (CopyException) {
             // do nothing, as Message is already set
-        } catch (Exception $e) {
+        } catch (Exception) {
             $error = true;
         }
 
@@ -944,7 +908,7 @@ class AssessmentTableServiceStorage
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $error = true;
         }
         $result = new BulkDeleteResult($successful, $unsuccessful, $notfound, $error);
@@ -1005,6 +969,7 @@ class AssessmentTableServiceStorage
      */
     private function prepareAction(array $rParams): array
     {
+        $prepareAction = [];
         $prepareAction['action'] = $rParams['request']['action'];
 
         if (array_key_exists('items', $rParams)) {

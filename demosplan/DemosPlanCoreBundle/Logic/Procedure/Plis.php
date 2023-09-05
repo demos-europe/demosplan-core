@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -40,33 +40,17 @@ class Plis
      */
     protected $twig;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
         GlobalConfigInterface $config,
         HttpCall $httpCall,
         Environment $twig,
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag,
-        TranslatorInterface $translator
+        private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly TranslatorInterface $translator
     ) {
         $this->httpCall = $httpCall;
         $this->plisUrl = $config->getLgvPlisBaseUrl();
         $this->twig = $twig;
-        $this->logger = $logger;
-        $this->messageBag = $messageBag;
-        $this->translator = $translator;
     }
 
     /**
@@ -82,7 +66,7 @@ class Plis
         $this->logger->info('Response from LGV getLgvPlisProcedureList', [$response]);
         // alle anderen Resposecodes außer 200 verwerfen
         // Prüfung, ob ein WFS-Fehler aufgetreten ist
-        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
+        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', (string) $response['body'])) {
             $procedureList = [];
             $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');
@@ -121,7 +105,7 @@ class Plis
         $this->logger->info('Response from LGV getPlisPlanningcause', [$response]);
         // alle anderen Resposecodes außer 200 verwerfen
         // Prüfung, ob ein WFS-Fehler aufgetreten ist
-        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
+        if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', (string) $response['body'])) {
             $procedure = [];
             $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,13 +23,9 @@ class HttpErrorController extends BaseController
     /**
      * Create custom 404 Response.
      *
-     * @Route(
-     *     path="notfound",
-     *     methods={"GET"},
-     *     name="core_404"
-     * )
      * @DplanPermissions("area_demosplan")
      */
+    #[Route(path: 'notfound', methods: ['GET'], name: 'core_404')]
     public function custom404Action(Request $request): Response
     {
         $content = '';
@@ -60,13 +56,9 @@ class HttpErrorController extends BaseController
     /**
      * Create custom 500 page.
      *
-     * @Route(
-     *     path="error",
-     *     methods={"GET"},
-     *     name="core_500"
-     * )
      * @DplanPermissions("area_demosplan")
      */
+    #[Route(path: 'error', methods: ['GET'], name: 'core_500')]
     public function custom500Action(TranslatorInterface $translator): Response
     {
         $content = 'Ein Fehler ist aufgetreten';

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,13 +20,16 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadElementsData extends TestFixture implements DependentFixtureInterface
 {
-    public const TEST_ELEMENT_1 = 'testElement1';
-    public const ELEMENT_CATEGORY_FILE = 'testFileElement';
-    public const TEST_ELEMENT_2 = 'testElement2';
+    final public const TEST_ELEMENT_1 = 'testElement1';
+    final public const ELEMENT_CATEGORY_FILE = 'testFileElement';
+    final public const TEST_ELEMENT_2 = 'testElement2';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $element1 = new Elements();
         $element1->setTitle('Title of elementfixture1');

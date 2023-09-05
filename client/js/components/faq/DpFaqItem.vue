@@ -15,35 +15,35 @@
  --><div class="layout__item u-4-of-12  u-pt-0_125">
       <dp-multiselect
         v-if="availableGroupOptions.length > 1"
-        track-by="id"
-        multiple
-        :options="availableGroupOptions"
         :allow-empty="false"
         :custom-label="option =>`${option.title}`"
         data-cy="selectedGroups"
+        multiple
+        :options="availableGroupOptions"
+        track-by="id"
         :value="selectedGroups"
         @input="selectGroups">
-        <template v-slot:option="{ option }">
-          <span>{{ option.title }}</span>
+        <template v-slot:option="{ props }">
+          <span>{{ props.option.title }}</span>
         </template>
-        <template v-slot:tag="props">
+        <template v-slot:tag="{ props }">
           <span class="multiselect__tag">
             {{ props.option.title }}
             <i
               aria-hidden="true"
-              @click="props.remove(props.option)"
+              class="multiselect__tag-icon"
               tabindex="1"
-              class="multiselect__tag-icon" />
+              @click="props.remove(props.option)" />
           </span>
         </template>
       </dp-multiselect>
     </div><!--
- --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+ --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
         v-model="itemEnabled"
         class="u-mt-0_125" />
     </div><!--
- --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+ --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <a
         class="btn--blank o-link--default u-mh-0_25"
         :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"

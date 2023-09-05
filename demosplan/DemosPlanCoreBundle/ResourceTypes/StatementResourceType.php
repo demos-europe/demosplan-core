@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,9 +29,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
 
 /**
@@ -54,39 +53,15 @@ use Elastica\Index;
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, StatementResourceTypeInterface
 {
-    /**
-     * @var QueryStatement
-     */
-    private $esQuery;
-
-    /**
-     * @var StatementResourceTypeService
-     */
-    private $statementResourceTypeService;
-
-    /**
-     * @var JsonApiEsService
-     */
-    private $jsonApiEsService;
-
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
     public function __construct(
         FileService $fileService,
         HTMLSanitizer $htmlSanitizer,
-        JsonApiEsService $jsonApiEsService,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        QueryStatement $queryStatement,
-        StatementResourceTypeService $statementResourceTypeService
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementResourceTypeService $statementResourceTypeService
     ) {
         parent::__construct($fileService, $htmlSanitizer);
-        $this->esQuery = $queryStatement;
-        $this->statementResourceTypeService = $statementResourceTypeService;
-        $this->jsonApiEsService = $jsonApiEsService;
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
     }
 
     public function getEntityClass(): string
@@ -99,9 +74,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return 'Statement';
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->buildAccessCondition($this);
+        return $this->buildAccessConditions($this);
     }
 
     /**
@@ -119,13 +94,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * prefixed with `statement`, as this is the name of the relationship from the
      * {@link StatementAttachmentResourceType} to the {@link StatementResourceType}.
      *
-     * @return FunctionInterface<bool>
+     * @return list<ClauseFunctionInterface<bool>>
      */
-    public function buildAccessCondition(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): FunctionInterface
+    public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $configuredProcedures = $procedure
@@ -158,7 +133,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $conditions[] = $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id);
         }
 
-        return $this->conditionFactory->allConditionsApply(...$conditions);
+        return $conditions;
     }
 
     public function updateObject(object $object, array $properties): ResourceChange
@@ -231,10 +206,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_statement_delete')) {
-            throw new InvalidArgumentException('Insufficient permissions');
-        }
-
         $success = $this->statementResourceTypeService->deleteStatement($entity);
         if (true !== $success) {
             throw new InvalidArgumentException('Deletion request could not be executed.');
@@ -244,6 +215,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $resourceChange->addEntityToDelete($entity);
 
         return $resourceChange;
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_statement_delete'];
     }
 
     /**
@@ -351,13 +327,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->hasAssessmentPermission()) {
             $properties[] = $this->createAttribute($this->documentParentId)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentParentId();
-                });
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
             $properties[] = $this->createAttribute($this->documentTitle)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentTitle();
-                });
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
             $properties[] = $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id);
             $properties[] = $this->createAttribute($this->elementTitle)
@@ -393,9 +365,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             'area_admin_submitters'
         )) {
             $properties[] = $this->createAttribute($this->isSubmittedByCitizen)
-                ->readable(false, static function (Statement $statement): bool {
-                    return $statement->isSubmittedByCitizen();
-                });
+                ->readable(false, static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
         }
 
         return $properties;

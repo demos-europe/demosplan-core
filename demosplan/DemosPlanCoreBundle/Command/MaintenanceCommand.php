@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -24,11 +24,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Geocoder\Query\ReverseQuery;
@@ -38,6 +38,7 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpClient\HttpClient;
@@ -116,50 +117,34 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      * @var BounceChecker
      */
     protected $bounceChecker;
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-    /**
-     * @var ElementsService
-     */
-    private $elementService;
-
-    /**
-     * @var NominatimFactory
-     */
-    private $nominatim;
 
     public function __construct(
         BounceChecker $bounceChecker,
-        ElementsService $elementService,
+        private readonly ElementsService $elementService,
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LocationService $locationService,
         LoggerInterface $dplanMaintenanceLogger,
         MailService $mailService,
-        NominatimFactory $nominatim,
+        private readonly NominatimFactory $nominatim,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
         ProcedureRepository $procedureRepository,
-        ProcedureService $procedureService,
+        private readonly ProcedureService $procedureService,
         StatementService $statementService,
         $name = null
     ) {
         parent::__construct($name);
 
         $this->bounceChecker = $bounceChecker;
-        $this->elementService = $elementService;
         $this->eventDispatcher = $eventDispatcher;
         $this->globalConfig = $globalConfig;
         $this->locationService = $locationService;
         $this->logger = $dplanMaintenanceLogger;
         $this->mailService = $mailService;
-        $this->nominatim = $nominatim;
         $this->permissions = $permissions;
         $this->procedureHandler = $procedureHandler;
         $this->procedureRepository = $procedureRepository;
-        $this->procedureService = $procedureService;
         $this->statementService = $statementService;
     }
 
@@ -201,11 +186,9 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /**
      * Execute will be called in a endless loop.
      *
-     * @return int|void|null
-     *
      * @throws ShutdownEndlessCommandException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Tell the user what we're going to do.
         // This will be silenced by Symfony if the user doesn't want any output at all,
@@ -249,7 +232,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         // Tell the user we're done
         $output->writeln('done');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

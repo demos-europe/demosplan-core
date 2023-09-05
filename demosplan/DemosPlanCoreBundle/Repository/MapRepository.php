@@ -3,16 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -23,9 +20,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 
-class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
+class MapRepository extends FluentRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
     /**
      * Get single GisLayer form DB by id.
@@ -302,7 +302,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gis->setOrder($data['mapOrder']);
         }
 
-        if (array_key_exists('categoryId', $data) && 36 === strlen($data['categoryId'])) {
+        if (array_key_exists('categoryId', $data) && 36 === strlen((string) $data['categoryId'])) {
             $gis->setCategory(
                 $this->getEntityManager()->getReference(GisLayerCategory::class, $data['categoryId'])
             );
@@ -478,7 +478,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
                 $idents = $gisLayerIds;
             }
 
-            $size = count($idents);
+            $size = is_countable($idents) ? count($idents) : 0;
             for ($i = 0; $i < $size; ++$i) {
                 $currentGis = $this->get($idents[$i]);
                 if (!is_null($currentGis)) {
@@ -539,10 +539,10 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gisLayer->setOrder($data['order']);
         }
         // ProcedureId kommt als "pId"
-        if (array_key_exists('pId', $data) && 36 === strlen($data['pId'])) {
+        if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $gisLayer->setProcedureId($data['pId']);
             // only if not global GisLayer:
-            if (array_key_exists('category', $data) && 36 === strlen($data['category'])) {
+            if (array_key_exists('category', $data) && 36 === strlen((string) $data['category'])) {
                 $gisLayer->setCategory($this->getEntityManager()->getReference(GisLayerCategory::class, $data['category']));
             } else {
                 // set rootCategory:
@@ -710,7 +710,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

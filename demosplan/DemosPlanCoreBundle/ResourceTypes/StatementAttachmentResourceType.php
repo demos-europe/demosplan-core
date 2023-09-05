@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -66,11 +66,11 @@ final class StatementAttachmentResourceType extends DplanResourceType implements
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         // The access to an attachment is allowed only if access to the corresponding
         // statement is granted.
-        return $this->statementResourceType->buildAccessCondition($this->statement, true);
+        return $this->statementResourceType->buildAccessConditions($this->statement, true);
     }
 
     protected function getProperties(): array

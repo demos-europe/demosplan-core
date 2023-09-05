@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -46,7 +47,7 @@ class ModifyUserCommand extends CoreCommand
         if ('' === trim($this->standardPassword)) {
             $output->writeln('Standard-password needs to be defined configuration');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         /** @var array<int, string> $organisationsIds */
@@ -54,22 +55,22 @@ class ModifyUserCommand extends CoreCommand
 
         try {
             $users = $this->resetPasswordOfUsersOfOrganisations($organisationsIds);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->writeln('Reset password for users of specific organisations failed.');
 
-            return 1;
+            return Command::FAILURE;
         }
         try {
             $this->resetPasswordOfUsersPerRole(3, $users);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $output->writeln('Reset password for users of each role failed.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $output->writeln('Updated users to login with');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
@@ -108,13 +109,9 @@ class ModifyUserCommand extends CoreCommand
         $allowedRoles = $this->parameterBag->get('roles_allowed');
 
         // avoid system-role:
-        $allowedRoles = collect($allowedRoles)->mapWithKeys(static function (string $roleName) {
-            return [$roleName => $roleName];
-        })->forget(Role::GUEST)->all();
+        $allowedRoles = collect($allowedRoles)->mapWithKeys(static fn (string $roleName) => [$roleName => $roleName])->forget(Role::GUEST)->all();
 
-        $usersIdsToExclude = collect($usersToExclude)->mapWithKeys(static function (User $item) {
-            return [$item->getId() => $item->getId()];
-        });
+        $usersIdsToExclude = collect($usersToExclude)->mapWithKeys(static fn (User $item) => [$item->getId() => $item->getId()]);
 
         // avoid system-user:
         $usersIdsToExclude->put(User::ANONYMOUS_USER_ID, User::ANONYMOUS_USER_ID);
@@ -123,20 +120,14 @@ class ModifyUserCommand extends CoreCommand
             $usersOfSpecificRole = collect($this->userService->getUsersOfRole($role));
 
             // undeleted only + mapping
-            $mappedUsers = $usersOfSpecificRole->filter(static function (User $user) {
-                return !$user->isDeleted();
-            })->mapWithKeys(static function (User $user) {
-                return [$user->getId() => $user];
-            });
+            $mappedUsers = $usersOfSpecificRole->filter(static fn (User $user) => !$user->isDeleted())->mapWithKeys(static fn (User $user) => [$user->getId() => $user]);
 
             // filter users to exclude
             $filteredUsers = $mappedUsers->except($usersIdsToExclude);
 
             // avoid exception in case of less users available than given $amountOfUsersPerRole
             if ($amountOfUsersPerRole < $filteredUsers->count()) {
-                $filteredUsers = $filteredUsers->random($amountOfUsersPerRole)->mapWithKeys(static function (User $user) {
-                    return [$user->getId() => $user];
-                });
+                $filteredUsers = $filteredUsers->random($amountOfUsersPerRole)->mapWithKeys(static fn (User $user) => [$user->getId() => $user]);
             }
 
             // set new password for filtered users
@@ -148,9 +139,7 @@ class ModifyUserCommand extends CoreCommand
             $changedUsers = $changedUsers->merge($updatedUsers);
 
             // exclude filtered + updated users in further execution to get a more distinct result
-            $updatedUserIds = $updatedUsers->mapWithKeys(static function (User $item) {
-                return [$item->getId() => $item->getId()];
-            });
+            $updatedUserIds = $updatedUsers->mapWithKeys(static fn (User $item) => [$item->getId() => $item->getId()]);
 
             // add filtered + updated users to list of users to exclude
             $usersIdsToExclude = $usersIdsToExclude->merge($updatedUserIds);

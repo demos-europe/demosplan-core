@@ -3,14 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\OptimisticLockException;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -18,10 +17,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class FileRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class FileRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Hole Infos zum File.
@@ -194,7 +194,7 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             // logging is already done in sub methods
 
             return false;
@@ -214,7 +214,7 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
         return $entity;
     }
 
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

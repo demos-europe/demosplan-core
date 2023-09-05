@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -122,7 +122,7 @@ class SimpleSpreadsheetService
         // T9490: decode because text was stored encoded in DB:
         foreach ($formattedData as $key => $dataSet) {
             if (array_key_exists('recommendation', $formattedData[$key])) {
-                $formattedData[$key]['recommendation'] = htmlspecialchars_decode($dataSet['recommendation']);
+                $formattedData[$key]['recommendation'] = htmlspecialchars_decode((string) $dataSet['recommendation']);
             }
         }
 

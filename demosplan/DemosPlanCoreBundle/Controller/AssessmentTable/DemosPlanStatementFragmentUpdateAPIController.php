@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,11 +36,6 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
     /**
      * Accepts a new statement-fragment-update resource.
      *
-     * @Route(path="/api/1.0/statement-fragment-update/",
-     *        methods={"POST"},
-     *        name="dplan_api_assessment_table_statement_fragment_update_create",
-     *        options={"expose": true})
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"})
      *
      * Action to update multiple Fragments.
@@ -50,6 +45,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      *
      * @throws Exception
      */
+    #[Route(path: '/api/1.0/statement-fragment-update/', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
     public function createAction(
         CurrentProcedureService $currentProcedureService,
         StatementFragmentService $statementFragmentService,

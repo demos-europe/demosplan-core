@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,15 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
@@ -40,48 +41,32 @@ class ProcedureExtension extends ExtensionBase
      * @var GlobalConfigInterface
      */
     protected $globalConfig;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
 
     public function __construct(
         ContainerInterface $container,
-        CurrentUserInterface $currentUser,
+        private readonly CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig,
+        private readonly LoggerInterface $logger,
         PermissionsInterface $permissions,
-        ProcedureService $procedureService,
-        TranslatorInterface $translator)
+        private readonly ProcedureService $procedureService,
+        private readonly TranslatorInterface $translator)
     {
         parent::__construct($container);
         $this->globalConfig = $globalConfig;
         $this->permissions = $permissions;
-        $this->procedureService = $procedureService;
-        $this->translator = $translator;
-        $this->currentUser = $currentUser;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('getProcedurePhase', [$this, 'getPhase']),
-            new TwigFunction('getProcedurePhaseKey', [$this, 'getPhaseKey']),
-            new TwigFunction('getProcedureStartDate', [$this, 'getStartDate']),
-            new TwigFunction('getProcedureEndDate', [$this, 'getEndDate']),
-            new TwigFunction('getProcedureName', [$this, 'getNameFunction']),
-            new TwigFunction('getProcedureDaysLeft', [$this, 'getDaysLeft']),
-            new TwigFunction('ownsProcedure', [$this, 'ownsProcedure']),
-            new TwigFunction('getProcedurePermissionset', [$this, 'getProcedurePermissionset']),
+            new TwigFunction('getProcedurePhase', $this->getPhase(...)),
+            new TwigFunction('getProcedurePhaseKey', $this->getPhaseKey(...)),
+            new TwigFunction('getProcedureStartDate', $this->getStartDate(...)),
+            new TwigFunction('getProcedureEndDate', $this->getEndDate(...)),
+            new TwigFunction('getProcedureName', $this->getNameFunction(...)),
+            new TwigFunction('getProcedureDaysLeft', $this->getDaysLeft(...)),
+            new TwigFunction('ownsProcedure', $this->ownsProcedure(...)),
+            new TwigFunction('getProcedurePermissionset', $this->getProcedurePermissionset(...)),
         ];
     }
 
@@ -99,7 +84,7 @@ class ProcedureExtension extends ExtensionBase
     {
         try {
             $procedure = $this->getProcedureObject($procedure);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return '';
         }
 
@@ -134,7 +119,7 @@ class ProcedureExtension extends ExtensionBase
     {
         try {
             $procedure = $this->getProcedureObject($procedureSomething);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return '';
         }
 
@@ -303,6 +288,8 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedure = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
+            $this->logger->error('Could not get procedure object', [$exception]);
+
             return '';
         }
 
@@ -326,7 +313,7 @@ class ProcedureExtension extends ExtensionBase
     {
         try {
             $procedure = $this->getProcedureObject($procedureArray);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return '';
         }
 
@@ -455,7 +442,7 @@ class ProcedureExtension extends ExtensionBase
     {
         try {
             $procedure = $this->getProcedureObject($procedureSomething);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
         if (!$this->currentUser->getUser() instanceof User) {

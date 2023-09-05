@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,14 +17,8 @@ use Exception;
 
 class MunicipalityService extends CoreService
 {
-    /**
-     * @var MunicipalityRepository
-     */
-    private $municipalityRepository;
-
-    public function __construct(MunicipalityRepository $municipalityRepository)
+    public function __construct(private readonly MunicipalityRepository $municipalityRepository)
     {
-        $this->municipalityRepository = $municipalityRepository;
     }
 
     /**
@@ -36,7 +30,7 @@ class MunicipalityService extends CoreService
     {
         try {
             return $this->municipalityRepository->getAll();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -51,9 +45,7 @@ class MunicipalityService extends CoreService
         $municipalities = $this->getAllMunicipalities();
 
         return \collect($municipalities)->map(
-            function (Municipality $municipality) {
-                return ['id' => $municipality->getId(), 'name' => $municipality->getName()];
-            }
+            fn(Municipality $municipality) => ['id' => $municipality->getId(), 'name' => $municipality->getName()]
         )
             ->sortBy('name')
             ->values()

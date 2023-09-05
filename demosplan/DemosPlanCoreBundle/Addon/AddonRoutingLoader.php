@@ -3,16 +3,16 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use ReflectionClass;
 use ReflectionMethod;
-use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
@@ -22,10 +22,8 @@ use Symfony\Component\Routing\RouteCollection;
 
 class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoaderInterface
 {
-    private const PATH_TO_CONTROLLERS_FROM_ADDONROOT = '/src/Controller';
-
     public function __construct(
-        private AddonRegistry $addonRegistry,
+        private readonly AddonRegistry $addonRegistry,
         FileLocatorInterface $locator,
         AnnotationClassLoader $loader
     ) {
@@ -36,7 +34,9 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     {
         $routeCollection = new RouteCollection();
         foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
-            $this->addControllers($addonInfo, $routeCollection);
+            if ($addonInfo->isEnabled()) {
+                $this->addControllers($addonInfo, $routeCollection);
+            }
         }
 
         return $routeCollection;
@@ -56,10 +56,18 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
      */
     private function addControllers(mixed $addonInfo, RouteCollection $routeCollection): void
     {
-        $controllerDir = $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT;
-        $controllerPath = AddonPath::getRootPath($controllerDir);
-        if ('' !== $addonInfo->getInstallPath() && is_dir($controllerPath)) {
-            $routeCollection->addCollection($this->load($controllerPath));
+        // Without any installPath, we can't register any routes, so we can skip this step
+        if ('' === $addonInfo->getInstallPath()) {
+            return;
+        }
+
+        $controllerPaths = $addonInfo->getControllerPaths();
+        foreach ($controllerPaths as $relativeControllerPath) {
+            $controllerDir = $addonInfo->getInstallPath().$relativeControllerPath;
+            $absoluteControllerPath = AddonPath::getRootPath($controllerDir);
+            if (is_dir($absoluteControllerPath)) {
+                $routeCollection->addCollection($this->load($absoluteControllerPath));
+            }
         }
     }
 }

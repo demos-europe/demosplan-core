@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,19 +19,8 @@ use Exception;
 
 class CountyService extends CoreService
 {
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
-    /**
-     * @var CountyRepository
-     */
-    private $countyRepository;
-
-    public function __construct(CountyRepository $countyRepository, CustomerService $customerService)
+    public function __construct(private readonly CountyRepository $countyRepository, private readonly CustomerService $customerService)
     {
-        $this->countyRepository = $countyRepository;
-        $this->customerService = $customerService;
     }
 
     /**
@@ -72,9 +61,7 @@ class CountyService extends CoreService
         $counties = $this->getAllCounties();
 
         return \collect($counties)->map(
-            function (County $county) {
-                return ['id' => $county->getId(), 'name' => $county->getName()];
-            }
+            fn(County $county) => ['id' => $county->getId(), 'name' => $county->getName()]
         )
             ->sortBy('name')
             ->values()

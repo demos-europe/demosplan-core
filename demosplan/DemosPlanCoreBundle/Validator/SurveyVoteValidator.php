@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,23 +21,8 @@ use JsonSchema\Exception\InvalidSchemaException;
 
 class SurveyVoteValidator
 {
-    /** @var JsonSchemaValidator */
-    private $jsonSchemaValidator;
-
-    /** @var SurveyVoteHandler */
-    private $surveyVoteHandler;
-
-    /** @var string */
-    private $schemaFilePath;
-
-    public function __construct(
-        JsonSchemaValidator $jsonSchemaValidator,
-        SurveyVoteHandler $surveyVoteHandler,
-        string $schemaFilePath
-    ) {
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
-        $this->surveyVoteHandler = $surveyVoteHandler;
-        $this->schemaFilePath = $schemaFilePath;
+    public function __construct(private readonly JsonSchemaValidator $jsonSchemaValidator, private readonly SurveyVoteHandler $surveyVoteHandler, private readonly string $schemaFilePath)
+    {
     }
 
     /**

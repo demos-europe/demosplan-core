@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -40,32 +40,15 @@ class GdprConsentRevokeTokenService extends CoreService
     /** @var PermissionsInterface */
     protected $permissions;
 
-    /**
-     * @var StatementAnonymizeService
-     */
-    private $statementAnonymizeService;
-
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
-    /**
-     * @var GdprConsentRevokeTokenRepository
-     */
-    private $gdprConsentRevokeTokenRepository;
-
     public function __construct(
         EmailAddressService $emailAddressService,
-        GdprConsentRevokeTokenRepository $gdprConsentRevokeTokenRepository,
+        private readonly GdprConsentRevokeTokenRepository $gdprConsentRevokeTokenRepository,
         PermissionsInterface $permissions,
-        StatementAnonymizeService $statementAnonymizeService,
-        TokenFactory $tokenFactory
+        private readonly StatementAnonymizeService $statementAnonymizeService,
+        private readonly TokenFactory $tokenFactory
     ) {
         $this->emailAddressService = $emailAddressService;
-        $this->gdprConsentRevokeTokenRepository = $gdprConsentRevokeTokenRepository;
         $this->permissions = $permissions;
-        $this->statementAnonymizeService = $statementAnonymizeService;
-        $this->tokenFactory = $tokenFactory;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,20 +26,12 @@ class AdministrateParagraphElementEvent extends DPlanEvent
     protected $request;
 
     /**
-     * @var string
+     * @param string $procedureId
+     * @param string $elementId
      */
-    protected $procedureId;
-
-    /**
-     * @var string
-     */
-    protected $elementId;
-
-    public function __construct(Request $request, $procedureId, $elementId)
+    public function __construct(Request $request, protected $procedureId, protected $elementId)
     {
         $this->request = $request;
-        $this->procedureId = $procedureId;
-        $this->elementId = $elementId;
     }
 
     /**

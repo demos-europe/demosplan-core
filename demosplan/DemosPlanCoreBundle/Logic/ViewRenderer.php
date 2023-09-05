@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,45 +34,8 @@ use Throwable;
 
 class ViewRenderer
 {
-    /**
-     * @var DefaultTwigVariablesService
-     */
-    private $defaultTwigVariablesService;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-    /**
-     * @var TraceableEventDispatcher
-     */
-    private $traceableEventDispatcher;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        DefaultTwigVariablesService $defaultTwigVariablesService,
-        MessageBagInterface $messageBag,
-        RequestStack $requestStack,
-        TraceableEventDispatcher $traceableEventDispatcher,
-        RouterInterface $router,
-        LoggerInterface $logger
-    ) {
-        $this->defaultTwigVariablesService = $defaultTwigVariablesService;
-        $this->messageBag = $messageBag;
-        $this->requestStack = $requestStack;
-        $this->traceableEventDispatcher = $traceableEventDispatcher;
-        $this->router = $router;
-        $this->logger = $logger;
+    public function __construct(private readonly DefaultTwigVariablesService $defaultTwigVariablesService, private readonly MessageBagInterface $messageBag, private readonly RequestStack $requestStack, private readonly TraceableEventDispatcher $traceableEventDispatcher, private readonly RouterInterface $router, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
@@ -236,7 +200,7 @@ class ViewRenderer
 
         if ($setRedirectLoggedInRouteCookie) {
             // save current route in cookie for later redirecting
-            $redirect->headers->setCookie(new PreviousRouteCookie($request));
+            $redirect->headers->setCookie(PreviousRouteCookie::create($request));
         }
 
         return $redirect;

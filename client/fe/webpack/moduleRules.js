@@ -6,7 +6,6 @@
  *
  * All rights reserved
  */
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
@@ -59,6 +58,7 @@ const postCssPlugins = [
     },
     ignoreFiles: [/.+style\.scss/]
   }),
+  require('tailwindcss'),
   require('postcss-flexbugs-fixes'),
   /*
    * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be
@@ -96,13 +96,6 @@ if (config.cssPurge.enabled) {
 const moduleRules =
   [
     {
-      test: /\.css$/,
-      use: [
-        MiniCssExtractPlugin.loader,
-        'vue-loader'
-      ]
-    },
-    {
       test: /\.vue$/,
       loader: 'vue-loader'
     },
@@ -127,39 +120,40 @@ const moduleRules =
     {
       test: /\.s?css$/,
       use: [
-        {
-          loader: 'vue-style-loader'
-        },
-        {
-          loader: MiniCssExtractPlugin.loader,
-          // Output path is declared in the plugin due to weird webpack path declarations
-          options: {
-            /*
-             * You can specify a publicPath here
-             * by default it uses publicPath in webpackOptions.output
-             */
-            esModule: false,
-            publicPath: '../../css/'
-          }
-        },
+        MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
+            /*
+             * "importLoaders: 1" gets postcss-loader to also process css imports.
+             * @see https://webpack.js.org/loaders/css-loader/#importloaders
+             * However when omitting the .css extension from the @imported css files,
+             * sass-loader will treat the import like a scss file, inlining it
+             * instead of leaving the css @import unprocessed as a native import.
+             * @see https://github.com/webpack-contrib/sass-loader/issues/101#issuecomment-128684387
+             */
+            importLoaders: config.isProduction === true ? 1 : 0,
+            sourceMap: false,
             url: false
           }
         },
         {
           loader: 'postcss-loader',
           options: {
-            postcssOptions: {
-              plugins: postCssPlugins
-            }
+            postcssOptions: (loaderContext) => {
+              // Do not pass 3rd party css through postCss in dev mode to gain some speed
+              const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
+              return {
+                plugins: skipPostCss ? [] : postCssPlugins
+              }
+            },
+            sourceMap: false
           }
         },
         {
           loader: 'sass-loader',
           options: {
-            implementation: require('sass'),
+            implementation: require('sass-embedded'),
             additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
             sassOptions: {
               includePaths: [

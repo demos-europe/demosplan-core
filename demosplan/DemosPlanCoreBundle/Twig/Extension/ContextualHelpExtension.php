@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,7 +25,7 @@ class ContextualHelpExtension extends ExtensionBase
         return [
             new TwigFunction(
                 'contextualHelp',
-                [$this, 'contextualHelp'], ['is_safe' => ['html']]
+                $this->contextualHelp(...), ['is_safe' => ['html']]
             ),
         ];
     }
@@ -53,7 +53,7 @@ class ContextualHelpExtension extends ExtensionBase
                     compact('helpText', 'cssClasses')
                 );
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         return $content;

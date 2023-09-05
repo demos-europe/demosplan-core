@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,27 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use InvalidArgumentException;
 
 class ElasticSearchDefinitionProvider
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        GlobalConfigInterface $globalConfig
-    ) {
-        $this->currentUser = $currentUser;
-        $this->globalConfig = $globalConfig;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly GlobalConfigInterface $globalConfig)
+    {
     }
 
     /**

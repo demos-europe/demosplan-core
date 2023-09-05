@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,7 +26,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class MasterToebRepository extends CoreRepository implements ArrayInterface
+class MasterToebRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get a list of all mastertoeb entries from the DB, ordered be the name of the organisation (nulls last).

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -57,9 +57,9 @@ final class SurveyVoteResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     protected function getProperties(): array
@@ -74,17 +74,11 @@ final class SurveyVoteResourceType extends DplanResourceType
             $this->createAttribute($this->textReview)
                 ->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->createdDate)
-                ->readable(true, function (SurveyVote $surveyVote): string {
-                    return $this->formatDate($surveyVote->getCreatedDate());
-                }),
+                ->readable(true, fn(SurveyVote $surveyVote): string => $this->formatDate($surveyVote->getCreatedDate())),
             $this->createAttribute($this->hasText)
-                ->readable(true, static function (SurveyVote $surveyVote): bool {
-                    return $surveyVote->hasText();
-                }),
+                ->readable(true, static fn(SurveyVote $surveyVote): bool => $surveyVote->hasText()),
             $this->createAttribute($this->hasApprovedText)
-                ->readable(true, static function (SurveyVote $surveyVote): bool {
-                    return $surveyVote->hasApprovedText();
-                }),
+                ->readable(true, static fn(SurveyVote $surveyVote): bool => $surveyVote->hasApprovedText()),
             $this->createAttribute($this->getTextReviewAllowedValues)
                 ->readable(true, [SurveyVote::class, 'getTextReviewAllowedValues']),
             $this->createToOneRelationship($this->user)->readable()->filterable()->sortable(),

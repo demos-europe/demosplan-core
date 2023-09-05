@@ -15,7 +15,7 @@
                 </label>
                 <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
                     <li>
-                        <label class="cursor--pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
+                        <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
                             <input
                                 type="radio"
                                 name="r_type"
@@ -29,7 +29,7 @@
 
                     </li>
                     <li>
-                        <label class="cursor--pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
+                        <label class="cursor-pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
                             <input
                                 type="radio"
                                 name="r_type"
@@ -40,10 +40,10 @@
                             >
                             {{ "overlay"|trans }}
                         </label>
-                        <ul class="list-style-none u-pl">
+                        <ul class="u-pl">
                             {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
                                 <li>
-                                    <label class="cursor--pointer u-mb-0_25" title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
+                                    <label class="cursor-pointer u-mb-0_25" title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
                                         <input
                                             type="checkbox"
                                             id="bPlan"
@@ -58,7 +58,7 @@
                                     </label>
                                 </li>
                                 <li>
-                                    <label class="cursor--pointer u-mb-0_25" title="Geltungsbereich zeigt nur in der Beteiligungsebene die Umrandung des Plans über der Grundkarte an.">
+                                    <label class="cursor-pointer u-mb-0_25" title="Geltungsbereich zeigt nur in der Beteiligungsebene die Umrandung des Plans über der Grundkarte an.">
                                         <input
                                             type="checkbox"
                                             id="scope"
@@ -78,7 +78,7 @@
                 </ul>
                 {% if hasPermission('feature_xplan_defaultlayers') %}
                     <label
-                        class="layout__item u-1-of-5 cursor--pointer"
+                        class="layout__item u-1-of-5 cursor-pointer"
                         title="Mit XPlan können Sie einen XPlanlayer anlegen.">
                         <input
                             type="checkbox"
@@ -184,7 +184,7 @@
             {{ "explanation.gislayer.enabled"|trans }}
         </label>
 
-        <div class="text--right u-mt-0_5 space-inline-s">
+        <div class="text-right u-mt-0_5 space-inline-s">
             <input
                 class="btn btn--primary"
                 type="submit"

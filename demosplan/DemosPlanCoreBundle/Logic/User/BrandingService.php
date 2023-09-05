@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,20 +15,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaBranding;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 
 class BrandingService extends CoreService
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    public function __construct(ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
     }
 
     /**

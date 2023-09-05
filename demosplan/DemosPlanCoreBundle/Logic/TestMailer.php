@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -41,18 +41,12 @@ class TestMailer implements MailerInterface
      */
     protected $emailTestTo;
 
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
-
-    public function __construct(GlobalConfigInterface $config, MailerInterface $mailer)
+    public function __construct(GlobalConfigInterface $config, private readonly MailerInterface $mailer)
     {
         $this->emailIsLiveSystem = $config->isEmailIsLiveSystem();
         $this->emailSystem = $config->getEmailSystem();
         $this->emailTestFrom = $config->getEmailTestFrom();
         $this->emailTestTo = $config->getEmailTestTo();
-        $this->mailer = $mailer;
     }
 
     public function send(RawMessage $message, Envelope $envelope = null): void
@@ -108,8 +102,6 @@ EOT;
      */
     private function getStringFromAddresses(array $address): string
     {
-        return implode(',', collect($address)->transform(static function (Address $address) {
-            return $address->toString();
-        })->toArray());
+        return implode(',', collect($address)->transform(static fn(Address $address) => $address->toString())->toArray());
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -45,70 +45,27 @@ use function array_key_exists;
 class EntityContentChangeService extends CoreService
 {
     /**
-     * @var EntityContentChangeRepository
-     */
-    private $entityContentChangeRepository;
-
-    /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
      *
      * @var array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|null
      */
-    protected ?array $fieldMapping;
-
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    protected ?array $fieldMapping = null;
 
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    /** @var TranslatorInterface */
-    private $translator;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var RepositoryHelper
-     */
-    private $repositoryHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        EntityContentChangeRepository $entityContentChangeRepository,
-        EntityHelper $entityHelper,
-        Environment $twig,
-        GlobalConfigInterface $globalConfig,
-        MailService $mailService,
-        RepositoryHelper $repositoryHelper,
-        RouterInterface $router,
+        private readonly EntityContentChangeRepository $entityContentChangeRepository,
+        private readonly EntityHelper $entityHelper,
+        private readonly Environment $twig,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MailService $mailService,
+        private readonly RepositoryHelper $repositoryHelper,
+        private readonly RouterInterface $router,
         TokenStorageInterface $tokenStorage,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
-        $this->entityContentChangeRepository = $entityContentChangeRepository;
-        $this->entityHelper = $entityHelper;
-        $this->globalConfig = $globalConfig;
-        $this->mailService = $mailService;
-        $this->repositoryHelper = $repositoryHelper;
-        $this->router = $router;
         $this->tokenStorage = $tokenStorage;
-        $this->translator = $translator;
-        $this->twig = $twig;
     }
 
     /**
@@ -208,9 +165,7 @@ class EntityContentChangeService extends CoreService
      */
     protected function mapToIds($coreEntities): \Tightenco\Collect\Support\Collection
     {
-        return collect($coreEntities)->map(function (CoreEntity $item) {
-            return $item->getId();
-        });
+        return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getId());
     }
 
     /**
@@ -218,9 +173,7 @@ class EntityContentChangeService extends CoreService
      */
     protected function mapToContentChangeIdentifiers($coreEntities): \Tightenco\Collect\Support\Collection
     {
-        return collect($coreEntities)->map(function (CoreEntity $item) {
-            return $item->getEntityContentChangeIdentifier();
-        })->sort();
+        return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getEntityContentChangeIdentifier())->sort();
     }
 
     /**
@@ -326,12 +279,12 @@ class EntityContentChangeService extends CoreService
             }
 
             // ensure defined values:
-            $preUpdateValue = $preUpdateValue ?? '';
-            $postUpdateValue = $postUpdateValue ?? '';
-            $preUpdateIdentifier = $preUpdateIdentifier ?? $preUpdateValue;
-            $postUpdateIdentifier = $postUpdateIdentifier ?? $postUpdateValue;
-            $preUpdateIdentifiers = $preUpdateIdentifiers ?? $preUpdateValue;
-            $postUpdateIdentifiers = $postUpdateIdentifiers ?? $postUpdateValue;
+            $preUpdateValue ??= '';
+            $postUpdateValue ??= '';
+            $preUpdateIdentifier ??= $preUpdateValue;
+            $postUpdateIdentifier ??= $postUpdateValue;
+            $preUpdateIdentifiers ??= $preUpdateValue;
+            $postUpdateIdentifiers ??= $postUpdateValue;
 
             // use IDs to determine change, instead of using identifier because identifier may not be unique
             if ($preUpdateValue !== $postUpdateValue) {
@@ -392,6 +345,7 @@ class EntityContentChangeService extends CoreService
      */
     public function getUnifiedDiffOfTwoStrings($oldString, $newString, string $fieldName, string $entityType)
     {
+        $options = [];
         $options['differOptions']['context'] = 0;
 
         return $this->generateActualDiff($oldString, $newString, $fieldName, $entityType, $options);
@@ -504,7 +458,7 @@ class EntityContentChangeService extends CoreService
             $prefix = $this->getMappingValue($fieldName, $entityType, 'translationPrefix') ?: '';
 
             // merge with prefix
-            if ('' !== $prefix && false === strpos($content, $prefix)) {
+            if ('' !== $prefix && !str_contains($content, $prefix)) {
                 // add prefix, but only once
                 $completeContent = $prefix.$content;
             } else {
@@ -569,6 +523,7 @@ class EntityContentChangeService extends CoreService
      */
     public function generateActualDiff($stringOld, $stringNew, string $fieldName, string $entityType, array $options, bool $isDiffCreatedForDisplay = false)
     {
+        $optionsDefault = [];
         $stringNewArray = $this->prepareInputForDiffing($stringNew, $fieldName, $entityType, $isDiffCreatedForDisplay);
         $stringOldArray = $this->prepareInputForDiffing($stringOld, $fieldName, $entityType, $isDiffCreatedForDisplay);
         $stringNew = $stringNewArray['content'];
@@ -677,7 +632,7 @@ class EntityContentChangeService extends CoreService
             $string = str_replace($delimiter, $lineBreak.$delimiter, $string);
         }
         // undo potential line insert at beginning of string
-        if (0 === strpos($string, $lineBreak)) {
+        if (str_starts_with($string, $lineBreak)) {
             $string = substr($string, strlen($lineBreak));
         }
 
@@ -731,6 +686,7 @@ class EntityContentChangeService extends CoreService
      */
     public function convertArraysAndAddVersion(CoreEntity $updatedObject, array $preUpdateAssociatedEntities, string $fieldName)
     {
+        $changes = [];
         $methodName = $this->getGetterMethodName($updatedObject, $fieldName);
         $postUpdateAssociatedEntities = $updatedObject->$methodName()->toArray();
 
@@ -948,6 +904,7 @@ class EntityContentChangeService extends CoreService
 
     private function sendUserAssignedTasksNotificationMail(array $mailData, User $user, int $mailCounter): int
     {
+        $mail = [];
         // do not generate mail if user does not want it
         if (!$this->doesUserWantNotification($user)) {
             return $mailCounter;
@@ -979,7 +936,7 @@ class EntityContentChangeService extends CoreService
             );
 
             return ++$mailCounter;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $this->logger->error('Assigned tasks notification mail could not be send.', [$user]);
 
             return $mailCounter;

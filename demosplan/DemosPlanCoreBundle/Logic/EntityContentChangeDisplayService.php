@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -40,26 +40,16 @@ class EntityContentChangeDisplayService extends CoreService
      * @var Environment
      */
     protected $twig;
-    /**
-     * @var RepositoryHelper
-     */
-    private $repositoryHelper;
-    /**
-     * @var EntityContentChangeRepository
-     */
-    private $entityContentChangeRepository;
 
     public function __construct(
         EntityContentChangeRollbackVersionService $entityContentChangeRollbackVersionService,
         EntityContentChangeService $entityContentChangeService,
-        EntityContentChangeRepository $entityContentChangeRepository,
+        private readonly EntityContentChangeRepository $entityContentChangeRepository,
         Environment $twig,
-        RepositoryHelper $repositoryHelper
+        private readonly RepositoryHelper $repositoryHelper
     ) {
-        $this->entityContentChangeRepository = $entityContentChangeRepository;
         $this->entityContentChangeRollbackVersionService = $entityContentChangeRollbackVersionService;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->repositoryHelper = $repositoryHelper;
         $this->twig = $twig;
     }
 
@@ -186,6 +176,7 @@ class EntityContentChangeDisplayService extends CoreService
      */
     public function generateHtmlFormattedDiffComparisonOfTwoStrings(string $old, string $new, string $fieldName, string $entityType)
     {
+        $options = [];
         $service = $this->getEntityContentChangeService();
         $options['differOptions']['context'] = 2;
         // if it's a field that can't be incrementally changed, then don't diff single words, otherwise do that (default)
@@ -214,17 +205,13 @@ class EntityContentChangeDisplayService extends CoreService
         );
 
         // decode html in array
-        $array = array_map(static function ($change) {
-            return array_map(static function ($changeStep) {
-                foreach (['new', 'old'] as $changeStatus) {
-                    $changeStep[$changeStatus]['lines'] = array_map(static function ($line) {
-                        return html_entity_decode($line);
-                    }, $changeStep[$changeStatus]['lines']);
-                }
+        $array = array_map(static fn ($change) => array_map(static function ($changeStep) {
+            foreach (['new', 'old'] as $changeStatus) {
+                $changeStep[$changeStatus]['lines'] = array_map(static fn ($line) => html_entity_decode($line), $changeStep[$changeStatus]['lines']);
+            }
 
-                return $changeStep;
-            }, $change);
-        }, Json::decodeToArray($jsonString));
+            return $changeStep;
+        }, $change), Json::decodeToArray($jsonString));
 
         // improve: T12882
 

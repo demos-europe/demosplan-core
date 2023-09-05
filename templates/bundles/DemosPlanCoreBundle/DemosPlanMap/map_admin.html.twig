@@ -14,7 +14,7 @@
     <dp-map-admin
         inline-template
         :selected-scales="JSON.parse('{{ selectedScales|json_encode|e('js', 'utf-8') }}')">
-        <form class="layout u-pt cf" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
+        <form class="layout u-pt flow-root" action="{{ path('DemosPlan_map_administration_map',{'procedureId':procedure}) }}" method="post" name="configForm">
             <input type="hidden" name="action" value="mapglobals">
 
             {# Select available scales for procedure #}
@@ -23,22 +23,21 @@
             </label><!--
          --><div class="layout__item u-3-of-4 u-pl-0 u-mb">
                 <dp-multiselect
+                    v-model="scales"
+                    label="label"
                     multiple
                     :options="JSON.parse('{{ availableScales|json_encode|e('js', 'utf-8') }}')"
-                    v-model="scales"
-                    @input="sortSelected('scales')"
-                    label="label"
                     track-by="value"
-                >
-                    <template v-slot:option="props">
+                    @input="sortSelected('scales')">
+                    <template v-slot:option="{ props }">
                         {% verbatim %}{{ props.option.label }}{% endverbatim %}
                     </template>
-                    <template v-slot:tag="props">
-                                <span class="multiselect__tag">
-                                    {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
-                                    <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                    <input type="hidden" :value="props.option.value" name="r_scales[]"/>
-                                </span>
+                    <template v-slot:tag="{ props }">
+                        <span class="multiselect__tag">
+                            {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
+                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.value" name="r_scales[]"/>
+                        </span>
                     </template>
                 </dp-multiselect>
                 <p class="lbl__hint u-mt-0_25">{{ 'map.scales.select.hint'|trans }}</p>
@@ -50,7 +49,7 @@
                 {{ "boundingbox"|trans }}
             </label><!--
          --><p
-                class="display--inline-block u-3-of-4"
+                class="inline-block u-3-of-4"
                 data-cy="boundingBox"
                 data-coordinates="bbox_of_project_epsg25832">
                 {% if mapOptions.procedureMaxExtent == mapOptions.procedureDefaultMaxExtent %}
@@ -72,7 +71,7 @@
                 {{ 'clipping'|trans }}
             </label><!--
          --><p
-                class="display--inline-block u-3-of-4"
+                class="inline-block u-3-of-4"
                 data-cy="mapExtend"
                 data-coordinates="mapExtend_of_project_epsg25832">
                 {% if mapOptions.procedureInitialExtent == mapOptions.procedureDefaultInitialExtent %}
@@ -111,19 +110,24 @@
             <label
                 class="layout__item u-1-of-4"
                 for="r_copyright">
-                {{ 'copyright.source'|trans }}
+                {{ 'map.attribution'|trans }}
             </label><!--
-         --><input
-                name="r_copyright"
-                type="text"
-                id="r_copyright"
-                class="o-form__control-input layout__item u-3-of-4"
-                value="{{ mapglobals.copyright }}">
+         --><div class="layout__item u-3-of-4 u-pl-0">
+                <input
+                    name="r_copyright"
+                    type="text"
+                    id="r_copyright"
+                    class="o-form__control-input width-100p"
+                    value="{{ mapglobals.copyright }}">
+                <p class="lbl__hint">
+                    {{ 'map.attribution.placeholder'|trans|wysiwyg('strong') }}
+                </p>
+            </div>
 
             {% if hasPermission('feature_layer_groups_alternate_visibility') %}
                 {# Activate feature to show only layers from one category simultaneously #}
-                <div class="u-1-of-4 display--inline-block"></div>
-                <label for="r_enable_layer_groups_alternate_visibility" class="display--inline-block">
+                <div class="u-1-of-4 inline-block"></div>
+                <label for="r_enable_layer_groups_alternate_visibility" class="inline-block">
                     <input
                         id="r_enable_layer_groups_alternate_visibility"
                         type="checkbox"
@@ -133,11 +137,10 @@
                     >
                     {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility'|trans }}
                 </label>
-                <div class="o-tooltip o-tooltip--question-circle display--inline-block">
-                    <div class="o-tooltip__content" aria-hidden="true">
-                        {{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}
-                    </div>
-                </div>
+                <dp-tooltip-icon
+                    icon="fa-question-circle"
+                    text="{{ 'explanation.gislayer.layergroup.toggle.alternating.visibility.extended'|trans }}">
+                </dp-tooltip-icon>
             {% endif %}
 
 
@@ -151,6 +154,7 @@
 
                 <div>
                     <dp-map-view
+                        default-attribution="{{ mapglobals.copyright }}"
                         procedure-id="{{ procedure }}"
                         procedure-coordinates="{{ templateVars.mapglobals.procedure.settings.coordinate }}"
                         procedure-territory="{{ templateVars.territory|default('{}') }}"
@@ -158,7 +162,7 @@
                     </dp-map-view>
                 </div>
 
-                <div class="text--right u-mt-0_5 space-inline-s">
+                <div class="text-right u-mt-0_5 space-inline-s">
                     <input class="btn btn--primary" type="submit" name="saveConfig" value="{{ "save"|trans }}">
                     <input class="btn btn--primary" type="submit" name="submit_item_return_button" value="{{ "save.and.return.to.list"|trans }}">
                     <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">

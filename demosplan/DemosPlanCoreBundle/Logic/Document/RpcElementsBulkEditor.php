@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
@@ -51,29 +51,8 @@ class RpcElementsBulkEditor implements RpcMethodSolverInterface
 {
     private const ELEMENTS_BULK_EDIT_METHOD = 'planning.document.category.bulk.edit';
 
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementService;
-
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        ElementsService $elementService,
-        RpcErrorGenerator $errorGenerator
-    ) {
-        $this->currentUser = $currentUser;
-        $this->elementService = $elementService;
-        $this->errorGenerator = $errorGenerator;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementService, private readonly RpcErrorGenerator $errorGenerator)
+    {
     }
 
     public function supports(string $method): bool
@@ -81,7 +60,7 @@ class RpcElementsBulkEditor implements RpcMethodSolverInterface
         return self::ELEMENTS_BULK_EDIT_METHOD === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $resultResponse = [];
         $rpcRequests = is_object($rpcRequests)
@@ -105,13 +84,13 @@ class RpcElementsBulkEditor implements RpcMethodSolverInterface
                 );
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, count($updatedElements));
-            } catch (EntityIdNotFoundException|OptimisticLockException $e) {
+            } catch (EntityIdNotFoundException|OptimisticLockException) {
                 $resultResponse[] = $this->errorGenerator->internalError($rpcRequest);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

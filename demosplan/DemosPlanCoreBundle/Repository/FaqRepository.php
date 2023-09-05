@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class FaqRepository extends CoreRepository
+class FaqRepository extends FluentRepository
 {
     /**
      * Update or save Faq.

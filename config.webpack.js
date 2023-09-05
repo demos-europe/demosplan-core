@@ -6,7 +6,6 @@
  *
  * All rights reserved
  */
-
 const merge = require('webpack-merge').default
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const DefinePlugin = require('webpack').DefinePlugin
@@ -63,7 +62,7 @@ const baseConfig = {
       timers: require.resolve('timers-browserify'),
       /*
        * Prevent webpack from injecting useless setImmediate polyfill because Vue
-       * source contains it (although only uses it if it's native).
+       * source contains it (although it only uses it if it's native).
        */
       setImmediate: false,
       /*
@@ -86,8 +85,9 @@ const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
-      css: config.stylesEntryPoint,
-      publiccss: config.publicStylesEntryPoint,
+      style: config.stylesEntryPoint,
+      'style-public': config.publicStylesEntryPoint,
+      'demosplan-ui': './client/css/index.css',
       ...bundleEntryPoints(config.clientBundleGlob)
     }
   },

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
+use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -52,7 +53,8 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             self::$container->get(MessageBagInterface::class),
             self::$container->get(ParagraphRepository::class),
             self::$container->get(ParagraphService::class),
-            self::$container->get(RouterInterface::class)
+            self::$container->get(RouterInterface::class),
+            self::$container->get(RpcClient::class),
         );
     }
 

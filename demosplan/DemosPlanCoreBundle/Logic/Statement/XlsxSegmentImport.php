@@ -5,13 +5,14 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -32,14 +32,6 @@ use Symfony\Component\Finder\SplFileInfo;
 class XlsxSegmentImport
 {
     /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-    /**
      * @var array
      */
     private $createdStatements;
@@ -47,49 +39,9 @@ class XlsxSegmentImport
      * @var array
      */
     private $createdSegments;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var EventDispatcherPostInterface
-     */
-    private $eventDispatcher;
-    /**
-     * @var ExcelImporter
-     */
-    private $xlsxSegmentImporter;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var SegmentRepository
-     */
-    private $segmentRepository;
 
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        EntityManagerInterface $entityManager,
-        EventDispatcherPostInterface $eventDispatcher,
-        ExcelImporter $xlsxSegmentImporter,
-        LoggerInterface $logger,
-        SegmentRepository $segmentRepository,
-        StatementRepository $statementRepository,
-        StatementService $statementService
-    ) {
-        $this->currentUser = $currentUser;
-        $this->entityManager = $entityManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
-        $this->segmentRepository = $segmentRepository;
-        $this->statementRepository = $statementRepository;
-        $this->statementService = $statementService;
-        $this->xlsxSegmentImporter = $xlsxSegmentImporter;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly EntityManagerInterface $entityManager, private readonly EventDispatcherPostInterface $eventDispatcher, private readonly ExcelImporter $xlsxSegmentImporter, private readonly LoggerInterface $logger, private readonly SegmentRepository $segmentRepository, private readonly StatementRepository $statementRepository, private readonly StatementService $statementService)
+    {
     }
 
     /**
@@ -122,8 +74,8 @@ class XlsxSegmentImport
                 return $importResult;
             }
 
-            array_map([$this->entityManager, 'persist'], $this->xlsxSegmentImporter->getGeneratedTags());
-            array_map([$this->entityManager, 'persist'], $importResult->getStatements());
+            array_map($this->entityManager->persist(...), $this->xlsxSegmentImporter->getGeneratedTags());
+            array_map($this->entityManager->persist(...), $importResult->getStatements());
 
             foreach ($importResult->getStatements() as $statement) {
                 try {

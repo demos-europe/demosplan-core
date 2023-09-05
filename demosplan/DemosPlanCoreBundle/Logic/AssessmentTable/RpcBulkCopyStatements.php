@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,16 +32,16 @@ use Exception;
  **/
 class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
 {
-    public const RPC_JSON_SCHEMA_PATH = 'json-schema/rpc-statements-bulk-copy-schema.json';
+    final public const RPC_JSON_SCHEMA_PATH = 'json-schema/rpc-statements-bulk-copy-schema.json';
 
-    public const STATEMENTS_BULK_COPY_METHOD = 'statements.bulk.copy';
+    final public const STATEMENTS_BULK_COPY_METHOD = 'statements.bulk.copy';
 
     protected function checkIfAuthorized(string $procedureId): bool
     {
         try {
             return $this->procedureService->isUserAuthorized($procedureId)
                 && $this->isAvailable();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -62,7 +62,7 @@ class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }

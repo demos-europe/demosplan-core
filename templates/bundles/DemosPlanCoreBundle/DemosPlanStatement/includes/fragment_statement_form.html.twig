@@ -26,11 +26,11 @@
     <div class="layout__item u-1-of-2 u-pl-0">
 
         {% if hasPermission('feature_statements_fragment_add') %}
-            <label class="u-mb-0_25 cf" for="r_tags[]">
+            <label class="u-mb-0_25 flow-root" for="r_tags[]">
                 {{ "tags.assigned"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -52,19 +52,18 @@
                     {% set tagArray = [] %}
                 {% endfor %}
                 <dp-multiselect
-                    multiple
                     id="r_tags[]"
-                    :options="JSON.parse('{{ groups|default([])|json_encode|e('js', 'utf-8') }}')"
                     v-model="tags"
-                    label="title"
-                    track-by="id"
-                    group-values="tags"
-                    group-label="groupName"
-                    :group-select="false"
                     class="u-mt-0_25 weight--normal"
                     data-cy="fragmentTopicsTags"
-                >
-                    <template v-slot:option="props">
+                    group-label="groupName"
+                    :group-select="false"
+                    group-values="tags"
+                    label="title"
+                    multiple
+                    :options="JSON.parse('{{ groups|default([])|json_encode|e('js', 'utf-8') }}')"
+                    track-by="id">
+                    <template v-slot:option="{ props }">
                         <strong v-if="props.option.$isLabel">
                             {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
                         </strong>
@@ -72,7 +71,7 @@
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </span>
                     </template>
-                    <template v-slot:tag="props">
+                    <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -97,11 +96,11 @@
 
         {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
             {% if hasPermission('field_statement_county') %}
-                <label class="u-mb-0_25 u-mt cf" for="r_counties[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_counties[]">
                     {{ "counties"|trans }}
 
                     <button
-                        class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                        class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                         type="button"
                         title="{{ "field.empty"|trans }}"
                         aria-label="{{ "field.empty"|trans }}"
@@ -115,19 +114,18 @@
                         {% set counties = counties|merge([{id: county.id, name: county.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_counties[]"
-                        :options="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="counties"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentCounties"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -139,11 +137,11 @@
             {% endif %}
 
             {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_municipalities[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_municipalities[]">
                 {{ "municipalities"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -158,19 +156,18 @@
                         {% set municipalities = municipalities|merge([{id: municipality.id, name: municipality.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_municipalities[]"
-                        :options="JSON.parse('{{ municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="municipalities"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentMunicipalities"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -183,11 +180,11 @@
             {% endif %}
 
             {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled %}
-                <label class="u-mb-0_25 u-mt cf" for="r_priorityAreas[]">
+                <label class="u-mb-0_25 u-mt flow-root" for="r_priorityAreas[]">
                 {{ "priorityAreas.all"|trans }}
 
                 <button
-                    class="btn--blank o-link--default weight--bold u-ml-0 float--right"
+                    class="btn--blank o-link--default weight--bold u-ml-0 float-right"
                     type="button"
                     title="{{ "field.empty"|trans }}"
                     aria-label="{{ "field.empty"|trans }}"
@@ -202,19 +199,18 @@
                         {% set priorityAreas = priorityAreas|merge([{id: priorityArea.id, name: priorityArea.name}]) %}
                     {% endfor %}
                     <dp-multiselect
-                        multiple
                         id="r_priorityAreas[]"
-                        :options="JSON.parse('{{ priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
                         v-model="priorityAreas"
-                        label="name"
-                        track-by="id"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentPriorityAreas"
-                    >
-                        <template v-slot:option="props">
+                        label="name"
+                        multiple
+                        :options="JSON.parse('{{ priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
+                        track-by="id">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                         <span class="multiselect__tag">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                             <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -264,13 +260,13 @@
                     {% set agencies = agencies|merge([{ id: departmentId, name: department.orga.name ~ ', ' ~ department.name }]) %}
                 {% endfor %}
                 <dp-multiselect
-                    :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
-                    track-by="name"
-                    label="name"
+                    v-model="department"
                     :allow-empty="false"
-                    class="display--inline-block"
-                    v-model="department">
-                    <template v-slot:option="props">
+                    class="inline-block"
+                    label="name"
+                    :options="JSON.parse('{{ agencies|json_encode|e('js', 'utf-8') }}')"
+                    track-by="name">
+                    <template v-slot:option="{ props }">
                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                     </template>
                 </dp-multiselect>
@@ -294,7 +290,7 @@
         {% endif %}
 
         {# form actions #}
-        <div class="text--right u-mt space-inline-s">
+        <div class="text-right u-mt space-inline-s">
 
             <button id="fragmentSubmitButton" type="submit" class="btn btn--primary" name="save" data-cy="submitButton">
                 {{ 'fragment.create'|trans }}

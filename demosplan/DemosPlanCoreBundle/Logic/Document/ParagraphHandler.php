@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,21 +20,9 @@ class ParagraphHandler extends CoreHandler
     /** @var ParagraphService */
     protected $service;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var FlashMessageHandler
-     */
-    private $flashMessageHandler;
-
-    public function __construct(ParagraphService $paragraphService, FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, TranslatorInterface $translator)
+    public function __construct(ParagraphService $paragraphService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
-        $this->translator = $translator;
-        $this->flashMessageHandler = $flashMessageHandler;
         $this->service = $paragraphService;
     }
 
@@ -52,7 +40,7 @@ class ParagraphHandler extends CoreHandler
 
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -60,7 +48,7 @@ class ParagraphHandler extends CoreHandler
                 ]),
             ];
         }
-        if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
+        if (!array_key_exists('r_text', $data) || '' === trim((string) $data['r_text'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -69,7 +57,7 @@ class ParagraphHandler extends CoreHandler
             ];
         }
 
-        if (!array_key_exists('r_visible', $data) || '' === trim($data['r_visible'])) {
+        if (!array_key_exists('r_visible', $data) || '' === trim((string) $data['r_visible'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->flashMessageHandler->createFlashMessage('mandatoryError', [
@@ -105,14 +93,14 @@ class ParagraphHandler extends CoreHandler
         if (array_key_exists('r_elementId', $data)) {
             $document['elementId'] = $data['r_elementId'];
             // set max possible order only if no parent paragraph is set
-            if (!array_key_exists('r_parentId', $data) && 0 < strlen($data['r_parentId'])) {
+            if (!array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
                 $document['order'] = $this->service->getMaxOrderFromElement(
                     $document['elementId']
                 ) + 1;
             }
         }
 
-        if (array_key_exists('r_parentId', $data) && 0 < strlen($data['r_parentId'])) {
+        if (array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
             $document = $this->prepareParagraphParentTree(
                 $data,
                 $elementId,

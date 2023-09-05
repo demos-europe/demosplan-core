@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,7 +17,7 @@ class ArrayObject extends \ArrayObject
     public function __construct($input = [], $flags = 0, $iterator_class = ArrayIterator::class)
     {
         // set Values in custom array property and in \ArrayObject store
-        $defaultClassVars = get_class_vars(get_class($this));
+        $defaultClassVars = get_class_vars(static::class);
         $mergedValues = array_merge($defaultClassVars, $input);
         parent::__construct($mergedValues, $flags, $iterator_class);
     }
@@ -39,7 +39,7 @@ class ArrayObject extends \ArrayObject
      */
     public function offsetGet($offset): mixed
     {
-        $getterMethod = 'get'.ucfirst($offset);
+        $getterMethod = 'get'.ucfirst((string) $offset);
         if (method_exists($this, $getterMethod)) {
             return $this->$getterMethod();
         }
@@ -67,7 +67,7 @@ class ArrayObject extends \ArrayObject
         // update object
         if (!is_null($offset)) {
             // update object on array set access
-            $setterMethod = 'set'.ucfirst($offset);
+            $setterMethod = 'set'.ucfirst((string) $offset);
             if (method_exists($this, $setterMethod)) {
                 $this->$setterMethod($value);
             }
@@ -85,7 +85,7 @@ class ArrayObject extends \ArrayObject
     public function count(): int
     {
         $publicProperties = parent::count();
-        $nonPublicProperties = count(get_class_vars(get_class($this)));
+        $nonPublicProperties = count(get_class_vars(static::class));
 
         return $publicProperties + $nonPublicProperties;
     }

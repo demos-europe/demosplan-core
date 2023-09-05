@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,13 +30,7 @@ class DocumentDashboardTransformer extends BaseTransformer
         ];
 
         if ($this->permissions->hasPermission('feature_procedure_planning_area_match')) {
-            $data = array_merge(
-                [
-                    'planningArea'           => $dashboardData['planningArea'],
-                    'availablePlanningAreas' => $dashboardData['availablePlanningAreas'],
-                ],
-                $data
-            );
+            $data = ['planningArea'           => $dashboardData['planningArea'], 'availablePlanningAreas' => $dashboardData['availablePlanningAreas'], ...$data];
         }
 
         return $data;

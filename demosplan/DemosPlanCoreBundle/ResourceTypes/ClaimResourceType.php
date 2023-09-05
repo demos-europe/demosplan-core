@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -35,13 +35,9 @@ final class ClaimResourceType extends DplanResourceType
         return [
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->name)
-                ->readable(true, static function (User $user): string {
-                    return $user->getName();
-                }),
+                ->readable(true, static fn(User $user): string => $user->getName()),
             $this->createAttribute($this->orgaName)
-                ->readable(true, static function (User $user): string {
-                    return $user->getOrgaName();
-                }),
+                ->readable(true, static fn(User $user): string => $user->getOrgaName()),
         ];
     }
 
@@ -65,8 +61,8 @@ final class ClaimResourceType extends DplanResourceType
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 }

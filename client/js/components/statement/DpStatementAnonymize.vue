@@ -60,13 +60,13 @@
         v-show="actions.anonymizeStatementText"
         class="u-ml">
         <dp-tooltip-icon
-          icon="fa-question-circle float--right"
+          icon="fa-question-circle float-right"
           :text="Translator.trans('statement.anonymize.text.editor.hint')" />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
         </p>
         <dp-anonymize-text
-          class="overflow-y-auto max-height-500"
+          class="u-mb u-p-0_25 overflow-y-auto max-height-500"
           :value="anonymizeText"
           @change="text => anonymizeText = text" />
       </div>
@@ -80,7 +80,7 @@
           text: Translator.trans('statement.anonymize.delete.attachments.label')
         }" />
 
-      <div class="cf">
+      <div class="flow-root">
         <dp-button
           color="secondary"
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
@@ -89,12 +89,11 @@
           })"
           :text="Translator.trans('back.to.statements.original')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :disabled="isInvalid()"
-          @click="next">
-          {{ Translator.trans('continue.confirm') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('continue.confirm')"
+          @click="next" />
       </div>
     </template>
 
@@ -134,20 +133,18 @@
         </p>
       </div>
 
-      <div class="cf">
+      <div class="flow-root">
         <dp-button
           color="secondary"
-          @click="back">
-          <i class="fa fa-angle-left u-pr-0_25" />
-          {{ Translator.trans('bulk.edit.actions.edit') }}
-        </dp-button>
+          icon="chevron-left"
+          :text="Translator.trans('bulk.edit.actions.edit')"
+          @click="back" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :busy="busy"
-          @click="submit">
-          {{ Translator.trans('bulk.edit.actions.apply') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('bulk.edit.actions.apply')"
+          @click="submit" />
       </div>
     </template>
 
@@ -157,42 +154,42 @@
         <p
           v-if="actions.anonymizeStatementMeta"
           :class="{'u-mb-0_5': actions.deleteStatementTextHistory}"
-          class="cf">
+          class="flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.meta.success') }}
           </span>
         </p>
 
         <p
           v-if="actions.deleteStatementTextHistory"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.history.success') }}
           </span>
         </p>
         <p
           v-if="actions.deleteStatementAttachments"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.attachments.success') }}
           </span>
         </p>
         <p
           v-if="actions.anonymizeStatementText"
-          class="u-mb-0_25 cf">
+          class="u-mb-0_25 flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-check"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.success') }}
           </span>
         </p>
@@ -200,11 +197,11 @@
       <div
         v-if="actions.anonymizeStatementText"
         class="flash flash-warning u-mb">
-        <p class="cf">
+        <p class="flow-root">
           <i
-            class="fa u-mt-0_125 u-mr-0_25 float--left fa-exclamation-triangle"
+            class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle"
             aria-hidden="true" />
-          <span class="u-ml display--block">
+          <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.children.not.affected') }}
           </span>
         </p>
@@ -221,7 +218,7 @@
         </p>
       </div>
 
-      <div class="cf">
+      <div class="flow-root">
         <dp-button
           :href="Routing.generate('dplan_assessmenttable_view_original_table', {
             procedureId: procedureId,

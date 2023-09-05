@@ -17,9 +17,8 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
 
 //  component
 .c-slidebar {
-
     position: fixed;
-    z-index: $z-super;
+    z-index: $dp-z-fixed;
     left: 0;
     top: 0;
     width: 100%;
@@ -39,7 +38,8 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
         flex-direction: column;
         will-change: transform;
         pointer-events: all;
-        box-shadow: $dp-box-shadow-4;
+        box-shadow: $dp-box-shadow-xl;
+        overflow-y: auto;
 
         @include media-query('desk-down') {
             max-width: 25%;

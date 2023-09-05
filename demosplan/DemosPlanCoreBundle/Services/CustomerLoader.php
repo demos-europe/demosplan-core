@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,16 +18,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\CustomerValueObject;
 
 class CustomerLoader
 {
-    /** @var CustomerHandler */
-    private $customerHandler;
-
-    /** @var GlobalConfig */
-    private $globalConfig;
-
-    public function __construct(CustomerHandler $customerHandler, GlobalConfig $globalConfig)
+    public function __construct(private readonly CustomerHandler $customerHandler, private readonly GlobalConfig $globalConfig)
     {
-        $this->customerHandler = $customerHandler;
-        $this->globalConfig = $globalConfig;
     }
 
     /**

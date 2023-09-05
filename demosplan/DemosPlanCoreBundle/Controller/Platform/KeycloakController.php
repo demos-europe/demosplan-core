@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,9 +21,8 @@ class KeycloakController extends AbstractController
 {
     /**
      * Link to this controller to start the "connect" process.
-     *
-     * @Route("/connect/keycloak_ozg", name="connect_keycloak_ozg_start")
      */
+    #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start')]
     public function connectAction(ClientRegistry $clientRegistry)
     {
         // will redirect to keycloak!
@@ -36,9 +35,8 @@ class KeycloakController extends AbstractController
      * After going to keycloak, you're redirected back here
      * because this is the "redirect_route" you configured
      * in config/packages/knpu_oauth2_client.yaml.
-     *
-     * @Route("/connect/keycloak_ozg/check", name="connect_keycloak_ozg_check")
      */
+    #[Route(path: '/connect/keycloak_ozg/check', name: 'connect_keycloak_ozg_check')]
     public function connectCheckAction(Request $request, ClientRegistry $clientRegistry)
     {
         // ** if you want to *authenticate* the user, then

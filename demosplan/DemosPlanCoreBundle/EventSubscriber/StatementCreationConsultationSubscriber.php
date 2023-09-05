@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -44,36 +44,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
  */
 class StatementCreationConsultationSubscriber extends BaseEventSubscriber
 {
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        ConsultationTokenService $consultationService,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions)
+    public function __construct(private readonly ConsultationTokenService $consultationService, private readonly GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions)
     {
-        $this->consultationService = $consultationService;
-        $this->permissions = $permissions;
-        $this->messageBag = $messageBag;
-        $this->globalConfig = $globalConfig;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -121,7 +121,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
                 ->setParameter('now', new DateTime('NOW'));
 
             $query->getQuery()->execute();
-        } catch (Exception $e) {
+        } catch (Exception) {
             // do not use monolog as this function is called by maintenance task
             // this may lead to excessive logfile sizes
         }

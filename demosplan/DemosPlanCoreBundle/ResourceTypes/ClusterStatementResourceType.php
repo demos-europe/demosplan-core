@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -53,14 +53,14 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    public function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyIsNotNull($this->original),
             $this->conditionFactory->propertyHasValue(true, $this->clusterStatement),
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
@@ -70,7 +70,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        );
+        ];
     }
 
     public function getDefaultSortMethods(): array
@@ -91,13 +91,9 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         $properties = parent::getProperties();
         $additionalProperties = [
             $this->createAttribute($this->documentParentId)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentParentId();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId()),
             $this->createAttribute($this->documentTitle)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getDocumentTitle();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle()),
             $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id),
             $this->createAttribute($this->elementTitle)
@@ -127,6 +123,6 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
                 ->readable(true)->filterable()->sortable()->aliasedPath($this->meta->submitName),
         ];
 
-        return array_merge($properties, $additionalProperties);
+        return [...$properties, ...$additionalProperties];
     }
 }

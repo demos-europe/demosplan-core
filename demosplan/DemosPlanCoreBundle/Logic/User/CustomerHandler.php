@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,25 +30,15 @@ class CustomerHandler extends CoreHandler
      * @var CustomerService
      */
     protected $customerService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
 
     public function __construct(
         CustomerService $customerService,
         MessageBag $messageBag,
-        PermissionsInterface $permissions,
-        ValidatorInterface $validator)
+        private readonly PermissionsInterface $permissions,
+        private readonly ValidatorInterface $validator)
     {
         $this->customerService = $customerService;
         parent::__construct($messageBag);
-        $this->permissions = $permissions;
-        $this->validator = $validator;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,15 +20,14 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\QueryException;
@@ -44,24 +43,19 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureTypeController extends BaseController
 {
     /**
-     * @Route(
-     *     name="DemosPlan_procedureType_list",
-     *     path="verfahrenstypen",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws QueryException
      * @throws UserNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_list', path: 'verfahrenstypen', methods: ['GET'])]
     public function procedureTypeListAction(
         ProcedureTypeService $procedureTypeService): Response
     {
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_list.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
                     'procedureTypes' => $procedureTypeResources,
@@ -72,12 +66,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedureType_create_select",
-     *     path="verfahrenstypen/auswahl",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -85,13 +73,14 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws ResourceNotFoundException
      * @throws UserNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_create_select', path: 'verfahrenstypen/auswahl', methods: ['GET'])]
     public function procedureTypeCreateBaseSelectAction(
         Breadcrumb $breadcrumb,
         FormFactoryInterface $formFactory,
         ProcedureTypeService $procedureTypeService,
         TranslatorInterface $translator
     ): Response {
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
 
         $form = $this->getForm(
@@ -128,20 +117,13 @@ class DemosPlanProcedureTypeController extends BaseController
      * For the moment, this method looks very much like the editAction, because it is basically the preparation step for a duplication.
      * This will be different when we have the case of actually creating new procedureTypes from scratch.
      *
-     * @Route(
-     *     name="DemosPlan_procedureType_duplicate",
-     *     path="verfahrenstypen/{procedureTypeId}/duplicate",
-     *     methods={"GET"},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws ResourceNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_duplicate', path: 'verfahrenstypen/{procedureTypeId}/duplicate', methods: ['GET'], options: ['expose' => true])]
     public function procedureTypeCreateAction(
         Breadcrumb $breadcrumb,
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $entityWrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -156,10 +138,10 @@ class DemosPlanProcedureTypeController extends BaseController
         // List of ProcedureTypes
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
         /** @var ProcedureType $procedureTypeEntity */
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
@@ -193,13 +175,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedureType_edit",
-     *     path="verfahrenstypen/{procedureTypeId}/edit",
-     *     methods={"GET"},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -207,9 +182,9 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws ResourceNotFoundException
      * @throws UserNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_edit', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['GET'], options: ['expose' => true])]
     public function procedureTypeEditAction(
         Breadcrumb $breadcrumb,
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -220,10 +195,10 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $form = $this->getForm(
             $formFactory,
             $procedureTypeResource,
@@ -254,13 +229,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedureType_create_save",
-     *     path="verfahrenstypen/create",
-     *     methods={"POST"},
-     *     options={"expose": false}
-     * )
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response
@@ -271,8 +239,8 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws ResourceNotFoundException
      * @throws UserNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_create_save', path: 'verfahrenstypen/create', methods: ['POST'], options: ['expose' => false])]
     public function procedureTypeCreateSaveAction(
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -366,8 +334,8 @@ class DemosPlanProcedureTypeController extends BaseController
             $this->logger->error($e->getMessage());
         }
 
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypes = $entityFetcher->listEntities($procedureTypeResourceType, []);
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $procedureTypes = $procedureTypeResourceType->listEntities([]);
 
         // in case of invalid data or an exception
         return $this->renderTemplate(
@@ -385,13 +353,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="DemosPlan_procedureType_edit_save",
-     *     path="verfahrenstypen/{procedureTypeId}/edit",
-     *     methods={"POST"},
-     *     options={"expose": false}
-     * )
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response
@@ -402,8 +363,8 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws ResourceNotFoundException
      * @throws UserNotFoundException
      */
+    #[Route(name: 'DemosPlan_procedureType_edit_save', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['POST'], options: ['expose' => false])]
     public function procedureTypeEditSaveAction(
-        EntityFetcher $entityFetcher,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
@@ -419,7 +380,7 @@ class DemosPlanProcedureTypeController extends BaseController
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
         }
 
-        $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
+        $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
         $formName = 'procedureTypeEdit';
 
@@ -449,25 +410,32 @@ class DemosPlanProcedureTypeController extends BaseController
                     $formData
                 );
 
+                $procedureType = $procedureTypeResourceType->getEntityByTypeIdentifier($procedureTypeId);
+
                 // @improve: use symfony forms mapping capabilities to map fields automatically
-                $procedureTypeResourceChange = $resourcePersister->updateBackingObject(
+                $procedureTypeResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureTypeResourceType,
-                    $procedureTypeId,
+                    $procedureType,
                     $procedureTypeResourceProperties['procedureTypeProperties']
                 );
 
-                // @improve: return resource instead of object and add object to entitiesToPersist property
-                /** @var ProcedureType $procedureType */
-                $procedureType = $procedureTypeResourceChange->getTargetResource();
-                $procedureUiDefinitionResourceChange = $resourcePersister->updateBackingObject(
+                $procedureUiDefinition = $procedureUiDefinitionResourceType->getEntityByTypeIdentifier(
+                    $procedureType->getProcedureUiDefinition()->getId()
+                );
+
+                $procedureUiDefinitionResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureUiDefinitionResourceType,
-                    $procedureType->getProcedureUiDefinition()->getId(),
+                    $procedureUiDefinition,
                     $procedureTypeResourceProperties['procedureUiDefinitionProperties']
                 );
 
-                $procedureBehaviorDefinitionResourceChange = $resourcePersister->updateBackingObject(
+                $procedureBehaviorDefinition = $procedureBehaviorDefinitionResourceType->getEntityByTypeIdentifier(
+                    $procedureType->getProcedureBehaviorDefinition()->getId()
+                );
+
+                $procedureBehaviorDefinitionResourceChange = $resourcePersister->updateBackingObjectWithEntity(
                     $procedureBehaviorDefinitionResourceType,
-                    $procedureType->getProcedureBehaviorDefinition()->getId(),
+                    $procedureBehaviorDefinition,
                     $procedureTypeResourceProperties['procedureBehaviorDefinitionProperties']
                 );
 
@@ -499,7 +467,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $this->logger->error($e->getMessage());
         }
 
-        $template = '@DemosPlanProcedure/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
+        $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
 
         // in case of invalid data or an exception
         return $this->renderTemplate(

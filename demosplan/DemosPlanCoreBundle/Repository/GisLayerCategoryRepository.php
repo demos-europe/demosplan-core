@@ -3,14 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Faker\Provider\Uuid;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -26,9 +25,10 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Faker\Provider\Uuid;
 use InvalidArgumentException;
 
-class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
+class GisLayerCategoryRepository extends FluentRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**
      * Get Entity by Id.
@@ -63,7 +63,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
                 throw new InvalidArgumentException('Trying to add a GisLayerCategory without name');
             }
 
-            if (false === array_key_exists('procedureId', $data) && 36 === strlen($data['procedureId'])) {
+            if (false === array_key_exists('procedureId', $data) && 36 === strlen((string) $data['procedureId'])) {
                 throw new InvalidArgumentException('Trying to add a GisLayerCategory without procedure');
             }
 
@@ -178,7 +178,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -223,7 +223,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
     {
         $em = $this->getEntityManager();
 
-        if (array_key_exists('procedureId', $data) && 36 === strlen($data['procedureId'])) {
+        if (array_key_exists('procedureId', $data) && 36 === strlen((string) $data['procedureId'])) {
             $gisLayerCategory->setProcedure($em->getReference(Procedure::class, $data['procedureId']));
         }
 
@@ -245,7 +245,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             }
         }
 
-        if (array_key_exists('parentId', $data) && 36 === strlen($data['parentId'])) {
+        if (array_key_exists('parentId', $data) && 36 === strlen((string) $data['parentId'])) {
             $gisLayerCategory->setParent($em->getReference(GisLayerCategory::class, $data['parentId']));
         }
 

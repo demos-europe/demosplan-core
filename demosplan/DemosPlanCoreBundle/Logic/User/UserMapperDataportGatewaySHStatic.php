@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,7 +20,7 @@ class UserMapperDataportGatewaySHStatic extends UserMapperDataportGatewaySH
      *
      * @var array<string, string>
      */
-    public const AVAILABLE_USER = [
+    final public const AVAILABLE_USER = [
         // Rolle Institutions-Admin und Fachplaneung-Admin
         'test-switchOrga-initial'                               => '<USERDATA><HHGW USERID="417376" MODEID="3" USERMODE="Firmenkunde" LOGINNAME="Devin@xur.de" TITLE="" PREFIX="Frau" FIRSTNAME="Devin" LASTNAME="Fachbehoerde" EMAIL="Devin@xur.de" LANGUAGE="de-DE" MASTERUSER="0" USERORGANISATION="Dez 52" PHONENUMBER="+38323612345" FAX="+38323660123" USERSTREET="Bahnhofstraße" USERSTREETNUMBER="456" USERCITY="Stormwind" USERZIPCODE="24220" USERCOUNTRY="Deutschland" COMPANYID="2009" COMPANYNAME="Xylophondruckerei" COMPANYORGANISATION="Holzabteilung" REGNUMBER="" COMPANYSTREET="Bahnhofstraße" COMPANYSTREETNUMBER="25" COMPANYCITY="Ironforge" COMPANYZIPCODE="24220" COMPANYCOUNTRY="Deutschland" MAILBOX="" BOXZIPCODE="" BILLSTREET="" BILLSTREETNUMBER="" BILLCITY="" BILLZIPCODE="" BILLCOUNTRY="" BILLBOX="" BILLBOXZIPCODE="" CERTIFICATEID="" USERPHONENUMBER="+38301234" COMPANYSUBORGANISATION="" /><ROLES ROLEID="3436" ROLENAME="Fachplaner-Fachbehörde" PERMISSION="1" ISDEFAULT="0" /></USERDATA>',
         'test-switchOrga-create_new_department'                 => '<USERDATA><HHGW USERID="417374" MODEID="3" USERMODE="Firmenkunde" LOGINNAME="Kevin@xur.de" TITLE="" PREFIX="Herr" FIRSTNAME="Kevin" LASTNAME="Auch Fachbehörde" EMAIL="Kevins@xur.de" LANGUAGE="de-DE" MASTERUSER="0" USERORGANISATION="Dez 51" PHONENUMBER="+38323612345" FAX="+38323660123" USERSTREET="Bahnhofstraße"  SERSTREETNUMBER="456" USERCITY="Stormwind" USERZIPCODE="24220" USERCOUNTRY="Deutschland" COMPANYID="2009" COMPANYNAME="Xylophondruckerei" COMPANYORGANISATION="Holzabteilung" REGNUMBER="" COMPANYSTREET="Bahnhofstraße" COMPANYSTREETNUMBER="25" COMPANYCITY="Ironforge" COMPANYZIPCODE="24220" COMPANYCOUNTRY="Deutschland" MAILBOX="" BOXZIPCODE="" BILLSTREET="" BILLSTREETNUMBER="" BILLCITY="" BILLZIPCODE="" BILLCOUNTRY="" BILLBOX="" BILLBOXZIPCODE="" CERTIFICATEID="" USERPHONENUMBER="+494342345" COMPANYSUBORGANISATION="" /><ROLES ROLEID="3436" ROLENAME="Fachplaner-Fachbehörde" PERMISSION="1" ISDEFAULT="0" /></USERDATA>',

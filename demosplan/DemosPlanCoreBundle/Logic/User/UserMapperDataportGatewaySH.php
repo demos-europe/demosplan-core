@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -42,7 +42,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
 
         // add possibility to test with local "redirects"
         if ($request->query->has('TokenTest')) {
-            $token = trim($request->get('TokenTest', null));
+            $token = trim((string) $request->get('TokenTest', null));
         }
 
         // gateway variables might be stored in session when verifying Orga/Departmentchange
@@ -94,7 +94,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
                     $this->logger->info('Orga gatewayId has NOT changed, check for updates');
                     try {
                         $this->updateOrga($userOrga);
-                    } catch (DuplicateGwIdException $e) {
+                    } catch (DuplicateGwIdException) {
                         // when orga to change to exists and user claimed that orgadata has changed
                         // move user to existing orga.
                         $this->logger->warning('Clean User Orga/Departmentdata as update would lead to duplicate gwId at Orga: ', [$userOrga->getId()]);

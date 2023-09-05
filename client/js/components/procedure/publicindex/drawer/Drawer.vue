@@ -9,7 +9,7 @@
 
 <template>
   <div
-    class="c-publicindex__drawer position--absolute u-top-0 u-z-map-toolbar box-shadow-2"
+    class="c-publicindex__drawer absolute u-top-0 z-above-zero shadow-md"
     :class="{ 'is-open': isDrawerOpened }">
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
@@ -23,7 +23,7 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            class="display--inline-block"
+            class="inline-block"
             data-cy="participationProcedures">
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
           </strong>

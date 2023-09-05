@@ -1,10 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ webpackBundle('statement-listFinalGroup.js') }}
-{% endblock javascripts %}
-
 {% block demosplanbundlecontent %}
 
     {% set counties = templateVars.counties|map(c => { label: c.name, value: c.id }) %}
@@ -36,7 +31,7 @@
     >
         {% apply spaceless %}
 
-            <ul class="{{ 'c-tabs__titles c-tabs__titles--2 u-m-0 u-pt-0_5 text--right'|prefixClass }}">
+            <ul class="{{ 'c-tabs__titles c-tabs__titles--2 u-m-0 u-pt-0_5 text-right'|prefixClass }}">
 
                 <li class="{{ 'c-tabs__title u-nojs-hide--inline-block is-active-tab'|prefixClass }}">
                     <a class="{{ 'c-tabs__title-button'|prefixClass }}" href="#myStatementsList" aria-label="{{ 'statements.yours'|trans }}">
@@ -60,7 +55,7 @@
 
         <div id="myStatementsList" class="{{ 'c-tabs__panel u-mh-0_5 is-active-tab'|prefixClass }}">
 
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
+            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}"
                   method="post">
 
                 {# filter fieldsets  #}
@@ -74,7 +69,7 @@
                 {% if templateVars.list.statementlist|length > 0 %}
                     {# save / revert sorting of table entries #}
                     {% if hasPermission('feature_statements_manualsort') %}
-                        <fieldset class="{{ 'cf layout__item u-pb-0_5'|prefixClass }}">
+                        <fieldset class="{{ 'flow-root layout__item u-pb-0_5'|prefixClass }}">
 
                             <div
                                 class="layout--flush flash u-p-0_5-palm flash-{% if ( templateVars.list.manuallySorted == true ) %}warning{% else %}info{% endif %}"
@@ -88,10 +83,10 @@
                                             {{ "sort"|trans }}
                                         {% endif %}
                                     </span>
-                                    <span class="{{ 'weight--normal display--block'|prefixClass }}" data-flash-message></span>
+                                    <span class="{{ 'weight--normal block'|prefixClass }}" data-flash-message></span>
                                 </p><!--
 
-                             --><div class="{{ 'layout__item u-1-of-3 u-1-of-1-palm text--right space-inline-s'|prefixClass }}">
+                             --><div class="{{ 'layout__item u-1-of-3 u-1-of-1-palm text-right space-inline-s'|prefixClass }}">
 
                                     <input
                                         class="{{ 'btn btn--primary u-ph-0_5'|prefixClass }}"
@@ -116,7 +111,7 @@
                     {% endif %}
 
                     {# form controls above entry table (check all, print, email) #}
-                    <fieldset class="{{ 'layout__item u-pb-0 cf'|prefixClass }}">
+                    <fieldset class="{{ 'layout__item u-pb-0 flow-root'|prefixClass }}">
 
                         <input type="hidden" name="action" value="statementPublish">
 
@@ -144,10 +139,10 @@
 
         <div id="votedStatementsList" class="{{ 'c-tabs__panel u-mh-0_5'|prefixClass }}">
 
-            <form class="{{ 'layout cf'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
+            <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform2" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
 
                 {# form controls above entry table (check all, print, email) #}
-                <fieldset class="{{ 'cf layout__item u-pb-0'|prefixClass }}">
+                <fieldset class="{{ 'flow-root layout__item u-pb-0'|prefixClass }}">
 
                     <input type="hidden" name="action" value="statementPublish">
 
@@ -173,3 +168,8 @@
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-listFinalGroup.js') }}
+{% endblock javascripts %}

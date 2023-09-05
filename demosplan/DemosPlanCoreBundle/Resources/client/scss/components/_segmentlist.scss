@@ -31,7 +31,7 @@ $utility-border-thickness: $dp-border-thickness;
             background-color: $dp-color-selection-bg;
         }
 
-        &--assigned + .segment-list-row--assigned {
+        &--assigned + .segment-list-row--assigned:not(.fullscreen) {
             margin-top: $inuit-base-spacing-unit--tiny;
         }
 
@@ -41,7 +41,7 @@ $utility-border-thickness: $dp-border-thickness;
             left: 0;
             top: 0;
             position: fixed;
-            z-index: $z-modal-overlay;
+            z-index: $dp-z-fixed;
             overflow-y: auto;
 
             .tiptap .editor__content {

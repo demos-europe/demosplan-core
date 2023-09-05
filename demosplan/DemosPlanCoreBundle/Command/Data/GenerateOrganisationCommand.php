@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -55,10 +55,6 @@ class GenerateOrganisationCommand extends DataProviderCommand
      * @var ObjectManager
      */
     protected $em;
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
 
     protected function configure(): void
     {
@@ -80,7 +76,7 @@ class GenerateOrganisationCommand extends DataProviderCommand
         $this->addArgument(
             'amount',
             InputArgument::OPTIONAL,
-            'The amount of statements to be generated.',
+            'The amount of organisations to be generated.',
             1
         );
     }
@@ -90,13 +86,12 @@ class GenerateOrganisationCommand extends DataProviderCommand
      */
     public function __construct(
         ManagerRegistry $registry,
-        CustomerHandler $customerHandler,
+        private readonly CustomerHandler $customerHandler,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->em = $registry->getManager();
-        $this->customerHandler = $customerHandler;
         $this->faker = Factory::create('de_DE');
     }
 

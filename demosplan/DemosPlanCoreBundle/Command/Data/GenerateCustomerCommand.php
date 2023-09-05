@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -42,12 +42,12 @@ class GenerateCustomerCommand extends CoreCommand
     /**
      * @var list<string>
      */
-    private array $reservedNames;
+    private readonly array $reservedNames;
 
     /**
      * @var list<string>
      */
-    private array $reservedSubdomains;
+    private readonly array $reservedSubdomains;
 
     public function __construct(
         private readonly CustomerService $customerService,
@@ -82,7 +82,7 @@ class GenerateCustomerCommand extends CoreCommand
     /**
      * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getOption(self::OPTION_NAME);
         if (null === $name) {
@@ -119,7 +119,7 @@ class GenerateCustomerCommand extends CoreCommand
     private function askCustomerName(InputInterface $input, OutputInterface $output): string
     {
         $questionName = new Question('Please enter the full name of the customer:', 'default');
-        $questionName->setValidator([$this, 'assertFreeName']);
+        $questionName->setValidator($this->assertFreeName(...));
 
         return $this->helper->ask($input, $output, $questionName);
     }
@@ -127,7 +127,7 @@ class GenerateCustomerCommand extends CoreCommand
     private function askSubdomain(InputInterface $input, OutputInterface $output): string
     {
         $questionSubdomain = new Question('Please enter the Subdomain of the customer:', 'default');
-        $questionSubdomain->setValidator([$this, 'assertFreeSubdomain']);
+        $questionSubdomain->setValidator($this->assertFreeSubdomain(...));
 
         return $this->helper->ask($input, $output, $questionSubdomain);
     }

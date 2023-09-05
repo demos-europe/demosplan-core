@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,20 +21,8 @@ use Throwable;
  */
 class UrlFileReader
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var HttpClientInterface
-     */
-    private $httpClient;
-
-    public function __construct(HttpClientInterface $httpClient, LoggerInterface $logger)
+    public function __construct(private readonly HttpClientInterface $httpClient, private readonly LoggerInterface $logger)
     {
-        $this->logger = $logger;
-        $this->httpClient = $httpClient;
     }
 
     /**

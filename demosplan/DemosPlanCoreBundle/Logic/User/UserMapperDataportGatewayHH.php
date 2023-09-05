@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -36,11 +36,6 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
      */
     protected $masterToebService;
 
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
     public function __construct(
         AddressService $addressService,
         CustomerHandler $customerHandler,
@@ -49,7 +44,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         LoggerInterface $logger,
         MasterToebService $masterToebService,
         OrgaService $orgaService,
-        UserRepository $userRepository,
+        private readonly UserRepository $userRepository,
         UserService $userService,
         RequestStack $requestStack
     ) {
@@ -65,7 +60,6 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         );
 
         $this->masterToebService = $masterToebService;
-        $this->userRepository = $userRepository;
     }
 
     protected function loadRoleMapping()
@@ -83,14 +77,14 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
     {
         $this->logger->info('getValidUser with', [self::class]);
         $request = $this->getRequest();
-        $token = trim($credentials->getToken());
+        $token = trim((string) $credentials->getToken());
         $this->logger->debug('Incoming Token: ', [$token]);
 
         $this->salt = $this->globalConfig->getSalt();
 
         // add possibility to test orgaswitcher with local "redirects"
         if ($request->query->has('TokenTest')) {
-            $token = trim($request->get('TokenTest', null));
+            $token = trim((string) $request->get('TokenTest', null));
         }
 
         // gateway variables might be stored in session when verifying Orga/Departmentchange
@@ -222,7 +216,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                         $this->logger->info('Organame and Department has NOT changed or should be updated');
                         try {
                             $userOrga = $this->updateOrgaMode2($userOrga);
-                        } catch (DuplicateGwIdException $e) {
+                        } catch (DuplicateGwIdException) {
                             // when orga to change to exists and user claimed that orgadata has changed
                             // move user to existing orga.
                             $user = $this->cleanUserOrgaDepartment($user);
@@ -475,7 +469,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $publicAgencyUser->setTwinUser($user);
                     $this->userService->updateUserObject($publicAgencyUser);
 
-                    $request->getSession()->set('session2User', $publicAgencyUser);
+                    $request->getSession()->set('session2UserId', $publicAgencyUser->getId());
                 }
             }
 

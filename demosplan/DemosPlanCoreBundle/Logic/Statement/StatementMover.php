@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -39,69 +39,24 @@ use Psr\Log\LoggerInterface;
 
 class StatementMover extends CoreService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var ElementsService */
-    private $elementsService;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var MessageBagInterface */
-    private $messageBag;
-
-    /** @var StatementService */
-    private $statementService;
-
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var StatementCopyAndMoveService */
-    private $statementCopyAndMoveService;
-
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /** @var EntityContentChangeService */
-    private $entityContentChangeService;
-
-    /** @var StatementReportEntryFactory */
-    private $statementReportEntryFactory;
-
-    /** @var ReportService */
-    private $reportService;
-    /**
-     * @var StatementCopier
-     */
-    private $statementCopier;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        ElementsService $elementsService,
-        PermissionsInterface $permissions,
-        MessageBagInterface $messageBag,
-        StatementService $statementService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ElementsService $elementsService,
+        private readonly PermissionsInterface $permissions,
+        private readonly MessageBagInterface $messageBag,
+        private readonly StatementService $statementService,
         LoggerInterface $logger,
-        StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementHandler $statementHandler,
-        EntityContentChangeService $entityContentChangeService,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        ReportService $reportService,
-        StatementCopier $statementCopier
+        private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
+        private readonly StatementHandler $statementHandler,
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly StatementCopier $statementCopier
     ) {
-        $this->entityManager = $entityManager;
-        $this->elementsService = $elementsService;
-        $this->permissions = $permissions;
-        $this->messageBag = $messageBag;
-        $this->statementService = $statementService;
         $this->logger = $logger;
-        $this->statementCopyAndMoveService = $statementCopyAndMoveService;
-        $this->statementHandler = $statementHandler;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->reportService = $reportService;
-        $this->statementCopier = $statementCopier;
     }
 
     /**
@@ -269,7 +224,7 @@ class StatementMover extends CoreService
 
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $doctrineConnection->rollBack();
 
             return false;
@@ -324,7 +279,7 @@ class StatementMover extends CoreService
 
         try {
             $copyStatementAllowed = $this->statementCopier->isCopyStatementAllowed($statement);
-        } catch (ClusterStatementCopyNotImplementedException $e) {
+        } catch (ClusterStatementCopyNotImplementedException) {
             $copyStatementAllowed = false;
         }
         if (false === $copyStatementAllowed) {

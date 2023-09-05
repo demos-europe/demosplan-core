@@ -3,15 +3,13 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -19,11 +17,13 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class CountyRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class CountyRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -194,7 +194,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
                 ->getQuery();
 
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -221,7 +221,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

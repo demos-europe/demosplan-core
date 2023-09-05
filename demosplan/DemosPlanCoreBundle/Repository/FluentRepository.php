@@ -5,26 +5,19 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DqlFluentQuery;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\DqlQuerying\Utilities\JoinFinder;
-use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\FluentQueries\ConditionDefinition;
-use EDT\Querying\FluentQueries\FluentQuery;
-use EDT\Querying\FluentQueries\SliceDefinition;
-use EDT\Querying\FluentQueries\SortDefinition;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
+use EDT\Querying\Pagination\PagePagination;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 
 /**
  * @template T of object
@@ -33,37 +26,30 @@ use EDT\Querying\FluentQueries\SortDefinition;
  */
 abstract class FluentRepository extends CoreRepository
 {
-    protected ConditionFactoryInterface $conditionFactory;
+    /**
+     * Will provide access to all entities matching the given condition via a paginator.
+     * The entities will be sorted by the specified sorting.
+     *
+     * Unlike {@link DplanResourceType::listEntities} this method won't apply any restrictions
+     * beside the provided conditions.
+     *
+     * @param array<int,ClauseFunctionInterface<bool>> $conditions  will be applied in an `AND` conjunction
+     * @param array<int,OrderBySortMethodInterface>    $sortMethods will be applied in the given order
+     *
+     * @return DemosPlanPaginator&Pagerfanta<T>
+     */
+    public function getEntitiesForPage(
+        array $conditions,
+        array $sortMethods,
+        PagePagination $pagination
+    ): DemosPlanPaginator {
+        $queryBuilder = $this->objectProvider->generateQueryBuilder($conditions, $sortMethods);
 
-    protected SortMethodFactoryInterface $sortMethodFactory;
+        $queryAdapter = new QueryAdapter($queryBuilder);
+        $paginator = new DemosPlanPaginator($queryAdapter);
+        $paginator->setMaxPerPage($pagination->getSize());
+        $paginator->setCurrentPage($pagination->getNumber());
 
-    protected DoctrineOrmEntityProvider $objectProvider;
-
-    public function __construct(
-        DqlConditionFactory $dqlConditionFactory,
-        ManagerRegistry $registry,
-        SortMethodFactory $sortMethodFactory,
-        string $entityClass
-    ) {
-        parent::__construct($registry, $entityClass);
-
-        $this->conditionFactory = $dqlConditionFactory;
-        $this->sortMethodFactory = $sortMethodFactory;
-
-        $entityManager = $this->getEntityManager();
-        $metadataFactory = $entityManager->getMetadataFactory();
-        $joinFinder = new JoinFinder($metadataFactory);
-        $builderPreparer = new QueryBuilderPreparer($entityClass, $metadataFactory, $joinFinder);
-        $this->objectProvider = new DoctrineOrmEntityProvider($entityManager, $builderPreparer);
-    }
-
-    public function createFluentQuery(): FluentQuery
-    {
-        return new DqlFluentQuery(
-            $this->objectProvider,
-            new ConditionDefinition($this->conditionFactory, true),
-            new SortDefinition($this->sortMethodFactory),
-            new SliceDefinition()
-        );
+        return $paginator;
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,18 +21,8 @@ use Doctrine\ORM\ORMException;
 
 class SurveyVoteHandler
 {
-    /** @var SurveyVoteService */
-    private $surveyVoteService;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    public function __construct(
-        SurveyVoteService $surveyVoteService,
-        PermissionsInterface $permissions
-    ) {
-        $this->permissions = $permissions;
-        $this->surveyVoteService = $surveyVoteService;
+    public function __construct(private readonly SurveyVoteService $surveyVoteService, private PermissionsInterface $permissions)
+    {
     }
 
     public function findById(string $id): ?SurveyVote
@@ -85,9 +75,7 @@ class SurveyVoteHandler
         $surveyId = $survey->getId();
         $userVotes = $user->getSurveyVotes();
         $userSurveyVotes = $userVotes->filter(
-            static function (SurveyVote $vote) use ($surveyId) {
-                return $surveyId === $vote->getSurvey()->getId();
-            }
+            static fn(SurveyVote $vote) => $surveyId === $vote->getSurvey()->getId()
         );
 
         return 0 === $userSurveyVotes->count();
@@ -95,6 +83,7 @@ class SurveyVoteHandler
 
     public function getSurveyVotesInfo(Survey $survey, bool $onlyNumbers = false): array
     {
+        $votesFrontend = [];
         $positiveVotes = $survey->getPositiveVotes();
         $negativeVotes = $survey->getNegativeVotes();
         $nPositive = $positiveVotes->count();
@@ -132,6 +121,7 @@ class SurveyVoteHandler
 
     private function surveyVoteToFrontend(SurveyVote $surveyVote): array
     {
+        $result = [];
         $result['id'] = $surveyVote->getId();
         $result['text'] = $surveyVote->getText();
         $result['createdDate'] = $surveyVote->getCreatedDate()->format(DateTime::ATOM);

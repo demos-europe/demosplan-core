@@ -19,7 +19,7 @@
       :observe-context="false"
       :class="{'u-1-of-1': isFullscreen}">
       <div
-        class="text--right"
+        class="text-right"
         :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}">
         <button
           class="btn--blank color-main u-mt-0_125 u-mr-0_75"
@@ -42,13 +42,13 @@
         </a>
         <!-- responsible for adding new master toeb organisations, should only be displayed if a user may edit organisations -->
         <dp-new-master-toeb
-          class="display--inline"
+          class="inline"
           v-if="isEditable"
           :fields="filteredFields"
           :bool-to-string-fields="boolToStringFields"
           @orga-added="insertOrga" /><!--
      --><dp-invite-master-toeb
-          class="display--inline"
+          class="inline"
           v-if="isEditable === false"
           :selected-toeb-ids="selectedItems"
           :procedure-id="procedureId" />
@@ -64,7 +64,7 @@
         <dp-filter-master-toeb
           v-if="isEditable === false"
           @items-filtered="setFilteredItems"
-          class="display--inline"
+          class="inline"
           :items="currentItems"
           :fields="fields" />
         <!-- dropdown to select cols to be shown/hidden -->
@@ -110,7 +110,7 @@
 
     <!-- Table -->
     <dp-data-table
-      class="width-100p font-size-5 overflow-x-hidden position--relative u-pb"
+      class="width-100p font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
       has-sticky-header
       :header-fields="headerFields"
@@ -140,9 +140,9 @@
         <div
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
-          class="whitespace--nowrap u-pr-0_5 position--relative">
+          class="whitespace-nowrap u-pr-0_5 relative">
           <button
-            class="btn--blank u-top-0 u-right-0 position--absolute"
+            class="btn--blank u-top-0 u-right-0 absolute"
             @click="setOrder(headerData.field)"
             type="button">
             <i
@@ -173,15 +173,15 @@
       </div>
 
       <!-- Pager & "Items per page" control -->
-      <div class="u-mv-0_5 text--right">
+      <div class="u-mv-0_5 text-right">
         <sliding-pagination
           v-if="totalPages > 1"
-          class="display--inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
+          class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
           :current="currentPage"
           :total="totalPages"
           @page-change="handlePageChange" />
         <dp-select-page-item-count
-          class="display--inline"
+          class="inline"
           @changed-count="setPageItemCount"
           :page-count-options="itemsPerPageOptions"
           :current-item-count="itemsPerPage"

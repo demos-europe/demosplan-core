@@ -36,7 +36,8 @@
         :options="{
           scaleSelect: false,
           autoSuggest: false,
-          controls: [],
+          controls: [attributionControl],
+          defaultAttribution: mapAttribution,
           initView: false,
           initCenter: false,
           procedureExtent: true
@@ -63,7 +64,7 @@
       </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
-      <ul class="list-style-none">
+      <ul>
         <li
           v-for="link in permittedLinks"
           class="layout__item"
@@ -83,16 +84,16 @@
       </ul>
       <div class="layout__item u-mb-0_25 u-mt-0_25">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="planstatus">{{ Translator.trans('planstatus') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
         <dp-datepicker
-          class="display--inline-block u-3-of-4"
+          class="inline-block u-3-of-4"
           v-model="planstatus"
           id="planstatus"
           :disabled="!isPlanStatusEditing"
           :calendars-before="2" /><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -130,17 +131,17 @@
         v-if="hasPermission('feature_map_deactivate')"
         class="layout__item u-mb-0_25">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="mapStatus">{{ Translator.trans('map') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
 <!--
-     --><div class="display--inline-block u-3-of-4">
+     --><div class="inline-block u-3-of-4">
           <dp-toggle
             id="mapStatus"
             :disabled="!isMapStatusEditing"
             v-model="isMapEnabled" />
         </div><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -178,9 +179,9 @@
         v-if="hasPermission('feature_procedure_planning_area_match')"
         class="layout__item">
         <label
-          class="display--inline-block u-1-of-3 u-mb-0"
+          class="inline-block u-1-of-3 u-mb-0"
           for="planningArea">{{ Translator.trans('planningArea') }}</label><!--
-     --><div class="display--inline-block u-2-of-3">
+     --><div class="inline-block u-2-of-3">
           <select
             id="planningArea"
             :disabled="!isPlanningAreaEditing"
@@ -193,7 +194,7 @@
               {{ Translator.trans(option.label) }}
             </option>
           </select><!--
-       --><div class="display--inline-block u-1-of-4 text--right">
+       --><div class="inline-block u-1-of-4 text-right">
             <button
               type="button"
               :title="Translator.trans('edit')"
@@ -233,6 +234,7 @@
 
 <script>
 import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'
@@ -248,6 +250,12 @@ export default {
   },
 
   props: {
+    mapAttribution: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     procedureId: {
       required: false,
       type: String,
@@ -320,6 +328,10 @@ export default {
   },
 
   computed: {
+    attributionControl () {
+      return new Attribution({ collapsible: false })
+    },
+
     features () {
       /*
        *  Transform the value that is saved as a string into valid GeoJSON

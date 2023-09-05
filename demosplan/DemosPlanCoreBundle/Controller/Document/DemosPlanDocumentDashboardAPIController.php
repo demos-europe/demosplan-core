@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,9 +26,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -41,17 +41,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanDocumentDashboardAPIController extends APIController
 {
-    /**
-     * @var ObjectPersisterInterface
-     */
-    private $objectPersister;
-
     public function __construct(
         LoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        ObjectPersisterInterface $objectPersister,
+        private readonly ObjectPersisterInterface $objectPersister,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
@@ -67,19 +62,13 @@ class DemosPlanDocumentDashboardAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->objectPersister = $objectPersister;
     }
 
     /**
-     * @Route(path="/api/1.0/documents/{procedureId}/dashboard",
-     *        methods={"GET"},
-     *        name="dp_api_documents_dashboard_get",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
-     *
      * Manages the display of the dashboard on load.
      */
+    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['GET'], name: 'dp_api_documents_dashboard_get', options: ['expose' => true])]
     public function showDashboardAction(
         ElementHandler $elementHandler,
         ElementsService $elementsService,
@@ -114,10 +103,10 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         // T13708: workaround to handle invalid date string in DB:
-        $dateString = str_replace('Planstand ', '', $procedureSettings->getPlanText());
+        $dateString = str_replace('Planstand ', '', (string) $procedureSettings->getPlanText());
         try {
             $validDateString = Carbon::createFromFormat('d.m.Y', $dateString)->format('d.m.Y');
-        } catch (Exception $e) {
+        } catch (Exception) {
             $validDateString = '';
         }
 
@@ -136,15 +125,10 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/documents/{procedureId}/dashboard",
-     *        methods={"PATCH"},
-     *        name="dp_api_documents_dashboard_update",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
-     *
      * Manages some updates performed from the dashboard.
      */
+    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['PATCH'], name: 'dp_api_documents_dashboard_update', options: ['expose' => true])]
     public function updateDashboardAction(
         PermissionsInterface $permissions,
         ProcedureService $procedureService,

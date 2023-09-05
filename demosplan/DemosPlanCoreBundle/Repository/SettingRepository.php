@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,7 +23,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 
-class SettingRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class SettingRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -78,7 +78,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
      *
      * @throws Exception
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new Exception('Inserts are implemented as upsert via update()');
     }
@@ -111,7 +111,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
         return $setting;
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

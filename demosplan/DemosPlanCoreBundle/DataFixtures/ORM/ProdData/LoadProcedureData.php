@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,18 +14,23 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
+use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
 {
     /** @var TranslatorInterface */
@@ -51,7 +56,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $this->procedureHandler = $procedureHandler;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $masterProcedurePhase = 'configuration';
         $anonymousUser = new AnonymousUser();
@@ -84,6 +89,26 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $gisLayerCategoryMaster->setName('rootGisLayer');
         $gisLayerCategoryMaster->setProcedure($procedureMaster);
         $manager->persist($gisLayerCategoryMaster);
+
+        // Create GisLayer for MasterBlueprint
+        $gisLayer = new GisLayer();
+        $gisLayer->setName('basemap');
+        $gisLayer->setUrl('https://sgx.geodatenzentrum.de/wms_basemapde');
+        $gisLayer->setLayers('de_basemapde_web_raster_farbe');
+        $gisLayer->setType('base');
+        $gisLayer->setEnabled(true);
+        $gisLayer->setProcedureId($procedureMaster->getId());
+        $gisLayer->setCategory($gisLayerCategoryMaster);
+        $manager->persist($gisLayer);
+
+        // Create ContextHelp for GisLayer
+        $contextHelp = new ContextualHelp();
+        $contextHelp->setText('');
+        $contextHelp->setKey('gislayer.'.$gisLayer->getId());
+        $manager->persist($contextHelp);
+
+        // Add ContextHelp to GisLayer
+        $gisLayer->setContextualHelp($contextHelp);
 
         // fill master with mandatory standard data to be copied on procedure creation
 

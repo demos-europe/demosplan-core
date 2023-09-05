@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,6 +30,8 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use LogicException;
 use RuntimeException;
@@ -38,23 +40,21 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection;
 
-class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+class UserRepository extends FluentRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
      */
-    public const LOGIN_LIST_CACHE_DURATION = 43200; // 12 hours
+    final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
-
-    public function __construct(CacheInterface $cache, ManagerRegistry $registry, string $entityClass)
-    {
-        parent::__construct($registry, $entityClass);
-
-        $this->cache = $cache;
+    public function __construct(
+        private readonly CacheInterface $cache,
+        DqlConditionFactory $dqlConditionFactory,
+        ManagerRegistry $registry,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass
+    ) {
+        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -179,7 +179,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             try {
                 $user = $this->get($entityId);
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $user = null;
             }
             // this is where the magical mapping happens
@@ -237,7 +237,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
         $this->setUserEntityFieldsOnFieldCollection($commonEntityFields, $entity, $data);
 
-        if (array_key_exists('password', $data) && 0 < strlen($data['password'])) {
+        if (array_key_exists('password', $data) && 0 < strlen((string) $data['password'])) {
             $entity->setPassword($data['password']);
             $entity->setAlternativeLoginPassword($data['password']);
         }
@@ -248,7 +248,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         return $entity;
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -424,7 +424,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @return bool
      */
-    public function delete($userId)
+    public function delete($userId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -439,7 +439,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -533,15 +533,12 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
     /**
      * @param User $user
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
-        $user->setPassword($newEncodedPassword);
-        $user->setAlternativeLoginPassword($newEncodedPassword);
+        $user->setPassword($newHashedPassword);
+        $user->setAlternativeLoginPassword($newHashedPassword);
 
         // execute the queries on the database
         $this->getEntityManager()->flush();

@@ -33,13 +33,13 @@
             {# release from cluster #}
             {% if statement.headStatement is not null %}
             {# back to cluster #}
-                <div class="u-mt-0_5 display--inline-block">
+                <div class="u-mt-0_5 inline-block">
                     <a href="{{ path("DemosPlan_cluster_view", { 'statement': statement.headStatement.ident, 'procedureId': procedure, 'isCluster': true }) }}" class="">
                         {{ "cluster.back.to"|trans }}
                     </a>
                 </div>
 
-                <form class="float--right"
+                <form class="float-right"
                       action="{{ path('DemosPlan_cluster_detach_statement', { 'statementId': statement.ident, 'procedure': procedure }) }}">
                     <button type="submit" class="btn btn--primary u-mt-0_5" >Aus der Gruppe {{ statement.headStatement.externId }} lösen</button>
                 </form>
@@ -47,13 +47,18 @@
         </div>
 
         {# item header #}
-        <div class="border--bottom layout--flush u-pt-0_25 u-ph-0_5 cf">
+        <div class="border--bottom layout--flush u-pt-0_25 u-ph-0_5 flow-root">
             {% apply spaceless -%}
 
                 {# id #}
                 <div class="layout--flush layout__item">
                     <label for="{{ statement.ident }}:item_check[]" class="layout__item u-3-of-8 u-mb-0_25">
-                        <span class="o-tooltip display--inline-block">
+                        <span class="inline-block" v-tooltip="`
+                            {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
+                                {{ 'statement.date.authored'|trans }}: {{ statement.meta.authoredDate|default()|dplanDate()}} <br>
+                            {% endif %}
+                            {{ 'statement.date.submitted'|trans }}: {{ statement.submit|default()|dplanDate() }} <br>
+                        `">
                             {{ 'id'|trans }}:
                             {% if statement.original.ident is defined
                                 and statement.parent.ident is defined
@@ -70,13 +75,6 @@
                             {% if statement.headStatement is not null %}
                                 | {{ 'cluster'|trans }}: {{ statement.headStatement.externId }}
                             {% endif %}
-
-                            <span class="o-tooltip__content">
-                                {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
-                                    {{ 'statement.date.authored'|trans }}: {{ statement.meta.authoredDate|default()|dplanDate()}} <br>
-                                {% endif %}
-                                {{ 'statement.date.submitted'|trans }}: {{ statement.submit|default()|dplanDate() }} <br>
-                            </span>
                         </span>
                     </label>
 
@@ -88,7 +86,7 @@
         <div class="">
 
             {# statement tab #}
-            <div class="is-active cf u-ph u-pt-0_5" data-toggle-id="{{ statement.ident|default(0) }}_statement">
+            <div class="is-active flow-root u-ph u-pt-0_5" data-toggle-id="{{ statement.ident|default(0) }}_statement">
 
                 {# Einreicher #}
                 {% if hasPermission('field_statement_meta_orga_name') and formDefinitions.citizenXorOrgaAndOrgaName.enabled == true %}
@@ -458,14 +456,14 @@
                             </div>
                             <span class="layout__item u-5-of-8">
                                 <i
-                                    class="fa fa-paperclip color--grey display--inline"
+                                    class="fa fa-paperclip color--grey inline"
                                     title="{{ 'attachment.original'|trans }}"
                                     aria-hidden="true">
                                 </i>
                                 {% for source_stn in source_statements %}
                                     {% if hasPermission('feature_read_source_statement_via_api') %}
                                         <a
-                                            class="o-hellip--nowrap u-mb-0_25 display--inline"
+                                            class="o-hellip--nowrap u-mb-0_25 inline"
                                             title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
