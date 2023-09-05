@@ -8,7 +8,7 @@ jobs:
   vendor_update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
