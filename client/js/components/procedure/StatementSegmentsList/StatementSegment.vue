@@ -152,7 +152,7 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="segment.hasRelationship('tags')"
+              v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
@@ -447,6 +447,7 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
+
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -823,7 +824,7 @@ export default {
       })
 
     loadAddonComponents('segment.recommendationModal.tab')
-      .then((response) => {
+      .then(response => {
         this.asyncComponents = response
         this.allComponentsLoaded = true
 
