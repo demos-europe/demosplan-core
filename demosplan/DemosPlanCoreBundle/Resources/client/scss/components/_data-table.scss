@@ -158,23 +158,4 @@
 
         background-color: $dp-color-white;
     }
-
-    .table-text {
-        & ul,
-        & ol {
-            padding-left: 1.3em;
-
-            & li > p {
-                margin: 0;
-            }
-        }
-
-        & ul {
-            list-style: disc;
-        }
-
-        & ol {
-            list-style: decimal;
-        }
-    }
 }
