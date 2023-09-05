@@ -229,6 +229,7 @@
           }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
@@ -830,7 +831,7 @@ export default {
         response.forEach(component => {
           this.$options.components[component.name] = window[component.name].default
         })
-    })
+      })
   }
 }
 </script>
