@@ -229,6 +229,7 @@
           }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
@@ -259,7 +260,9 @@
           }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
-          <dp-icon icon="history" />
+          <dp-icon
+            class="inline-block"
+            icon="history" />
         </button>
 
         <button
@@ -444,7 +447,6 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
-
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -828,7 +830,7 @@ export default {
         response.forEach(component => {
           this.$options.components[component.name] = window[component.name].default
         })
-    })
+      })
   }
 }
 </script>
