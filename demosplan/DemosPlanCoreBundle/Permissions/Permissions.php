@@ -233,8 +233,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             ]
         )) {
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_procedure_export_include_statement_final_group',
                 'feature_procedure_export_include_statement_released',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
@@ -242,14 +247,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::ORGANISATION_ADMINISTRATION)) {         // Fachplaner-Masteruser GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
+                'area_mydata',
                 'area_organisations_view_of_customer',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
                 'feature_json_api_create',
                 'feature_json_api_delete',
                 'feature_json_api_list',
                 'feature_json_api_update',
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
@@ -264,12 +274,17 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_manage_orgadata',  // Daten der Organisation
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_new_procedure',  // Neues Verfahren anlegen
-                'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
+                'feature_procedure_export_include_public_interest_bodies_member_list',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
 
@@ -277,9 +292,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
                 'area_manage_orgadata',  // Daten der Organisation
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
             ]);
@@ -288,8 +308,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der Organisation
-                'field_statement_recommendation',
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'field_organisation_email_reviewer_admin',  // Email for notifications for reviwer admin
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
+                'field_statement_recommendation',
             ]);
         }
 
@@ -302,10 +327,15 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_WORKER, Role::HEARING_AUTHORITY_WORKER])) {         // Fachplaner-Sachbearbeiter GLAUTH Kommune
             $this->enablePermissions([
                 'area_admin_procedures',  // Verfahren verwalten
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_json_api_get', // allow get requests to generic api
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_procedure_export_include_public_interest_bodies_member_list',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
 
@@ -327,9 +357,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         if ($this->user->hasAnyOfRoles([Role::PUBLIC_AGENCY_WORKER, Role::PUBLIC_AGENCY_COORDINATION])) { // Institutions-Koordination oder Institutions-Sachbearbeitung
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'feature_admin_export_procedure',  // Verfahren exportieren
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_procedure_filter_internal_phase', // sort for internal phases in procedure list
                 'feature_procedure_filter_internal_phase_permissionset', // filter for internal phases permissionset in procedure list
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
 
@@ -341,26 +376,24 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_filter_external_public_participation_phase',  // Filter public participation phase in procedure list
                 'feature_procedure_filter_external_public_participation_phase_permissionset',  // Filter public participation phase permissionset in procedure list
                 'feature_statement_public_allowed_needs_verification',  // Publishing statements needs verification
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
                 'field_statement_recommendation',
-            ]);
-        }
-
-        if ($this->user->allRolesExept([Role::GUEST, Role::PROSPECT])) {
-            $this->enablePermissions([
-                'area_mydata',
-                'area_portal_user',  // Portal des Users
-                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
-                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
 
         if ($this->user->hasRole(Role::CUSTOMER_MASTER_USER)) {
             $this->enablePermissions([
+                'area_mydata',
                 'area_organisations_view_of_customer',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_orga_edit_all_fields',
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
@@ -368,12 +401,18 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLATFORM_SUPPORT)) {         // Verfahrenssupport GTSUPP Verfahrenssupport
             $this->enablePermissions([
                 'area_manage_orgadata',  // Abteilungenverwalten
+                'area_mydata',
                 'area_organisations_view',
                 'area_organisations_view_of_customer',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_orga_get',
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
@@ -382,50 +421,74 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
                 'area_admin_faq',  // Verwalten
-                'feature_json_api_update', // needed to administrate FAQ items
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'area_preferences',  // Einstellungen
+                'feature_json_api_update', // needed to administrate FAQ items
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
 
         if ($this->user->hasRole(Role::CITIZEN)) { // angemeldeter Bürger
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_admin_export_procedure_in_detail_view',  // Verfahren exportieren in der Detailseite
                 'feature_draft_statement_citizen_immediate_submit',
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_notification_citizen_statement_submitted',  // Notification on submitting a new statement
                 'feature_procedure_export_include_public_statements',
                 'feature_procedure_filter_external_public_participation_phase',  // Filter public participation phase in procedure list
                 'feature_procedure_filter_external_public_participation_phase_permissionset',  // Filter public participation phase permissionset in procedure list
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
                 'feature_statement_public_allowed_needs_verification',  // Publishing statements needs verification
                 'feature_statements_vote_may_vote',  // May vote other citizens statements
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
 
         if ($this->user->hasRole(Role::BOARD_MODERATOR)) { // Moderator
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'feature_forum_thread_edit',  // einen Thread im Forum bearbeiten
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
 
         if ($this->user->hasRole(Role::PROCEDURE_CONTROL_UNIT)) { // fachliche Leitstelle
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
+                'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
                 'field_statement_recommendation',
             ]);
         }
 
         if ($this->user->hasRole(Role::PROCEDURE_DATA_INPUT)) { // Datenerfassung
             $this->enablePermissions([
+                'area_mydata',
+                'area_portal_user',  // Portal des Users
                 'area_statement_data_input_orga',  // Create new submitted statements
+                'feature_map_use_drawing_tools',  // Einzeichnungen in der Karte vornehmen
                 'feature_procedure_get_base_data',  // receive basic procedure data
-            ]);
-        }
-
-        if ($this->user->allRolesExept([Role::PROCEDURE_DATA_INPUT])) {
-            $this->enablePermissions([
+                'feature_procedure_single_document_upload_zip',  // guests are not allowed to upload documents into procedures at all, hence do not allow for zip upload
                 'field_procedure_recommendation_version', // ältere Abwägungsempfehlungen
+                'field_statement_file',  // Dokument hochladen (beim Abgeben einer STN)
             ]);
         }
 
