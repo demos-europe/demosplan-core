@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -69,75 +69,75 @@ class DeleteProcedureCommand extends CoreCommand
 
         try {
             // deactivate foreign key checks
-            $this->output->writeln("Deactivate FK Checks");
+            $this->output->writeln('Deactivate FK Checks');
             $this->deactivateForeignKeyChecks();
 
             // delete all statements and connected entities
-            $this->output->writeln("Deleting All Statements");
+            $this->output->writeln('Deleting All Statements');
             $this->processAllStatements();
 
             // delete all annotated statement pdfs -> pages -> files
-            $this->output->writeln("Deleting Annotated PDFs");
+            $this->output->writeln('Deleting Annotated PDFs');
             $this->processAnnotatedStatementPdfs();
 
             // delete procedure elements -> files
-            $this->output->writeln("Deleting Elements");
+            $this->output->writeln('Deleting Elements');
             $this->processElements();
 
             // Procedure Behavior Definition
-            $this->output->writeln("Deleting Behavior Definitions");
+            $this->output->writeln('Deleting Behavior Definitions');
             $this->deleteBehaviorDefinitions();
 
             // Procedure UI Definition
-            $this->output->writeln("Deleting UI Definitions");
+            $this->output->writeln('Deleting UI Definitions');
             $this->deleteUiDefinitions();
 
             // form definitions -> field definitions
-            $this->output->writeln("Deleting Form Definitions");
+            $this->output->writeln('Deleting Form Definitions');
             $this->processFormDefinitions();
 
             // delete gis layers
-            $this->output->writeln("Deleting Gis Layers");
+            $this->output->writeln('Deleting Gis Layers');
             $this->processGisLayers();
 
             // delete procedure news
-            $this->output->writeln("Deleting News");
+            $this->output->writeln('Deleting News');
             $this->deleteProcedureNews();
 
             // delete tag topics -> tags
-            $this->output->writeln("Deleting Tags");
+            $this->output->writeln('Deleting Tags');
             $this->processTags();
 
             // delete predefined text categories -> predefined texts
-            $this->output->writeln("Deleting Predefined Texts");
+            $this->output->writeln('Deleting Predefined Texts');
             $this->processPredefinedTexts();
 
             // delete draft statements
-            $this->output->writeln("Deleting Draft Statements");
+            $this->output->writeln('Deleting Draft Statements');
             $this->deleteDraftStatements();
 
             // delete import_emails -> attachments
-            $this->output->writeln("Deleting Import Emails");
+            $this->output->writeln('Deleting Import Emails');
             $this->processImportEmails();
 
             // delete hashed queries
-            $this->output->writeln("Deleting hashed Queries");
+            $this->output->writeln('Deleting hashed Queries');
             $this->deleteHashedQueries();
 
             // delete remaining procedure files
-            $this->output->writeln("Deleting Procedure Files");
+            $this->output->writeln('Deleting Procedure Files');
             $this->deleteFromTableByIdentifierArray('_files', 'procedure_id', [$this->procedureId]);
 
             // delete procedure report entries
-            $this->output->writeln("Deleting Report Entries");
+            $this->output->writeln('Deleting Report Entries');
             $this->deleteReportEntriesByIdentifierAndType('procedure', [$this->procedureId]);
 
             // delete procedure itself
-            $this->output->writeln("Deleting Procedure");
+            $this->output->writeln('Deleting Procedure');
             $this->deleteProcedure();
 
             // reactivate foreign key checks
-            $this->output->writeln("Activate FK Checks");
+            $this->output->writeln('Activate FK Checks');
             $this->activateForeignKeyChecks();
 
             $this->output->writeln("Procedure $this->procedureId was purged successfully!");
@@ -153,7 +153,7 @@ class DeleteProcedureCommand extends CoreCommand
 
     /**
      * Find all statements + segments
-     * Iterate over all Statements and delete related stuff like meta, attachments, etc
+     * Iterate over all Statements and delete related stuff like meta, attachments, etc.
      *
      * @throws Exception
      */
@@ -164,22 +164,22 @@ class DeleteProcedureCommand extends CoreCommand
         print_r($statementIds);
 
         // delete statement meta
-        $this->output->writeln("Deleting Statement-Meta");
+        $this->output->writeln('Deleting Statement-Meta');
         $this->deleteStatementMeta($statementIds);
         // delete statement attachment -> files
-        $this->output->writeln("Deleting Statement-Attachments");
+        $this->output->writeln('Deleting Statement-Attachments');
         $this->processStatementAttachments($statementIds);
         // remove all tags from statements to prepare for later tag deletion
-        $this->output->writeln("Deleting Statement-Tags");
+        $this->output->writeln('Deleting Statement-Tags');
         $this->deleteTagsFromStatements($statementIds);
         // delete similar statement submitter
-        $this->output->writeln("Deleting Statement-Submitters");
+        $this->output->writeln('Deleting Statement-Submitters');
         $this->deleteSimilarStatementSubmitters($statementIds);
         // delete report entries related to statements
-        $this->output->writeln("Deleting Statement-Report-Entries");
+        $this->output->writeln('Deleting Statement-Report-Entries');
         $this->deleteReportEntriesByIdentifierAndType('statement', $statementIds);
         // delete statements
-        $this->output->writeln("Deleting Statements");
+        $this->output->writeln('Deleting Statements');
         $this->deleteFromTableByIdentifierArray('_statement', '_p_id', [$this->procedureId]);
     }
 
@@ -200,7 +200,7 @@ class DeleteProcedureCommand extends CoreCommand
         // delete files first
         $this->deleteFiles(array_column($attachmentData, 'file_id'));
 
-        //delete attachments
+        // delete attachments
         $this->deleteStatementAttachment(array_column($attachmentData, 'id'));
     }
 
@@ -268,7 +268,6 @@ class DeleteProcedureCommand extends CoreCommand
         $this->deletePredefinedTextsCategories();
         $this->deletePredefinedTexts();
         $this->deleteBoilerplateGroup();
-
     }
 
     private function processAnnotatedStatementPdfs(): void
@@ -383,7 +382,6 @@ class DeleteProcedureCommand extends CoreCommand
     private function deleteTagsFromStatements(array $statementIds): void
     {
         $this->deleteFromTableByIdentifierArray('_statement_tag', '_st_id', $statementIds);
-
     }
 
     private function deleteSimilarStatementSubmitters(array $statementIds): void
