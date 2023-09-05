@@ -1479,17 +1479,6 @@ class User implements SamlUserInterface, AddonUserInterface
         return false;
     }
 
-    public function allRolesExept(array $roles): bool
-    {
-        foreach ($roles as $role) {
-            if ($this->hasRole($role)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
      * Returns the roles granted to the user.
      *
