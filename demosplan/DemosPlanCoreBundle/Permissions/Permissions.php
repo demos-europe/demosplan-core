@@ -535,9 +535,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin',  // Verwalten
                 'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
+                'area_admin_map',  // Verwalten Planzeichnung
+                'area_admin_map_description',  // Verwalten Planzeichenerklärung
                 'area_admin_news',  // Verwalten Aktuelles (im Verfahren)
+                'area_admin_paragraphed_document',  // Verwalten Begruendung + Textliche Festsettung/Verordnung
                 'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
                 'area_admin_protocol',  // Verwalten Protokoll
+                'area_admin_single_document',  // Verwalten Planungsdokumente
+                'feature_admin_assessmenttable_export_docx',  // Abwägungstabelle Word-Export
                 'feature_export_protocol',
                 'feature_json_api_create',
                 'feature_json_api_delete',
