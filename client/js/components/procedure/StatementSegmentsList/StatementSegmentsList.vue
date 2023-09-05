@@ -68,7 +68,7 @@
           </li>
           <li>
             <dp-button
-              class="line-height--2 u-ph-0_25"
+              class="u-ph-0_25"
               :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
               :text="Translator.trans('export.verb')"
               variant="subtle" />
