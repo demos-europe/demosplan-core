@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,6 +33,7 @@ class DeleteProcedureCommand extends CoreCommand
     private Connection $dbConnection;
     private string $procedureId;
     private bool $isDryRun;
+    private bool $withoutRepopulate;
     private SymfonyStyle $output;
 
     public function __construct(EntityManagerInterface $em, ParameterBagInterface $parameterBag, string $name = null)
@@ -55,6 +57,13 @@ class DeleteProcedureCommand extends CoreCommand
             InputOption::VALUE_NONE,
             'Initiates a dry run with verbose output to see what would happen.',
         );
+
+        $this->addOption(
+            'without-repopulate',
+            'wrp',
+            InputOption::VALUE_NONE,
+            'Ignores repopulating the ES. This should only be used for debugging purposes!',
+        );
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -63,6 +72,7 @@ class DeleteProcedureCommand extends CoreCommand
 
         $this->procedureId = $input->getArgument('procedureId');
         $this->isDryRun = (bool) $input->getOption('dry-run');
+        $this->withoutRepopulate = (bool) $input->getOption('without-repopulate');
 
         $this->output->writeln("Procedure: $this->procedureId");
         $this->output->writeln("Dry-run: $this->isDryRun");
@@ -139,6 +149,9 @@ class DeleteProcedureCommand extends CoreCommand
             // reactivate foreign key checks
             $this->output->writeln("Activate FK Checks");
             $this->activateForeignKeyChecks();
+
+            // repopulate Elasticsearch
+            $this->repopulateElasticsearch();
 
             $this->output->writeln("Procedure $this->procedureId was purged successfully!");
 
@@ -510,5 +523,16 @@ class DeleteProcedureCommand extends CoreCommand
     private function doesTableExist(string $tableName): bool
     {
         return $this->dbConnection->createSchemaManager()->tablesExist([$tableName]);
+    }
+
+    private function repopulateElasticsearch(): void
+    {
+        if ($this->isDryRun || $this->withoutRepopulate) {
+            return;
+        }
+
+        Batch::create($this->getApplication(), $this->output)
+            ->add('dplan:elasticsearch:populate')
+            ->run();
     }
 }
