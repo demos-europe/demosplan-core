@@ -806,9 +806,6 @@ export default {
   },
 
   mounted () {
-    // this.$root.$once('toggle-recommendation-modal', () => {
-    //   this.closeRecommendationModal()
-    // })
     this.fetchPlaces({
       fields: {
         Place: ['name', 'sortIndex', 'description'].join()
@@ -836,10 +833,6 @@ export default {
           this.$options.components[component.name] = window[component.name].default
         })
       })
-  },
-
-  // beforeDestroy () {
-  //   this.$root.$off('toggle-recommendation-modal')
-  // }
+  }
 }
 </script>
