@@ -122,6 +122,17 @@
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
+                <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
+                  class="u-ml-0_25"
+                  icon="ai"
+                  size="large"
+                  :text="Translator.trans('segment.oracle.tooltip')" />
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
+                  class="absolute u-right-0 u-mr"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')" />
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
@@ -313,8 +324,10 @@ import {
   checkResponse,
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpIcon,
   DpLabel,
   DpModal,
@@ -337,9 +350,11 @@ export default {
 
   components: {
     AddonWrapper,
+    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpClaim,
     DpIcon,
     DpLabel,
