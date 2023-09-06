@@ -137,7 +137,8 @@
                       :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
                       class="u-mt"
-                      :is="component.name" />
+                      :is="component.name"
+                      @recommendation:insert="toggleRecommendationModal" />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -156,7 +157,7 @@
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              @click.stop="openRecommendationModal">
+              @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -590,7 +591,7 @@ export default {
       this.$refs.boilerPlateModal.toggleModal()
     },
 
-    openRecommendationModal () {
+    toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
     },
 
@@ -805,6 +806,9 @@ export default {
   },
 
   mounted () {
+    // this.$root.$once('toggle-recommendation-modal', () => {
+    //   this.closeRecommendationModal()
+    // })
     this.fetchPlaces({
       fields: {
         Place: ['name', 'sortIndex', 'description'].join()
@@ -832,6 +836,10 @@ export default {
           this.$options.components[component.name] = window[component.name].default
         })
       })
-  }
+  },
+
+  // beforeDestroy () {
+  //   this.$root.$off('toggle-recommendation-modal')
+  // }
 }
 </script>
