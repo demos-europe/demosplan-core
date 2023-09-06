@@ -161,8 +161,6 @@ class DeleteProcedureCommand extends CoreCommand
     {
         $statementIds = array_column($this->fetchFromTableByProcedure(['_st_id'], '_statement', '_p_id'), '_st_id');
 
-        print_r($statementIds);
-
         // delete statement meta
         $this->output->writeln("Deleting Statement-Meta");
         $this->deleteStatementMeta($statementIds);
@@ -185,6 +183,12 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function processStatementAttachments(array $statementIds): void
     {
+        if (!$this->doesTableExist('statement_attachment')) {
+            $this->output->writeln("No table with the name 'statement_attachment' exists in this database. Data could not be fetched.");
+
+            return;
+        }
+
         $statementAttachmentQueryBuilder = $this->dbConnection->createQueryBuilder();
         $statementAttachmentQueryBuilder
             ->select('id', 'file_id')
@@ -247,6 +251,12 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function processImportEmailAttachments(array $importEmailIds): void
     {
+        if (!$this->doesTableExist('statement_import_email_attachments')) {
+            $this->output->writeln("No table with the name 'statement_import_email_attachments' exists in this database. Data could not be fetched.");
+
+            return;
+        }
+
         $importEmailAttachmentQueryBuilder = $this->dbConnection->createQueryBuilder();
         $importEmailAttachmentQueryBuilder
             ->select('file_id')
@@ -418,6 +428,12 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function deleteReportEntriesByIdentifierAndType(string $identifierType, array $identifierArray): void
     {
+        if (!$this->doesTableExist('_report_entries')) {
+            $this->output->writeln("No table with the name '_report_entries' exists in this database. Data could not be deleted.");
+
+            return;
+        }
+
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
         $deletionQueryBuilder
             ->delete('_report_entries')
@@ -438,6 +454,12 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids): void
     {
+        if (!$this->doesTableExist($tableName)) {
+            $this->output->writeln("No table with the name $tableName exists in this database. Data could not be deleted.");
+
+            return;
+        }
+
         $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
         $deletionQueryBuilder
             ->delete($tableName)
@@ -456,6 +478,12 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function fetchFromTableByProcedure(array $targetColumns, string $tableName, string $identifier): array
     {
+        if (!$this->doesTableExist($tableName)) {
+            $this->output->writeln("No table with the name $tableName exists in this database. Data could not be fetched.");
+
+            return [];
+        }
+
         $fetchQueryBuilder = $this->dbConnection->createQueryBuilder();
         $fetchQueryBuilder
             ->select(...$targetColumns)
@@ -477,5 +505,10 @@ class DeleteProcedureCommand extends CoreCommand
     private function activateForeignKeyChecks(): void
     {
         $this->dbConnection->executeStatement('SET foreign_key_checks = 1;');
+    }
+
+    private function doesTableExist(string $tableName): bool
+    {
+        return $this->dbConnection->createSchemaManager()->tablesExist([$tableName]);
     }
 }
