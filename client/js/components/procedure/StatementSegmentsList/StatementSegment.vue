@@ -608,6 +608,7 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
+      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
     /**
