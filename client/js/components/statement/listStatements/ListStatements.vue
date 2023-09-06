@@ -140,7 +140,7 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 break-words"
+            class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
