@@ -87,6 +87,12 @@
     ul {
         margin-left: $inuit-base-spacing-unit--large;
         min-width: 50px;
+
+        > li {
+            p {
+                margin: 0;
+            }
+        }
     }
 
     ol {
