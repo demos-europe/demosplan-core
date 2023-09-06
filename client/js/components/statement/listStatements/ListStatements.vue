@@ -231,7 +231,7 @@
           </statement-meta-data>
 
           <!-- Statement text -->
-          <div class="u-pt-0_5 break-words c-styled-html">
+          <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
             <template v-if="typeof fullText === 'undefined'">
               <div v-cleanhtml="text" />
