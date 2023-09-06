@@ -68,7 +68,7 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l overflow-word-break"
+      class="segment-list-col--l overflow-word-break c-styled-html"
       v-cleanhtml="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
@@ -444,7 +444,6 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
-
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -828,7 +827,7 @@ export default {
         response.forEach(component => {
           this.$options.components[component.name] = window[component.name].default
         })
-    })
+      })
   }
 }
 </script>
