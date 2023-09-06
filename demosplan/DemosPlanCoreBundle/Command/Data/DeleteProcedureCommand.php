@@ -78,6 +78,9 @@ class DeleteProcedureCommand extends CoreCommand
         $this->output->writeln("Dry-run: $this->isDryRun");
 
         try {
+            // start doctrine transaction
+            $this->dbConnection->beginTransaction();
+
             // deactivate foreign key checks
             $this->output->writeln('Deactivate FK Checks');
             $this->deactivateForeignKeyChecks();
@@ -150,6 +153,10 @@ class DeleteProcedureCommand extends CoreCommand
             $this->output->writeln('Activate FK Checks');
             $this->activateForeignKeyChecks();
 
+            // commit all changes
+            $this->output->writeln('Committing all changes');
+            $this->dbConnection->commit();
+
             // repopulate Elasticsearch
             $this->repopulateElasticsearch();
 
@@ -157,6 +164,10 @@ class DeleteProcedureCommand extends CoreCommand
 
             return Command::SUCCESS;
         } catch (Exception $e) {
+            // rollback all changes
+            $this->dbConnection->rollBack();
+            $this->output->writeln("Rolled back transaction");
+
             $this->output->error($e->getMessage());
             $this->output->error($e->getTraceAsString());
 
@@ -223,10 +234,10 @@ class DeleteProcedureCommand extends CoreCommand
 
     private function processElements(): void
     {
-        $elementsData = $this->fetchFromTableByProcedure(['_e_id', '_e_file'], '_elements', '_p_id');
+        $elementsData = $this->fetchFromTableByProcedure(['_e_file'], '_elements', '_p_id');
 
         $this->deleteFiles(array_column($elementsData, '_e_file'));
-        $this->deleteElements(array_column($elementsData, '_e_id'));
+        $this->deleteElements();
     }
 
     private function processFormDefinitions(): void
@@ -250,7 +261,7 @@ class DeleteProcedureCommand extends CoreCommand
         $tagTopicData = array_column($this->fetchFromTableByProcedure(['_tt_id'], '_tag_topic', '_p_id'), '_tt_id');
 
         $this->deleteTags($tagTopicData);
-        $this->deleteTagTopics($tagTopicData);
+        $this->deleteTagTopics();
     }
 
     private function processImportEmails(): void
@@ -377,9 +388,9 @@ class DeleteProcedureCommand extends CoreCommand
         $this->deleteFromTableByIdentifierArray('_tag', '_tt_id', $tagTopicIds);
     }
 
-    private function deleteTagTopics(array $tagTopicIds): void
+    private function deleteTagTopics(): void
     {
-        $this->deleteFromTableByIdentifierArray('_tag_topic', '_tt_id', $tagTopicIds);
+        $this->deleteFromTableByIdentifierArray('_tag_topic', '_p_id', [$this->procedureId]);
     }
 
     private function deleteProcedureNews(): void
@@ -412,9 +423,9 @@ class DeleteProcedureCommand extends CoreCommand
         $this->deleteFromTableByIdentifierArray('similar_statement_submitter', 'statement_id', $statementIds);
     }
 
-    private function deleteElements(array $elementsIds): void
+    private function deleteElements(): void
     {
-        $this->deleteFromTableByIdentifierArray('_elements', '_e_id', $elementsIds);
+        $this->deleteFromTableByIdentifierArray('_elements', '_p_id', [$this->procedureId]);
     }
 
     private function deleteFieldDefinitions(array $formDefinitionIds): void
