@@ -124,6 +124,7 @@
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
                 <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
                   class="u-ml-0_25"
                   icon="ai"
                   size="large"
