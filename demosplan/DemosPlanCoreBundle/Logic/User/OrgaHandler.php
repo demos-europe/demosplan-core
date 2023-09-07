@@ -168,6 +168,10 @@ class OrgaHandler extends CoreHandler
             'showname',
         ];
 
+        if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
+            $writableAttributes[] = 'email2';
+        }
+
         if ($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
             $writableAttributes[] = 'copy';
         }
