@@ -167,7 +167,10 @@
               v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
-              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
+              v-tooltip="{
+                content: Translator.trans('segment.recommendation.insert.similar'),
+                classes: 'u-z-super'
+              }"
               @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
@@ -463,7 +466,6 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
-
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -832,7 +834,7 @@ export default {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
       })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
+    this.fetchAssignableUsers({ include: 'orga', sort: 'lastname' })
       .then(() => {
         if (this.segment.relationships?.assignee?.data?.id) {
           this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
