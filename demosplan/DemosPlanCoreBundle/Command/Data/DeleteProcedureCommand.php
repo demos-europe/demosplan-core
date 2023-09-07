@@ -540,8 +540,12 @@ class DeleteProcedureCommand extends CoreCommand
             return;
         }
 
+        $env = $this->parameterBag->get('kernel.environment');
+        $this->output->writeln("Repopulating ES with env: $env");
+
+        $repopulateEsCommand = 'dev' === $env ? 'dplan:elasticsearch:populate' : 'dplan:elasticsearch:populate -e prod';
         Batch::create($this->getApplication(), $this->output)
-            ->add('dplan:elasticsearch:populate')
+            ->add($repopulateEsCommand)
             ->run();
     }
 }
