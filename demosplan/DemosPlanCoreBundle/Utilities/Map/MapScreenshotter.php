@@ -32,7 +32,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
 use GdImage;
 use GeoJson\GeoJson;
-use geoPHP;
+use geoPHP\geoPHP;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;

@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Exception;
 use Faker\Provider\Uuid;
-use geoPHP;
+use geoPHP\geoPHP;
 use Intervention\Image\ImageManager;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
