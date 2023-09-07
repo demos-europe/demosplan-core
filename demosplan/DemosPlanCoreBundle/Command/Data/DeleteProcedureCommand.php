@@ -166,7 +166,7 @@ class DeleteProcedureCommand extends CoreCommand
         } catch (Exception $e) {
             // rollback all changes
             $this->dbConnection->rollBack();
-            $this->output->writeln("Rolled back transaction");
+            $this->output->writeln('Rolled back transaction');
 
             $this->output->error($e->getMessage());
             $this->output->error($e->getTraceAsString());
