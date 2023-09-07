@@ -1,6 +1,6 @@
 {
-    "name": "demos/demosplan",
-    "description": "demosplan",
+    "name": "demos-europe/demosplan",
+    "description": "demosplan is a web application for public participation in planning processes",
     "type": "project",
     "license": "EUPL-1.2",
     "minimum-stability": "stable",
