@@ -68,8 +68,6 @@ class StatementGeoService extends CoreService
      * Add robob Data to statement.
      *
      * @param Statement $statement
-     *
-     * @return mixed
      */
     public function getStatementGeoData($statement)
     {
@@ -200,7 +198,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('priorityAreas', $data)) {
                 foreach ($data['priorityAreas'] as $priorityAreaString) {
                     $area = $allAreas->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var PriorityArea $entry */
                             $entry->getKey() === $priorityAreaString
                     );
@@ -216,7 +214,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('counties', $data)) {
                 foreach ($data['counties'] as $countyString) {
                     $county = $allCounties->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var County $entry */
                             $entry->getName() == $countyString
                     );
@@ -230,7 +228,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('municipalities', $data)) {
                 foreach ($data['municipalities'] as $municipalityString) {
                     $municipality = $allMunicipalities->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var Municipality $entry */
                             $entry->getName() == $municipalityString
                     );
@@ -329,8 +327,6 @@ class StatementGeoService extends CoreService
      *
      * @param string       $path
      * @param array|string $data
-     *
-     * @return mixed
      *
      * @throws Exception
      */

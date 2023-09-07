@@ -61,17 +61,12 @@ class WktToGeoJsonConverter
         return '';
     }
 
-    /**
-     * @param mixed $input
-     */
     private function isWkt($input): bool
     {
         return is_array($input);
     }
 
     /**
-     * @return mixed
-     *
      * @throws JsonException
      */
     private function getValidInput(string $geoJson)
