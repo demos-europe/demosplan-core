@@ -149,7 +149,7 @@
                       :segment-id="addonProps.segmentId"
                       class="u-mt"
                       :is="component.name"
-                      @recommendation:insert="toggleRecommendationModal" />
+                      @recommendation:insert="closeRecommendationModalAfterInsert" />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -602,13 +602,13 @@ export default {
         })
     },
 
-    openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+    closeRecommendationModalAfterInsert () {
+      this.toggleRecommendationModal()
+      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
-    toggleRecommendationModal () {
-      this.$refs.recommendationModal.toggle()
-      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     /**
@@ -732,6 +732,10 @@ export default {
       } else {
         this.unclaimSegment()
       }
+    },
+
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
     },
 
     unclaimSegment () {
