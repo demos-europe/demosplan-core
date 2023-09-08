@@ -57,7 +57,7 @@ class GeoJsonToFeaturesConverter
             $viewport = $this->convertViewport($feature);
             $printLayers = $this->convertPrintLayers($feature);
             // ensure that the geometry is a string as expected by geoPHP
-            if(is_a($feature, 'stdClass')) {
+            if (is_a($feature, 'stdClass')) {
                 $feature = Json::encode($feature);
             }
             $geometry = geoPHP::load($feature, 'json');
