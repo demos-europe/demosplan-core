@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -229,6 +230,10 @@ class DeleteProcedureCommand extends CoreCommand
         // delete similar statement submitter
         $this->output->writeln('Deleting Statement-Submitters');
         $this->deleteSimilarStatementSubmitters($statementIds);
+        // delete statement gdpr consent
+        $this->deleteGdprConsent($statementIds);
+        // delete entity content changes
+        $this->deleteStatementEntityContentChange($statementIds);
         // delete report entries related to statements
         $this->output->writeln('Deleting Statement-Report-Entries');
         $this->deleteReportEntriesByIdentifierAndType('statement', $statementIds);
@@ -250,7 +255,7 @@ class DeleteProcedureCommand extends CoreCommand
             ->select('id', 'file_id')
             ->from('statement_attachment')
             ->where('statement_id IN (:idList)')
-            ->setParameter('idList', implode(',', $statementIds));
+            ->setParameter('idList', $statementIds, ArrayParameterType::STRING);
 
         $query = $statementAttachmentQueryBuilder->getSQL();
         $this->output->writeln("Attachment-SQL: $query");
@@ -318,7 +323,7 @@ class DeleteProcedureCommand extends CoreCommand
             ->select('file_id')
             ->from('statement_import_email_attachments')
             ->where('statement_import_email_id IN (:idList)')
-            ->setParameter('idList', implode(',', $importEmailIds));
+            ->setParameter('idList', $importEmailIds, ArrayParameterType::STRING);
 
         $attachmentData = array_column($importEmailAttachmentQueryBuilder->fetchAllAssociative(), 'file_id');
 
@@ -520,6 +525,11 @@ class DeleteProcedureCommand extends CoreCommand
         $this->deleteFromTableByIdentifierArray('gis_layer_category', 'id', $gisCategoryIds);
     }
 
+    private function deleteGdprConsent(array $statementIds): void
+    {
+        $this->deleteFromTableByIdentifierArray('gdpr_consent', 'statement_id', $statementIds);
+    }
+
     private function deleteReportEntriesByIdentifierAndType(string $identifierType, array $identifierArray): void
     {
         if (!$this->doesTableExist('_report_entries')) {
@@ -534,7 +544,34 @@ class DeleteProcedureCommand extends CoreCommand
             ->where('_re_identifier_type = :identifierType')
             ->andWhere('_re_identifier IN (:idList)')
             ->setParameter('identifierType', $identifierType)
-            ->setParameter('idList', implode(',', $identifierArray));
+            ->setParameter('idList', $identifierArray, ArrayParameterType::STRING);
+
+        $deleteSql = $deletionQueryBuilder->getSQL();
+        $this->output->writeln("DeleteSQL: $deleteSql");
+
+        if ($this->isDryRun) {
+            return;
+        }
+
+        $deletionQueryBuilder->executeStatement();
+    }
+
+    private function deleteStatementEntityContentChange(array $identifierArray): void
+    {
+        if (!$this->doesTableExist('entity_content_change')) {
+            $this->output->writeln("No table with the name 'entity_content_change' exists in this database. Data could not be deleted.");
+
+            return;
+        }
+
+        $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $deletionQueryBuilder
+            ->delete('entity_content_change')
+            ->where('entity_type = :identifierType1 OR entity_type = :identifierType2')
+            ->andWhere('entity_id IN (:idList)')
+            ->setParameter('identifierType1', 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment')
+            ->setParameter('identifierType2', 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')
+            ->setParameter('idList', $identifierArray, ArrayParameterType::STRING);
 
         $deleteSql = $deletionQueryBuilder->getSQL();
         $this->output->writeln("DeleteSQL: $deleteSql");
@@ -558,7 +595,7 @@ class DeleteProcedureCommand extends CoreCommand
         $deletionQueryBuilder
             ->delete($tableName)
             ->where($identifier.' IN (:idList)')
-            ->setParameter('idList', implode(',', $ids));
+            ->setParameter('idList', $ids, ArrayParameterType::STRING);
 
         $deleteSql = $deletionQueryBuilder->getSQL();
         $this->output->writeln("DeleteSQL: $deleteSql");
