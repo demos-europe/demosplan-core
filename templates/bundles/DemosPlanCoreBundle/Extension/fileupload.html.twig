@@ -45,7 +45,7 @@
         :max-file-size="{{ maxfilesize }}"
         :max-number-of-files="{{ maxfiles|default(1) }}"
         :basic-auth="dplan.settings.basicAuth"
-        :upload-post="dplan.paths.uploadPost"
+        :tus-endpoint="dplan.paths.uploadPost"
         needs-hidden-input
         :required="{{ field_required ? 'true' : 'false' }}"
         :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }">
