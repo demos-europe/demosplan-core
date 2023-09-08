@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "804745236c12a44d591fcd94c1ca7213",
+    "content-hash": "1be6849032bc0632a603e5f1e19e7639",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4569,76 +4569,6 @@
                 "source": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/tree/2.8.0"
             },
             "time": "2021-12-15T08:51:04+00:00"
-        },
-        {
-            "name": "funiq/geophp",
-            "version": "v2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/funiq/geoPHP.git",
-                "reference": "7e7a9a47640a48bb8a5682d429d62dc01c47bf92"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/funiq/geoPHP/zipball/7e7a9a47640a48bb8a5682d429d62dc01c47bf92",
-                "reference": "7e7a9a47640a48bb8a5682d429d62dc01c47bf92",
-                "shasum": ""
-            },
-            "require": {
-                "php": "5.5 - 8.1"
-            },
-            "require-dev": {
-                "php": "5.5 - 8.1",
-                "php-coveralls/php-coveralls": "2.*",
-                "phpstan/phpstan": "^0.12.18",
-                "phpunit/phpunit": "5.* || 8.*",
-                "squizlabs/php_codesniffer": "3.*"
-            },
-            "suggest": {
-                "ext-geos": "GEOS allows more advanced operations"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "geoPHP\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later",
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Patrick Hayes",
-                    "role": "Original creator"
-                },
-                {
-                    "name": "Péter Báthory",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Open-source native PHP library for doing geometry operations. Can read and write a wide variety of formats: (E)WKT, (E)WKB, TWKB, GeoJSON, KML, GPX, GeoRSS. Works with all Simple-Feature geometries (Point, LineString, Polygon...) and can be used to get centroids, bounding-boxes, area, etc.",
-            "homepage": "https://github.com/funiq/geoPHP",
-            "keywords": [
-                "Polygon",
-                "converter",
-                "geoPHP",
-                "geojson",
-                "geometry",
-                "gis",
-                "gpx",
-                "kml",
-                "linestring",
-                "twkb",
-                "wkb",
-                "wkt"
-            ],
-            "support": {
-                "issues": "https://github.com/funiq/geoPHP/issues",
-                "source": "https://github.com/funiq/geoPHP/tree/v2.0.2"
-            },
-            "time": "2022-09-01T12:16:04+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",
@@ -17881,6 +17811,82 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.11.0"
             },
             "time": "2022-06-03T18:03:27+00:00"
+        },
+        {
+            "name": "wgirhad/geophp",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wgirhad/geoPHP.git",
+                "reference": "74f5b8bdc851cb92b8c07df99a437245f3878fcd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wgirhad/geoPHP/zipball/74f5b8bdc851cb92b8c07df99a437245f3878fcd",
+                "reference": "74f5b8bdc851cb92b8c07df99a437245f3878fcd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1|^8.0"
+            },
+            "provide": {
+                "geophp/geophp": "3.0.0"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "2.*",
+                "phpbench/phpbench": "^1.0",
+                "phpstan/phpstan": "^1.4.0",
+                "phpunit/phpunit": "^8.0|^9.0",
+                "squizlabs/php_codesniffer": "3.*"
+            },
+            "suggest": {
+                "ext-geos": "GEOS allows more advanced operations"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "geoPHP\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later",
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Patrick Hayes",
+                    "role": "Original creator"
+                },
+                {
+                    "name": "Péter Báthory",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Willian Girhad",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Open-source native PHP library for doing geometry operations. Can read and write a wide variety of formats: (E)WKT, (E)WKB, TWKB, GeoJSON, KML, GPX, GeoRSS. Works with all Simple-Feature geometries (Point, LineString, Polygon...) and can be used to get centroids, bounding-boxes, area, etc.",
+            "homepage": "https://github.com/wgirhad/geoPHP",
+            "keywords": [
+                "Polygon",
+                "converter",
+                "geoPHP",
+                "geojson",
+                "geometry",
+                "gis",
+                "gpx",
+                "kml",
+                "linestring",
+                "twkb",
+                "wkb",
+                "wkt"
+            ],
+            "support": {
+                "source": "https://github.com/wgirhad/geoPHP/tree/v3.0.0"
+            },
+            "time": "2023-02-24T12:14:17+00:00"
         },
         {
             "name": "willdurand/geocoder",
