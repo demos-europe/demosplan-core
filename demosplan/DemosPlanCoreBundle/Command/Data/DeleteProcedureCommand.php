@@ -137,6 +137,38 @@ class DeleteProcedureCommand extends CoreCommand
             $this->output->writeln('Deleting hashed Queries');
             $this->deleteHashedQueries();
 
+            // delete workflow places
+            $this->output->writeln('Deleting Workflow Places');
+            $this->deleteWorkflowPlaces();
+
+            // delete procedure_settings
+            $this->output->writeln('Deleting Procedure Settings');
+            $this->deleteProcedureSettings();
+
+            // settings
+            $this->output->writeln('Deleting Settings');
+            $this->deleteSettings();
+
+            // export fields configuration
+            $this->output->writeln('Deleting Export Fields Configuration');
+            $this->deleteExportFieldsConfiguration();
+
+            // maillane connection
+            $this->output->writeln('Deleting Maillane Connection');
+            $this->deleteMaillaneConnection();
+
+            // procedure_settings_allowed_segment_procedures
+            $this->output->writeln('Deleting Something with procedure Settings and Segments');
+            $this->deleteProcedureSettingsAllowedSegmentProcedures();
+
+            // procedure_slug
+            $this->output->writeln('Deleting Procedure Slug');
+            $this->deleteProcedureSlug();
+
+            // procedure_user
+            $this->output->writeln('Deleting Procedure User');
+            $this->deleteProcedureUser();
+
             // delete remaining procedure files
             $this->output->writeln('Deleting Procedure Files');
             $this->deleteFromTableByIdentifierArray('_files', 'procedure_id', [$this->procedureId]);
@@ -311,6 +343,46 @@ class DeleteProcedureCommand extends CoreCommand
         $this->deleteAnnotatedStatementPdfPages(array_column($annotatedStatementPdfData, 'id'));
         $this->deleteAnnotatedStatementPdfs();
         $this->deleteFiles(array_column($annotatedStatementPdfData, 'file'));
+    }
+
+    private function deleteWorkflowPlaces(): void
+    {
+        $this->deleteFromTableByIdentifierArray('workflow_place', 'procedure_id', [$this->procedureId]);
+    }
+
+    private function deleteProcedureSettings(): void
+    {
+        $this->deleteFromTableByIdentifierArray('_procedure_settings', '_p_id', [$this->procedureId]);
+    }
+
+    private function deleteProcedureUser(): void
+    {
+        $this->deleteFromTableByIdentifierArray('procedure_user', 'procedure_id', [$this->procedureId]);
+    }
+
+    private function deleteProcedureSlug(): void
+    {
+        $this->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', [$this->procedureId]);
+    }
+
+    private function deleteSettings(): void
+    {
+        $this->deleteFromTableByIdentifierArray('_settings', '_s_procedure_id', [$this->procedureId]);
+    }
+
+    private function deleteExportFieldsConfiguration(): void
+    {
+        $this->deleteFromTableByIdentifierArray('export_fields_configuration', 'procedure_id', [$this->procedureId]);
+    }
+
+    private function deleteMaillaneConnection(): void
+    {
+        $this->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', [$this->procedureId]);
+    }
+
+    private function deleteProcedureSettingsAllowedSegmentProcedures(): void
+    {
+        $this->deleteFromTableByIdentifierArray('procedure_settings_allowed_segment_procedures', 'procedure__p_id', [$this->procedureId]);
     }
 
     private function deleteUiDefinitions(): void
