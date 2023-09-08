@@ -114,9 +114,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     private array $addonPermissionCollections = [];
 
-    /**
-     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
-     */
     public function __construct(
         AddonRegistry $addonRegistry,
         private readonly CustomerService $currentCustomerProvider,
@@ -250,8 +247,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
-
-
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -875,8 +870,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     public function hasPermissionsetRead($scope = null): bool
     {
         // Read ist in Write inbegriffen
-        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope) ||
-               $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
+        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope)
+               || $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
     }
 
     /**
@@ -891,8 +886,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
-     *
-     * @param array $context
      */
     protected function initMenuhightlighting(array $context = null): void
     {
