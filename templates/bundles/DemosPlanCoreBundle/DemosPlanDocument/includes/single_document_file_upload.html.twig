@@ -2,6 +2,7 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-zip-video"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="(hash) => {
            return Routing.generate('core_file', { hash: hash })
         }"
@@ -11,12 +12,11 @@
         }"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1"
-        :basic-auth="dplan.settings.basicAuth"
-        :tus-endpoint="dplan.paths.uploadPost"
         name="r_document"
         needs-hidden-input
         :required="{{ required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }">
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint">
     </dp-upload-files>
 {% else %}
     <dp-upload-files

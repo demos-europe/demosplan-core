@@ -26,14 +26,14 @@
         <dp-upload-files
           allowed-file-types="img"
           id="r_customerLogo"
+          :basic-auth="dplan.settings.basicAuth"
           :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           :max-file-size="200000"
           :max-number-of-files="1"
-          :basic-auth="dplan.settings.basicAuth"
-          :tus-endpoint="dplan.paths.uploadPost"
           needs-hidden-input
           name="r_customerLogo"
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }" />
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint" />
       </div><!--
    --><div
         class="layout__item u-1-of-2"
