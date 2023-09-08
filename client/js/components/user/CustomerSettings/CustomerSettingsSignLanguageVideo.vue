@@ -52,6 +52,8 @@
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
+        :basic-auth="dplan.settings.basicAuth"
+        :upload-post="dplan.paths.uploadPost"
         name="videoSrc"
         needs-hidden-input
         required

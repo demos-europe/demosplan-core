@@ -316,6 +316,8 @@
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
+          :basic-auth="dplan.settings.basicAuth"
+          :upload-post="dplan.paths.uploadPost"
           needs-hidden-input
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
       </template>
@@ -331,6 +333,8 @@
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
+        :basic-auth="dplan.settings.basicAuth"
+        :upload-post="dplan.paths.uploadPost"
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }" />
 

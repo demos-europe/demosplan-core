@@ -39,6 +39,8 @@
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
+        :basic-auth="dplan.settings.basicAuth"
+        :upload-post="dplan.paths.uploadPost"
         @file-remove="removeFileIds"
         @upload-success="setFileIds" />
       <div class="text-right">
