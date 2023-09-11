@@ -78,7 +78,7 @@
         "phayes/geophp": "^1.2",
         "php-amqplib/rabbitmq-bundle": "2.*",
         "phpdocumentor/reflection-docblock": "^5.2",
-        "phpoffice/phpword": "0.18.3",
+        "phpoffice/phpword": "1.1.0",
         "proj4php/proj4php": "^2.0",
         "ramsey/uuid": "^4",
         "rollerworks/password-strength-bundle": "^2.2",
