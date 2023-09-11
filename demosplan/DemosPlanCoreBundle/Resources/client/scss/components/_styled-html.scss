@@ -89,8 +89,18 @@
         min-width: 50px;
 
         > li {
-            margin-bottom: $inuit-base-spacing-unit--small;
+            p {
+                margin: 0;
+            }
         }
+    }
+
+    ol {
+        list-style: decimal;
+    }
+
+    ul {
+        list-style: disc;
     }
 
     img {

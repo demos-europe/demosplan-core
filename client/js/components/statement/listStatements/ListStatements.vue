@@ -140,7 +140,7 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 break-words"
+            class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
@@ -231,7 +231,7 @@
           </statement-meta-data>
 
           <!-- Statement text -->
-          <div class="u-pt-0_5 break-words">
+          <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
             <template v-if="typeof fullText === 'undefined'">
               <div v-cleanhtml="text" />
