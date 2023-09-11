@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fdcb91dcda0b8d2715de893da8283ef",
+    "content-hash": "17d0c1b210a0a4b38b4c3b95dbd797b4",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -11522,20 +11522,20 @@
         },
         {
             "name": "stevenmaguire/oauth2-keycloak",
-            "version": "4.0.0",
+            "version": "5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenmaguire/oauth2-keycloak.git",
-                "reference": "05ead6bb6bcd2b6f96dfae87c769dcd3e5f6129d"
+                "reference": "a6441cc27412ef7125770ec4ea22ad6b4d69dd05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/05ead6bb6bcd2b6f96dfae87c769dcd3e5f6129d",
-                "reference": "05ead6bb6bcd2b6f96dfae87c769dcd3e5f6129d",
+                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/a6441cc27412ef7125770ec4ea22ad6b4d69dd05",
+                "reference": "a6441cc27412ef7125770ec4ea22ad6b4d69dd05",
                 "shasum": ""
             },
             "require": {
-                "firebase/php-jwt": "^4.0 || ^5.0 || ^6.0",
+                "firebase/php-jwt": "^6.0",
                 "league/oauth2-client": "^2.0",
                 "php": "~7.2 || ~8.0"
             },
@@ -11577,9 +11577,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stevenmaguire/oauth2-keycloak/issues",
-                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/4.0.0"
+                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/5.0.0"
             },
-            "time": "2023-03-14T09:43:47+00:00"
+            "time": "2023-07-04T07:14:01+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
