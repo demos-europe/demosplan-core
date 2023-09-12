@@ -52,13 +52,13 @@ class DemosPlanProcedureTypeController extends BaseController
     public function procedureTypeListAction(
         ProcedureTypeService $procedureTypeService): Response
     {
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                 ],
                 'title'        => 'procedure.types',
             ]
@@ -81,7 +81,7 @@ class DemosPlanProcedureTypeController extends BaseController
         TranslatorInterface $translator
     ): Response {
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
         $form = $this->getForm(
             $formFactory,
@@ -104,7 +104,7 @@ class DemosPlanProcedureTypeController extends BaseController
             $template,
             [
                 'templateVars' => [
-                    'procedureTypes' => $procedureTypeResources,
+                    'procedureTypes' => $procedureTypes,
                     'isCreate'       => true,
                 ],
                 'form'         => $form->createView(),
@@ -136,7 +136,7 @@ class DemosPlanProcedureTypeController extends BaseController
         }
 
         // List of ProcedureTypes
-        $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        $procedureTypes = $procedureTypeService->getAllProcedureTypes();
         /** @var ProcedureType $procedureTypeEntity */
         $procedureTypeEntity = $procedureTypeResourceType->getEntityAsReadTarget($procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
@@ -165,7 +165,7 @@ class DemosPlanProcedureTypeController extends BaseController
             [
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
-                    'procedureTypes'  => $procedureTypeResources,
+                    'procedureTypes'  => $procedureTypes,
                     'isCreate'        => true,
                 ],
                 'form'         => $form->createView(),

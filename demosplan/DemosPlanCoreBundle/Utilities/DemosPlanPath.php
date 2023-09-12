@@ -87,6 +87,10 @@ class DemosPlanPath
      */
     public static function getProjectPath(string $path = ''): string
     {
+        if(self::isInstalledAsLib()) {
+            return dirname(self::getRootPath(), 3).DIRECTORY_SEPARATOR.$path;
+        }
+
         $projectPath = self::$projectPathFromConfig;
 
         return self::getRootPath("{$projectPath}/{$path}");
@@ -102,6 +106,11 @@ class DemosPlanPath
         return '' !== $path
             ? self::getRootPath('tests').'/'.$path
             : self::getRootPath('tests');
+    }
+
+    public static function isInstalledAsLib(): bool
+    {
+        return !is_dir(self::getRootPath('vendor'));
     }
 
     /**
