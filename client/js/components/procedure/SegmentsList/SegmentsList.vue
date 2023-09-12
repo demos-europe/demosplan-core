@@ -459,6 +459,9 @@ export default {
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter: filter,
         fields: {
+          AssignableUser: [
+            'name'
+          ].join(),
           Place: [
             'name'
           ].join(),
@@ -681,7 +684,14 @@ export default {
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
-    this.fetchAssignableUsers()
+    this.fetchAssignableUsers({
+      fields: {
+        AssignableUsers: [
+          'id',
+          'name'
+        ].join()
+      }
+    })
   }
 }
 </script>
