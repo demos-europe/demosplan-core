@@ -18342,16 +18342,16 @@
         },
         {
             "name": "wsdltophp/packagegenerator",
-            "version": "4.1.9",
+            "version": "4.1.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "430361c6aa2a98e16241495af0e1883335896dac"
+                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/430361c6aa2a98e16241495af0e1883335896dac",
-                "reference": "430361c6aa2a98e16241495af0e1883335896dac",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/d418c3c463128aab50520bf6370a3743c5dbb5bc",
+                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc",
                 "shasum": ""
             },
             "require": {
@@ -18484,9 +18484,9 @@
             "support": {
                 "email": "contact@wsdltophp.com",
                 "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.9"
+                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.10"
             },
-            "time": "2023-08-25T19:43:41+00:00"
+            "time": "2023-09-11T20:06:23+00:00"
         },
         {
             "name": "wsdltophp/phpgenerator",
