@@ -167,10 +167,7 @@
               v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
-              v-tooltip="{
-                content: Translator.trans('segment.recommendation.insert.similar'),
-                classes: 'u-z-super'
-              }"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
