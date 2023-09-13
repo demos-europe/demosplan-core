@@ -5,18 +5,9 @@ RUN apt update && apt install acl apt-transport-https apt-utils binutils ca-cert
 RUN echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/sury-php.list
 RUN curl -fsSL  https://packages.sury.org/php/apt.gpg| gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-keyring.gpg
 
-RUN apt update && apt install composer bind9-host htop jq lnav net-tools php8.1 php8.1-apcu php8.1-bcmath php8.1-bz2 php8.1-cli php8.1-common php8.1-curl php8.1-fpm php8.1-gd php8.1-intl php8.1-mbstring php8.1-mysqli php8.1-soap php8.1-sqlite3 php8.1-xdebug php8.1-xml php8.1-zip silversearcher-ag unzip -y
+RUN apt update && apt install composer bind9-host htop jq lnav net-tools npm php8.1 php8.1-apcu php8.1-bcmath php8.1-bz2 php8.1-cli php8.1-common php8.1-curl php8.1-fpm php8.1-gd php8.1-intl php8.1-mbstring php8.1-mysqli php8.1-soap php8.1-sqlite3 php8.1-xdebug php8.1-xml php8.1-zip silversearcher-ag unzip -y
 RUN update-alternatives --set php /usr/bin/php8.1
 COPY zzz-dplan.ini /etc/php/8.1/cli/conf.d/zzz-dplan.ini
-
-# Install Nodejs
-RUN curl -o nodesource.gpg.key https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-RUN apt-key add nodesource.gpg.key
-RUN rm nodesource.gpg.key
-RUN echo "deb https://deb.nodesource.com/node_16.x bullseye main" | tee /etc/apt/sources.list.d/nodesource.list
-RUN echo "deb-src https://deb.nodesource.com/node_16.x bullseye main" | tee -a /etc/apt/sources.list.d/nodesource.list
-RUN curl -sL https://deb.nodesource.com/setup_16.x |  bash -
-RUN apt update && apt install -y nodejs=16.*
 
 RUN npm i -g npm license-checker npm-check yarn
 
