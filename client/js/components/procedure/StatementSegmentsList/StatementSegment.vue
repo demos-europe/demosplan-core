@@ -128,11 +128,17 @@
                   icon="ai"
                   size="large"
                   :text="Translator.trans('segment.oracle.tooltip')" />
-                <dp-badge
-                  v-if="activeId === 'oracleRec'"
-                  class="absolute u-right-0 u-mr"
-                  size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')" />
+                <span
+                  class="absolute u-right-0 u-mr-0_75"
+                  v-tooltip="{
+                    content: Translator.trans('segment.oracle.beta.tooltip'),
+                    classes: 'z-ultimate'
+                  }">
+                  <dp-badge
+                    v-if="activeId === 'oracleRec'"
+                    size="smaller"
+                    :text="Translator.trans('segment.oracle.beta')" />
+                </span>
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
@@ -335,6 +341,7 @@ import {
   DpTab,
   DpTabs,
   prefixClassMixin,
+  Tooltip,
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -370,7 +377,8 @@ export default {
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
+    tootlip: Tooltip
   },
 
   mixins: [prefixClassMixin],
