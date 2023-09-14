@@ -128,17 +128,15 @@
                   icon="ai"
                   size="large"
                   :text="Translator.trans('segment.oracle.tooltip')" />
-                <span
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
                   class="absolute u-right-0 u-mr-0_75"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')"
                   v-tooltip="{
                     content: Translator.trans('segment.oracle.beta.tooltip'),
                     classes: 'z-ultimate'
-                  }">
-                  <dp-badge
-                    v-if="activeId === 'oracleRec'"
-                    size="smaller"
-                    :text="Translator.trans('segment.oracle.beta')" />
-                </span>
+                  }" />
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
