@@ -114,6 +114,10 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     private array $addonPermissionCollections = [];
 
+    /**
+     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
+     */
+
     public function __construct(
         AddonRegistry $addonRegistry,
         private readonly CustomerService $currentCustomerProvider,
