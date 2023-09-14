@@ -376,7 +376,7 @@ export default {
 
   directives: {
     cleanhtml: CleanHtml,
-    tootlip: Tooltip
+    tooltip: Tooltip
   },
 
   mixins: [prefixClassMixin],
