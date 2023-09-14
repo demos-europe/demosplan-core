@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Twig_SimpleFunction;
+use Twig\TwigFilter;
 
 /**
  * Teste TwigToolsExtension.
@@ -46,10 +46,8 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         try {
             $result = $this->sut->getFunctions();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof Twig_SimpleFunction);
-            $callable = $result[0]->getCallable();
-            static::assertTrue('getFormOption' === $callable[1]);
-            static::assertTrue('getFormOption' === $result[0]->getName());
+            static::assertInstanceOf(TwigFilter::class, $result[0]);
+            static::assertSame('getFormOption', $result[0]->getName());
         } catch (Exception $e) {
             $this->fail(false);
         }
