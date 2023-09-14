@@ -456,8 +456,7 @@ parameters:
     # This parameter may be used to map some external URL to an internal customer like
     # planungsportal.brandenburg.de: bb.bauleitplanung-online.de
     subdomain_map: []
-    # Defines which subdomains (aka customers) are allowed in current project
-    subdomains_allowed: ['sh']
+
 
     ai_service_salt: ""
     ai_service_post_url: ""
