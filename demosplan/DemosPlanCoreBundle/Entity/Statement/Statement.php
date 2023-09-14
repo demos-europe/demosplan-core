@@ -2575,9 +2575,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return string|null returns the title of the parent paragraph (the paragraph of the paragraph version)
+     * @return string returns the title of the parent paragraph (the paragraph of the paragraph version)
      */
-    public function getParagraphParentTitle()
+    public function getParagraphParentTitle(): string
     {
         if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersion) {
             $parentTitle = null;
@@ -2591,9 +2591,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return string|null returns the title of the parent document (the document of the document version)
+     * @return string returns the title of the parent document (the document of the document version)
      */
-    public function getDocumentParentTitle()
+    public function getDocumentParentTitle(): string
     {
         if (null === $this->documentParentTitle && $this->document instanceof SingleDocumentVersion) {
             $documentTitle = null;
@@ -2603,7 +2603,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $this->documentParentTitle = $documentTitle;
         }
 
-        return trim($this->documentParentTitle);
+        return trim($this->documentParentTitle ?? '');
     }
 
     /**
@@ -3946,12 +3946,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getParagraphParentTitleOrDocumentParentTitle(): ?string
     {
         $title = $this->getParagraphParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
         $title = $this->getDocumentParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
