@@ -2190,12 +2190,12 @@
     "@uppy/utils" "^5.3.0"
     preact "^10.5.13"
 
-"@uppy/progress-bar@^3.0.0", "@uppy/progress-bar@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.2.tgz#bd57261b038edd50419acdb65e8033f3e2cbf04e"
-  integrity sha512-vVV+mvPfe4AbTajDAkZo64u15/epgFAMAt0FFs1SX+U8GzwA5Ry+MQ6Tagn1mN+POkql6OZS4F3Dv2Y5pKusBg==
+"@uppy/progress-bar@^3.0.0", "@uppy/progress-bar@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@uppy/progress-bar/-/progress-bar-3.0.3.tgz#0f16c274a957322afc4a85827fc37f58a851faa1"
+  integrity sha512-s0iRCnDQ5zcyk8ZyTF46W7Kkf9S1hH1oj2+GBYDdFzc72tgrx49arHs3YobkH7X9whhc/qTskLe32cyC9oe6ZQ==
   dependencies:
-    "@uppy/utils" "^5.3.0"
+    "@uppy/utils" "^5.4.3"
     preact "^10.5.13"
 
 "@uppy/store-default@^3.0.3":
@@ -2212,7 +2212,7 @@
     "@uppy/utils" "^5.4.0"
     tus-js-client "^3.0.0"
 
-"@uppy/utils@^5.3.0", "@uppy/utils@^5.4.0", "@uppy/utils@^5.5.0":
+"@uppy/utils@^5.3.0", "@uppy/utils@^5.4.0", "@uppy/utils@^5.4.3", "@uppy/utils@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@uppy/utils/-/utils-5.5.0.tgz#2d90a3d48249d3ffb42e62baf325871f1310bff3"
   integrity sha512-hNeYEbihSq/dKK7CZ3euvv3pN2NAO0z1x2FFoZsTajSxY4f7PPOZJoltvOQEKx1vFljhLvOY33s3KNlvXjogqg==
