@@ -133,10 +133,7 @@
                   class="absolute u-right-0 u-mr-0_75"
                   size="smaller"
                   :text="Translator.trans('segment.oracle.beta')"
-                  v-tooltip="{
-                    content: Translator.trans('segment.oracle.beta.tooltip'),
-                    classes: 'z-ultimate'
-                  }" />
+                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
