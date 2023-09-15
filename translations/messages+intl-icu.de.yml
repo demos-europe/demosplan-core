@@ -3853,7 +3853,6 @@ warning.statements.different.procedure: "Die Stellungnahmen gehören nicht zum g
 warning.statements.procedure.clusters: "Gruppen konnten nicht geladen werden"
 warning.story.exist: "Die Userstory existiert bereits."
 warning.story.missing: "Die Userstory existiert nicht."
-warning.tag.created: "Das Schlagwort konnte nicht angelegt werden."
 warning.tag.deleted: "Das Schlagwort {tagname} konnte nicht gelöscht werden."
 warning.tag.empty: "Der Name des Schlagwortes darf nicht leer sein."
 warning.tag.in.use: "Das Schlagwort {tagname} kann nicht gelöscht werden, weil es verwendet wird."

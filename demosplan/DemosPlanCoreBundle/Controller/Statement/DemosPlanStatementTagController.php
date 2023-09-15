@@ -181,8 +181,8 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                     $result = $statementHandler->createTagFromTopicId($requestPost['r_createtags'], $newTag, $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.tag.created');
                     $anchor = $result->getId();
-                } catch (Exception) {
-                    $this->getMessageBag()->add('warning', 'warning.tag.created');
+                } catch (DuplicatedTagTitleException $e) {
+                    $this->getMessageBag()->add('error', "error.import.tag.name.taken", ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
                 }
             } else {
                 $this->getMessageBag()->add('warning', 'warning.tag.empty');
