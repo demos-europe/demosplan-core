@@ -55,11 +55,6 @@ abstract class BaseController extends AbstractController
     protected $logger;
 
     /**
-     * @var array possible cookies
-     */
-    protected $allowedCookieNames = [PreviousRouteCookie::NAME];
-
-    /**
      * @var MessageBagInterface
      */
     protected $messageBag;
