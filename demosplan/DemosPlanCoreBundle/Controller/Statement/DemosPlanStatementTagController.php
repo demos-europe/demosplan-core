@@ -182,7 +182,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                     $this->getMessageBag()->add('confirm', 'confirm.tag.created');
                     $anchor = $result->getId();
                 } catch (DuplicatedTagTitleException $e) {
-                    $this->getMessageBag()->add('error', "error.import.tag.name.taken", ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
+                    $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
                 }
             } else {
                 $this->getMessageBag()->add('warning', 'warning.tag.empty');
@@ -322,7 +322,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                     $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
                     $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
                 } catch (DuplicatedTagTitleException $e) {
-                    $this->getMessageBag()->add('error', "error.import.tag.name.taken", ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
+                    $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
                 }
             } else {
                 $this->getMessageBag()->add('warning', 'explanation.file.noupload');

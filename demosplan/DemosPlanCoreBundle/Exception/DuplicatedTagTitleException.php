@@ -10,16 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use Exception;
 
 class DuplicatedTagTitleException extends Exception
 {
-    public function __construct(string                       $message,
-                                protected readonly TagTopic  $topic,
-                                protected readonly string    $tagTitle,
-    )
-    {
+    public function __construct(string $message,
+                                protected readonly TagTopic $topic,
+                                protected readonly string $tagTitle,
+    ) {
         parent::__construct($message, 0, null);
     }
 
@@ -30,7 +29,6 @@ class DuplicatedTagTitleException extends Exception
     {
         return new self("A tag with the title {$tagTitle} already exist in a procedure with the ID {$topic->getProcedure()->getId()}", $topic, $tagTitle);
     }
-
 
     public function getTagTitle(): string
     {
