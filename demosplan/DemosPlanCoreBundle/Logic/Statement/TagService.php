@@ -86,7 +86,7 @@ class TagService extends CoreService
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
-        if ($this->tagRepository->isTagTitleFree($procedureId, $title)) {
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
             throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
         }
 
