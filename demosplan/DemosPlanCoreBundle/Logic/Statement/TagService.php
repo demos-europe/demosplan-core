@@ -81,13 +81,14 @@ class TagService extends CoreService
      */
     public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
     {
-        $procedureId = $topic->getProcedure()->getId();
+        $procedure = $topic->getProcedure();
+        $procedureId = $procedure->getId();
         if ('' === $title) {
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
         if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($procedure, $topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);

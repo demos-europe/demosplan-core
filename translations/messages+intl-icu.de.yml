@@ -1218,6 +1218,7 @@ error.worksheet.name: "Bitte wählen Sie einen gültigen Titel ({expectedTitles}
 error.wrong.selected.importer: "Sie haben die Option Stellungnahmen importieren genutzt um Abschnitte zu importieren. Bitte wählen Sie die korrekte Option aus und importieren Sie Ihre Datei erneut."
 error.wrong.password: "Falsches Passwort"
 error: "Fehler"
+error.import.tag.name.taken: "Das Schlagwort {tagTitle} konnte dem Thema {topicname} nicht hinzugefügt werden, es wurde bereits einem anderen Thema zugeordnet"
 error.internal: "Ein interner Fehler ist aufgetreten"
 # evaluation used?
 evaluating: "Auswertung"

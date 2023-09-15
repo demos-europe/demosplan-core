@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
@@ -317,8 +318,12 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         // Check if we need to import tags
         if (\array_key_exists('r_import', $requestPost)) {
             if (\array_key_exists('r_importCsv', $requestPost) && '' != $requestPost['r_importCsv']) {
-                $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
-                $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
+                try {
+                    $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
+                    $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
+                } catch (DuplicatedTagTitleException $e) {
+                    $this->getMessageBag()->add('error', "error.import.tag.name.taken", ['tagTitle' => $e->getTagTitle(), 'topicname' => $e->getTopic()->getTitle()]);
+                }
             } else {
                 $this->getMessageBag()->add('warning', 'explanation.file.noupload');
             }
