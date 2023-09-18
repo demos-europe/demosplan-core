@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
@@ -24,29 +25,29 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapOptions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
 class MapService extends CoreService
 {
-    public const PSEUDO_MERCATOR_PROJECTION_LABEL = 'EPSG:3857';
-    public const PSEUDO_MERCATOR_PROJECTION_VALUE = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs';
+    final public const PSEUDO_MERCATOR_PROJECTION_LABEL = 'EPSG:3857';
+    final public const PSEUDO_MERCATOR_PROJECTION_VALUE = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs';
 
-    public const EPSG_25832_PROJECTION_LABEL = 'EPSG:25832';
-    public const EPSG_25832_PROJECTION_VALUE = '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs';
+    final public const EPSG_25832_PROJECTION_LABEL = 'EPSG:25832';
+    final public const EPSG_25832_PROJECTION_VALUE = '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs';
 
-    public const EPSG_4326_PROJECTION_LABEL = 'EPSG:4326';
+    final public const EPSG_4326_PROJECTION_LABEL = 'EPSG:4326';
 
-    public const WGS84_PROJECTION_LABEL = 'WGS84';
-    public const WGS84_PROJECTION_VALUE = '+title=long/lat:WGS84 +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees';
+    final public const WGS84_PROJECTION_LABEL = 'WGS84';
+    final public const WGS84_PROJECTION_VALUE = '+title=long/lat:WGS84 +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees';
 
     /**
      * @var DraftStatementService
@@ -73,58 +74,21 @@ class MapService extends CoreService
      */
     protected $procedureService;
 
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var MasterTemplateService
-     */
-    private $masterTemplateService;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var GisLayerCategoryRepository
-     */
-    private $gisLayerCategoryRepository;
-    /**
-     * @var MapRepository
-     */
-    private $mapRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        DateHelper $dateHelper,
-        EntityHelper $entityHelper,
+        private readonly DateHelper $dateHelper,
+        private readonly EntityHelper $entityHelper,
         FileService $fileService,
-        GlobalConfigInterface $globalConfig,
-        GisLayerCategoryRepository $gisLayerCategoryRepository,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly GisLayerCategoryRepository $gisLayerCategoryRepository,
         HttpCall $httpCall,
-        MapRepository $mapRepository,
+        private readonly MapRepository $mapRepository,
         MapScreenshotter $mapScreenshotter,
-        MasterTemplateService $masterTemplateService,
-        StatementService $statementService
+        private readonly MasterTemplateService $masterTemplateService,
+        private readonly StatementService $statementService
     ) {
-        $this->dateHelper = $dateHelper;
-        $this->entityHelper = $entityHelper;
         $this->fileService = $fileService;
-        $this->globalConfig = $globalConfig;
-        $this->gisLayerCategoryRepository = $gisLayerCategoryRepository;
         $this->httpCall = $httpCall;
-        $this->mapRepository = $mapRepository;
         $this->mapScreenshotter = $mapScreenshotter;
-        $this->masterTemplateService = $masterTemplateService;
-        $this->statementService = $statementService;
     }
 
     /**
@@ -163,7 +127,7 @@ class MapService extends CoreService
         // transform object and date times to array/timestamp
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
-            if (isset($gisLayer['gId']) && 0 < strlen($gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -204,7 +168,7 @@ class MapService extends CoreService
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
 
-            if (isset($gisLayer['gId']) && 0 < strlen($gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -239,7 +203,7 @@ class MapService extends CoreService
                 ]
             );
 
-        return array_map([$this, 'convertToLegacy'], $listOfGlobalGisLayers);
+        return array_map($this->convertToLegacy(...), $listOfGlobalGisLayers);
     }
 
     /**
@@ -257,7 +221,7 @@ class MapService extends CoreService
             $singleGis = $this->mapRepository->get($ident);
             $singleGis = $this->convertToLegacy($singleGis);
 
-            if (isset($singleGis['gId']) && 0 < strlen($singleGis['gId'])) {
+            if (isset($singleGis['gId']) && 0 < strlen((string) $singleGis['gId'])) {
                 $globalLayer = $this->mapRepository->get($singleGis['gId']);
                 $singleGis['globalGis'] = $this->convertToLegacy($globalLayer);
                 $singleGis['globalLayer'] = true;
@@ -431,6 +395,7 @@ class MapService extends CoreService
      */
     public function createMapScreenshot($procedureId, $draftStatementOrStatementId): string
     {
+        $layerResult = [];
         try {
             $baseGisList = $this->getGisList($procedureId, 'base', true, true);
             $baseGisObjectList = $this->getLayerObjects($baseGisList);
@@ -444,7 +409,7 @@ class MapService extends CoreService
             $kindOfStatement = $this->getStatementOrDraftStatementFromId($draftStatementOrStatementId);
 
             // Make screenshot and return file name and path
-            $copyrightText = $kindOfStatement->getProcedure()->getSettings()->getCopyright();
+            $copyrightText = $this->getReplacedMapAttribution($kindOfStatement->getProcedure());
             $polygon = $kindOfStatement->getPolygon();
             $this->getLogger()->info('Found polygon: '.DemosPlanTools::varExport($polygon, true));
             $file = $this->mapScreenshotter->makeScreenshot($polygon, $gisLayer, $copyrightText);
@@ -522,7 +487,7 @@ class MapService extends CoreService
                 // wenn z.B. in Hamburg ein interner Töb den Shreenshot erstellt
 
                 // "?" in URL?
-                if (false === strpos($gisLayer->getUrl(true), '?')) {
+                if (!str_contains($gisLayer->getUrl(true), '?')) {
                     $gisLayer->setUrl($gisLayer->getUrl(true).'?LAYERS='.$gisLayer->getLayers());
                 } else {
                     $urlSplit = explode('?', $gisLayer->getUrl(true));
@@ -539,11 +504,7 @@ class MapService extends CoreService
                             }
                         }
                     }
-                    if ('&' == substr($gisLayer->getUrl(true), -1, 1) || '?' == substr(
-                        $gisLayer->getUrl(true),
-                        -1,
-                        1
-                    )
+                    if (str_ends_with($gisLayer->getUrl(true), '&') || str_ends_with($gisLayer->getUrl(true), '?')
                     ) {
                         $gisLayer->setUrl($gisLayer->getUrl(true).'LAYERS='.$gisLayer->getLayers());
                     } else {
@@ -770,7 +731,7 @@ class MapService extends CoreService
      */
     public function getMapOptions(string $procedureId = null): MapOptions
     {
-        $procedureId = $procedureId ?? $this->procedureService->calculateCopyMasterId(null);
+        $procedureId ??= $this->procedureService->calculateCopyMasterId(null);
 
         $procedureSettings = $this->procedureService->getProcedure($procedureId)->getSettings();
         $config = $this->globalConfig;
@@ -816,6 +777,17 @@ class MapService extends CoreService
         $mapOptions->lock();
 
         return $mapOptions;
+    }
+
+    public function getReplacedMapAttribution(Procedure $procedure): ?string
+    {
+        $mapAttribution = $procedure->getSettings()->getCopyright();
+
+        if (null === $mapAttribution) {
+            return null;
+        }
+
+        return str_replace('{currentYear}', date('Y'), (string) $mapAttribution);
     }
 
     protected function convertArrayValuesToFloats(array $someArray): array

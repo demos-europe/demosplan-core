@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -26,18 +26,18 @@
       <h3 class="font-size-medium">
         {{ Translator.trans('worksheet') }}: {{ worksheet }}
       </h3>
-      <ul class="u-mt-0_5 u-mb list-style-none border-color--grey-light-1 border-radius--6">
+      <ul class="u-mt-0_5 u-mb border-color--grey-light-1 border-radius--6">
         <li
           v-for="error in errorsByWorksheet(worksheet)"
           :key="`error:${error.id}`"
-          class="u-p-0_5 u-mv-0_5 cursor--pointer"
+          class="u-p-0_5 u-mv-0_5 cursor-pointer"
           @click="toggle(error.id)"
           :class="itemClasses(error.id, worksheet)">
           <div v-if="errors.length > 1">
             <dp-checkbox
               :id="`error:${error.id}`"
               :checked="checkedItems[error.id]"
-              class="display--inline-block"
+              class="inline-block"
               :label="{
                 bold: true,
                 text: lineTransKey(error.lineNumber)

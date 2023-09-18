@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -53,12 +53,12 @@ final class ProcedureTemplateResourceType extends DplanResourceType
         ];
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $userOrga = $this->currentUser->getUser()->getOrga();
         if (null === $userOrga) {
             // users without organisation get no access to any procedure templates
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $masterTemplateSubCondition = $this->conditionFactory->propertyHasValue(true, $this->masterTemplate);
@@ -66,17 +66,17 @@ final class ProcedureTemplateResourceType extends DplanResourceType
             // not the unique master template
             $this->conditionFactory->propertyHasValue(false, $this->masterTemplate),
             // created by the users organisation (ie.: the current user is in the owning organisation of the template)
-            $this->conditionFactory->propertyHasValue($userOrga->getId(), $this->owningOrganisation->id)
+            $this->conditionFactory->propertyHasValue($userOrga->getId(), $this->orga->id)
         );
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             // a deleted template is not a valid template resource
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             // templates are never actual procedures
             $this->conditionFactory->propertyHasValue(true, $this->master),
             // the template must be either the unique master template or a "normal" template
             $this->conditionFactory->anyConditionApplies($masterTemplateSubCondition, $normalTemplateSubCondition)
-        );
+        ];
     }
 
     public function getEntityClass(): string

@@ -50,11 +50,6 @@
         "website": "https://babel.dev/docs/en/next/babel-runtime"
     },
     {
-        "package": "@demos-europe/demosplan-utils",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
         "package": "@demos-europe/dp-consent",
         "license": "MIT",
         "website": "Unknown"
@@ -395,11 +390,6 @@
         "website": "https://github.com/mikaelbr/node-notifier#readme"
     },
     {
-        "package": "normalize.css",
-        "license": "MIT",
-        "website": "https://necolas.github.io/normalize.css"
-    },
-    {
         "package": "ol",
         "license": "BSD-2-Clause",
         "website": "https://openlayers.org/"
@@ -436,53 +426,13 @@
     },
     {
         "package": "postcss-preset-env",
-        "license": "CC0-1.0",
+        "license": "MIT-0",
         "website": "https://github.com/csstools/postcss-plugins/tree/main/plugin-packs/postcss-preset-env#readme"
     },
     {
         "package": "proj4",
         "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-history",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-model",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-schema-basic",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-schema-list",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-state",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-tables",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
-        "package": "prosemirror-utils",
-        "license": "Apache-2.0",
-        "website": "https://github.com/eshvedai"
-    },
-    {
-        "package": "prosemirror-view",
-        "license": "MIT",
-        "website": "Unknown"
+        "website": "https://proj4js.github.io/proj4js/"
     },
     {
         "package": "purgecss-webpack-plugin",
@@ -505,9 +455,9 @@
         "website": "Unknown"
     },
     {
-        "package": "sass",
+        "package": "sass-embedded",
         "license": "MIT",
-        "website": "https://github.com/sass/dart-sass"
+        "website": "Unknown"
     },
     {
         "package": "sass-loader",
@@ -555,6 +505,11 @@
         "website": "Unknown"
     },
     {
+        "package": "tailwindcss",
+        "license": "MIT",
+        "website": "https://tailwindcss.com/"
+    },
+    {
         "package": "terser-webpack-plugin",
         "license": "MIT",
         "website": "https://github.com/webpack-contrib/terser-webpack-plugin"
@@ -570,14 +525,9 @@
         "website": "https://atomiks.github.io/tippyjs/"
     },
     {
-        "package": "tooltip.js",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
         "package": "util",
         "license": "MIT",
-        "website": "https://github.com/defunctzombie/node-util"
+        "website": "https://github.com/browserify/node-util"
     },
     {
         "package": "uuid",

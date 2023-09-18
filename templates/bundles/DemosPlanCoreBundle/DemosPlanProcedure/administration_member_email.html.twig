@@ -1,0 +1,187 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+        heading: 'email.invitation.write'|trans,
+        highlighted: 'publicagency_registered'
+    } %}
+
+    {% set procedureId = templateVars.procedure.id %}
+    {% set selectedPublicAgencies = templateVars.orga_selected|filter(orga => orga.email2|default) %}
+    {% set hasPublicAgenciesWithoutEmailAddress = (templateVars.orga_selected|length - selectedPublicAgencies|length) > 0 %}
+
+    <p class="u-mt-0_5">
+        {{ 'invitable_institutions.email.explanation'|trans }}
+    </p>
+
+    {% if selectedPublicAgencies|length == 0 %}
+        <dp-inline-notification
+            message="{{ 'invitable_institutions.select.explanation'|trans }}"
+            type="warning"></dp-inline-notification>
+    {% else %}
+        {% if hasPublicAgenciesWithoutEmailAddress %}
+            {% set type = 'warning' %}
+            {% set message = 'invitable_institutions.selected.number.filtered'|trans({ total: templateVars.orga_selected|length, withEmail: selectedPublicAgencies|length }) %}
+        {% else %}
+            {% set type = 'confirm' %}
+            {% set message = 'invitable_institutions.selected.number'|trans({ number:selectedPublicAgencies|length }) %}
+        {% endif %}
+
+        <dp-inline-notification
+            message="{{ message }}"
+            type="{{ type }}"></dp-inline-notification>
+
+        <dp-accordion
+            title="{{ 'recipients'|trans }}"
+            class="u-mb"
+            compressed>
+            <div class="u-mt-0_5">
+                <table class="c-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'invitable_institution'|trans }}</th>
+                            <th>{{ 'email'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for ag in selectedPublicAgencies %}
+                        <tr>
+                            <td>
+                                {{ ag.name }}
+                            </td>
+                            <td>
+                                {{ ag.email2|default('no.participation.email'|trans) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </dp-accordion>
+    {% endif %}
+
+    <dp-inline-notification
+        message="{{ 'invitable_institutions.invitation.hint'|trans }}"
+        type="warning"></dp-inline-notification>
+
+    <form
+        id="procedureForm"
+        action="{{ path('DemosPlan_procedure_member_index', {'procedure': procedureId}) }}"
+        method="post"
+        data-dp-validate="procedureForm">
+
+        {% for agency in selectedPublicAgencies %}
+            <input
+                type="hidden"
+                name="orga_selected[]"
+                value="{{ agency.id }}"
+            >
+        {% endfor %}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'subject'|trans },
+                    control: { name: 'r_emailTitle', value: templateVars.procedure.settings.emailTitle, attributes: ['data-dp-validate-error=error.mandatoryfields'] },
+                    type: 'text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        <dp-label
+            class="u-mb-0_5"
+            text="{{ 'email.address.additional'|trans }}"
+            for="r_emailCc"></dp-label>
+
+        <dp-email-list
+            class="u-mb-2"
+            form-field-name="r_emailCc[]"
+            :init-emails="JSON.parse('{{ templateVars.procedure.settings.emailCc
+                |default()
+                |split(',')
+                |map(email => { mail: email|trim })
+                |filter(email => email.mail is not null and email.mail is not empty)
+                |json_encode|e('js', 'utf-8') }}')">
+        </dp-email-list>
+
+        <div class="{{ 'u-mb-0_75'|prefixClass }}">
+            <dp-label
+                for="r_emailText"
+                text="{{ 'email.body'|trans }}">
+            </dp-label>
+            <dp-editor
+                id="r_emailText"
+                ref="r_emailText"
+                hidden-input="r_emailText"
+                :toolbar-items="{
+                    headings: [1, 2, 3],
+                    linkButton: true
+                }"
+                required
+                value="{{ templateVars.procedure.settings.emailText|default }}">
+                <template v-slot:modal="modalProps">
+                    <dp-boiler-plate-modal
+                        ref="boilerPlateModal"
+                        boiler-plate-type="email"
+                        procedure-id="{{ procedureId }}"
+                        @insert="text => modalProps.handleInsertText(text)">
+                    </dp-boiler-plate-modal>
+                </template>
+                <template v-slot:button>
+                    <button
+                        class="{{ 'menubar__button'|prefixClass }}"
+                        type="button"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        @click.stop="$refs.boilerPlateModal.toggleModal()">
+                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                    </button>
+                </template>
+            </dp-editor>
+        </div>
+
+        <a
+            href="{{ path('DemosPlan_procedure_member_index', {'procedure': procedureId}) }}"
+            class="btn btn--secondary text-left u-mt-0_5">
+            {{ 'back'|trans }}
+        </a>
+
+        <div class="flow-root inline text-right float-right u-mt-0_5 space-inline-s">
+            <input
+                class="btn btn--secondary"
+                type="submit"
+                value="{{ "draft.save"|trans }}"
+                name="updateEmailText">
+            <button
+                type="submit"
+                class="btn btn--primary"
+                name="sendInvitationEmail"
+                {% if selectedPublicAgencies|length == 0 %}disabled{% endif %}>
+                {{ "email.send"|trans }}
+            </button>
+        </div>
+
+        {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') %}
+            <h2 class="u-mt-2">{{ "email.text"|trans }}:</h2>
+            <p>
+                {% if templateVars.emailTextAdded is defined %}
+                    {{ templateVars.emailTextAdded|wysiwyg|nl2br }}
+                {% else %}
+                    Kein Text definiert.
+                {% endif %}
+            </p>
+        {% endif %}
+
+    </form>
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationMemberEmail.js']) }}
+{% endblock javascripts %}

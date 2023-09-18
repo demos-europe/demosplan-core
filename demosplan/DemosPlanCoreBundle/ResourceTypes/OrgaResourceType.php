@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,10 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\RoleService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Doctrine\Common\Collections\Collection;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -85,14 +86,8 @@ final class OrgaResourceType extends DplanResourceType
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    /**
-     * @var RoleService
-     */
-    private $roleService;
-
-    public function __construct(RoleService $roleService)
+    public function __construct(private readonly RoleService $roleService)
     {
-        $this->roleService = $roleService;
     }
 
     public function getEntityClass(): string
@@ -105,7 +100,7 @@ final class OrgaResourceType extends DplanResourceType
         return 'Orga';
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $extendedOrgaAccess = $this->currentUser->hasAnyPermissions(
             'area_manage_orgadata',
@@ -119,18 +114,14 @@ final class OrgaResourceType extends DplanResourceType
 
         // permissions allow the user to access all organisation resources
         if ($extendedOrgaAccess) {
-            return $this->conditionFactory->allConditionsApply(
-                ...$mandatoryConditions
-            );
+            return $mandatoryConditions;
         }
 
-        $organisationId = $this->currentUser->getUser()->getOrga()->getId();
-
         // if no special permissions are given, the user can at least access its own organisation
-        return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($organisationId, $this->id),
-            ...$mandatoryConditions
-        );
+        $organisationId = $this->currentUser->getUser()->getOrga()->getId();
+        $mandatoryConditions[] = $this->conditionFactory->propertyHasValue($organisationId, $this->id);
+
+        return $mandatoryConditions;
     }
 
     /**
@@ -139,7 +130,7 @@ final class OrgaResourceType extends DplanResourceType
      * Depending on the permission you may need to add additional conditions to reduce the set of
      * {@link Orga} entities in the database further.
      *
-     * @return array<int, FunctionInterface<bool>>
+     * @return list<ClauseFunctionInterface<bool>>
      */
     public function getMandatoryConditions(): array
     {
@@ -177,9 +168,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->id)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
-            $this->createAttribute($this->city)->readable(true, static function (Orga $orga): string {
-                return $orga->getCity();
-            }),
+            $this->createAttribute($this->city)->readable(true, static fn(Orga $orga): string => $orga->getCity()),
             $this->createAttribute($this->imprint)->readable(true),
             $this->createAttribute($this->dataProtection)->readable(true),
             $this->createAttribute($this->competence)->readable(true),
@@ -188,46 +177,26 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->copySpec)->aliasedPath($this->paperCopySpec)->readable(true),
             $this->createAttribute($this->email2)->readable(true),
             $this->createAttribute($this->participationEmail)->aliasedPath($this->email2)->readable(true),
-            $this->createAttribute($this->phone)->readable(true, static function (Orga $orga): string {
-                return $orga->getPhone();
-            }),
-            $this->createAttribute($this->emailNotificationEndingPhase)->readable(true, [$this, 'getEmailNotificationEndingPhase']),
-            $this->createAttribute($this->emailNotificationNewStatement)->readable(true, [$this, 'getEmailNotificationNewStatement']),
-            $this->createAttribute($this->postalcode)->readable(true, static function (Orga $orga): string {
-                return $orga->getPostalcode();
-            }),
+            $this->createAttribute($this->phone)->readable(true, static fn(Orga $orga): string => $orga->getPhone()),
+            $this->createAttribute($this->emailNotificationEndingPhase)->readable(true, $this->getEmailNotificationEndingPhase(...)),
+            $this->createAttribute($this->emailNotificationNewStatement)->readable(true, $this->getEmailNotificationNewStatement(...)),
+            $this->createAttribute($this->postalcode)->readable(true, static fn(Orga $orga): string => $orga->getPostalcode()),
             $this->createAttribute($this->reviewerEmail)->aliasedPath($this->emailReviewerAdmin)->readable(true),
             $this->createAttribute($this->showlist)->readable(true),
             $this->createAttribute($this->showname)->readable(true),
-            $this->createAttribute($this->state)->readable(true, static function (Orga $orga): string {
-                return $orga->getState();
-            }),
-            $this->createAttribute($this->street)->readable(true, static function (Orga $orga): string {
-                return $orga->getStreet();
-            }),
-            $this->createAttribute($this->houseNumber)->readable(true, static function (Orga $orga): string {
-                return $orga->getHouseNumber();
-            }),
-            $this->createAttribute($this->submissionType)->readable(true, static function (Orga $orga): string {
-                return $orga->getSubmissionType();
-            }),
-            $this->createAttribute($this->types)->readable(true, function (Orga $orga): array {
-                return $orga->getTypes($this->globalConfig->getSubdomain());
-            }),
-            $this->createAttribute($this->registrationStatuses)->readable(true, [$this, 'getRegistrationStatuses']),
+            $this->createAttribute($this->state)->readable(true, static fn(Orga $orga): string => $orga->getState()),
+            $this->createAttribute($this->street)->readable(true, static fn(Orga $orga): string => $orga->getStreet()),
+            $this->createAttribute($this->houseNumber)->readable(true, static fn(Orga $orga): string => $orga->getHouseNumber()),
+            $this->createAttribute($this->submissionType)->readable(true, static fn(Orga $orga): string => $orga->getSubmissionType()),
+            $this->createAttribute($this->types)->readable(true, fn(Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
+            $this->createAttribute($this->registrationStatuses)->readable(true, $this->getRegistrationStatuses(...)),
             $this->createToOneRelationship($this->currentSlug, true)->readable(true),
-            $this->createToManyRelationship($this->customers)->readable(false, static function (Orga $orga): Collection {
-                return $orga->getCustomers();
-            }),
-            $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
-                return $orga->getDepartments();
-            }),
+            $this->createToManyRelationship($this->customers)->readable(false, static fn(Orga $orga): Collection => $orga->getCustomers()),
+            $this->createToManyRelationship($this->departments)->readable(false, static fn(Orga $orga): TightencoCollection => $orga->getDepartments()),
             $this->createAttribute($this->isPlanningOrganisation)->readable(true,
-                function (Orga $orga): bool {
-                    return $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
-                        || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
-                        || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $this->globalConfig->getSubdomain());
-                }
+                fn(Orga $orga): bool => $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
+                    || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
+                    || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $this->globalConfig->getSubdomain())
             ),
             $statusInCustomers,
         ];
@@ -248,12 +217,12 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_organisations')) {
             $statusInCustomers->sortable()->filterable();
         } else {
-            $statusInCustomers->readable(false, [$this, 'getRegistration']);
+            $statusInCustomers->readable(false, $this->getRegistration(...));
         }
 
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
-                ->readable(false, [$this, 'getAllowedRoles']);
+                ->readable(false, $this->getAllowedRoles(...));
         }
 
         return $properties;
@@ -266,15 +235,9 @@ final class OrgaResourceType extends DplanResourceType
     {
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
         $acceptedOrgaTypes = $orga->getStatusInCustomers()
-            ->filter(static function (OrgaStatusInCustomer $orgaStatus): bool {
-                return OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus();
-            })
-            ->filter(static function (OrgaStatusInCustomer $orgaStatus) use ($currentCustomer): bool {
-                return $orgaStatus->getCustomer() === $currentCustomer;
-            })
-            ->map(static function (OrgaStatusInCustomer $orgaStatus): OrgaType {
-                return $orgaStatus->getOrgaType();
-            })->getValues();
+            ->filter(static fn(OrgaStatusInCustomer $orgaStatus): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
+            ->filter(static fn(OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
+            ->map(static fn(OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType())->getValues();
 
         return $this->roleService->getGivableRoles($acceptedOrgaTypes);
     }
@@ -283,13 +246,11 @@ final class OrgaResourceType extends DplanResourceType
     {
         return $this->getRegistration($orga)
             ->map(
-                static function (OrgaStatusInCustomer $orgaStatusInCustomer) {
-                    return [
-                        OrgaResourceType::REGISTRATION_STATUSES_STATUS    => $orgaStatusInCustomer->getStatus(),
-                        OrgaResourceType::REGISTRATION_STATUSES_TYPE      => $orgaStatusInCustomer->getOrgaType()->getName(),
-                        OrgaResourceType::REGISTRATION_STATUSES_SUBDOMAIN => $orgaStatusInCustomer->getCustomer()->getSubdomain(),
-                    ];
-                }
+                static fn(OrgaStatusInCustomer $orgaStatusInCustomer) => [
+                    OrgaResourceType::REGISTRATION_STATUSES_STATUS    => $orgaStatusInCustomer->getStatus(),
+                    OrgaResourceType::REGISTRATION_STATUSES_TYPE      => $orgaStatusInCustomer->getOrgaType()->getName(),
+                    OrgaResourceType::REGISTRATION_STATUSES_SUBDOMAIN => $orgaStatusInCustomer->getCustomer()->getSubdomain(),
+                ]
             )->toArray();
     }
 
@@ -326,9 +287,7 @@ final class OrgaResourceType extends DplanResourceType
         $orgaStatuses = $orga->getStatusInCustomers();
         if (!$this->currentUser->hasPermission('area_manage_orgas_all')) {
             $orgaStatuses = $orgaStatuses
-                ->filter(static function (OrgaStatusInCustomer $orgaStatusInCustomer) use ($currentCustomer) {
-                    return $orgaStatusInCustomer->getCustomer()->getSubdomain() === $currentCustomer->getSubdomain();
-                });
+                ->filter(static fn(OrgaStatusInCustomer $orgaStatusInCustomer) => $orgaStatusInCustomer->getCustomer()->getSubdomain() === $currentCustomer->getSubdomain());
         }
 
         return $orgaStatuses;

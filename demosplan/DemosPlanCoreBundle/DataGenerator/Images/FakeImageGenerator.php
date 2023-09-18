@@ -5,18 +5,16 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Images;
 
-use function array_merge;
-use function call_user_func_array;
-
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 
+use function call_user_func_array;
 use function imagecolorallocate;
 use function imagecreatetruecolor;
 use function imagefill;
@@ -72,7 +70,7 @@ abstract class FakeImageGenerator implements DataGeneratorInterface
 
         call_user_func_array(
             $this->getRenderFunction(),
-            array_merge([$gd, null], $this->getRenderArgs())
+            [$gd, null, ...$this->getRenderArgs()]
         );
 
         return ob_get_clean();

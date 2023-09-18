@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,8 +9,8 @@
 
 <template>
   <button
-    class="c-publicindex__handle o-link--default text--left position--absolute"
-    :class="{ 'box-shadow-2': !isOpen }"
+    class="c-publicindex__handle o-link--default text-left absolute"
+    :class="{ 'shadow-md': !isOpen }"
     type="button"
     @click="$emit('input', !isOpen)">
     <i

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -115,20 +115,8 @@ use EDT\PathBuilding\End;
  */
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
-    /**
-     * @var HTMLSanitizer
-     */
-    private $htmlSanitizer;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    public function __construct(FileService $fileService, HTMLSanitizer $htmlSanitizer)
+    public function __construct(private readonly FileService $fileService, private readonly HTMLSanitizer $htmlSanitizer)
     {
-        $this->htmlSanitizer = $htmlSanitizer;
-        $this->fileService = $fileService;
     }
 
     /**
@@ -140,62 +128,40 @@ abstract class AbstractStatementResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         $submitterEmailAddress = $this->createAttribute($this->submitterEmailAddress)
-            ->readable(true, static function (Statement $statement): ?string {
-                return $statement->getSubmitterEmailAddress();
-            });
+            ->readable(true, static fn(Statement $statement): ?string => $statement->getSubmitterEmailAddress());
         $properties = [
             $this->createAttribute($this->authoredDate)
-                ->aliasedPath($this->meta->authoredDate)->readable(true, function (Statement $statement): ?string {
-                    return $this->formatDate($statement->getMeta()->getAuthoredDateObject());
-                }, true),
+                ->aliasedPath($this->meta->authoredDate)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()), true),
             $this->createAttribute($this->elementCategory)
                 ->readable(true)->aliasedPath($this->element->category),
             $this->createAttribute($this->externId)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->filteredFragmentsCount)
-                ->readable(true, static function (Statement $statement): int {
-                    return $statement->getFragmentsFilteredCount();
-                }),
+                ->readable(true, static fn(Statement $statement): int => $statement->getFragmentsFilteredCount()),
             $this->createAttribute($this->formerExternId)
                 ->readable(true)->aliasedPath($this->placeholderStatement->externId),
             $this->createAttribute($this->fragmentsCount)
-                ->readable(true, static function (Statement $statement): int {
-                    return $statement->getFragments()->count();
-                }),
+                ->readable(true, static fn(Statement $statement): int => $statement->getFragments()->count()),
             $this->createAttribute($this->id)->readable(true)->filterable(),
             $this->createAttribute($this->internId)
                 ->readable(true)->filterable()->aliasedPath($this->original->internId),
             $this->createAttribute($this->isCitizen)
-                ->readable(true, static function (Statement $statement): bool {
-                    return User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName();
-                }),
+                ->readable(true, static fn(Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName()),
             $this->createAttribute($this->isCluster)
                 ->readable(true)->aliasedPath($this->clusterStatement),
             $this->createAttribute($this->likesNum)
-                ->readable(true, static function (Statement $statement): int {
-                    return $statement->getLikesNum();
-                }),
+                ->readable(true, static fn(Statement $statement): int => $statement->getLikesNum()),
             $this->createAttribute($this->movedFromProcedureId)
-                ->readable(true, static function (Statement $statement): string {
-                    return $statement->getMovedFromProcedureId() ?: '';
-                }),
+                ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureId() ?: ''),
             $this->createAttribute($this->movedFromProcedureName)
-                ->readable(true, static function (Statement $statement): string {
-                    return $statement->getMovedFromProcedureName() ?: '';
-                }),
+                ->readable(true, static fn(Statement $statement): string => $statement->getMovedFromProcedureName() ?: ''),
             $this->createAttribute($this->movedStatementId)
                 ->readable(true)->aliasedPath($this->movedStatement->id),
             $this->createAttribute($this->movedToProcedureId)
-                ->readable(true, static function (Statement $statement): string {
-                    return $statement->getMovedToProcedureId() ?: '';
-                }),
+                ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureId() ?: ''),
             $this->createAttribute($this->movedToProcedureName)
-                ->readable(true, static function (Statement $statement): string {
-                    return $statement->getMovedToProcedureName() ?: '';
-                }),
+                ->readable(true, static fn(Statement $statement): string => $statement->getMovedToProcedureName() ?: ''),
             $this->createAttribute($this->name)
-                ->readable(true, static function (Statement $statement): string {
-                    return $statement->getName();
-                }),
+                ->readable(true, static fn(Statement $statement): string => $statement->getName()),
             $this->createAttribute($this->initialOrganisationHouseNumber)
                 ->readable(true)->aliasedPath($this->meta->houseNumber),
             $this->createAttribute($this->initialOrganisationStreet)
@@ -227,64 +193,38 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             $this->createAttribute($this->priority)->readable(true),
             $this->createAttribute($this->procedureId)->readable(true)->aliasedPath($this->procedure->id),
             $this->createAttribute($this->publicAllowed)
-                ->readable(true, static function (Statement $statement): bool {
-                    return $statement->getPublicAllowed();
-                }),
+                ->readable(true, static fn(Statement $statement): bool => $statement->getPublicAllowed()),
             $this->createAttribute($this->publicVerified)->readable(true),
             $this->createAttribute($this->publicVerifiedTranslation)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getPublicVerifiedTranslation();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getPublicVerifiedTranslation()),
             $this->createAttribute($this->recommendation)
-                ->readable(true, function (Statement $statement): ?string {
-                    return $this->htmlSanitizer->purify($statement->getRecommendationShort());
-                }),
+                ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getRecommendationShort())),
             $this->createAttribute($this->recommendationIsTruncated)
-                ->readable(true, static function (Statement $statement): bool {
-                    return $statement->getRecommendation() !== $statement->getRecommendationShort();
-                }),
+                ->readable(true, static fn(Statement $statement): bool => $statement->getRecommendation() !== $statement->getRecommendationShort()),
             $this->createAttribute($this->status)->readable(true),
             $this->createAttribute($this->submitDate)
-                ->sortable()->aliasedPath($this->submit)->readable(true, function (Statement $statement): ?string {
-                    return $this->formatDate($statement->getSubmitObject());
-                }, true),
+                ->sortable()->aliasedPath($this->submit)->readable(true, fn(Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()), true),
             $submitterEmailAddress,
             $this->createAttribute($this->submitType)->readable(true),
             $this->createAttribute($this->text)
-                ->readable(true, function (Statement $statement): ?string {
-                    return $this->htmlSanitizer->purify($statement->getTextShort());
-                }),
+                ->readable(true, fn(Statement $statement): ?string => $this->htmlSanitizer->purify($statement->getTextShort())),
             $this->createAttribute($this->textIsTruncated)
-                ->readable(true, static function (Statement $statement): bool {
-                    return $statement->getText() !== $statement->getTextShort();
-                }),
+                ->readable(true, static fn(Statement $statement): bool => $statement->getText() !== $statement->getTextShort()),
             $this->createAttribute($this->userGroup)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getMeta()->getUserGroup();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserGroup()),
             $this->createAttribute($this->userOrganisation)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getMeta()->getUserOrganisation();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserOrganisation()),
             $this->createAttribute($this->userPosition)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getMeta()->getUserPosition();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserPosition()),
             $this->createAttribute($this->userState)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getMeta()->getUserState();
-                }),
+                ->readable(true, static fn(Statement $statement): ?string => $statement->getMeta()->getUserState()),
             $this->createAttribute($this->votePla)->readable(true),
             $this->createAttribute($this->votesNum)
-                ->readable(true, static function (Statement $statement): int {
-                    return $statement->getVotesNum();
-                }),
+                ->readable(true, static fn(Statement $statement): int => $statement->getVotesNum()),
             $this->createAttribute($this->voteStk)->readable(true),
             $this->createAttribute($this->fullText)
                 // add the large full text field only if it was requested
-                ->readable(false, function (Statement $statement): string {
-                    return $this->htmlSanitizer->purify($statement->getText());
-                }),
+                ->readable(false, fn(Statement $statement): string => $this->htmlSanitizer->purify($statement->getText())),
             // keep `isManual` optional, as it may be removed when the resource type is splitted
             $this->createAttribute($this->isManual)->readable()->aliasedPath($this->manual),
             $this->createAttribute($this->numberOfAnonymVotes)->filterable(),
@@ -340,20 +280,16 @@ abstract class AbstractStatementResourceType extends DplanResourceType
                 ->readable(true)->aliasedPath($this->meta->houseNumber);
             $submitterEmailAddress
                 // if the statement was given anonymously, do not display the email-address
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->isAnonymous() ? null : $statement->getSubmitterEmailAddress();
-                });
+                ->readable(true, static fn(Statement $statement): ?string => $statement->isAnonymous() ? null : $statement->getSubmitterEmailAddress());
 
             $properties[] = $this->createAttribute($this->initialOrganisationEmail)
                 ->readable()->sortable()->aliasedPath($this->meta->orgaEmail);
             $properties[] = $this->createAttribute($this->submitterName)
                 // for citizen statements the submitter name may be empty, hence we use
                 // the author name instead for such statements
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->isCreatedByCitizen()
-                        ? $statement->getUserName()
-                        : $statement->getMeta()->getSubmitName();
-                });
+                ->readable(true, static fn(Statement $statement): ?string => $statement->isCreatedByCitizen()
+                    ? $statement->getUserName()
+                    : $statement->getMeta()->getSubmitName());
         }
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {

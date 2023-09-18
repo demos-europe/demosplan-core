@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,14 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class FaqApiController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/faq/{faqId}",
-     *        methods={"PATCH"},
-     *        name="dp_api_admin_faq_update",
-     *        options={"expose": true})
      * @DplanPermissions("area_admin_faq")
      *
      * @deprecated use `api_resource_update` route instead
      */
+    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['PATCH'], name: 'dp_api_admin_faq_update', options: ['expose' => true])]
     public function updateAction(ApiLogger $apiLogger, string $faqId): Response
     {
         try {
@@ -48,12 +45,9 @@ class FaqApiController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/faq/{faqId}",
-     *        methods={"DELETE"},
-     *        name="dp_api_admin_faq_delete",
-     *        options={"expose": true})
      * @DplanPermissions("area_admin_faq")
      */
+    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['DELETE'], name: 'dp_api_admin_faq_delete', options: ['expose' => true])]
     public function deleteAction(string $faqId, FaqHandler $faqHandler): APIResponse
     {
         try {

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,7 +12,7 @@ namespace Tests\Core\StatementFragment;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;

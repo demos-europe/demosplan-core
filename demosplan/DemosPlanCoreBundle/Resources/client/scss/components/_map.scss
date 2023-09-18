@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -25,11 +25,11 @@ $map-width-wide:            calc(100% - #{$map-toolbar-width-wide});
 $map-height:                531px;
 
 // Drawing colors
-$map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
-$map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
+$map-color-draw-fill:       $dp-token-color-map-draw-fill;
+$map-color-draw-stroke:     $dp-token-color-map-draw-stroke;
 
-$map-layer-color: $default-font-color;
-$map-layer-color-hover: $dp-token-color-brand-link;
+$map-layer-color: $dp-color-text-default;
+$map-layer-color-hover: $dp-color-interactive-default;
 $map-layer-color-active: $dp-token-color-brand-cta;
 $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
@@ -81,13 +81,13 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
     margin: 0;
     width: 100%;
 
-    color: $default-font-color;
+    color: $dp-color-text-default;
     cursor: pointer;
     list-style: none;
 }
 
 %map-toolbar-list-item-disabled {
-    color: $default-font-color;
+    color: $dp-color-text-default;
     cursor: default;
 }
 
@@ -97,10 +97,15 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
     //  component container
     .c-map {
+        $z-map:           1000;
+        $z-map-popups:    1010;
+        $z-map-toolbar:   1020;
+        $z-map-hint:      1030;
+        $z-map-progress:  1040;
 
         width: 100%;
 
-        font-size: $dp-token-font-size-small;
+        font-size: $dp-font-size-small;
 
         //  progress bar for loaded map tiles
         &--progress {
@@ -113,7 +118,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             width: 0;
 
             // Like primary button background, this element shares the color with links.
-            background-color: $dp-token-color-brand-link;
+            background-color: $dp-color-interactive-default;
             transition: width 250ms;
         }
 
@@ -248,7 +253,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
                 background-color: $dp-color-white;
                 border-radius: 0 2px 2px 0;
-                // $dp-token-box-shadow-1 is not used here since it does not cut the left shadow
+                // $dp-box-shadow is not used here since it does not cut the left shadow
                 box-shadow: 2px 3px 5px -2px #aaa;
             }
 
@@ -344,7 +349,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         // just the group item's background-color
         &__group-item-color {
-            background-color: color.adjust($default-border-color, $lightness: 10%);
+            background-color: color.adjust($dp-color-border-default, $lightness: 10%);
         }
 
         //  group of toolbar controls > header (eg. "Kartenebenen")
@@ -353,7 +358,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin-top: $inuit-base-spacing-unit--small;
             padding-left: 9px;
 
-            background-color: $default-border-color;
+            background-color: $dp-color-border-default;
             color: $map-layer-color;
             cursor: pointer;
 
@@ -382,7 +387,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &:hover {
-                background-color: color.adjust($default-border-color, $lightness: 10%);
+                background-color: color.adjust($dp-color-border-default, $lightness: 10%);
                 color: $map-layer-color-hover;
             }
 
@@ -443,15 +448,15 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  Huge layer toggle items in map area
         &__layer-button {
-            background-color: $dp-token-color-brand-link;
+            background-color: $dp-color-interactive-default;
 
             &:hover {
-                background-color: $dp-token-color-brand-link-hover;
+                background-color: $dp-color-interactive-hover;
             }
 
             &.is-active {
-                background-color: $dp-token-color-brand-highlight;
-                border: $dp-token-color-brand-highlight;
+                background-color: $dp-color-highlight;
+                border-color: $dp-color-highlight;
             }
         }
 
@@ -471,7 +476,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin-top: 4px;
 
             &:hover {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-highlight;
             }
 
             &--position-absolute {
@@ -487,10 +492,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             padding: 0;
 
             background-color: transparent;
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
             cursor: pointer !important;
 
-            font-size: $dp-token-font-size-medium;
+            font-size: $dp-font-size-medium;
 
             &:hover,
             &.is-active {
@@ -498,15 +503,15 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &:hover {
-                color: $dp-token-color-brand-link-hover;
+                color: $dp-color-interactive-hover;
             }
 
             &.is-active {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-highlight;
             }
 
             &:active {
-                color: $dp-token-color-brand-link-hover;
+                color: $dp-color-interactive-hover;
             }
 
             i {
@@ -517,7 +522,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         &__tool-simple {
             &.is-active {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-highlight;
             }
         }
 
@@ -716,7 +721,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 margin-right: $inuit-base-spacing-unit--small;
 
                 white-space: nowrap;
-                font-size: $dp-token-font-size-smaller;
+                font-size: $dp-font-size-smaller;
             }
 
             &__content {
@@ -776,8 +781,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__measure-output {
             padding: 3px 6px;
 
-            background-color: $dp-token-color-brand-alt;
-            color: $dp-token-color-brand-alt-contrast;
+            background-color: $dp-color-alt;
+            color: $dp-color-alt-contrast;
 
             white-space: nowrap;
         }
@@ -786,7 +791,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__measure-hint {
             display: block;
 
-            font-size: $dp-token-font-size-smaller;
+            font-size: $dp-font-size-smaller;
 
             .is-hidden {
                 display: none;
@@ -848,11 +853,11 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__draw {
             &-stroke,
             &-image {
-                color: $dp-token-color-ui-map-draw-stroke;
+                color: $dp-token-color-map-draw-stroke;
             }
 
             &-fill {
-                color: $dp-token-color-ui-map-draw-fill;
+                color: $dp-token-color-map-draw-fill;
             }
         }
     }
@@ -913,7 +918,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         line-height: 28px;
 
         &:hover {
-            border-color: $dp-token-color-brand-link-hover !important;
+            border-color: $dp-color-interactive-hover !important;
         }
     }
 

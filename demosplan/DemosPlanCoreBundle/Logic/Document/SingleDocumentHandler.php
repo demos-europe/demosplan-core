@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,23 +22,12 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
      */
     protected $service;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var LegacyFlashMessageCreator
-     */
-    private $legacyFlashMessageCreator;
-
     public function __construct(
-        LegacyFlashMessageCreator $legacyFlashMessageCreator,
+        private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         SingleDocumentService $service,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
         $this->service = $service;
-        $this->translator = $translator;
-        $this->legacyFlashMessageCreator = $legacyFlashMessageCreator;
     }
 
     /**
@@ -63,7 +52,7 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
 
-        if (!array_key_exists('r_statement_enabled', $data) || '' === trim($data['r_statement_enabled'])) {
+        if (!array_key_exists('r_statement_enabled', $data) || '' === trim((string) $data['r_statement_enabled'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -74,7 +63,7 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
 
             return ['mandatoryfieldwarning' => $mandatoryErrors];
         }
-        if (!array_key_exists('r_document', $data) || '' === trim($data['r_document'])) {
+        if (!array_key_exists('r_document', $data) || '' === trim((string) $data['r_document'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -85,7 +74,7 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
 
             return ['mandatoryfieldwarning' => $mandatoryErrors];
         }
-        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+        if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(

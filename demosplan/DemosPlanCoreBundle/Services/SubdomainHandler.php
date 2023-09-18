@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Services;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,8 +24,11 @@ class SubdomainHandler implements SubdomainHandlerInterface
      */
     protected $logger;
 
-    public function __construct(GlobalConfigInterface $globalConfig, LoggerInterface $logger)
-    {
+    public function __construct(
+        GlobalConfigInterface $globalConfig,
+        LoggerInterface $logger,
+        private readonly CustomerRepository $customerRepository
+    ) {
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
     }
@@ -43,8 +47,13 @@ class SubdomainHandler implements SubdomainHandlerInterface
         $urlSubdomain = $this->getUrlSubdomain($request);
         $this->logger->debug('Subdomain', [$urlSubdomain]);
 
-        if (in_array($urlSubdomain, $this->globalConfig->getSubdomainsAllowed(), true)) {
+        try {
+            $customer = $this->customerRepository->findCustomerBySubdomain($urlSubdomain);
+            $this->logger->debug('Customer found', [$customer->getSubdomain()]);
+
             return $urlSubdomain;
+        } catch (\Exception $e) {
+            $this->logger->warning('Customer not found', [$e->getMessage()]);
         }
 
         return $this->getGlobalConfig()->getSubdomain();

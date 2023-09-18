@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,8 @@
 namespace Tests\Core\Survey\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 

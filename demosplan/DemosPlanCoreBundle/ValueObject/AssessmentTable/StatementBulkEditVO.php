@@ -3,15 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable;
 
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementIdsInProcedureVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementIdsInProcedureVO;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class StatementBulkEditVO extends ValueObject
@@ -21,24 +21,21 @@ class StatementBulkEditVO extends ValueObject
 
     // @improve T12873
     /**
-     * @Assert\Valid()
-     *
      * @var StatementIdsInProcedureVO
      */
+    #[Assert\Valid]
     protected $statementIdsInProcedure;
 
     /**
      * @var string
-     *
-     * @Assert\Length(min=1)
      */
+    #[Assert\Length(min: 1)]
     protected $recommendationAddition;
 
     /**
-     * @Assert\Length(min=36, max=36)
-     *
      * @var string
      */
+    #[Assert\Length(min: 36, max: 36)]
     protected $assigneeId;
 
     /**

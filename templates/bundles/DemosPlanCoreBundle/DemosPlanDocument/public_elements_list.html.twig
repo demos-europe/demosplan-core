@@ -20,18 +20,18 @@
         {% if displayCategory == true %}
             <article class="{{ 'elements' ~ (firstItem == false ? ' border--top')|prefixClass }}">
 
-                <h2 class="{{ 'elements__header elements__grid cf'|prefixClass }}">
+                <h2 class="{{ 'elements__header elements__grid flow-root'|prefixClass }}">
                     <span
-                        class="{{ 'elements__grid-grow display--inline-block' ~ (element.iconTitle|default != '' ? ' cursor--help')|prefixClass }}"
+                        class="{{ 'elements__grid-grow inline-block' ~ (element.iconTitle|default != '' ? ' cursor-help')|prefixClass }}"
                         {# In bobhh and bobsh, element.iconTitle contains a category-based help text. #}
                         {% if element.iconTitle|default != '' %}
                             title="{{ element.iconTitle|trans({ title: element.title }) }}"
                         {% endif %}>
                         {# In bobhh and bobsh, categories may have icons defined in the database. #}
                         <i
-                            class="{{ 'elements__header-icon position--absolute fa ' ~ (element.icon|default|length > 0 ? element.icon : 'fa-file-text')|prefixClass }}"
+                            class="{{ 'elements__header-icon absolute fa ' ~ (element.icon|default|length > 0 ? element.icon : 'fa-file-text')|prefixClass }}"
                             aria-hidden="true"></i>
-                        <span class="{{ 'elements__title display--inline-block'|prefixClass }}">
+                        <span class="{{ 'elements__title inline-block'|prefixClass }}">
                             {{ element.title }}
                         </span>
                     </span>
@@ -39,7 +39,7 @@
                     {# Link to detail view of element, if it contains paragraphs #}
                     {% if element.paragraphDocs == true and element.hasParagraphs %}
                         <a
-                            class="{{ 'elements__button btn btn--primary float--right u-mt-0_25-lap-down u-1-of-1-lap-down'|prefixClass }}"
+                            class="{{ 'elements__button btn btn--primary float-right u-mt-0_25-lap-down u-1-of-1-lap-down'|prefixClass }}"
                             href="{{ link }}"
                             title="{{ element.title }}"
                             aria-label="{{ 'document'|trans }}: {{ element.title }}, {{- (hasPermission('feature_documents_new_statement') ? 'document.open.and.assessment' : 'document.open')|trans -}}">
@@ -50,7 +50,7 @@
                 </h2>
 
                 {# Description of category #}
-                <div class="{{ 'elements__description u-1-of-1-desk-up overflow-word-break'|prefixClass }}">
+                <div class="{{ 'elements__description u-1-of-1-desk-up break-words'|prefixClass }}">
                     {# display to planners if only specific orgas see this element #}
                     {% if hasPermission('feature_admin_element_authorisations') %}
                     {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {
@@ -67,16 +67,16 @@
 
                 {# Content of category.
                    This may be one file/video for categories of type 'paragraph' or many files/videos for categories of type 'file'. #}
-                <ul class="{{ 'elements__content list-style-none hide-empty u-mb-0'|prefixClass }}">
+                <ul class="{{ 'elements__content hide-empty'|prefixClass }}">
                     {%- apply spaceless %}
 
                         {% if element.category == 'paragraph' %}
 
                             {% if element.file is defined and element.file != '' %}
-                                <li class="{{ 'elements__file elements__grid u-pv-0_25 cf'|prefixClass }}">
+                                <li class="{{ 'elements__file elements__grid u-pv-0_25 flow-root'|prefixClass }}">
                                     {% if element.file|getFile('mimeType') in videoFormats %}
                                         <dp-video-player
-                                            class="{{ 'box-shadow-1'|prefixClass }}"
+                                            class="{{ 'shadow'|prefixClass }}"
                                             :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: element.file|getFile('hash') }) }}', type: '{{ element.file|getFile('mimeType') }}' } ]"
                                             id="{{ 'file' ~ element.file|getFile('hash') }}"
                                             icon-url="{{ asset('img/plyr.svg') }}">
@@ -85,7 +85,7 @@
                                         {# Simple download link that is also read out by screen readers #}
                                         <div class="{{ 'elements__file-name elements__grid-grow'|prefixClass }}">
                                             <a
-                                                class="{{ 'o-link--default overflow-word-break'|prefixClass }}"
+                                                class="{{ 'o-link--default break-words'|prefixClass }}"
                                                 target="_blank"
                                                 rel="noopener"
                                                 href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': element.file|getFile('hash') }) }}">
@@ -93,7 +93,7 @@
                                                 <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                 {{ element.title }}
                                                 {% if (element.file|getFile('size', 'MB')|length > 0) %}
-                                                    <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                    <span class="{{ 'whitespace-nowrap'|prefixClass }}">
                                                         ({{ element.file|getFile('mimeType') }} {{ element.file|getFile('size', 'MB') }})
                                                     </span>
                                                 {% endif %}
@@ -124,11 +124,11 @@
                                 {% set mimeType = document.document|getFile('mimeType') %}
                                 {% set isVideo = mimeType in videoFormats %}
 
-                                <li class="{{ 'elements__file cf'|prefixClass }}">
+                                <li class="{{ 'elements__file flow-root'|prefixClass }}">
                                     <div class="{{ (not isVideo ? 'elements__grid')|prefixClass }}">
                                         {% if isVideo %}
                                             <dp-video-player
-                                                class="{{ 'box-shadow-1'|prefixClass }}"
+                                                class="{{ 'shadow'|prefixClass }}"
                                                 :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: document.document|getFile('hash') }) }}', type: '{{ document.document|getFile('mimeType') }}' } ]"
                                                 id="{{ 'file' ~ document.document|getFile('hash') }}"
                                                 icon-url="{{ asset('img/plyr.svg') }}">
@@ -137,7 +137,7 @@
                                             {# Simple download link that is also read out by screen readers #}
                                             <div class="{{ 'elements__file-name elements__grid-grow'|prefixClass }}">
                                                 <a
-                                                    class="{{ 'o-link--default overflow-word-break u-mr-0_25'|prefixClass }}"
+                                                    class="{{ 'o-link--default break-words u-mr-0_25'|prefixClass }}"
                                                     target="_blank"
                                                     rel="noopener"
                                                     href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}">
@@ -145,7 +145,7 @@
                                                     <i class="{{ 'fa fa-file-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
                                                     {{ document.title }}
                                                     {% if document.document|getFile('size')|length > 0 %}
-                                                        <span class="{{ 'whitespace--nowrap'|prefixClass }}">
+                                                        <span class="{{ 'whitespace-nowrap'|prefixClass }}">
                                                             ({{ document.document|getFile('mimeType') }} {{ document.document|getFile('size', 'MB') }})
                                                         </span>
                                                     {% endif %}
@@ -164,7 +164,7 @@
                                                         r_paragraph_id: '',
                                                         r_paragraph_title: ''
                                                     }, { draftStatementId: '{{ templateVars.draftStatementId|default }}' })"
-                                                class="{{ 'elements__button btn btn--primary btn--outline u-mb-0_25-lap-down u-1-of-1-lap-down' ~ (isVideo ? ' u-mt-0_5 float--right')|prefixClass }}"
+                                                class="{{ 'elements__button btn btn--primary btn--outline u-mb-0_25-lap-down u-1-of-1-lap-down' ~ (isVideo ? ' u-mt-0_5 float-right')|prefixClass }}"
                                                 type="button"
                                                 aria-label="{{ 'plandocument'|trans }}: {{ document.title }}, {{ 'statement.form.add.relation'|trans }}">
                                                 <i class="{{ 'fa fa-comment u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,13 +9,13 @@
 
 <template>
   <div class="space-stack-s">
-    <div class="flex flex-content-between">
+    <div class="flex justify-between">
       <p
         v-text="Translator.trans('text.procedures.list')" />
 
       <div
         v-if="hasPermission('feature_admin_new_procedure')"
-        class="text--right">
+        class="text-right">
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
@@ -35,7 +35,7 @@
         @reset="resetAdministrationProceduresList" />
 
       <dp-select
-        class="width-250 flex-item-end"
+        class="width-250 ml-auto"
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
@@ -46,31 +46,25 @@
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
       name="procedureForm"
       ref="procedureForm">
-      <button
+      <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
-        class="btn--blank o-link--default u-ml-0_25 u-mr-0_75"
         data-cy="deleteProcedure"
-        @click="deleteProcedures"
+        icon="delete"
         name="deleteProcedure"
-        type="submit">
-        <i
-          aria-hidden="true"
-          class="fa fa-times-circle u-mr-0_25" />
-        {{ Translator.trans('delete') }}
-      </button>
+        :text="Translator.trans('delete')"
+        type="submit"
+        variant="subtle"
+        @click="deleteProcedures" />
 
-      <button
+      <dp-button
         v-if="hasPermission('feature_admin_export_procedure')"
-        class="btn--blank o-link--default u-ml-0_25"
         data-cy="ExportProcedure"
-        @click="exportProcedures"
+        icon="download"
         name="exportProcedure"
-        type="submit">
-        <i
-          class="fa fa-download u-mr-0_25"
-          aria-hidden="true" />
-        {{ Translator.trans('print.and.export') }}
-      </button>
+        :text="Translator.trans('print.and.export')"
+        type="submit"
+        variant="subtle"
+        @click="exportProcedures" />
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input
@@ -137,12 +131,12 @@
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
           v-text="statementsCount"
-          class="text--center" />
+          class="text-center" />
       </template>
 
       <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
         <div
-          class="float--left u-m-0">
+          class="float-left u-m-0">
           <span v-text="internalPhase" />
           <div v-text="internalStartDate + ' - ' + internalEndDate" />
         </div>

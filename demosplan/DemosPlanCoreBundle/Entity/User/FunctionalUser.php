@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -46,7 +47,17 @@ class FunctionalUser extends User
 
         parent::__construct();
     }
+    protected function setDefaultOrgaDepartment(): void
+    {
+        $this->functionalOrga = new Orga();
+        $this->functionalOrga->setId(self::ANONYMOUS_USER_ORGA_ID);
+        $this->functionalOrga->setName(self::ANONYMOUS_USER_ORGA_NAME);
 
+        $this->department = new Department();
+        $this->department->setId(self::ANONYMOUS_USER_DEPARTMENT_ID);
+        $this->department->setName(self::ANONYMOUS_USER_DEPARTMENT_NAME);
+        $this->functionalOrga->setDepartments([$this->department]);
+    }
     /**
      * {@inheritDoc}
      */
@@ -82,7 +93,7 @@ class FunctionalUser extends User
     /**
      * Has to be overridden to ignore the customer.
      */
-    public function getDplanroles(Customer $customer = null): Collection
+    public function getDplanroles(CustomerInterface $customer = null): Collection
     {
         return $this->dplanRoles;
     }

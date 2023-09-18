@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -65,16 +65,6 @@ class AggregationFilterType extends ValueObject
     protected $missingResourcesSum;
 
     /**
-     * @var bool
-     */
-    private $itemToManyRelationship;
-
-    /**
-     * @var bool
-     */
-    private $missingResourcesSumVisible;
-
-    /**
      * @param array<string,AggregationFilterItem> $aggregationFilterItems
      * @param array<int,AggregationFilterGroup>   $aggregationFilterGroups
      */
@@ -85,8 +75,8 @@ class AggregationFilterType extends ValueObject
         array $aggregationFilterItems,
         array $aggregationFilterGroups,
         int $missingResourcesSum,
-        bool $itemToManyRelationship,
-        bool $missingResourcesSumVisible
+        private readonly bool $itemToManyRelationship,
+        private readonly bool $missingResourcesSumVisible
     ) {
         $this->id = $id;
         $this->label = $label;
@@ -94,8 +84,6 @@ class AggregationFilterType extends ValueObject
         $this->aggregationFilterItems = $aggregationFilterItems;
         $this->aggregationFilterGroups = $aggregationFilterGroups;
         $this->missingResourcesSum = $missingResourcesSum;
-        $this->itemToManyRelationship = $itemToManyRelationship;
-        $this->missingResourcesSumVisible = $missingResourcesSumVisible;
         $this->lock();
     }
 

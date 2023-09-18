@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,25 +26,29 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadStatementData extends TestFixture implements DependentFixtureInterface
 {
     protected $manager;
 
-    public const PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST = 'http://www.pisegmentsproposalresourceurl.com';
+    final public const PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST = 'http://www.pisegmentsproposalresourceurl.com';
 
-    public const TEST_STATEMENT = 'testStatement';
-    public const TEST_STATEMENT_ORIGINAL = 'testStatementOrig';
-    public const TEST_STATEMENT_WITH_TOKEN = 'testStatementWithToken';
-    public const MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE = 'manualStatementInPublicParticipationPhase';
+    final public const TEST_STATEMENT = 'testStatement';
+    final public const TEST_STATEMENT_ORIGINAL = 'testStatementOrig';
+    final public const TEST_STATEMENT_WITH_TOKEN = 'testStatementWithToken';
+    final public const MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE = 'manualStatementInPublicParticipationPhase';
 
     /**
      * @throws InvalidDataException
      */
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
 
@@ -295,6 +299,13 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement5->setText('Ich bin der Text für ein weiteres Statement');
         $statement5->setTitle('oneMoreStatement');
         $statement5->setUser($testUser);
+        $statement5->setSimilarStatementSubmitters(
+            new ArrayCollection([
+                $this->getReference('testProcedurePerson1'),
+                $this->getReference('testProcedurePerson2'),
+                ]
+            )
+        );
 
         $this->setReference('testFixtureStatement', $statement5);
         $manager->persist($statement5);
@@ -322,6 +333,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement2->setText('Ich bin der Text für das Statement, gleiche Orga, anderer User');
         $statement2->setTitle('Statement Orga');
         $statement2->setUser($this->getReference('testUserPlanningOffice'));
+        $statement2->setSimilarStatementSubmitters(new ArrayCollection([$this->getReference('testProcedurePerson1')]));
 
         /** @var User $submitter */
         $submitter = $this->getReference('testUserDataInput1');
@@ -952,6 +964,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
             LoadProcedureData::class,
             LoadTagData::class,
             LoadUserData::class,
+            LoadProcedurePersonData::class,
         ];
     }
 

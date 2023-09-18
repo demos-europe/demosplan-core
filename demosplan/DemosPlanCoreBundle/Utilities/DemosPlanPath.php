@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -44,6 +44,11 @@ class DemosPlanPath
         return dirname(__FILE__, 4).DIRECTORY_SEPARATOR.$path;
     }
 
+    public static function getConfigPath(string $path = ''): string
+    {
+        return self::getRootPath('config'.('' !== $path ? "/{$path}" : ''));
+    }
+
     /**
      * Returns a path to the system temp directory.
      *
@@ -82,6 +87,10 @@ class DemosPlanPath
      */
     public static function getProjectPath(string $path = ''): string
     {
+        if(self::isInstalledAsLib()) {
+            return dirname(self::getRootPath(), 3).DIRECTORY_SEPARATOR.$path;
+        }
+
         $projectPath = self::$projectPathFromConfig;
 
         return self::getRootPath("{$projectPath}/{$path}");
@@ -97,6 +106,11 @@ class DemosPlanPath
         return '' !== $path
             ? self::getRootPath('tests').'/'.$path
             : self::getRootPath('tests');
+    }
+
+    public static function isInstalledAsLib(): bool
+    {
+        return !is_dir(self::getRootPath('vendor'));
     }
 
     /**

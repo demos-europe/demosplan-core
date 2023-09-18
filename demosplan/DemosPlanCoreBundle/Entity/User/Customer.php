@@ -3,30 +3,35 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Branding;
+use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Video;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="customer")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
-class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
+class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
     /**
      * @var string|null
@@ -40,56 +45,36 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
-
     /**
-     * @var Collection<int, CustomerCounty>
+     * @var Collection<int, CustomerCountyInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="customer", cascade={"persist"})
      */
     private $customerCounties;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
-     */
-    private $name;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
-     */
-    private $subdomain;
-
     /**
      * @var string
      *
      * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
      */
     private $imprint = '';
-
     /**
      * $orgas not mapped to a Table because they are now retrieved from {@link Customer::$orgaStatuses}.
      *
      * @var ArrayCollection
      */
     private $orgas;
-
     /**
-     * @var Collection<int, UserRoleInCustomer>
+     * @var Collection<int, UserRoleInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
-
     /**
-     * @var Collection<int, OrgaStatusInCustomer>
+     * @var Collection<int, OrgaStatusInCustomerInterface>
      *
      * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
      */
     protected $orgaStatuses;
-
     /**
      * Data privacy protection setting of the customer which is displayed as legal requirement on the website.
      *
@@ -100,7 +85,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $dataProtection = '';
-
     /**
      * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
      *
@@ -111,7 +95,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $termsOfUse = '';
-
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
      *
@@ -120,29 +103,26 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      */
     protected $xplanning = '';
-
     /**
      * T15644:.
      *
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="customer")
      *
      * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
      */
     protected $defaultProcedureBlueprint;
-
     /**
      * T16986
      * Will be used to store licence information about used map by customer.
-     * e.g. "© basemap.de BKG"
+     * e.g. "© basemap.de BKG".
      *
      * @var string
      *
      * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
      */
     protected $mapAttribution = '';
-
     /**
      * T16986
      * A short Url with an ID as parameter.
@@ -154,7 +134,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     protected $baseLayerUrl = '';
-
     /**
      * T16986
      * Layer of the baserlayers in public area.
@@ -166,29 +145,24 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     protected $baseLayerLayers = '';
-
     /**
-     * @var Branding|null
+     * @var BrandingInterface|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
-     *
-     * @Assert\Valid
      */
+    #[Assert\Valid]
     protected $branding;
-
     /**
      * @var string
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
-     *
-     * @Assert\Length(max=65000)
      */
+    #[Assert\Length(max: 65000)]
     protected $accessibilityExplanation = '';
-
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.
      *
-     * @var Collection<int, Video>
+     * @var Collection<int, VideoInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Video")
      *
@@ -198,16 +172,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * )
      */
     private $signLanguageOverviewVideos;
-
     /**
-     * Description text for the page in which {@link Customer::$signLanguageOverviewVideos} are shown.
+     * Description text for the page in which {@link CustomerInterface::$signLanguageOverviewVideos} are shown.
      *
      * @var string
      *
      * @ORM\Column(type="text", nullable=false, options={"default":""})
      */
     private $signLanguageOverviewDescription = '';
-
     /**
      * A text that will be shown on a separate page, explaining content and navigation of the
      * website in simple language.
@@ -215,15 +187,18 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      *
      * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
-     *
-     * @Assert\Length(max=65536)
      */
+    #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
-    public function __construct(string $name, string $subdomain, string $mapAttribution = '')
+    public function __construct(/**
+     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
+     */
+    private string $name, /**
+     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
+     */
+    private string $subdomain, string $mapAttribution = '')
     {
-        $this->name = $name;
-        $this->subdomain = $subdomain;
         $this->mapAttribution = $mapAttribution;
         $this->userRoles = new ArrayCollection();
         $this->orgaStatuses = new ArrayCollection();
@@ -242,7 +217,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, CustomerCounty>
+     * @return Collection<int, CustomerCountyInterface>
      */
     public function getCustomerCounties(): Collection
     {
@@ -250,7 +225,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Collection<int, CustomerCounty> $customerCounties
+     * @param Collection<int, CustomerCountyInterface> $customerCounties
      */
     public function setCustomerCounties(Collection $customerCounties): void
     {
@@ -278,7 +253,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return OrgaStatusInCustomer[]
+     * @return OrgaStatusInCustomerInterface[]
      */
     public function getOrgaStatuses()
     {
@@ -286,22 +261,31 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Collection<int, OrgaStatusInCustomer> $orgaStatuses
+     * @param Collection<int, OrgaStatusInCustomerInterface> $orgaStatuses
      */
     public function setOrgaStatuses(Collection $orgaStatuses)
     {
         $this->orgaStatuses = $orgaStatuses;
     }
 
-    public function getOrgas(): Collection
+    /**
+     * @param array<int,string> $statuses if null, all orga statuses will be returned
+     *                                    will be applied as or condition
+     *
+     * @return Collection<int, Orga>
+     */
+    public function getOrgas(array $statuses = []): Collection
     {
         $orgas = new ArrayCollection();
 
-        /** @var OrgaStatusInCustomer $customerOrgaTypes */
+        /** @var OrgaStatusInCustomerInterface $customerOrgaTypes */
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
             if (!$orgas->contains($orga)) {
-                $orgas->add($orga);
+                // filter by status
+                if ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true)) {
+                    $orgas->add($orga);
+                }
             }
         }
 
@@ -309,24 +293,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return string[]
-     */
-    public function getEmailsOfUsersOfOrgas(): array
-    {
-        $mailAddresses = [];
-        /** @var Orga $orga */
-        foreach ($this->getOrgas() as $orga) {
-            /** @var User $user */
-            foreach ($orga->getUsers() as $user) {
-                $mailAddresses[] = $user->getEmail();
-            }
-        }
-
-        return $mailAddresses;
-    }
-
-    /**
-     * @param Collection<int, Orga> $orgas
+     * @param Collection<int, OrgaInterface> $orgas
      */
     public function setOrgas(Collection $orgas)
     {
@@ -337,14 +304,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, UserRoleInCustomer>
+     * @return Collection<int, UserRoleInCustomerInterface>
      */
     public function getUserRoles(): Collection
     {
         return $this->userRoles;
     }
 
-    public function addOrga(Orga $orga): bool
+    public function addOrga(OrgaInterface $orga): bool
     {
         if (!$this->orgas->contains($orga)) {
             $this->orgas[] = $orga;
@@ -355,15 +322,12 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         return false;
     }
 
-    public function removeOrga(Orga $orga)
+    public function removeOrga(OrgaInterface $orga)
     {
         $this->orgas->removeElement($orga);
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->id ?? '';
     }
@@ -415,7 +379,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Procedure|null
+     * @return ProcedureInterface|null
      */
     public function getDefaultProcedureBlueprint()
     {
@@ -423,7 +387,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @param Procedure|null $defaultProcedureBlueprint
+     * @param ProcedureInterface|null $defaultProcedureBlueprint
      */
     public function setDefaultProcedureBlueprint($defaultProcedureBlueprint): void
     {
@@ -460,12 +424,12 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->baseLayerLayers = $baseLayerLayers;
     }
 
-    public function getBranding(): ?Branding
+    public function getBranding(): ?BrandingInterface
     {
         return $this->branding;
     }
 
-    public function setBranding(?Branding $branding): void
+    public function setBranding(?BrandingInterface $branding): void
     {
         $this->branding = $branding;
     }
@@ -481,14 +445,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, Video>
+     * @return Collection<int, VideoInterface>
      */
     public function getSignLanguageOverviewVideos(): Collection
     {
         return $this->signLanguageOverviewVideos;
     }
 
-    public function addSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    public function addSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         if (!$this->signLanguageOverviewVideos->contains($signLanguageOverviewVideo)) {
             $this->signLanguageOverviewVideos[] = $signLanguageOverviewVideo;
@@ -497,7 +461,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         return $this;
     }
 
-    public function removeSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    public function removeSignLanguageOverviewVideo(VideoInterface $signLanguageOverviewVideo): self
     {
         $this->signLanguageOverviewVideos->removeElement($signLanguageOverviewVideo);
 

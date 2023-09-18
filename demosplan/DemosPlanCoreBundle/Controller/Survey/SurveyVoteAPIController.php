@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,14 +20,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,11 +37,8 @@ class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
-     * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
-     *        methods={"GET"},
-     *        name="dplan_surveyvote_list",
-     *        options={"expose": true})
      */
+    #[Route(path: '/api/1.0/survey/{surveyId}/relationships/votes', methods: ['GET'], name: 'dplan_surveyvote_list', options: ['expose' => true])]
     public function listAction(
         SurveyService $surveyService,
         SurveyVoteService $surveyVoteService,
@@ -62,14 +59,11 @@ class SurveyVoteAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/surveyVote/{surveyVoteId}",
-     *        methods={"PATCH"},
-     *        name="dplan_surveyvote_update",
-     *        options={"expose": true})
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/surveyVote/{surveyVoteId}', methods: ['PATCH'], name: 'dplan_surveyvote_update', options: ['expose' => true])]
     public function updateSurveyVoteAction(
         CurrentProcedureService $currentProcedureService,
         SurveyVoteService $surveyVoteService,
@@ -96,15 +90,11 @@ class SurveyVoteAPIController extends APIController
     }
 
     /**
-     * @Route(
-     *     name="dplan_surveyvote_create",
-     *     methods="POST",
-     *     path="/api/1.0/surveyVote",
-     *     options={"expose": true})
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'dplan_surveyvote_create', methods: 'POST', path: '/api/1.0/surveyVote', options: ['expose' => true])]
     public function createAction(
         SurveyVoteCreateHandler $surveyVoteCreateHandler,
         SurveyVoteHandler $surveyVoteHandler,

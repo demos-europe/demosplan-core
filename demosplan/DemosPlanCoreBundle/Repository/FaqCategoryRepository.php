@@ -3,23 +3,24 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use UnexpectedValueException;
 
-class FaqCategoryRepository extends CoreRepository
+class FaqCategoryRepository extends FluentRepository
 {
     /**
      * Get FaqCategory by id of a specific customer.
@@ -63,6 +64,18 @@ class FaqCategoryRepository extends CoreRepository
 
             return [];
         }
+    }
+
+    /**
+     * Get all static platformFaqCategories - same for all customers.
+     *
+     * @return PlatformFaqCategory[]
+     *
+     * @throws UnexpectedValueException
+     */
+    public function getCustomerIndependentPlatformFaqCategories(): array
+    {
+        return $this->getEntityManager()->getRepository(PlatformFaqCategory::class)->findBy([], ['title' => 'ASC']);
     }
 
     /**

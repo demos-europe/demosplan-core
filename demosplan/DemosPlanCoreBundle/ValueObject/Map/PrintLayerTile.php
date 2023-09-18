@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,11 +26,6 @@ use Psr\Log\InvalidArgumentException;
  */
 class PrintLayerTile extends ValueObject
 {
-    /**
-     * @var PrintLayerTilePosition
-     */
-    private $position;
-
     /**
      * @var string
      */
@@ -64,7 +59,7 @@ class PrintLayerTile extends ValueObject
     public function __construct(
         string $layerTitle,
         string $imageDirectoryPath,
-        PrintLayerTilePosition $position,
+        private readonly PrintLayerTilePosition $position,
         CoordinatesViewport $viewport,
         int $tileSize,
         string $url,
@@ -78,7 +73,6 @@ class PrintLayerTile extends ValueObject
         }
         $this->layerTitle = $layerTitle;
         $this->imageDirectoryPath = $imageDirectoryPath;
-        $this->position = $position;
         $this->viewport = $viewport;
         $this->tileSize = $tileSize;
         $this->url = $url;

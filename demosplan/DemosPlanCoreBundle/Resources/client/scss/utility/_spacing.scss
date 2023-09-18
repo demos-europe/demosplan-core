@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -27,19 +27,19 @@
 
 // Inline spacing: put stuff next to each other maintaining a small space between items.
 .space-inline-xs > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit--tiny;
     }
 }
 
 .space-inline-s > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit--small;
     }
 }
 
 .space-inline-m > * + * {
-    &:not(.flex-item-end) {
+    &:not(.ml-auto) {
         margin-left: $inuit-base-spacing-unit;
     }
 }

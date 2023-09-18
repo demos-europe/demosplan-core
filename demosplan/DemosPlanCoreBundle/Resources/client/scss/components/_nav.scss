@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -118,7 +118,7 @@ $dp-nav-item-font-family:                   $headings-font-family !default;
                 // Showing + styling menu.
                 &:checked ~ .c-nav__menu {
                     position: absolute;
-                    z-index: $z-fixed;
+                    z-index: $dp-z-fixed;
 
                     display: block;
 

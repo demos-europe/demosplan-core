@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -31,11 +31,9 @@ class PercentageDistribution extends ValueObject implements PercentageDistributi
      */
     public function __construct(int $total, array $absolutes)
     {
-        $this->percentages = array_map(static function (int $absolute) use ($total) {
-            return 0 !== $total
-                ? round($absolute / $total * 100, 2)
-                : 0;
-        }, $absolutes);
+        $this->percentages = array_map(static fn(int $absolute) => 0 !== $total
+            ? round($absolute / $total * 100, 2)
+            : 0, $absolutes);
         $this->absolutes = $absolutes;
         $this->total = $total;
         $this->lock();

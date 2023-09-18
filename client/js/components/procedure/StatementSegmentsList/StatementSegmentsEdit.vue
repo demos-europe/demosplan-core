@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -11,7 +11,7 @@
   <div data-dp-validate="segmentsStatementForm">
     <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments, display segments -->
+    <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
@@ -22,10 +22,10 @@
         :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id">
         <div
-          class="display--inline-block"
+          class="inline-block"
           style="width: 5%">
           <dp-claim
-            class="c-at-item__row-icon display--inline-block"
+            class="c-at-item__row-icon inline-block"
             entity-type="segment"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -36,7 +36,7 @@
             @click="() => toggleClaimSegment(segment)" />
         </div><!--
         --><div
-              class="display--inline-block overflow-word-break"
+              class="inline-block break-words"
               style="width: 95%">
           <dp-edit-field
             label=""
@@ -183,7 +183,7 @@ export default {
     },
 
     hasSegments () {
-      return Object.keys(this.segments).length > 0
+      return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
     statement () {
@@ -354,7 +354,7 @@ export default {
   },
 
   mounted () {
-    if (Object.keys(this.segments).length === 0) {
+    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
@@ -381,11 +381,14 @@ export default {
             this.scrollToSegment()
           })
         })
+        .finally(() => {
+          this.isLoading = false
+        })
     }
   },
 
   beforeDestroy () {
-    if (this.editingSegmentIds.length > 0) {
+    if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }
     if (this.hasSegments === false && this.segment) {

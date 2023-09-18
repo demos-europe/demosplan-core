@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -22,10 +23,9 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -39,83 +39,20 @@ use Throwable;
 
 class MaintenanceController extends BaseController
 {
-    /**
-     * @var DraftStatementHandler
-     */
-    private $draftStatementHandler;
-
-    /**
-     * @var EmailAddressService
-     */
-    private $emailAddressService;
-
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var ProcedureHandler
-     */
-    private $procedureHandler;
-
-    /**
-     * @var ProcedureNewsService
-     */
-    private $procedureNewsService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    public function __construct(
-        DraftStatementHandler $draftStatementHandler,
-        EmailAddressService $emailAddressService,
-        EntityContentChangeService $entityContentChangeService,
-        FileService $fileService,
-        MailService $mailService,
-        ParameterBagInterface $parameterBag,
-        PermissionsInterface $permissions,
-        ProcedureHandler $procedureHandler,
-        ProcedureNewsService $procedureNewsService
-    ) {
-        $this->draftStatementHandler = $draftStatementHandler;
-        $this->emailAddressService = $emailAddressService;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->fileService = $fileService;
-        $this->mailService = $mailService;
-        $this->parameterBag = $parameterBag;
-        $this->permissions = $permissions;
-        $this->procedureHandler = $procedureHandler;
-        $this->procedureNewsService = $procedureNewsService;
+    public function __construct(private readonly DraftStatementHandler $draftStatementHandler, private readonly EmailAddressService $emailAddressService, private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private readonly MailService $mailService, private readonly ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, private readonly ProcedureHandler $procedureHandler, private readonly ProcedureNewsService $procedureNewsService)
+    {
     }
 
     /**
      * User facing page for active service mode.
      *
-     * @Route(path="/servicemode", name="core_service_mode")
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(path: '/servicemode', name: 'core_service_mode')]
     public function serviceModeAction(GlobalConfigInterface $globalConfig)
     {
         /** @var GlobalConfig $globalConfig */
@@ -137,9 +74,9 @@ class MaintenanceController extends BaseController
     /**
      * Simple Action to evaluate response code for heartbeat monitoring.
      *
-     * @Route(path="/_heartbeat", name="core_server_heartbeat")
      * @DplanPermissions("area_demosplan")
      */
+    #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
     public function heartbeatAction(): Response
     {
         return new Response('OK');
@@ -151,13 +88,13 @@ class MaintenanceController extends BaseController
      * These tasks are run regularily *and* require a session which is
      * why they are currently managed in this action
      *
-     * @Route(path="/maintenance/{key}", name="core_maintenance")
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key
      *
      * @throws Throwable
      */
+    #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]
     public function maintenanceTasksAction(
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,

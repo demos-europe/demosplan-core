@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -42,37 +42,18 @@ class FloodControlService extends CoreService
      *
      * @var int
      */
-    public const IP_FLOOD_THRESHOLD = 50;
+    final public const IP_FLOOD_THRESHOLD = 50;
 
     /**
      * Cookie key to use for floodrelated tasks.
      */
-    public const COOKIE_KEY = 'dplan-flood';
+    final public const COOKIE_KEY = 'dplan-flood';
 
     /**
-     * @var int
+     * @param int $ipFloodThreshold
      */
-    protected $ipFloodThreshold;
-
-    protected GlobalConfigInterface $globalConfig;
-
-    protected Environment $twig;
-
-    private FloodRepository $floodRepository;
-    private MessageBagInterface $messageBag;
-
-    public function __construct(
-        Environment $twig,
-        FloodRepository $floodRepository,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        $ipFloodThreshold = self::IP_FLOOD_THRESHOLD
-    ) {
-        $this->floodRepository = $floodRepository;
-        $this->ipFloodThreshold = $ipFloodThreshold;
-        $this->globalConfig = $globalConfig;
-        $this->twig = $twig;
-        $this->messageBag = $messageBag;
+    public function __construct(protected Environment $twig, private readonly FloodRepository $floodRepository, protected GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, protected $ipFloodThreshold = self::IP_FLOOD_THRESHOLD)
+    {
     }
 
     /**
@@ -128,7 +109,7 @@ class FloodControlService extends CoreService
     /**
      * Check, whether Cookie has been set to prevent multiple submissions.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\CookieException
+     * @throws CookieException
      */
     public function checkCookie(RequestValidationEvent $event)
     {
@@ -138,17 +119,7 @@ class FloodControlService extends CoreService
         $cookie = $event->getRequest()->cookies->get(self::COOKIE_KEY);
         if (is_null($cookie)) {
             $event->getResponse()->headers->setCookie(
-                new Cookie(
-                    self::COOKIE_KEY,
-                    Json::encode([$identifier]),
-                    0,
-                    '/',
-                    null,
-                    false,
-                    true,
-                    false,
-                    'strict'
-                ));
+                Cookie::create(self::COOKIE_KEY, Json::encode([$identifier]), 0, '/', null, false, true, false, 'strict'));
             $this->getLogger()->debug('FloodControl: Set Floodcontrol Cookie '.self::COOKIE_KEY);
 
             return;
@@ -165,17 +136,7 @@ class FloodControlService extends CoreService
 
         // add new identifier to Cookie
         $event->getResponse()->headers->setCookie(
-            new Cookie(
-                self::COOKIE_KEY,
-                Json::encode($cookieValue->push($identifier)->toArray()),
-                0,
-                '/',
-                null,
-                false,
-                false,
-                false,
-                'strict'
-            )
+            Cookie::create(self::COOKIE_KEY, Json::encode($cookieValue->push($identifier)->toArray()), 0, '/', null, false, true, false, 'strict')
         );
 
         $this->getLogger()->debug('FloodControl: Cookie successfully checked');

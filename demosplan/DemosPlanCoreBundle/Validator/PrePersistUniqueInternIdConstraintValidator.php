@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,25 +16,15 @@ use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
 {
-    /** @var StatementService */
-    private $statementService;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager, StatementService $statementService)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -80,16 +70,14 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
         if (\array_key_exists(Statement::class, $identityMap)) {
             $occupyingStatements = array_filter(
                 $identityMap[Statement::class],
-                static function (Statement $statement) use ($internId, $excludeStatement) {
-                    return !($statement instanceof Segment)
-                        && !$statement->isOriginal()
-                        && $internId === $statement->getInternId()
-                        && $statement->getId() !== $excludeStatement->getId()
-                        && $statement->getProcedureId() === $excludeStatement->getProcedureId();
-                }
+                static fn(Statement $statement) => !($statement instanceof Segment)
+                    && !$statement->isOriginal()
+                    && $internId === $statement->getInternId()
+                    && $statement->getId() !== $excludeStatement->getId()
+                    && $statement->getProcedureId() === $excludeStatement->getProcedureId()
             );
 
-            return 0 !== count($occupyingStatements);
+            return 0 !== count((array) $occupyingStatements);
         }
 
         return false;

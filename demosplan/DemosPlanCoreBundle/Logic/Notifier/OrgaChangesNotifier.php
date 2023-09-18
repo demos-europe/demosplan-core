@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Notifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -24,50 +24,8 @@ use Twig\Environment;
 
 class OrgaChangesNotifier
 {
-    /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    public function __construct(
-        Environment $twig,
-        MailService $mailService,
-        OrgaService $orgaService,
-        RouterInterface $router,
-        TranslatorInterface $translator,
-        UserService $userService
-    ) {
-        $this->mailService = $mailService;
-        $this->orgaService = $orgaService;
-        $this->router = $router;
-        $this->translator = $translator;
-        $this->twig = $twig;
-        $this->userService = $userService;
+    public function __construct(private readonly Environment $twig, private readonly MailService $mailService, private readonly OrgaService $orgaService, private readonly RouterInterface $router, private readonly TranslatorInterface $translator, private readonly UserService $userService)
+    {
     }
 
     public function notifyNewOrgaAdminOfRegistration(
@@ -95,6 +53,7 @@ class OrgaChangesNotifier
 
     public function notifyDeciderOfOrgaRegistration(string $orgaName): void
     {
+        $vars = [];
         $url = $this->router->generate('DemosPlan_orga_list', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $newOrgaMailBody = $this->twig
@@ -109,9 +68,7 @@ class OrgaChangesNotifier
 
         // send Emails to customer master users
         $customerMasterUser = $this->userService->getUsersOfRole(Role::CUSTOMER_MASTER_USER);
-        $toAddresses = collect($customerMasterUser)->transform(static function (User $user) {
-            return $user->getEmail();
-        })->unique();
+        $toAddresses = collect($customerMasterUser)->transform(static fn(User $user) => $user->getEmail())->unique();
         $vars['mailsubject'] = $this->translator->trans('email.subject.orga.new');
         $vars['mailbody'] = $newOrgaMailBody;
 

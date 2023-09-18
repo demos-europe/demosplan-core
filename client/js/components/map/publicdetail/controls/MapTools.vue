@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,9 +8,9 @@
 </license>
 
 <template>
-  <div :class="{ 'display--none': isMobile }">
+  <div :class="{ 'hidden': isMobile }">
     <div :class="prefixClass('c-map__group')">
-      <div :class="prefixClass('position--relative')">
+      <div :class="prefixClass('relative')">
         <button
           :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item btn--blank o-link--default u-pv-0_25')]"
           @click="toggle">
@@ -48,7 +48,7 @@
             v-if="tool.isActive"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 12 17"
-            :class="prefixClass('c-map__group-item u-p-0 display--inline')"
+            :class="prefixClass('c-map__group-item u-p-0 inline')"
             style="width: 16px; height: 16px; vertical-align: text-top;">
             <defs>
               <clipPath :id="'a' + tool.id">
@@ -66,7 +66,7 @@
             v-else
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 12 17"
-            :class="prefixClass('c-map__group-item u-p-0 display--inline')"
+            :class="prefixClass('c-map__group-item u-p-0 inline')"
             style="width: 16px; height: 16px; vertical-align: text-top;">
             <defs>
               <clipPath :id="'a' + tool.id">

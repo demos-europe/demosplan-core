@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,37 +12,37 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
-use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -67,9 +67,9 @@ use function substr;
 
 class AssessmentTableServiceOutput
 {
-    public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
-    public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
-    public const EXPORT_SORT_DEFAULT = 'default';
+    final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
+    final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
+    final public const EXPORT_SORT_DEFAULT = 'default';
 
     /**
      * @var StatementService
@@ -120,76 +120,45 @@ class AssessmentTableServiceOutput
     /** @var ValidatorInterface */
     protected $validator;
     /**
-     * @var ParagraphService
-     */
-    private $paragraphService;
-    /** @var PageTitleExtension */
-    private $pageTitleExtension;
-    /**
      * @var PermissionsInterface
      */
     protected $permissions;
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var DocxExporter
-     */
-    private $docxExporter;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
 
     /**
      * Construktor Ausgabefunktionsklasse.
      */
     public function __construct(
         AssessmentTableServiceStorage $assessmentTableServiceStorage,
-        CurrentUserService $currentUser,
-        DocxExporter $docxExporter,
+        private readonly CurrentUserService $currentUser,
+        private readonly DocxExporter $docxExporter,
         Environment $twig,
         FileService $serviceFiles,
         FormFactoryInterface $formFactory,
         GlobalConfigInterface $config,
         MapService $serviceMap,
         LoggerInterface $logger,
-        PageTitleExtension $pageTitleExtension,
-        ParagraphService $paragraphService,
+        private readonly PageTitleExtension $pageTitleExtension,
+        private readonly ParagraphService $paragraphService,
         ProcedureHandler $procedureHandler,
         PermissionsInterface $permissions,
         ServiceImporter $serviceImport,
-        StatementHandler $statementHandler,
+        private readonly StatementHandler $statementHandler,
         StatementService $statementService,
-        TranslatorInterface $translator,
+        private readonly TranslatorInterface $translator,
         ValidatorInterface $validator
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
-        $this->docxExporter = $docxExporter;
         $this->formFactory = $formFactory;
         $this->logger = $logger;
-        $this->pageTitleExtension = $pageTitleExtension;
-        $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->procedureHandler = $procedureHandler;
         $this->serviceFiles = $serviceFiles;
         $this->serviceImport = $serviceImport;
         $this->serviceMap = $serviceMap;
-        $this->statementHandler = $statementHandler;
         $this->statementService = $statementService;
-        $this->translator = $translator;
         $this->twig = $twig;
         $this->validator = $validator;
-        $this->currentUser = $currentUser;
     }
 
     /**
@@ -254,7 +223,7 @@ class AssessmentTableServiceOutput
             $addAllAggregations
         );
 
-        $statements = array_map([$this, 'replacePhase'], $serviceResult->getResult());
+        $statements = array_map($this->replacePhase(...), $serviceResult->getResult());
 
         $filterStatementFragments = false;
         if (!(1 === count($rParams['filters']) && isset($rParams['filters']['original'])) ||
@@ -304,11 +273,9 @@ class AssessmentTableServiceOutput
         foreach ($statements as $statement) {
             $statementFragments = array_filter(
                 $filteredFragments,
-                function ($filteredFragment) use ($statement) {
-                    return $filteredFragment['statementId'] === $statement['id'];
-                }
+                fn ($filteredFragment) => $filteredFragment['statementId'] === $statement['id']
             );
-            if (count($statement['fragments']) !== count($statementFragments)) {
+            if ((is_countable($statement['fragments']) ? count($statement['fragments']) : 0) !== count($statementFragments)) {
                 $statement['fragments'] = $statementFragments;
             }
             $filteredFragments = array_diff_key($filteredFragments, $statementFragments);
@@ -351,7 +318,7 @@ class AssessmentTableServiceOutput
 
         foreach ($rParams as $key => $value) {
             if (('' !== $value) && 'Suchbegriff eingeben' !== $value
-                && false !== strpos($key, 'search_')) {
+                && str_contains($key, 'search_')) {
                 $resParams['search'] = $value;
             }
         }
@@ -364,7 +331,7 @@ class AssessmentTableServiceOutput
      */
     public function buildOriginalStatementDocxExport(Procedure $procedure, array $presentableOriginalStatements): PhpWord
     {
-        $phpWord = $this->initializePhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->setDefaultFontSize(9);
 
         $section = $phpWord->addSection();
@@ -440,7 +407,9 @@ class AssessmentTableServiceOutput
                 if (null !== $image) {
                     $docxImageTag = $this->getDocxImageTag($image);
                     Html::addHtml($section, $docxImageTag);
-                    $section->addText($this->translator->trans('copyright.sh'));
+                    $section->addText($this->translator->trans('map.attribution.exports', [
+                        'currentYear' => date('Y'),
+                    ]));
                 }
             }
         }
@@ -556,20 +525,6 @@ class AssessmentTableServiceOutput
         return $isPublicUser ? $procedure->getExternalName() : $procedure->getName();
     }
 
-    protected function initializePhpWord(): PhpWord
-    {
-        $phpWord = new PhpWord();
-        // avoid problems with < in statementTexts T3921
-        Settings::setOutputEscapingEnabled(true);
-        // https://stackoverflow.com/questions/33267654/
-        $phpWord->getSettings()->setUpdateFields(true);
-
-        // http://phpword.readthedocs.org/en/latest/index.html
-        // https://github.com/PHPOffice/PHPWord
-
-        return $phpWord;
-    }
-
     /**
      * @throws \PhpOffice\PhpWord\Exception\Exception
      */
@@ -610,6 +565,7 @@ class AssessmentTableServiceOutput
      */
     protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
+        $styles = [];
         // Benutze das ausgewählte Format
         $styles['orientation'] = [];
         // im Hochformat werden für LibreOffice anderen Breiten benötigt
@@ -670,7 +626,7 @@ class AssessmentTableServiceOutput
             // Lege den Screenshot in den Tmp-Ordner
             try {
                 $file = $this->serviceFiles->getFileInfo($hash);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->logger->warning('Could not find file for hash');
 
                 return '';
@@ -740,7 +696,7 @@ class AssessmentTableServiceOutput
 
         // get Image size
         $imageInfo = getimagesize($imageFile);
-        if (2 < count($imageInfo)) {
+        if (2 < (is_countable($imageInfo) ? count($imageInfo) : 0)) {
             $width = $imageInfo[0] - $margin;
             $height = $imageInfo[1] - $margin;
         }
@@ -1077,7 +1033,7 @@ class AssessmentTableServiceOutput
             );
         }
 
-        if (0 !== count($group->getEntries())) {
+        if (0 !== (is_countable($group->getEntries()) ? count($group->getEntries()) : 0)) {
             $entriesRenderFunction($section, $group->getEntries());
         }
     }
@@ -1235,7 +1191,7 @@ class AssessmentTableServiceOutput
     {
         $dateString = '';
         // use authoredDate if set and valid timestamp. use 100000 to avoid "nearly 0" timestamps generated by ancient java service
-        if (isset($statement['authoredDate']) && 3 < strlen($statement['authoredDate']) && 100000 < $statement['authoredDate']) {
+        if (isset($statement['authoredDate']) && 3 < strlen((string) $statement['authoredDate']) && 100000 < $statement['authoredDate']) {
             // authored-dates apparently arrive in iso-format
             $date = $statement['authoredDate'];
             $date = is_string($date) ? strtotime($date) : $date;
@@ -1244,9 +1200,9 @@ class AssessmentTableServiceOutput
             $dateString = $this->translator->trans('date').': '.date('d.m.Y', $date);
         } elseif (isset($statement['submit'])) {
             $this->logger->debug('Use submitDate: '.$statement['submit']);
-            $this->logger->debug('submitDate (formatted): '.date('d.m.Y', substr($statement['submit'], 0, 10)));
+            $this->logger->debug('submitDate (formatted): '.date('d.m.Y', substr((string) $statement['submit'], 0, 10)));
             $dateString = $this->translator->trans('date').': '.
-                date('d.m.Y', substr($statement['submit'], 0, 10));
+                date('d.m.Y', substr((string) $statement['submit'], 0, 10));
         }
 
         return $leadingComma && '' !== $dateString ? ', '.$dateString : $dateString;
@@ -1259,10 +1215,10 @@ class AssessmentTableServiceOutput
         $firstCellWidth = $styles['cellWidthTotal'] - $secondCellWidth;
         $row = $table->addRow(null, ['space' => ['before' => 0, 'after' => 0]]);
         $keyCell = $row->addCell($firstCellWidth);
-        $keyCell->addText(htmlspecialchars($valuedLabel->getLabel()));
+        $keyCell->addText(htmlspecialchars((string) $valuedLabel->getLabel()));
         $valueCell = $row->addCell($secondCellWidth);
         $valueTextRun = $valueCell->addTextRun();
-        $valueTextRun->addText(htmlspecialchars($valuedLabel->getValue()), $valueFontStyle);
+        $valueTextRun->addText(htmlspecialchars((string) $valuedLabel->getValue()), $valueFontStyle);
         if (null !== $endnoteRef) {
             $valueTextRun->addText($endnoteRef, ['superScript' => true]);
         }

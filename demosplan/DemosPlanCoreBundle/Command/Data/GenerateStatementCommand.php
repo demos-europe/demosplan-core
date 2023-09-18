@@ -3,14 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -29,17 +29,11 @@ class GenerateStatementCommand extends DataProviderCommand
      */
     protected $logger;
 
-    /**
-     * @var StatementFactory
-     */
-    private $statementFactory;
-
-    public function __construct(LoggerInterface $logger, ParameterBagInterface $parameterBag, StatementFactory $statementFactory, $name = null)
+    public function __construct(LoggerInterface $logger, ParameterBagInterface $parameterBag, private readonly StatementFactory $statementFactory, $name = null)
     {
         parent::__construct($parameterBag, $name);
 
         $this->logger = $logger;
-        $this->statementFactory = $statementFactory;
     }
 
     protected function configure(): void
@@ -132,7 +126,7 @@ class GenerateStatementCommand extends DataProviderCommand
             );
 
             $this->statementFactory->make($amount);
-        } catch (InvalidUserDataException $e) {
+        } catch (InvalidUserDataException) {
             $this->logger->notice('data:generate:statement was called with an incorrect user flag');
             $this->error('Missing --user flag, please check `php app/console data:generate:statement -h` for details.');
         } catch (DataProviderException $e) {

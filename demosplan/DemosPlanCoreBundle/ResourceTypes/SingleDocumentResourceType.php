@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,14 +32,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class SingleDocumentResourceType extends DplanResourceType
 {
-    /**
-     * @var SingleDocumentService
-     */
-    private $singleDocumentService;
-
-    public function __construct(SingleDocumentService $singleDocumentService)
+    public function __construct(private readonly SingleDocumentService $singleDocumentService)
     {
-        $this->singleDocumentService = $singleDocumentService;
     }
 
     public static function getName(): string
@@ -67,13 +61,13 @@ final class SingleDocumentResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         if ($this->currentUser->hasPermission('area_admin_single_document')) {
-            return $this->conditionFactory->true();
+            return [];
         }
 
-        return $this->conditionFactory->propertyHasValue(true, $this->visible);
+        return [$this->conditionFactory->propertyHasValue(true, $this->visible)];
     }
 
     protected function getProperties(): array
@@ -88,9 +82,7 @@ final class SingleDocumentResourceType extends DplanResourceType
                 $this->createAttribute($this->title)
                     ->readable(true)->filterable()->sortable(),
                 $this->createAttribute($this->fileInfo)
-                    ->readable(true, function (SingleDocument $document): array {
-                        return $this->singleDocumentService->getSingleDocumentInfo($document);
-                    }),
+                    ->readable(true, fn(SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
                 $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order),
             ]);
         }

@@ -1,0 +1,119 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    {% set entries = templateVars.addressBookEntries %}
+
+<div>
+    <h1>
+        {{ 'invitable_institution.unregistered.administer'|trans }}
+    </h1>
+    <p>
+        {{ 'invitable_institution.unregistered.administer.explanation'|trans }}
+    </p>
+
+    <dp-toggle-form
+        class="u-mt"
+        form-id="newUnregisteredPublicAgency"
+        title="{{ 'invitable_institution.add'|trans }}">
+        {# Add new unregistered toeb #}
+        <form
+            id="newUnregisteredPublicAgency"
+            action="{{ path('DemosPlan_create_addresses_entry', {'organisationId': currentUser.organisationId}) }}"
+            method="post"
+            data-dp-validate="newUnregisteredPublicAgency">
+            <fieldset class="u-mt">
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'name'|trans },
+                            control: { name: 'r_name', value: '' },
+                            type: 'text',
+                            required: true,
+                            size: 'large'
+                        }
+                    ]
+                }) }}
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'email.address'|trans },
+                            control: { name: 'r_emailAddress', value: '' },
+                            type: 'text',
+                            required: true,
+                            size: 'large'
+                        }
+                    ]
+                }) }}
+            </fieldset>
+        </form>
+    </dp-toggle-form>
+
+    {% if entries|length > 0 %}
+        {# List of unregistered invitable institutions #}
+        <h3 class="u-mt-0_5 u-pt">{{ 'invitable_institutions.unregistered'|trans }}</h3>
+
+        <form
+            action="{{ path('DemosPlan_delete_email_addresses_entry', {'organisationId': currentUser.organisationId}) }}"
+            method="post"
+        >
+            <label
+                class="btn-icns btn-icns--thin inline u-mb-0 u-ml-0_5">
+                <input
+                    id="select_all"
+                    type="checkbox"
+                    class="u-mr-0"
+                    data-form-actions-check-all>
+                {{ "markall"|trans }}
+            </label>
+
+            <i class="fa fa-times-circle btn-icns-icon btn-icns-icon--thin u-pb-0_25"></i>
+            <input
+                class="btn-icns btn-icns--thin u-pl-0"
+                name="r_delete_entry"
+                data-form-actions-confirm="{{ "check.entries.marked.delete"|trans }}"
+                type="submit"
+                value="{{ "remove"|trans }}">
+
+            <table class="u-mb border--top">
+                <colgroup>
+                    <col style="width: 2%; white-space: nowrap;">
+                    <col style="width: 50%; white-space: nowrap;">
+                    <col style="width: 40%; white-space: nowrap;">
+                </colgroup>
+                <thead class="color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5 text-left">
+                <tr>
+                    <th class="u-pt-0_5 u-pb-0_25 u-pl-0_5"></th>
+                    <th class="u-pt-0_5 u-pr-0_25 u-pb-0_25 u-pl-0_5">{{ 'invitable_institution'|trans }}</th>
+                    <th class="u-pt-0_5 u-pr-0_25 u-pb-0_25">{{ 'email.address'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for entry in entries  %}
+                    <tr class="border--top o-sortablelist__item">
+                        <td class="u-pl-0_5">
+                            <input name="entry_selected[]" type="checkbox" value="{{ entry.id }}" data-checkable-item>
+                        </td>
+                        <td class="u-pl-0_5 u-pt-0_5">
+                            <p>{{ entry.name }}</p>
+                        </td>
+                        <td class="u-pt-0_25 u-pr-0_25">
+                            <p class="u-mb-0_25">{{ entry.emailAddress }}</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% endif %}
+        </form>
+
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-unregisteredPublicagencyList.js']) }}
+{% endblock javascripts %}

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <!-- second template is needed because we have two root-elements-->
-  <div class="display--inline-block">
+  <div class="inline-block">
     <!--if all chosen items are not in the procedure -->
     <button
       type="button"
@@ -42,7 +42,7 @@
       v-else>
       <dp-loading
         v-if="loading"
-        class="display--inline-block"
+        class="inline-block"
         hide-label />
       <i
         v-else
@@ -345,7 +345,7 @@ export default {
         isAllowed = false
       }
 
-      if (this.selectionContainsUnclaimedFragments && hasPermission('area_statements_fragment')) {
+      if (hasPermission('area_statements_fragment') && this.selectionContainsUnclaimedFragments) {
         this.triggerWarning('warning.edit.selection.fragments.not.claimed')
         isAllowed = false
       }

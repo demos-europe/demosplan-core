@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,11 +20,6 @@ use Psr\Log\LoggerInterface;
 class PopulateElasticaListener
 {
     /**
-     * @var IndexManager
-     */
-    private $indexManager;
-
-    /**
      * @var Logger
      */
     protected $logger;
@@ -36,10 +31,9 @@ class PopulateElasticaListener
 
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        IndexManager $indexManager,
+        private readonly IndexManager $indexManager,
         LoggerInterface $logger
     ) {
-        $this->indexManager = $indexManager;
         $this->logger = $logger;
         $this->globalConfig = $globalConfig;
     }
@@ -66,7 +60,7 @@ class PopulateElasticaListener
         // might lead to performance hits
         $settings->setRefreshInterval('500ms');
         // set a high result window as long as we do not use scroll api
-        $settings->set(['max_result_window' => 1000000]);
+        $settings->set(['max_result_window' => 1_000_000]);
 
         $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 500');
     }

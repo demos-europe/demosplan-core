@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,7 +19,7 @@
       ]">
       <span :class="prefixClass('c-map__group-item-controls')">
         <button
-          :class="prefixClass('btn--blank btn--focus width-16 text--left')"
+          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
           :aria-label="group.attributes.name + ' ' + (isVisible ? Translator.trans('maplayer.category.hide') : Translator.trans('maplayer.category.show'))"
           @click="toggleFromSelf">
           <i
@@ -28,7 +28,7 @@
         </button>
         <button
           v-if="false === appearsAsLayer"
-          :class="prefixClass('btn--blank btn--focus width-16 text--left')"
+          :class="prefixClass('btn--blank btn--focus width-16 text-left')"
           :aria-label="group.attributes.name + ' ' + (unfolded ? Translator.trans('maplayer.category.close') : Translator.trans('maplayer.category.open'))"
           @click="fold">
           <i

@@ -95,7 +95,7 @@
 
 {# `elementStyle` would be replaced by using form.group #}
 {% if elementStyle|default %}
-    {% set style = 'display--' ~ elementStyle %}
+    {% set style = '' ~ elementStyle %}
     {% set class = class|default ~ ' ' ~ style %}
 {% endif %}
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
@@ -37,7 +37,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             && $request->isMethod('POST');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         // check Honeypotfields
         try {
@@ -49,39 +49,15 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
             throw new AuthenticationException('Error during authentication', 0, $e);
         }
 
-        $credentials = [
-            'login'    => trim($request->request->get('r_useremail')),
-            'password' => trim($request->request->get('password')),
-        ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['login']
-        );
+        $login = trim($request->request->get('r_useremail', ''));
+        $request->getSession()->set(Security::LAST_USERNAME, $login);
         $credentialsVO = new Credentials();
-        $credentialsVO->setLogin($credentials['login']);
-        $credentialsVO->setPassword($credentials['password']);
+        $credentialsVO->setLogin($login);
+        $credentialsVO->setPassword(trim($request->request->get('password', '')));
+        $credentialsVO->setToken($request->request->get('_csrf_token'));
         $credentialsVO->lock();
 
         return $credentialsVO;
-    }
-
-    public function validateCredentials(Credentials $credentials): void
-    {
-        // check for password strength and warn if it is too weak
-        $violations = $this->passwordValidator->validate($credentials->getPassword());
-        if (0 < $violations->count()) {
-            $linkChangeText = $this->translator->trans('password.change');
-            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
-                'warning',
-                'warning.password.weak',
-                [],
-                'DemosPlan_user_portal',
-                [],
-                $linkChangeText)
-            );
-        }
-
-        parent::validateCredentials($credentials);
     }
 
     protected function getPassport(Credentials $credentials): Passport
@@ -91,13 +67,18 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         return new Passport(
             new UserBadge($user ? $user->getLogin() : ''),
             new PasswordCredentials($credentials->getPassword()),
-            [new PasswordUpgradeBadge($credentials->getPassword())]
+            [
+                new PasswordUpgradeBadge($credentials->getPassword()),
+                new WeakPasswordCheckerBadge($credentials->getPassword()),
+                new CsrfTokenBadge('authenticate', $credentials->getToken()),
+            ]
         );
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $this->messageBag->add('warning', 'warning.login.failed');
+        $this->logger->info('Login failed', [$exception]);
 
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));
     }

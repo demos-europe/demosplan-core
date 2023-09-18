@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -43,13 +43,9 @@ class ProcedureAllowedSegmentsConstraintValidator extends ConstraintValidator
         $isTemplate = $procedure->isMasterTemplate() || $procedure->getMaster();
         $allowedProcedures = $procedure->getSettings()->getAllowedSegmentAccessProcedures();
         $referencesTemplate = $allowedProcedures
-            ->exists(static function (int $key, Procedure $procedure): bool {
-                return $procedure->isMasterTemplate() || $procedure->getMaster();
-            });
+            ->exists(static fn(int $key, Procedure $procedure): bool => $procedure->isMasterTemplate() || $procedure->getMaster());
         $selfReference = $allowedProcedures
-            ->map(static function (Procedure $procedure): string {
-                return $procedure->getId();
-            })
+            ->map(static fn(Procedure $procedure): string => $procedure->getId())
             ->contains($procedure);
 
         if ($isTemplate || $referencesTemplate || $selfReference) {

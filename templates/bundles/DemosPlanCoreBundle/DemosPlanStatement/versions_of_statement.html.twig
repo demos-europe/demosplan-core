@@ -1,0 +1,44 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% block demosplanbundlecontent %}
+
+{% set draftStatementVersions =  templateVars.draftStatementVersions %}
+{% set lastIndex = draftStatementVersions|length - 1 %}
+
+    {% block title_text %}
+        {#  pageheader - display procedure title + nav link #}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with {
+            link: path(templateVars.backToUrl, {'procedure':procedure}),
+            link_caption: "back.to"|trans ~ " " ~  "statements"|trans,
+            width_css: {
+                col1: currentUser.loggedIn == true ? 'u-1-of-1' : 'u-1-of-5',
+                col2: currentUser.loggedIn == true ? 'u-1-of-1' : 'u-4-of-5'
+            },
+            content_heading: "statements.versions"|trans ~ ": " ~ getProcedureName(proceduresettings),
+            content_subheading: '',
+            hideMetaMenu: true
+        }
+        %}
+    {% endblock %}
+
+    <div
+        class="o-page__padded--spaced u-pv"
+        data-cy="versionsStatementContainer">
+
+        {% if draftStatementVersions is defined and  draftStatementVersions|length > 0 %}
+
+            {% for index, statement in draftStatementVersions if index < lastIndex %}
+                <h2>{{ "date"|trans }}: {{ statement.versionDate|dplanDate('d.m.Y | H:i') }}</h2>
+                {{ statement.text|wysiwyg }}
+            {% endfor %}
+
+            <h2>{{ "date"|trans }}: {{ draftStatementVersions[lastIndex].createdDate|dplanDate('d.m.Y | H:i') }}</h2>
+            {{ draftStatementVersions[lastIndex].text|wysiwyg }}
+        {% else %}
+            <p>
+                {{ "explanation.versions"|trans }}
+            </p>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

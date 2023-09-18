@@ -31,7 +31,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundle('css.css') }}
+            {{ webpackBundles(['demosplan-ui.css', 'style.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}
@@ -59,10 +59,10 @@
                 <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
                     <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="u-m-0 u-p-0">
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
                         </li>
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
                         </li>
                         {% block a11y_jump_markers %}{% endblock a11y_jump_markers %}
@@ -77,14 +77,14 @@
 
 
             {# Main content #}
-            {# position--relative is needed here for the sticky sidemenu #}
-            <main id="mainContent" class="o-page__main layout bg-color--white position--relative">
+            {# relative is needed here for the sticky sidemenu #}
+            <main id="mainContent" class="o-page__main layout bg-color--white relative">
 
                 {% block maincontent_section %}
-                    <section id="jumpContent" class="o-page__content layout__item position--relative" role="main">
+                    <section id="jumpContent" class="o-page__content layout__item relative" role="main">
 
                         {% block breadcrumb %}
-                            <div class="flex flex-items-center flex-content-between u-pv-0_25">
+                            <div class="flex items-center justify-between u-pv-0_25">
                                 <nav class="o-breadcrumb" aria-label="Breadcrumb">
                                     {# Wenn ein Breadcrumbobjekt explizit übergeben wurde, stelle dieses dar, ansonsten das Standardobjekt #}
                                     {% if (templateVars.breadcrumb is defined) %}
@@ -107,13 +107,13 @@
                         {% include '@DemosPlanCore/DemosPlanCore/includes/base_nojs_notifications.html.twig' %}
 
                         {# Name of procedure #}
-                        <div class="cf border--top">
+                        <div class="flow-root border--top">
                             {% if proceduresettings.name|default != '' %}
-                                <span class="o-hellip--nowrap color--grey display--inline-block u-pt-0_5 u-mb-0_25 u-pr-2">
+                                <span class="o-hellip--nowrap color--grey inline-block u-pt-0_5 u-mb-0_25 u-pr-2">
                                     {{ proceduresettings.name|default }}
                                 </span>
                             {% else %}
-                                <span class="display--block u-pt-0_5"></span>
+                                <span class="block u-pt-0_5"></span>
                             {% endif %}
 
                             {# Planners get a link to view their own procedure in participation area to verify that all settings are correct #}
@@ -128,7 +128,7 @@
                             %}
 
                                 <a
-                                    class="btn btn--outline btn--primary float--right u-mt-0_25"
+                                    class="btn btn--outline btn--primary float-right u-mt-0_25"
                                     data-cy="procedurePublicView"
                                     href="{{ path( 'DemosPlan_procedure_public_detail', {'procedure': procedure}) }}"
                                     title="{{ 'procedure.public.view'|trans }}">
@@ -139,20 +139,12 @@
 
                         {% block component_part %}{% endblock component_part %}
 
-                        {% block base_backtotop %}
-                            <p class="layout__item text--right u-mt">
-                                <a href="#" data-scroll-to-top="{# This attribute is used as a hook to append an EventListener in GlobalEventListener.js #}">
-                                    <i class="fa fa-arrow-up" aria-hidden="true"></i> {{ "backtotop"|trans }}
-                                </a>
-                            </p>
-                        {% endblock base_backtotop %}
-
                     </section><!--
 
                  -->{% block base_aside %}<!--
                      --><aside
                             data-toggle-sidebar-menu-container
-                            class="o-page__sidebar layout__item is-expanded u-mb"
+                            class="o-page__sidebar layout__item is-expanded u-mb u-pb-2"
                             role="complementary">
                             <div
                                 class="o-sticky"
@@ -161,7 +153,7 @@
                                 <button
                                     data-toggle-sidebar-menu-trigger
                                     type="button"
-                                    class="o-link--default btn--blank whitespace--nowrap u-mv-0_25">
+                                    class="o-link--default btn--blank whitespace-nowrap u-mv-0_25">
                                     <i
                                         aria-hidden="true"
                                         class="fa fa-chevron-right"></i>
@@ -176,6 +168,10 @@
                         </aside>
                     {% endblock base_aside %}
 
+                    {% block base_backtotop %}
+                        <back-to-top-button></back-to-top-button>
+                    {% endblock base_backtotop %}
+
                 {% endblock maincontent_section %}
             </main>
 
@@ -186,7 +182,7 @@
             {% endblock base_footer %}
 
             {# Generic notification component (for cases where notifications are not handled in other Vue components) #}
-            <dp-notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></dp-notify-container>
+            <notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></notify-container>
 
             {# Vue Modals port their contents here #}
             <portal-target name="vueModals" multiple></portal-target>

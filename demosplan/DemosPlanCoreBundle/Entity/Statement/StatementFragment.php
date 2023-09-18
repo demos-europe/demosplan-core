@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,21 +11,29 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Tightenco\Collect\Support\Collection as SupportCollection;
 
 /**
  * StatementFragment - Represents a fragment of a statement.
@@ -37,32 +45,36 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(
  *     name="statement_fragment",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(
  *             name="statement_fragment_unique_sort_index",
  *             columns={"statement_id", "sort_index"}
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository")
  */
-class StatementFragment extends CoreEntity implements UuidEntityInterface
+class StatementFragment extends CoreEntity implements UuidEntityInterface, StatementFragmentInterface
 {
-    public const VALIDATION_GROUP_MANDATORY = 'mandatory';
-
     /**
      * @var string|null
      *
      * @ORM\Column(name="sf_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="fragments")
+     *
      * @ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", onDelete="CASCADE", nullable=false)
      */
     protected $statement;
@@ -82,9 +94,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $text;
 
     /**
-     * @var Collection<int, Tag>
+     * @var Collection<int, TagInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag")
+     *
      * @ORM\JoinTable(
      *     name="statement_fragment_tag",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -94,9 +107,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $tags;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -119,6 +133,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -127,6 +142,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
     protected $modified;
@@ -139,9 +155,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $assignedToFbDate;
 
     /**
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=true, onDelete="SET NULL")
      */
     protected $department;
@@ -161,9 +178,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $consideration;
 
     /**
-     * @var Collection<int, County>
+     * @var Collection<int, CountyInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_county",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -173,9 +191,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $counties;
 
     /**
-     * @var Collection<int, PriorityArea>
+     * @var Collection<int, PriorityAreaInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -185,9 +204,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $priorityAreas;
 
     /**
-     * @var Collection<int, Municipality>
+     * @var Collection<int, MunicipalityInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statementFragments", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_municipality",
      *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
@@ -197,9 +217,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $municipalities;
 
     /**
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_archived_d_id", referencedColumnName="_d_id", nullable=true)
      */
     protected $archivedDepartment;
@@ -226,9 +247,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $archivedVoteUserName;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      * This is the user that is currently assigned to this fragment. Assigned users are
      * exclusively permitted to change fragments
@@ -236,9 +258,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $assignee;
 
     /**
-     * @var Collection<int,StatementFragmentVersion>
+     * @var Collection<int,StatementFragmentVersionInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion", mappedBy="statementFragment")
+     *
      * @ORM\OrderBy({"created" = "DESC"})
      */
     protected $versions;
@@ -247,24 +270,26 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var int
      *
      * @ORM\Column(type="integer", nullable=false, options={"default":-1})
-     * @Assert\PositiveOrZero(groups={"mandatory"})
      */
+    #[Assert\PositiveOrZero(groups: ['mandatory'])]
     protected $sortIndex = -1;
 
     /**
      * User who triggered this Version.
      *
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $modifiedByUser;
 
     /**
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
     protected $modifiedByDepartment;
@@ -277,9 +302,10 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $status = 'fragment.status.new';
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="last_claimed", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $lastClaimed = null;
@@ -299,25 +325,28 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $elementTitle;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
 
     /**
-     * @var ParagraphVersion
+     * @var ParagraphVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
 
     /**
-     * @var SingleDocumentVersion
+     * @var SingleDocumentVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -366,7 +395,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -374,9 +403,9 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function setStatement($statement)
     {
@@ -392,7 +421,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getStatementId()
     {
-        if (!$this->statement instanceof Statement) {
+        if (!$this->statement instanceof StatementInterface) {
             return null;
         }
 
@@ -437,7 +466,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * @param string $text
      *
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function setText($text)
     {
@@ -495,28 +524,28 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Return all Tags, used by this Fragment, ordered under the related Topic in a flat Form (Names).
      *
-     * @return \Tightenco\Collect\Support\Collection
-     *                                               Format:
-     *                                               [
-     *                                               'NameOfTopic1':
-     *                                               [
-     *                                               'NameOfTag1',
-     *                                               'NameOfTag2',
-     *                                               'NameOfTag3'
-     *                                               ]
-     *                                               'NameOfTopic2':
-     *                                               [
-     *                                               'NameOfTag3',
-     *                                               'NameOfTag4',
-     *                                               ]
-     *                                               ]
+     * @return SupportCollection
+     *                           Format:
+     *                           [
+     *                           'NameOfTopic1':
+     *                           [
+     *                           'NameOfTag1',
+     *                           'NameOfTag2',
+     *                           'NameOfTag3'
+     *                           ]
+     *                           'NameOfTopic2':
+     *                           [
+     *                           'NameOfTag3',
+     *                           'NameOfTag4',
+     *                           ]
+     *                           ]
      */
     public function getTagsAndTopics()
     {
         $tags = $this->getTags();
-        $topicsWithTags = new \Tightenco\Collect\Support\Collection();
+        $topicsWithTags = new SupportCollection();
 
-        /** @var Tag $tag */
+        /** @var TagInterface $tag */
         foreach ($tags as $tag) {
             $topicName = $tag->getTopicTitle();
             $tagName = $tag->getTitle();
@@ -533,57 +562,57 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Return all Tags, used by this Fragment, ordered under the related Topic in a detailed Form.
      *
-     * @return \Tightenco\Collect\Support\Collection
-     *                                               Format:
-     *                                               [
-     *                                               'IdOfTopic1':
-     *                                               [
-     *                                               id = 'IdOfTopic1',
-     *                                               title = 'TitleOfTopic1'
-     *                                               tags =
-     *                                               [
-     *                                               'IdOfTag1' =
-     *                                               [
-     *                                               id = 'IdOfTag1',
-     *                                               title = 'TitleOfTag1'
-     *                                               ],
-     *                                               'IdOfTag2' =
-     *                                               [
-     *                                               id = 'IdOfTag2',
-     *                                               title = 'TitleOfTag2'
-     *                                               ],
-     *                                               'IdOfTag3' =
-     *                                               [
-     *                                               id = 'IdOfTag3',
-     *                                               title = 'TitleOfTag3'
-     *                                               ]
-     *                                               ]
-     *                                               ]
-     *                                               'IdOfTopic2':
-     *                                               [
-     *                                               id = 'IdOfTopic2',
-     *                                               title = 'TitleOfTopic2'
-     *                                               tags =
-     *                                               [
-     *                                               'IdOfTag4' =
-     *                                               [
-     *                                               id = 'IdOfTag4',
-     *                                               title = 'TitleOfTag4'
-     *                                               ],
-     *                                               'IdOfTag5' =
-     *                                               [
-     *                                               id = 'IdOfTag5',
-     *                                               title = 'TitleOfTag5'
-     *                                               ]
-     *                                               ]
-     *                                               ]
-     *                                               ]
+     * @return SupportCollection
+     *                           Format:
+     *                           [
+     *                           'IdOfTopic1':
+     *                           [
+     *                           id = 'IdOfTopic1',
+     *                           title = 'TitleOfTopic1'
+     *                           tags =
+     *                           [
+     *                           'IdOfTag1' =
+     *                           [
+     *                           id = 'IdOfTag1',
+     *                           title = 'TitleOfTag1'
+     *                           ],
+     *                           'IdOfTag2' =
+     *                           [
+     *                           id = 'IdOfTag2',
+     *                           title = 'TitleOfTag2'
+     *                           ],
+     *                           'IdOfTag3' =
+     *                           [
+     *                           id = 'IdOfTag3',
+     *                           title = 'TitleOfTag3'
+     *                           ]
+     *                           ]
+     *                           ]
+     *                           'IdOfTopic2':
+     *                           [
+     *                           id = 'IdOfTopic2',
+     *                           title = 'TitleOfTopic2'
+     *                           tags =
+     *                           [
+     *                           'IdOfTag4' =
+     *                           [
+     *                           id = 'IdOfTag4',
+     *                           title = 'TitleOfTag4'
+     *                           ],
+     *                           'IdOfTag5' =
+     *                           [
+     *                           id = 'IdOfTag5',
+     *                           title = 'TitleOfTag5'
+     *                           ]
+     *                           ]
+     *                           ]
+     *                           ]
      */
     public function getTopics()
     {
-        $topics = new \Tightenco\Collect\Support\Collection();
+        $topics = new SupportCollection();
         $tags = $this->getTags();
-        /** @var Tag $tag */
+        /** @var TagInterface $tag */
         foreach ($tags as $tag) {
             $topicId = $tag->getTopic()->getId();
             $topicName = $tag->getTopicTitle();
@@ -600,7 +629,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * @param ArrayCollection|array $tags
      *
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function setTags($tags)
     {
@@ -611,10 +640,8 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Adds a tag to this statement fragment.
-     *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
      */
-    public function addTag(Tag $tag)
+    public function addTag(TagInterface $tag)
     {
         if ($this->tags instanceof Collection && !$this->tags->contains($tag)) {
             $this->tags->add($tag);
@@ -623,10 +650,8 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * Removes a tag to this statement fragment.
-     *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag $tag
      */
-    public function removeTag(Tag $tag)
+    public function removeTag(TagInterface $tag)
     {
         if ($this->tags instanceof Collection && $this->tags->contains($tag)) {
             $this->tags->removeElement($tag);
@@ -636,9 +661,9 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      *
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function setProcedure($procedure)
     {
@@ -650,7 +675,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -664,7 +689,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getProcedureId()
     {
-        if (!$this->procedure instanceof Procedure) {
+        if (!$this->procedure instanceof ProcedureInterface) {
             return null;
         }
 
@@ -678,7 +703,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getProcedureName()
     {
-        if (!$this->procedure instanceof Procedure) {
+        if (!$this->procedure instanceof ProcedureInterface) {
             return null;
         }
 
@@ -763,7 +788,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Department
+     * @return DepartmentInterface
      */
     public function getDepartment()
     {
@@ -771,7 +796,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Department|null $department
+     * @param DepartmentInterface|null $department
      *
      * @return $this
      */
@@ -789,7 +814,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getDepartmentId()
     {
-        if (!$this->department instanceof Department) {
+        if (!$this->department instanceof DepartmentInterface) {
             return null;
         }
 
@@ -879,7 +904,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param ArrayCollection|County[] $counties
+     * @param ArrayCollection|CountyInterface[] $counties
      *
      * @return $this
      */
@@ -893,7 +918,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Add County.
      *
-     * @param County $county
+     * @param CountyInterface $county
      */
     public function addCounty($county)
     {
@@ -906,7 +931,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Remove County.
      *
-     * @param County $county
+     * @param CountyInterface $county
      */
     public function removeCounty($county)
     {
@@ -956,7 +981,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param ArrayCollection|PriorityArea[] $priorityAreas
+     * @param ArrayCollection|PriorityAreaInterface[] $priorityAreas
      *
      * @return $this
      */
@@ -970,7 +995,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Add Priority Area.
      */
-    public function addPriorityArea(PriorityArea $priorityArea)
+    public function addPriorityArea(PriorityAreaInterface $priorityArea)
     {
         if (!$this->priorityAreas->contains($priorityArea)) {
             $this->priorityAreas->add($priorityArea);
@@ -981,7 +1006,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Remove Priority Area.
      */
-    public function removePriorityArea(PriorityArea $priorityArea)
+    public function removePriorityArea(PriorityAreaInterface $priorityArea)
     {
         if ($this->priorityAreas->contains($priorityArea)) {
             $this->priorityAreas->removeElement($priorityArea);
@@ -1029,7 +1054,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param ArrayCollection|Municipality[] $municipalities
+     * @param ArrayCollection|MunicipalityInterface[] $municipalities
      *
      * @return $this
      */
@@ -1043,7 +1068,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Add Municipality.
      */
-    public function addMunicipality(Municipality $municipality)
+    public function addMunicipality(MunicipalityInterface $municipality)
     {
         if (!$this->municipalities->contains($municipality)) {
             $this->municipalities->add($municipality);
@@ -1054,7 +1079,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Remove Municipality.
      */
-    public function removeMunicipality(Municipality $municipality)
+    public function removeMunicipality(MunicipalityInterface $municipality)
     {
         if ($this->municipalities->contains($municipality)) {
             $this->municipalities->removeElement($municipality);
@@ -1079,7 +1104,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Department
+     * @return DepartmentInterface
      */
     public function getArchivedDepartment()
     {
@@ -1087,7 +1112,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Department|null $archivedDepartment
+     * @param DepartmentInterface|null $archivedDepartment
      */
     public function setArchivedDepartment($archivedDepartment)
     {
@@ -1101,7 +1126,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getArchivedDepartmentId()
     {
-        if (!$this->archivedDepartment instanceof Department) {
+        if (!$this->archivedDepartment instanceof DepartmentInterface) {
             return null;
         }
 
@@ -1141,7 +1166,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return User
+     * @return UserInterface
      */
     public function getAssignee()
     {
@@ -1149,7 +1174,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User|null $assignee
+     * @param UserInterface|null $assignee
      */
     public function setAssignee($assignee)
     {
@@ -1157,7 +1182,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int,StatementFragmentVersion>
+     * @return Collection<int,StatementFragmentVersionInterface>
      */
     public function getVersions()
     {
@@ -1165,7 +1190,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Collection<StatementFragmentVersion>|array $versions
+     * @param Collection<StatementFragmentVersionInterface>|array $versions
      */
     public function setVersions($versions)
     {
@@ -1175,7 +1200,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * Will add a Version at the beginning of the array to ensure order by created 'desc'.
      *
-     * @param StatementFragmentVersion $version
+     * @param StatementFragmentVersionInterface $version
      */
     public function addVersion($version)
     {
@@ -1185,7 +1210,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return User
+     * @return UserInterface
      */
     public function getModifiedByUser()
     {
@@ -1197,7 +1222,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByUserId()
     {
-        if ($this->getModifiedByUser() instanceof User) {
+        if ($this->getModifiedByUser() instanceof UserInterface) {
             return $this->getModifiedByUser()->getId();
         }
 
@@ -1205,7 +1230,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User $modifiedByUser
+     * @param UserInterface $modifiedByUser
      */
     public function setModifiedByUser($modifiedByUser)
     {
@@ -1213,7 +1238,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Department
+     * @return DepartmentInterface
      */
     public function getModifiedByDepartment()
     {
@@ -1225,7 +1250,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByDepartmentId()
     {
-        if ($this->getModifiedByDepartment() instanceof Department) {
+        if ($this->getModifiedByDepartment() instanceof DepartmentInterface) {
             return $this->getModifiedByDepartment()->getId();
         }
 
@@ -1233,7 +1258,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Department $modifiedByDepartment
+     * @param DepartmentInterface $modifiedByDepartment
      */
     public function setModifiedByDepartment($modifiedByDepartment)
     {
@@ -1259,7 +1284,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     /**
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/claim/ wiki: claiming
      *
-     * @return User
+     * @return UserInterface
      */
     public function getLastClaimed()
     {
@@ -1267,7 +1292,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User $user
+     * @param UserInterface $user
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/claim/ wiki: claiming
      */
@@ -1283,7 +1308,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getLastClaimedUserId()
     {
-        if ($this->lastClaimed instanceof User) {
+        if ($this->lastClaimed instanceof UserInterface) {
             return $this->lastClaimed->getId();
         }
 
@@ -1297,7 +1322,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
@@ -1312,7 +1337,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     public function getElementOrder()
     {
         $elementOrder = 0;
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             $elementOrder = $this->element->getOrder();
         }
 
@@ -1326,7 +1351,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getElementTitle()
     {
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             $this->elementTitle = $this->element->getTitle();
         }
 
@@ -1342,7 +1367,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getElementCategory()
     {
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             return $this->element->getCategory();
         }
 
@@ -1350,7 +1375,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Elements|null
+     * @return ElementsInterface|null
      */
     public function getElement()
     {
@@ -1358,7 +1383,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Elements|null $element
+     * @param ElementsInterface|null $element
      */
     public function setElement($element)
     {
@@ -1370,7 +1395,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return ParagraphVersion|null
+     * @return ParagraphVersionInterface|null
      */
     public function getParagraph()
     {
@@ -1378,7 +1403,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param ParagraphVersion|null $paragraph
+     * @param ParagraphVersionInterface|null $paragraph
      */
     public function setParagraph($paragraph)
     {
@@ -1396,7 +1421,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphId()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             $this->paragraphId = $this->paragraph->getId();
         }
 
@@ -1410,7 +1435,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphTitle()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
@@ -1424,7 +1449,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphOrder()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             $this->paragraphOrder = $this->paragraph->getOrder();
         }
 
@@ -1438,9 +1463,9 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphParentId()
     {
-        if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersion) {
+        if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersionInterface) {
             $parentId = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
+            if ($this->paragraph->getParagraph() instanceof ParagraphInterface) {
                 $parentId = $this->paragraph->getParagraph()->getId();
             }
             $this->paragraphParentId = $parentId;
@@ -1450,23 +1475,23 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return string|null returns the title of the parent paragraph (the paragraph of the paragraph version)
+     * @return string returns the title of the parent paragraph (the paragraph of the paragraph version)
      */
-    public function getParagraphParentTitle()
+    public function getParagraphParentTitle(): string
     {
-        if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersion) {
+        if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersionInterface) {
             $parentTitle = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
+            if ($this->paragraph->getParagraph() instanceof ParagraphInterface) {
                 $parentTitle = $this->paragraph->getParagraph()->getTitle();
             }
             $this->paragraphParentTitle = $parentTitle;
         }
 
-        return trim($this->paragraphParentTitle);
+        return trim($this->paragraphParentTitle ?? '');
     }
 
     /**
-     * @return SingleDocumentVersion
+     * @return SingleDocumentVersionInterface
      */
     public function getDocument()
     {
@@ -1474,7 +1499,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param SingleDocumentVersion $document
+     * @param SingleDocumentVersionInterface $document
      */
     public function setDocument($document)
     {
@@ -1513,7 +1538,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -1544,12 +1569,12 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     public function getParagraphParentTitleOrDocumentParentTitle(): ?string
     {
         $title = $this->getParagraphParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
         $title = $this->getDocumentParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
@@ -1564,26 +1589,21 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     public function getDocumentParentId()
     {
         $documentId = null;
-        if ($this->document instanceof SingleDocumentVersion) {
+        if ($this->document instanceof SingleDocumentVersionInterface) {
             $documentId = $this->document->getSingleDocument()->getId();
         }
 
         return $documentId;
     }
 
-    // @improve T13720
-
-    /**
-     * @return string|null
-     */
-    public function getDocumentParentTitle()
+    public function getDocumentParentTitle(): string
     {
-        $documentTitle = null;
-        if ($this->document instanceof SingleDocumentVersion) {
+        $documentTitle = '';
+        if ($this->document instanceof SingleDocumentVersionInterface) {
             $documentTitle = $this->document->getSingleDocument()->getTitle();
         }
 
-        return $documentTitle;
+        return trim($documentTitle);
     }
 
     public function setCreated(DateTime $created)

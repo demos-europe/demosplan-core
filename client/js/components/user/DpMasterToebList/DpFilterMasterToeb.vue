@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <fieldset class="u-pb-0 display--inline">
+  <fieldset class="u-pb-0 inline">
     <legend class="hide-visually">
       {{ Translator.trans('filter') }}
     </legend>

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,12 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface;
-
-use function implode;
-
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Throwable;
+
+use function implode;
 
 class ViolationsException extends InvalidArgumentException implements ViolationsExceptionInterface
 {
@@ -63,8 +62,6 @@ class ViolationsException extends InvalidArgumentException implements Violations
     public function getViolationsAsStrings(): array
     {
         return collect($this->getViolations())
-            ->map(static function (ConstraintViolationInterface $violation): string {
-                return $violation->getMessage();
-            })->all();
+            ->map(static fn (ConstraintViolationInterface $violation): string => $violation->getMessage())->all();
     }
 }

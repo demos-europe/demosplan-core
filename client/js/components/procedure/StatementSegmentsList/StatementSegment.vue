@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,13 +9,14 @@
 
 <template>
   <div
+    ref="statementSegment"
     class="border-radius segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :id="'segment_' + segment.id">
-    <div class="flex flex-column flex-content-start flex-basis-20 u-pt-0_5 u-pl-0_5">
-      <v-popover>
+    <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
+      <v-popover :container="$refs.statementSegment">
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
@@ -67,7 +68,7 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l"
+      class="segment-list-col--l overflow-word-break"
       v-cleanhtml="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
@@ -84,7 +85,7 @@
           aria-hidden="true" />
       </button>
     </div>
-    <div class="segment-list-col--l">
+    <div class="segment-list-col--l overflow-word-break">
       <div
         v-if="isAssignedToMe === false"
         :class="{ 'color--grey': visibleRecommendation === '' }"
@@ -113,12 +114,46 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <dp-recommendation-modal
-              v-if="segment.hasRelationship('tags')"
+            <dp-modal
               ref="recommendationModal"
-              :procedure-id="procedureId"
-              :segment-id="segment.id"
-              @insert-recommendation="text => modalProps.appendText(text)"/>
+              class="recommendation-modal"
+              content-classes="u-2-of-3">
+              <div class="flex width-100p">
+                <h3 class="u-mb">
+                  {{ Translator.trans('segment.recommendation.insert.similar') }}
+                </h3>
+                <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
+                  class="u-ml-0_25"
+                  icon="ai"
+                  size="large"
+                  :text="Translator.trans('segment.oracle.tooltip')" />
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
+                  class="absolute u-right-0 u-mr"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')" />
+              </div>
+              <dp-tabs
+                v-if="allComponentsLoaded"
+                :active-id="activeId"
+                @change="(id) => setActiveTabId(id)">
+                <dp-tab
+                  v-for="(component, idx) in asyncComponents"
+                  :key="idx"
+                  :id="component.options.id"
+                  :label="Translator.trans(component.options.title)">
+                  <slot>
+                    <component
+                      :procedure-id="addonProps.procedureId"
+                      :segment-id="addonProps.segmentId"
+                      class="u-mt"
+                      :is="component.name"
+                      @recommendation:insert="toggleRecommendationModal" />
+                  </slot>
+                </dp-tab>
+              </dp-tabs>
+            </dp-modal>
           </template>
           <template v-slot:button>
             <button
@@ -129,11 +164,11 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="segment.hasRelationship('tags')"
+              v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              @click.stop="openRecommendationModal">
+              @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -167,13 +202,13 @@
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
-            :options="places"
-            class="u-1-of-1"
             v-model="selectedPlace"
             :allow-empty="false"
+            class="u-1-of-1"
             label="name"
+            :options="places"
             track-by="id">
-            <template v-slot:option="props">
+            <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 v-tooltip="prop.description"
@@ -192,7 +227,7 @@
         @primary-action="save"
         @secondary-action="abort" />
     </div>
-    <div class="segment-list-col--m text--right flex-shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">
@@ -200,19 +235,26 @@
           class="segment-list-toolbar__button btn--blank"
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
-          v-tooltip="Translator.trans('editor.fullscreen')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('editor.fullscreen')
+          }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
 
         <button
           v-if="isAssignedToMe"
-          class="segment-list-toolbar__button btn btn--primary"
+          class="segment-list-toolbar__button btn btn--primary icon-only"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
-          v-tooltip="Translator.trans('edit')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('edit')
+          }"
           @click="startEditing">
           <i
             class="fa fa-pencil"
@@ -224,10 +266,15 @@
           :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('history')"
-          v-tooltip="Translator.trans('history')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('history')
+          }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
-          <dp-icon icon="history" />
+          <dp-icon
+            class="inline-block"
+            icon="history" />
         </button>
 
         <button
@@ -236,7 +283,10 @@
           :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('comments')"
-          v-tooltip="Translator.trans('comments')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('comments')
+          }"
           data-cy="segmentComments"
           @click.prevent="showComments">
           <i
@@ -244,7 +294,7 @@
             aria-hidden="true" />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker display--block position--absolute u-ml u-n-mt">
+            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt">
             {{ commentCount }}
           </span>
         </button>
@@ -254,7 +304,10 @@
           :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
-          v-tooltip="Translator.trans('public.participation.relation')"
+          v-tooltip="{
+            container: this.$refs.statementSegment,
+            content: Translator.trans('public.participation.relation')
+          }"
           data-cy="segmentMap"
           @click.prevent="showMap">
           <i
@@ -271,18 +324,24 @@ import {
   checkResponse,
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpIcon,
   DpLabel,
+  DpModal,
   DpMultiselect,
+  DpTab,
+  DpTabs,
   prefixClassMixin,
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'StatementSegment',
@@ -290,18 +349,23 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    AddonWrapper,
+    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpClaim,
     DpIcon,
     DpLabel,
+    DpModal,
     DpMultiselect,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
-    DpRecommendationModal,
+    DpTab,
+    DpTabs,
     VPopover
   },
 
@@ -348,6 +412,13 @@ export default {
 
   data () {
     return {
+      activeId: '',
+      addonProps: {
+        segmentId: this.segment.id,
+        procedureId: this.procedureId
+      },
+      allComponentsLoaded: false,
+      asyncComponents: [],
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
@@ -356,6 +427,7 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      refRecModal: 'recommendationModal',
       selectedPlace: { id: '', type: 'Place' }
     }
   },
@@ -379,6 +451,7 @@ export default {
         name: Translator.trans('not.assigned'),
         id: 'noAssigneeId'
       })
+
       return assigneeOptions
     },
 
@@ -390,6 +463,7 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
+
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -419,6 +493,7 @@ export default {
       if (this.segment.hasRelationship('tags')) {
         return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
+
       return '-'
     },
 
@@ -531,8 +606,8 @@ export default {
       this.$refs.boilerPlateModal.toggleModal()
     },
 
-    openRecommendationModal () {
-      this.$refs.recommendationModal.toggleModal('open')
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
     },
 
     /**
@@ -583,6 +658,10 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    setActiveTabId (id) {
+      this.activeId = id
     },
 
     showComments () {
@@ -666,6 +745,7 @@ export default {
           }
         }
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
@@ -757,6 +837,16 @@ export default {
         if (this.segment.relationships?.assignee?.data?.id) {
           this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
         }
+      })
+
+    loadAddonComponents('segment.recommendationModal.tab')
+      .then(response => {
+        this.asyncComponents = response
+        this.allComponentsLoaded = true
+
+        response.forEach(component => {
+          this.$options.components[component.name] = window[component.name].default
+        })
       })
   }
 }

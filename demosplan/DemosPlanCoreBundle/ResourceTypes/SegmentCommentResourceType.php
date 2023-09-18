@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,14 +38,8 @@ use EDT\Wrapping\Contracts\AccessException;
  */
 final class SegmentCommentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var SegmentCommentFactory
-     */
-    private $segmentCommentFactory;
-
-    public function __construct(SegmentCommentFactory $segmentCommentFactory)
+    public function __construct(private readonly SegmentCommentFactory $segmentCommentFactory)
     {
-        $this->segmentCommentFactory = $segmentCommentFactory;
     }
 
     public static function getName(): string
@@ -73,10 +67,10 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         // if a segment can be accessed then all its comments can be read
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isCreatable(): bool
@@ -129,9 +123,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         $segment = $this->createToOneRelationship($this->segment);
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
-            $creationDate->readable(false, function (SegmentComment $comment): string {
-                return $this->formatDate($comment->getCreationDate());
-            });
+            $creationDate->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
             $text->readable();
             $submitter->readable();
             $place->readable();

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -33,28 +33,28 @@
           v-model="consolidationMethod"
           checked="checked">
         <label
-          class="u-mb-0 display--inline-block"
+          class="u-mb-0 inline-block"
           for="consolidateStatements">
           {{ Translator.trans('statement.cluster.create') }}
         </label>
         <input
           type="radio"
-          class="u-ml display--inline-block"
+          class="u-ml inline-block"
           id="mergeIntoCluster"
           name="consolidationMethod"
           value="mergeIntoCluster"
           v-model="consolidationMethod">
         <label
-          class="u-mb-0 display--inline-block"
+          class="u-mb-0 inline-block"
           for="mergeIntoCluster">
           {{ Translator.trans('cluster.add.statements') }}
         </label>
         <!-- display if the user has selected group statements and NO other statements -->
         <div
-          class="flash flash-warning cf"
+          class="flash flash-warning flow-root"
           v-if="(selectedStatementsWithoutGroups.length === 0) && ('consolidateStatements' === consolidationMethod)">
           <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float--left"
+            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
             aria-hidden="true" />
           <div class="u-ml">
             <p
@@ -64,10 +64,10 @@
         </div>
         <!-- display if the user has selected group statements -->
         <div
-          class="flash flash-warning cf"
+          class="flash flash-warning flow-root"
           v-else-if="selectionHasGroups">
           <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float--left"
+            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
             aria-hidden="true" />
           <div class="u-ml">
             <p
@@ -82,37 +82,37 @@
         {{ Translator.trans('statements.selected.no.count') }}
       </label>
       <dp-multiselect
-        :class="validations.selection ? 'u-mb' : 'u-mb-0_25'"
         id="statementSelection"
+        v-model="selectedStatements"
+        :allow-empty="false"
+        :class="validations.selection ? 'u-mb' : 'u-mb-0_25'"
+        :custom-label="option =>`${option.extid}`"
+        :max-height="150"
         multiple
         :options="initialStatementSelection"
-        :allow-empty="false"
         track-by="id"
-        v-model="selectedStatements"
-        @input="checkSelectionValidity"
-        :max-height="150"
-        :custom-label="option =>`${option.extid}`">
-        <template v-slot:option="{ option }">
-          {{ option.extid }}
+        @input="checkSelectionValidity">
+        <template v-slot:option="{ props }">
+          {{ props.option.extid }}
         </template>
-        <template v-slot:tag="props">
+        <template v-slot:tag="{ props }">
           <span class="multiselect__tag">
             {{ props.option.extid }}
             <i
               aria-hidden="true"
-              @click="props.remove(props.option)"
+              class="multiselect__tag-icon"
               tabindex="1"
-              class="multiselect__tag-icon" />
+              @click="props.remove(props.option)" />
           </span>
         </template>
       </dp-multiselect>
       <div
-        class="u-mb display--inline-block"
+        class="u-mb inline-block"
         v-if="false === validations.selection && 'consolidateStatements' === consolidationMethod">
         <i
-          class="fa fa-exclamation-circle color--system-error"
+          class="fa fa-exclamation-circle color-message-severe-fill"
           aria-hidden="true" />
-        <span class="u-ml-0_25 color--system-error">
+        <span class="u-ml-0_25 color-message-severe-text">
           {{ Translator.trans('confirm.consolidation.not.enough.statements') }}
         </span>
       </div>
@@ -139,36 +139,36 @@
           {{ Translator.trans('statement.cluster.create.help') }}
         </p>
         <dp-multiselect
-          :class="{ 'u-mb': validations.headStatement, 'u-mb-0_25': false === validations.headStatement }"
-          :options="selectedStatementsWithoutGroups"
-          track-by="id"
-          ref="multiselect"
           id="clusters-single-select"
-          :custom-label="option => option.extid"
           v-model="headStatement"
+          :class="{ 'u-mb': validations.headStatement, 'u-mb-0_25': false === validations.headStatement }"
+          :custom-label="option => option.extid"
+          :options="selectedStatementsWithoutGroups"
+          ref="multiselect"
+          track-by="id"
           @input="checkHeadStatementValidity">
-          <template v-slot:option="{ option }">
-            {{ option.extid }}
+          <template v-slot:option="{ props }">
+            {{ props.option.extid }}
           </template>
           <template
-            v-slot:tag="props">
+            v-slot:tag="{ props }">
             <span class="multiselect__tag">
               {{ props.option.extid }}
               <i
                 aria-hidden="true"
-                @click="props.remove(props.option)"
+                class="multiselect__tag-icon"
                 tabindex="1"
-                class="multiselect__tag-icon" />
+                @click="props.remove(props.option)" />
             </span>
           </template>
         </dp-multiselect>
         <div
-          class="display--inline-block"
+          class="inline-block"
           v-if="false === validations.headStatement && 'consolidateStatements' === consolidationMethod">
           <i
-            class="fa fa-exclamation-circle color--system-error"
+            class="fa fa-exclamation-circle color-message-severe-fill"
             aria-hidden="true" />
-          <span class="u-ml-0_25 color--system-error">
+          <span class="u-ml-0_25 color-message-severe-text">
             {{ Translator.trans('field.required') }}
           </span>
         </div>
@@ -177,14 +177,14 @@
         <legend
           class="hide-visually"
           v-text="Translator.trans('cluster.choose')" />
-        <label class="u-mt u-mb-0_25 display--inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
+        <label class="u-mt u-mb-0_25 inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
         <div
-          class="u-ml display--inline-block"
+          class="u-ml inline-block"
           v-if="false === validations.cluster && 'mergeIntoCluster' === consolidationMethod">
           <i
-            class="fa fa-exclamation-circle color--system-error"
+            class="fa fa-exclamation-circle color-message-severe-fill"
             aria-hidden="true" />
-          <span class="u-ml-0_25 color--system-error">
+          <span class="u-ml-0_25 color-message-severe-text">
             {{ Translator.trans('field.required') }}
           </span>
         </div>
@@ -197,7 +197,7 @@
           ref="clusterSelect" />
       </fieldset>
       <dp-button
-        class="float--right-lap-up"
+        class="sm:float-right"
         :busy="isLoading"
         :text="Translator.trans('send')"
         @click.prevent="submitCluster" />

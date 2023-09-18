@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,14 +18,8 @@ use Tightenco\Collect\Support\Collection;
 
 class FeaturesToMapLayersConverter
 {
-    /**
-     * @var PrintLayerToMapLayerConverter
-     */
-    private $printLayerToMapLayerConverter;
-
-    public function __construct(PrintLayerToMapLayerConverter $printLayerToMapLayerConverter)
+    public function __construct(private readonly PrintLayerToMapLayerConverter $printLayerToMapLayerConverter)
     {
-        $this->printLayerToMapLayerConverter = $printLayerToMapLayerConverter;
     }
 
     /**
@@ -48,7 +42,7 @@ class FeaturesToMapLayersConverter
     private function convertFeatureToMapLayers(Feature $feature): Collection
     {
         return $feature->getPrintLayers()->map(
-            [$this->printLayerToMapLayerConverter, 'convert']
+            $this->printLayerToMapLayerConverter->convert(...)
         );
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,16 +20,16 @@ use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
@@ -49,102 +49,30 @@ class FileService extends CoreService implements FileServiceInterface
     protected $container;
     protected $baseGetURL;
 
-    public const INVALID_FILENAME_CHARS = ['%', '&', ':'];
+    final public const INVALID_FILENAME_CHARS = ['%', '&', ':'];
 
     /**
      * Die Datei wird nach dem Upload zum FileService direkt auf Viren geprüft.
      */
-    public const VIRUSCHECK_SYNC = 'sync';
+    final public const VIRUSCHECK_SYNC = 'sync';
 
     /**
      * Die Datei wird nach dem Upload zum FileService nicht direkt auf Viren geprüft.
      */
-    public const VIRUSCHECK_ASYNC = 'async';
+    final public const VIRUSCHECK_ASYNC = 'async';
 
     /**
      * Die Datei wird nicht auf Viren geprüft.
      */
-    public const VIRUSCHECK_NONE = 'none';
+    final public const VIRUSCHECK_NONE = 'none';
 
     /**
      * @var string
      */
     protected $fileString;
 
-    /**
-     * @var RpcClient
-     */
-    protected $client;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var FileRepository
-     */
-    private $fileRepository;
-
-    /**
-     * @var FileContainerRepository
-     */
-    private $fileContainerRepository;
-
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var FileInUseChecker
-     */
-    private $fileInUseChecker;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        EntityManagerInterface $entityManager,
-        FileContainerRepository $fileContainerRepository,
-        FileInUseChecker $fileInUseChecker,
-        FileRepository $fileRepository,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        RequestStack $requestStack,
-        SingleDocumentRepository $singleDocumentRepository,
-        TranslatorInterface $translator
-    ) {
-        $this->currentProcedureService = $currentProcedureService;
-        $this->entityManager = $entityManager;
-        $this->fileContainerRepository = $fileContainerRepository;
-        $this->fileInUseChecker = $fileInUseChecker;
-        $this->fileRepository = $fileRepository;
-        $this->globalConfig = $globalConfig;
-        $this->messageBag = $messageBag;
-        $this->requestStack = $requestStack;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->translator = $translator;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly EntityManagerInterface $entityManager, private readonly FileContainerRepository $fileContainerRepository, private readonly FileInUseChecker $fileInUseChecker, private readonly FileRepository $fileRepository, private readonly GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, private readonly RequestStack $requestStack, private readonly SingleDocumentRepository $singleDocumentRepository, private readonly TranslatorInterface $translator, protected RpcClient $client)
+    {
     }
 
     /**
@@ -235,7 +163,7 @@ class FileService extends CoreService implements FileServiceInterface
         try {
             return $this->fileContainerRepository
                 ->getFiles($entity, $entityId, $field);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -250,7 +178,7 @@ class FileService extends CoreService implements FileServiceInterface
         try {
             return $this->fileContainerRepository
                 ->getFileStrings($entity, $entityId, $field);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -270,7 +198,7 @@ class FileService extends CoreService implements FileServiceInterface
             }
 
             return $this->fileRepository->findBy(['deleted' => false]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -352,7 +280,7 @@ class FileService extends CoreService implements FileServiceInterface
                 try {
                     $fs->remove($file->getRealPath());
                     ++$filesDeleted;
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->getLogger()->warning('Could not remove orphaned file', [$filename]);
                 }
             }
@@ -381,7 +309,7 @@ class FileService extends CoreService implements FileServiceInterface
                 try {
                     $fs->remove($file->getRealPath());
                     ++$filesDeleted;
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->getLogger()->warning('Could not remove temporary upload file', [$file->getRealPath()]);
                 }
             }
@@ -424,7 +352,7 @@ class FileService extends CoreService implements FileServiceInterface
             if (null !== $procedureId) {
                 $dplanFile->setProcedure($this->entityManager->getReference(Procedure::class, $procedureId));
             }
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             // Procedure does not exist
         }
 
@@ -561,7 +489,7 @@ class FileService extends CoreService implements FileServiceInterface
             }
 
             return $this->fileContainerRepository->addObject($fileContainer);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -658,7 +586,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         try {
             return $this->copyByFileString($fileString, $procedureId);
-        } catch (FileNotFoundException $e) {
+        } catch (FileNotFoundException) {
             $file = $this->getFileInfoFromFileString($fileString);
             $this->messageBag->add(
                 'error',
@@ -826,7 +754,7 @@ class FileService extends CoreService implements FileServiceInterface
      */
     protected function getAbsolutePath($path)
     {
-        if (0 === strpos($path, '.')) {
+        if (str_starts_with($path, '.')) {
             $path = realpath($this->globalConfig->getInstanceAbsolutePath().'/'.$path);
         }
 
@@ -862,8 +790,8 @@ class FileService extends CoreService implements FileServiceInterface
 
             $replies = $this->client->getReplies();
 
-            if (strlen($replies['virusCheck']) > 0) {
-                $this->logger->info('Incoming message size:'.strlen($replies['virusCheck']));
+            if (strlen((string) $replies['virusCheck']) > 0) {
+                $this->logger->info('Incoming message size:'.strlen((string) $replies['virusCheck']));
             }
             $vCheckResult = Json::decodeToArray($replies['virusCheck']);
             if (true == $vCheckResult['result']) {
@@ -955,25 +883,14 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function convertSize(string $scale, int $value): string
     {
-        switch ($scale) {
-            case 'B':
-                $returnValue = $value;
-                break;
-            case 'KB':
-                $returnValue = $value / 1024;
-                break;
-            case 'MB':
-                $returnValue = $value / 1048576;
-                break;
-            case 'GB':
-                $returnValue = $value / 1073741824;
-                break;
-            case 'TB':
-                $returnValue = $value / 1099511627776;
-                break;
-            default:
-                throw new InvalidArgumentException("Unsupported scale: {$scale}");
-        }
+        $returnValue = match ($scale) {
+            'B'     => $value,
+            'KB'    => $value / 1024,
+            'MB'    => $value / 1_048_576,
+            'GB'    => $value / 1_073_741_824,
+            'TB'    => $value / 1_099_511_627_776,
+            default => throw new InvalidArgumentException("Unsupported scale: {$scale}"),
+        };
 
         return round($returnValue, 2).' '.$scale;
     }
@@ -1040,14 +957,6 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * @param RpcClient $client
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
-    }
-
-    /**
      * Given an array of File ids, returns the corresponding array of File entities.
      *
      * @param string[] $fileIds
@@ -1092,9 +1001,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function getFilesFromSingleDocuments(array $singleDocuments)
     {
         return array_map(
-            function ($singleDocument) {
-                return $this->getFileIdFromSingleDocument($singleDocument);
-            },
+            fn ($singleDocument) => $this->getFileIdFromSingleDocument($singleDocument),
             $singleDocuments);
     }
 
@@ -1136,11 +1043,8 @@ class FileService extends CoreService implements FileServiceInterface
     public function getFileIdFromUploadFile(string $uploadFile): string
     {
         $fileStringParts = explode(':', $uploadFile);
-        if (isset($fileStringParts[1])) {
-            return $fileStringParts[1];
-        }
 
-        return '';
+        return $fileStringParts[1] ?? '';
     }
 
     /**

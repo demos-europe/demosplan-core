@@ -1,0 +1,57 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% set user = templateVars.user %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: 'profile'|trans,
+        content_subheading: 'text.profile.edit'|trans,
+    }%}
+
+        {% block content %}
+            {%- if hasPermission('area_mydata') %}
+                {%- include '@DemosPlanCore/DemosPlanUser/portal_profile.html.twig' with {
+                    hasIdentityprovider: user.isProvidedByIdentityProvider ?? false
+                } -%}
+
+                {% if not user.isProvidedByIdentityProvider  %}
+                    {%- if hasPermission('feature_change_own_email') %}
+                        <hr>
+                        <dp-accordion
+                            title="{{ 'email.change'|trans }}"
+                            class="u-mb u-mt-0_75">
+                            <div class="u-mv">
+                                {%- include '@DemosPlanCore/DemosPlanUser/portal_email.html.twig' -%}
+                            </div>
+                        </dp-accordion>
+                    {% endif -%}
+
+                    {%- if hasPermission('area_mydata_password') %}
+                        <hr>
+                        <dp-accordion
+                            title="{{ 'password.change'|trans }}"
+                            class="u-mb u-mt-0_75">
+                            <change-password
+                                class="u-mv"
+                                user-id="{{ user.id|default }}">
+                            </change-password>
+                        </dp-accordion>
+                    {% endif -%}
+                {% else %}
+                    {{ uiComponent('inline-notification', {
+                        message: 'warning.email.and.password.editable.via.serviceprovider'|trans,
+                        type: 'warning'
+                    }) }}
+                {% endif %}
+            {% endif -%}
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-portalUser.js']) }}
+{% endblock javascripts %}

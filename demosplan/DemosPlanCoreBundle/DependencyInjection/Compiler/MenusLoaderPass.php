@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,14 +25,12 @@ class MenusLoaderPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $fileLocator = new FileLocator([
-            DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config'),
+            DemosPlanPath::getConfigPath(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
         ]);
 
         $configs = collect($fileLocator->locate('menus.yml', null, false))
-            ->map(static function ($configFile) {
-                return Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT);
-            })
+            ->map(static fn ($configFile) => Yaml::parseFile($configFile, Yaml::PARSE_CONSTANT))
             ->toArray();
 
         $configuration = new MenusTreeBuilder();

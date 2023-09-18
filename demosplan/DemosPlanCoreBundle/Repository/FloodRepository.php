@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -121,7 +121,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
                 ->setParameter('now', new DateTime('NOW'));
 
             $query->getQuery()->execute();
-        } catch (Exception $e) {
+        } catch (Exception) {
             // do not use monolog as this function is called by maintenance task
             // this may lead to excessive logfile sizes
         }
@@ -131,9 +131,9 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Flood $entity
+     * @param Flood $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Flood
+     * @return Flood
      */
     public function generateObjectValues($entity, array $data)
     {

@@ -3,33 +3,37 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SluggedEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /** @ORM\MappedSuperclass */
-abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
+abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, SluggedEntityInterface
 {
     /**
-     * @var Slug
+     * @var SlugInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug")
+     *
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
     protected $currentSlug;
 
     /**
-     * @var Collection Slug[]
+     * @var Collection SlugInterface[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="entity_slugs_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="entity_id", referencedColumnName="_entity_id", onDelete="RESTRICT")},
@@ -49,11 +53,9 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * Given a Slug object adds it to the Entity, updating its slugs history and sets it as current Slug.
-     *
      * @return SluggedEntity
      */
-    public function addSlug(Slug $slug)
+    public function addSlug(SlugInterface $slug)
     {
         $slugs = $this->slugs;
         $slugs[] = $slug;
@@ -68,7 +70,10 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
         return $this->currentSlug;
     }
 
-    public function setCurrentSlug(Slug $currentSlug)
+    /**
+     * Kind of enabling a specific slug.
+     */
+    public function setCurrentSlug(SlugInterface $currentSlug)
     {
         if (!$this->hasSlugString($currentSlug)) {
             throw new InvalidArgumentException('Slug '.$currentSlug->getName().'  must already exist in the Entity.');
@@ -76,14 +81,9 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface
         $this->currentSlug = $currentSlug;
     }
 
-    /**
-     * Returns true if the Orga already had the received slug, false otherwise.
-     */
-    public function hasSlugString(Slug $slug): bool
+    public function hasSlugString(SlugInterface $slug): bool
     {
-        return $this->getSlugs()->map(function (Slug $slug) {
-            return $slug->getName();
-        })->contains($slug->getName());
+        return $this->getSlugs()->map(fn (Slug $slug) => $slug->getName())->contains($slug->getName());
     }
 
     public function isSlugCurrent(string $slug): bool

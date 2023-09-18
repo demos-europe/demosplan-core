@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -14,8 +14,8 @@
     </h2>
 
     <ul class="u-m-0">
-      <li class="list-style-none">
-        <h3 class="u-m-0 display--inline">
+      <li>
+        <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-calendar"
             aria-hidden="true" />
@@ -24,11 +24,11 @@
           </span>
         </h3>
         <p
-          class="u-m-0 display--inline"
+          class="u-m-0 inline"
           v-cleanhtml="period" />
       </li>
-      <li class="list-style-none">
-        <h3 class="u-m-0 display--inline">
+      <li>
+        <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-puzzle-piece"
             aria-hidden="true" />
@@ -36,12 +36,12 @@
             {{ Translator.trans('procedure.public.phase') }}
           </span>
         </h3>
-        <p class="u-m-0 display--inline">
+        <p class="u-m-0 inline">
           {{ phaseName }}
         </p>
       </li>
-      <li class="list-style-none">
-        <h3 class="u-m-0 display--inline">
+      <li>
+        <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-university"
             aria-hidden="true" />
@@ -49,14 +49,13 @@
             {{ Translator.trans('administration.alt') }}
           </span>
         </h3>
-        <p class="u-m-0 display--inline">
+        <p class="u-m-0 inline">
           {{ procedure.owningOrganisationName }}
         </p>
       </li>
       <li
-        class="list-style-none"
         v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
-        <h3 class="u-m-0 display--inline">
+        <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-comment-o"
             aria-hidden="true" />
@@ -64,11 +63,11 @@
             {{ Translator.trans('statements.submitted.institution') }}
           </span>
         </h3>
-        <p class="u-m-0 display--inline">
+        <p class="u-m-0 inline">
           {{ Translator.trans('statements.submitted.institution') }}: {{ procedure.statementSubmitted }}
         </p>
       </li>
-      <li class="list-style-none u-mt-0_5">
+      <li class="u-mt-0_5">
         <h3 class="u-mb-0_25 weight--normal">
           <i
             class="c-publicindex__icon-content fa fa-file-text-o"
@@ -85,7 +84,7 @@
     </ul>
 
     <a
-      class="weight--bold text-decoration-none display--block"
+      class="weight--bold no-underline block"
       data-cy="toProcedureDetail"
       :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedure.id })">
       {{ Translator.trans('procedure.view') }}

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -55,9 +55,7 @@ final class PackageInformation
 
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
-            static function (array $version): bool {
-                return self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
-            }
+            static fn (array $version): bool => self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package')
         );
     }
 

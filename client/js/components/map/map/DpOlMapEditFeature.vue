@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -51,14 +51,17 @@
 </documentation>
 
 <template>
-  <span>
+  <span ref="rootElement">
     <button
       type="button"
       @click="toggle"
       data-cy="editButtonDesc"
-      v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
+      v-tooltip="{
+        classes: this.tooltipClass,
+        content: Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })
+      }"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{ 'color--highlight' : currentlyActive }">
+      :class="{ 'color-highlight' : currentlyActive }">
       <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>
@@ -67,12 +70,15 @@
       type="button"
       @click="removeFeature"
       data-cy="removeButtonDesc"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {
-        deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
-        editTool: Translator.trans('map.territory.tools.edit')
-      })"
+      v-tooltip="{
+        classes: this.tooltipClass,
+        content: Translator.trans('explanation.territory.help.delete.selected', {
+          deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
+          editTool: Translator.trans('map.territory.tools.edit')
+        })
+      }"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor--default': disabled }">
+      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor-default': disabled }">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -81,7 +87,10 @@
       type="button"
       @click="clearAll"
       data-cy="removeAllButtonDesc"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
+      v-tooltip="{
+        classes: this.tooltipClass,
+        content: Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })
+      }"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
       <slot name="removeAllButtonDesc">
         {{ Translator.trans('map.territory.tools.removeAll') }}
@@ -130,17 +139,25 @@ export default {
 
   data () {
     return {
-      selectInteraction: new Select({ wrapX: false }),
+      selectInteraction: new Select({
+        hitTolerance: 10,
+        wrapX: false
+      }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
       disabled: true,
+      zIndexUltimate: false,
       targets: Array.isArray(this.target) ? this.target : [this.target]
     }
   },
 
   computed: {
+    tooltipClass () {
+      return this.zIndexUltimate ? 'z-ultimate' : ''
+    },
+
     map () {
       return this.olMapState.map
     }
@@ -183,6 +200,20 @@ export default {
         this.map.removeInteraction(this.modifyInteraction)
         this.currentlyActive = false
       }
+    },
+
+    /**
+     * Get the z-index of a DOM element.
+     * @param element
+     * @return {string|*}
+     */
+    getZIndex (element) {
+      const z = window.getComputedStyle(element).getPropertyValue('z-index')
+      if (isNaN(z)) {
+        return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
+      }
+
+      return z
     },
 
     toggle () {
@@ -239,6 +270,14 @@ export default {
   mounted () {
     this.modifyInteraction = new Modify({ features: this.selectInteraction.getFeatures() })
     this.$root.$on('setDrawingActive', name => this.activateTool(name))
+
+    /**
+     * This logic should be implemented within demosplan-ui tooltip directive,
+     * once it has been refactored to use an upto date version of v-tooltip.
+     */
+    if (this.getZIndex(this.$refs.rootElement) > 9999) {
+      this.zIndexUltimate = true
+    }
   }
 }
 </script>

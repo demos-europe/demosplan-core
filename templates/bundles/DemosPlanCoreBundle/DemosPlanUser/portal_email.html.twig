@@ -1,0 +1,26 @@
+<div>
+    <div>
+        <p class="u-pt-0_5">
+            {{ "text.email.change"|trans }}
+        </p>
+        <form class="u-mt" id="changeemail" action="{{ path('DemosPlan_user_change_email_request') }}" method="POST" data-dp-validate>
+
+            <input type="hidden" name="userId" value="{{ user.id|default }}" required>
+            <label class="weight--bold">
+                {{ "email.new"|trans }}*
+                <input class="layout__item u-pt-0_25" id="newEmail" type="email" name="newEmail" required>
+            </label>
+
+            <label class="weight--bold">
+                {{ "change.confirm.with.password"|trans }}*
+                <input class="layout__item u-pt-0_25" id="password" type="password" name="password" required>
+            </label>
+
+            <div class="text-right space-inline-s">
+                <input class="btn btn--primary" type="submit" value="{{ "email.change"|trans }}">
+                <input class="btn btn--secondary" type="reset" value="{{ "abort"|trans }}">
+            </div>
+
+        </form>
+    </div>
+</div>

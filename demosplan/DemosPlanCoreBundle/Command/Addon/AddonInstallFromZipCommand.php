@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,8 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use Composer\Console\Input\InputOption;
+use Composer\Package\BasePackage;
+use Composer\Package\CompleteAliasPackage;
+use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootAliasPackage;
+use Composer\Package\RootPackage;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
@@ -29,6 +34,7 @@ use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -52,13 +58,10 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $zipCachePath;
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
-    private Registrator $installer;
 
-    public function __construct(Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-
-        $this->installer = $installer;
     }
 
     public function configure(): void
@@ -136,7 +139,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->add('cache:clear')
+                ->addShell(["bin/{$activeProject}", 'cache:clear'])
                 ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
                 ->run();
 
@@ -239,7 +242,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return \Composer\Package\BasePackage|\Composer\Package\CompleteAliasPackage|\Composer\Package\CompletePackage|\Composer\Package\RootAliasPackage|\Composer\Package\RootPackage|\Symfony\Component\Console\Input\InputDefinition
+     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage|InputDefinition
      *
      * @throws JsonException
      */

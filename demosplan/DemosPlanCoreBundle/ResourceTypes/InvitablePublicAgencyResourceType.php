@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -67,18 +67,18 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
      * @throws PathException
      * @throws CustomerNotFoundException
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
         $invitedOrgaIds = $procedure->getOrganisation()->map(
             static fn (Orga $orga): string => $orga->getId()
         );
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(true, $this->showlist),
             $this->conditionFactory->propertyHasValue(
@@ -102,7 +102,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 $invitedOrgaIds->toArray(),
                 $this->id
             ),
-        );
+        ];
     }
 
     public function getDefaultSortMethods(): array

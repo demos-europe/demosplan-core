@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,19 +11,18 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -33,44 +32,8 @@ class StatementAnonymizeService extends CoreService
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
 
-    /** @var EntityContentChangeService */
-    private $entityContentChangeService;
-
-    /** @var FileService */
-    private $fileService;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var ReportService */
-    private $reportService;
-
-    /** @var StatementService */
-    private $statementService;
-
-    /** @var TranslatorInterface */
-    private $translator;
-    /**
-     * @var StatementAttachmentService
-     */
-    private $statementAttachmentService;
-
-    public function __construct(
-        EntityContentChangeService $entityContentChangeService,
-        FileService $fileService,
-        PermissionsInterface $permissions,
-        ReportService $reportService,
-        StatementService $statementService,
-        StatementAttachmentService $statementAttachmentService,
-        TranslatorInterface $translator
-    ) {
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->fileService = $fileService;
-        $this->permissions = $permissions;
-        $this->reportService = $reportService;
-        $this->statementService = $statementService;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->translator = $translator;
+    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator)
+    {
     }
 
     /**
@@ -168,6 +131,7 @@ class StatementAnonymizeService extends CoreService
      */
     public function deleteHistoryOfTextsRecursively(Statement $statement, bool $forceOriginal = true, bool $createReport = true): void
     {
+        $relatedEntityIds = [];
         if ($forceOriginal) {
             $statement = $statement->isOriginal() ? $statement : $statement->getOriginal();
         }

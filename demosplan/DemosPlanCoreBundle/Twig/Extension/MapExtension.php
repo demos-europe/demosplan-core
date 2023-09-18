@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,26 +26,14 @@ use Twig\TwigFunction;
 class MapExtension extends ExtensionBase
 {
     /**
-     * @var array<int, string>
-     */
-    private $mapDefaultProjection;
-
-    /**
-     * @var WktToGeoJsonConverter
-     */
-    private $wktToGeoJsonConverter;
-
-    /**
      * @param array<int, string> $mapDefaultProjection
      */
     public function __construct(
-        array $mapDefaultProjection,
+        private readonly array $mapDefaultProjection,
         ContainerInterface $container,
-        WktToGeoJsonConverter $wktToGeoJsonConverter)
+        private readonly WktToGeoJsonConverter $wktToGeoJsonConverter)
     {
         parent::__construct($container);
-        $this->mapDefaultProjection = $mapDefaultProjection;
-        $this->wktToGeoJsonConverter = $wktToGeoJsonConverter;
     }
 
     /**
@@ -54,7 +42,7 @@ class MapExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('convertLegacyPolygon', [$this, 'convertLegacyPolygonFilter']),
+            new TwigFilter('convertLegacyPolygon', $this->convertLegacyPolygonFilter(...)),
         ];
     }
 
@@ -64,8 +52,8 @@ class MapExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('defaultProjectionLabel', [$this, 'getDefaultProjectionLabel']),
-            new TwigFunction('defaultProjectionValue', [$this, 'getDefaultProjectionValue']),
+            new TwigFunction('defaultProjectionLabel', $this->getDefaultProjectionLabel(...)),
+            new TwigFunction('defaultProjectionValue', $this->getDefaultProjectionValue(...)),
         ];
     }
 

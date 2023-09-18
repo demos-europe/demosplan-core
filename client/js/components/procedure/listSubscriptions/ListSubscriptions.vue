@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,7 +19,7 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        class="u-nojs-hide display--inline-block width-250 bg-color--white"
+        class="u-nojs-hide inline-block width-250 bg-color--white"
         height="32px"
         label="value"
         :options="postalCodeOptions"

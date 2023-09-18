@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -23,11 +23,9 @@
       <ul
         :class="prefixClass('c-map__group js__mapLayerLegends')"
         v-show="unfolded">
-        <li
-          v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
-          :class="prefixClass('list-style-none')">
+        <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
-            :class="prefixClass('c-map__group-item display--block')"
+            :class="prefixClass('c-map__group-item block')"
             target="_blank"
             :href="Routing.generate('core_file', { hash: planPdf.hash })"
             :title="planPdfTitle">
@@ -47,10 +45,9 @@
           <li
             v-for="(layer, idx) in layersWithLegendFiles"
             :key="idx"
-            :data-layername="layer.name"
-            :class="prefixClass('list-style-none')">
+            :data-layername="layer.name">
             <a
-              :class="prefixClass('c-map__group-item display--block')"
+              :class="prefixClass('c-map__group-item block')"
               target="_blank"
               :href="Routing.generate('core_file', { hash: layer.legend.hash })"
               :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">

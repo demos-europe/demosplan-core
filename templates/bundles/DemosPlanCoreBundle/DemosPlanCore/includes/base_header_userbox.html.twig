@@ -4,7 +4,7 @@
     {% if currentUser.loggedin %}
 
         {# loggedin state of userbox #}
-        <div class="c-nav__flyout c-flyout float--right text--right" data-actionmenu>
+        <div class="c-nav__flyout c-flyout float-right text-right" data-actionmenu>
 
             {# button which displays the name of current user and acts as the flyout trigger #}
             <a
@@ -17,7 +17,7 @@
 
                 {# if OrgaSwitcher user is a toeb, indicate with different color #}
                 {% block loggedInCurrentUser %}
-                    <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight' : '' }}" data-extern-dataport="userMenuTrigger">
+                    <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color-highlight' : '' }}" data-extern-dataport="userMenuTrigger">
 
                         {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
 
@@ -40,12 +40,12 @@
             </a>
 
             {# flyout content #}
-            <span class="c-flyout__content text--left" role="menu" data-extern-dataport="userMenu">
+            <span class="c-flyout__content text-left" role="menu" data-extern-dataport="userMenu">
 
                 {# display roles of current user #}
                 <div class="c-flyout__item u-mt-0_5">
-                    <i class="fa fa-shield float--left u-mt-0_125" aria-hidden="true"></i>
-                    <span class="display--block u-ml">
+                    <i class="fa fa-shield float-left u-mt-0_125" aria-hidden="true"></i>
+                    <span class="block u-ml">
                         {{- "roles"|trans -}}
                     </span>
                     <ul class="u-m-0 u-ml" data-cy="userRoles" data-extern-dataport="userRoles">
@@ -117,24 +117,24 @@
                 {% if currentUser.organisationNameLegal is defined %}
                     {% if hasPermission("area_manage_orgadata") %}
                         <a
-                            class="c-flyout__item cf"
+                            class="c-flyout__item flow-root"
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
                             data-actionmenu-menuitem>
-                            <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
-                            <span class="display--block u-ml" data-extern-dataport="orgaName">
+                            <i class="fa fa-building-o float-left u-mt-0_125" aria-hidden="true"></i>
+                            <span class="block u-ml" data-extern-dataport="orgaName">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
-                            <span class="display--block font-size-smaller u-ml">
+                            <span class="block font-size-smaller u-ml">
                                 {{ currentUser.departmentNameLegal }}
                             </span>
                         </a>
                     {% else %}
-                        <span class="c-flyout__item cf">
-                            <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
-                            <span class="display--block u-ml">
+                        <span class="c-flyout__item flow-root">
+                            <i class="fa fa-building-o float-left u-mt-0_125" aria-hidden="true"></i>
+                            <span class="block u-ml">
                                 {{ currentUser.organisationNameLegal }}
                             </span>
-                            <span class="display--block font-size-smaller u-ml">
+                            <span class="block font-size-smaller u-ml">
                                 {{ currentUser.departmentNameLegal }}
                             </span>
                         </span>
@@ -144,11 +144,11 @@
                 {# subscribe to notifications #}
                 {% if hasPermission('area_subscriptions') %}
                     <a
-                        class="c-flyout__item cf"
+                        class="c-flyout__item flow-root"
                         href="{{ path("DemosPlan_procedure_list_subscriptions") }}"
                         data-actionmenu-menuitem>
-                        <i class="fa fa-bell float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml">
+                        <i class="fa fa-bell float-left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="block u-ml">
                              {{ "notifications"|trans }}
                         </span>
                     </a>
@@ -156,11 +156,11 @@
 
                 {# edit own profile #}
                 <a
-                    class="c-flyout__item cf"
+                    class="c-flyout__item flow-root"
                     href="{{ path("DemosPlan_user_portal") }}"
                     data-actionmenu-menuitem>
-                    <i class="fa fa-cog float--left u-mt-0_125" aria-hidden="true"></i>
-                    <span class="display--block u-ml" data-extern-dataport="userProfile">
+                    <i class="fa fa-cog float-left u-mt-0_125" aria-hidden="true"></i>
+                    <span class="block u-ml" data-extern-dataport="userProfile">
                         {{ "profile"|trans }}
                     </span>
                 </a>
@@ -184,11 +184,11 @@
                     or hasPermission('area_platformtools')
                 %}
                     <a
-                        class="c-flyout__item cf"
+                        class="c-flyout__item flow-root"
                         href="{{ path('core_home_loggedin') }}"
                         data-actionmenu-menuitem>
-                        <i class="fa fa-wrench float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml" data-extern-dataport="administer">
+                        <i class="fa fa-wrench float-left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="block u-ml" data-extern-dataport="administer">
                             {{ "administer"|trans }}
                         </span>
                     </a>
@@ -197,11 +197,11 @@
                 {# allow user to switch between two sessions - bobhh permission #}
                 {% if hasOrgaSwitcher %}
                     <a
-                        class="c-flyout__item c-flyout__item--btn u-mt-0_5 cf"
+                        class="c-flyout__item c-flyout__item--btn u-mt-0_5 flow-root"
                         href="{{ path('DemosPlan_user_switch_orga') }}"
                         data-actionmenu-menuitem>
-                        <i class="fa fa-exchange float--left u-mt-0_125" aria-hidden="true"></i>
-                        <span class="display--block u-ml">
+                        <i class="fa fa-exchange float-left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="block u-ml">
                             {{- "organisation.switch"|trans -}}
                         </span>
                     </a>
@@ -210,7 +210,7 @@
                 {# logout button #}
                 {% block logoutButton %}
                     <a
-                        class="c-flyout__item c-flyout__item--btn cf {{ hasOrgaSwitcher ? '' : ' u-mt-0_5' }}"
+                        class="c-flyout__item c-flyout__item--btn flow-root {{ hasOrgaSwitcher ? '' : ' u-mt-0_5' }}"
                         data-actionmenu-menuitem
                         href="{{ path("DemosPlan_user_logout") }}">
                         <i class="fa fa-sign-out" aria-hidden="true"></i>
@@ -225,7 +225,7 @@
     {% else %}
 
         {# loggedout state of userbox #}
-        <div class="c-nav__flyout c-flyout float--right text--right" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
+        <div class="c-nav__flyout c-flyout float-right text-right" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
             {% if projectType == 'gateway' %}
 
                 <a
@@ -233,6 +233,7 @@
                     href="{{ getStaticVariable('login_path') }}"
                     aria-haspopup="{{ loggedout_simple is not defined and hasPermission('area_login_dialog') ? 'true' : 'false' }}"
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
+                    data-cy="headerNav:login"
                     data-touch-flyout="loginLink"
                     id="loginLink">
                     {% block loginButtonGateway %}
@@ -245,7 +246,7 @@
 
                 {# flyout with information about gateway login #}
                 {% if loggedout_simple is not defined and hasPermission('area_login_dialog') %}
-                    <span class="c-flyout__content text--left" role="menu" id="explanationLoginGateway">
+                    <span class="c-flyout__content text-left" role="menu" id="explanationLoginGateway">
                         <p class="u-ph-0_5 u-pv-0_25 u-mb-0">
                             {{ "explanation.login.gateway"|trans }}
                         </p>
@@ -261,7 +262,11 @@
 
             {% elseif projectType == 'portal' %}
 
-                <a class="c-flyout__trigger" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
+                <a
+                    id="loginLink"
+                    class="c-flyout__trigger"
+                    data-cy="headerNav:login"
+                    href="{{ path('DemosPlan_user_login_alternative') }}">
                     {%  block loginButton %}
                         <span class="c-flyout__trigger-inner">
                             <i class="fa fa-user" aria-hidden="true"></i>

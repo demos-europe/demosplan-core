@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -14,16 +14,16 @@
 //  @improve T13061
 
 .c-flyout {
-    $flyout-trigger-color: $dp-token-color-brand-link;
-    $flyout-trigger-color-hover: $dp-token-color-brand-link-hover;
-    $flyout-trigger-color-focus: $dp-token-color-brand-highlight;
+    $flyout-trigger-color: $dp-color-interactive-default;
+    $flyout-trigger-color-hover: $dp-color-interactive-hover;
+    $flyout-trigger-color-focus: $dp-color-highlight;
 
 
     position: relative;
 
     // !!!!!!!!!!!! C + P from _actionmenu.scss !!!!!!!!!!!!!!
     .nojs & {
-        z-index: $z-fixed;
+        z-index: $dp-z-flyout;
 
         &:hover .c-flyout__content,
         .c-flyout__trigger:focus + .c-flyout__content {
@@ -42,7 +42,7 @@
         &:active,
         &.is-expanded,
         &__trigger:focus {
-            z-index: $z-fixed;
+            z-index: $dp-z-flyout;
 
             & .c-flyout__content {
                 display: block;
@@ -53,7 +53,7 @@
 
     &:hover,
     &.is-expanded {
-        z-index: $z-tooltip-super;
+        z-index: $dp-z-flyout;
     }
 
     //  pill-like trigger for flyout
@@ -115,13 +115,13 @@
         display: none;
 
         background-color: $dp-color-neutral-dark-2;
-        color: $alternate-font-color;
+        color: $dp-color-text-on-dark;
 
         // Show tooltip content on :hover of parent element, set z-index to trump other tooltips.
         // The flyout is activated on :hover and via data-touch-flyout javascript hook.
         .c-flyout:hover &,
         .c-flyout.is-expanded & {
-            z-index: $z-tooltip-super;
+            z-index: $dp-z-flyout;
             right: 0;
 
             display: block;

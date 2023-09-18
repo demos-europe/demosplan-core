@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,10 +14,10 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\CustomerConf
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -87,7 +87,6 @@ EOT
             $this->migrateDatabase($output);
             $this->elasticsearchPopulate($output);
         } catch (Exception) {
-
             return Command::FAILURE;
         }
 
@@ -103,7 +102,7 @@ EOT
             $output->writeln('Delete existing database');
             try {
                 $this->createDatabase($output);
-            }  catch (Exception $exception) {
+            } catch (Exception $exception) {
                 $output->writeln(
                     "Something went wrong during database override: {$exception->getMessage()}",
                     OutputInterface::VERBOSITY_NORMAL
@@ -116,7 +115,7 @@ EOT
         $connection = $this->entityManager->getConnection();
         try {
             $connection->getDatabase();
-        } catch (ConnectionException $throwable) {
+        } catch (ConnectionException) {
             try {
                 // create database, if it does not exist yet
                 $this->createDatabase($output);
@@ -202,14 +201,13 @@ EOT
                 ->add('fos:elastica:reset -e prod --no-debug')
                 ->add('fos:elastica:populate -e prod --no-debug')
                 ->run();
-        }  catch (Exception $exception) {
+        } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during elasticsearch populate: {$exception->getMessage()}",
                 OutputInterface::VERBOSITY_NORMAL
             );
 
             throw $exception;
-
         }
 
         return Command::SUCCESS;
@@ -224,14 +222,13 @@ EOT
             Batch::create($this->getApplication(), $output)
                 ->add('dplan:migrate -e prod')
                 ->run();
-        }  catch (Exception $exception) {
+        } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during database migration: {$exception->getMessage()}",
                 OutputInterface::VERBOSITY_NORMAL
             );
 
             throw $exception;
-
         }
 
         return Command::SUCCESS;
@@ -250,7 +247,7 @@ EOT
      * Loads, parses and validates the config if it is given as option in the input.
      *
      * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the
-     * loaded config as associative array or `null` if no config path was given
+     *                                                                                        loaded config as associative array or `null` if no config path was given
      *
      * @throws Exception if the config path or config content is invalid
      */

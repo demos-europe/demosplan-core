@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -22,19 +23,16 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
@@ -51,15 +49,9 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Get organisation by ID.
      *
-     * @Route(
-     *     "/api/1.0/Orga/{id}",
-     *     name="dplan_api_orga_get",
-     *     options={"expose": true},
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("feature_orga_get")
      */
+    #[Route(path: '/api/1.0/Orga/{id}', name: 'dplan_api_orga_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
     {
         try {
@@ -90,26 +82,18 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * List organizations, depending on permissions.
      *
-     * @Route(
-     *     "/api/1.0/organisation/",
-     *     name="dplan_api_organisation_list",
-     *     options={"expose": true},
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
      */
+    #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function listAction(
         CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         OrgaResourceType $orgaResourceType,
+        OrgaService $orgaService,
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
-        SortMethodFactory $sortMethodFactory,
         JsonApiPaginationParser $paginationParser
     ) {
         try {
@@ -117,10 +101,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
-                $condition[] = $conditionFactory->propertyHasValue($currentCustomer->getId(), ['statusInCustomers', 'customer']);
-                $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
-                $sortMethod = $sortMethodFactory->propertyAscending(['name']);
-                $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
+                $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
                 $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
                 $filterRegisterStatus = $filter['registerStatus'] ?? '';
                 $orgaSubdomain = $currentCustomer->getSubdomain();
@@ -134,9 +115,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 if ('' !== $filterNameContains) {
                     $orgaList = array_filter(
                         $orgaList,
-                        static function (Orga $orga) use ($filterNameContains) {
-                            return false !== stripos($orga->getName(), $filterNameContains);
-                        }
+                        static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
                     );
                 }
             } else {
@@ -269,16 +248,9 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/deletion_of_entity_objects/ delete entity objects
      *
-     * @Route(
-     *     "/api/1.0/organisation/{id}",
-     *     name="dplan_api_orga",
-     *     options={"expose": true},
-     *     methods={"DELETE"},
-     *     name="organisation_delete"
-     * )
-     *
      * @DplanPermissions("feature_orga_delete")
      */
+    #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_delete', options: ['expose' => true], methods: ['DELETE'])]
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
     {
         $orgaId = $id;
@@ -305,19 +277,13 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Creates a new Organisation.
      *
-     * @Route(
-     *     "/api/1.0/organisation/",
-     *     options={"expose": true},
-     *     methods={"POST"},
-     *     name="organisation_create"
-     * )
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request, UserHandler $userHandler, CustomerHandler $customerHandler)
     {
         try {
@@ -353,18 +319,11 @@ class DemosPlanOrganisationAPIController extends APIController
     }
 
     /**
-     * @Route(
-     *     "/api/1.0/organisation/{id}",
-     *     name="dplan_api_orga",
-     *     options={"expose": true},
-     *     methods={"PATCH"},
-     *     name="organisation_update"
-     * )
-     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse
      */
+    #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrgaAction(
         CustomerHandler $customerHandler,
         OrgaHandler $orgaHandler,

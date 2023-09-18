@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,21 +27,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanHelpController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_contextual_help_list",
-     *     methods="GET|POST",
-     *     path="/contextualHelp")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
     public function listAction(
         Request $request,
         HelpHandler $helpHandler
     ): Response {
+        $templateVars = [];
         $requestPost = $request->request->all();
         if (array_key_exists('delete', $requestPost)) {
             if (empty($request->get('r_delete'))) {
@@ -65,17 +62,13 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_new",
-     *     methods="GET",
-     *     path="/contextualHelp/new")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
     public function newAction(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator
@@ -98,11 +91,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_create",
-     *     methods="POST",
-     *     path="/contextualHelp/create")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -110,6 +98,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
     public function createAction(
         HelpHandler $helpHandler,
         Request $request
@@ -119,7 +108,7 @@ class DemosPlanHelpController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.contextual.help.saved');
 
             return new RedirectResponse($this->generateUrl('dplan_contextual_help_list'));
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $this->getMessageBag()->add('error', 'error.missing.required.info');
 
             return $this->redirectToRoute('dplan_contextual_help_create');
@@ -127,11 +116,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_edit",
-     *     methods="GET",
-     *     path="/contextualHelp/{contextualHelpId}")
-     *
      * @param string|null $contextualHelpId
      *
      * @return RedirectResponse|Response
@@ -140,6 +124,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
     public function editAction(
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
@@ -163,7 +148,7 @@ class DemosPlanHelpController extends BaseController
                     'title'          => 'help.contextualHelp.edit',
                 ]
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->getMessageBag()->add('warning', 'error.entry.missing.database');
 
             return $this->redirectToRoute('dplan_contextual_help_list');
@@ -171,11 +156,6 @@ class DemosPlanHelpController extends BaseController
     }
 
     /**
-     * @Route(
-     *     name="dplan_contextual_help_update",
-     *     methods="POST",
-     *     path="/contextualHelp/{contextualHelpId}")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -183,6 +163,7 @@ class DemosPlanHelpController extends BaseController
      *
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
     public function updateAction(
         Request $request,
         HelpHandler $helpHandler,
@@ -193,14 +174,14 @@ class DemosPlanHelpController extends BaseController
             $this->getMessageBag()->add('confirm', 'confirm.contextual.help.saved');
 
             return new RedirectResponse($this->generateUrl('dplan_contextual_help_list'));
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $this->getMessageBag()->add('error', 'error.missing.required.info');
 
             return $this->redirectToRoute(
                 'dplan_contextual_help_edit',
                 ['contextualHelpId' => $contextualHelpId]
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->getMessageBag()->add('warning', 'error.entry.missing.database');
 
             return $this->redirectToRoute('dplan_contextual_help_list');

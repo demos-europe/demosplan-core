@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,7 @@ namespace Tests\Core\Survey\Unit;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use Exception;
 
 class SurveyShowHandlerTest extends SurveyTestUtils

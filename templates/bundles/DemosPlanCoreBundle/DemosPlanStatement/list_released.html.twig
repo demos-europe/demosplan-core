@@ -1,0 +1,68 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-listReleased.js') }}
+
+{% endblock javascripts %}
+
+{% block demosplanbundlecontent %}
+
+    {% set counties = templateVars.counties|map(c => { label: c.name, value: c.id }) %}
+
+    {% block title_text %}
+        {#  pageheader - display procedure title + nav link #}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with
+        {
+            link: path('DemosPlan_procedure_public_detail', { 'procedure':procedure }),
+            link_caption: 'procedure.goto'|trans,
+            width_css: {
+                col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+                col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass
+            },
+            content_heading: "statements.ownrelease"|trans ~ ": " ~ getProcedureName(proceduresettings),
+            content_subheading: '<p class="' ~ 'u-mb-0'|prefixClass ~ '">' ~ "text.statements.ownreleased"|trans ~ '</p>'
+        }
+        %}
+    {% endblock %}
+
+    <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
+
+        <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}" method="post">
+
+            {#  filter fieldsets  #}
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
+                with  { 'filter_target'                         : 'released' } %}
+
+        </form>
+
+        <form class="{{ 'layout flow-root'|prefixClass }}" name="printform" action="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}" method="post">
+
+            <fieldset class="{{ 'u-ml u-pb-0 flow-root'|prefixClass }}">
+
+                {% if templateVars.list.statementlist|length > 0 %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                {% endif %}
+
+            </fieldset>
+            <dp-public-statement-list
+                class="layout__item"
+                :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
+                :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                procedure-id="{{ templateVars.procedure|default('') }}"
+                show-author
+                show-checkbox
+                show-email
+                show-pdf-download
+                target="released"></dp-public-statement-list>
+        </form>
+
+    </div>
+    <dp-map-modal
+        ref="mapModal"
+        procedure-id="{{ procedure }}"
+    ></dp-map-modal>
+
+{% endblock %}

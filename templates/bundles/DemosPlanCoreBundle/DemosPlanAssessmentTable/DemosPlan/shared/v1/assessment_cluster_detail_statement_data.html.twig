@@ -3,7 +3,7 @@
 {% if hasPermission('field_statement_votes') %}
     {% if statement.isSubmittedByCitizen %}
         <div class="layout--flush u-mb-0">
-            {% include '@DemosPlanStatement/DemosPlanStatement/includes/vote_statement_messages.html.twig' %}
+            {% include '@DemosPlanCore/DemosPlanStatement/includes/vote_statement_messages.html.twig' %}
         </div>
         {% if hasPermission('feature_statements_vote') %}
             {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
@@ -58,8 +58,8 @@
     </h4>
 
     {% block clusterId %}
-        <div class="layout--flush u-mb-0_75 display--inline-block u-1-of-7">
-            <label class="layout__item u-1-of-4 display--block u-mb-0_25">
+        <div class="layout--flush u-mb-0_75 inline-block u-1-of-7">
+            <label class="layout__item u-1-of-4 block u-mb-0_25">
                 {{ "id"|trans }}
             </label>
             <div class="layout__item c-at-item__row color--grey u-3-of-4">
@@ -69,8 +69,8 @@
     {% endblock %}
 
     {% if hasPermission('field_procedure_name') %}
-        <div class="layout--flush display--inline-block u-6-of-7 u-pl">
-            <strong class="layout__item display--block u-mb-0_25">
+        <div class="layout--flush inline-block u-6-of-7 u-pl">
+            <strong class="layout__item block u-mb-0_25">
                 {{ "procedure"|trans }}
             </strong>
             <p class="layout__item u-3-of-4 color--grey">
@@ -193,7 +193,7 @@
         {% if statement.isSubmittedByCitizen %}
             {% if statement.feedback is defined %}
                 <div class="layout--flush u-mb-0_75">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "feedback"|trans }}
                     </strong>
                     <p class="layout__item u-3-of-4 color--grey">
@@ -290,8 +290,8 @@
 
         {% block official %}
             {% if hasPermission('field_statement_meta_case_worker_name') %}
-                <div class="layout--flush u-1-of-2 display--block {% if readonly %}u-mt-0_5 {% else %}u-mt-0_75{% endif %} u-mb-0_75">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                <div class="layout--flush u-1-of-2 block {% if readonly %}u-mt-0_5 {% else %}u-mt-0_75{% endif %} u-mb-0_75">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "official"|trans }}
                     </strong>
                     {% if statement.meta.caseWorkerName|default != '' %}
@@ -315,7 +315,7 @@
         </h4>
 
         {% if statement.element.ident is defined %}
-            <div class="u-1-of-2 display--inline-block">
+            <div class="u-1-of-2 inline-block">
                 {{ uiComponent('form.element', {
                     label: { text: 'plandocument'|trans },
                     control: { value: statement.element.title|default },
@@ -390,7 +390,7 @@
     {% endif %} {# end if hasPermission('field_procedure_elements') #}
 
     {% if not readonly %}
-        <div class="u-1-of-2 display--inline-block u-valign--top">
+        <div class="u-1-of-2 inline-block align-top">
             {% if hasPermission('field_procedure_elements') %}
 
                 {# Select new plandocument #}
@@ -494,7 +494,7 @@
             <div class="layout--flush">
                 <label
                     for="r_fileupload"
-                    class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    class="layout__item u-1-of-4 block u-mb-0_25">
                     {{ "documents.attach"|trans }}
                 </label>
                 <div class="layout__item u-3-of-4">
@@ -513,15 +513,15 @@
 
         {% if statement.files|length > 0 %}
             <div class="layout--flush u-mb">
-                <span class="layout__item lbl display--inline-block u-mb-0_25">
+                <span class="layout__item lbl inline-block u-mb-0_25">
                     {{ "attachment"|trans }}
                 </span>
-                <div class="layout__item layout display--inline-block">
+                <div class="layout__item layout inline-block">
                     {% for file in statement.files|default([]) %}
                         <div class="u-mb-0_25 layout__item u-1-of-3">
                             {% if file|length > 0 %}
                                 <a
-                                    class="o-hellip--nowrap display--block u-mb-0_25"
+                                    class="o-hellip--nowrap block u-mb-0_25"
                                     title="{{ file|getFile('name') }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -557,7 +557,7 @@
 
         {% if hasPermission('field_statement_polygon') and formDefinitions.mapAndCountyReference.enabled == true %}
             <div class="layout--flush u-mb">
-                <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                <strong class="layout__item u-1-of-4 block u-mb-0_25">
                     {{ "location"|trans }}
                 </strong>
                 {% if statement.polygon is defined and statement.polygon != '' %}
@@ -574,7 +574,7 @@
 
             {% if readonly %}
                 <div class="layout--flush u-mb-0_75">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "counties"|trans }}
                     </strong>
                     {% if statement.counties is defined %}
@@ -593,22 +593,21 @@
                 </div>
             {% else %}
                 <div class="layout--flush u-mb">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "counties"|trans }}
                     </strong>
                     <dp-multiselect
-                        class="layout__item u-1-of-1 display--inline-block"
+                        v-model="selectedCounties"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
                         multiple
                         :options="counties"
-                        v-model="selectedCounties"
-                        @input="sortSelected('Counties')"
                         track-by="id"
-                        label="name"
-                    >
-                        <template v-slot:option="props">
+                        @input="sortSelected('Counties')">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -626,7 +625,7 @@
 
             {% if readonly %}
                 <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "municipalities"|trans }}
                     </strong>
                     {% if statement.municipalities is defined %}
@@ -645,22 +644,21 @@
                 </div>
             {% else %}
                 <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "municipalities"|trans }}
                     </strong>
                     <dp-multiselect
-                        class="layout__item u-1-of-1 display--inline-block"
+                        v-model="selectedMunicipalities"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
                         multiple
                         :options="municipalities"
-                        v-model="selectedMunicipalities"
-                        @input="sortSelected('Municipalities')"
                         track-by="id"
-                        label="name"
-                    >
-                        <template v-slot:option="props">
+                        @input="sortSelected('Municipalities')">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -678,7 +676,7 @@
 
             {% if readonly %}
                 <div class="layout--flush u-pb u-mb">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "priorityArea"|trans }}
                     </strong>
                     {% if statement.priorityAreas is defined %}
@@ -697,22 +695,21 @@
                 </div>
             {% else %}
                 <div class="layout--flush u-pb u-mb">
-                    <strong class="layout__item u-1-of-4 display--block u-mb-0_25">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
                         {{ "priorityArea"|trans }}
                     </strong>
                     <dp-multiselect
-                        class="layout__item u-1-of-1 display--inline-block"
+                        v-model="selectedPriorityAreas"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
                         multiple
                         :options="priorityAreas"
-                        v-model="selectedPriorityAreas"
-                        @input="sortSelected('PriorityAreas')"
                         track-by="id"
-                        label="name"
-                    >
-                        <template v-slot:option="props">
+                        @input="sortSelected('PriorityAreas')">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                                     <span class="multiselect__tag">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -732,7 +729,7 @@
             {% if 'M' in statement.externId %}
                 {% if statement.meta.orgaStreet|default('') != '' or statement.meta.orgaPostalCode|default('') != '' or statement.meta.orgaCity|default('') != '' or statement.meta.orgaEmail|default('') != '' %}
                     <div class="layout--flush u-mb u-pb">
-                        <span class="layout__item u-1-of-4 display--block u-mb-0_25 lbl">
+                        <span class="layout__item u-1-of-4 block u-mb-0_25 lbl">
                             {{ "author.misc"|trans }}
                         </span>
                         <span class="layout__item u-3-of-4 lbl__hint color--grey">

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <li class="c-at-item list-style-none">
+  <li class="c-at-item">
     <a
       class="o-link--offset"
       :id="`viewMode_${elementId}`" />

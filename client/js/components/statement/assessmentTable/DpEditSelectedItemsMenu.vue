@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -13,7 +13,7 @@
     <div
       v-if="areElementsSelected"
       role="menu"
-      class="layout__item u-12-of-12 u-p-0_5 bg-color--system-info-light-1 line-height--1_6">
+      class="layout__item u-12-of-12 u-p-0_5 bg-color-selection line-height--1_6">
       <span class="u-mr">
         {{ selectedItemsText }}
       </span>
@@ -27,7 +27,7 @@
       />
 
       <dp-button
-        class="float--right"
+        class="float-right"
         :text="Translator.trans('unselect')"
         variant="outline"
         @click="resetSelection" />

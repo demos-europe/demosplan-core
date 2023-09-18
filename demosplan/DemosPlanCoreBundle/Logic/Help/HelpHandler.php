@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,15 +19,9 @@ use Exception;
 
 class HelpHandler extends CoreHandler
 {
-    /**
-     * @var HelpService
-     */
-    private $helpService;
-
-    public function __construct(MessageBag $messageBag, HelpService $helpService)
+    public function __construct(MessageBag $messageBag, private readonly HelpService $helpService)
     {
         parent::__construct($messageBag);
-        $this->helpService = $helpService;
     }
 
     /**
@@ -104,7 +98,7 @@ class HelpHandler extends CoreHandler
     {
         return array_key_exists($key, $array)
             && null !== $array[$key]
-            && '' !== trim($array[$key]);
+            && '' !== trim((string) $array[$key]);
     }
 
     /**

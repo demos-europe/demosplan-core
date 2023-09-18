@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,7 +26,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 
-class ContentRepository extends CoreRepository implements ArrayInterface
+class ContentRepository extends FluentRepository implements ArrayInterface
 {
     public function getNewsListByRoles(array $roles): array
     {
@@ -163,7 +163,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
      *
      * @throws DeprecatedException
      */
-    public function delete($entityId): bool
+    public function delete($entityId): never
     {
         throw new DeprecatedException('Use ObjectInterface::deleteObject instead');
     }

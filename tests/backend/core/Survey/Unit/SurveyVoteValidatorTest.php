@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 

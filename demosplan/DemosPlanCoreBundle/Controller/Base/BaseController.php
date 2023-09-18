@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
@@ -20,11 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use Exception;
-
-use function is_array;
-
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,7 +34,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Contracts\Service\Attribute\Required;
 use Throwable;
+
+use function is_array;
 
 abstract class BaseController extends AbstractController
 {
@@ -92,9 +92,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
     {
         $this->globalConfig = $globalConfig;
@@ -102,9 +101,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
@@ -112,9 +110,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setMessageBag(MessageBagInterface $messageBag): void
     {
         $this->messageBag = $messageBag;
@@ -122,9 +119,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setViewRenderer(ViewRenderer $viewRenderer): void
     {
         $this->viewRenderer = $viewRenderer;
@@ -132,9 +128,8 @@ abstract class BaseController extends AbstractController
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setInitializeService(InitializeService $initializeService): void
     {
         $this->initializeService = $initializeService;
@@ -234,35 +229,6 @@ abstract class BaseController extends AbstractController
         ];
 
         return new JsonResponse($response, $code);
-    }
-
-    /**
-     * Generiere den Downloadfilename aus dem übergebenen Dateinamen
-     * Der IE braucht eine Extrabehandlung.
-     *
-     * @param string $filename
-     *
-     * @return string
-     */
-    protected function generateDownloadFilename($filename)
-    {
-        // der IE benötigt mal wieder eine Extrabehandlung.
-        $filenameURLEncoded = urlencode($filename);
-        // Leerzeichen sollen nicht als + dargestellt werden
-        $filenameURLEncoded = str_replace('+', '_', $filenameURLEncoded);
-
-        // " müssen maskiert werden, damit sie nicht im Filename unten den String beenden (je nach Browser unterschiedlich
-        // interpretiert)
-        $filename = str_replace('"', '\"', $filename);
-
-        // filename*=UTF-8'' ist legacy für den IE (http://greenbytes.de/tech/webdav/rfc5987.html)
-        // http://blogs.msdn.com/b/ieinternals/archive/2010/06/07/content-disposition-attachment-and-international-unicode-characters.aspx
-        if (false !== stripos(getenv('HTTP_USER_AGENT'), 'MSIE')
-            || false !== stripos(getenv('HTTP_USER_AGENT'), 'Internet Explorer')) {
-            return sprintf('attachment;filename="%s";', $filenameURLEncoded);
-        } else {
-            return sprintf('attachment;filename="%s"; filename*=UTF-8\'\'%s', $filename, $filenameURLEncoded);
-        }
     }
 
     /**

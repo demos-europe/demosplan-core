@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -11,7 +11,7 @@
   <div class="u-mt-0_5">
     <div
       v-if="!addNewTag"
-      class="text--right">
+      class="text-right">
       <dp-button
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm()" />
@@ -23,10 +23,10 @@
         v-if="isLoading"
         overlay />
       <div class="border border-radius-small space-stack-m space-inset-m">
-        <div class="position--relative u-pb-0_5 font-size-large">
+        <div class="relative u-pb-0_5 font-size-large">
           {{ Translator.trans('tag.new') }}
           <button
-            class="btn--blank o-link--default float--right"
+            class="btn--blank o-link--default float-right"
             @click="closeNewTagForm()">
             <dp-icon icon="close" />
           </button>
@@ -65,7 +65,7 @@
           v-model="rowData.label" />
       </template>
       <template v-slot:action="rowData">
-        <div class="float--right">
+        <div class="float-right">
           <template v-if="!rowData.edit">
             <button
               :aria-label="Translator.trans('item.edit')"

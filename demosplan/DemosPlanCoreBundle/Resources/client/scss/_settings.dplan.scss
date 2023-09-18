@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -21,8 +21,8 @@
 $inuit-base-font-size:          $base-font-size; // 16px.
 $inuit-base-line-height:        $base-line-height; // 24px. This is mapped to $inuit-base-spacing-unit
 
-$inuit-base-text-color:         $default-font-color !default;
-$inuit-base-background-color:   $dp-bg-color !default;
+$inuit-base-text-color:         $dp-color-text-default !default;
+$inuit-base-background-color:   $dp-color-background-default !default;
 
 $inuit-enable-layout--flush:    true !default;
 $inuit-enable-layout--auto:     true !default;
@@ -66,32 +66,3 @@ $dp-border-thickness: 1px !default;
 
 // Width of map toolbar in public detail view - defined here because several components depend on it
 $map-toolbar-width: 300px !default;
-
-// Z-Indexes
-//
-$z-content:          0;
-$z-content-above:   10;
-// map
-$z-map:           1000;
-$z-map-popups:    1010;
-$z-map-toolbar:   1020;
-$z-map-hint:      1030;
-$z-map-progress:  1040;
-// header should trump all content except for tooltips
-$z-header:        1050;
-// tooltips
-$z-tooltip:       1100;
-$z-tooltip-super: 1190;
-
-// contextual flyout menus should trump tooltips but stack below huge sticky elements
-$z-flyout:        1300;
-
-// Fixed elements (should usually trump everything but the modal stuff
-$z-fixed:         1500;
-
-// Modal box
-$z-modal-overlay: 2000;
-$z-modal-window:  2001;
-
-// Trump it all!
-$z-super:        10000;

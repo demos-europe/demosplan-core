@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,13 +28,9 @@ class ConsultationController extends BaseController
     /**
      * Handle Autorisation via ConsultationTokens.
      *
-     * @Route(
-     *     name="core_auth_procedure_consultation",
-     *     path="/consultation/auth/{procedureId}"
-     * )
-     *
      * @DplanPermissions("feature_public_consultation")
      */
+    #[Route(name: 'core_auth_procedure_consultation', path: '/consultation/auth/{procedureId}')]
     public function procedureConsultationAuthorizeAction(
         ConsultationTokenService $consultationTokenService,
         EventDispatcherPostInterface $eventDispatcherPost,
@@ -53,7 +49,7 @@ class ConsultationController extends BaseController
         try {
             $eventDispatcherPost->post($event);
             $response = $event->getResponse();
-        } catch (CookieException|Exception $e) {
+        } catch (CookieException|Exception) {
             return $response;
         }
 

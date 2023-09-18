@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,13 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,26 +29,31 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Statement Fragment Versions are part of the assessment process
  *
  * @ORM\Table(name="statement_fragment_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository")
  */
-class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
+class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface, StatementFragmentVersionInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="sfv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var StatementFragment
+     * @var StatementFragmentInterface
      *
      * todo: should be nullable = false? will not working with onDelete="SET NULL"
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", inversedBy="versions")
+     *
      * @ORM\JoinColumn(name="statement_fragment_id", referencedColumnName="sf_id", nullable=true, onDelete="SET NULL")
      */
     protected $statementFragment;
@@ -73,9 +80,10 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $tagAndTopicNames;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -98,6 +106,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -175,9 +184,10 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * User who triggered this Version.
      *
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="sfv_modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
     protected $modifiedByUser;
@@ -185,9 +195,10 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Department which triggered this Version.
      *
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="sfv_modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
     protected $modifiedByDepartment;
@@ -207,17 +218,19 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $elementCategory;
 
     /**
-     * @var ParagraphVersion
+     * @var ParagraphVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
 
     /**
-     * @var SingleDocumentVersion
+     * @var SingleDocumentVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -265,7 +278,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return StatementFragment
+     * @return StatementFragmentInterface
      */
     public function getStatementFragment()
     {
@@ -275,7 +288,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function setStatementFragment(StatementFragment $relatedFragment)
+    public function setStatementFragment(StatementFragmentInterface $relatedFragment)
     {
         $this->statementFragment = $relatedFragment;
         $relatedFragment->addVersion($this);
@@ -308,7 +321,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -502,7 +515,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {
@@ -574,7 +587,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @return UserInterface
      */
     public function getModifiedByUser()
     {
@@ -586,7 +599,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByUserId()
     {
-        if ($this->modifiedByUser instanceof User) {
+        if ($this->modifiedByUser instanceof UserInterface) {
             return $this->modifiedByUser->getId();
         }
 
@@ -594,17 +607,17 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param User $modifiedByUser
+     * @param UserInterface $modifiedByUser
      */
     public function setModifiedByUser($modifiedByUser)
     {
-        if ($modifiedByUser instanceof User) {
+        if ($modifiedByUser instanceof UserInterface) {
             $this->modifiedByUser = $modifiedByUser;
         }
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\User\Department
+     * @return DepartmentInterface
      */
     public function getModifiedByDepartment()
     {
@@ -616,7 +629,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getModifiedByDepartmentId()
     {
-        if ($this->modifiedByDepartment instanceof Department) {
+        if ($this->modifiedByDepartment instanceof DepartmentInterface) {
             return $this->modifiedByDepartment->getId();
         }
 
@@ -624,7 +637,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\User\Department $modifiedByDepartment
+     * @param DepartmentInterface $modifiedByDepartment
      */
     public function setModifiedByDepartment($modifiedByDepartment)
     {
@@ -650,7 +663,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return ParagraphVersion|null
+     * @return ParagraphVersionInterface|null
      */
     public function getParagraph()
     {
@@ -664,7 +677,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphTitle()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             return trim($this->paragraph->getTitle());
         }
 
@@ -672,7 +685,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return SingleDocumentVersion
+     * @return SingleDocumentVersionInterface
      */
     public function getDocument()
     {
@@ -680,7 +693,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param SingleDocumentVersion $document
+     * @param SingleDocumentVersionInterface $document
      */
     public function setDocument($document)
     {
@@ -695,7 +708,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     public function getDocumentParentId()
     {
         $documentId = null;
-        if ($this->document instanceof SingleDocumentVersion) {
+        if ($this->document instanceof SingleDocumentVersionInterface) {
             $documentId = $this->document->getSingleDocument()->getId();
         }
 

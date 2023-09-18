@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,53 +26,58 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_report_entries",indexes={
+ *
  *     @ORM\Index(columns={"_re_category"}),
  *     @ORM\Index(columns={"_re_group"}),
  *     @ORM\Index(columns={"_re_identifier_type"}),
  *     @ORM\Index(columns={"_re_identifier"}),
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanReportBundle\Repository\ReportRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
  */
 class ReportEntry extends CoreEntity implements UuidEntityInterface
 {
-    public const GROUP_PROCEDURE = 'procedure';
-    public const GROUP_STATEMENT = 'statement';
-    public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
-    public const GROUP_ORGA = 'orga';
+    final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_STATEMENT = 'statement';
+    final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
+    final public const GROUP_ORGA = 'orga';
 
-    public const CATEGORY_ADD = 'add';
-    public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
-    public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
-    public const CATEGORY_CHANGE_PHASES = 'changePhases';
-    public const CATEGORY_COPY = 'copy';
-    public const CATEGORY_DELETE = 'delete';
-    public const CATEGORY_DELETE_ATTACHMENTS = 'deleteAttachments';
-    public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
-    public const CATEGORY_FINAL_MAIL = 'finalMail';
-    public const CATEGORY_INVITATION = 'invitation';
-    public const CATEGORY_MERGE = 'merge';
-    public const CATEGORY_MOVE = 'move';
-    public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
-    public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
-    public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
-    public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
-    public const CATEGORY_UPDATE = 'update';
-    public const CATEGORY_VIEW = 'view';
+    final public const CATEGORY_ADD = 'add';
+    final public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
+    final public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
+    final public const CATEGORY_CHANGE_PHASES = 'changePhases';
+    final public const CATEGORY_COPY = 'copy';
+    final public const CATEGORY_DELETE = 'delete';
+    final public const CATEGORY_DELETE_ATTACHMENTS = 'deleteAttachments';
+    final public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
+    final public const CATEGORY_FINAL_MAIL = 'finalMail';
+    final public const CATEGORY_INVITATION = 'invitation';
+    final public const CATEGORY_MERGE = 'merge';
+    final public const CATEGORY_MOVE = 'move';
+    final public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
+    final public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
+    final public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
+    final public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
+    final public const CATEGORY_UPDATE = 'update';
+    final public const CATEGORY_VIEW = 'view';
 
-    public const LEVEL_INFO = 'INFO';
+    final public const LEVEL_INFO = 'INFO';
 
-    public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
-    public const IDENTIFIER_TYPE_STATEMENT = 'statement';
-    public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
-    public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
-    public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
+    final public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
+    final public const IDENTIFIER_TYPE_STATEMENT = 'statement';
+    final public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
+    final public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
+    final public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_re_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -81,16 +86,16 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_category", type="string", length=100, nullable=false, options={"fixed":true})
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $category;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_re_group", type="string", length=100, nullable=false, options={"fixed":true})
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $group;
 
     /**
@@ -111,8 +116,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_u_name", type="string", length=255, nullable=false, options={"fixed":true})
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $userName;
 
     /**
@@ -128,16 +133,16 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier_type", type="string", length=50, nullable=false)
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $identifierType;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_re_identifier", type="string", length=36, options={"fixed":true}, nullable=false)
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $identifier;
 
     /**
@@ -153,8 +158,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string always in JSON format (a simple string is considered valid JSON)
      *
      * @ORM\Column(name="_re_message", type="text", nullable=false, length=15000000)
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $message;
 
     /**
@@ -168,6 +173,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create"), updateable = true
+     *
      * @ORM\Column(name="_re_created_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -176,9 +182,10 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     *
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     protected $customer;
 
     /**
@@ -194,7 +201,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -587,7 +594,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
 
         try {
             $decoded = Json::decodeToArray($message);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $decoded = [];
         }
 

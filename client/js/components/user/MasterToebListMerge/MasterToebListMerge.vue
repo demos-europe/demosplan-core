@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -10,22 +10,22 @@
 <template>
   <div class="layout">
     <div class="layout__item u-1-of-2">
-      <div class="space-inset-s space-stack-s bg-color-ui-neutral-light border-radius-medium">
+      <div class="space-inset-s space-stack-s bg-color-light border-radius-medium">
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institution.master.organisations.new')"
           for="r_orga" />
 
         <dp-multiselect
-          :allow-empty="false"
           id="r_orga"
+          v-model="selectedOrganisation"
+          :allow-empty="false"
           label="name"
           :options="organisations"
-          track-by="ident"
-          v-model="selectedOrganisation">
-          <template v-slot:option="{ option }">
-            <span class="weight--bold display--block">{{ option.name }}</span>
-            <span class="font-size-small">{{ list(option.departmentNames) }}</span>
+          track-by="ident">
+          <template v-slot:option="{ props }">
+            <span class="weight--bold block">{{ props.option.name }}</span>
+            <span class="font-size-small">{{ list(props.option.departmentNames) }}</span>
           </template>
         </dp-multiselect>
 
@@ -47,22 +47,22 @@
     </div><!--
 
  --><div class="layout__item u-1-of-2">
-      <div class="space-inset-s space-stack-s bg-color-ui-neutral-light border-radius-medium">
+      <div class="space-inset-s space-stack-s bg-color-light border-radius-medium">
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institutions.master.organisations.master_toeb_list')"
           for="r_orga_mastertoeb" />
 
         <dp-multiselect
-          :allow-empty="false"
           id="r_orga_mastertoeb"
+          v-model="selectedOrganisationMasterToeb"
+          :allow-empty="false"
           label="orgaName"
           :options="organisationsMasterToeb"
-          track-by="ident"
-          v-model="selectedOrganisationMasterToeb">
-          <template v-slot:option="{ option }">
-            <span class="weight--bold display--block">{{ option.orgaName }}</span>
-            <span class="font-size-small">{{ option.departmentName }}</span>
+          track-by="ident">
+          <template v-slot:option="{ props }">
+            <span class="weight--bold block">{{ props.option.orgaName }}</span>
+            <span class="font-size-small">{{ props.option.departmentName }}</span>
           </template>
         </dp-multiselect>
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -83,9 +83,9 @@ class WebpackBundleExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('webpackBundle', [$this, 'webpackBundle'], ['is_safe' => ['html']]),
-            new TwigFunction('webpackBundles', [$this, 'webpackBundles'], ['is_safe' => ['html']]),
-            new TwigFunction('webpackBundlePath', [$this, 'webpackBundlePath']),
+            new TwigFunction('webpackBundle', $this->webpackBundle(...), ['is_safe' => ['html']]),
+            new TwigFunction('webpackBundles', $this->webpackBundles(...), ['is_safe' => ['html']]),
+            new TwigFunction('webpackBundlePath', $this->webpackBundlePath(...)),
         ];
     }
 
@@ -99,9 +99,7 @@ class WebpackBundleExtension extends ExtensionBase
         $this->loadManifestsIfRequired();
 
         return collect($bundles)->map(
-            function ($bundleName) use ($legacy) {
-                return $this->webpackBundle($bundleName, $legacy);
-            }
+            fn($bundleName) => $this->webpackBundle($bundleName, $legacy)
         )
             ->implode("\n");
     }
@@ -186,7 +184,7 @@ class WebpackBundleExtension extends ExtensionBase
         if (file_exists($manifestFile)) {
             try {
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 throw new RuntimeException(<<<ERR
 The manifest
 
@@ -214,14 +212,10 @@ ERR);
         return collect($this->$manifest)
             ->keys()
             ->filter(
-                static function ($possibleBundleName) use ($bundleName) {
-                    return false !== strpos($possibleBundleName, $bundleName);
-                }
+                static fn($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
             )
             ->map(
-                function ($relatedBundleName) use ($manifest) {
-                    return $this->{$manifest}[$relatedBundleName];
-                }
+                fn($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
             );
     }
 

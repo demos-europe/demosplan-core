@@ -3,37 +3,45 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_statement_attribute")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository")
  */
-class StatementAttribute extends CoreEntity implements UuidEntityInterface
+class StatementAttribute extends CoreEntity implements UuidEntityInterface, StatementAttributeInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_sta_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Statement|null
+     * @var StatementInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="statementAttributes")
+     *
      * @ORM\JoinColumn(name="_sta_st_id", referencedColumnName="_st_id", onDelete="CASCADE")
      */
     protected $statement;
@@ -44,9 +52,10 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     protected $statementId;
 
     /**
-     * @var DraftStatement|null
+     * @var DraftStatementInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="statementAttributes")
+     *
      * @ORM\JoinColumn(name="_sta_ds_id", referencedColumnName="_ds_id", onDelete="CASCADE")
      */
     protected $draftStatement;
@@ -87,7 +96,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -95,7 +104,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return $this
      */
@@ -107,7 +116,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function getDraftStatement()
     {
@@ -115,7 +124,7 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param DraftStatement $draftStatement
+     * @param DraftStatementInterface $draftStatement
      *
      * @return $this
      */

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,14 +15,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
-use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class SingleDocumentRepository extends CoreRepository implements ArrayInterface
+class SingleDocumentRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Add single document entry.
@@ -277,7 +276,7 @@ class SingleDocumentRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('text', $data)) {
             $entity->setText($data['text']);
         }
-        if (array_key_exists('pId', $data) && 0 < strlen($data['pId'])) {
+        if (array_key_exists('pId', $data) && 0 < strlen((string) $data['pId'])) {
             $procedure = $em->getReference(Procedure::class, $data['pId']);
             if (!$procedure instanceof Procedure) {
                 throw ProcedureNotFoundException::createFromId($data['pId']);
@@ -293,7 +292,7 @@ class SingleDocumentRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('symbol', $data)) {
             $entity->setSymbol($data['symbol']);
         }
-        if (array_key_exists('elementId', $data) && 0 < strlen($data['elementId'])) {
+        if (array_key_exists('elementId', $data) && 0 < strlen((string) $data['elementId'])) {
             $element = $em->getReference(Elements::class, $data['elementId']);
             if (!$element instanceof Elements) {
                 throw StatementElementNotFoundException::createFromId($data['elementId']);

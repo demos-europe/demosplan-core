@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -10,10 +10,10 @@
 <template>
   <div>
     <i
-      class="fa cursor--help"
+      class="fa cursor-help"
       :class="{
-        'fa-check color--system-confirm': published,
-        'fa-times-circle color--system-error': published === false
+        'fa-check color-message-success-fill': published,
+        'fa-times-circle color-message-severe-fill': published === false
       }"
       aria-hidden="true"
       v-tooltip="text"

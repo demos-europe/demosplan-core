@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Role>
@@ -38,6 +37,11 @@ final class RoleResourceType extends DplanResourceType
         return Role::class;
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return true;
@@ -53,14 +57,14 @@ final class RoleResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $projectRoleCodes = $this->globalConfig->getRolesAllowed();
 
-        return $this->conditionFactory->propertyHasAnyOfValues(
+        return [$this->conditionFactory->propertyHasAnyOfValues(
             $projectRoleCodes,
             $this->code
-        );
+        )];
     }
 
     protected function getProperties(): array
@@ -84,12 +88,11 @@ final class RoleResourceType extends DplanResourceType
                 ->filterable()
                 ->sortable(),
             $this->createAttribute($this->name)
-                ->readable(true, static function (Role $role): string {
+                ->readable(true, static fn (Role $role): string =>
                     // Role->name is no longer found in database. It is added on doctrine postLoad
                     // event via RoleEntityListener. This allows the use of correctly translated
                     // names, but it can't be filtered or sorted at the moment.
-                    return $role->getName();
-                }),
+                    $role->getName()),
         ];
     }
 }

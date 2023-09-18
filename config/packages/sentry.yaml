@@ -1,0 +1,34 @@
+services:
+    Sentry\Monolog\Handler:
+        arguments:
+            $hub: '@Sentry\State\HubInterface'
+            $level: "%sentry_loglevel%"
+            $bubble: false
+
+    demosplan\DemosPlanCoreBundle\Monolog\SentryHandler:
+        decorates: Sentry\Monolog\Handler
+        arguments: [ '@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner' ]
+
+    Monolog\Handler\HandlerInterface: '@Sentry\Monolog\Handler'
+
+when@prod:
+    sentry:
+        dsn: "%sentry_dsn%"
+        options:
+            attach_stacktrace: true
+            release: '%demosplan.project_name%@%project_version%'
+            traces_sample_rate: "%sentry_traces_sample_rate%"
+        register_error_listener: false # Disables the ErrorListener to avoid duplicate entries
+#        If you are using Monolog, you also need this additional configuration to log the errors correctly:
+#        https://docs.sentry.io/platforms/php/guides/symfony/#monolog-integration
+        register_error_handler: false
+
+    monolog:
+        handlers:
+            sentry:
+                type: service
+                id: demosplan\DemosPlanCoreBundle\Monolog\SentryHandler
+                dsn: "%sentry_dsn%"
+                level: "%sentry_loglevel%"
+                release: "%project_version%"
+

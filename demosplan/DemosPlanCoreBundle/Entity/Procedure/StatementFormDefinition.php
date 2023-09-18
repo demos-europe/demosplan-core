@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,10 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,32 +30,22 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * A StatementFormDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository")
+ *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
-class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
+class StatementFormDefinition extends CoreEntity implements UuidEntityInterface, StatementFormDefinitionInterface
 {
-    public const MAP_AND_COUNTY_REFERENCE = 'mapAndCountyReference';
-    public const COUNTY_REFERENCE = 'countyReference';
-    public const NAME = 'name';
-    public const POSTAL_AND_CITY = 'postalAndCity';
-    public const GET_EVALUATION_MAIL_VIA_EMAIL = 'getEvaluationMailViaEmail';
-    public const GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL = 'getEvaluationMailViaSnailMailOrEmail';
-
-    public const CITIZEN_XOR_ORGA_AND_ORGA_NAME = 'citizenXorOrgaAndOrgaName';
-    public const STREET = 'street';
-    public const STREET_AND_HOUSE_NUMBER = 'streetAndHouseNumber';
-    public const PHONE = 'phoneNumber';
-    public const EMAIL = 'emailAddress';
-    public const PHONE_OR_EMAIL = 'phoneOrEmail';
-    public const STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION = 'stateAndGroupAndOrgaNameAndPosition';
-
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -61,6 +54,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -69,6 +63,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
@@ -81,6 +76,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      *      mappedBy="statementFormDefinition",
      *      cascade={"persist", "remove"}
      *     )
+     *
      * @ORM\OrderBy({"orderNumber" = "ASC"})
      */
     private $fieldDefinitions;
@@ -95,6 +91,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var Procedure|null
      *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
+     *
      * @JoinColumn(referencedColumnName="_p_id")
      */
     private $procedure;
@@ -107,6 +104,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * @var ProcedureType|null
      *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
+     *
      * @JoinColumn()
      */
     private $procedureType;
@@ -114,19 +112,19 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     public function __construct()
     {
         $fieldDefinitionsNames = [
-            self::MAP_AND_COUNTY_REFERENCE                    => ['enabled' => false,   'required' => false],
-            self::COUNTY_REFERENCE                            => ['enabled' => false,   'required' => false],
-            self::NAME                                        => ['enabled' => true,    'required' => true],
-            self::POSTAL_AND_CITY                             => ['enabled' => true,    'required' => false],
-            self::GET_EVALUATION_MAIL_VIA_EMAIL               => ['enabled' => true,    'required' => false],
-            self::GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL => ['enabled' => false,   'required' => false],
-            self::CITIZEN_XOR_ORGA_AND_ORGA_NAME              => ['enabled' => true,    'required' => true],
-            self::STREET                                      => ['enabled' => false,   'required' => false],
-            self::STREET_AND_HOUSE_NUMBER                     => ['enabled' => false,   'required' => false],
-            self::PHONE                                       => ['enabled' => false,   'required' => false],
-            self::EMAIL                                       => ['enabled' => true,    'required' => false],
-            self::PHONE_OR_EMAIL                              => ['enabled' => false,   'required' => false],
-            self::STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION  => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::MAP_AND_COUNTY_REFERENCE                    => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::COUNTY_REFERENCE                            => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::NAME                                        => ['enabled' => true,    'required' => true],
+            StatementFormDefinitionInterface::POSTAL_AND_CITY                             => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::GET_EVALUATION_MAIL_VIA_EMAIL               => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::GET_EVALUATION_MAIL_VIA_SNAIL_MAIL_OR_EMAIL => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::CITIZEN_XOR_ORGA_AND_ORGA_NAME              => ['enabled' => true,    'required' => true],
+            StatementFormDefinitionInterface::STREET                                      => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::STREET_AND_HOUSE_NUMBER                     => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::PHONE                                       => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::EMAIL                                       => ['enabled' => true,    'required' => false],
+            StatementFormDefinitionInterface::PHONE_OR_EMAIL                              => ['enabled' => false,   'required' => false],
+            StatementFormDefinitionInterface::STATE_AND_GROUP_AND_ORGA_NAME_AND_POSITION  => ['enabled' => false,   'required' => false],
         ];
 
         $this->fieldDefinitions = new ArrayCollection();
@@ -154,9 +152,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     public function getEnabledFieldDefinitions(): Collection
     {
         return $this->fieldDefinitions->filter(
-            function (StatementFieldDefinition $fieldDefinition) {
-                return $fieldDefinition->isEnabled();
-            }
+            fn (StatementFieldDefinition $fieldDefinition) => $fieldDefinition->isEnabled()
         );
     }
 
@@ -199,7 +195,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         if ($this->procedureType instanceof ProcedureType) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This StatementFormDefinition is already related to a ProcedureType.
@@ -216,7 +212,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @throws ExclusiveProcedureOrProcedureTypeException
      */
-    public function setProcedureType(ProcedureType $procedureType): void
+    public function setProcedureType(ProcedureTypeInterface $procedureType): void
     {
         if ($this->procedure instanceof Procedure) {
             throw new ExclusiveProcedureOrProcedureTypeException('. This StatementFormDefinition is already related to a Procedure.

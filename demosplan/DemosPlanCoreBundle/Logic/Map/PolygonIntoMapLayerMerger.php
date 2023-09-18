@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -53,7 +53,7 @@ class PolygonIntoMapLayerMerger
         $imageWidth = $mapLayer->getWidthInPixels();
         $imageHeight = $mapLayer->getHeightInPixels();
 
-        /** @var \demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature $geoJsonFeature */
+        /** @var Feature $geoJsonFeature */
         foreach ($geo as $geoJsonFeature) {
             $geometry = $geoJsonFeature->getGeometry();
             $feature = $geometry->out('wkt');
@@ -104,7 +104,7 @@ class PolygonIntoMapLayerMerger
                     imagesetthickness($image, $style['strokeWidth'] * $this->resFactor);
 
                     $pts = $geometry->getPoints();
-                    $numPoints = count($pts);
+                    $numPoints = is_countable($pts) ? count($pts) : 0;
                     foreach ($pts as $i => $pt) {
                         $dst_x = $pt->getX();
                         $dst_y = $pt->getY();
@@ -189,13 +189,13 @@ class PolygonIntoMapLayerMerger
     private function html2rgb($color)
     {
         if ('#' == $color[0]) {
-            $color = substr($color, 1);
+            $color = substr((string) $color, 1);
         }
 
-        if (6 === strlen($color)) {
+        if (6 === strlen((string) $color)) {
             [$r, $g, $b] = [$color[0].$color[1],
                 $color[2].$color[3], $color[4].$color[5], ];
-        } elseif (3 === strlen($color)) {
+        } elseif (3 === strlen((string) $color)) {
             [$r, $g, $b] = [$color[0].$color[0],
                 $color[1].$color[1], $color[2].$color[2], ];
         } else {

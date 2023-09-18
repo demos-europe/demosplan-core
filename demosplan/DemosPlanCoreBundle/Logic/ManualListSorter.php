@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,19 +17,8 @@ use Exception;
 
 class ManualListSorter
 {
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
-    /**
-     * @var ManualListSortRepository
-     */
-    private $manualListSortRepository;
-
-    public function __construct(ArrayHelper $arrayHelper, ManualListSortRepository $manualListSortRepository)
+    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ManualListSortRepository $manualListSortRepository)
     {
-        $this->arrayHelper = $arrayHelper;
-        $this->manualListSortRepository = $manualListSortRepository;
     }
 
     /**
@@ -55,7 +44,7 @@ class ManualListSorter
         );
 
         if (null !== $manualSort) {
-            $manualOrder = explode(',', $manualSort->getIdents());
+            $manualOrder = explode(',', (string) $manualSort->getIdents());
             $orderedResult['list'] = $this->arrayHelper->orderArrayByIds($manualOrder, $result, $orderByKey);
             $orderedResult['sorted'] = true;
         }

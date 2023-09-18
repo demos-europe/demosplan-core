@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,20 +27,8 @@ class AttributeBuilder
      */
     private $optionals = [];
 
-    /**
-     * @var Scope
-     */
-    private $scope;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    public function __construct(Scope $scope, string $type)
+    public function __construct(private readonly Scope $scope, private readonly string $type)
     {
-        $this->scope = $scope;
-        $this->type = $type;
     }
 
     public function add(PropertyPathInterface $path, callable $callback): self

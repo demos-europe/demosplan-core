@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -26,10 +26,10 @@
               {{ Translator.trans('visibility') }}
             </span>
           </div><!--
-       --><div class="layout__item u-2-of-12 text--center">
+       --><div class="layout__item u-2-of-12 text-center">
             {{ Translator.trans('status') }}
           </div><!--
-       --><div class="layout__item u-2-of-12 text--center">
+       --><div class="layout__item u-2-of-12 text-center">
             {{ Translator.trans('edit') }}
           </div>
         </div>

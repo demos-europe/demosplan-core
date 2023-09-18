@@ -3,30 +3,30 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
-use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
+use function array_key_exists;
 
 // @link https://yaits.demos-deutschland.de/w/demosplan/functions/verfahren/verfahrensvorschlag/ wiki
 class ProcedureProposalController extends BaseController
@@ -42,22 +42,17 @@ class ProcedureProposalController extends BaseController
     /**
      * List ProcedureProposals.
      *
-     * @Route(
-     *    path="/procedure_proposal_list",
-     *    methods={"GET"},
-     *    name="dplan_procedure_proposals_list"
-     * )
-     *
      * @throws Exception
      *
      * @DplanPermissions("area_procedure_proposal_edit")
      */
+    #[Route(path: '/procedure_proposal_list', methods: ['GET'], name: 'dplan_procedure_proposals_list')]
     public function listProcedureProposalAction(): Response
     {
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
             [
                 'title'     => 'procedure.proposal.list',
                 'proposals' => $procedureProposals,
@@ -68,28 +63,23 @@ class ProcedureProposalController extends BaseController
     /**
      * Get single procedure proposal by id.
      *
-     * @Route(
-     *    path="proposal/{procedureProposalId}",
-     *    methods={"GET"},
-     *    name="dplan_procedure_proposal_view"
-     * )
-     *
      * @throws Exception
      *
      * @DplanPermissions("area_procedure_proposal_edit")
      */
+    #[Route(path: 'proposal/{procedureProposalId}', methods: ['GET'], name: 'dplan_procedure_proposal_view')]
     public function getProcedureProposalAction(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
     {
         try {
             $procedureProposal = $this->procedureProposalService->getProcedureProposal($procedureProposalId);
-        } catch (ProcedureProposalNotFound $e) {
+        } catch (ProcedureProposalNotFound) {
             $this->getMessageBag()->add('warning', 'warning.procedure.proposal.notfound');
 
             return $this->redirectToRoute('core_home');
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
             [
                 'title'        => 'procedure.proposal.detail',
                 'templateVars' => [
@@ -103,17 +93,14 @@ class ProcedureProposalController extends BaseController
     /**
      * Generate new ProcedureProposal.
      *
-     * @Route(
-     *     path="/procedure_proposal_create",
-     *     name="dplan_procedure_proposals_create"
-     * )
-     *
      * @throws Exception
      *
      * @DplanPermissions("feature_create_procedure_proposal")
      */
+    #[Route(path: '/procedure_proposal_create', name: 'dplan_procedure_proposals_create')]
     public function addProcedureProposalAction(Request $request, ProcedureProposalHandler $procedureProposalHandler): Response
     {
+        $templateVars = [];
         $requestPost = $request->request->all();
 
         $templateVars['mapOptions'] = $procedureProposalHandler->transformedMapOptions();
@@ -135,7 +122,7 @@ class ProcedureProposalController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/public_procedure_proposal.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/public_procedure_proposal.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'procedure.proposal.create',
@@ -146,11 +133,6 @@ class ProcedureProposalController extends BaseController
     /**
      * Generate new Procedure from ProcedureProposal.
      *
-     * @Route(
-     *     path="/verfahrensvorschlag/{procedureProposalId}/erstellen",
-     *     name="procedure_proposal_generate_procedure",
-     * )
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -159,6 +141,7 @@ class ProcedureProposalController extends BaseController
      *
      * @deprecated a {@link DemosPlanProcedureAPIController::createAction} (does not exist yet) should be used instead with the data needed sent by the frontend in an JSON:API POST request
      */
+    #[Route(path: '/verfahrensvorschlag/{procedureProposalId}/erstellen', name: 'procedure_proposal_generate_procedure')]
     public function generateProcedure(string $procedureProposalId)
     {
         try {

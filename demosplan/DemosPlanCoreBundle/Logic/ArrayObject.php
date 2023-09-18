@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,17 +17,15 @@ class ArrayObject extends \ArrayObject
     public function __construct($input = [], $flags = 0, $iterator_class = ArrayIterator::class)
     {
         // set Values in custom array property and in \ArrayObject store
-        $defaultClassVars = get_class_vars(get_class($this));
+        $defaultClassVars = get_class_vars(static::class);
         $mergedValues = array_merge($defaultClassVars, $input);
         parent::__construct($mergedValues, $flags, $iterator_class);
     }
 
     /**
      * @param mixed $offset
-     *
-     * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         if (0 == parent::count()) {
             return false;
@@ -38,12 +36,10 @@ class ArrayObject extends \ArrayObject
 
     /**
      * @param mixed $offset
-     *
-     * @return mixed|null
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
-        $getterMethod = 'get'.ucfirst($offset);
+        $getterMethod = 'get'.ucfirst((string) $offset);
         if (method_exists($this, $getterMethod)) {
             return $this->$getterMethod();
         }
@@ -56,6 +52,8 @@ class ArrayObject extends \ArrayObject
         if (array_key_exists($offset, parent::getArrayCopy())) {
             return parent::offsetGet($offset);
         }
+
+        return null;
     }
 
     /**
@@ -69,7 +67,7 @@ class ArrayObject extends \ArrayObject
         // update object
         if (!is_null($offset)) {
             // update object on array set access
-            $setterMethod = 'set'.ucfirst($offset);
+            $setterMethod = 'set'.ucfirst((string) $offset);
             if (method_exists($this, $setterMethod)) {
                 $this->$setterMethod($value);
             }
@@ -83,13 +81,11 @@ class ArrayObject extends \ArrayObject
      * or there are more getters than properties, but for the old checks
      * ```0 < count($arrayObject)``` to check whether array is populated this
      * should be sufficient
-     *
-     * @return int
      */
-    public function count()
+    public function count(): int
     {
         $publicProperties = parent::count();
-        $nonPublicProperties = count(get_class_vars(get_class($this)));
+        $nonPublicProperties = count(get_class_vars(static::class));
 
         return $publicProperties + $nonPublicProperties;
     }

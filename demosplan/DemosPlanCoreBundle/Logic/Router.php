@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Routing\RequestContext;
@@ -28,30 +28,10 @@ class Router implements RouterInterface, WarmableInterface
     protected $procedureIdCache = [];
 
     /**
-     * @var RouterInterface|WarmableInterface
-     */
-    private $router;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    /**
      * This router decorates Symfony\Bundle\FrameworkBundle\Routing.
      */
-    public function __construct(
-        GlobalConfigInterface $globalConfig,
-        ProcedureRepository $procedureRepository,
-        RouterInterface $router
-    ) {
-        $this->globalConfig = $globalConfig;
-        $this->procedureRepository = $procedureRepository;
-        $this->router = $router;
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly ProcedureRepository $procedureRepository, private readonly RouterInterface $router)
+    {
     }
 
     public function generate($route, $parameters = [], $referenceType = self::ABSOLUTE_PATH): string

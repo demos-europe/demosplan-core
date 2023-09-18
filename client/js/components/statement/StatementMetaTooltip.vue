@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,10 +8,10 @@
 </license>
 
 <template>
-  <div class="c-statement-meta-tooltip cf">
+  <div class="c-statement-meta-tooltip flow-root">
     <button
       v-if="toggleButton"
-      class="btn--blank o-link--default float--right"
+      class="btn--blank o-link--default float-right"
       @click="$emit('toggle')">
       {{ Translator.trans('information.pin') }}
     </button>

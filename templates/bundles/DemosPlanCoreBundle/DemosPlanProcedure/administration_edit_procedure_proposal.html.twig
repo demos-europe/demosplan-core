@@ -1,0 +1,96 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% set proposal = templateVars.procedureProposal %}
+    <div class="layout">
+        <div class="layout__item u-1-of-1">
+            <h1>{{ templateTitle|trans([], 'page-title') }}</h1>
+        </div>
+
+        <div class="layout__item u-2-of-3 u-1-of-1-lap-down o-hellip">
+            <label class="u-mb-0">{{ 'procedure.proposal.title.proposal'|trans }}</label>
+            <h2>{{ proposal.name }}</h2>
+            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                helpText: 'procedure.proposal.help.shortdescription'|trans,
+                cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+            } %}
+            <label class="u-mb-0">
+                {{ 'procedure.description.public'|trans }}
+            </label>
+            <p class="u-mb">{{ proposal.description }}</p>
+            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                helpText: 'procedure.proposal.help.explanation'|trans,
+                cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
+            } %}
+            <label class="u-mb-0">
+                {{ 'explanation'|trans }}
+            </label>
+            {{ proposal.additionalExplanation|wysiwyg }}
+        </div><!--
+     --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
+            <div class="layout">
+                <dl class="description-list u-pt layout__item u-1-of-1 u-1-of-2-lap u-1-of-1-palm u-mb-0">
+                    <dt>
+                        {{ 'author'|trans }}
+                    </dt>
+                    <dd>
+                        {% if proposal.user is defined %}
+                            {{ proposal.user.fullname|default }} <br>
+                            <a href="mailto:{{ proposal.user.email|default }}">{{ proposal.user.email|default }}</a>
+                        {% endif %}
+                    </dd>
+                    <dt>
+                        {{ 'status'|trans }}
+                    </dt>
+                    <dd>
+                        {% if proposal.status|default == 'has_been_transformed_into_procedure' %}
+                            {{ 'procedure.proposal.generated'|trans }}
+                        {% else %}
+                            {{ proposal.status|default|trans }}
+                        {% endif %}
+                    </dd>
+                    <dt>
+                        {{ 'date.created'|trans }}
+                    </dt>
+                    <dd>
+                        {{ proposal.createdDate|default|dplanDate }}
+                    </dd>
+                </dl><!--
+             --><div class="layout__item u-1-of-1 u-1-of-2-lap u-1-of-1-palm u-mb u-pt">
+                    <label class="u-mb-0_25">
+                        {{ 'wizard.topic.location'|trans }}
+                    </label>
+                    <dp-procedure-coordinate
+                        procedure-coordinate="{{ proposal.coordinate|default }}"
+                        :editable="false"
+                        :small="true"
+                        :map-options="JSON.parse('{{ templateVars.mapOptions|default({}) }}')">
+                        {# Noscript fallback #}
+                        <input type="hidden" name="r_coordinate" value="{{ proposal.coordinate|default }}">
+                    </dp-procedure-coordinate>
+                </div>
+            </div>
+        </div><!--
+     --><div class="layout__item u-1-of-1">
+            {{
+                uiComponent('button-row', {
+                    primary: uiComponent('button', {
+                        text: 'procedure.proposal.generate.procedure'|trans,
+                        href: path('procedure_proposal_generate_procedure', { procedureProposalId: proposal.id })
+                    }),
+                    secondary: [
+                        uiComponent('button', {
+                            color: 'secondary',
+                            href: path('dplan_procedure_proposals_list'),
+                        }),
+                    ]
+                })
+            }}
+        </div>
+    </div>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationEditProcedureProposal.js', 'ol.js']) }}
+{% endblock javascripts %}

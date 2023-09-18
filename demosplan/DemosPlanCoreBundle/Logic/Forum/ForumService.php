@@ -3,19 +3,19 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
-use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -25,12 +25,8 @@ use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -43,82 +39,23 @@ class ForumService extends CoreService
     private $currentUser;
 
     /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var DevelopmentReleaseRepository
-     */
-    private $developmentReleaseRepository;
-    /**
-     * @var DevelopmentUserStoryRepository
-     */
-    private $developmentUserStoryRepository;
-    /**
-     * @var DevelopmentUserStoryVoteRepository
-     */
-    private $developmentUserStoryVoteRepository;
-    /**
-     * @var ForumEntryFileRepository
-     */
-    private $forumEntryFileRepository;
-    /**
-     * @var ForumEntryRepository
-     */
-    private $forumEntryRepository;
-    /**
-     * @var ForumThreadRepository
-     */
-    private $forumThreadRepository;
-
-    /**
      * @throws UserNotFoundException This can be thrown since we really should
      *                               always have at least the AnonymousUser
      */
     public function __construct(
         CurrentUserInterface $currentUser,
-        DateHelper $dateHelper,
-        DevelopmentReleaseRepository $developmentReleaseRepository,
-        DevelopmentUserStoryRepository $developmentUserStoryRepository,
-        DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        ForumEntryFileRepository $forumEntryFileRepository,
-        ForumEntryRepository $forumEntryRepository,
-        ForumThreadRepository $forumThreadRepository,
-        SortMethodFactory $sortMethodFactory
+        private readonly DateHelper $dateHelper,
+        private readonly DevelopmentReleaseRepository $developmentReleaseRepository,
+        private readonly DevelopmentUserStoryRepository $developmentUserStoryRepository,
+        private readonly DevelopmentUserStoryVoteRepository $developmentUserStoryVoteRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly EntityHelper $entityHelper,
+        private readonly ForumEntryFileRepository $forumEntryFileRepository,
+        private readonly ForumEntryRepository $forumEntryRepository,
+        private readonly ForumThreadRepository $forumThreadRepository,
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser->getUser();
-        $this->dateHelper = $dateHelper;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->developmentReleaseRepository = $developmentReleaseRepository;
-        $this->developmentUserStoryRepository = $developmentUserStoryRepository;
-        $this->developmentUserStoryVoteRepository = $developmentUserStoryVoteRepository;
-        $this->forumEntryFileRepository = $forumEntryFileRepository;
-        $this->forumEntryRepository = $forumEntryRepository;
-        $this->forumThreadRepository = $forumThreadRepository;
     }
 
     /**
@@ -341,6 +278,7 @@ class ForumService extends CoreService
      */
     public function newRelease($data)
     {
+        $result = [];
         try {
             $addedRelease = $this->developmentReleaseRepository->add($data);
 
@@ -457,6 +395,7 @@ class ForumService extends CoreService
      */
     public function newUserStory($releaseId, $data)
     {
+        $result = [];
         try {
             $data['releaseId'] = $releaseId;
             $addedRelease = $this->developmentUserStoryRepository->add($data);
@@ -483,6 +422,7 @@ class ForumService extends CoreService
      */
     public function updateUserStory($storyId, $data)
     {
+        $response = [];
         try {
             $this->developmentUserStoryRepository->update($storyId, $data);
 
@@ -595,6 +535,8 @@ class ForumService extends CoreService
      */
     public function saveVotes($releaseId, $votes)
     {
+        $data = [];
+        $result = [];
         try {
             $data['releaseId'] = $releaseId;
             $data['userId'] = $this->currentUser->getId();
@@ -625,13 +567,12 @@ class ForumService extends CoreService
     {
         $userStory = $this->getUserStory($storyId);
 
-        $votesObjects = $this->entityFetcher->listEntitiesUnrestricted(
-            DevelopmentUserStoryVote::class,
+        $votesObjects = $this->developmentUserStoryVoteRepository->getEntities(
             [$this->conditionFactory->propertyHasValue($storyId, ['userStory'])],
             [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );
 
-        $votes = array_map([__CLASS__, 'convertToLegacy'], $votesObjects);
+        $votes = array_map([self::class, 'convertToLegacy'], $votesObjects);
 
         return [
             'userStory' => $userStory,
@@ -650,6 +591,7 @@ class ForumService extends CoreService
      */
     protected function convertToLegacy($object)
     {
+        $user = [];
         if ($object instanceof User) {
             $user['ident'] = $object->getId();
             $user['utitle'] = $object->getTitle();

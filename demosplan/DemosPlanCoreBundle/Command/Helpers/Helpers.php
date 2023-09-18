@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,28 +32,12 @@ class Helpers
      */
     protected $helper;
 
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        CustomerRepository $customerRepository,
-        GlobalConfigInterface $globalConfig,
-        RoleRepository $roleRepository
+        private readonly CustomerRepository $customerRepository,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly RoleRepository $roleRepository
     ) {
-        $this->roleRepository = $roleRepository;
         $this->helper = new QuestionHelper();
-        $this->customerRepository = $customerRepository;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -100,8 +84,6 @@ class Helpers
         );
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
-        return $availableCustomers->first(function (Customer $customer) use ($answer) {
-            return $answer === $customer->getSubdomain();
-        });
+        return $availableCustomers->first(fn (Customer $customer) => $answer === $customer->getSubdomain());
     }
 }

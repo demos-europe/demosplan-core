@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,15 +17,18 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadWorkflowPlaceData extends TestFixture implements DependentFixtureInterface
 {
-    public const PLACE_REPLY = 'reply';
-    public const PLACE_TECHNICAL_REVIEW = 'technicalReview';
-    public const PLACE_LEGAL_REVIEW = 'legalExamination';
-    public const PLACE_EDITORIAL = 'editorial';
-    public const PLACE_COMPLETED = 'completed';
+    final public const PLACE_REPLY = 'reply';
+    final public const PLACE_TECHNICAL_REVIEW = 'technicalReview';
+    final public const PLACE_LEGAL_REVIEW = 'legalExamination';
+    final public const PLACE_EDITORIAL = 'editorial';
+    final public const PLACE_COMPLETED = 'completed';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Procedure $procedure */
         $procedure = $this->getReference(LoadProcedureData::TESTPROCEDURE);

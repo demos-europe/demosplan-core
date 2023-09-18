@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,15 +13,18 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadStatementFormDefinitionData extends TestFixture
 {
     // for procedureTypes
-    public const PROCEDURETYPE_1 = 'statementFormDefinition1';
-    public const PROCEDURETYPE_BPLAN = 'statementFormDefinition_bplan';
-    public const PROCEDURETYPE_BRK = 'statementFormDefinitionBrk';
+    final public const PROCEDURETYPE_1 = 'statementFormDefinition1';
+    final public const PROCEDURETYPE_BPLAN = 'statementFormDefinition_bplan';
+    final public const PROCEDURETYPE_BRK = 'statementFormDefinitionBrk';
 
     // for procedures
-    public const PROCEDURE_TESTPROCEDURE = 'statementFormDefinition_testProcedure';
+    final public const PROCEDURE_TESTPROCEDURE = 'statementFormDefinition_testProcedure';
 
     private $manager;
 

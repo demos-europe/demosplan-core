@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,27 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\CorrectDateOrderConstraint;
@@ -34,9 +53,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -47,78 +67,42 @@ use UnexpectedValueException;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
+ *
  * @ORM\InheritanceType("SINGLE_TABLE")
+ *
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
+ *
  * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementRepository")
+ *
  * @ClaimConstraint()
- * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
+ * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
  * @FormDefinitionConstraint()
- * @MatchingSubmitTypesConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
+ * @MatchingSubmitTypesConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
  * @OriginalReferenceConstraint()
- * @PrePersistUniqueInternIdConstraint(groups={Statement::IMPORT_VALIDATION})
+ *
+ * @PrePersistUniqueInternIdConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
  * @SimilarStatementSubmittersSameProcedureConstraint(groups={"Default", "manual_create"})
  */
-class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterface, StatementInterface
+class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    public const IMPORT_VALIDATION = 'import';
-    public const DEFAULT_VALIDATION = 'Default';
-    public const MANUAL_CREATE_VALIDATION = 'manual_create';
-
-    public const INTERNAL = 'internal';
-    public const EXTERNAL = 'external';
-
-    /**
-     * Type used for statements submitted via public participation functionalities.
-     */
-    public const SUBMIT_TYPE_SYSTEM = 'system';
-    // more submission types, see form_options.yml
-    public const SUBMIT_TYPE_EMAIL = 'email';
-    public const SUBMIT_TYPE_FAX = 'fax';
-    public const SUBMIT_TYPE_LETTER = 'letter';
-    public const SUBMIT_TYPE_EAKTE = 'eakte';
-    public const SUBMIT_TYPE_DECLARATION = 'declaration';
-    public const SUBMIT_TYPE_UNKNOWN = 'unknown';
-    public const SUBMIT_TYPE_UNSPECIFIED = 'unspecified';
-
-    /**
-     * For documentation, see Statement->publicVerifiedMapping.
-     */
-    public const PUBLICATION_NO_CHECK_SINCE_PERMISSION_DISABLED = 'no_check_permission_disabled';
-
-    /**
-     * For documentation, see {@link publicVerifiedMapping}.
-     */
-    public const PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED = 'no_check_since_not_allowed';
-
-    /**
-     * For documentation, see {@link publicVerifiedMapping}.
-     */
-    public const PUBLICATION_PENDING = 'publication_pending';
-
-    /**
-     * For documentation, see {@link publicVerifiedMapping}.
-     */
-    public const PUBLICATION_REJECTED = 'publication_rejected';
-
-    /**
-     * For documentation, see {@link publicVerifiedMapping}.
-     */
-    public const PUBLICATION_APPROVED = 'publication_approved';
-
-    /**
-     * One of probably three options to determine that there is no mapFile given.
-     */
-    public const MAP_FILE_EMPTY_DASHED = '---';
-
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
      *
      * @ORM\Column(name="_st_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
     protected $id;
@@ -129,6 +113,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_st_p_id", referencedColumnName="_st_id", onDelete="SET NULL")
      */
     protected $parent;
@@ -160,6 +145,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * On update this one, the associated originalSTN will be also persisted. Needed in StatementCopier::copyStatementToProcedure()
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"persist"}, inversedBy="statementsCreatedFromOriginal")
+     *
      * @ORM\JoinColumn(name="_st_o_id", referencedColumnName="_st_id")
      */
     protected $original;
@@ -200,7 +186,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $externId = '';
 
     /**
-     * Beside the {@link Statement::$externId} in manual statements a separate (intern) ID can be set manually.
+     * Beside the {@link StatementInterface::$externId} in manual statements a separate (intern) ID can be set manually.
      *
      * If it was not set the value remains `null`. It is necessary to use `null` instead of
      * an empty string in this case, because a set intern ID must be unique and
@@ -209,14 +195,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string|null
      *
      * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
-     * @Assert\Length(max=35)
      */
+    #[Assert\Length(max: 35)]
     protected $internId;
 
     /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=true, onDelete="RESTRICT")
      */
     protected $user;
@@ -239,9 +226,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Orga|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=true, onDelete="RESTRICT")
-     * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
     protected $organisation;
 
     /**
@@ -269,6 +257,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"}, inversedBy="statements")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -316,6 +305,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
     protected $created;
@@ -324,6 +314,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */
     protected $modified;
@@ -346,9 +337,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DateTime *
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
-     * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateBlank")
-     * @Assert\Type("DateTime", groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateType")
      */
+    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
+    #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
     protected $submit;
 
     /**
@@ -420,20 +411,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public static $publicVerifiedMapping = [
         // We use this value if the permissions field_statement_public_allowed is not enabled. From a logic
         // perspective, this means that the author was not asked for permission.
-        self::PUBLICATION_NO_CHECK_SINCE_PERMISSION_DISABLED => 'public.permission.disabled',
+        StatementInterface::PUBLICATION_NO_CHECK_SINCE_PERMISSION_DISABLED => 'public.permission.disabled',
         // If the author decides not to allow publication to the public - meaning (other) citizens -, then the value is
         // always set to 'no_check_since_not_allowed'.
         // By convention, this value is also the default in invalid cases, e.g. when creating head statements, which
         // should never but which need to have a value.
-        self::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED         => 'no',
+        StatementInterface::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED         => 'no',
         // If the author wants to allow publication, then one of the following values is set:
         // 'publication_pending' is the default, meaning that the FPA needs to check if publication is ok
-        self::PUBLICATION_PENDING                            => 'publication.pending',
+        StatementInterface::PUBLICATION_PENDING                            => 'publication.pending',
         // Once the check has occurred, the value may either be 'publication_rejected' or 'publication_approved'.
         // The user may not change this once it is set. Hence, the rejection implies that an actual check by the planner
         // has taken place, it should never be used as a default.
-        self::PUBLICATION_REJECTED                           => 'publication.rejected',
-        self::PUBLICATION_APPROVED                           => 'publication.approved',
+        StatementInterface::PUBLICATION_REJECTED                           => 'publication.rejected',
+        StatementInterface::PUBLICATION_APPROVED                           => 'publication.approved',
     ];
 
     /**
@@ -441,7 +432,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @ORM\Column(name="_st_public_statement", type="string", length=20, nullable=false)
      */
-    protected $publicStatement = self::INTERNAL;
+    protected $publicStatement = StatementInterface::INTERNAL;
 
     /**
      * @var bool
@@ -541,6 +532,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var ParagraphVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -590,6 +582,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var SingleDocumentVersion
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -631,6 +624,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -646,6 +640,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var DraftStatement
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement")
+     *
      * @ORM\JoinColumn(name="_ds_id", referencedColumnName="_ds_id", onDelete="SET NULL")
      */
     protected $draftStatement;
@@ -661,14 +656,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var StatementMeta
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta", mappedBy="statement", cascade={"persist", "remove"})
-     * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
+    #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
     protected $meta;
 
     /**
      * @var StatementVersionField
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField", mappedBy="statement")
+     *
      * @ORM\OrderBy({"created" = "DESC"})
      */
     protected $version;
@@ -705,6 +701,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", inversedBy="statements", cascade={"persist", "refresh"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_tag",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="CASCADE")},
@@ -717,6 +714,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, County>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_county",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -729,6 +727,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, PriorityArea>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -741,6 +740,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, Municipality>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statements")
+     *
      * @ORM\JoinTable(
      *     name="_statement_municipality",
      *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
@@ -753,6 +753,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, StatementFragment>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="statement", cascade={"remove"})
+     *
      * @ORM\OrderBy({"sortIndex" = "ASC"})
      */
     protected $fragments;
@@ -806,8 +807,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string
      *
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
-     * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitTypeBlank")
      */
+    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
     protected $submitType = 'system';
 
     /**
@@ -831,9 +832,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $files;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      *
      * This is the user that is currently assigned to this statement. Assigned users are
@@ -853,6 +855,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * This is the owning side
      *
      * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
+     *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
     protected $headStatement = null;
@@ -864,6 +867,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * Doctrine-sited persists, would bypass this check!
      *
      * @ORM\OneToMany(targetEntity="Statement", mappedBy="headStatement", cascade={"merge"})
+     *
      * @ORM\OrderBy({"externId" = "ASC"})
      */
     protected $cluster;
@@ -891,6 +895,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true, onDelete="RESTRICT")
      */
     protected $placeholderStatement;
@@ -904,6 +909,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
+     *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
      */
     protected $movedStatement;
@@ -983,15 +989,27 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     private $piSegmentsProposalResourceUrl;
 
     /**
+     * This is modelled as ManyToMany, because intentionally it should be possible, that one ProcedurePersons is
+     * related to many Statements, as well as many Statements are related to one ProcedurePerson.
+     * Actually this is used as OneToMany, because one Statement can be related to many ProcedurePersons, but a
+     * ProcedurePerson will only have one related Statement. That means, we can use cascade remove on this site,
+     * to ensure related ProcedurePersons will be deleted in case of this Statement will be deleted.
+     *
      * @var Collection<int, ProcedurePerson>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
+     *     inversedBy="similarForeignStatements",
+     *     cascade={"persist", "remove"},
+     *     orphanRemoval = true
+     * )
+     *
      * @ORM\JoinTable(name="similar_statement_submitter",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
      * )
      */
-    private $similarStatementSubmitters;
+    private Collection $similarStatementSubmitters;
 
     /**
      * True in case of the statement was given anonymously.
@@ -1061,7 +1079,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Parent-Statement, of which this Statement was copied.
      *
-     * @param Statement $parent
+     * @param StatementInterface $parent
      *
      * @return $this
      */
@@ -1078,7 +1096,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement $child
+     * @param StatementInterface $child
      *
      * @return $this
      */
@@ -1093,7 +1111,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement $child
+     * @param StatementInterface $child
      *
      * @return $this
      */
@@ -1108,7 +1126,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement[] $children
+     * @param StatementInterface[] $children
      *
      * @return $this
      */
@@ -1154,7 +1172,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement $original
+     * @param StatementInterface $original
      */
     public function setOriginal($original)
     {
@@ -1203,7 +1221,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Add Priority Area.
      *
-     * @param PriorityArea $priorityArea
+     * @param PriorityAreaInterface $priorityArea
      *
      * @return bool - true, if the given priorityArea was successful added to this statement
      *              and this statement was successful added to the given priorityArea, otherwise false
@@ -1223,7 +1241,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Remove PriorityArea.
      *
-     * @param PriorityArea $priorityArea
+     * @param PriorityAreaInterface $priorityArea
      */
     public function removePriorityArea($priorityArea)
     {
@@ -1275,7 +1293,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param PriorityArea[]|ArrayCollection<int, PriorityArea> $priorityAreas
+     * @param PriorityAreaInterface[]|ArrayCollection<int, PriorityAreaInterface> $priorityAreas
      */
     public function setPriorityAreas($priorityAreas)
     {
@@ -1332,7 +1350,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set user.
      *
-     * @param User $user
+     * @param UserInterface $user
      */
     public function setUser($user): Statement
     {
@@ -1402,7 +1420,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set oId.
      *
-     * @param Orga $organisation
+     * @param OrgaInterface $organisation
      */
     public function setOrganisation($organisation): Statement
     {
@@ -1510,7 +1528,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure): Statement
     {
@@ -1725,7 +1743,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getSubmitDateString()
     {
-        return null === $this->submit ? '' : $this->getSubmitObject()->format('d-m-Y');
+        return null === $this->getSubmitObject() ? '' : $this->getSubmitObject()->format('d.m.Y');
     }
 
     /**
@@ -1749,7 +1767,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param County[]|ArrayCollection<int, County> $counties
+     * @param CountyInterface[]|ArrayCollection<int, CountyInterface> $counties
      */
     public function setCounties($counties)
     {
@@ -1768,7 +1786,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Add County.
      *
-     * @param County $county
+     * @param CountyInterface $county
      *
      * @return bool - true, if the given county was successful added to this statement
      *              and this statement was successful added to the given county, otherwise false
@@ -1788,7 +1806,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Remove County.
      *
-     * @param County $county
+     * @param CountyInterface $county
      */
     public function removeCounty($county)
     {
@@ -1810,7 +1828,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Municipality[]|ArrayCollection<int, Municipality> $municipalities
+     * @param MunicipalityInterface[]|ArrayCollection<int, MunicipalityInterface> $municipalities
      */
     public function setMunicipalities($municipalities)
     {
@@ -1829,7 +1847,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Add Municipality.
      *
-     * @param Municipality $municipality
+     * @param MunicipalityInterface $municipality
      *
      * @return bool - true, if the given municipality was successful added to this statement
      *              and this statement was successful added to the given municipality, otherwise false
@@ -1852,19 +1870,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment[] $fragments
+     * @param StatementFragmentInterface[] $fragments
      */
     public function setFragments($fragments)
     {
         $this->fragments = new ArrayCollection($fragments);
     }
 
-    public function removeFragment(StatementFragment $fragment): void
+    public function removeFragment(StatementFragmentInterface $fragment): void
     {
         $this->fragments->removeElement($fragment);
     }
 
-    public function addFragment(StatementFragment $fragment): void
+    public function addFragment(StatementFragmentInterface $fragment): void
     {
         $this->fragments->add($fragment);
     }
@@ -1934,7 +1952,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Remove Municipality.
      *
-     * @param Municipality $municipality
+     * @param MunicipalityInterface $municipality
      */
     public function removeMunicipality($municipality)
     {
@@ -2049,7 +2067,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -2106,7 +2124,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     {
         return in_array(
             $this->getPublicVerified(),
-            [self::PUBLICATION_PENDING, self::PUBLICATION_APPROVED, self::PUBLICATION_REJECTED],
+            [StatementInterface::PUBLICATION_PENDING, StatementInterface::PUBLICATION_APPROVED, StatementInterface::PUBLICATION_REJECTED],
             true
         );
     }
@@ -2360,14 +2378,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Collection<int, StatementAttachment> $attachments
+     * @param Collection<int, StatementAttachmentInterface> $attachments
      */
     public function setAttachments(Collection $attachments): void
     {
         $this->attachments = $attachments;
     }
 
-    public function addAttachment(StatementAttachment $attachment): self
+    public function addAttachment(StatementAttachmentInterface $attachment): self
     {
         if ($this->attachments instanceof Collection && !$this->attachments->contains($attachment)) {
             $this->attachments->add($attachment);
@@ -2485,7 +2503,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param ParagraphVersion|null $paragraph
+     * @param ParagraphVersionInterface|null $paragraph
      */
     public function setParagraph($paragraph)
     {
@@ -2557,9 +2575,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @return string|null returns the title of the parent paragraph (the paragraph of the paragraph version)
+     * @return string returns the title of the parent paragraph (the paragraph of the paragraph version)
      */
-    public function getParagraphParentTitle()
+    public function getParagraphParentTitle(): string
     {
         if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersion) {
             $parentTitle = null;
@@ -2569,13 +2587,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->paragraphParentTitle = $parentTitle;
         }
 
-        return trim($this->paragraphParentTitle);
+        return trim($this->paragraphParentTitle ?? '');
     }
 
     /**
-     * @return string|null returns the title of the parent document (the document of the document version)
+     * @return string returns the title of the parent document (the document of the document version)
      */
-    public function getDocumentParentTitle()
+    public function getDocumentParentTitle(): string
     {
         if (null === $this->documentParentTitle && $this->document instanceof SingleDocumentVersion) {
             $documentTitle = null;
@@ -2585,7 +2603,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             $this->documentParentTitle = $documentTitle;
         }
 
-        return trim($this->documentParentTitle);
+        return trim($this->documentParentTitle ?? '');
     }
 
     /**
@@ -2597,7 +2615,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param SingleDocumentVersion|null $documentVersion
+     * @param SingleDocumentVersionInterface|null $documentVersion
      */
     public function setDocument($documentVersion)
     {
@@ -2718,7 +2736,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Elements|null $element
+     * @param ElementsInterface|null $element
      */
     public function setElement($element)
     {
@@ -2756,7 +2774,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set DraftStatement.
      *
-     * @param DraftStatement $draftStatement
+     * @param DraftStatementInterface $draftStatement
      *
      * @return Statement
      */
@@ -2804,7 +2822,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         return $this->meta;
     }
 
-    public function setMeta(StatementMeta $meta): void
+    public function setMeta(StatementMetaInterface $meta): void
     {
         $this->meta = $meta;
         $meta->setStatement($this);
@@ -2827,7 +2845,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param StatementVersionField $version
+     * @param StatementVersionFieldInterface $version
      */
     public function setVersion($version)
     {
@@ -2847,7 +2865,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * The repository method, can handle a list of given votes and decide which of the given votes
      * have to be created or updated and which of the current votes have to be deleted.
      *
-     * @param StatementVote[] $votes
+     * @param StatementVoteInterface[] $votes
      */
     public function setVotes($votes)
     {
@@ -2882,7 +2900,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike[]
+     * @return StatementLike[]
      */
     public function getLikes()
     {
@@ -2892,7 +2910,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set Tags.
      *
-     * @param Tag[] $tags
+     * @param TagInterface[] $tags
      */
     public function setTags($tags): Statement
     {
@@ -2916,7 +2934,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @return bool - true, if the given tag was successful added to this statement
      *              and this statement was successful added to the given tag, otherwise false
      */
-    public function addTag(Tag $tag): bool
+    public function addTag(TagInterface $tag): bool
     {
         if (!$this->tags->contains($tag)) {
             $addedStatementSuccessful = $this->tags->add($tag);
@@ -2929,7 +2947,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param array<int, Tag> $tags
+     * @param array<int, TagInterface> $tags
      */
     public function addTags(array $tags): void
     {
@@ -2939,7 +2957,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param array<int, Tag> $tags
+     * @param array<int, TagInterface> $tags
      */
     public function removeTags(array $tags): void
     {
@@ -2953,7 +2971,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @return Statement
      */
-    public function removeTag(Tag $tag)
+    public function removeTag(TagInterface $tag)
     {
         $this->tags->removeElement($tag);
 
@@ -3138,7 +3156,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param User|null $assignee
+     * @param UserInterface|null $assignee
      */
     public function setAssignee($assignee)
     {
@@ -3163,7 +3181,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * Add this Statement to a cluster of Statements
      * If one of the given statements already a member of a cluster, this membership will be replaced!
      *
-     * @param Statement[] $statements
+     * @param StatementInterface[] $statements
      *
      * @return $this
      */
@@ -3199,7 +3217,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement $headStatement
+     * @param StatementInterface $headStatement
      *
      * @return $this
      */
@@ -3248,7 +3266,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Add a Statement to the cluster of this Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return Statement|bool - false if this statement not a head of a cluster, otherwise this statement
      */
@@ -3281,7 +3299,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @return bool - true if the given Statement is a element of a cluster
      *              and was successfully removed, otherwise false
      */
-    public function removeClusterElement(Statement $statementToRemove)
+    public function removeClusterElement(StatementInterface $statementToRemove)
     {
         $successful = false;
         if ($this->isClusterStatement() && $this->getCluster()->contains($statementToRemove)) {
@@ -3329,7 +3347,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             return '';
         }
 
-        return null === $this->getMeta()->getAuthoredDateObject() ? '' : $this->getMeta()->getAuthoredDateObject()->format('d-m-Y');
+        return null === $this->getMeta()->getAuthoredDateObject() ? '' : $this->getMeta()->getAuthoredDateObject()->format('d.m.Y');
     }
 
     /**
@@ -3491,7 +3509,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getAuthorId()
     {
-        return User::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUserId();
+        return UserInterface::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUserId();
     }
 
     /**
@@ -3499,7 +3517,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getAuthor()
     {
-        return User::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUser();
+        return UserInterface::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUser();
     }
 
     public function getOrgaPostalCode(): string
@@ -3550,7 +3568,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement|null $movedStatement
+     * @param StatementInterface|null $movedStatement
      */
     public function setMovedStatement($movedStatement)
     {
@@ -3593,7 +3611,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Statement|null $placeholderStatement
+     * @param StatementInterface|null $placeholderStatement
      */
     public function setPlaceholderStatement($placeholderStatement)
     {
@@ -3675,22 +3693,22 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function isCreatedByInvitableInstitution(): bool
     {
-        return !$this->isManual() && self::INTERNAL === $this->getPublicStatement();
+        return !$this->isManual() && StatementInterface::INTERNAL === $this->getPublicStatement();
     }
 
     public function isCreatedByCitizen(): bool
     {
-        return !$this->isManual() && self::EXTERNAL === $this->getPublicStatement();
+        return !$this->isManual() && StatementInterface::EXTERNAL === $this->getPublicStatement();
     }
 
     public function isPlannerCreatedCitizenStatement(): bool
     {
-        return $this->isManual() && self::EXTERNAL === $this->getPublicStatement();
+        return $this->isManual() && StatementInterface::EXTERNAL === $this->getPublicStatement();
     }
 
     public function isPlannerCreatedInvitableInstitutionStatement(): bool
     {
-        return $this->isManual() && self::INTERNAL === $this->getPublicStatement();
+        return $this->isManual() && StatementInterface::INTERNAL === $this->getPublicStatement();
     }
 
     /**
@@ -3774,14 +3792,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function getSubmitterId()
     {
         // internal:
-        if (self::INTERNAL === $this->getPublicStatement()) {
+        if (StatementInterface::INTERNAL === $this->getPublicStatement()) {
             // on internal statements, submitUId on meta should be always filled.
             return $this->getMeta()->getSubmitUId();
         }
 
         // external:
         // on external statements, the author is always the submitter
-        return User::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUserId();
+        return UserInterface::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUserId();
     }
 
     /**
@@ -3791,11 +3809,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function getSubmitterName(): ?string
     {
         // internal:
-        if (self::INTERNAL === $this->getPublicStatement()) {
+        if (StatementInterface::INTERNAL === $this->getPublicStatement()) {
             return $this->getMeta()->getSubmitName();
         }
 
-        if (User::ANONYMOUS_USER_ID === $this->getUserId()) {
+        if (UserInterface::ANONYMOUS_USER_ID === $this->getUserId()) {
             return null;
         }
 
@@ -3809,7 +3827,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set GdprConsent to this Statement.
      *
-     * @param GdprConsent|null $gdprConsent
+     * @param GdprConsentInterface|null $gdprConsent
      *
      * @throws InvalidDataException
      */
@@ -3832,8 +3850,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function hasBeenSubmittedAndAuthoredByUnregisteredCitizen(): bool
     {
         return
-            (User::ANONYMOUS_USER_ID === $this->getUserId() || null === $this->getUserId())
-            && self::EXTERNAL === $this->getPublicStatement()
+            (UserInterface::ANONYMOUS_USER_ID === $this->getUserId() || null === $this->getUserId())
+            && StatementInterface::EXTERNAL === $this->getPublicStatement()
             && !$this->isManual();
     }
 
@@ -3845,9 +3863,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function hasBeenSubmittedAndAuthoredByRegisteredCitizen(): bool
     {
         return
-            User::ANONYMOUS_USER_ID !== $this->getUserId()
+            UserInterface::ANONYMOUS_USER_ID !== $this->getUserId()
             && null !== $this->getUserId()
-            && self::EXTERNAL === $this->getPublicStatement()
+            && StatementInterface::EXTERNAL === $this->getPublicStatement()
             && !$this->isManual();
     }
 
@@ -3859,9 +3877,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function hasBeenSubmittedAndAuthoredByInvitableInstitutionKoordinator(): bool
     {
         return
-            User::ANONYMOUS_USER_ID !== $this->getUserId()
+            UserInterface::ANONYMOUS_USER_ID !== $this->getUserId()
             && null !== $this->getUserId()
-            && self::INTERNAL === $this->getPublicStatement()
+            && StatementInterface::INTERNAL === $this->getPublicStatement()
             && !$this->isManual()
             && $this->getUserId() === $this->getMeta()->getSubmitUId();
     }
@@ -3875,9 +3893,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator(): bool
     {
         return
-            User::ANONYMOUS_USER_ID !== $this->getUserId()
+            UserInterface::ANONYMOUS_USER_ID !== $this->getUserId()
             && null !== $this->getUserId()
-            && self::INTERNAL === $this->getPublicStatement()
+            && StatementInterface::INTERNAL === $this->getPublicStatement()
             && !$this->isManual()
             && $this->getUserId() !== $this->getMeta()->getSubmitUId();
     }
@@ -3928,12 +3946,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function getParagraphParentTitleOrDocumentParentTitle(): ?string
     {
         $title = $this->getParagraphParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
         $title = $this->getDocumentParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
@@ -3966,7 +3984,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Collection<int, Segment> $segmentsOfStatement
+     * @param Collection<int, SegmentInterface> $segmentsOfStatement
      */
     public function setSegmentsOfStatement(Collection $segmentsOfStatement): void
     {
@@ -3995,7 +4013,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param Collection<int, OriginalStatementAnonymization> $anonymizations
+     * @param Collection<int, OriginalStatementAnonymizationInterface> $anonymizations
      */
     public function setAnonymizations(Collection $anonymizations): void
     {
@@ -4010,9 +4028,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function isSubmitterAndAuthorMetaDataAnonymized(): bool
     {
-        return $this->getAnonymizations()->exists(static function (int $index, OriginalStatementAnonymization $anonymization) {
-            return $anonymization->isSubmitterAndAuthorMetaDataAnonymized();
-        });
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isSubmitterAndAuthorMetaDataAnonymized());
     }
 
     /**
@@ -4022,9 +4038,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function isTextPassagesAnonymized(): bool
     {
-        return $this->getAnonymizations()->exists(static function (int $index, OriginalStatementAnonymization $anonymization) {
-            return $anonymization->isTextPassagesAnonymized();
-        });
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isTextPassagesAnonymized());
     }
 
     /**
@@ -4033,9 +4047,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function isAttachmentsDeleted(): bool
     {
-        return $this->getAnonymizations()->exists(static function (int $index, OriginalStatementAnonymization $anonymization) {
-            return $anonymization->isAttachmentsDeleted();
-        });
+        return $this->getAnonymizations()->exists(static fn (int $index, OriginalStatementAnonymization $anonymization) => $anonymization->isAttachmentsDeleted());
     }
 
     public function getSegmentationPiRetries(): int
@@ -4054,7 +4066,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function getOriginalFile(): ?File
     {
         foreach ($this->getAttachments() as $attachment) {
-            if (StatementAttachment::SOURCE_STATEMENT === $attachment->getType()) {
+            if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachment->getType()) {
                 return $attachment->getFile();
             }
         }
@@ -4090,14 +4102,44 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         return $this->similarStatementSubmitters;
     }
 
+    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    {
+        if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
+            $this->similarStatementSubmitters->add($similarStatementSubmitter);
+        }
+
+        if (!$similarStatementSubmitter->getSimilarForeignStatements()->contains($this)) {
+            $similarStatementSubmitter->addSimilarForeignStatement($this);
+        }
+    }
+
     /**
-     * @param Collection<int, ProcedurePerson> $similarStatementSubmitters
+     * @param Collection<int, ProcedurePersonInterface> $similarStatementSubmitters
      */
     public function setSimilarStatementSubmitters(Collection $similarStatementSubmitters): Statement
     {
+        // clear currently set submitters first because this is setting, not adding
+        foreach ($this->similarStatementSubmitters as $submitter) {
+            $submitter->removeSimilarForeignStatement($this); // handles both sites
+            $this->removeSimilarStatementSubmitter($submitter);
+        }
+
+        foreach ($similarStatementSubmitters as $submitter) {
+            $submitter->addSimilarForeignStatement($this); // handles both sites
+            $this->addSimilarStatementSubmitter($submitter);
+        }
+
         $this->similarStatementSubmitters = $similarStatementSubmitters;
 
         return $this;
+    }
+
+    public function removeSimilarStatementSubmitter(ProcedurePersonInterface $procedurePerson): void
+    {
+        if ($this->similarStatementSubmitters->contains($procedurePerson)) {
+            $this->similarStatementSubmitters->removeElement($procedurePerson);
+        }
+        $procedurePerson->removeSimilarForeignStatement($this);
     }
 
     public function isAnonymous(): bool

@@ -49,7 +49,7 @@
                     :enforce-plausible-dates="false">
                 </dp-date-range-picker>
 
-                <div class="text--right space-inline-s">
+                <div class="text-right space-inline-s">
                     <input class="btn btn--primary" type="submit" name="updateRelease" value="{{ "save"|trans }}">
                     <a class="btn btn--warning" data-form-actions-confirm=" {{ "check.release.delete"|trans }}" href="{{ path('DemosPlan_forum_development_release_delete', { "releaseId": templateVars.release.ident, "token": templateVars.token}) }}">
                         {{ "delete"|trans }}

@@ -3,23 +3,19 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
-use function array_flip;
-use function array_map;
-use function collect;
-
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use Symfony\Component\Console\Helper\Table;
@@ -29,21 +25,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 
+use function array_flip;
+use function array_map;
+use function collect;
+
 class ProjectPermissionsDocumentationCommand extends CoreCommand
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     protected static $defaultName = 'dplan:documentation:project-permissions';
     protected static $defaultDescription = 'Extend the permissions documentation with project information';
 
-    public function __construct(ParameterBagInterface $parameterBag, PermissionsInterface $permissions, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-
-        $this->permissions = $permissions;
     }
 
     public function configure(): void
@@ -88,14 +81,12 @@ class ProjectPermissionsDocumentationCommand extends CoreCommand
         $enabledPermissions = collect($this->permissions->getPermissions())
             ->filter->isEnabled()
             ->map(
-                static function (Permission $permission) {
-                    return [
-                        'name'          => $permission->getName(),
-                        'label'         => $permission->getLabel(),
-                        'expose'        => $permission->isExposed(),
-                        'loginRequired' => $permission->isLoginRequired(),
-                    ];
-                }
+                static fn (Permission $permission) => [
+                    'name'          => $permission->getName(),
+                    'label'         => $permission->getLabel(),
+                    'expose'        => $permission->isExposed(),
+                    'loginRequired' => $permission->isLoginRequired(),
+                ]
             )
             ->toArray();
 

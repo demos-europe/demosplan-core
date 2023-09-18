@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -27,9 +28,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class GisLayer extends CoreEntity implements GisLayerInterface
 {
-    public const TYPE_BASE = 'base';
-    public const TYPE_OVERLAY = 'overlay';
-
     /**
      * Unique identification of the Gislayer entry.
      *
@@ -256,7 +254,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     protected $deleteDate;
 
     /**
-     * @var ContextualHelp
+     * @var ContextualHelpInterface
      *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp", cascade={"remove"}, fetch="EAGER")
      *
@@ -265,7 +263,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     protected $contextualHelp;
 
     /**
-     * @var GisLayerCategory
+     * @var GisLayerCategoryInterface
      *
      * Many GisLayers has one GisLayerCategory
      *
@@ -882,7 +880,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     }
 
     /**
-     * @param ContextualHelp $help
+     * @param ContextualHelpInterface $help
      *
      * @return GisLayer
      */
@@ -1005,7 +1003,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     public function isOverlay(): bool
     {
-        return self::TYPE_OVERLAY === $this->getType();
+        return GisLayerInterface::TYPE_OVERLAY === $this->getType();
     }
 
     public function getProjectionLabel(): string

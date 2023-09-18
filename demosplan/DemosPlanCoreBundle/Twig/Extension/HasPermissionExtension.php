@@ -3,14 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFunction;
 
@@ -23,15 +23,9 @@ use Twig\TwigFunction;
  */
 class HasPermissionExtension extends ExtensionBase
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(ContainerInterface $container, PermissionsInterface $permissions)
+    public function __construct(ContainerInterface $container, private readonly PermissionsInterface $permissions)
     {
         parent::__construct($container);
-        $this->permissions = $permissions;
     }
 
     /* (non-PHPdoc)
@@ -41,9 +35,9 @@ class HasPermissionExtension extends ExtensionBase
     {
         // Die Twig-Funktion kann via hasPermission und isEnabled aufgerufen werden
         return [
-            new TwigFunction('hasPermission', [$this, 'hasPermission']),
-            new TwigFunction('isEnabled', [$this, 'hasPermission']),
-            new TwigFunction('hasOneOfPermissions', [$this, 'hasOneOfPermissions']),
+            new TwigFunction('hasPermission', $this->hasPermission(...)),
+            new TwigFunction('isEnabled', $this->hasPermission(...)),
+            new TwigFunction('hasOneOfPermissions', $this->hasOneOfPermissions(...)),
         ];
     }
 

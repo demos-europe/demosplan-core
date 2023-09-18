@@ -3,31 +3,31 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebListExport;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebListExport;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -40,29 +40,20 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanMasterToebController extends BaseController
 {
-    /**
-     * @var MasterToebService
-     */
-    private $masterToebService;
-
-    public function __construct(MasterToebService $masterToebService)
+    public function __construct(private readonly MasterToebService $masterToebService)
     {
-        $this->masterToebService = $masterToebService;
     }
 
     /**
      * Anzeige der MasterTöBliste.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist",
-     *     path="/mastertoeblist"
-     * )
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return RedirectResponse|Response
      *
      * @throws \Exception
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist', path: '/mastertoeblist')]
     public function masterToebListAction()
     {
         $templateVars = [];
@@ -70,7 +61,7 @@ class DemosPlanMasterToebController extends BaseController
         $results = $this->masterToebService->getMasterToebs(true);
         $templateVars['orgas'] = $results;
 
-        $template = '@DemosPlanUser/DemosPlanUser/mastertoeblist.html.twig';
+        $template = '@DemosPlanCore/DemosPlanUser/mastertoeblist.html.twig';
 
         return $this->renderTemplate($template, [
             'templateVars' => $templateVars,
@@ -81,15 +72,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Update einer Orga via ajax.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_update_ajax",
-     *     path="/mastertoeblist/organisation/update",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_update_ajax', path: '/mastertoeblist/organisation/update', options: ['expose' => true])]
     public function updateMasterToebListAjaxAction(Request $request)
     {
         $requestPost = $request->request;
@@ -107,11 +94,6 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gibt es neue Protokolleinträge seit dem letzen Aufruf des Protokolls.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_has_new_reportentry_ajax",
-     *     path="/mastertoeblist/report/hasNewReportentry/{userId}",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @param string $userId
@@ -120,6 +102,7 @@ class DemosPlanMasterToebController extends BaseController
      *
      * @throws \Exception
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_has_new_reportentry_ajax', path: '/mastertoeblist/report/hasNewReportentry/{userId}', options: ['expose' => true])]
     public function reportMasterToebListHasNewEntryAjaxAction(ContentService $contentService, $userId)
     {
         $hasNewReportEntry = false;
@@ -142,7 +125,7 @@ class DemosPlanMasterToebController extends BaseController
                         $reportRead = $setting['content'];
                     }
                 }
-            } catch (HttpException $e) {
+            } catch (HttpException) {
                 // Most likely 404 Setting not set
             }
             $this->profilerStop('getLastRead');
@@ -173,17 +156,13 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Anlegen einer Orga via ajax.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_add_ajax",
-     *     path="/mastertoeblist/organisation/add",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
      *
      * @throws CustomerNotFoundException
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_add_ajax', path: '/mastertoeblist/organisation/add', options: ['expose' => true])]
     public function addMasterToebAjaxAction(
         CustomerHandler $customerHandler,
         OrgaService $orgaService,
@@ -241,15 +220,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Löschen einer Orga via ajax.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_delete_ajax",
-     *     path="/mastertoeblist/organisation/delete",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_delete_ajax', path: '/mastertoeblist/organisation/delete', options: ['expose' => true])]
     public function deleteMasterToebAjaxAction(Request $request)
     {
         $requestPost = $request->request;
@@ -266,17 +241,13 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gebe eine Liste von geänderten Einträgen der Master-Toeb-Liste aus.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_report",
-     *     path="/mastertoeblist/report",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException|\Exception
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_report', path: '/mastertoeblist/report', options: ['expose' => true])]
     public function masterToebListReportAction(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
@@ -308,7 +279,7 @@ class DemosPlanMasterToebController extends BaseController
                             $reportRead = $setting['content'];
                         }
                     }
-                } catch (HttpException $e) {
+                } catch (HttpException) {
                     // Most likely 404 Setting not set
                 }
                 try {
@@ -318,7 +289,7 @@ class DemosPlanMasterToebController extends BaseController
                     ];
                     // setze das aktuelle Datum als zuletzt gelesen
                     $contentService->setSetting('reportMastertoebRead', $data);
-                } catch (HttpException $e) {
+                } catch (HttpException) {
                     $this->logger->warning('Speichern der Setting reportMastertoebRead fehlgeschlagen');
                 }
             }
@@ -414,7 +385,7 @@ class DemosPlanMasterToebController extends BaseController
             $procedure = $currentProcedure instanceof Procedure ? $currentProcedure->getId() : '';
         }
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_report.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_report.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.report',
@@ -428,11 +399,6 @@ class DemosPlanMasterToebController extends BaseController
      * https://github.com/PHPOffice/PhpSpreadsheet, MIT
      * https://github.com/yectep/phpspreadsheet-bundle, MIT
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_export",
-     *     path="/mastertoeblist/export",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_use_mastertoeblist")
      *
      * @return RedirectResponse|StreamedResponse
@@ -440,6 +406,7 @@ class DemosPlanMasterToebController extends BaseController
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_export', path: '/mastertoeblist/export', options: ['expose' => true])]
     public function masterToebListExportAction(
         FileResponseGeneratorStrategy $responseGenerator,
         PermissionsInterface $permissions,
@@ -463,16 +430,13 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Zusammenführen von angemeldeten Organisationen mit Organisationen aus der Master-TöB-Liste.
      *
-     * @Route(
-     *     name="DemosPlan_user_mastertoeblist_merge",
-     *     path="/mastertoeblist/merge"
-     * )
      * @DplanPermissions("area_merge_mastertoeblist")
      *
      * @return RedirectResponse|Response
      *
      * @throws \Exception
      */
+    #[Route(name: 'DemosPlan_user_mastertoeblist_merge', path: '/mastertoeblist/merge')]
     public function masterToebListMergeAction(Request $request)
     {
         $masterToebListService = $this->masterToebService;
@@ -482,7 +446,7 @@ class DemosPlanMasterToebController extends BaseController
             $organisationId = $requestPost->get('r_orga');
             $masterToebId = $requestPost->get('r_orga_mastertoeb');
 
-            if ((0 < strlen($organisationId)) && (0 < strlen($masterToebId))) {
+            if ((0 < strlen((string) $organisationId)) && (0 < strlen((string) $masterToebId))) {
                 $mergeResult = $masterToebListService->mergeOrganisations($organisationId, $masterToebId);
                 // Generiere eine Erfolgsmeldung
                 if ($mergeResult) {
@@ -503,7 +467,7 @@ class DemosPlanMasterToebController extends BaseController
         $orgasMasterToeb = $masterToebListService->getOrganisationsOfMasterToeb();
         $templateVars['orgasMasterToeb'] = $orgasMasterToeb;
 
-        return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/mastertoeblist_merge.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/mastertoeblist_merge.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'user.invitable_institution.master.merge',
         ]);

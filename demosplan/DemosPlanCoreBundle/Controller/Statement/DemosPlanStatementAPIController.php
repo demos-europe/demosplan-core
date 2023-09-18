@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -22,28 +23,27 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
@@ -65,13 +65,8 @@ use function is_int;
 
 class DemosPlanStatementAPIController extends APIController
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
     public function __construct(
-        PermissionsInterface $permissions,
+        private readonly PermissionsInterface $permissions,
         LoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -91,16 +86,10 @@ class DemosPlanStatementAPIController extends APIController
             $messageBag,
             $schemaPathProcessor
         );
-        $this->permissions = $permissions;
     }
-    // @improve T12984
 
+    // @improve T12984
     /**
-     * @Route(path="/api/1.0/statements/{statementId}/copy/{procedureId}",
-     *        methods={"POST"},
-     *        name="dplan_api_statement_copy_to_procedure",
-     *        options={"expose": true})
-     *
      * Copy Statement into (another) procedure.
      *
      * @DplanPermissions("feature_statement_copy_to_procedure")
@@ -109,6 +98,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
     public function copyStatementAction(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId)
     {
         try {
@@ -192,19 +182,14 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/statements/{statementId}/move/{procedureId}",
-     *        methods={"POST"},
-     *        name="dplan_api_statement_move",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_move_to_procedure")
      *
      * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
     public function moveStatementAction(
         CurrentProcedureService $currentProcedureService,
         ProcedureHandler $procedureHandler,
@@ -293,19 +278,14 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/statements/{procedureId}/{statementId}/edit",
-     *        methods={"POST"},
-     *        name="dplan_api_statement_edit",
-     *        options={"expose": true})
-     *
      * @param string $statementId
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return JsonResponse
      */
+    #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
     public function editStatementAction(StatementService $statementService, ValidatorInterface $validator, $statementId)
     {
         try {
@@ -350,7 +330,7 @@ class DemosPlanStatementAPIController extends APIController
                 throw new BadRequestException("Access to invalid attributes: $invalidAttributesString");
             }
 
-            $supportedRelationships = array_merge($supportedToOneRelationships, $supportedToManyRelationships);
+            $supportedRelationships = [...$supportedToOneRelationships, ...$supportedToManyRelationships];
             $invalidRelationships = array_diff_key($relationships, array_flip($supportedRelationships));
             if ([] !== $invalidRelationships) {
                 $invalidRelationshipsString = implode(', ', array_keys($invalidRelationships));
@@ -376,15 +356,9 @@ class DemosPlanStatementAPIController extends APIController
                 unset($relationships['paragraph']);
             }
 
-            $updateFields = array_merge($updateFields, array_map(static function (array $toOneRelationship): ?string {
-                return $toOneRelationship['data']['id'] ?? null;
-            }, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn (array $toOneRelationship): ?string => $toOneRelationship['data']['id'] ?? null, array_intersect_key($relationships, array_flip($supportedToOneRelationships))));
 
-            $updateFields = array_merge($updateFields, array_map(static function (array $toManyRelationship): array {
-                return array_map(static function (array $relationship): string {
-                    return $relationship['id'];
-                }, $toManyRelationship['data']);
-            }, array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
+            $updateFields = array_merge($updateFields, array_map(static fn (array $toManyRelationship): array => array_map(static fn (array $relationship): string => $relationship['id'], $toManyRelationship['data']), array_intersect_key($relationships, array_flip($supportedToManyRelationships))));
 
             $statement = $statementService->updateStatement($updateFields);
 
@@ -405,15 +379,10 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/",
-     *        methods={"GET"},
-     *        name="dplan_assessmentqueryhash_get_procedure_statement_list",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      */
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
     public function listAction(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -492,13 +461,7 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/statements/{procedureId}/statements/group",
-     *        methods={"POST"},
-     *        name="dplan_api_create_group_statement",
-     *        options={"expose": true})
-     *
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
      *
@@ -506,6 +469,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
     public function createGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -541,13 +505,7 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/statements/{procedureId}/statements/group",
-     *        methods={"PATCH"},
-     *        name="dplan_api_update_group_statement",
-     *        options={"expose": true})
-     *
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
      *
@@ -555,6 +513,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
     public function updateGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -583,13 +542,7 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-
     /**
-     * @Route(path="/api/1.0/statements/{procedureId}/statements/bulk-edit",
-     *        methods={"POST"},
-     *        name="dplan_assessment_table_assessment_table_statement_bulk_edit_api_action",
-     *        options={"expose": true})
-     *
      * Do nothing cases (error response), not all cases implemented yet:
      * <ul>
      * <li>User sent no actions (claim/edit/...) at all
@@ -611,6 +564,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
     public function statementBulkEditApiAction(StatementService $statementService, ValidatorInterface $validator, string $procedureId)
     {
         try {
@@ -626,7 +580,7 @@ class DemosPlanStatementAPIController extends APIController
             $statementTargetIds = array_keys($statementBulkEditResourceObject['statements']);
             $targetStatementCount = count($statementTargetIds);
             $unmovedStatementTargetIds = $statementService->removePlaceholderStatementIds($statementTargetIds);
-            $movedStatementCount = $targetStatementCount - count($unmovedStatementTargetIds);
+            $movedStatementCount = $targetStatementCount - (is_countable($unmovedStatementTargetIds) ? count($unmovedStatementTargetIds) : 0);
 
             // $markedStatementsCount must be a positive integer
             $markedStatementsCount = $statementBulkEditResourceObject['attributes.markedStatementsCount'];
@@ -646,7 +600,7 @@ class DemosPlanStatementAPIController extends APIController
                 );
             }
 
-            $unmovedStatementTargetIdsCount = count($unmovedStatementTargetIds);
+            $unmovedStatementTargetIdsCount = is_countable($unmovedStatementTargetIds) ? count($unmovedStatementTargetIds) : 0;
             if (0 !== $unmovedStatementTargetIdsCount) {
                 try {
                     $statementBulkEditId = $statementBulkEditResourceObject['id'];
@@ -669,7 +623,7 @@ class DemosPlanStatementAPIController extends APIController
                         }
                     }
                     $violations = $validator->validate($statementBulkEditVo);
-                    if (0 === count($violations)) {
+                    if (0 === (is_countable($violations) ? count($violations) : 0)) {
                         $statementService->bulkEditStatementsAddData($statementBulkEditVo);
                         $this->messageBag->addChoice(
                             'confirm',

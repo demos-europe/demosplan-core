@@ -1,0 +1,62 @@
+# Please maintain the alphabetical order.
+# When adding new fields, please make sure that the field is not already taken, otherwise conflicts may occur.
+#
+# CAUTION: There are very different fields mapped in this list. The properties tell the code how to handle
+#          all of them. Please make sure to use the right properties for each field. A good approach is to copy
+#          he properties from similar fields and to check it manually. Naturally, the best way to understand the
+#          final behavior is to search for the field name and see where it is used and to follow the changes
+#          in debug mode.
+#          Please be _very_careful_ when creating shortcut solutions. We already had a bug once, because someone
+#          added a second simple translation mechanism (outside of this mapping), which conflicted with the already
+#          existing, complex translation system which uses this mapping.
+
+# @link https://yaits.demos-deutschland.de/w/demosplan/functions/version_control_vcs/ wiki: versioning
+parameters:
+    entity_content_change_fields_mapping:
+        demosplan\DemosPlanCoreBundle\Entity\Statement\Statement:
+            assignee:
+                fieldType: "object"
+                translationKey: "assignment"
+                translationKeyIfValueIsNotSet: "no.assignment" # Note that there is a default values for this variable.
+                noHighlighting: true
+                class: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
+            cluster:
+                fieldType: "object"
+                translationKey: "cluster"
+                class: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement'
+            memo:
+                fieldType: "tipTapHtmlString"
+                translationKey: "memo"
+            recommendation:
+                fieldType: "tipTapHtmlString"
+                translationKey: "considerationtext"
+            text:
+                fieldType: "tipTapHtmlString"
+                translationKey: "statement.text.short"
+            votePla:
+                fieldType: "string"
+                translationKey: "statement.votePla"
+                translateAllValues: true
+                noHighlighting: true
+                translationPrefix: "fragment.vote." # "translationPrefix" works fine, until the form options are changed,
+                # then this needs to be made dynamic or at least adjusted.
+        demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment:
+            assignee:
+                fieldType: "object"
+                translationKey: "assignment"
+                translationKeyIfValueIsNotSet: "no.assignment" # Note that there is a default values for this variable
+                noHighlighting: true
+                class: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
+            consideration:
+                fieldType: "tipTapHtmlString"
+                translationKey: "consideration"
+            text:
+                fieldType: "tipTapHtmlString"
+                translationKey: "fragment.text"
+            vote:
+                fieldType: "string"
+                translationKey: "fragment.vote.short"
+                translateAllValues: true
+                noHighlighting: true
+                translationPrefix: "fragment.vote." # "translationPrefix" works fine, until the form options are changed,
+                # then this needs to be made dynamic or at least adjusted.

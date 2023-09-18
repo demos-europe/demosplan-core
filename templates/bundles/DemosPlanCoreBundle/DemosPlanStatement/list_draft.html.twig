@@ -1,0 +1,217 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block demosplanbundlecontent %}
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}"><div>
+
+    {% set owndraftText = "text.statements.owndraft"|trans %}
+    {% set permissionSubmit = 'feature_statements_released_group_submit' %}
+
+    {% if templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_SHORT') %}
+
+        {% set owndraftText = "text.statements.owndraft.shorthand.submission"|trans %}
+        {% set permissionSubmit = 'feature_statements_draft_release' %}
+
+    {% endif %}
+
+    {% set counties = [{value: '', label: '---'}] %}
+    {% for county in templateVars.counties|default([]) %}
+        {%  set counties = counties|merge([{value: county.id, selected: county.id == templateVars.draftStatement.statementAttributes.county|default(), label: county.name }]) %}
+    {% endfor %}
+
+    {% block title_text %}
+
+        {# Wenn shorthand, anderer Text #}
+        {#  pageheader - display procedure title + nav link #}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with {
+            link: path('DemosPlan_procedure_public_detail', { 'procedure':procedure }),
+            link_caption: 'procedure.goto'|trans,
+            width_css: {
+                col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+                col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass
+            },
+            content_heading: "statements.owndraft"|trans ~ ": " ~ getProcedureName(proceduresettings),
+            content_subheading: '<p class="' ~ 'u-mb-0'|prefixClass ~ '">' ~ owndraftText ~ "</p>"
+         }
+        %}
+    {% endblock %}
+
+    <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
+        <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
+
+            {#  filter fieldsets  #}
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
+                with  { 'filter_target' : 'draft' } %}
+
+        </form>
+
+        <form
+            class="{{ 'layout'|prefixClass }}"
+            id="releaseForm"
+            action="
+            {%- block releaseRoutePlain -%}
+                {{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}
+            {%- endblock -%}"
+            method="post"
+            data-dp-validate="draftForm"
+            novalidate>
+
+            <fieldset class="{{ 'u-ml u-pb-0_5 flow-root'|prefixClass }}">
+
+                {% if templateVars.list.statementlist|length > 0 %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+
+                    {% if hasPermission('feature_statements_draft_release') %}
+                        {% block statement_release %}
+
+                        {# Handle default submission with releasing Statement to coordinator #}
+                        {% if templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT') %}
+                            <dp-modal
+                                content-classes="u-2-of-3"
+                                ref="confirmModal"
+                                aria-label="{{ 'statements.marked.release'|trans }}"
+                                aria-modal='true'
+                            >
+                                <template v-slot:header>
+                                    {{ 'statements.marked.release'|trans }}
+                                </template>
+
+                                <template>
+                                    <p>
+                                        {{ 'check.statement.marked.release'|trans }}
+                                    </p>
+
+                                    <dp-button
+                                        data-cy="submitStatement"
+                                        name="statement_release"
+                                        :text="Translator.trans('statements.marked.release')"
+                                        @click="dpValidateAction('draftForm', () => submitForm('draftForm', 'statement_release'), false)"
+                                    ></dp-button>
+                                </template>
+
+                            </dp-modal>
+
+                            <button
+                                type="button"
+                                @click="toggleConfirmModal"
+                                class="{{ 'btn btn--primary'|prefixClass }}"
+                                data-cy="approveSelectedStatements"
+                                aria-label="{{ 'statements.marked.release'|trans }}"
+                                value="{{ 'statements.marked.release'|trans }}"
+                            >
+                                {{ 'statements.marked.release'|trans }}
+                            </button>
+
+                            {# Handle short submission with submitting Statement directly without coordinator #}
+                        {% elseif templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_SHORT')  %}
+                            <dp-modal
+                                content-classes="u-2-of-3"
+                                ref="confirmModal"
+                                aria-label="{{ 'statements.marked.submit'|trans }}"
+                                aria-modal='true'
+                            >
+                                <template v-slot:header>
+                                    {{ 'statements.marked.submit'|trans }}
+                                </template>
+
+                                <template>
+                                    {# The dropdown for `feature_statement_notify_counties is shown in the draft list
+                                        only if short submission process is enabled because then, statements are directly
+                                        submitted from this view. If the default submission process is enabled, the dropdown
+                                        is shown in the `list_released_group` view instead. #}
+                                    {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                                        showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
+                                            templateVars.hasPermissionsetWrite == true and
+                                            proceduresettings.settings.sendMailsToCounties == true,
+                                        targetForm: 'draftForm'
+                                    } %}
+                                </template>
+
+                            </dp-modal>
+
+                            <button
+                                type="button"
+                                @click="toggleConfirmModal"
+                                class="{{ 'btn btn--primary'|prefixClass }}"
+                            >
+                                {{ 'statements.marked.submit'|trans }}
+                            </button>
+
+                        {% endif %}
+                        {% endblock %}
+                    {% endif %}
+
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                {% endif %}
+
+            </fieldset>
+
+            {% block statementList %}
+                <dp-public-statement-list
+                    class="layout__item"
+                    :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
+                    :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                    procedure-id="{{ templateVars.procedure|default('') }}"
+                    show-author
+                    show-checkbox
+                    show-delete
+                    show-edit
+                    show-pdf-download
+                    show-versions
+                    target="draft"></dp-public-statement-list>
+            {% endblock %}
+        </form>
+    </div>
+    <dp-map-modal
+        ref="mapModal"
+        procedure-id="{{ procedure }}"
+        map-options-route="dplan_api_map_options_public"
+    >
+    </dp-map-modal>
+
+    {# grouped formFields for statement form #}
+    {%  set statementFields = [] %}
+    {%  set personalDataFields = [] %}
+    {%  set feedbackFields = [] %}
+    {% for field in templateVars.statementFormDefinition.fieldDefinitions|default([]) %}
+        {% if field.enabled|default(false) %}
+            {% set formField = {name: field.name|default, required: field.required|default(false)} %}
+            {% if field.name == 'countyReference' or field.name == 'mapAndCountyReference' %}
+                {% set statementFields = statementFields|merge([formField]) %}
+            {% elseif field.name == 'getEvaluationMailViaEmail' or field.name == 'getEvaluationMailViaSnailMailOrEmail' %}
+                {% set feedbackFields = feedbackFields|merge([formField]) %}
+            {% else %}
+                {% set personalDataFields = personalDataFields|merge([formField]) %}
+            {% endif %}
+        {% endif %}
+    {%  endfor %}
+
+    <statement-modal
+        ref="statementModal"
+        current-page="draftList"
+        :counties="JSON.parse('{{ counties|json_encode|e('js', 'utf-8') }}')"
+        :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')"
+        ext-id="{{ templateVars.number|default }}"
+        :feedback-form-fields="JSON.parse('{{ feedbackFields|json_encode|e('js', 'utf-8') }}')"
+        :form-options="JSON.parse('{{ templateVars.formOptions|default({})|json_encode|e('js', 'utf-8') }}')"
+        :init-has-planning-documents="Boolean({{ templateVars.planningDocuments|default(false) }})"
+        init-redirect-path="DemosPlan_statement_list_draft"
+        :is-map-enabled="Boolean({{ proceduresettings.isMapEnabled }})"
+        :logged-in="Boolean({{ currentUser.loggedIn }})"
+        :personal-data-form-fields="JSON.parse('{{ personalDataFields|json_encode|e('js', 'utf-8') }}')"
+        orga-id="{{ branding.orgaId|default }}"
+        :planning-documents-has-negative-statement="Boolean({{ templateVars.planningDocumentsHasNegativeStatement|default(false) }})"
+        :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
+        procedure-id="{{ procedure }}"
+        project-name="{{ projectName }}"
+        :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
+        statement-form-hint-personal-data="{{ templateVars.procedureUiDefinition.statementFormHintPersonalData|default }}"
+        statement-form-hint-recheck="{{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}"
+        statement-form-hint-statement="{{ templateVars.procedureUiDefinition.statementFormHintStatement|default }}">
+    </statement-modal>
+    </div></dp-public-detail-no-map>
+{% endblock demosplanbundlecontent %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-listDraft.js') }}
+{% endblock javascripts %}

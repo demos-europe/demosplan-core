@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -18,10 +18,10 @@
           value="publication_pending"
           data-cy="publicationPending"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicCheck"
-          class="display--inline weight--normal u-ml-0_25 u-valign--text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.check') }}
         </label>
       </div>
@@ -34,10 +34,10 @@
           data-cy="publicationApproved"
           value="publication_approved"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicVerify"
-          class="display--inline weight--normal u-ml-0_25 u-valign--text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.verify', { count: filesLength }) }}
         </label>
       </div>
@@ -50,10 +50,10 @@
           data-cy="publicationRejected"
           value="publication_rejected"
           v-model="checked"
-          class="cursor--pointer">
+          class="cursor-pointer">
         <label
           for="publicReject"
-          class="display--inline weight--normal u-ml-0_25 u-valign--text-top">
+          class="inline weight--normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.reject') }}
         </label>
       </div>

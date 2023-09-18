@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -89,9 +89,7 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
             $files = $this->findBy(['entityId' => $id, 'entityClass' => $entityClass, 'entityField' => $field]);
             if (null !== $files) {
                 return collect($files)
-                    ->map(static function ($item, $key) {
-                        return $item->getFileString();
-                    })->toArray();
+                    ->map(static fn($item, $key) => $item->getFileString())->toArray();
             }
 
             return [];

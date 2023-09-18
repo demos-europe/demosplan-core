@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -24,22 +24,10 @@ use EDT\Querying\Contracts\SortMethodInterface;
 class PlaceFacet implements FacetInterface
 {
     /**
-     * @var FunctionInterface
-     */
-    private $rootItemsLoadCondition;
-
-    /**
-     * @var SortMethodInterface
-     */
-    private $itemsSortMethod;
-
-    /**
      * @param FunctionInterface<bool> $rootItemsLoadCondition
      */
-    public function __construct(FunctionInterface $rootItemsLoadCondition, SortMethodInterface $itemsSortMethod)
+    public function __construct(private readonly FunctionInterface $rootItemsLoadCondition, private readonly SortMethodInterface $itemsSortMethod)
     {
-        $this->rootItemsLoadCondition = $rootItemsLoadCondition;
-        $this->itemsSortMethod = $itemsSortMethod;
     }
 
     public function getFacetNameTranslationKey(): string

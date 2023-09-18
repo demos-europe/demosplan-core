@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,17 +11,19 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,82 +35,23 @@ class DefaultTwigVariablesService
 {
     protected $variables;
 
-    /**
-     * @var GlobalConfig
-     */
-    private $globalConfig;
-
-    /**
-     * @var BrandingLoader
-     */
-    private $brandingLoader;
-
-    /** @var OrgaLoader */
-    private $orgaLoader;
-
-    /** @var CustomerService */
-    private $customerService;
-
-    /**
-     * @var SessionHandler
-     */
-    private $sessionHandler;
-    /**
-     * @var string
-     */
-    private $publicCSSClassPrefix;
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-    /**
-     * @var TransformMessageBagService
-     */
-    private $transformMessageBagService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-    /**
-     * @var string
-     */
-    private $defaultLocale;
-
-    /**
-     * @var JWTTokenManagerInterface
-     */
-    private $jwtTokenManager;
-
     public function __construct(
-        BrandingLoader $brandingLoader,
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserService $currentUser,
-        CustomerService $customerService,
-        GlobalConfigInterface $globalConfig,
-        JWTTokenManagerInterface $jwtTokenManager,
-        OrgaLoader $orgaLoader,
-        PermissionsInterface $permissions,
-        SessionHandler $sessionHandler,
-        TransformMessageBagService $transformMessageBagService,
-        string $publicCSSClassPrefix,
-        string $defaultLocale
-    ) {
-        $this->globalConfig = $globalConfig;
-        $this->brandingLoader = $brandingLoader;
-        $this->orgaLoader = $orgaLoader;
-        $this->customerService = $customerService;
-        $this->sessionHandler = $sessionHandler;
-        $this->publicCSSClassPrefix = $publicCSSClassPrefix;
-        $this->currentProcedureService = $currentProcedureService;
-        $this->transformMessageBagService = $transformMessageBagService;
-        $this->permissions = $permissions;
-        $this->currentUser = $currentUser;
-        $this->defaultLocale = $defaultLocale;
-        $this->jwtTokenManager = $jwtTokenManager;
+        private readonly BrandingLoader $brandingLoader,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly CustomerService $customerService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly JWTTokenManagerInterface $jwtTokenManager,
+        private readonly OrgaLoader $orgaLoader,
+        /**
+         * @var PermissionsInterface|Permissions
+         */
+        private readonly PermissionsInterface $permissions,
+        private readonly SessionHandler $sessionHandler,
+        private readonly TransformMessageBagService $transformMessageBagService,
+        private readonly string $publicCSSClassPrefix,
+        private readonly string $defaultLocale)
+    {
     }
 
     protected function extractExposedPermissions(): Collection
@@ -117,21 +60,39 @@ class DefaultTwigVariablesService
          * Filter all permissions that are enabled and marked as to-be-exposed to the frontend
          * and reformat them to [permission_name => true].
          */
-        return collect($this->permissions->getPermissions())->each(
+        $permissions = collect($this->permissions->getPermissions())->each(
             static function ($permission, $permissionName) {
                 if (!is_a($permission, Permission::class)) {
                     throw new RuntimeException(sprintf('Permission %s is not defined in demosplan core anymore', $permissionName));
                 }
             }
         )->filter(
-            static function (Permission $permission) {
-                return $permission->isEnabled() && $permission->isExposed();
-            }
+            static fn (Permission $permission) => $permission->isEnabled() && $permission->isExposed()
         )->flatMap(
-            static function (Permission $permission) {
-                return [$permission->getName() => true];
-            }
+            static fn (Permission $permission) => [$permission->getName() => true]
         );
+
+        foreach ($this->permissions->getAddonPermissionCollections() as $addonName => $permissionCollection) {
+            $permissions = $permissions->merge(collect($permissionCollection->getResolvePermissions())
+                ->filter(
+                    function (ResolvablePermission $permission) use ($addonName) {
+                        if ($permission->isExposed()) {
+                            // resolve
+                            return $this->permissions->isPermissionEnabled(PermissionIdentifier::forAddon(
+                                $permission->getName(), $addonName
+                            ));
+                        }
+
+                        return false;
+                    }
+                )->flatMap(
+                    static function (ResolvablePermission $permission) {
+                        return [$permission->getName() => true];
+                    }
+                ));
+        }
+
+        return $permissions;
     }
 
     public function getVariables(): array
@@ -203,6 +164,7 @@ class DefaultTwigVariablesService
             'piwik'                            => $this->loadPiwikVariables(),
             'procedureObject'                  => $this->currentProcedureService->getProcedure(),
             'proceduresettings'                => $this->currentProcedureService->getProcedureArray(),
+            'projectCoreVersion'               => $this->globalConfig->getProjectCoreVersion(),
             'projectFolder'                    => $this->globalConfig->getProjectFolder(),
             'projectName'                      => $this->globalConfig->getProjectName(),
             'projects'                         => $projects,
@@ -221,7 +183,7 @@ class DefaultTwigVariablesService
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');
-        if (\is_null($languageKey) || 0 === strlen($languageKey)) {
+        if (\is_null($languageKey) || 0 === strlen((string) $languageKey)) {
             $languageKey = $this->defaultLocale;
         }
 

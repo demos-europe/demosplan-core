@@ -5,59 +5,53 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 
 class FieldDecider
 {
-    public const FIELD_ID = 'id';
-    public const FIELD_STATEMENT_NAME = 'statementName';
-    public const FIELD_CREATION_DATE = 'creationDate';
-    public const FIELD_MOVED_TO_PROCEDURE = 'movedToProcedure';
-    public const FIELD_PROCEDURE_NAME = 'procedureName';
-    public const FIELD_PROCEDURE_PHASE = 'procedurePhase';
-    public const FIELD_VOTES_NUM = 'votesNum';
-    public const FIELD_USER_STATE = 'userState';
-    public const FIELD_USER_GROUP = 'userGroup';
-    public const FIELD_USER_ORGANISATION = 'userOrganisation';
-    public const FIELD_USER_POSITION = 'userPosition';
-    public const FIELD_ORGA_INFO = 'orgaInfo';
-    public const FIELD_ORGA_NAME = 'orgaName';
-    public const FIELD_ORGA_DEPARTMENT = 'orgaDepartment';
-    public const FIELD_SUBMITTER_NAME = 'submitterName';
-    public const FIELD_CITIZEN_INFO = 'citizenInfo';
-    public const FIELD_ADDRESS = 'address';
-    public const FIELD_ADDRESS_HOUSENUMBER = 'houseNumber';
-    public const FIELD_ADDRESS_POSTALCODE = 'postalCode';
-    public const FIELD_ADDRESS_CITY = 'city';
-    public const FIELD_SHOW_IN_PUBLIC_AREA = 'showInPublicArea';
-    public const FIELD_DOCUMENT = 'document';
-    public const FIELD_PARAGRAPH = 'paragraph';
-    public const FIELD_FILES = 'files';
-    public const FIELD_ATTACHMENTS = 'attachments';
-    public const FIELD_PRIORITY = 'priority';
-    public const FIELD_EMAIL = 'email';
-    public const FIELD_PHONE_NUMBER = 'phoneNumber';
+    final public const FIELD_ID = 'id';
+    final public const FIELD_STATEMENT_NAME = 'statementName';
+    final public const FIELD_CREATION_DATE = 'creationDate';
+    final public const FIELD_MOVED_TO_PROCEDURE = 'movedToProcedure';
+    final public const FIELD_PROCEDURE_NAME = 'procedureName';
+    final public const FIELD_PROCEDURE_PHASE = 'procedurePhase';
+    final public const FIELD_VOTES_NUM = 'votesNum';
+    final public const FIELD_USER_STATE = 'userState';
+    final public const FIELD_USER_GROUP = 'userGroup';
+    final public const FIELD_USER_ORGANISATION = 'userOrganisation';
+    final public const FIELD_USER_POSITION = 'userPosition';
+    final public const FIELD_ORGA_INFO = 'orgaInfo';
+    final public const FIELD_ORGA_NAME = 'orgaName';
+    final public const FIELD_ORGA_DEPARTMENT = 'orgaDepartment';
+    final public const FIELD_SUBMITTER_NAME = 'submitterName';
+    final public const FIELD_CITIZEN_INFO = 'citizenInfo';
+    final public const FIELD_ADDRESS = 'address';
+    final public const FIELD_ADDRESS_HOUSENUMBER = 'houseNumber';
+    final public const FIELD_ADDRESS_POSTALCODE = 'postalCode';
+    final public const FIELD_ADDRESS_CITY = 'city';
+    final public const FIELD_SHOW_IN_PUBLIC_AREA = 'showInPublicArea';
+    final public const FIELD_DOCUMENT = 'document';
+    final public const FIELD_PARAGRAPH = 'paragraph';
+    final public const FIELD_FILES = 'files';
+    final public const FIELD_ATTACHMENTS = 'attachments';
+    final public const FIELD_PRIORITY = 'priority';
+    final public const FIELD_EMAIL = 'email';
+    final public const FIELD_PHONE_NUMBER = 'phoneNumber';
 
-    public const CITIZEN_ORGA_NAME = User::ANONYMOUS_USER_ORGA_NAME;
+    final public const CITIZEN_ORGA_NAME = User::ANONYMOUS_USER_ORGA_NAME;
 
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(PermissionsInterface $permissions)
+    public function __construct(private readonly PermissionsInterface $permissions)
     {
-        $this->permissions = $permissions;
     }
 
     public function isExportable(

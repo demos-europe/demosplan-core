@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFilter;
@@ -30,23 +30,11 @@ use Twig\TwigFilter;
  */
 class ConvertToLegacyExtension extends ExtensionBase
 {
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
     public function __construct(
         ContainerInterface $container,
-        DraftStatementService $draftStatementService,
-        StatementService $statementService)
+        private readonly DraftStatementService $draftStatementService,
+        private readonly StatementService $statementService)
     {
-        $this->draftStatementService = $draftStatementService;
-        $this->statementService = $statementService;
         parent::__construct($container);
     }
 
@@ -58,7 +46,7 @@ class ConvertToLegacyExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('convertToLegacy', [$this, 'convertToLegacy']),
+            new TwigFilter('convertToLegacy', $this->convertToLegacy(...)),
         ];
     }
 

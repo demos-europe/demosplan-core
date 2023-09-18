@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,9 +28,7 @@ class TitleGroupsSorter implements ArraySorterInterface
     {
         uasort(
             $array,
-            static function (EntityGroupInterface $a, EntityGroupInterface $b) {
-                return strcasecmp($a->getTitle(), $b->getTitle());
-            }
+            static fn (EntityGroupInterface $a, EntityGroupInterface $b) => strcasecmp($a->getTitle(), $b->getTitle())
         );
 
         return $array;

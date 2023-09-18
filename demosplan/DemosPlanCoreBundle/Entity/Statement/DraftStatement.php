@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,16 +11,19 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementFileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,28 +32,31 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository")
+ *
  * @FormDefinitionConstraint()
  */
-class DraftStatement extends CoreEntity implements UuidEntityInterface
+class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftStatementInterface
 {
-    public const INTERNAL = 'internal';
-    public const EXTERNAL = 'external';
-
     /**
      * @var string|null
      *
      * @ORM\Column(name="_ds_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -82,9 +88,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $text = '';
 
     /**
-     * @var ParagraphVersion
+     * @var ParagraphVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"all"})
+     *
      * @ORM\JoinColumn(name="_ds_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
     protected $paragraph;
@@ -97,9 +104,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $paragraphId;
 
     /**
-     * @var SingleDocumentVersion
+     * @var SingleDocumentVersionInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
     protected $document;
@@ -130,9 +138,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $elementTitle;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_ds_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
     protected $element;
@@ -152,7 +161,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $file = '';
 
     /**
-     * @var Collection<int, DraftStatementFile>
+     * @var Collection<int, DraftStatementFileInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile", mappedBy="draftStatement", orphanRemoval=true, fetch="EAGER", cascade={"persist"})
      */
@@ -166,9 +175,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $mapFile;
 
     /**
-     * @var Orga
+     * @var OrgaInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
     protected $organisation;
@@ -202,9 +212,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $dName = '';
 
     /**
-     * @var Department
+     * @var DepartmentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
+     *
      * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=false, onDelete="RESTRICT")
      **/
     protected $department;
@@ -217,9 +228,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $dId;
 
     /**
-     * @var User
+     * @var UserInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")},
      */
     protected $user;
@@ -366,7 +378,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(name="_ds_public_draft_statement", type="string", length=20, nullable=false)
      */
-    protected $publicDraftStatement = self::INTERNAL;
+    protected $publicDraftStatement = DraftStatementInterface::INTERNAL;
 
     /**
      * @var string
@@ -386,6 +398,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -401,6 +414,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $lastModifiedDate;
@@ -427,14 +441,14 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $rejectedDate;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion", mappedBy="draftStatement")
      */
     protected $versions;
 
     /**
-     * @var Collection<int, StatementAttribute>
+     * @var Collection<int, StatementAttributeInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="draftStatement")
      */
@@ -486,14 +500,14 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setProcedure($procedure)
     {
         $this->procedure = $procedure;
-        if ($procedure instanceof Procedure) {
+        if ($procedure instanceof ProcedureInterface) {
             $this->pId = $procedure->getId();
         }
 
@@ -503,7 +517,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -517,7 +531,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getPId()
     {
-        if ($this->procedure instanceof Procedure) {
+        if ($this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -539,7 +553,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param int $number
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setNumber($number)
     {
@@ -563,7 +577,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $title
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setTitle($title)
     {
@@ -599,7 +613,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return ParagraphVersion|null
+     * @return ParagraphVersionInterface|null
      */
     public function getParagraph()
     {
@@ -607,7 +621,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param ParagraphVersion|null $paragraph
+     * @param ParagraphVersionInterface|null $paragraph
      */
     public function setParagraph($paragraph)
     {
@@ -624,7 +638,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getParagraphId()
     {
-        if ($this->paragraph instanceof ParagraphVersion) {
+        if ($this->paragraph instanceof ParagraphVersionInterface) {
             $this->paragraphId = $this->paragraph->getId();
         }
 
@@ -632,7 +646,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return SingleDocumentVersion|null
+     * @return SingleDocumentVersionInterface|null
      */
     public function getDocument()
     {
@@ -640,7 +654,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param SingleDocumentVersion|null $documentVersion
+     * @param SingleDocumentVersionInterface|null $documentVersion
      */
     public function setDocument($documentVersion)
     {
@@ -656,7 +670,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getDocumentId()
     {
-        if ($this->document instanceof SingleDocumentVersion) {
+        if ($this->document instanceof SingleDocumentVersionInterface) {
             $this->documentId = $this->document->getId();
         }
 
@@ -670,7 +684,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
@@ -684,7 +698,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getElementTitle()
     {
-        if ($this->element instanceof Elements) {
+        if ($this->element instanceof ElementsInterface) {
             $this->elementTitle = $this->element->getTitle();
         }
 
@@ -692,7 +706,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Elements|null
+     * @return ElementsInterface|null
      */
     public function getElement()
     {
@@ -700,7 +714,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Elements|null $element
+     * @param ElementsInterface|null $element
      */
     public function setElement($element)
     {
@@ -716,7 +730,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $polygon
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setPolygon($polygon)
     {
@@ -740,7 +754,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $file
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setFile($file)
     {
@@ -766,12 +780,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getFiles(): array
     {
-        return $this->files->map(static function (DraftStatementFile $draftStatementFile): ?string {
-            return $draftStatementFile->getFileString();
-        })->toArray();
+        return $this->files->map(static fn (DraftStatementFileInterface $draftStatementFile): ?string => $draftStatementFile->getFileString())->toArray();
     }
 
-    public function addFile(DraftStatementFile $draftStatementFile): self
+    public function addFile(DraftStatementFileInterface $draftStatementFile): self
     {
         if (!$this->files->contains($draftStatementFile)) {
             $this->files[] = $draftStatementFile;
@@ -781,7 +793,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
-    public function removeFile(DraftStatementFile $draftStatementFile): self
+    public function removeFile(DraftStatementFileInterface $draftStatementFile): self
     {
         if ($this->files->removeElement($draftStatementFile)) {
             // set the owning side to null (unless already changed)
@@ -812,7 +824,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $mapFile
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setMapFile($mapFile)
     {
@@ -834,9 +846,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set oId.
      *
-     * @param Orga $organisation
+     * @param OrgaInterface $organisation
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setOrganisation($organisation)
     {
@@ -845,7 +857,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
-    public function getOrganisation(): Orga
+    public function getOrganisation(): OrgaInterface
     {
         return $this->organisation;
     }
@@ -857,7 +869,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getOId()
     {
-        if ($this->organisation instanceof Orga) {
+        if ($this->organisation instanceof OrgaInterface) {
             $this->oId = $this->organisation->getId();
         }
 
@@ -871,10 +883,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getOGatewayName()
     {
-        if ($this->organisation instanceof Orga) {
+        if ($this->organisation instanceof OrgaInterface) {
             try {
                 $this->oGatewayName = $this->organisation->getGatewayName();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->oGatewayName = '';
             }
         }
@@ -887,7 +899,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $oName
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setOName($oName)
     {
@@ -911,7 +923,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $dName
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setDName($dName)
     {
@@ -931,7 +943,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return mixed|Department
+     * @return mixed|DepartmentInterface
      */
     public function getDepartment()
     {
@@ -939,7 +951,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Department $department
+     * @param DepartmentInterface $department
      */
     public function setDepartment($department)
     {
@@ -948,7 +960,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     public function getDId()
     {
-        if ($this->department instanceof Department) {
+        if ($this->department instanceof DepartmentInterface) {
             $this->dId = $this->department->getId();
         }
 
@@ -958,9 +970,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set user.
      *
-     * @param User $user
+     * @param UserInterface $user
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUser($user)
     {
@@ -972,7 +984,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get user.
      *
-     * @return User
+     * @return UserInterface
      */
     public function getUser()
     {
@@ -984,7 +996,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getUId()
     {
-        if ($this->user instanceof User) {
+        if ($this->user instanceof UserInterface) {
             $this->uId = $this->user->getId();
         }
 
@@ -996,7 +1008,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $uName
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUName($uName)
     {
@@ -1020,7 +1032,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $uStreet
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUStreet($uStreet)
     {
@@ -1075,7 +1087,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $uPostalCode
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUPostalCode($uPostalCode)
     {
@@ -1099,7 +1111,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $uCity
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUCity($uCity)
     {
@@ -1123,7 +1135,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $uEmail
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setUEmail($uEmail)
     {
@@ -1159,7 +1171,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $feedback
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setFeedback($feedback)
     {
@@ -1183,7 +1195,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $externId
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setExternId($externId)
     {
@@ -1207,7 +1219,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $rejectedReason
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setRejectedReason($rejectedReason)
     {
@@ -1231,7 +1243,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $negativ
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setNegativ($negativ)
     {
@@ -1255,7 +1267,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $submitted
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setSubmitted($submitted)
     {
@@ -1279,7 +1291,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $released
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setReleased($released)
     {
@@ -1303,7 +1315,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $showToAll
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setShowToAll($showToAll)
     {
@@ -1327,7 +1339,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $deleted
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setDeleted($deleted)
     {
@@ -1362,7 +1374,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -1372,7 +1384,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $rejected
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setRejected($rejected)
     {
@@ -1396,7 +1408,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $publicAllowed
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setPublicAllowed($publicAllowed)
     {
@@ -1415,7 +1427,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param bool $publicUseName
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setPublicUseName($publicUseName)
     {
@@ -1439,7 +1451,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $publicDraftStatement
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setPublicDraftStatement($publicDraftStatement)
     {
@@ -1475,7 +1487,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $represents
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setRepresents($represents)
     {
@@ -1489,7 +1501,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param string $phase
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setPhase($phase)
     {
@@ -1513,7 +1525,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $createdDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setCreatedDate($createdDate)
     {
@@ -1537,7 +1549,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $deletedDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setDeletedDate($deletedDate)
     {
@@ -1561,7 +1573,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $lastModifiedDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setLastModifiedDate($lastModifiedDate)
     {
@@ -1585,7 +1597,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $submittedDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setSubmittedDate($submittedDate)
     {
@@ -1609,7 +1621,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $releasedDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setReleasedDate($releasedDate)
     {
@@ -1633,7 +1645,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      *
      * @param DateTime $rejectedDate
      *
-     * @return DraftStatement
+     * @return DraftStatementInterface
      */
     public function setRejectedDate($rejectedDate)
     {
@@ -1655,7 +1667,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get statementAttributes.
      *
-     * @return StatementAttribute[]
+     * @return StatementAttributeInterface[]
      */
     public function getStatementAttributes()
     {
@@ -1694,10 +1706,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     /**
      * Add StatementAttribute to DraftStatement.
-     *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
      */
-    public function addStatementAttribute(StatementAttribute $statementAttribute)
+    public function addStatementAttribute(StatementAttributeInterface $statementAttribute)
     {
         if (!$this->statementAttributes->contains($statementAttribute)) {
             $this->statementAttributes->add($statementAttribute);
@@ -1706,10 +1716,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     /**
      * Remove StatementAttribute from DraftStatement.
-     *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute $statementAttribute
      */
-    public function removeStatementAttribute(StatementAttribute $statementAttribute)
+    public function removeStatementAttribute(StatementAttributeInterface $statementAttribute)
     {
         if ($this->statementAttributes->contains($statementAttribute)) {
             $this->statementAttributes->removeElement($statementAttribute);
@@ -1734,7 +1742,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * @param string $key
      * @param mixed  $value
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement
+     * @return DraftStatementInterface
      */
     public function setMiscDataValue($key, $value)
     {

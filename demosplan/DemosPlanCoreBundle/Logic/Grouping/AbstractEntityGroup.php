@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,21 +32,15 @@ class AbstractEntityGroup implements EntityGroupInterface
     private $subgroups;
 
     /**
-     * @var string
-     */
-    private $title;
-
-    /**
      * @var int
      */
     private $level;
 
-    public function __construct(string $title = '')
+    public function __construct(private readonly string $title = '')
     {
         $this->entries = [];
         $this->subgroups = [];
         $this->level = 0;
-        $this->title = $title;
     }
 
     public function setSubgroups(array $subgroups): void
@@ -108,9 +102,7 @@ class AbstractEntityGroup implements EntityGroupInterface
 
     public function getTotal(): int
     {
-        return array_reduce($this->subgroups, static function (int $carry, EntityGroupInterface $group): int {
-            return $carry + $group->getTotal();
-        }, count($this->entries));
+        return array_reduce($this->subgroups, static fn (int $carry, EntityGroupInterface $group): int => $carry + $group->getTotal(), count($this->entries));
     }
 
     public function getLevel(): int

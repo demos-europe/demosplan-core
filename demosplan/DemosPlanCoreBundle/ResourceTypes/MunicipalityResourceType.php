@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -66,9 +66,9 @@ final class MunicipalityResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     protected function getProperties(): array
@@ -76,9 +76,7 @@ final class MunicipalityResourceType extends DplanResourceType
         return [
             $this->createAttribute($this->id)->readable(true),
             // @improve T22478
-            $this->createAttribute($this->name)->readable(true, static function (Municipality $municipality): string {
-                return $municipality->getName();
-            }),
+            $this->createAttribute($this->name)->readable(true, static fn(Municipality $municipality): string => $municipality->getName()),
         ];
     }
 }

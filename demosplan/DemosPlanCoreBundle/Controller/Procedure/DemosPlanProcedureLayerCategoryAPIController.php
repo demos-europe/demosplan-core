@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,21 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class DemosPlanProcedureLayerCategoryAPIController.
- *
- * @Route(
- *     "/api/1.0/GisLayerCategory",
- *     options={"expose": true}
- * )
  */
+#[Route(path: '/api/1.0/GisLayerCategory', options: ['expose' => true])]
 class DemosPlanProcedureLayerCategoryAPIController extends APIController
 {
     /**
      * Delete a specific GisLayerCategory.
-     *
-     * @Route(
-     *     path="/{layerCategoryId}",
-     *     methods={"DELETE"},
-     *     name="dplan_api_procedure_layer_category_delete")
      *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
@@ -43,6 +34,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
     public function layerCategoryDeleteAction(string $layerCategoryId, MapService $mapService)
     {
         try {

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,22 +17,16 @@ use RuntimeException;
 class HTMLSanitizer
 {
     /**
-     * @var HTMLPurifier
-     */
-    private $htmlPurifier;
-    /**
      * @var string
      */
     private $cacheDirectory;
 
-    public function __construct(HTMLPurifier $htmlPurifier, string $cacheDirectory)
+    public function __construct(private readonly HTMLPurifier $htmlPurifier, string $cacheDirectory)
     {
         // Make sure the cache directory exists, as the purifier won't create it for you
         if (!file_exists($cacheDirectory) && !mkdir($cacheDirectory, 0777, true) && !is_dir($cacheDirectory)) {
             throw new RuntimeException(sprintf('HTML purifier directory "%s" can not be created', $cacheDirectory));
         }
-
-        $this->htmlPurifier = $htmlPurifier;
         $this->cacheDirectory = $cacheDirectory;
     }
 
@@ -77,9 +71,7 @@ class HTMLSanitizer
             ->merge($additionalAllowedTags)
             ->flatMap(
                 // format as tags, as strip_tags() needs tags formatted as "<a>"
-                static function ($tagName) {
-                    return ["<{$tagName}>"];
-                }
+                static fn($tagName) => ["<{$tagName}>"]
             )
             ->implode('');
 
