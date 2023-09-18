@@ -139,7 +139,7 @@ const LayersStore = {
         const categories = []
         const layers = []
 
-        data.data.newOrder.forEach((el, idx) => {
+        data.data.forEach((el, idx) => {
           set(el.attributes, data.orderType, (data.parentOrder * 100) + (idx + 1))
           if (data.orderType === 'treeOrder') {
             if (el.type === 'GisLayerCategory') {
