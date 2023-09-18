@@ -1,8 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
-namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
@@ -61,7 +69,6 @@ class LogoutSubscriber implements EventSubscriberInterface
         foreach ($this->allowedCookieNames as $cookieName) {
             $response->headers->clearCookie($cookieName);
         }
-
 
         $event->setResponse($response);
     }

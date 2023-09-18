@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -277,7 +276,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     * Logout via security system
+     * Logout via security system.
      */
     #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
     public function logoutAction(): void
