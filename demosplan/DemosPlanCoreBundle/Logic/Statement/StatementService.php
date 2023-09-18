@@ -57,7 +57,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -487,6 +486,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $fileString
                 );
             })->toArray();
+
         // Update Statement with attached files
         return $this->getStatement($statement->getId());
     }
@@ -1397,8 +1397,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function hasCurrentUserStatementAssignWriteRights($statement): bool
     {
-        return !$this->permissions->hasPermission('feature_statement_assignment') ||
-            $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
+        return !$this->permissions->hasPermission('feature_statement_assignment')
+            || $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
     }
 
     /**
@@ -1411,9 +1411,9 @@ class StatementService extends CoreService implements StatementServiceInterface
     protected function isStatementLockedByCluster(Statement $statement, $ignoreCluster = false): bool
     {
         return
-            !$ignoreCluster &&
-            $this->permissions->hasPermission('feature_statement_cluster') &&
-            $statement->isInCluster();
+            !$ignoreCluster
+            && $this->permissions->hasPermission('feature_statement_cluster')
+            && $statement->isInCluster();
     }
 
     /**
@@ -1978,27 +1978,27 @@ class StatementService extends CoreService implements StatementServiceInterface
         $em = $this->getDoctrine()->getManager();
         $currentStatement = $this->getStatement($data['ident']);
 
-        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph &&
-            $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph
+            && $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion($data['paragraph']);
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
-        if (\array_key_exists('paragraphId', $data) &&
-            0 < \strlen((string) $data['paragraphId']) &&
-            $data['paragraphId'] != $currentStatement->getParagraphId()) {
+        if (\array_key_exists('paragraphId', $data)
+            && 0 < \strlen((string) $data['paragraphId'])
+            && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument &&
-            $data['document']->getId() != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument
+            && $data['document']->getId() != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion($data['document']);
         }
 
-        if (\array_key_exists('documentId', $data) &&
-            0 < \strlen((string) $data['documentId']) &&
-            $data['documentId'] != $currentStatement->getDocumentId()) {
+        if (\array_key_exists('documentId', $data)
+            && 0 < \strlen((string) $data['documentId'])
+            && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
@@ -2090,6 +2090,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         foreach ($statements as $statement) {
             $statementsByIds[$statement->getId()] = $statement;
         }
+
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
         return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
@@ -2159,8 +2160,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * @param string $statementId
-     *
-     * @return mixed
      *
      * @deprecated use {@link Statement::isManual()} instead
      */
@@ -4290,7 +4289,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statement['pId'] = $data['r_ident'];
         }
 
-//        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
+        //        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
         if (\array_key_exists('fileupload', $data) && '' !== $data['fileupload']) {
             $statement['file'] = $data['fileupload'];
         }

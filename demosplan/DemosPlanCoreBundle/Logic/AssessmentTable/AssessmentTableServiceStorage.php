@@ -424,8 +424,6 @@ class AssessmentTableServiceStorage
     /**
      * check whether user tries to delete metadata from statement that is assigned to its fragments.
      *
-     * @return mixed
-     *
      * @throws MessageBagException
      */
     protected function validateStatementData(array $statementToUpdate)
@@ -493,8 +491,6 @@ class AssessmentTableServiceStorage
     // @improve T14469
 
     /**
-     * @return mixed
-     *
      * @throws MessageBagException
      */
     protected function validateEntityInStatementUpdateData(array $statementToUpdate, Statement $currentStatement, array $entityArray)
@@ -664,7 +660,7 @@ class AssessmentTableServiceStorage
                             $attachmentNames
                         );
                     }
-                // manuell eingegebene Stellungnahme
+                    // manuell eingegebene Stellungnahme
                 } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
