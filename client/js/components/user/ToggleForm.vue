@@ -19,7 +19,7 @@
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpToggleForm',
+  name: 'ToggleForm',
 
   components: {
     DpAccordion,

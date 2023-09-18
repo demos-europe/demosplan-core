@@ -10,9 +10,9 @@
 /**
  * This is the entry point for unregistered_publicagency_list.html.twig
  */
-import DpToggleForm from '@DpJs/components/user/DpToggleForm'
 import { initialize } from '@DpJs/InitVue'
+import ToggleForm from '@DpJs/components/user/DpToggleForm'
 
-const components = { DpToggleForm }
+const components = { ToggleForm }
 
 initialize(components)

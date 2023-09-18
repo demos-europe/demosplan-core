@@ -12,7 +12,7 @@
         {{ 'invitable_institution.unregistered.administer.explanation'|trans }}
     </p>
 
-    <dp-toggle-form
+    <toggle-form
         class="u-mt"
         form-id="newUnregisteredPublicAgency"
         title="{{ 'invitable_institution.add'|trans }}">
@@ -48,7 +48,7 @@
                 }) }}
             </fieldset>
         </form>
-    </dp-toggle-form>
+    </toggle-form>
 
     {% if entries|length > 0 %}
         {# List of unregistered invitable institutions #}
