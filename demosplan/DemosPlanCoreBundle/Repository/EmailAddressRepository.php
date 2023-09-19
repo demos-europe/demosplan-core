@@ -66,10 +66,8 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
             .' FROM email_address AS e'
             .' LEFT JOIN procedure_agency_extra_email_address      AS p  ON p.email_address_id = e.id'
             .' LEFT JOIN maillane_allowed_sender_email_address    AS p2 ON p.email_address_id = e.id'
-            .' LEFT JOIN gdpr_consent_revoke_token_email_addresses AS t  ON t.email_address_id = e.id'
             .' WHERE p.procedure_id  IS NULL'
             .' AND   p2.procedure_id IS NULL'
-            .' AND   t.token_id      IS NULL'
         );
     }
 

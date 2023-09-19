@@ -122,6 +122,17 @@
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
+                <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
+                  class="u-ml-0_25"
+                  icon="ai"
+                  size="large"
+                  :text="Translator.trans('segment.oracle.tooltip')" />
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
+                  class="absolute u-right-0 u-mr"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')" />
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
@@ -137,7 +148,8 @@
                       :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
                       class="u-mt"
-                      :is="component.name" />
+                      :is="component.name"
+                      @recommendation:insert="toggleRecommendationModal" />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -152,11 +164,11 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="segment.hasRelationship('tags')"
+              v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              @click.stop="openRecommendationModal">
+              @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -229,6 +241,7 @@
           }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
@@ -259,7 +272,9 @@
           }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
-          <dp-icon icon="history" />
+          <dp-icon
+            class="inline-block"
+            icon="history" />
         </button>
 
         <button
@@ -309,8 +324,10 @@ import {
   checkResponse,
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpIcon,
   DpLabel,
   DpModal,
@@ -333,9 +350,11 @@ export default {
 
   components: {
     AddonWrapper,
+    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpClaim,
     DpIcon,
     DpLabel,
@@ -587,7 +606,7 @@ export default {
       this.$refs.boilerPlateModal.toggleModal()
     },
 
-    openRecommendationModal () {
+    toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
     },
 
@@ -821,14 +840,14 @@ export default {
       })
 
     loadAddonComponents('segment.recommendationModal.tab')
-      .then((response) => {
+      .then(response => {
         this.asyncComponents = response
         this.allComponentsLoaded = true
 
         response.forEach(component => {
           this.$options.components[component.name] = window[component.name].default
         })
-    })
+      })
   }
 }
 </script>
