@@ -633,7 +633,7 @@ export default {
       set (value) {
         this.setChildrenFromCategory({
           categoryId: this.element.id,
-          data: value,
+          data: value.newOrder,
           orderType: 'treeOrder',
           parentOrder: this.layer.attributes.treeOrder
         })
