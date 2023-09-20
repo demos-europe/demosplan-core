@@ -70,7 +70,7 @@
                     class="fa fa-trash"
                     aria-hidden="true" />
                 </a>
-                {{ hasOwnProp(option, 'attributes') ? props.option.attributes.name : '' }}
+                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
               </template>
               <template v-slot:singleLabel="{ props }">
                 {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
