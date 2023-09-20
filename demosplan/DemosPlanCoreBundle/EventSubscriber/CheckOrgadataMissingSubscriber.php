@@ -3,14 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -29,27 +30,21 @@ class CheckOrgadataMissingSubscriber extends BaseEventSubscriber
         'DemosPlan_user_logout',
         'user_update_additional_information',
     ];
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    public function __construct(CurrentUserInterface $currentUser, LoggerInterface $logger, RouterInterface $router)
+    public function __construct(private readonly CurrentUserInterface $currentUser, LoggerInterface $logger, private readonly RouterInterface $router)
     {
-        $this->currentUser = $currentUser;
         $this->logger = $logger;
-        $this->router = $router;
     }
 
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
         $user = $this->currentUser->getUser();
+
+        // citizens should never need to complete orga data
+        if ($user->hasRole(Role::CITIZEN)) {
+            return;
+        }
 
         // check whether all mandatory organisation data is given
         // ignore routes, that need to be called even if not all data is provided

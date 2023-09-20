@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -31,7 +31,7 @@
         </tr>
         <tr
           @click="getContent"
-          class="o-sortablelist__item cursor--pointer">
+          class="o-sortablelist__item cursor-pointer">
           <!-- time -->
           <td
             class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
@@ -71,10 +71,10 @@
           </td>
 
           <td
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text--right cursor--pointer"
+            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
             style="width: 5%">
             <i
-              class="btn-icns fa cursor--pointer"
+              class="btn-icns fa cursor-pointer"
               :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
               data-cy="toggleIcon" />
           </td>
@@ -98,7 +98,7 @@
               <tr>
                 <td
                   v-if="isOpen && isLoading"
-                  class="u-ml u-mb u-mt display--inline-block"
+                  class="u-ml u-mb u-mt inline-block"
                   colspan="4">
                   <dp-loading />
                 </td>
@@ -118,7 +118,7 @@
                       data-cy="historyItemElement">
                       <td
                         :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
-                        class="u-pt-0_5 u-pl-0_5 u-mr u-pr u-valign--top u-1-of-6 display--inline-block"
+                        class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
                         data-cy="fieldName">
                         <strong>
                           {{ Translator.trans(fieldName) }}
@@ -127,13 +127,13 @@
                       <td
                         v-if="content !== null && content !== ''"
                         style="width: 79%;"
-                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 overflow-word-break display--inline-block"
+                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
                         data-cy="contentChange"
                         v-cleanhtml="content" />
                       <td
                         v-else-if="content === null"
                         style="width: 82%;"
-                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey display--inline-block">
+                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block">
                         {{ Translator.trans('formatting.change') }}
                       </td>
                     </tr>
@@ -147,7 +147,7 @@
                       </th>
                     </tr>
                     <tr class="u-pb-0_25">
-                      <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey display--inline-block">
+                      <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey inline-block">
                         {{ Translator.trans('details.none') }}
                       </td>
                     </tr>
@@ -163,8 +163,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, formatDate } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpVersionHistoryItem',

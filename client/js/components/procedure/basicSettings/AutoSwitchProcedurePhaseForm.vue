@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="cf">
+  <div class="flow-root">
     <dp-checkbox
       :id="checkboxId"
       v-model="autoSwitchPhase"
@@ -61,6 +61,10 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
+            :data-cy="{
+                endDate: dataCyEndDate,
+                startDate: dataCyStartDate
+            }"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -89,8 +93,14 @@
 </template>
 
 <script>
-import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpLabel, DpSelect } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import {
+  DpCheckbox,
+  DpDateRangePicker,
+  DpDatetimePicker,
+  DpLabel,
+  DpSelect,
+  formatDate
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -111,6 +121,18 @@ export default {
     availablePhases: {
       type: Object,
       default: () => ({})
+    },
+
+    dataCyEndDate: {
+      type: String,
+      required: false,
+      default: 'endDate'
+    },
+
+    dataCyStartDate: {
+      type: String,
+      required: false,
+      default: 'startDate'
     },
 
     /**

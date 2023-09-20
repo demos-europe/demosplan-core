@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -10,7 +10,7 @@
 <template>
   <dp-modal
     ref="newOrgaModal"
-    content-classes="u-2-of-3 u-pb--0_75 text--left">
+    content-classes="u-2-of-3 u-pb--0_75 text-left">
     <h2>{{ Translator.trans('organisation.add') }}</h2>
     <div
       v-for="field in fields"
@@ -27,7 +27,7 @@
         :name="`new_${field.field}`"
         class="layout__item u-1-of-2">
     </div>
-    <div class="text--right">
+    <div class="text-right">
       <button
         type="button"
         @click="saveAndReturn"

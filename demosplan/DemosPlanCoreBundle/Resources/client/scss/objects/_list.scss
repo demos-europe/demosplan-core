@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -26,7 +26,7 @@
 ///   </li>
 ///   <li class="o-list__item u-p-0_5 cf">
 ///     There can go nearly everything in here.
-///     <button class="btn btn--primary float--right">
+///     <button class="btn btn--primary float-right">
 ///       Bam!
 ///     </button>
 ///   </li>
@@ -116,7 +116,7 @@
 
         // Stacked items with bg color, separated by margin. This is the original "assessment table list style".
         .o-list--card > & {
-            background-color: $dp-token-color-ui-bg-neutral-medium;
+            background-color: $dp-color-background-medium;
             margin-bottom: $inuit-base-spacing-unit--small;
 
             &:last-child {

@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -11,8 +11,7 @@
  * This is the entrypoint for edit_orga.html.twig
  */
 
-import { DpAccordion, DpEditor } from '@demos-europe/demosplan-ui'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 

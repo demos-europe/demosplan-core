@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,17 +17,8 @@ use Knp\Menu\ItemInterface;
 
 class ConfigureMenuEvent extends DPlanEvent
 {
-    private $menuName;
-    /** @var FactoryInterface */
-    private $factory;
-    /** @var ItemInterface */
-    private $menu;
-
-    public function __construct(string $menuName, FactoryInterface $factory, ItemInterface $menu)
+    public function __construct(private readonly string $menuName, private readonly FactoryInterface $factory, private readonly ItemInterface $menu)
     {
-        $this->menuName = $menuName;
-        $this->factory = $factory;
-        $this->menu = $menu;
     }
 
     public function getFactory(): FactoryInterface

@@ -1,0 +1,121 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'tag.administration_single' |trans
+    } %}
+
+    <form class="layout--flush flow-root" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'title'|trans, id: 'r_tagTitle' },
+                    control: { name: 'r_tagTitle', class: 'u-mb' },
+                    id: 'r_tagTitle',
+                    value: templateVars.tag.title,
+                    type: 'text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        {% if permissions.area_admin_boilerplates is defined and permissions.area_admin_boilerplates.enabled == true %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'boilerplate.none'|trans, class: "inline" },
+                        control: { name: 'r_attachmode' },
+                        id: 'boilerplateNone',
+                        name: 'r_attachmode',
+                        value: 'none',
+                        type: 'radio',
+                        checked: templateVars.tag.boilerplate is null
+                    }
+                ]
+            }) }}
+
+            {% set existingBoilerplates = [] %}
+            {% for boilerplate in templateVars.boilerplates %}
+                    {% if 'consideration' in boilerplate.categories|map(cat => cat.title) or boilerplate.categories|length == 0 %}
+                        {% set existingBoilerplates = existingBoilerplates|merge([{ value: boilerplate.ident, selected: templateVars.tag.boilerplate is not null and boilerplate.ident == templateVars.tag.boilerplate.ident, label: boilerplate.title }]) %}
+                    {% endif %}
+                {% endfor %}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'boilerplate.existing'|trans, class: "inline" },
+                        control: { name: 'r_attachmode' },
+                        name: 'r_attachmode',
+                        id: 'boilerplateExisting',
+                        value: 'existing',
+                        type: 'radio',
+                        elementSize: 'medium',
+                        elementStyle: 'inline-block',
+                        checked: templateVars.tag.boilerplate is not null
+                    },
+                    {
+                        label: {},
+                        control: { name: 'r_boilerplateId', options: existingBoilerplates },
+                        id: 'boilerplateSelect',
+                        type: 'select',
+                        elementSize: 'larger',
+                        elementStyle: 'inline-block',
+                    }
+                ]
+            })|spaceless }}
+
+            {% apply spaceless %}
+                <div class="layout__item u-1-of-3">
+                    {{ uiComponent('form.element', {
+                        label: { text: 'boilerplate.generate'|trans, class: "inline" },
+                        control: { name: 'r_attachmode' },
+                        name: 'r_attachmode',
+                        id: 'newBoilerplateRadio',
+                        value: 'new',
+                        type: 'radio',
+                    }) }}
+                </div>
+
+                <div class="layout__item u-2-of-3 hidden" id="newBoilerplateForm">
+                    {{ uiComponent('form.element',  {
+                        label: {},
+                        control: { name: 'r_boilerplateTitle', attributes: ['data-dp-validate-if=#newBoilerplateRadio'], required: true },
+                        id: 'boilerplateTitle',
+                        type: 'text',
+                        value: '',
+                    }) }}
+                    {{ uiComponent('form.element', {
+                        label: {},
+                        control: {
+                            name: 'r_boilerplateText',
+                            editorId: 'boilerplateText',
+                            hiddenInput: 'r_boilerplateText',
+                            customAttrs: ['data-dp-validate-if=#newBoilerplateRadio'],
+                            required: true
+                        },
+                        id: 'r_boilerplateText',
+                        type: 'editor',
+                        value: ''
+                    }) }}
+                </div>
+            {% endapply %}
+
+        {% endif %}
+
+        <div class="text-right u-mt-0_5 space-inline-s">
+            <button type="submit" class="btn btn--primary">{{ "save" |trans }}</button>
+            <a class="btn btn--secondary" href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}#{{ tag }}">
+                {{ "abort"|trans }}
+            </a>
+        </div>
+
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-editTag.js']) }}
+{% endblock javascripts %}

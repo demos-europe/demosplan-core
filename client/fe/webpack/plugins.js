@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -98,10 +98,9 @@ const webpackDefaultPlugins = [
   }),
   new VueLoader.VueLoaderPlugin(),
 
-  // Provide configured Vue and Bus instances to all modules
+  // Provide Vue instance to all modules (is configured in InitVue.js before initialization).
   new webpack.ProvidePlugin({
-    Vue: ['@DpJs/VueConfigCore', 'default'],
-    Bus: ['@DpJs/VueConfigBus', 'default']
+    Vue: 'vue'
   })
 ]
 

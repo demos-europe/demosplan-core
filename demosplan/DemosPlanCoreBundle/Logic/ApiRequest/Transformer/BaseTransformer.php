@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,14 +12,16 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\Transformer\BaseTransformerInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\TransformerAbstract;
 use LogicException;
+use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class BaseTransformer extends TransformerAbstract
+abstract class BaseTransformer extends TransformerAbstract implements BaseTransformerInterface
 {
     protected $type;
 
@@ -32,7 +34,7 @@ abstract class BaseTransformer extends TransformerAbstract
     protected $permissions;
 
     /**
-     * @var ApiResourceService
+     * @var ApiResourceServiceInterface
      */
     protected $resourceService;
 
@@ -46,6 +48,11 @@ abstract class BaseTransformer extends TransformerAbstract
     public function getClass(): string
     {
         return static::class;
+    }
+
+    public function getInstance(): self
+    {
+        return $this;
     }
 
     /**
@@ -64,9 +71,8 @@ abstract class BaseTransformer extends TransformerAbstract
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setPermissions(PermissionsInterface $permissions): void
     {
         $this->permissions = $permissions;
@@ -86,10 +92,9 @@ abstract class BaseTransformer extends TransformerAbstract
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
-    public function setResourceService(ApiResourceService $resourceService): void
+    #[Required]
+    public function setResourceService(ApiResourceServiceInterface $resourceService): void
     {
         $this->resourceService = $resourceService;
     }
@@ -101,9 +106,8 @@ abstract class BaseTransformer extends TransformerAbstract
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setGlobalConfig(GlobalConfigInterface $globalConfig): void
     {
         $this->globalConfig = $globalConfig;

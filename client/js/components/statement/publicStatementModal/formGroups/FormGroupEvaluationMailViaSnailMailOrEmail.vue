@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -105,11 +105,10 @@
 </template>
 
 <script>
-import { DpCheckbox, DpRadio } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 import FormGroupPostalAndCity from './FormGroupPostalAndCity'
 import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'FormGroupEvaluationMailViaSnailMailOrEmail',

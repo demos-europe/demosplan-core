@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="flex flex-items-center space-inline-s u-mv-0_5">
+    <div class="flex items-center space-inline-s u-mv-0_5">
       <p
         class="weight--bold u-m-0"
         v-text="Translator.trans('statement.similarStatementSubmitters')" />
@@ -23,7 +23,7 @@
       @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
       ref="listComponent">
       <template v-slot:list="{ entry, index }">
-        <ul class="o-list o-list--csv display--inline">
+        <ul class="o-list o-list--csv inline">
           <template v-if="isRequestFormPost">
             <input
               type="hidden"
@@ -155,8 +155,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpContextualHelp, DpEditableList, DpInput } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpContextualHelp,
+  DpEditableList,
+  DpInput,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
 
 export default {

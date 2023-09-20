@@ -1,0 +1,218 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% if templateVars is defined %}
+    {% if templateVars.title is defined %}
+	   {% set title = pageTitle(templateVars.title) %}
+	{% else %}
+	   {% set title = "" %}
+	{% endif %}
+{% endif %}
+
+{% set user = templateVars.user|default([]) %}
+{% set orga = templateVars.orga|default([]) %}
+
+
+{% if orga.organisation_papercopy is defined %}
+	{% set countPaperCopy = orga.organisation_papercopy %}
+{% else %}
+	{% set countPaperCopy = 0 %}
+{% endif %}
+
+
+{% block header %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_header.html.twig' with { 'noNav': true } %}
+{% endblock header %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+    'content_heading': 'Aktualität Ihrer Daten überprüfen / Kontaktdaten vervollständigen',
+    'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+            <div class="{% block container_css %}{% endblock container_css %}">
+
+                <p>
+                    {{ "text.welcome"|trans }}
+                </p>
+
+                {% if feedback.success_message is defined %}
+                    <p class="flash flash-confirm">
+                        <i class="fa fa-check-circle" aria-hidden="true"></i>
+                        {{ feedback.success_message }}
+                    </p>
+                {% endif %}
+
+                {% if feedback.fail_message is defined %}
+                    <p class="flash flash-error">
+                        {% for message in feedback.fail_message %}
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{ message }}<br>
+                        {% endfor %}
+                    </p>
+                {% endif %}
+
+                <form id="newUser" method="post" action="{{ path("DemosPlan_user_complete_data") }}" data-dp-validate novalidate>
+
+                    <h3 class="u-mt-2 u-mb-0_75">Nutzerbezogene Daten</h3>
+
+                    <label class="u-mb-0_5">
+                        {{ "email"|trans }}
+                        <input type="text" class="layout__item" value="{% if user is defined %}{{- user.email|default("-") -}}{% endif %}" disabled>
+                    </label>
+
+                    {% if hasOneOfPermissions('feature_original_newsletter', 'feature_alternative_newsletter') %}
+                        {% block newsletter %}
+                            <label>
+                                {{ "newsletter"|trans }}<br>
+
+                                {% if hasPermission('feature_alternative_newsletter') %}
+                                    <p>
+                                        Mit unserem Newsletter BOB-SH Bauleitplanung erhalten Sie regelmäßig Informationen zu Neuigkeiten und
+                                        Schulungen unserer Beteiligungsplattform. Sie können diesen Service in jedem Newsletter wieder abbestellen.
+                                    </p>
+
+                                    <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
+                                {% else %}
+                                    <input type="checkbox" name="newsletter" {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
+                                    <p class="lbl--text inline">
+                                        {{ "explanation.newsletter"|trans({ projectName:projectName })|wysiwyg }}
+                                    </p>
+                                {% endif %}
+
+                            </label>
+                        {% endblock newsletter %}
+                    {% endif %}
+
+                    {% set alreadyDisplayed = "false" %}
+                    {% set isFP = user.isPlanner %}
+                    {% set isInvitableInstitution = (user.isPublicAgency or constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Role::ORGANISATION_ADMINISTRATION') in user.roles|default([]))? true : false %}
+
+                    {% for item in user.roles|default([]) %}
+                        {% if alreadyDisplayed == "false" %}
+                            {% if item == "RMOPSM" or item == "RMOPSA" or item == "RPSOCO" or item == "RMOPPO" %}
+                                {% set alreadyDisplayed = "true" %}
+
+                                <h3 class="u-mt-2 u-mb-0_75">{{ "organisation.data"|trans }}</h3>
+
+                                <label class="u-mb-0_5">
+                                    {{ "name.legal"|trans }}
+                                    <input type="text" class="layout__item" value="{% if orga is defined %}{{ orga.name|default("-") }}{% endif %}" disabled>
+                                </label>
+
+                                {% if validation.errors is defined %}
+                                    <p class="color-status-failed-text">
+                                        {% for error in validation.errors %}
+                                            {% if error.propertyPath == "email" %}
+                                                {{ error.message }}<br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
+
+
+                                {% if isInvitableInstitution == true %}
+
+                                    {% if validation.errors is defined %}
+                                        <p class="color-status-failed-text">
+                                            {% for error in validation.errors %}
+                                                {% if error.propertyPath == "email2" %}
+                                                    {{ error.message }}<br>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
+
+                                    <label class="">
+                                        {{ "email.participation"|trans }}*
+                                        <p class="lbl__hint u-mb-0_25">
+                                            {{ "explanation.organisation.email"|trans|wysiwyg }}
+                                        </p>
+                                        <input class="layout__item hard--left" type="email" name="email2" value="{{ orga.email2|default("") }}" required>
+                                    </label>
+
+                                {% endif %}
+
+
+                                {% block papercopy %}
+
+                                    {% if hasPermission('field_organisation_paper_copy')%}
+                                        <label>
+                                            {{ "copies.paper"|trans }}
+                                            <p class="lbl--text u-mt-0_25">
+                                                <select name="paperCopy">
+                                                    {% for i in 0..10 %}
+                                                        <option value="{{ i }}" {% if countPaperCopy == i %}selected="selected"{% endif %}>
+                                                            {{ i }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                              {{ 'explanation.organisation.copies.paper'|trans }}
+                                            </p>
+                                        </label>
+                                    {% endif %}
+
+                                    {% if hasPermission('field_organisation_paper_copy_spec')%}
+                                        <label>
+                                            {{ "copies.kind"|trans }}
+                                            <p class="lbl__hint u-mb-0_25">
+                                                Spezifizieren Sie über eine Eintragung in das folgende Textfeld, welche Unterlagen Sie wünschen. Beispiel: 2 x Planzeichnung.
+                                            </p>
+                                            <textarea class="height-130" name="paperCopySpec">{{ orga.papercopyspec|default("") }}</textarea>
+                                        </label>
+                                    {% endif %}
+
+                                    {% if hasPermission('field_organisation_competence')%}
+                                        <label>
+                                            {{ "competence.explanation"|trans }}
+                                            <p class="lbl__hint u-mb-0_25">
+                                                Falls Ihre Organisation nur unter bestimmten Bedingungen an einem Bauleitplanverfahren beteiligt werden soll, können Sie Ihre Zuständigkeit erläutern.
+                                            </p>
+                                            <textarea class="height-130" name="competence">{{ orga.competence|default("") }}</textarea>
+                                        </label>
+                                    {%  endif %}
+
+                                {% endblock papercopy %}
+
+                                {% if hasPermission('field_organisation_agreement_showname_on_welcomePage') %}
+                                    {% block showname %}
+
+                                        <label>
+                                            Zustimmung zur Veröffentlichung
+                                            <p class="lbl__hint u-mb-0_25">
+                                                Um allen Anwendern und Interessenten einen Überblick der Nutzergruppe von {{ projectName }} zu ermöglichen, werden öffentlich auf unserer Seite die Namen der teilnehmenden Organisationen aufgelistet. Auch Ihre Organisation wird aufgenommen, wenn Sie hier ein Häkchen setzen.
+                                            </p>
+                                            <input type="checkbox" name="showname" value="1" {% if orga.showname == true %}checked="checked"{%  endif %}> <span class="lbl--text">Ich stimme der Veröffentlichung zu.</span>
+                                        </label>
+
+                                    {% endblock %}
+                                {% endif %}
+
+                                <input type="hidden" name="oident" value="{{ orga.ident|default("") }}">
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="text-right space-inline-s">
+                        <input class="btn btn--primary" type="submit" value="{{ "continue"|trans }}">
+                        <a
+                            class="btn btn--secondary"
+                            href="{{ path('DemosPlan_user_logout') }}">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i>
+                            {{ "logout"|trans }}
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock component_part %}
+
+{% block base_footer %}{% endblock base_footer %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('user-newUser.js') }}
+{% endblock javascripts %}

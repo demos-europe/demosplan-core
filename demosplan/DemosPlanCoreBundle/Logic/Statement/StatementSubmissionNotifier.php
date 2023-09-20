@@ -5,13 +5,14 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
@@ -22,88 +23,22 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class StatementSubmissionNotifier
 {
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var Environment
-     */
-    private $twig;
-    /**
-     * @var MailService
-     */
-    private $mailService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-    /**
-     * @var DraftStatementService
-     */
-    private $draftStatementService;
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var ContentService
-     */
-    private $contentService;
-    /**
-     * @var ConsultationTokenService
-     */
-    private $consultationTokenService;
-
-    public function __construct(
-        CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
-        Environment $twig,
-        LoggerInterface $logger,
-        MailService $mailService,
-        MessageBagInterface $messageBag,
-        TranslatorInterface $translator,
-        DraftStatementService $draftStatementService,
-        OrgaService $orgaService,
-        ContentService $contentService,
-        ConsultationTokenService $consultationTokenService
-    ) {
-        $this->currentProcedureService = $currentProcedureService;
-        $this->currentUser = $currentUser;
-        $this->logger = $logger;
-        $this->mailService = $mailService;
-        $this->messageBag = $messageBag;
-        $this->translator = $translator;
-        $this->twig = $twig;
-        $this->draftStatementService = $draftStatementService;
-        $this->orgaService = $orgaService;
-        $this->contentService = $contentService;
-        $this->consultationTokenService = $consultationTokenService;
+    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserInterface $currentUser, private readonly Environment $twig, private readonly LoggerInterface $logger, private readonly MailService $mailService, private readonly MessageBagInterface $messageBag, private readonly TranslatorInterface $translator, private readonly DraftStatementService $draftStatementService, private readonly OrgaService $orgaService, private readonly ContentService $contentService, private readonly ConsultationTokenService $consultationTokenService)
+    {
     }
 
     /**
@@ -115,6 +50,7 @@ class StatementSubmissionNotifier
      */
     public function sendConfirmationMails(array $submittedStatements)
     {
+        $vars = [];
         $mailData = $this->prepareConfirmationMailData(
             $submittedStatements,
             $this->currentProcedureService->getProcedureWithCertainty()->getId()
@@ -138,7 +74,7 @@ class StatementSubmissionNotifier
 
         $vars['mailsubject'] = $this->translator->trans('email.subject.statement.submitted');
         $vars['mailbody'] = $this->twig
-            ->load('@DemosPlanStatement/DemosPlanStatement/email_statement_submitted.html.twig')
+            ->load('@DemosPlanCore/DemosPlanStatement/email_statement_submitted.html.twig')
             ->render(
                 [
                     'templateVars' => [
@@ -218,7 +154,7 @@ class StatementSubmissionNotifier
         // does the orga want to receive notification mails?
         if ($this->isOrgaWantingNotifications($procedure)) {
             $emailText = $this->twig->load(
-                '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_new_statement.html.twig'
+                '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement.html.twig'
             )->renderBlock(
                 'body_plain',
                 [
@@ -334,7 +270,7 @@ class StatementSubmissionNotifier
         $ccs = []
     ): void {
         $emailText = $this->twig->load(
-            '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
+            '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
         )->renderBlock(
             'body_plain',
             [
@@ -372,7 +308,7 @@ class StatementSubmissionNotifier
                     break;
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Key emailNotificationNewStatement für Settings nicht vorhanden');
         }
 
@@ -390,6 +326,7 @@ class StatementSubmissionNotifier
      */
     protected function sendNewStatementNotification($procedureName, $subjectTransKey, $emailText, $recipients, $ccs)
     {
+        $vars = [];
         $from = '';
         $scope = 'extern';
         $vars['mailsubject'] = $this->translator->trans(
@@ -424,9 +361,9 @@ class StatementSubmissionNotifier
      * @param mixed  $number
      *
      * @throws Throwable
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function sendEmailOnNewStatement(
         $statementText,
@@ -435,6 +372,8 @@ class StatementSubmissionNotifier
         $number = null,
         GdprConsentRevokeToken $gdprConsentRevokeToken = null
     ): void {
+        $mailTemplateVars = [];
+        $vars = [];
         $procedureDetails = $this->currentProcedureService->getProcedureArray();
         $mailTemplateVars['procedure'] = $procedureDetails;
         $orga = $this->orgaService->getOrga($procedureDetails['orgaId']);
@@ -466,7 +405,7 @@ class StatementSubmissionNotifier
         ];
 
         $emailText = $this->twig->load(
-            '@DemosPlanStatement/DemosPlanStatement/new_statement_confirm_email.html.twig'
+            '@DemosPlanCore/DemosPlanStatement/new_statement_confirm_email.html.twig'
         )->renderBlock('body_plain', ['templateVars' => $mailTemplateVars]);
         $vars['mailsubject'] = $this->translator->trans(
             'email.subject.public.confirm',

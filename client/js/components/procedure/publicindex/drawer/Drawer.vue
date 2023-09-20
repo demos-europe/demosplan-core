@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <div
-    class="c-publicindex__drawer position--absolute u-top-0 u-z-map-toolbar box-shadow-2"
+    class="c-publicindex__drawer absolute u-top-0 z-above-zero shadow-md"
     :class="{ 'is-open': isDrawerOpened }">
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
@@ -23,7 +23,7 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            class="display--inline-block"
+            class="inline-block"
             data-cy="participationProcedures">
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
           </strong>
@@ -45,14 +45,13 @@
 </template>
 
 <script>
+import { DpLoading, MatchMedia } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpContentToggle from './ContentToggle'
 import DpDetailView from './DetailView'
 import DpHandle from './Handle'
 import DpList from './List'
-import { DpLoading } from '@demos-europe/demosplan-ui'
 import DpSearch from './Search'
-import { MatchMedia } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpDrawer',

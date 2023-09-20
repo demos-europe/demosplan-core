@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -16,7 +16,7 @@ import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {

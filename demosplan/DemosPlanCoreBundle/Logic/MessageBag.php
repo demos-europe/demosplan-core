@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,21 +38,13 @@ class MessageBag implements MessageBagInterface
     protected $messages;
 
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
      * Create an empty MessageBag.
      */
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(private readonly TranslatorInterface $translator)
     {
         $this->messages = collect(self::$definedSeverities)
             ->flip()
-            ->map(static function () {
-                return collect();
-            });
-        $this->translator = $translator;
+            ->map(static fn() => collect());
     }
 
     /**

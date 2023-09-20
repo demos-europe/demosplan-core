@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -16,7 +16,6 @@ import initGlobalEventListener from './GlobalEventListener'
 import Pager from './Pager'
 import ToggleAnything from './ToggleAnything'
 import ToggleSideMenu from './ToggleSideMenu'
-import Tooltips from './Tooltips'
 import touchFriendlyUserbox from './touchFriendlyUserbox'
 
 export {
@@ -29,6 +28,5 @@ export {
   Pager,
   ToggleAnything,
   ToggleSideMenu,
-  Tooltips,
   touchFriendlyUserbox
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,7 +22,7 @@ class BreadcrumbTwigExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('demosBreadcrumbRender', [$this, 'renderBreadcrumb']),
+            new TwigFunction('demosBreadcrumbRender', $this->renderBreadcrumb(...)),
         ];
     }
 

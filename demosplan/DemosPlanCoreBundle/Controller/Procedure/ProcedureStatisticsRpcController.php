@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,14 +25,8 @@ class ProcedureStatisticsRpcController extends APIController
      * @DplanPermissions("area_statement_segmentation")
      *
      * @return APIResponse|Response
-     *
-     * @Route(
-     *     path="/rpc/1.0/ProcedureStatistics/get/{procedureId}",
-     *     name="dplan_rpc_procedure_segmentation_statistics_segmentations_get",
-     *     methods={"GET"},
-     *     options={"expose": true}
-     * )
      */
+    #[Route(path: '/rpc/1.0/ProcedureStatistics/get/{procedureId}', name: 'dplan_rpc_procedure_segmentation_statistics_segmentations_get', methods: ['GET'], options: ['expose' => true])]
     public function segmentationsGetAction(
         ProcedureStatisticsService $procedureStatisticsService,
         string $procedureId

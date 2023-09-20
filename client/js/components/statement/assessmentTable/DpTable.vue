@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -60,8 +60,8 @@
     <!-- Top pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
-      :class="{ 'visibility--hidden': isLoading }"
-      class="u-pt-0_5 text--right u-1-of-1"
+      :class="{ 'invisible': isLoading }"
+      class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
       :total-pages="pagination.total_pages"
       :total-items="pagination.total"
@@ -218,8 +218,8 @@
     <!-- bottom pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
-      :class="{ 'visibility--hidden': isLoading }"
-      class="u-pb-0_5 text--right"
+      :class="{ 'invisible': isLoading }"
+      class="u-pb-0_5 text-right"
       :current-page="pagination.current_page"
       :total-pages="pagination.total_pages"
       :total-items="pagination.total"
@@ -232,8 +232,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
-import { handleResponseMessages, Stickier } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'

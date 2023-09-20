@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use GuzzleHttp\Client;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,10 +46,10 @@ class VendorlistUpdateCommand extends CoreCommand
     protected static $defaultName = 'dplan:vendorlist:update';
     protected static $defaultDescription = 'Update the list of external dependencies';
 
-    public const JS_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/js_licenses.json';
-    public const JS_PATH_TEXT = 'licenses/js_licenses.txt';
-    public const PHP_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/php_licenses.json';
-    public const PHP_PATH_TEXT = 'licenses/php_licenses.txt';
+    final public const JS_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/js_licenses.json';
+    final public const JS_PATH_TEXT = 'licenses/js_licenses.txt';
+    final public const PHP_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/php_licenses.json';
+    final public const PHP_PATH_TEXT = 'licenses/php_licenses.txt';
 
     protected $storagePath = '';
     /** @var SymfonyStyle */
@@ -61,7 +62,7 @@ class VendorlistUpdateCommand extends CoreCommand
         $this->fetchPHPDependencyLicenses();
         $this->fetchNodeDependencyLicenses();
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function fetchPHPDependencyLicenses(): void
@@ -85,16 +86,12 @@ class VendorlistUpdateCommand extends CoreCommand
                     // only add license information for packages which are
                     // direct dependencies (e.g. listed in the composer.json)
                     // of demosplan
-                    static function ($_, $package) use ($directDependencies): bool {
-                        return 1 === count(
-                            array_filter(
-                                $directDependencies,
-                                static function ($directDependency) use ($package): bool {
-                                    return $directDependency['name'] === $package;
-                                }
-                            )
-                        );
-                    }
+                    static fn ($_, $package): bool => 1 === count(
+                        (array) array_filter(
+                            $directDependencies,
+                            static fn ($directDependency): bool => $directDependency['name'] === $package
+                        )
+                    )
                 );
 
             $progressBar = new ProgressBar($this->io, $phpLicenses->count());
@@ -121,14 +118,12 @@ class VendorlistUpdateCommand extends CoreCommand
                         return compact('license', 'package', 'website');
                     }
                 )
-                ->filter(static function ($packageInfo): bool {
+                ->filter(static fn ($packageInfo): bool =>
                     // only output packages that do actually have license info
-                    return '' !== $packageInfo['license'];
-                })
-                ->filter(static function ($packageInfo): bool {
+                    '' !== $packageInfo['license'])
+                ->filter(static fn ($packageInfo): bool =>
                     // we may have private packages that should be hidden
-                    return !in_array($packageInfo['package'], self::PHP_PACKAGE_DENYLIST, true);
-                })
+                    !in_array($packageInfo['package'], self::PHP_PACKAGE_DENYLIST, true))
                 ->values();
 
             $progressBar->finish();
@@ -147,7 +142,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
     protected function getProjectURLFromPackagist($package)
     {
-        if (!preg_match('/[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*/', $package)) {
+        if (!preg_match('/[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*/', (string) $package)) {
             throw new InvalidArgumentException('Invalid composer package name');
         }
 
@@ -163,7 +158,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                 return data_get($json, 'package.repository');
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->io->warning('Could not fetch URL for package '.$package);
         }
 
@@ -191,7 +186,7 @@ class VendorlistUpdateCommand extends CoreCommand
                 ->merge(\array_keys($packageJson['devDependencies']))
                 ->flip();
 
-            $progressBar = new ProgressBar($this->io, count($dependencies));
+            $progressBar = new ProgressBar($this->io, is_countable($dependencies) ? count($dependencies) : 0);
             $progressBar->start();
 
             $jsLicenses = collect($dependencies)
@@ -205,21 +200,17 @@ class VendorlistUpdateCommand extends CoreCommand
                     }
                 )
                 ->filter(
-                    static function ($item): bool {
+                    static fn ($item): bool =>
                         // do not include items without license
                         // may occur if package could not be fetched
-                        return null !== $item['license'];
-                    }
+                        null !== $item['license']
                 )
                 ->filter(
-                    static function ($item) use ($packageJsonDependencies): bool {
-                        return $packageJsonDependencies->has($item['package']);
-                    }
+                    static fn ($item): bool => $packageJsonDependencies->has($item['package'])
                 )
-                ->filter(static function ($packageInfo): bool {
+                ->filter(static fn ($packageInfo): bool =>
                     // we may have private packages that should be hidden
-                    return !in_array($packageInfo['package'], self::JS_PACKAGE_DENYLIST, true);
-                })
+                    !in_array($packageInfo['package'], self::JS_PACKAGE_DENYLIST, true))
                 ->unique('package')
                 ->sortBy('package');
 

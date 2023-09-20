@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <div class="flex space-inline-s">
-    <div class="position--relative">
+    <div class="relative">
       <dp-input
         has-icon
         :id="id"
@@ -17,12 +17,12 @@
         @enter="$emit('search', currentSearchTerm)" />
       <dp-flyout
         align="left"
-        class="u-top-0 u-right-0 position--absolute"
+        class="u-top-0 u-right-0 absolute"
         :has-menu="false"
         :padded="false">
         <template v-slot:trigger>
           <dp-icon
-            :class="{ 'color-ui-highlight': selectedFields.length > 0 }"
+            :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->
@@ -32,7 +32,7 @@
               class="weight--bold"
               v-text="Translator.trans('search.custom.limit_fields')" />
             <button
-              class="btn--blank o-link--default flex-item-end"
+              class="btn--blank o-link--default ml-auto"
               v-text="Translator.trans('search.custom.toggle_all')"
               @click="toggleAllFields(selectedFields.length < fields.length)" />
           </div>
@@ -74,8 +74,17 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpCheckbox, DpDetails, DpFlyout, DpIcon, DpInput } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  DpButton,
+  DpCheckbox,
+  DpDetails,
+  DpFlyout,
+  DpIcon,
+  DpInput,
+  dpRpc,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
 export default {

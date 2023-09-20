@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,15 +16,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\Common\Collections\Collection;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
@@ -54,26 +54,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class PlanningDocumentCategoryResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementService;
-
-    public function __construct(FileService $fileService, ProcedureAccessEvaluator $procedureAccessEvaluator, ElementsService $elementService)
+    public function __construct(private readonly FileService $fileService, private readonly ProcedureAccessEvaluator $procedureAccessEvaluator, private readonly ElementsService $elementService)
     {
-        $this->fileService = $fileService;
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->elementService = $elementService;
     }
 
     public static function getName(): string
@@ -111,11 +93,11 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $adminConditions = [
@@ -135,7 +117,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         $ownsProcedure = $this->procedureAccessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure);
         if ($ownsProcedure && $this->currentUser->hasPermission('feature_admin_element_edit')) {
-            return $this->conditionFactory->allConditionsApply(...$adminConditions);
+            return $adminConditions;
         }
 
         $publicConditions = $adminConditions;
@@ -152,13 +134,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         // without owning the procedure and administration permissions users are only
         // allowed to see enabled elements
         $publicConditions[] = $this->conditionFactory->propertyHasValue(true, $this->enabled);
-        $publicConditions[] = $this->createNestingCondition();
+        $nestingConditions = $this->createNestingConditions();
 
-        return $this->conditionFactory->allConditionsApply(...$publicConditions);
+        return array_merge($publicConditions, $nestingConditions);
     }
 
     /**
-     * Like {@link PlanningDocumentCategoryResourceType::getAccessCondition} we need to limit
+     * Like {@link PlanningDocumentCategoryResourceType::getAccessConditions} we need to limit
      * access here too. Who is allowed to access properties like {@link $fileInfo} or
      * {@link $filePathWithHash}, who is not?
      *
@@ -173,9 +155,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $enabled = $this->createAttribute($this->enabled)->filterable();
         $parentId = $this->createAttribute($this->parentId)->aliasedPath($this->parent->id);
         $fileInfo = $this->createAttribute($this->fileInfo)
-                ->readable(true, function (Elements $element): array {
-                    return $this->fileService->getInfoArrayFromFileString($element->getFile());
-                });
+                ->readable(true, fn (Elements $element): array => $this->fileService->getInfoArrayFromFileString($element->getFile()));
         $filePathWithHash = $this->createAttribute($this->filePathWithHash)
             ->readable(true, function (Elements $element): ?string {
                 $filePathWithHash = null;
@@ -193,11 +173,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $title = $this->createAttribute($this->title);
         $text = $this->createAttribute($this->text);
         $children = $this->createToManyRelationship($this->children, true)
-            ->readable(true, static function (Elements $element): Collection {
-                return $element->getChildren()->filter(function (Elements $elements): bool {
-                    return $elements->getEnabled();
-                });
-            });
+            ->readable(true, static fn (Elements $element): Collection => $element->getChildren()->filter(fn (Elements $elements): bool => $elements->getEnabled()));
         $documents = $this->createToManyRelationship($this->documents, true);
         $index = $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order);
 
@@ -216,11 +192,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $title->readable(true);
             $text->readable(true);
             $documents->readable(true);
-            $properties = array_merge($properties, [
-                $fileInfo,
-                $filePathWithHash,
-                $children,
-            ]);
+            $properties = [...$properties, $fileInfo, $filePathWithHash, $children];
         }
 
         if ($this->currentUser->hasPermission('area_documents')) {
@@ -249,13 +221,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             if (!\in_array($index, $properties, true)) {
                 $properties[] = $index;
             }
-            $properties = array_merge($properties, [
-                $this->createAttribute($this->designatedSwitchDate)->readable(false, function (Elements $category): ?string {
-                    return $this->formatDate($category->getDesignatedSwitchDate());
-                }),
-                $this->createAttribute($this->category)->readable(),
-                $this->createToOneRelationship($this->procedure)->filterable(),
-            ]);
+            $properties = [...$properties, $this->createAttribute($this->designatedSwitchDate)->readable(false, fn (Elements $category): ?string => $this->formatDate($category->getDesignatedSwitchDate())), $this->createAttribute($this->category)->readable(), $this->createToOneRelationship($this->procedure)->filterable()];
         }
 
         return $properties;
@@ -295,11 +261,11 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * approach and check each potential parent individually, resulting in a large query with
      * many joins for large values of {@link Elements::MAX_PARENTS_COUNT}.
      *
-     * @return FunctionInterface<bool>
+     * @return list<ClauseFunctionInterface<bool>>
      *
      * @throws PathException
      */
-    private function createNestingCondition(): FunctionInterface
+    private function createNestingConditions(): array
     {
         $conditions = [];
         $parentPath = $this->parent;
@@ -316,7 +282,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentPath = $parentPath->parent;
         }
 
-        return $this->conditionFactory->allConditionsApply(...$conditions);
+        return $conditions;
     }
 
     /**
@@ -326,10 +292,6 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      */
     public function delete(object $entity): ResourceChange
     {
-        if (!$this->currentUser->hasPermission('feature_admin_element_edit')) {
-            throw new BadRequestException('Deletion of planning document categories is not allowed at all');
-        }
-
         $success = $this->elementService->deleteElement([$entity->getId()]);
         if (!$success) {
             throw new InvalidArgumentException("Deletion of planning document category failed for the given ID '{$entity->getId()}'");
@@ -337,5 +299,10 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         // as the service already flushed the changes, we don't need to return anything in particular
         return new ResourceChange($entity, $this, []);
+    }
+
+    public function getRequiredDeletionPermissions(): array
+    {
+        return ['feature_admin_element_edit'];
     }
 }

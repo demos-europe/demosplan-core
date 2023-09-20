@@ -3,33 +3,27 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
-use function compact;
-
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Throwable;
 
+use function compact;
+
 class UserInfoDataCollector extends DataCollector
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserInterface $currentUser)
+    public function __construct(private readonly CurrentUserInterface $currentUser)
     {
-        $this->currentUser = $currentUser;
     }
 
     public function collect(Request $request, Response $response, Throwable $exception = null): void
@@ -49,11 +43,11 @@ class UserInfoDataCollector extends DataCollector
             ];
 
             $permissions = $enabledPermissions->toArray();
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
             $roles = [];
             $permissions = [];
             $permissionStats = null;
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $roles = [];
         }
 

@@ -3,22 +3,22 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,12 +27,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemosPlanElementsAPIController extends APIController
 {
     /**
-     * @Route(path="/api/1.0/documents/{procedureId}/elements/{elementsId}",
-     *        methods={"PATCH"},
-     *        name="dp_api_documents_elements_update",
-     *        options={"expose": true})
      * @DplanPermissions("area_admin")
      */
+    #[Route(path: '/api/1.0/documents/{procedureId}/elements/{elementsId}', methods: ['PATCH'], name: 'dp_api_documents_elements_update', options: ['expose' => true])]
     public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
     {
         $elementsToUpdate = $elementsService->getElementObject($elementsId);
@@ -51,7 +48,7 @@ class DemosPlanElementsAPIController extends APIController
 
         try {
             $elementsService->updateElementObject($elementsToUpdate);
-        } catch (HiddenElementUpdateException $e) {
+        } catch (HiddenElementUpdateException) {
             // FE tried to update hidden element, no special handling yet
         }
         $this->messageBag->add('confirm', 'confirm.all.changes.saved');
@@ -61,13 +58,10 @@ class DemosPlanElementsAPIController extends APIController
 
     /**
      * @DplanPermissions("area_demosplan")
-     * @Route(path="/api/1.0/element/{elementId}",
-     *        methods={"GET"},
-     *        name="dp_api_elements_get",
-     *        options={"expose": true})
      *
      * @return APIResponse|JsonResponse
      */
+    #[Route(path: '/api/1.0/element/{elementId}', methods: ['GET'], name: 'dp_api_elements_get', options: ['expose' => true])]
     public function getAction(
         ApiResourceService $apiResourceService,
         ElementHandler $elementHandler,

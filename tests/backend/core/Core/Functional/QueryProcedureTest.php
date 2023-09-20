@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Search;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SearchField;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SortField;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;

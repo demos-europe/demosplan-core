@@ -3,37 +3,36 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
 class StatementAnonymizeHandler extends CoreHandler
 {
-    public const ANONYMIZE_STATEMENT_TEXT = 'anonymizeStatementText';
+    final public const ANONYMIZE_STATEMENT_TEXT = 'anonymizeStatementText';
 
-    public const DELETE_STATEMENT_ATTACHMENTS = 'deleteStatementAttachments';
+    final public const DELETE_STATEMENT_ATTACHMENTS = 'deleteStatementAttachments';
 
-    public const ANONYMIZE_STATEMENT_META = 'anonymizeStatementMeta';
+    final public const ANONYMIZE_STATEMENT_META = 'anonymizeStatementMeta';
 
-    public const DELETE_STATEMENT_TEXT_HISTORY = 'deleteStatementTextHistory';
+    final public const DELETE_STATEMENT_TEXT_HISTORY = 'deleteStatementTextHistory';
 
-    public const STATEMENT_ID = 'statementId';
+    final public const STATEMENT_ID = 'statementId';
 
-    public const FIELDS = [
+    final public const FIELDS = [
         'actions' => [
             self::ANONYMIZE_STATEMENT_TEXT      => 'string',
             self::DELETE_STATEMENT_ATTACHMENTS  => 'bool',
@@ -48,32 +47,15 @@ class StatementAnonymizeHandler extends CoreHandler
     /** @var CurrentUserInterface */
     protected $currentUserInterface;
 
-    /** @var ManagerRegistry */
-    private $doctrine;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var StatementAnonymizeService */
-    private $statementAnonymizeService;
-
-    /** @var SearchIndexTaskService */
-    private $searchIndexTaskService;
-
     public function __construct(
         CurrentUserInterface $currentUserInterface,
-        ManagerRegistry $doctrine,
+        private readonly ManagerRegistry $doctrine,
         MessageBag $messageBag,
-        PermissionsInterface $permissions,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementAnonymizeService $statementAnonymizeService
+        private readonly PermissionsInterface $permissions,
+        private readonly StatementAnonymizeService $statementAnonymizeService
     ) {
         parent::__construct($messageBag);
         $this->currentUserInterface = $currentUserInterface;
-        $this->doctrine = $doctrine;
-        $this->permissions = $permissions;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementAnonymizeService = $statementAnonymizeService;
     }
 
     /**
@@ -94,21 +76,12 @@ class StatementAnonymizeHandler extends CoreHandler
             $this->anonymizeAttachments($actions, $statement);
             $this->anonymizeMetaData($actions, $statement);
             $this->deleteHistory($actions, $statement);
-            $this->reindexElasticSearchForStatement($statement);
 
             $em->getConnection()->commit();
         } catch (Exception $e) {
             $em->getConnection()->rollBack();
             throw $e;
         }
-    }
-
-    private function reindexElasticSearchForStatement(Statement $statement): void
-    {
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statement->getId()
-        );
     }
 
     /**

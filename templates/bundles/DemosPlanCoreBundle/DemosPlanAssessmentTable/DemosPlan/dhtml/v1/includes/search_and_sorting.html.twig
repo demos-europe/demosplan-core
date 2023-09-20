@@ -1,0 +1,47 @@
+{# original assessment table search and sorting header #}
+
+{# translate active fields #}
+{% if templateVars.table.searchFields is defined %}
+    {% set fieldsSet = [] %}
+    {% for key, activeFields in templateVars.table.searchFields %}
+        {% set fieldsSet = fieldsSet|merge([templateVars.table.searchFields[key]|default(key)]) %}
+    {% endfor %}
+{% endif %}
+
+{%- apply spaceless %}
+
+<div class="layout--flush u-1-of-1 u-nojs-hide--inline-block" v-cloak>
+    <div class="flex items-center space-inline-m">
+        {# Search field and advanced search button #}
+        <search-modal
+            preselected-exactSearch="{{ templateVars.exactSearch|default(false) }}"
+            :preselected-fields="{{ templateVars.table.searchFields|default([])|json_encode }}"
+            :table-search="{{ templateVars.table.search|default('')|json_encode }}"
+            is-form
+            ref="searchModal">
+        </search-modal>
+
+        {# The modal is rendered into <portal-target name="vueModals" multiple></portal-target> via vue-portal #}
+        <dp-filter-modal
+            :applied-filter-options="{{ filters|default({})|json_encode }}"
+            view="{{ assessmentTableView|default }}"
+            procedure-id="{{ procedure|default }}"
+            filter-hash="{{ templateVars.filterHash }}"
+            ref="filterModal"
+            :original="true">
+        </dp-filter-modal>
+
+        {# Reset filters #}
+        {% if filtersSet is defined or fieldsSet is defined or templateVars.table.search is defined and templateVars.table.search != '' %}
+            <div class="ml-auto">
+                <dp-button
+                    href="{{ path(route_reset_assessment_table|default('dplan_assessmenttable_view_table'), {'procedureId': templateVars.table.procedure.ident}) }}"
+                    :text="Translator.trans('reset')"
+                    variant="outline">
+                </dp-button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endapply -%}

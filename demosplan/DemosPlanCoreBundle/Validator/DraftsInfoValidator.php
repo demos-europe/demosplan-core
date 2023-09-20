@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,20 +22,8 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class DraftsInfoValidator
 {
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonValidator;
-
-    /**
-     * @var string
-     */
-    private $schemaFilePath;
-
-    public function __construct(JsonSchemaValidator $jsonValidator, string $schemaFilePath)
+    public function __construct(private readonly JsonSchemaValidator $jsonValidator, private readonly string $schemaFilePath)
     {
-        $this->jsonValidator = $jsonValidator;
-        $this->schemaFilePath = $schemaFilePath;
     }
 
     /**

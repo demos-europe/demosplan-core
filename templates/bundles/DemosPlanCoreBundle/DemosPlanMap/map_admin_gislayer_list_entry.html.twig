@@ -1,0 +1,44 @@
+{% if gislayer.print == 1 %}
+    {% set description = "explanation.gislayer.useas.print"|trans %}
+{% endif %}
+{% if gislayer.bplan == 1 %}
+    {% set description = "explanation.gislayer.useas.bplan"|trans %}
+{% endif %}
+{% if gislayer.scope == 1 %}
+    {% set description = "explanation.gislayer.useas.scope"|trans %}
+{% endif %}
+{% if gislayer.enabled == 0 %}
+    {% set description = "explanation.gislayer.useas.invisible"|trans %}
+{% endif %}
+
+<tr class="o-list__item">
+    <td>
+        {# Globale Layer sollen nicht gelöscht werden können #}
+        {% if gislayer.globalLayer|default(false) == false %}
+            <input type="checkbox" name="gislayerID[]" value="{{ gislayer.ident }}"/>
+        {% endif %}
+    </td>
+    <td>
+        <a href="{{ path('DemosPlan_map_administration_gislayer_edit',{'gislayerID':gislayer.ident,'procedure':procedure}) }}">
+            {{ gislayer.name }}
+        </a>
+        {# Stati des Layers beschreiben #}
+        {% if (description is defined) %}
+            <p class="font-size-smaller">{{ description }}</p>
+        {% endif %}
+    </td>
+    <td>
+        {% if gislayer.type == 'base' %}
+            {{ "map.base"|trans }}
+        {% elseif gislayer.type == 'overlay' %}
+            {{ "overlay"|trans }}
+        {% elseif gislayer.type == 'minimap' %}
+            {{ "map.mini"|trans }}
+        {% endif %}
+    </td>
+    <td class="text-center">
+        {% if gislayer.HasDefaultVisibility == 1 %}
+            <i class="fa fa-check-square-o"></i>
+        {% endif %}
+    </td>
+</tr>

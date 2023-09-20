@@ -1,0 +1,105 @@
+{% set document = templateVars.document %}
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block demosplanbundlecontent %}
+    <h1>{{ "paragraph.edit"|trans }}</h1>
+
+    <form name="xsubmititem" action="{{ path('DemosPlan_plandocument_administration_' ~ category ~'_edit',{'procedure':procedure, 'documentID':document.ident }) }}" enctype="multipart/form-data" method="post" data-dp-validate>
+        <input name="action" type="hidden" value="documentedit">
+        <input type="hidden" value="{{ document.ident }}" name="r_ident">
+
+        <label>
+            {{ "status"|trans }}*
+            <select
+                required
+                class="layout__item u-pl-0"
+                data-cy="editParagraphStatus"
+                name="r_visible">
+                <option {% if (document.visible == 1) %}selected="selected"{% endif %} value="1">{{ "released"|trans }}</option>
+                {% if permissions.field_paragraph_lock_statement.enabled == true %}
+                <option {% if (document.visible == 2) %}selected="selected"{% endif %} value="2">{{ "paragraph.locked"|trans }}</option>
+                {% endif %}
+                <option {% if (document.visible == 0) %}selected="selected"{% endif %} value="0">{{ "blocked"|trans }}</option>
+            </select>
+        </label>
+
+        {% if hasPermission('field_paragraph_lock_statement') %}
+            <label>
+                {{ "paragraph.lockreason"|trans }}
+                <input class="layout__item" type="text" value="{{ document.lockReason }}" name="r_lockReason">
+            </label>
+        {% endif %}
+
+        <label>
+            {{ "heading"|trans }}*
+            <input class="layout__item" type="text" value="{{ document.title }}" name="r_title" required>
+        </label>
+
+        <label>
+            {{ "paragraph.parent"|trans }}*
+            <select class="layout__item" name="r_parentId" required>
+                <option
+                        value="0"
+                        title="{{ "paragraph.parent.none"|trans }}"
+                        {% if document.parent.id is not defined %} selected="selected" {% endif %}>
+                    {{ "paragraph.parent.none"|trans }}
+                </option>
+                {% for relatedDocument in templateVars.relatedDocuments %}
+                    {# to workaround super long paragraph titles, shorten the title to 100 characters
+                       followed by a hellip and output the full string only in title attribute of option
+                       to be revealed on :hover #}
+                    {% if relatedDocument.title|length > 100 %}
+                        {% set title_short = relatedDocument.title|slice(0, 100) ~ '…' %}
+                    {% else %}
+                        {% set title_short = relatedDocument.title %}
+                    {% endif %}
+                    <option
+                        value="{{ relatedDocument.id }}"
+                        title="{{ relatedDocument.title }}"
+                        {% if relatedDocument.id == document.parent.id|default('0') %} selected="selected" {% endif %}>
+                        {{ title_short|default(relatedDocument.title) }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </label>
+
+        <label class="u-mb-0" for="r_text">
+            {{ "paragraph.text"|trans }}*
+        </label>
+        <dp-editor
+            value="{{ document.text }}"
+            class="u-mb"
+            hidden-input="r_text"
+            ref="r_text"
+            :toolbar-items="{
+                imageButton: true,
+                insertAndDelete: true,
+                linkButton: true,
+                table: true
+            }"
+            :routes="{
+             getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
+            }"
+            procedure-id="{{ procedure }}"
+            :required="true">
+        </dp-editor>
+
+        <div class="text-right space-inline-s">
+            <input
+                class="btn btn--primary"
+                type="submit"
+                data-cy="saveChangesParagraph"
+                value="{{ "save"|trans }}">
+            <a class="btn btn--secondary" href="{{ path('DemosPlan_plandocument_administration_element',{'procedure':procedure, 'elementId':elementId}) }}">
+                {{ "abort"|trans }}
+            </a>
+        </div>
+
+    </form>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['document-paragraphAdminEdit.js']) }}
+{% endblock javascripts %}
+

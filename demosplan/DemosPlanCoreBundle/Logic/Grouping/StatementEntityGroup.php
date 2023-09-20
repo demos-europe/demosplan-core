@@ -3,17 +3,17 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
-use function array_map;
-
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use JsonSerializable;
+
+use function array_map;
 
 /**
  * Entity groups for statements.
@@ -35,9 +35,7 @@ class StatementEntityGroup extends AbstractEntityGroup implements JsonSerializab
             'level'     => $this->getLevel(),
             'subgroups' => array_values($this->getSubgroups()),
             'entries'   => array_values(
-                array_map(static function (Statement $statement) {
-                    return $statement->getId();
-                }, $this->getEntries())
+                array_map(static fn (Statement $statement) => $statement->getId(), $this->getEntries())
             ),
             'total'     => $this->getTotal(),
         ];

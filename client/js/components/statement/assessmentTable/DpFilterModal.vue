@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -23,8 +23,8 @@
     <button
       type="button"
       @click.prevent="openModal"
-      :class="{'color--highlight': noFilterApplied === false }"
-      class="btn--blank o-link--default display--inline-block u-mb-0 u-p-0 u-mt-0_125"
+      :class="{'color-highlight': noFilterApplied === false }"
+      class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
       data-cy="openFilterModal">
       <i
         class="fa fa-lg fa-filter"
@@ -56,28 +56,28 @@
           <div
             v-if="userFilterSetSaveEnabled">
             <dp-multiselect
-              v-model="selectedUserFilterSet"
               id="userFilterSets"
+              v-model="selectedUserFilterSet"
+              :custom-label="nameFromAttributes"
               :options="userFilterSets"
-              track-by="id"
-              :custom-label="nameFromAttributes">
-              <template v-slot:option="{ option }">
+              track-by="id">
+              <template v-slot:option="{ props }">
                 <a
                   class="multiselect__option-extention"
                   href="#"
-                  @click.prevent="deleteSavedFilterSet(option.id)">
+                  @click.prevent="deleteSavedFilterSet(props.option.id)">
                   <i
                     class="fa fa-trash"
                     aria-hidden="true" />
                 </a>
-                {{ hasOwnProp(option, 'attributes') ? option.attributes.name : '' }}
+                {{ hasOwnProp(option, 'attributes') ? props.option.attributes.name : '' }}
               </template>
-              <template v-slot:singleLabel="{ option }">
-                {{ hasOwnProp(option, 'attributes') ? option.attributes.name : '' }}
+              <template v-slot:singleLabel="{ props }">
+                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
               </template>
             </dp-multiselect>
 
-            <div class="text--right u-mb u-pt-0_5">
+            <div class="text-right u-mb u-pt-0_5">
               <button
                 type="button"
                 class="btn btn--primary"
@@ -145,7 +145,7 @@
           </template>
 
           <!-- Button row -->
-          <div class="text--right space-inline-s">
+          <div class="text-right space-inline-s">
             <button
               type="submit"
               class="btn btn--primary"
@@ -191,7 +191,7 @@
           </div>
 
           <!-- Button row -->
-          <div class="text--right space-inline-s">
+          <div class="text-right space-inline-s">
             <button
               class="btn btn--primary"
               :class="{'pointer-events-none': disabledInteractions}"
@@ -214,10 +214,9 @@
 </template>
 
 <script>
-import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpFilterModal',

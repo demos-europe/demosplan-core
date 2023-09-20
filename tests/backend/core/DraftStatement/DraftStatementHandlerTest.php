@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,7 +11,7 @@
 namespace Tests\Core\DraftStatement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementHandlerTest extends FunctionalTestCase

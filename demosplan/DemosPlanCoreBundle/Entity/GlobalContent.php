@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -24,22 +24,26 @@ use Symfony\Component\Validator\Constraints as Assert;
  * GlobalContent (derzeit GlobalFaq und GlobalNews).
  *
  * @ORM\Table(name="_platform_content")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContentRepository")
  */
 class GlobalContent extends CoreEntity implements UuidEntityInterface
 {
-    public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
-    public const TYPE_NEWS = 'news';
-    public const PROCEDURE_ID_GLOBAL = 'global';
-    public const CONTEXT_GLOBAL_NEWS = 'global:news';
-    public const NAMESPACE_NEWS = 'content:news';
+    final public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
+    final public const TYPE_NEWS = 'news';
+    final public const PROCEDURE_ID_GLOBAL = 'global';
+    final public const CONTEXT_GLOBAL_NEWS = 'global:news';
+    final public const NAMESPACE_NEWS = 'content:news';
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_pc_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -60,27 +64,27 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_title", type="string", length=255, nullable=false, options={"default":""})
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
     protected $title = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_pc_description", type="text", length=65535, nullable=true)
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
-     * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     protected $description = '';
 
     /**
      * @var string
      *
      * @ORM\Column(name="_pc_text", type="text", length=65535, nullable=true)
-     * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
-     * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      */
+    #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     protected $text = '';
 
     /**
@@ -115,8 +119,8 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_pc_enabled", type="boolean", nullable=false, options={"default":false })
-     * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
+    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
     protected $enabled = false;
 
     /**
@@ -130,6 +134,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pc_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -138,6 +143,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_pc_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -146,6 +152,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pc_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -154,13 +161,14 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Role>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
+     *
      * @ORM\JoinTable(
      *     name="_platform_content_roles",
      *     joinColumns={@ORM\JoinColumn(name="_pc_id", referencedColumnName="_pc_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
-     * @Assert\Count(min=1, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, minMessage="error.mandatoryfield.visibility")
      */
+    #[Assert\Count(min: 1, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], minMessage: 'error.mandatoryfield.visibility')]
     protected $roles;
 
     // todo: why is this a n:m relation?
@@ -168,6 +176,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var Collection<int, Category>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Category", inversedBy ="globalContents")
+     *
      * @ORM\JoinTable(
      *     name="_platform_content_categories",
      *     joinColumns={@ORM\JoinColumn(name="_pc_id", referencedColumnName="_pc_id", onDelete="CASCADE")},

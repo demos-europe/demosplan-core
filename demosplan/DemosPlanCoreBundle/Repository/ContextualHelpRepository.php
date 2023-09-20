@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,13 +16,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanMapBundle\Repository\MapRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class ContextualHelpRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ContextualHelpRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Fetch all contextualHelp items from DB.
@@ -56,9 +55,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         $allHelpItems = $query->getResult();
 
         // exclude gislayer
-        return array_filter($allHelpItems, function ($elem) {
-            return false === strpos($elem->getKey(), 'gislayer');
-        });
+        return array_filter($allHelpItems, fn ($elem) => !str_contains((string) $elem->getKey(), 'gislayer'));
     }
 
     /**
@@ -82,7 +79,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
             ->getQuery();
         try {
             $result = $query->getResult();
-            if (1 === count($result)) {
+            if (1 === (is_countable($result) ? count($result) : 0)) {
                 return $result[0];
             }
 
@@ -113,7 +110,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
 
         try {
             $result = $query->getResult();
-            if (1 === count($result)) {
+            if (1 === (is_countable($result) ? count($result) : 0)) {
                 return $result[0];
             }
 
@@ -191,7 +188,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         return false;
     }
 
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -272,7 +269,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         return $entity;
     }
 
-    public function updateObject($entity)
+    public function updateObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -282,7 +279,7 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

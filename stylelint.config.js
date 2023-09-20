@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -11,8 +11,7 @@
 module.exports = {
   extends: 'stylelint-config-standard-scss',
   ignoreFiles: [
-    'demosplan/DemosPlanCoreBundle/Resources/client/scss/inuit-5/*.scss',
-    'client/ui/tokens/**/*.scss'
+    'demosplan/DemosPlanCoreBundle/Resources/client/scss/inuit-5/*.scss'
   ],
   rules: {
     'at-rule-empty-line-before': null,
@@ -25,6 +24,15 @@ module.exports = {
     'scss/at-extend-no-missing-placeholder': null, // Fontawesome does not provide placeholders for individual icons
     'scss/at-import-no-partial-leading-underscore': null,
     'scss/at-rule-conditional-no-parentheses': null,
+    'scss/at-rule-no-unknown': [
+      true, // Allow @tailwind expression while keeping the rest of the rule
+      {
+        'ignoreAtRules': [
+          'extends',
+          'tailwind'
+        ]
+      }
+    ],
     'scss/comment-no-empty': null,
     'scss/dollar-variable-colon-space-after': null,
     'scss/dollar-variable-empty-line-before': null,

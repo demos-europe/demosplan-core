@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -10,9 +10,8 @@
 /**
  * This is the entrypoint for procedure_proposal.html.twig
  */
-import { DpEditor } from '@demos-europe/demosplan-ui'
+import { DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 
 initialize({

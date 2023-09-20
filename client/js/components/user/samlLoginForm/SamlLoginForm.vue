@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -13,8 +13,9 @@
     <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
       <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
         <form
+          ref="loginForm"
           :action="Routing.generate('DemosPlan_user_login')"
-          data-dp-validate
+          data-dp-validate="loginForm"
           method="post"
           name="login">
           <h2
@@ -24,7 +25,7 @@
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
 
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <div :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_useremail"
               data-cy="username"
@@ -46,15 +47,21 @@
               :prevent-default-on-enter="false"
               required
               type="password" />
+            <input
+              type="hidden"
+              name="_csrf_token"
+              :value="csrfToken">
 
             <dp-button
               :class="prefixClass('u-mt')"
               data-cy="submit"
               :text="Translator.trans('login')"
-              type="submit" />
-          </dp-form-row>
+              type="submit"
+              @click.prevent="submit" />
+          </div>
           <a
             :class="prefixClass('o-link--default')"
+            data-cy="password_forgot"
             :href="Routing.generate('DemosPlan_user_password_recover')"
             v-text="Translator.trans('password.forgot')" />
         </form>
@@ -101,19 +108,17 @@
 </template>
 
 <script>
-import { DpButton, DpFormRow, DpInput } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpInput, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SamlLoginForm',
 
   components: {
     DpButton,
-    DpFormRow,
     DpInput
   },
 
-  mixins: [prefixClassMixin],
+  mixins: [prefixClassMixin, dpValidateMixin],
 
   props: {
     isSaml: {
@@ -126,6 +131,19 @@ export default {
       type: String,
       required: true,
       default: ''
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
+    }
+  },
+
+  methods: {
+    submit () {
+      this.dpValidateAction('loginForm', () => {
+        this.$refs.loginForm.submit()
+      }, false)
     }
   }
 }

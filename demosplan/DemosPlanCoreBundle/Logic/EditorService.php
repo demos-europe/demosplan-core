@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,31 +16,26 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 
 class EditorService extends CoreService
 {
-    public const EXISTING_FIELD_FILTER = '*';
-    public const KEINE_ZUORDNUNG = 'keinezuordnung';
-    public const EMPTY_FIELD = 'no_value';
+    final public const EXISTING_FIELD_FILTER = '*';
+    final public const KEINE_ZUORDNUNG = 'keinezuordnung';
+    final public const EMPTY_FIELD = 'no_value';
 
-    public const OBSCURE_TAG_OPEN = '<dp-obscure>';
-    public const OBSCURE_TAG_CLOSE = '</dp-obscure>';
-    public const EDITOR_ALTERNATIVE_TEXT_TAG_OPEN = ' {';
-    public const EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE = '{'; // this is a wrong but likely input by the user which we still accept
-    public const EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE = '}';
-    public const HTML_ALTERNATIVE_TEXT_TAG_OPEN = '&alt="';
-    public const HTML_ALTERNATIVE_TEXT_TAG_CLOSE = '"';
-    public const HTML_ALTERNATIVE_TEXT_PLACEHOLDER = 'Hier können Sie Ihren alternativen Text einfügen.';
-    public const EDITOR_IMAGE_PLACEHOLDER = '[An dieser Stelle wird ihr Bild angezeigt]';
+    final public const OBSCURE_TAG_OPEN = '<dp-obscure>';
+    final public const OBSCURE_TAG_CLOSE = '</dp-obscure>';
+    final public const EDITOR_ALTERNATIVE_TEXT_TAG_OPEN = ' {';
+    final public const EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE = '{'; // this is a wrong but likely input by the user which we still accept
+    final public const EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE = '}';
+    final public const HTML_ALTERNATIVE_TEXT_TAG_OPEN = '&alt="';
+    final public const HTML_ALTERNATIVE_TEXT_TAG_CLOSE = '"';
+    final public const HTML_ALTERNATIVE_TEXT_PLACEHOLDER = 'Hier können Sie Ihren alternativen Text einfügen.';
+    final public const EDITOR_IMAGE_PLACEHOLDER = '[An dieser Stelle wird ihr Bild angezeigt]';
 
     // Note that changing the following two values alone is not sufficient, please find and replace as well.
-    public const IMAGE_ID_OPENING_TAG = '<!-- #Image-';
-    public const IMAGE_ID_CLOSING_TAG = '-->';
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
+    final public const IMAGE_ID_OPENING_TAG = '<!-- #Image-';
+    final public const IMAGE_ID_CLOSING_TAG = '-->';
 
-    public function __construct(MessageBagInterface $messageBag)
+    public function __construct(private readonly MessageBagInterface $messageBag)
     {
-        $this->messageBag = $messageBag;
     }
 
     /**
@@ -49,7 +44,7 @@ class EditorService extends CoreService
     public function addImagePlaceholdersToStringFromDatabase(string $text): string
     {
         // prevents accidential doubles
-        if (strpos($text, $this::EDITOR_IMAGE_PLACEHOLDER)) {
+        if (strpos($text, (string) $this::EDITOR_IMAGE_PLACEHOLDER)) {
             return $text;
         }
 
@@ -68,7 +63,7 @@ class EditorService extends CoreService
      */
     public function alternativeTextExistsInStringFromEditor(string $text): bool
     {
-        return is_int(strpos($text, $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE));
+        return is_int(strpos($text, (string) $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE));
     }
 
     /**
@@ -90,12 +85,12 @@ class EditorService extends CoreService
     public function getAlternativeTextPositionsArrayFromEditorTag(string $text)
     {
         // validation: return null if no alternative text attached (user has deleted it)
-        if (!strpos($text, $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE)) {
+        if (!strpos($text, (string) $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE)) {
             return null;
         }
 
-        $startPosition = strpos($text, $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE) + strlen($this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE);
-        $endPosition = strpos($text, $this::EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE);
+        $startPosition = strpos($text, (string) $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE) + strlen((string) $this::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE);
+        $endPosition = strpos($text, (string) $this::EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE);
 
         $length = $endPosition - $startPosition;
 
@@ -120,13 +115,13 @@ class EditorService extends CoreService
     public function getAlternativeTextPositionsArrayFromHtmlTag(string $text)
     {
         // return null in case of text without image
-        if (false === strpos($text, $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN)) {
+        if (!str_contains($text, (string) $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN)) {
             return null;
         }
 
-        $startPosition = strpos($text, $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN) +
-            strlen($this::HTML_ALTERNATIVE_TEXT_TAG_OPEN);
-        $endPosition = strpos($text, $this::HTML_ALTERNATIVE_TEXT_TAG_CLOSE, $startPosition);
+        $startPosition = strpos($text, (string) $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN) +
+            strlen((string) $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN);
+        $endPosition = strpos($text, (string) $this::HTML_ALTERNATIVE_TEXT_TAG_CLOSE, $startPosition);
         $length = $endPosition - $startPosition;
 
         $output = [
@@ -167,8 +162,8 @@ class EditorService extends CoreService
     {
         $obscureStart = $this::OBSCURE_TAG_OPEN;
         $obscureEnd = $this::OBSCURE_TAG_CLOSE;
-        $openingTagFound = strpos($haystack, $obscureStart);
-        $closingTagFound = strpos($haystack, $obscureEnd);
+        $openingTagFound = strpos($haystack, (string) $obscureStart);
+        $closingTagFound = strpos($haystack, (string) $obscureEnd);
 
         return $openingTagFound && $closingTagFound;
     }
@@ -188,8 +183,8 @@ class EditorService extends CoreService
         $offset = 0;
         $depth = 0;
         $inLength = strlen($string);
-        $openTagLength = strlen($this::OBSCURE_TAG_OPEN);
-        $closeTagLength = strlen($this::OBSCURE_TAG_CLOSE);
+        $openTagLength = strlen((string) $this::OBSCURE_TAG_OPEN);
+        $closeTagLength = strlen((string) $this::OBSCURE_TAG_CLOSE);
 
         while ($offset < $inLength) {
             if ('<' == $string[$offset]) {
@@ -248,11 +243,11 @@ class EditorService extends CoreService
                 $textImageElementArray[$i] = $this->removeEditorAlternativeTextPlaceholder($textImageElementArray[$i], $customAlternativeText);
 
                 // remove unwanted characters
-                if (false !== strpos($customAlternativeText, '&amp')) {
+                if (str_contains($customAlternativeText, '&amp')) {
                     $customAlternativeText = str_replace('&amp', '', $customAlternativeText);
                     $this->messageBag->add('warning', 'warning.char.removed', ['character' => '&']);
                 }
-                if (false !== strpos($customAlternativeText, '"')) {
+                if (str_contains($customAlternativeText, '"')) {
                     $customAlternativeText = str_replace('"', '\'', $customAlternativeText);
                     $this->messageBag->add('warning', 'warning.char.replaced.by', ['character' => '"', 'replacement' => '\'']);
                 }
@@ -294,7 +289,7 @@ class EditorService extends CoreService
         if (0 < count($imageComments)) {
             foreach ($imageComments as $imageComment) {
                 // if image existing
-                if (strpos($imageComment, $this::IMAGE_ID_CLOSING_TAG)) {
+                if (strpos($imageComment, (string) $this::IMAGE_ID_CLOSING_TAG)) {
                     $imageId = substr($imageComment, 0, 36);
 
                     // get alt text
@@ -336,7 +331,7 @@ class EditorService extends CoreService
         $textArray = explode($this::IMAGE_ID_CLOSING_TAG, $text);
 
         foreach ($textArray as $i => $iValue) {
-            if (false !== strpos($iValue, $this::IMAGE_ID_OPENING_TAG)) {
+            if (str_contains($iValue, (string) $this::IMAGE_ID_OPENING_TAG)) {
                 $textArray[$i] .= $this::IMAGE_ID_CLOSING_TAG;
             }
         }

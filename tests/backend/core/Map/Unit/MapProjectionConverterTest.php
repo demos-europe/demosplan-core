@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -158,7 +158,7 @@ class MapProjectionConverterTest extends UnitTestCase
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
         $fileContents = $this->getFileContents($geoJsonFilesDir.'/convertedGeoJson2.json');
 
-        return str_replace(["\n", "\t", ' ', "\r"], '', trim($fileContents));
+        return str_replace(["\n", "\t", ' ', "\r"], '', trim($fileContents, ''));
     }
 
     private function getFileContents(string $fullPath): string

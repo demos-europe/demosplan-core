@@ -5,28 +5,25 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -35,17 +32,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class DplanAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
 
     /**
      * @var LoggerInterface
@@ -53,19 +43,9 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     protected $logger;
 
     /**
-     * @var RequestStack
-     */
-    protected $requestStack;
-
-    /**
      * @var UrlGeneratorInterface
      */
     protected $urlGenerator;
-
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    protected $passwordHasher;
 
     /**
      * @var UserMapperInterface
@@ -90,41 +70,23 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
      */
     protected $messageBag;
 
-    /**
-     * @var ValidatorInterface
-     */
-    protected $passwordValidator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
 
     public function __construct(
         UserMapperInterface $authenticator,
-        GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MessageBagInterface $messageBag,
-        PasswordValidator $passwordValidator,
-        RequestStack $requestStack,
         TraceableEventDispatcher $eventDispatcher,
-        TranslatorInterface $translator,
         UrlGeneratorInterface $urlGenerator,
-        UserPasswordHasherInterface $passwordHasher
+        private readonly UserService $userService,
     ) {
         $this->userMapper = $authenticator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->globalConfig = $globalConfig;
         $this->logger = $logger;
-        $this->passwordHasher = $passwordHasher;
-        $this->passwordValidator = $passwordValidator;
-        $this->requestStack = $requestStack;
         $this->urlGenerator = $urlGenerator;
         $this->messageBag = $messageBag;
-        $this->translator = $translator;
     }
 
-    abstract public function getCredentials(Request $request): Credentials;
+    abstract protected function getCredentials(Request $request): Credentials;
 
     public function authenticate(Request $request): Passport
     {
@@ -147,8 +109,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
     /**
      * This Hook might be used to validate Requirements to the credentials
-     * that are specific to a distinct authentication like rules for
-     * password strength.
+     * that are specific to a distinct authentication method.
      */
     public function validateCredentials(Credentials $credentials): void
     {
@@ -157,7 +118,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     /**
      * @param string $firewallName The provider (i.e. firewall) key
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $firewallName): Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // verification pages need to be loaded before logging user in
         if (null !== $this->verificationRoute) {
@@ -166,13 +127,22 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
             return new RedirectResponse($this->urlGenerator->generate($this->verificationRoute));
         }
 
-        /** @var User $user */
         $user = $token->getUser();
+        if (!$user instanceof User) {
+            $this->logger->error('user not found', ['user' => $user]);
+            throw new AuthenticationException('User not found');
+        }
         $this->logger->info('User was logged in', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
 
         // user may be split to two User objects e.g when PublicAgency user needs to have another
         // orga than the planner user (Don't blame me, it's reality)
-        $publicAgencyUser = $request->getSession()->get('session2User');
+        $publicAgencyUserId = $request->getSession()->get('session2UserId');
+        $publicAgencyUser = null;
+        try {
+            $publicAgencyUser = $this->userService->getSingleUser($publicAgencyUserId);
+        } catch (Exception) {
+            // no public agency user found
+        }
         if ($publicAgencyUser instanceof User) {
             $this->logger->info('User has multiple users');
 

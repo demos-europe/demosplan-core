@@ -15,11 +15,11 @@
             </a>
 
             {% if templateVars.phasePermissions is defined and templateVars.phasePermissions.new_threadEntry == true %}
-                <a class="btn btn--primary float--right" href="{{ path('DemosPlan_forum_development_userstory_threadentry_new', { 'storyId': templateVars.userStory.ident }) }}">
+                <a class="btn btn--primary float-right" href="{{ path('DemosPlan_forum_development_userstory_threadentry_new', { 'storyId': templateVars.userStory.ident }) }}">
                     Neuen Beitrag schreiben
                 </a>
             {% endif %}
-            <article class="o-box--forum u-mt box-shadow-2">
+            <article class="o-box--forum u-mt shadow-md">
                 <div class="layout__item u-4-of-5 border--right">
                     <h2 class="u-pr">
                        {{ templateVars.userStory.title|default() }}
@@ -28,7 +28,7 @@
                     <p class="u-pr">
                         {{ templateVars.userStory.description|default()|wysiwyg }}
                     </p>
-                    <div class="position--relative u-pr">
+                    <div class="relative u-pr">
                         <i class="fa fa-comments"></i>
                         {{ templateVars.entries.thread.numberOfEntries|default() }}
                         {% if templateVars.votes is defined %}
@@ -40,7 +40,7 @@
                                 {{ templateVars.userStory.offlineVotes|default() }} Offline-Punkte,
                             {% endif %}
                             {% if templateVars.userStory.onlineVotes is defined and 0 < templateVars.userStory.onlineVotes %}
-                                <v-popover class="display--inline-block">
+                                <v-popover class="inline-block">
                                     <button type="button" class="btn--blank o-link--default weight--bold">
                                         <i class="fa fa-caret-right"></i>
                                         {% if 1 == templateVars.userStory.onlineVotes|default() %}
@@ -56,7 +56,7 @@
                                                     <dl class="description-list">
                                                         <dt class="weight--bold">
                                                             {% for i in 1..vote.numberOfVotes %}
-                                                                <i class="fa fa-circle color-brand-main" aria-hidden="true"></i>
+                                                                <i class="fa fa-circle color-main" aria-hidden="true"></i>
                                                             {% endfor %}
                                                             <span class="hide-visually">{{ vote.numberOfVotes }} {{ 'userStory.votes'|trans }}</span>
                                                         </dt>
@@ -79,7 +79,7 @@
                         <dp-accordion title="{{ 'moderate'|trans }}" id="moderation-beitragsID{{ templateVars.userStory.ident|default() }}">
                             <div class="border u-p-0_5 u-mt-0_5">
                                 <a
-                                    class="btn-icns u-m-0 display--block"
+                                    class="btn-icns u-m-0 block"
                                     href="{{ path('DemosPlan_forum_development_userstory_edit', {'releaseId': templateVars.userStory.releaseId, 'storyId': templateVars.userStory.ident }) }}">
                                     <i class="fa fa-pencil btn-icns-icon" aria-hidden="true"></i>
                                     {{ 'userStory.edit'|trans }}

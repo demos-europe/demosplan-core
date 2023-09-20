@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -28,10 +28,9 @@
 </template>
 
 <script>
-import { DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
-import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CreateCommentForm',

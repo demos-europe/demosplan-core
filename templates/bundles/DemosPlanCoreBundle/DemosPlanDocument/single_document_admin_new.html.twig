@@ -1,0 +1,93 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% block demosplanbundlecontent %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'plandocument.add'|trans
+    } %}
+
+        <form
+            class="space-stack-m"
+            name="xsubmititem"
+            enctype="multipart/form-data"
+            method="post"
+            action="{{ path('DemosPlan_singledocument_administration_new', {'procedure':procedure, 'category':category, 'elementId':elementId}) }}"
+            data-dp-validate>
+
+            <input type="hidden" value="singledocumentnew" name="action">
+
+            {% if hasPermission('field_procedure_single_document_title') %}
+                <dp-input
+                    id="planningDocumentTitle"
+                    data-cy="planningDocumentTitle"
+                    :label="{
+                        text: Translator.trans('plandocument.name.displayed')
+                    }"
+                    name="r_title"
+                    required
+                    value="{{ templateVars.request.r_title|default }}">
+                </dp-input>
+            {% else %}
+                {# Instead of injecting the permission into DemosPlanDocumentBundle/Logic/SingleDocumentHandler.php:75
+                   to omit validation of title when permission is disabled, just pass a default value with a hidden field #}
+                <input type="hidden" value="title" name="r_title">
+            {% endif %}
+
+            {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_text.html.twig" with {
+                text: templateVars.request.r_text|default
+            } %}
+
+            {% if hasPermission('feature_single_document_statement') %}
+                <fieldset class="flex u-pb-0">
+                    <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
+                    <dp-radio
+                        id="statement_enabled_true"
+                        class="u-mr-2"
+                        checked="{{ templateVars.request.r_statement_enabled is defined and templateVars.request.r_statement_enabled == '1' }}"
+                        :label="{
+                            bold: false,
+                            text: Translator.trans('yes')
+                        }"
+                        name="r_statement_enabled"
+                        data-cy="enableFileToStatement"
+                        value="1">
+                    </dp-radio>
+                    <dp-radio
+                        id="statement_enabled_false"
+                        checked="{{ templateVars.request.r_statement_enabled is defined and templateVars.request.r_statement_enabled == '0' }}"
+                        :label="{
+                            bold: false,
+                            text: Translator.trans('no')
+                        }"
+                        name="r_statement_enabled"
+                        data-cy="disableFileToStatement"
+                        value="0">
+                    </dp-radio>
+                </fieldset>
+            {% else %}
+                <input type="hidden" value="0" name="r_statement_enabled">
+            {% endif %}
+
+            {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_file_upload.html.twig" with {
+                required: true,
+                procedure: procedure
+            } %}
+
+            <div class="text-right space-inline-s">
+                <button
+                    class="btn btn--primary"
+                    type="submit"
+                    data-cy="saveSinglePlanDocument">
+                    {{ "save"|trans }}
+                </button>
+                <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+                    {{ "abort"|trans }}
+                </a>
+            </div>
+
+        </form>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('document-documentAdminNew.js') }}
+{% endblock javascripts %}

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -27,7 +27,7 @@
         <dp-checkbox
           id="autoSwitchAction"
           v-model="actions.setEnabled.checked"
-          class="display--inline-block"
+          class="inline-block"
           disabled
           :label="{
             bold: actions.setEnabled.checked,
@@ -77,8 +77,17 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, dpValidateMixin, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpCheckbox, DpDatetimePicker, DpInlineNotification, DpSelect } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  DpCheckbox,
+  DpDatetimePicker,
+  DpInlineNotification,
+  dpRpc,
+  DpSelect,
+  dpValidateMixin,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'
@@ -198,11 +207,11 @@ export default {
     this.stateOptions = [
       {
         value: '1',
-        label: 'published'
+        label: Translator.trans('published')
       },
       {
         value: '0',
-        label: 'unpublished'
+        label: Translator.trans('unpublished')
       }
     ]
   }

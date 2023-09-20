@@ -1,0 +1,132 @@
+{% set gislayer = templateVars.gislayer %}
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    {% set action = gislayer.ident|length > 0 ? 'edit' : 'new' %}
+    {% set actionPath = action == 'edit' ?
+        path('DemosPlan_map_administration_gislayer_global_edit',{'gislayerID': gislayer.ident}) :
+        path('DemosPlan_map_administration_gislayer_global_new')
+    %}
+    {% set title_trans_key = gislayer.ident|length > 0 ? 'gislayer.global.update' : 'gislayer.global.create' %}
+
+    <h1>{{ title_trans_key|trans }}</h1>
+
+    <form
+        id="form"
+        class="flow-root"
+        action="{{ actionPath }}"
+        method="post"
+        enctype="multipart/form-data">
+
+        <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
+        <input type="hidden" name="r_visible" value="1">
+        <input type="hidden" name="r_user_toggle_visibility" value="1">
+
+        {% block layerType %}
+            <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
+
+                <li>
+                    <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">
+                        <input
+                            type="radio"
+                            name="r_type"
+                            value="base"
+                            {% if gislayer.type|default('') == 'base' %}checked="checked"{% endif %}
+                        >
+                        {{ "map.base"|trans }}
+                    </label>
+                </li>
+                <li>
+                    <label class="cursor-pointer u-mb-0_25" title="Mit Overlay erstellen Sie weitere Ebenen (Layer) ein-/ausblendbar über den Grundkarten.">
+                        <input type="radio" name="r_type" value="overlay" {% if gislayer.type|default('overlay') == '' %}checked="checked"{% endif %}>
+                        {{ "overlay"|trans }}
+                    </label>
+                </li>
+            </ul>
+        {% endblock layerType %}
+
+        {% block baseSettings %}
+            <label class="u-mb-0_5">
+                {{ "name"|trans }}*
+                <input class="layout__item" type="text" name="r_name" value="{{ gislayer.name|default() }}">
+            </label>
+            <label class="u-mb-0_5">
+                {{ "url"|trans }}*
+                <input class="layout__item" type="text" name="r_url" value="{{ gislayer.url|default() }}">
+            </label>
+            <label class="u-mb-0_5">
+                {{ "layers"|trans }}*
+                <input class="layout__item" type="text" name="r_layers" value="{{ gislayer.layers|default() }}">
+            </label>
+        {% endblock baseSettings %}
+
+        {% if hasPermission('feature_map_layer_legend_file') %}
+            {% if gislayer.legend is defined and gislayer.legend != '' %}
+
+                <p class="lbl u-mb-0">
+                    {{ "legend"|trans }}
+                </p>
+                <div class="u-mb-0_5">
+                    <a
+                        href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
+                        target="_blank"
+                        rel="noopener">
+                        <i class="fa fa-file-o"></i>
+                        {{ "legend"|trans }}
+                        {% if(gislayer.legend|getFile('size')|length > 0 or gislayer.legend|getFile('mimeType')|length > 0 ) %}
+                            ({{ gislayer.legend|getFile('mimeType') }}
+                            {{ gislayer.legend|getFile('size') }})
+                        {% endif %}
+                    </a>
+                    <label class="lbl--text u-mb-0_25">
+                        <input type="checkbox" value="1" name="delete_legend">
+                        {{ "delete"|trans }}
+                    </label>
+                </div>
+
+            {% else %}
+
+                {{
+                    fileupload(
+                        "r_legend",
+                        "legend"|trans
+                            ~ '<p class="lbl__hint">'
+                            ~ "explanation.pdf.no"|trans
+                            ~ '</p>',
+                        "pdf-img",
+                        "form.button.upload.file"
+                    )
+                }}
+
+            {% endif %}
+        {% endif %}
+
+        <label class="u-mb-0_5">
+            <input type="checkbox" name="r_default_visibility" value="1" {% if gislayer.HasDefaultVisibility is defined and gislayer.HasDefaultVisibility == 1 %}checked{% endif %}>
+            {{ "explanation.gislayer.default.visibility"|trans }}
+        </label>
+
+        {% block xplanlayer %}
+            <label title="Mit XPlan können Sie einen XPlanlayer anlegen.">
+                <input type="checkbox" name="r_xplan" {% if gislayer.xplan == true %}checked{% endif %}>
+                {{ "explanation.gislayer.xplan"|trans }}
+            </label>
+        {% endblock xplanlayer %}
+
+        <div class="text-right space-inline-s">
+            <input class="btn btn--primary" type="submit" name="saveLayer" value="{{ "save"|trans }}">
+            <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer_global') }}">
+                {{ "abort"|trans }}
+            </a>
+        </div>
+
+    </form>
+{% endblock component_part %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('map-mapAdminGislayerGlobalEdit.js') }}
+{% endblock javascripts %}
+

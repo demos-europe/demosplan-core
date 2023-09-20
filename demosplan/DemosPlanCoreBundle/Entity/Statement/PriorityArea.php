@@ -3,13 +3,16 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,16 +22,20 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Table(name="_priority_area",uniqueConstraints={@UniqueConstraint(name="key_idx", columns={"_pa_key"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\PriorityAreaRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository")
  */
-class PriorityArea extends CoreEntity implements UuidEntityInterface
+class PriorityArea extends CoreEntity implements UuidEntityInterface, PriorityAreaInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_pa_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -48,9 +55,10 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     protected $type;
 
     /**
-     * @var Collection<int, Statement>
+     * @var Collection<int, StatementInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="priorityAreas")
+     *
      * @ORM\JoinTable(
      *     name="_statement_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},
@@ -60,9 +68,10 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     protected $statements;
 
     /**
-     * @var Collection<int, StatementFragment>
+     * @var Collection<int, StatementFragmentInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="priorityAreas", cascade={"persist"})
+     *
      * @ORM\JoinTable(
      *     name="_statement_fragment_priority_area",
      *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},
@@ -141,7 +150,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     /**
      * Add Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return bool - true if the given statement was added to this priorityArea, otherwise false
      */
@@ -158,7 +167,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     /**
      * Remove Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      */
     public function removeStatement($statement)
     {
@@ -178,7 +187,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     /**
      * Add StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function addStatementFragment($fragment)
     {
@@ -190,7 +199,7 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface
     /**
      * Remove StatementFragment.
      *
-     * @param StatementFragment $fragment
+     * @param StatementFragmentInterface $fragment
      */
     public function removeStatementFragment($fragment)
     {

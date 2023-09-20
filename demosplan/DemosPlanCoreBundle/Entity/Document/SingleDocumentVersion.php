@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,24 +11,31 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_single_doc_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository")
  */
-class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
+class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, SingleDocumentVersionInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_sdv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -36,9 +43,10 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Attention: This entity has to be persist, if the related singleDocument is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
-     * @var SingleDocument
+     * @var SingleDocumentInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", inversedBy="versions")
+     *
      * @ORM\JoinColumn(name="_sd_id", referencedColumnName="_sd_id", nullable=true, onDelete="SET NULL")
      */
     protected $singleDocument;
@@ -51,9 +59,10 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     protected $sdId;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -69,9 +78,10 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     protected $elementId;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=true, onDelete="SET NULL")
      **/
     protected $element;
@@ -143,6 +153,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_sdv_version_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $versionDate;
@@ -176,12 +187,12 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      *
-     * @param Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure): self
     {
         $this->procedure = $procedure;
-        if ($procedure instanceof Procedure) {
+        if ($procedure instanceof ProcedureInterface) {
             $this->pId = $procedure->getId();
         }
 
@@ -191,7 +202,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      *
-     * @return Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -205,7 +216,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -219,7 +230,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
@@ -227,7 +238,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Elements|null
+     * @return ElementsInterface|null
      */
     public function getElement()
     {
@@ -235,11 +246,11 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Elements $element
+     * @param ElementsInterface $element
      */
     public function setElement($element)
     {
-        if ($element instanceof Elements) {
+        if ($element instanceof ElementsInterface) {
             $this->elementId = $element->getId();
         }
         $this->element = $element;
@@ -470,7 +481,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return SingleDocument|null
+     * @return SingleDocumentInterface|null
      */
     public function getSingleDocument()
     {
@@ -487,7 +498,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param SingleDocument $singleDocument
+     * @param SingleDocumentInterface $singleDocument
      */
     public function setSingleDocument($singleDocument)
     {

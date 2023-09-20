@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -38,14 +38,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class SimilarStatementSubmitterResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
 {
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    public function __construct(StatementService $statementService)
+    public function __construct(private readonly StatementService $statementService)
     {
-        $this->statementService = $statementService;
     }
 
     public function createObject(array $properties): ResourceChange
@@ -102,16 +96,16 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $procedureId = $procedure->getId();
 
-        return $this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id);
+        return [$this->conditionFactory->propertyHasValue($procedureId, $this->procedure->id)];
     }
 
     /**
@@ -120,7 +114,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
     public function updateObject(object $object, array $properties): ResourceChange
     {
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->fullName, [$object, 'setFullName']);
+        $updater->ifPresent($this->fullName, $object->setFullName(...));
         $this->statementService->updatePersonEditableProperties($updater, $object);
 
         $this->resourceTypeService->validateObject($object);

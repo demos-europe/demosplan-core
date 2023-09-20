@@ -3,14 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 
 abstract class ProjectPermissions extends Permissions implements ProjectPermissionsInterface
 {

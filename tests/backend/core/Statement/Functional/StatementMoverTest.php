@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,8 +19,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementMoverTest extends FunctionalTestCase

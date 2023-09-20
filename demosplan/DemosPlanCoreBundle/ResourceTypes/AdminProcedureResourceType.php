@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -56,20 +56,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var ProcedureResourceType
-     */
-    private $procedureResourceType;
-
-    public function __construct(ProcedureResourceType $procedureResourceType, ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService)
     {
-        $this->procedureService = $procedureService;
-        $this->procedureResourceType = $procedureResourceType;
     }
 
     public static function getName(): string
@@ -113,44 +101,31 @@ final class AdminProcedureResourceType extends DplanResourceType
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
             $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
 
-            $properties = array_merge($properties, [
-                $this->createAttribute($this->externalName)->readable(),
-                $this->createAttribute($this->internalStartDate)->readable()->aliasedPath($this->startDate),
-                $this->createAttribute($this->internalEndDate)->readable()->aliasedPath($this->endDate),
-                $this->createAttribute($this->originalStatementsCount)->readable(false, function (Procedure $procedure): int {
-                    // optimize performance? it may be possible to use an actual relationship or
-                    // otherwise use an RPC route that calculates the count for all procedures at once
-                    $procedureId = $procedure->getId();
-                    $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
+            $properties = [...$properties, $this->createAttribute($this->externalName)->readable(), $this->createAttribute($this->internalStartDate)->readable()->aliasedPath($this->startDate), $this->createAttribute($this->internalEndDate)->readable()->aliasedPath($this->endDate), $this->createAttribute($this->originalStatementsCount)->readable(false, function (Procedure $procedure): int {
+                // optimize performance? it may be possible to use an actual relationship or
+                // otherwise use an RPC route that calculates the count for all procedures at once
+                $procedureId = $procedure->getId();
+                $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
 
-                    return $counts[$procedureId] ?? 0;
-                }),
-                $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
-                    // optimize performance? it may be possible to use an actual relationship or
-                    // otherwise use an RPC route that calculates the count for all procedures at once
-                    $procedureId = $procedure->getId();
-                    $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+                return $counts[$procedureId] ?? 0;
+            }), $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
+                // optimize performance? it may be possible to use an actual relationship or
+                // otherwise use an RPC route that calculates the count for all procedures at once
+                $procedureId = $procedure->getId();
+                $counts = $this->procedureService->getStatementsCounts([$procedureId]);
 
-                    return $counts[$procedureId] ?? 0;
-                }),
-                $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase),
-                $this->createAttribute($this->internalPhaseTranslationKey)
-                    ->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
-                        $internalPhaseIdentifier = $procedure->getPhase();
+                return $counts[$procedureId] ?? 0;
+            }), $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase), $this->createAttribute($this->internalPhaseTranslationKey)
+                ->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
+                    $internalPhaseIdentifier = $procedure->getPhase();
 
-                        return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
-                    }),
-                $this->createAttribute($this->publicParticipation)->readable(),
-                $this->createAttribute($this->externalEndDate)->readable()->aliasedPath($this->publicParticipationEndDate),
-                $this->createAttribute($this->externalPhaseIdentifier)->readable()->aliasedPath($this->publicParticipationPhase),
-                $this->createAttribute($this->externalPhaseTranslationKey)
-                    ->readable(false, static function (Procedure $procedure) use ($externalPhases): string {
-                        $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
+                    return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
+                }), $this->createAttribute($this->publicParticipation)->readable(), $this->createAttribute($this->externalEndDate)->readable()->aliasedPath($this->publicParticipationEndDate), $this->createAttribute($this->externalPhaseIdentifier)->readable()->aliasedPath($this->publicParticipationPhase), $this->createAttribute($this->externalPhaseTranslationKey)
+                ->readable(false, static function (Procedure $procedure) use ($externalPhases): string {
+                    $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
 
-                        return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
-                    }),
-                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationStartDate),
-            ]);
+                    return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
+                }), $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationStartDate)];
         }
 
         return $properties;
@@ -166,14 +141,15 @@ final class AdminProcedureResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_procedures');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        $conditions = $this->procedureService->getAdminProcedureConditions(
+        $adminProcedureConditions = $this->procedureService->getAdminProcedureConditions(
             false,
             $this->currentUser->getUser()
         );
-        $conditions[] = $this->procedureResourceType->getResourceTypeCondition();
 
-        return $this->conditionFactory->allConditionsApply(...$conditions);
+        $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
+
+        return array_merge($adminProcedureConditions, $resourceTypeConditions);
     }
 }

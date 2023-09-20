@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="display--block u-mb-0_5 u-pv-0_5 border--top border--bottom cf">
+  <div class="block u-mb-0_5 u-pv-0_5 border--top border--bottom flow-root">
     <p class="lbl__hint">
       {{ Translator.trans('explanation.geolocation') }}
     </p>
@@ -62,8 +62,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-utils'
-import { DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 
 const LookupStatus = {
   NONE: 0,

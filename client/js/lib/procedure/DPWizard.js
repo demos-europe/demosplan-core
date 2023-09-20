@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -13,7 +13,7 @@
  *
  *  @deprecated swap with more appropriate onboarding pattern? "tour", "whats new"...?
  */
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default function DpWizard () {
   // Gets jquery from window
@@ -84,17 +84,19 @@ export default function DpWizard () {
         $items.find('.o-wizard__content').removeClass('is-active')
 
         $currentItem.find('legend').addClass('is-active-toggle')
-        $currentItem.find('.o-wizard__btn--next').show()
+        this.showElement($currentItem.find('.o-wizard__btn--next'))
+        this.showElement($wizardElements)
         $currentItem
           .addClass('o-wizard--active')
           .find('.o-wizard__content')
           .append(
-            $wizardElements.show().attr('aria-hidden', false)
+            $wizardElements.attr('aria-hidden', false)
           )
           .addClass('is-active')
 
         //  Vue Components that need to init on visible elements may listen to this
-        window.Bus.emit('wizard:show', $currentItem.attr('data-wizard-topic'))
+        const wizardShow = new CustomEvent('wizard:show', { data: $currentItem.attr('data-wizard-topic') })
+        document.dispatchEvent(wizardShow)
 
         this.$menu.find('li').removeClass('active').eq(idx).addClass('active')
 
@@ -102,13 +104,28 @@ export default function DpWizard () {
         return this
       },
 
+      showElement: function ($elements) {
+        const elements = $elements.toArray()
+        elements.forEach((element) => {
+          element.setAttribute('style', 'display: block !important')
+        })
+      },
+
       hide: function () {
         $form.removeClass('o-wizard-mode')
         this.$items.removeClass('o-wizard--active')
         this.$items.find('.o-wizard__content').removeClass('is-active')
-        $wizardElements.hide().attr('aria-hidden', true)
-        $form.find('.o-wizard__btn--next').hide()
+        $wizardElements.attr('aria-hidden', true)
+        this.hideElement($wizardElements)
+        this.hideElement($form.find('.o-wizard__btn--next'))
         return this
+      },
+
+      hideElement: function ($elements) {
+        const elements = $elements.toArray()
+        elements.forEach((element) => {
+          element.setAttribute('style', '')
+        })
       },
 
       buildMenu: function () {
@@ -164,11 +181,11 @@ export default function DpWizard () {
         const $doneBtn = this.$actions.done
 
         if (this.step === this.length) {
-          $nextBtn.hide()
-          $doneBtn.show()
+          this.showElement($doneBtn)
+          this.hideElement($nextBtn)
         } else {
-          $nextBtn.show()
-          $doneBtn.hide()
+          this.showElement($nextBtn)
+          this.hideElement($doneBtn)
         }
         return this
       },

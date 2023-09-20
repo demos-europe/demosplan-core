@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -44,7 +44,7 @@
           v-model="options.newAssignee.checked">
         <label
           for="r_new_assignee"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('statements.assign.other') }}
         </label>
 
@@ -60,15 +60,15 @@
           <!--</p>-->
           <dp-multiselect
             ref="newAssignee"
+            v-model="options.newAssignee.value"
             :allow-empty="false"
+            class="u-mb width-450"
+            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            class="u-mb width-450"
-            v-model="options.newAssignee.value"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`">
-            <template v-slot:option="{ option }">
-              {{ option.name }} {{ option.id === currentUserId? ` (Sie)` : '' }}
+            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            <template v-slot:option="{ props }">
+              {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
           </dp-multiselect>
         </div>
@@ -82,7 +82,7 @@
           v-model="options.recommendation.checked">
         <label
           for="r_recommendation"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div
@@ -116,7 +116,7 @@
       </div>
 
       <!-- 'Continue' and 'Back to consideration table' buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <a
           class="btn btn--primary"
           role="button"
@@ -125,7 +125,7 @@
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -167,16 +167,15 @@
       </div>
 
       <!-- Back to edit and apply buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <dp-button
           :busy="isLoading"
-          @click.once="submitData">
-          {{ Translator.trans('actions.statements.apply', { count: selectedElementsCount }) }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('actions.statements.apply', { count: selectedElementsCount })"
+          @click.once="submitData" />
 
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           @click.prevent="toggleMode('edit')">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -200,18 +199,22 @@
         {{ Translator.trans(options[option].successMessage) }}
       </p>
       <dp-button
-        :text="Translator.trans('save')"
-        @click="handleReturn">
-        <i class="fa fa-angle-left u-pr-0_25" />
-        {{ Translator.trans('considerationtable.back') }}
-      </dp-button>
+        icon="chevron-left"
+        :text="Translator.trans('considerationtable.back')"
+        @click="handleReturn" />
     </div>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton, DpMultiselect, DpTextWrapper, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpMultiselect,
+  DpTextWrapper,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'

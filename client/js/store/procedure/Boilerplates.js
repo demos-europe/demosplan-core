@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -8,7 +8,7 @@
  */
 
 import { normalize, setItem } from '@DpJs/store/core/utils/storeUtils'
-import { dpApi } from '@demos-europe/demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 const BoilerplatesStore = {
   namespaced: true,

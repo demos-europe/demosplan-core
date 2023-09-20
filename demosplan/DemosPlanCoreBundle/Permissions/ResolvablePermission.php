@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -41,38 +41,13 @@ class ResolvablePermission
 {
     use Timestampable;
 
-    public const CURRENT_USER_ID = '$currentUserId';
+    final public const CURRENT_USER_ID = '$currentUserId';
 
-    public const CURRENT_CUSTOMER_ID = '$currentCustomerId';
+    final public const CURRENT_CUSTOMER_ID = '$currentCustomerId';
 
-    public const CURRENT_PROCEDURE_ID = '$currentProcedureId';
+    final public const CURRENT_PROCEDURE_ID = '$currentProcedureId';
 
     private const PARAMETER_VALUES = [self::CURRENT_USER_ID, self::CURRENT_CUSTOMER_ID, self::CURRENT_PROCEDURE_ID];
-
-    /**
-     * @var non-empty-string
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false)
-     * @Assert\Type(type="string")
-     * @Assert\Regex(pattern="/^[a-z]+(_[a-z]+)*$/")
-     */
-    private string $name;
-
-    /**
-     * @var non-empty-string
-     *
-     * @Assert\NotBlank(normalizer="trim", allowNull=false)
-     * @Assert\Type(type="string")
-     */
-    private string $label;
-
-    /**
-     * @Assert\NotNull()
-     * @Assert\Type(type="string")
-     */
-    private string $description;
-
-    private bool $exposed;
 
     /**
      * @var list<PermissionCondition>
@@ -83,12 +58,15 @@ class ResolvablePermission
      * @param non-empty-string $name
      * @param non-empty-string $label
      */
-    public function __construct(string $name, string $label, string $description, bool $exposed)
+    public function __construct(#[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    #[Assert\Type(type: 'string')]
+    #[Assert\Regex(pattern: '/^[a-z]+(_[a-z]+)*$/')]
+    private readonly string $name, #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    #[Assert\Type(type: 'string')]
+    private readonly string $label, #[Assert\NotNull]
+    #[Assert\Type(type: 'string')]
+    private readonly string $description, private readonly bool $exposed)
     {
-        $this->name = $name;
-        $this->label = $label;
-        $this->description = $description;
-        $this->exposed = $exposed;
         $now = Carbon::now();
         $this->setCreatedAt($now);
         $this->setUpdatedAt($now);

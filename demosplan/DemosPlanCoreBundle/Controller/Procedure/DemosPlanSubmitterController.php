@@ -3,19 +3,19 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanProcedureBundle\Logic\SubmitterExporter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\SubmitterExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,19 +28,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanSubmitterController extends BaseController
 {
     /**
-     * @Route(
-     *     name="dplan_submitters_list",
-     *     methods="GET",
-     *     path="/verfahren/{procedureId}/submitters/list")
-     *
      * @throws Exception
      *
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
     public function listAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanProcedure/DemosPlanProcedure/administration_list_submitters.html.twig',
+            '@DemosPlanCore/DemosPlanProcedure/administration_list_submitters.html.twig',
             [
                 'procedure' => $procedureId,
                 'title'     => 'submitters',
@@ -49,14 +45,9 @@ class DemosPlanSubmitterController extends BaseController
     }
 
     /**
-     * @Route(
-     *      name="dplan_admin_procedure_submitter_export",
-     *      path="/verfahren/{procedureId}/einreicher/export",
-     *      methods={"GET"},
-     *      options={"expose": true}
-     * )
      * @DplanPermissions("area_admin_submitters")
      */
+    #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         FileResponseGeneratorStrategy $responseGenerator,

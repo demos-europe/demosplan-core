@@ -3,18 +3,18 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace Tests\Core\Core\Unit\Logic\Platform;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use Tests\Base\FunctionalTestCase;
 
 class EntryPointDeciderTest extends FunctionalTestCase

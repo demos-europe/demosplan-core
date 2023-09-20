@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -30,17 +30,18 @@
 
     <!-- select statement cluster -->
     <dp-multiselect
-      :options="clusterList"
-      track-by="id"
-      ref="multiselect"
       id="clusters-single-select"
-      :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
-      class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
-      :allow-empty="false"
       v-model="selected"
+      :allow-empty="false"
+      class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
+      :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
+      :options="clusterList"
+      ref="multiselect"
+      track-by="id"
       @input="closeMultiselect">
-      <template v-slot:option="{ option }">
-        <strong>{{ option.externId ? option.externId : '' }}</strong><span class="weight--normal">{{ option.name ? ` ${option.name}` : '' }}</span>
+      <template v-slot:option="{ props }">
+        <strong>{{ props.option.externId ? props.option.externId : '' }}</strong>
+        <span class="weight--normal">{{ props.option.name ? ` ${props.option.name}` : '' }}</span>
       </template>
     </dp-multiselect>
     <input
@@ -54,7 +55,7 @@
       v-if="hasPermission('feature_statement_assignment')"
       class="layout__item u-1-of-1 u-pt-0_25 u-pl-0">
       <dp-claim
-        class="c-at-item__row-icon display--inline-block"
+        class="c-at-item__row-icon inline-block"
         entity-type="statement"
         :ignore-last-claimed="false"
         :assigned-id="(selected.assignee.id || '')"
@@ -68,7 +69,7 @@
         :key="selected.assignee.id" />
       <p
         v-if="currentUserId !== selected.assignee.id && inputValue !== ''"
-        class="display--inline-block lbl__hint u-n-ml-0_5">
+        class="inline-block lbl__hint u-n-ml-0_5">
         {{ Translator.trans('statement.cluster.assign.self') }}
       </p>
     </div>
@@ -77,8 +78,7 @@
 
 <script>
 import DpClaim from '../DpClaim'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
 
 export default {

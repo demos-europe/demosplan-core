@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 /**
  *  Tabs - add behavior to tabbed elements.

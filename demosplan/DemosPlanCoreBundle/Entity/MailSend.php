@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,17 +17,20 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_mail_send")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MailRepository")
  */
 class MailSend implements IntegerIdEntityInterface
 {
-    public const MAIL_SCOPE_EXTERN = 'extern';
+    final public const MAIL_SCOPE_EXTERN = 'extern';
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="_ms_id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
@@ -105,6 +108,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_ms_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -113,6 +117,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_ms_send_date", type="datetime", nullable=false)
      */
     protected $sendDate;
@@ -156,6 +161,7 @@ class MailSend implements IntegerIdEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_ms_last_status_date", type="datetime", nullable=false)
      */
     protected $lastStatusDate;

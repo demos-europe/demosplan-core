@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -25,9 +25,10 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('login.email')" />
           <slot />
-          <dp-form-row :class="prefixClass('space-stack-s')">
+          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_email"
+              data-cy="email"
               :label="{
                 bold: false,
                 text: Translator.trans('email.address')
@@ -39,6 +40,7 @@
             <div :class="prefixClass('flex')">
               <dp-input
                 id="r_firstname"
+                data-cy="firstname"
                 :label="{
                   bold: false,
                   text: Translator.trans('name.first')
@@ -47,6 +49,7 @@
                 required />
               <dp-input
                 id="r_lastname"
+                data-cy="lastname"
                 :label="{
                   bold: false,
                   text: Translator.trans('name.last')
@@ -58,6 +61,7 @@
 
           <dp-checkbox
             id="gdpr_consent"
+            data-cy="gdpr_consent"
             :class="prefixClass('u-mb-0_5')"
             :label="{
               text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
@@ -65,6 +69,11 @@
             name="gdpr_consent"
             required
             value="on" />
+          <dp-input
+            id="_csrf_token"
+            name="_csrf_token"
+            type="hidden"
+            :value="csrfToken" />
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
@@ -101,8 +110,7 @@
 </template>
 
 <script>
-import { DpButton, DpCheckbox, DpFormRow, DpInput } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpCheckbox, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CitizenRegisterForm',
@@ -127,6 +135,11 @@ export default {
       type: String,
       required: true,
       default: ''
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     }
   }
 }

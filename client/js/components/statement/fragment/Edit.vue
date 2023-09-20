@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -47,12 +47,12 @@
           {{ Translator.trans('fragment.voteAdvice') }}
         </label>
         <dp-multiselect
-          :options="computedAdviceValues"
-          track-by="value"
-          label="name"
+          v-model="voteAdvice"
           :allow-empty="false"
-          v-model="voteAdvice">
-          <template v-slot:option="props">
+          label="name"
+          :options="computedAdviceValues"
+          track-by="value">
+          <template v-slot:option="{ props }">
             {{ props.option.name }}
           </template>
         </dp-multiselect>
@@ -103,8 +103,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
 
 export default {
@@ -221,7 +220,7 @@ export default {
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            Bus.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', response.data)
           } else {
             this.$root.$emit('fragment-saved', response.data)
 

@@ -3,67 +3,54 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use function array_key_exists;
+
 /**
  * Assessment Table export.
  */
 class DemosPlanAssessmentExportController extends BaseController
 {
-    /** @var AssessmentHandler */
-    private $assessmentHandler;
-
-    public function __construct(AssessmentHandler $assessmentHandler)
+    public function __construct(private readonly AssessmentHandler $assessmentHandler)
     {
-        $this->assessmentHandler = $assessmentHandler;
     }
 
     /**
      * An Assessment table export Action that can handle all types of exports
      * specified in the export options yml.
      *
-     * @Route(
-     *     name="DemosPlan_assessment_table_export",
-     *     methods={"POST", "GET"},
-     *     path="/verfahren/abwaegung/export/{procedureId}",
-     *        options={"expose": true})
-     * @Route(
-     *     name="DemosPlan_assessment_table_original_export",
-     *     path="/verfahren/abwaegung/original/export/{procedureId}",
-     *     defaults={"original": true},
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_assessment_table_original_export', path: '/verfahren/abwaegung/original/export/{procedureId}', defaults: ['original' => true], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
@@ -91,8 +78,8 @@ class DemosPlanAssessmentExportController extends BaseController
     private function getExportParameters(Request $request, string $procedureId, bool $original): array
     {
         $parameters = $this->assessmentHandler->getFormValues($request->request->all());
-        $parameters['request']['limit'] = 1000000;
-        $parameters['searchFields'] = explode(',', $request->request->get('searchFields'));
+        $parameters['request']['limit'] = 1_000_000;
+        $parameters['searchFields'] = explode(',', (string) $request->request->get('searchFields'));
         $parameters['exportFormat'] = $request->request->get('r_export_format');
         $parameters['procedureId'] = $procedureId;
         $parameters['original'] = $original;
@@ -111,7 +98,7 @@ class DemosPlanAssessmentExportController extends BaseController
             : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
         try {
             $parameters['viewMode'] = $this->getStringParameter($request, 'r_view_mode');
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $parameters['viewMode'] = AssessmentTableViewMode::DEFAULT_VIEW;
         }
         if (AssessmentTableViewMode::ELEMENTS_VIEW === $parameters['viewMode']) {

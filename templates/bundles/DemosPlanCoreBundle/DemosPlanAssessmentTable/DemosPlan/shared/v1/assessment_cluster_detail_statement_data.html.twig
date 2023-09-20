@@ -1,0 +1,750 @@
+{# @improve T12757 #}
+
+{% if hasPermission('field_statement_votes') %}
+    {% if statement.isSubmittedByCitizen %}
+        <div class="layout--flush u-mb-0">
+            {% include '@DemosPlanCore/DemosPlanStatement/includes/vote_statement_messages.html.twig' %}
+        </div>
+        {% if hasPermission('feature_statements_vote') %}
+            {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
+                <label class="layout--flush u-mb-0">
+                    <span class="layout__item u-mb">
+                        {{ "voters"|trans }}
+                    </span>
+                    {% set title = '' %}
+                    {% if statement.votesNum is defined and statement.votesNum == 1 %}
+                        {% set title = statement.votesNum ~ "person"|trans %}
+                    {%  else %}
+                        {% set title = statement.votesNum|default(0) ~ "persons"|trans %}
+                   {% endif %}
+                    <dp-accordion title="{{ title }}">
+                        <ul>
+                            {% for vote in statement.votes %}
+                                {% if vote.user is defined and vote.user != '' %}
+                                    <li>
+                                        {{ vote.user.firstname }} {{ vote.user.lastname }},
+                                        {{ vote.user.address.street|default('') }},
+                                        {{ vote.user.address.postalcode|default('') }}
+                                        {{ vote.user.address.city|default('') }},
+                                        {{ vote.user.email|default('') }}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </dp-accordion>
+                </label>
+            {% endif %}
+        {% endif %}
+
+        {% if hasPermission('feature_statements_like') %}
+
+            <label class="layout--flush u-mb-0">
+                <span class="layout__item u-1-of-4 u-mb">
+                    {{ "liked.by"|trans }}
+                </span>
+                {{ statement.likes|default([])|length }}
+            </label>
+
+        {% endif %}
+
+    {% endif %}
+{% endif %}
+
+
+<div id="item_{% if statement.ident is defined %}{{ statement.ident }}{% endif %}">
+
+    <h4 class="font-size-large border--top u-pt-0_5">
+        {{ 'cluster'|trans }}
+    </h4>
+
+    {% block clusterId %}
+        <div class="layout--flush u-mb-0_75 inline-block u-1-of-7">
+            <label class="layout__item u-1-of-4 block u-mb-0_25">
+                {{ "id"|trans }}
+            </label>
+            <div class="layout__item c-at-item__row color--grey u-3-of-4">
+                {{ statement.externId|default('---') }}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% if hasPermission('field_procedure_name') %}
+        <div class="layout--flush inline-block u-6-of-7 u-pl">
+            <strong class="layout__item block u-mb-0_25">
+                {{ "procedure"|trans }}
+            </strong>
+            <p class="layout__item u-3-of-4 color--grey">
+                {{ templateVars.table.procedure.name|default('') }}
+            </p>
+        </div>
+    {% endif %}
+
+    {% block clusterName %}
+        {% if statement.name|default != '' %}
+            {% set clusterNameValue = statement.name|default %}
+        {% elseif statement.name|default == '' and readonly %}
+            {% set clusterNameValue = '-' %}
+        {% endif %}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'name'|trans },
+                    control: { name: 'r_clusterName', value: clusterNameValue|default },
+                    id: 'clusterName',
+                    class: 'u-pr-0_5',
+                    type: 'text',
+                    elementSize: 'large',
+                    elementClass: 'u-pr',
+                    disabled: readonly
+                }
+            ]
+        }) }}
+    {% endblock %}
+
+    {# display both internal and external phases #}
+    {% if hasPermission('field_statement_phase') %}
+        <div class="layout--flush {% if not readonly %}u-mb-0{% else %}u-mb-0_75{% endif %} u-pr">
+            {% set procedurePhaseOptGroups = {} %}
+            {% set procedurePhaseOptions = {} %}
+            {% set internalOptions = {} %}
+            {% set externalOptions = {} %}
+
+            {% if readonly %}
+                {# disable select #}
+                {% set procedurePhaseSelectDisabled = true %}
+
+                {# set selected option #}
+                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                    label: statement.phase,
+                    value: '',
+                    selected: true
+                }]) %}
+
+                {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+
+            {% elseif not readonly %}
+                    {% for internalPhase in templateVars.internalPhases|default %}
+                        {% if internalPhase.name == statement.phase %}
+                            {% set internalOptions = internalOptions|merge([{
+                                label: internalPhase.name,
+                                value: internalPhase.key,
+                                selected: true
+                            }]) %}
+                        {% else %}
+                            {% set internalOptions = internalOptions|merge([{
+                                label: internalPhase.name,
+                                value: internalPhase.key
+                            }]) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for externalPhase in templateVars.externalPhases|default %}
+                        {% if externalPhase.name == statement.phase %}
+                            {% set externalOptions = externalOptions|merge([{
+                                label: externalPhase.name,
+                                value: externalPhase.key,
+                                selected: true
+                            }]) %}
+                        {% else %}
+                            {% set externalOptions = externalOptions|merge([{
+                                label: externalPhase.name,
+                                value: externalPhase.key
+                            }]) %}
+                        {% endif %}
+                    {% endfor %}
+
+                {# build optgroup for select component #}
+                {% set procedurePhaseOptGroups = procedurePhaseOptGroups|merge([
+                    {
+                        label: 'invitable_institution.participation',
+                        id: 'js__optgroup-internalPhases',
+                        options: internalOptions
+                    },
+                    {
+                        label: 'public.participation',
+                        id: 'js__optgroup-publicPhases',
+                        options: externalOptions
+                    },
+                ]) %}
+
+                {% set procedurePhaseControlOptions = { name: 'r_phase', optgroups: procedurePhaseOptGroups } %}
+            {% endif %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'procedure.public.phase'|trans },
+                        control: procedurePhaseControlOptions,
+                        type: 'select',
+                        id: 'Phase',
+                        elementSize: 'large',
+                        elementClass: 'u-pr-0_5',
+                        disabledPlainText: true,
+                        disabled: procedurePhaseSelectDisabled|default(false)
+                    }
+                ]
+            }) }}
+        </div>
+    {% endif %}
+
+    {% if hasPermission('field_statement_feedback') and (formDefinitions.getEvaluationMailViaEmail.enabled == true or formDefinitions.getEvaluationMailViaSnailMailOrEmail.enabled == true) %}
+        {# Rückmeldunsgvariante nur bei Bürger-SN #}
+        {% if statement.isSubmittedByCitizen %}
+            {% if statement.feedback is defined %}
+                <div class="layout--flush u-mb-0_75">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "feedback"|trans }}
+                    </strong>
+                    <p class="layout__item u-3-of-4 color--grey">
+                        {{ statement.feedback }}
+                    </p>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    <div class="u-1-of-1">
+            {% if hasPermission('field_statement_status') %}
+                {% if not readonly %}
+                    {% set availableStatusOptions = getFormOption('statement_status', false)  %}
+                    {% if "statement.final.metaDataAdded"|trans != 'statement.final.metaDataAdded' %}
+                        {% set availableStatusOptions = availableStatusOptions|merge(['statementFinalMetaDataAdded']) %}
+                    {% endif %}
+                    {% if "statement.final.fragmentsAdded"|trans != 'statement.final.fragmentsAdded' %}
+                        {% set availableStatusOptions = availableStatusOptions|merge(['statementFinalFragmentsAdded']) %}
+                    {% endif %}
+                    {% set statusOptions = [] %}
+                    {% for val in availableStatusOptions %}
+                        {% if val == 'statementFinalMetaDataAdded' %}
+                          {% if "statement.final.metaDataAdded"|trans != 'statement.final.metaDataAdded' %}
+                              {% if val == statement.status|default %}
+                                {% set statusOptions = statusOptions|merge([{ label: 'statement.final.metaDataAdded', value: val, selected: true }]) %}
+                              {% else %}
+                                  {% set statusOptions = statusOptions|merge([{ label: 'statement.final.metaDataAdded', value: val }]) %}
+                              {% endif %}
+                          {% endif %}
+                        {% elseif val == 'statementFinalFragmentsAdded' %}
+                            {% if "statement.final.fragmentsAdded"|trans != 'statement.final.fragmentsAdded' %}
+                                {% if val == statement.status|default %}
+                                    {% set statusOptions = statusOptions|merge([{ label: 'statement.final.fragmentsAdded', value: val, selected: true }]) %}
+                                {% else %}
+                                    {% set statusOptions = statusOptions|merge([{ label: 'statement.final.fragmentsAdded', value: val }]) %}
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            {% if val == statement.status|default %}
+                                {% set statusOptions = statusOptions|merge([{ label: val, value: val, selected: true }]) %}
+                            {% else %}
+                                {% set statusOptions = statusOptions|merge([{ label: val, value: val }]) %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% if statement.status != '' %}
+                        {% set statusOptions = [{ label: statement.status, value: statement.status, selected: true }] %}
+                    {% else %}
+                        {% set statusOptions = [{ label: '-', value: '', selected: true }] %}
+                    {% endif %}
+                {% endif %}
+
+                {{ uiComponent('form.element', {
+                    label: { text: 'processing.status'|trans },
+                    control: { name: 'r_status', options: statusOptions },
+                    type: 'select',
+                    id: 'r_status',
+                    elementSize: 'small',
+                    elementClass: 'u-pr',
+                    elementStyle: 'inline-block',
+                    disabledPlainText: true,
+                    disabled: readonly
+                }) }}
+            {% endif %}
+
+            {% block priority %}
+                {% if hasPermission('field_statement_priority') %}
+                    {% if not readonly %}
+                        {% set availablePriorityOptions = getFormOption('statement_priority', true) %}
+                        {% set priorityOptions = [{ label: '', value: '', selected: statement.priority|default == '' }]|merge(availablePriorityOptions|map(val => { label: val, value: val, selected: val == statement.priority|default })) %}
+                    {% else %}
+                        {% if statement.priority|default != '' %}
+                            {% set priorityOptions = [{ label: statement.priority, value: statement.priority, selected: true }] %}
+                        {% else %}
+                            {% set priorityOptions = [{ label: '-', value: '', selected: true }] %}
+                        {% endif %}
+                    {% endif %}
+
+                    {{ uiComponent('form.element', {
+                        label: { text: 'priority'|trans },
+                        control: { name: 'r_priority', options: priorityOptions },
+                        type: 'select',
+                        id: 'r_priority',
+                        elementSize: 'small',
+                        elementStyle: 'inline-block',
+                        elementClass: 'u-pr',
+                        disabledPlainText: true,
+                        disabled: readonly
+                    }) }}
+                {% endif %}
+            {% endblock priority %}
+
+        {% block official %}
+            {% if hasPermission('field_statement_meta_case_worker_name') %}
+                <div class="layout--flush u-1-of-2 block {% if readonly %}u-mt-0_5 {% else %}u-mt-0_75{% endif %} u-mb-0_75">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "official"|trans }}
+                    </strong>
+                    {% if statement.meta.caseWorkerName|default != '' %}
+                        <p class="layout__item u-mb-0_5 color--grey">
+                            {{ statement.meta.caseWorkerName|default('')}}
+                        </p>
+                    {% else %}
+                        <p class="layout__item u-1-of-2 u-mb-0_5 color--grey" style="height: 28px">
+                            -
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+
+    {% if hasPermission('field_procedure_elements') %}
+
+        <h4 class="font-size-large border--top u-pt-0_5">
+            {{ 'documents'|trans }}
+        </h4>
+
+        {% if statement.element.ident is defined %}
+            <div class="u-1-of-2 inline-block">
+                {{ uiComponent('form.element', {
+                    label: { text: 'plandocument'|trans },
+                    control: { value: statement.element.title|default },
+                    type: 'text',
+                    id: 'elementTitle',
+                    elementClass: 'u-mb-0_25',
+                    disabled: true
+                }) }}
+                {% if not readonly %}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'delete'|trans },
+                        control: { name: 'r_delete_element', value: '1' },
+                        type: 'checkbox',
+                        elementClass: 'u-mb-0_5',
+                        id: 'r_delete_element'
+                    }) }}
+                {% endif %}
+
+                {% if statement.document.ident is defined and hasPermission('field_procedure_documents')%}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'file'|trans },
+                        control: { value: statement.document.title|default },
+                        type: 'text',
+                        id: 'fileTitle',
+                        elementClass: 'u-mb-0_25',
+                        disabled: true
+                    }) }}
+                    {% if not readonly %}
+                        {{ uiComponent('form.element', {
+                            label: { text: 'delete'|trans },
+                            control: { name: 'r_delete_document', value: '1' },
+                            type: 'checkbox',
+                            elementClass: 'u-mb-0_5',
+                            id: 'r_delete_document'
+                        }) }}
+                    {% endif %}
+                {% endif %}
+
+                {% if statement.paragraph.ident is defined and hasPermission('field_procedure_paragraphs')%}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'paragraph'|trans },
+                        control: { value: statement.paragraph.title|striptags|default },
+                        type: 'text',
+                        id: 'paragraphTitle',
+                        elementClass: 'u-mb-0_25',
+                        disabled: true
+                    }) }}
+
+                    {% if not readonly %}
+                        {{ uiComponent('form.element', {
+                            label: { text: 'delete'|trans },
+                            control: { name: 'r_delete_paragraph', value: '1' },
+                            type: 'checkbox',
+                            elementClass: 'u-mb-0_5',
+                            id: 'r_delete_paragraph'
+                        }) }}
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% else %}
+            {{ uiComponent('form.element', {
+                label: { text: 'plandocument'|trans },
+                control: { value: 'document.none.selected'|trans },
+                type: 'text',
+                id: 'noPlandocument',
+                elementSize: 'large',
+                elementStyle: 'inline-block',
+                elementClass: 'u-mb-0_5',
+                disabled: true
+            }) }}
+        {% endif %}{# end if statement.element.ident is defined #}
+    {% endif %} {# end if hasPermission('field_procedure_elements') #}
+
+    {% if not readonly %}
+        <div class="u-1-of-2 inline-block align-top">
+            {% if hasPermission('field_procedure_elements') %}
+
+                {# Select new plandocument #}
+                {% set planDocumentOptions = {} %}
+                {# add empty option #}
+                {% set planDocumentOptions = planDocumentOptions|merge([{
+                    label: '',
+                    value: ''
+                }]) %}
+
+                {% if templateVars.table.elements is defined %}
+                    {% for element in templateVars.table.elements %}
+                        {% set planDocumentOptions =  planDocumentOptions|merge([{
+                            label: element.title,
+                            value: element.ident
+                        }])%}
+                    {% endfor %}
+                {% endif %}
+
+                {{ uiComponent('form.element', {
+                    label: { text: 'plandocument.new'|trans },
+                    control: { name: 'r_element_new', options: planDocumentOptions },
+                    type: 'select',
+                    id: 'elementSelect',
+                    elementStyle: 'inline-block'
+                }) }}
+            {% endif %}
+
+            {% if hasPermission('field_procedure_paragraphs') %}
+                {% if not readonly %}
+                    {% if templateVars.table.paragraph is defined %}
+                        {% for elementIdent, elementDocuments in templateVars.table.paragraph %}
+                            {# add empty option #}
+                            {% set paragraphOptions = [{ label: '-', value: '' }] %}
+
+                            <div id="js-paragraph_{{ elementIdent }}" class="js-paragraph u-mt-0_5">
+                                {% for document in elementDocuments %}
+                                    {% set paragraphOptions = paragraphOptions|merge([{
+                                        label: document.title,
+                                        value: document.ident
+                                    }]) %}
+                                {% endfor %}
+
+                                {# if the paragraph the statement refers to has been deleted meanwhile #}
+                                {% if templateVars.table.paragraphDeleted is defined %}
+                                    {% set paragraphDeletedOptGroup = [{
+                                        label: 'paragraph.deleted',
+                                        options: { label: templateVars.table.paragraphDeleted.title, value: templateVars.table.paragraphDeleted.ident, selected: true }
+                                    }] %}
+                                    {% set paragraphControlOptions = { name: 'r_paragraph_' ~ elementIdent ~ '_new' , options: paragraphOptions, optGroups: paragraphDeletedOptGroup } %}
+                                {% else %}
+                                    {% set paragraphControlOptions = { name: 'r_paragraph_' ~ elementIdent ~ '_new' , options: paragraphOptions } %}
+                                {% endif %}
+
+                                {{ uiComponent('form.element', {
+                                    label: { text: 'paragraph.new'|trans },
+                                    control: paragraphControlOptions,
+                                    type: 'select',
+                                    id: 'r_paragraph_' ~ elementIdent ~ '_new'
+                                }) }}
+
+                                {# reset options #}
+                                {% set paragraphOptions = {} %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+
+            {% if hasPermission('field_procedure_documents') %}
+                {% if templateVars.table.documents is defined %}
+                    {% for elementIdent, elementDocuments in templateVars.table.documents %}
+                        {# add empty option #}
+                        {% set fileOptions = [{ label: '-', value: '' }] %}
+                        <div id="js-document_{{ elementIdent }}" class="js-document u-mt-0_5">
+                            {% for document in elementDocuments %}
+                                {% set fileOptions = fileOptions|merge([{
+                                    label: document.title,
+                                    value: document.ident
+                                }]) %}
+                            {% endfor %}
+
+                            {{ uiComponent('form.element', {
+                                label: { text: 'file.new'|trans },
+                                control: { name: 'r_document_' ~ elementIdent ~ '_new', options: fileOptions },
+                                type: 'select',
+                                id: 'r_document_' ~ elementIdent ~ '_new'
+                            }) }}
+
+                            {# reset options #}
+                            {% set fileOptions = {} %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if hasPermission('field_statement_file') %}
+        {% if not readonly %}
+            <div class="layout--flush">
+                <label
+                    for="r_fileupload"
+                    class="layout__item u-1-of-4 block u-mb-0_25">
+                    {{ "documents.attach"|trans }}
+                </label>
+                <div class="layout__item u-3-of-4">
+                    {{
+                        fileupload(
+                            "r_fileupload",
+                            "hide",
+                            "all",
+                            "form.button.upload.files",
+                            20
+                        )
+                    }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if statement.files|length > 0 %}
+            <div class="layout--flush u-mb">
+                <span class="layout__item lbl inline-block u-mb-0_25">
+                    {{ "attachment"|trans }}
+                </span>
+                <div class="layout__item layout inline-block">
+                    {% for file in statement.files|default([]) %}
+                        <div class="u-mb-0_25 layout__item u-1-of-3">
+                            {% if file|length > 0 %}
+                                <a
+                                    class="o-hellip--nowrap block u-mb-0_25"
+                                    title="{{ file|getFile('name') }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                    <i class="fa fa-file-o"></i> {{ file|getFile('name') }}
+                                </a>
+                            {% else %}
+                                ----
+                            {% endif %}
+                            <label
+                                for="r_delete_file[]"
+                                class="lbl--text u-mb-0_25">
+                                <input
+                                    type="checkbox"
+                                    id="r_delete_file[]"
+                                    name="r_delete_file[]"
+                                    value="{{ file|getFile('hash') }}">
+                                {{ "attachment.delete"|trans }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {# Location #}
+    {% if formDefinitions.mapAndCountyReference.enabled == true or formDefinitions.countyReference.enabled == true %}
+
+        {% if hasPermission('field_statement_polygon') or hasPermission('field_statement_county') or hasPermission('field_statement_municipality') or procedureStatementPriorityArea  %}
+            <h4 class="font-size-large u-pt-0_5 border--top">{{ 'public.participation.relation'|trans }}</h4>
+        {% endif %}
+
+        {% if hasPermission('field_statement_polygon') and formDefinitions.mapAndCountyReference.enabled == true %}
+            <div class="layout--flush u-mb">
+                <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                    {{ "location"|trans }}
+                </strong>
+                {% if statement.polygon is defined and statement.polygon != '' %}
+                    <a href="#" @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">{{ 'see'|trans }}</a>
+                {% else %}
+                    <span class="layout__item u-3-of-4 color--grey">{{ 'map.no_outline'|trans }}</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {# COUNTIES #}
+        {# editable for all statements, not just manual ones #}
+        {% if hasPermission('field_statement_county') %}
+
+            {% if readonly %}
+                <div class="layout--flush u-mb-0_75">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "counties"|trans }}
+                    </strong>
+                    {% if statement.counties is defined %}
+                        {% if statement.counties|default(false) != false %}
+                            <ul class="o-list o-list--csv layout__item u-1-of-1 u-mb-0_5 color--grey">
+                                {% for county in templateVars.availableCounties %}
+                                    {% if county in statement.counties|default(false) %}
+                                        <li class="o-list__item">{{ county.name }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <input type="text" value="-" disabled>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="layout--flush u-mb">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "counties"|trans }}
+                    </strong>
+                    <dp-multiselect
+                        v-model="selectedCounties"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
+                        multiple
+                        :options="counties"
+                        track-by="id"
+                        @input="sortSelected('Counties')">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                                    <span class="multiselect__tag">
+                                        {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
+                                        <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                        <input type="hidden" :value="props.option.id" name="r_counties[]"/>
+                                    </span>
+                        </template>
+                    </dp-multiselect>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {# MUNICIPALITIES #}
+        {# editable for all statements, not just manual ones #}
+        {% if hasPermission('field_statement_municipality') and formDefinitions.mapAndCountyReference.enabled == true %}
+
+            {% if readonly %}
+                <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "municipalities"|trans }}
+                    </strong>
+                    {% if statement.municipalities is defined %}
+                        {% if statement.municipalities|default(false) != false %}
+                            <ul class="o-list o-list--csv layout__item u-1-of-1 u-mb-0_5 color--grey">
+                                {% for municipality in templateVars.availableMunicipalities %}
+                                    {% if municipality in statement.municipalities|default(false) %}
+                                        <p class="o-list__item">{{ municipality.name }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <input type="text" value="-" disabled>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="layout--flush u-mb {% if statement.priorityAreas is not defined or not procedureStatementPriorityArea %}u-pb{% endif %}">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "municipalities"|trans }}
+                    </strong>
+                    <dp-multiselect
+                        v-model="selectedMunicipalities"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
+                        multiple
+                        :options="municipalities"
+                        track-by="id"
+                        @input="sortSelected('Municipalities')">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                                    <span class="multiselect__tag">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                        <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                        <input type="hidden" :value="props.option.id" name="r_municipalities[]"/>
+                                    </span>
+                        </template>
+                    </dp-multiselect>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {# priority areas #}
+        {# editable for all statements, not just manual ones #}
+        {% if procedureStatementPriorityArea and formDefinitions.mapAndCountyReference.enabled == true %}
+
+            {% if readonly %}
+                <div class="layout--flush u-pb u-mb">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "priorityArea"|trans }}
+                    </strong>
+                    {% if statement.priorityAreas is defined %}
+                        {% if statement.municipalities|default(false) != false %}
+                            <ul class="o-list o-list--csv layout__item u-3-of-4 u-mb-0_5 color--grey">
+                                {% for priorityArea in templateVars.availablePriorityAreas %}
+                                    {% if priorityArea in statement.priorityAreas|default(false) %}
+                                        <li class="o-list__item">{{ priorityArea.name }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <input type="text" value="-" disabled>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="layout--flush u-pb u-mb">
+                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                        {{ "priorityArea"|trans }}
+                    </strong>
+                    <dp-multiselect
+                        v-model="selectedPriorityAreas"
+                        class="layout__item u-1-of-1 inline-block"
+                        label="name"
+                        multiple
+                        :options="priorityAreas"
+                        track-by="id"
+                        @input="sortSelected('PriorityAreas')">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                                    <span class="multiselect__tag">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                        <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                        <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                                    </span>
+                        </template>
+                    </dp-multiselect>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% block categories %}{% endblock categories %}
+
+    {% block auhtorMisc %}
+        {% if statement.externId is defined and statement.isSubmittedByCitizen == false %}
+            {% if 'M' in statement.externId %}
+                {% if statement.meta.orgaStreet|default('') != '' or statement.meta.orgaPostalCode|default('') != '' or statement.meta.orgaCity|default('') != '' or statement.meta.orgaEmail|default('') != '' %}
+                    <div class="layout--flush u-mb u-pb">
+                        <span class="layout__item u-1-of-4 block u-mb-0_25 lbl">
+                            {{ "author.misc"|trans }}
+                        </span>
+                        <span class="layout__item u-3-of-4 lbl__hint color--grey">
+                            {#{% if templateVars.sendFinalEmail == false %}#}
+                                {#{{ "statement.final.send.postal"|trans }}<br>#}
+                            {#{% endif %}#}
+                            {{ statement.meta.orgaStreet|default('') }} {{ statement.meta.houseNumber|default('') }}
+                            {{ statement.meta.orgaPostalCode|default('') }}
+                            {{ statement.meta.orgaCity|default('') }}
+                            {{ statement.meta.orgaEmail|default('') }}
+                        </span>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endblock auhtorMisc %}
+
+</div>

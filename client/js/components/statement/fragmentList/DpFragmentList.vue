@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { AnimateById } from '@demos-europe/demosplan-utils'
+import { AnimateById } from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
 import StatementFragment from './Fragment'
 

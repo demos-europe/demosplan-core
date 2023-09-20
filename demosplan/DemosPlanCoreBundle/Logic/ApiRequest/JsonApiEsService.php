@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,38 +30,13 @@ class JsonApiEsService
     use ElasticsearchQueryTrait;
 
     /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var FacetFactory
-     */
-    private $facetFactory;
-
-    /**
-     * @var array<string,Index>
-     */
-    private $searchTypes;
-
-    /**
      * @param array<string,Index> $searchTypes
      */
     public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        FacetFactory $facetFactory,
-        array $searchTypes
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly FacetFactory $facetFactory,
+        private readonly array $searchTypes
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->facetFactory = $facetFactory;
-        $this->searchTypes = $searchTypes;
     }
 
     /**
@@ -182,7 +157,7 @@ class JsonApiEsService
             // all entities corresponding to the IDs from Doctrine and re-apply the scored
             // sorting from the Elasticsearch result.
             if ($requireEntities) {
-                $entities = $this->entityFetcher->listEntities($resourceType, [$condition]);
+                $entities = $resourceType->listEntities([$condition]);
                 $entities = $this->useIdAsKey($entities);
                 $entities = self::sortAndFilterByKeys($esIds, $entities);
                 $entities = array_values($entities);
@@ -192,14 +167,14 @@ class JsonApiEsService
             // entities corresponding to the IDs from Doctrine with the requested
             // sorting. The sorting of the Elasticsearch result doesn't matter.
             if ($requireEntities) {
-                $entities = $this->entityFetcher->listEntities($resourceType, [$condition], $sortMethods);
+                $entities = $resourceType->listEntities([$condition], $sortMethods);
             }
         } else {
             // With pagination but without scored sorting, we need to fetch all
             // entities corresponding to the IDs of that page from Doctrine with
             // the requested sorting in a paginated manner.
             // The sorting of the Elasticsearch result doesn't matter.
-            $paginator = $this->entityFetcher->getEntityPaginator($resourceType, $pagination, [$condition], $sortMethods);
+            $paginator = $resourceType->getEntityPaginator($pagination, [$condition], $sortMethods);
             if ($requireEntities) {
                 $entities = Iterables::asArray($paginator->getCurrentPageResults());
             }
@@ -242,9 +217,7 @@ class JsonApiEsService
         // kick out entries in $sortedKeys that have no equivalent in $arrayValuesToSort
         $sortedKeys = array_intersect($sortedKeys, array_keys($arrayValuesToSort));
 
-        return array_map(static function ($key) use ($arrayValuesToSort) {
-            return $arrayValuesToSort[$key];
-        }, $sortedKeys);
+        return array_map(static fn ($key) => $arrayValuesToSort[$key], $sortedKeys);
     }
 
     /**
@@ -257,9 +230,7 @@ class JsonApiEsService
     private function useIdAsKey(array $entities): array
     {
         return collect($entities)
-            ->mapWithKeys(static function (UuidEntityInterface $entity): array {
-                return [$entity->getId() => $entity];
-            })
+            ->mapWithKeys(static fn (UuidEntityInterface $entity): array => [$entity->getId() => $entity])
             ->all();
     }
 }

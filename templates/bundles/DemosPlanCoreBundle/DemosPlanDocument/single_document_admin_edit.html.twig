@@ -1,0 +1,140 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% set document = templateVars.document %}
+
+{#{% if documentID|default %}#}
+    {#{% set path = path('DemosPlan_singledocument_administration_new', {'procedure':procedure, 'category':category, 'elementId':elementId}) %}#}
+{#{% else %}#}
+    {#{% set path = path('DemosPlan_singledocument_administration_new', {'procedure':procedure, 'category':category, 'elementId':elementId}) %}#}
+{#{% endif %}#}
+
+{% block demosplanbundlecontent %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'plandocument.edit'|trans
+    } %}
+
+    <form
+        class="flow-root space-stack-m"
+        name="xsubmititem"
+        enctype="multipart/form-data"
+        method="post"
+        action="{{ path('DemosPlan_singledocument_administration_edit', {'procedure':procedure, 'documentID':documentID}) }}"
+        data-dp-validate
+    >
+        <input type="hidden" value="singledocumentedit" name="r_action">
+
+        <fieldset class="flex u-pb-0">
+            <legend class="font-size-medium u-mb-0_25">{{ 'status'|trans }}</legend>
+            <dp-radio
+                id="visbility_true"
+                class="u-mr-2"
+                :checked="Boolean({{ document.visible == true }})"
+                :label="{
+                    bold: false,
+                    text: Translator.trans('released')
+                }"
+                name="r_visible"
+                value="1">
+            </dp-radio>
+            <dp-radio
+                id="visbility_false"
+                :bold="false"
+                :checked="Boolean({{ document.visible != true }})"
+                :label="{
+                    bold: false,
+                    text: Translator.trans('blocked')
+                }"
+                name="r_visible"
+                value="0">
+            </dp-radio>
+        </fieldset>
+
+        {% if hasPermission('field_procedure_single_document_title') %}
+            <dp-input
+                id="r_title"
+                :label="{
+                    text: Translator.trans('plandocument.name.displayed')
+                }"
+                name="r_title"
+                required
+                value="{{ document.title }}">
+            </dp-input>
+        {% else %}
+            {% if document.document is defined and document.document != '' %}
+                <dp-label
+                    for="title"
+                    text="{{ 'plandocument.name.displayed'|trans }}">
+                </dp-label>
+                <p id="title" class="u-mt-0_25">{{ document.document|getFile('name') }}</p>
+                {# Instead of injecting the permission into DemosPlanDocumentBundle/Logic/SingleDocumentHandler.php:75
+                   to omit validation of title when permission is disabled, just pass a default value with a hidden field #}
+                <input type="hidden" value="title" name="r_title">
+            {% endif %}
+        {% endif %}
+
+        {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_text.html.twig" with {
+            text: document.text|default
+        } %}
+
+        {% if hasPermission('feature_single_document_statement') %}
+            <fieldset class="flex u-pb-0">
+                <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
+                <dp-radio
+                    id="statement_enabled_true"
+                    class="u-mr-2"
+                    :checked="{{ document.statement_enabled == true ? 'true' : 'false' }}"
+                    :label="{
+                        bold: false,
+                        text: Translator.trans('yes')
+                    }"
+                    name="r_statement_enabled"
+                    value="1">
+                </dp-radio>
+                <dp-radio
+                    id="statement_enabled_false"
+                    :checked="{{ document.statement_enabled != true ? 'true' : 'false' }}"
+                    :label="{
+                        bold: false,
+                        text: Translator.trans('no')
+                    }"
+                    name="r_statement_enabled"
+                    value="0">
+                </dp-radio>
+            </fieldset>
+        {% else %}
+            <input type="hidden" value="0" name="r_statement_enabled">
+        {% endif %}
+
+        {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_file_upload.html.twig" with {
+            required: false
+        } %}
+
+        {% if document.document is defined and document.document != '' %}
+            <p class="break-words" title="{{ document.document|getFile('name') }}">
+                <a
+                    target="_blank"
+                    rel="noopener"
+                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': document.document|getFile('hash') }) }}">
+                    <i class="fa fa-file-o"></i>
+                    {{ document.document|getFile('name') }}
+                </a>
+            </p>
+        {% endif %}
+
+        <div class="text-right space-inline-s">
+            <input
+                class="btn btn--primary"
+                type="submit"
+                data-cy="saveSinglePlanDocument"
+                value="{{ "save"|trans }}">
+            <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+                {{ "abort"|trans }}
+            </a>
+        </div>
+
+    </form>
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('document-documentAdminEdit.js') }}
+{% endblock javascripts %}

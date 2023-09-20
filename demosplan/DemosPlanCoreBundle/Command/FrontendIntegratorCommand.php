@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
@@ -20,20 +21,19 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
-
-use function file_put_contents;
-use function str_replace;
-
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
+
+use function file_put_contents;
+use function str_replace;
 
 /**
  * This command fetches all required data and runs necessary sub commands to feed
@@ -48,33 +48,14 @@ class FrontendIntegratorCommand extends CoreCommand
     protected static $defaultName = 'dplan:frontend:integrator';
     protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
 
-    /**
-     * @var OpenAPISchemaGenerator
-     */
-    private $apiDocumentationGenerator;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    /**
-     * @var JsApiResourceDefinitionBuilder
-     */
-    private $resourceDefinitionBuilder;
-
     public function __construct(
-        CurrentUserInterface $currentUser,
-        JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        OpenAPISchemaGenerator $apiDocumentationGenerator,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
+        private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-
-        $this->apiDocumentationGenerator = $apiDocumentationGenerator;
-        $this->currentUser = $currentUser;
-        $this->resourceDefinitionBuilder = $resourceDefinitionBuilder;
     }
 
     public function configure(): void
@@ -96,18 +77,18 @@ class FrontendIntegratorCommand extends CoreCommand
             $output->writeln('Error: Additional data load failed');
             $output->writeln($e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         try {
             $output->writeln(Json::encode($data));
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $output->writeln('Error: Parameter dump failed');
 
-            return 1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getParameters(): array
@@ -126,7 +107,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
         // make the path a valid path on windows
         if (0 === stripos(PHP_OS, 'WIN')) {
-            $routesPath = str_replace(['/', '\\'], '\\\\', $routesPath);
+            $routesPath = str_replace(['/', '\\'], '\\\\', (string) $routesPath);
         }
 
         Batch::create($this->getApplication(), $output)
@@ -158,7 +139,7 @@ class FrontendIntegratorCommand extends CoreCommand
         $this->currentUser->setUser($user);
         $this->currentUser->getPermissions()->initPermissions($user);
 
-        $allPermissions = Yaml::parseFile(DemosPlanPath::getRootPath(Permissions::PERMISSIONS_YML));
+        $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
 
         $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();

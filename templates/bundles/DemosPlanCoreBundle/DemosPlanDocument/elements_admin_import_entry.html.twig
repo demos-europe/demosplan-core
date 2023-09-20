@@ -1,0 +1,14 @@
+{% for key,entry in entries %}
+
+        {% if entry is iterable and entry.isDir %}
+            <i class="fa fa-folder"></i>
+            <input class="import--tree-level-{{ depth }}" style="width: {{ 450-(24*depth) }}px" type="text" name="{{ entry.hash }}" value="{{ entry.title }}">
+            <div class="u-pl">
+        		{% include "@DemosPlanCore/DemosPlanDocument/elements_admin_import_entry.html.twig" with {'entries': entry.entries, 'depth':depth+1} %}
+        	</div>
+        {% else %}
+            <i class="fa fa-file-o"></i>
+            <input class="import--tree-level-{{ depth }}" style="width: {{ 453-(24*depth) }}px" type="text" name="{{ entry.hash }}" value="{{ entry.title }}">
+            <br>
+        {% endif %}
+{% endfor %}

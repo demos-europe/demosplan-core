@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,19 +26,13 @@ class TwigToolsExtension extends ExtensionBase
      */
     protected $formOptions;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
         ContainerInterface $container,
         ParameterBagInterface $parameterBag,
-        TranslatorInterface $translator
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($container);
         $this->formOptions = $parameterBag->get('form_options');
-        $this->translator = $translator;
     }
 
     /**
@@ -47,11 +41,11 @@ class TwigToolsExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('getFormOption', [$this, 'getFormOption']),
-            new TwigFunction('arraysHasSameValues', [$this, 'arraysHasSameValues']),
+            new TwigFunction('getFormOption', $this->getFormOption(...)),
+            new TwigFunction('arraysHasSameValues', $this->arraysHasSameValues(...)),
 
-            new TwigFunction('setStaticVariable', [$this, 'setStaticVariable']),
-            new TwigFunction('getStaticVariable', [$this, 'getStaticVariable']),
+            new TwigFunction('setStaticVariable', $this->setStaticVariable(...)),
+            new TwigFunction('getStaticVariable', $this->getStaticVariable(...)),
         ];
     }
 
@@ -82,9 +76,7 @@ class TwigToolsExtension extends ExtensionBase
 
         if ('asc' === strtolower($sortDirection)) {
             $options = $options->sort(
-                function ($val1, $val2) {
-                    return strcasecmp($val1, $val2);
-                }
+                fn($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
             );
         }
 

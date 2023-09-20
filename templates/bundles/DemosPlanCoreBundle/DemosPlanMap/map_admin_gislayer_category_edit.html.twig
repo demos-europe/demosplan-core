@@ -1,0 +1,49 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% set layerWithChildrenHidden = templateVars.gislayerCategory.layerWithChildrenHidden %}
+{% if templateVars.gislayerCategory.id is defined %}
+    {# EDIT #}
+    {% set url = path('DemosPlan_map_administration_gislayer_category_edit',{'procedureId':procedure, 'gislayerCategoryId':templateVars.gislayerCategory.id}) %}
+    {% set heading = "maplayer.category.edit"|trans %}
+{% else %}
+    {# NEW #}
+    {% set url = path('DemosPlan_map_administration_gislayer_category_new',{'procedureId':procedure}) %}
+    {% set heading = "maplayer.category.create"|trans %}
+{% endif %}
+{% set title = heading %}
+
+{% block demosplanbundlecontent %}
+    <h1>{{ heading }}</h1>
+
+    <form action="{{ url }}" method="post" enctype="multipart/form-data" name="xsubmititem">
+
+        <label class="u-mb-0_5">
+            {{ "name"|trans }}*
+            <input class="layout__item"
+                   type="text"
+                   name="r_layerCategoryName"
+                   value="{{ templateVars.gislayerCategory.name|default('') }}"
+                   required>
+        </label>
+
+
+        <label class="weight--normal u-mb-0_5 u-mt-0_25">
+            <input
+               type="checkbox"
+               name="r_layerWithChildrenHidden"
+               value="1"
+               {% if layerWithChildrenHidden|default == true %}checked="checked"{% endif %}
+            >
+            {{ "maplayer.category.with.hidden.children"|trans }}
+        </label>
+
+
+        <div class="text-right space-inline-s u-mt-0_5">
+            <input class="btn btn--primary" type="submit" name="saveLayer" value="{{ "save"|trans }}">
+            <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure|default('')}) }}">
+                {{ "abort"|trans }}
+            </a>
+        </div>
+
+    </form>
+{% endblock demosplanbundlecontent %}

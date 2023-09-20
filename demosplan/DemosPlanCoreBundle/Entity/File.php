@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,11 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\FileInUseChecker;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -25,6 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * new file relationships there.
  *
  * @ORM\Table(name="_files")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
 class File extends CoreEntity implements UuidEntityInterface, FileInterface
@@ -42,8 +44,11 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var string|null
      *
      * @ORM\Column(name="_f_ident", type="string", length=36, options={"fixed":true, "comment":"This id is used in filestrings to reference to the file entity"})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
     protected $ident;
@@ -119,6 +124,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
     protected $created;
@@ -127,6 +133,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */
     protected $modified;
@@ -135,6 +142,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var DateTime
      *
      * @ORM\Column(name="_f_valid_until", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $validUntil;
@@ -164,6 +172,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var DateTime
      *
      * @ORM\Column(name="_f_last_v_scan", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $lastVScan;
@@ -183,9 +192,10 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     protected $size;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="files")
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=true)
      */
     protected $procedure;
@@ -343,10 +353,10 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     {
         $path = $this->getPath();
         $filename = $this->getHash();
-        if (!is_string($filename) || '' === $filename || '..' === $filename || false !== strpos($filename, '/')) {
+        if (!is_string($filename) || '' === $filename || '..' === $filename || str_contains($filename, '/')) {
             throw new InvalidDataException(sprintf('invalid filename: %s', $filename));
         }
-        $delimiter = '/' === substr($path, -1) ? '' : '/';
+        $delimiter = str_ends_with($path, '/') ? '' : '/';
 
         return $path.$delimiter.$filename;
     }
@@ -379,7 +389,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this->procedure;
     }
 
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }
@@ -584,12 +594,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this;
     }
 
-    /**
-     * Get deleted.
-     *
-     * @return bool
-     */
-    public function getDeleted()
+    public function getDeleted(): bool
     {
         return (bool) $this->deleted;
     }

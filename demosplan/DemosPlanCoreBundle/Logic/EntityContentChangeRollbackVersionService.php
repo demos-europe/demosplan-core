@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -155,7 +155,7 @@ class EntityContentChangeRollbackVersionService extends CoreService
     public function skipLines(array $diffArray, int $currentChange, float $lineNumber): int
     {
         if (in_array($diffArray[$currentChange]['tag'], ['ins', 'rep'])) {
-            $lineNumber += count($diffArray[$currentChange]['new']['lines']);
+            $lineNumber += is_countable($diffArray[$currentChange]['new']['lines']) ? count($diffArray[$currentChange]['new']['lines']) : 0;
         }
 
         return (int) $lineNumber;

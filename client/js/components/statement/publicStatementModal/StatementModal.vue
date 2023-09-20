@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -15,7 +15,7 @@
       content-header-classes="border--none">
       <template v-slot:header>
         <span
-          :class="prefixClass('color--highlight')"
+          :class="prefixClass('color-highlight')"
           v-if="showHeader">
           <i
             aria-hidden="true"
@@ -45,7 +45,7 @@
       <header
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
-        <multistep-nav
+        <dp-multistep-nav
           v-if="loggedIn === false && showHeader"
           @change-step="val => step = val"
           :active-step="step"
@@ -75,7 +75,7 @@
             aria-hidden="true"
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
           <span
-            :class="prefixClass('display--block u-ml')">
+            :class="prefixClass('block u-ml')">
             <p v-cleanhtml="statementFormHintStatement" />
             {{ Translator.trans('error.mandatoryfields') }}
           </span>
@@ -97,7 +97,7 @@
         </div>
 
         <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
-          <div class="display--flex">
+          <div class="flex">
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_false"
@@ -129,6 +129,7 @@
           <dp-editor
             :class="prefixClass('u-mb')"
             hidden-input="r_text"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             id="statementText"
             :toolbar-items="{
               mark: true,
@@ -146,6 +147,7 @@
             id="confirmPrivacy"
             :checked="formData.r_privacy === 'on'"
             data-cy="privacyCheck"
+            :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.privacy')"
             :label="{
               text: Translator.trans('explanation.statement.privacy')
             }"
@@ -158,6 +160,7 @@
           <dp-checkbox
             v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled && hasPermission('feature_statement_public_allowed_needs_verification')"
             id="r_makePublic"
+            data-cy="make_public"
             :checked="formData.r_makePublic === 'on'"
             :label="{
               text: makePublicLabel
@@ -169,12 +172,12 @@
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
             aria-hidden="true"
-            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold display--inline-block')">
+            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
             {{ Translator.trans('element.assigned') }}
           </p>
           <p
             aria-hidden="true"
-            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
+            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
                 @click="gotoTab('procedureDetailsDocumentlist')"
@@ -198,7 +201,7 @@
             <button
               v-else
               @click="gotoTab('procedureDetailsDocumentlist')"
-              :class="prefixClass('btn--blank o-link--default text--left')">
+              :class="prefixClass('btn--blank o-link--default text-left')">
               <i
                 aria-hidden="true"
                 :class="prefixClass('fa fa-plus')" />
@@ -254,13 +257,13 @@
                   :key="`file_${idx}`"
                   :class="prefixClass('o-hellip')">
                   <a
-                    :class="prefixClass('u-valign--top')"
+                    :class="prefixClass('align-top')"
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
                   </a>
-                  <label :class="prefixClass('lbl--text float--right')">
+                  <label :class="prefixClass('lbl--text float-right')">
                     <input
                       :value="file.hash"
                       name="delete_file[]"
@@ -307,11 +310,11 @@
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text--right u-mv-0_5 cf u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right u-mv-0_5 flow-root u-mt-0_5 space-inline-s')">
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             v-if="displayEditSubmit"
@@ -370,10 +373,10 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text--right u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right u-mt-0_5 space-inline-s')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             type="reset"
@@ -403,7 +406,7 @@
           <i
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
             aria-hidden="true" />
-          <span :class="prefixClass('display--block u-ml')">
+          <span :class="prefixClass('block u-ml')">
             <p v-cleanhtml="statementFormHintPersonalData" />
             {{ Translator.trans('error.mandatoryfields') }}
           </span>
@@ -412,7 +415,7 @@
             <i
               :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
               aria-hidden="true" />
-            <span :class="prefixClass('display--block u-ml')">
+            <span :class="prefixClass('block u-ml')">
               {{ extraPersonalHint }}
             </span>
           </template>
@@ -493,7 +496,7 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text--right u-mt-0_5')">
+        <div :class="prefixClass('text-right u-mt-0_5')">
           <button
             type="button"
             data-cy="submitterForm"
@@ -550,6 +553,7 @@
           :checked="formData.r_gdpr_consent === 'on'"
           :class="prefixClass('u-mv-0_5')"
           data-cy="gdprCheck"
+          :data-dp-validate-error-fieldname="Translator.trans('confirm.statement.data_protection')"
           :label="{
             text: Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })
           }"
@@ -557,10 +561,10 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('text--right')">
+        <div :class="prefixClass('text-right')">
           <dp-loading
             v-if="isLoading"
-            :class="prefixClass('u-valign--text-bottom display--inline-block')"
+            :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
             type="button"
@@ -578,7 +582,7 @@
           v-cleanhtml="responseHtml" />
         <template v-else>
           <h2
-            :class="prefixClass('color--highlight')"
+            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
             tabindex="0"
@@ -601,7 +605,7 @@
 
             <p v-cleanhtml="Translator.trans('confirm.statement.submitted.public.mailsent')" />
           </span>
-          <p :class="prefixClass('cf')">
+          <p :class="prefixClass('flow-root')">
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
@@ -613,7 +617,7 @@
               {{ Translator.trans('pdf.download') }}
             </a>
 
-            <span :class="prefixClass('float--right text--right u-1-of-1-palm u-mt-0_5-palm')">
+            <span :class="prefixClass('float-right text-right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"
@@ -630,8 +634,25 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin, hasOwnProp, isActiveFullScreen, makeFormPost, prefixClassMixin, toggleFullscreen } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpCheckbox, DpInput, DpLabel, DpLoading, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpModal,
+  DpMultistepNav,
+  DpRadio,
+  DpUploadFiles,
+  dpValidateMixin,
+  hasOwnProp,
+  isActiveFullScreen,
+  makeFormPost,
+  prefixClassMixin,
+  toggleFullscreen
+} from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
@@ -667,6 +688,7 @@ export default {
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultistepNav,
     DpRadio,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -686,7 +708,6 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
     FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
     FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
-    MultistepNav,
     StatementModalRecheck
   },
 
@@ -1248,7 +1269,7 @@ export default {
            * Handling for successful responses
            * if its not an HTML-Response like after creating a new one
            */
-          if (response.statusText === 'OK') {
+          if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
             this.updateInitialFilesAfterSave()

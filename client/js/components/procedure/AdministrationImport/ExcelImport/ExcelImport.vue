@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -41,7 +41,7 @@
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
         @file-remove="removeFileIds"
         @upload-success="setFileIds" />
-      <div class="text--right">
+      <div class="text-right">
         <button
           :disabled="fileIds.length === 0"
           type="submit"

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -35,14 +35,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    /**
-     * @var FaqHandler
-     */
-    private $faqHandler;
-
-    public function __construct(FaqHandler $faqHandler)
+    public function __construct(private readonly FaqHandler $faqHandler)
     {
-        $this->faqHandler = $faqHandler;
     }
 
     public static function getName(): string
@@ -70,14 +64,14 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
         return $this->currentUser->hasPermission('area_admin_faq');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return $this->conditionFactory->propertyHasValue(
+        return [$this->conditionFactory->propertyHasValue(
             $customer->getId(),
             $this->faqCategory->customer->id
-        );
+        )];
     }
 
     protected function getProperties(): array
@@ -86,15 +80,9 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->enabled)->readable(true),
             $this->createAttribute($this->title)->readable(true),
-            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GPSORG);
-            }),
-            $this->createAttribute($this->publicVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GGUEST);
-            }),
-            $this->createAttribute($this->fpVisible)->readable(true, function (Faq $faq): bool {
-                return $faq->hasRoleGroupCode(Role::GLAUTH);
-            }),
+            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG)),
+            $this->createAttribute($this->publicVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST)),
+            $this->createAttribute($this->fpVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH)),
         ];
     }
 

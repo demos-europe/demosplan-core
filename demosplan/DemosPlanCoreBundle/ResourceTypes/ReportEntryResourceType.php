@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -78,21 +78,21 @@ class ReportEntryResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
             $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
             $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
-        );
+        ];
     }
 
     public function getDefaultSortMethods(): array
@@ -129,12 +129,8 @@ class ReportEntryResourceType extends DplanResourceType
             $this->createAttribute($this->userName)->readable(true),
             $this->createAttribute($this->identifierType)->readable(true),
             $this->createAttribute($this->identifier)->readable(true),
-            $this->createAttribute($this->message)->readable(true, function (ReportEntry $entry): string {
-                return $this->messageConverter->convertMessage($entry);
-            }),
-            $this->createAttribute($this->created)->readable(true, function (ReportEntry $entry): ?string {
-                return $this->formatDate($entry->getCreated());
-            }),
+            $this->createAttribute($this->message)->readable(true, fn(ReportEntry $entry): string => $this->messageConverter->convertMessage($entry)),
+            $this->createAttribute($this->created)->readable(true, fn(ReportEntry $entry): ?string => $this->formatDate($entry->getCreated())),
             $this->createAttribute($this->createdByDataInputOrga)->readable(true, function (ReportEntry $entry): bool {
                 $userWhoCratedReport = $this->userHandler->getSingleUser($entry->getUserId());
                 if ($userWhoCratedReport instanceof User) {
@@ -143,9 +139,7 @@ class ReportEntryResourceType extends DplanResourceType
 
                 return false;
             }),
-            $this->createAttribute($this->orgaName)->readable(true, function (ReportEntry $entry): string {
-                return $this->userHandler->getSingleUser($entry->getUserId())?->getOrga()?->getName() ?? '';
-            }),
+            $this->createAttribute($this->orgaName)->readable(true, fn(ReportEntry $entry): string => $this->userHandler->getSingleUser($entry->getUserId())?->getOrga()?->getName() ?? ''),
         ];
     }
 }

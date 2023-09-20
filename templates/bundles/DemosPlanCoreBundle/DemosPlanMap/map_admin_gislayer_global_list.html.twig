@@ -1,0 +1,122 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    <h1>{{ 'gislayer.global'|trans }}</h1>
+
+    <form method="post" action="{{ path('DemosPlan_map_administration_gislayer_global') }}" name="gisLayerForm">
+
+        <p>{{ 'explanation.gislayer.global.administration'|trans }}</p>
+
+        <button
+            class="btn--blank o-link--default line-height--2 u-ml-0_25"
+            name="gislayerdelete"
+            type="submit"
+            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}">
+            <i class="fa fa-times-circle u-mr-0_25" aria-hidden="true"></i>
+            {{- 'delete'|trans -}}
+        </button>
+
+        <a class="btn btn--primary float-right" href="{{ path('DemosPlan_map_administration_gislayer_global_new') }}">
+            {{ 'gislayer.global.create'|trans }}
+        </a>
+
+        <table class="c-table">
+            <colgroup>
+                <col class="width-20">
+                <col>
+                <col class="width-10p">
+                <col class="width-160">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th>
+                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        <span class="hide-visually">
+                            {{ 'entries.checked'|trans }}
+                        </span>
+                    </th>
+                    <th>
+                        {{ 'name'|trans }}
+                    </th>
+                    <th>
+                        {{ 'type'|trans }}
+                    </th>
+                    <th class="text-center white">
+                        {{ 'gislayer.defaultVisible'|trans }}
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for gislayer in templateVars.list.gislayerlist %}
+                    <tr>
+                        <td>
+                            <input
+                                type="checkbox"
+                                name="gislayerID[]"
+                                value="{{ gislayer.ident }}">
+                        </td>
+                        <td>
+                            <a href="{{ path('DemosPlan_map_administration_gislayer_global_edit',{'gislayerID':gislayer.ident}) }}">
+                                {{ gislayer.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if gislayer.type == 'base' %}
+                                {{ 'map.base'|trans }}
+                            {% elseif gislayer.type == 'overlay' %}
+                                {{ 'overlay'|trans }}
+                            {% elseif gislayer.type == 'minimap' %}
+                                {{ 'map.mini'|trans }}
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if gislayer.HasDefaultVisibility == 1 %}
+                                <i class="fa fa-check color-message-success-fill" aria-hidden="true"></i>
+                                <span class="hide-visually">
+                                    {{ 'entries.checked'|trans }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if templateVars.featureInfoUrl.useDb|default == true and templateVars.featureInfoUrl.isGlobal|default == true %}
+            <h2 class="u-mt-2">
+                {{ 'url.information.global'|trans }}
+            </h2>
+
+            <fieldset class="layout--flush u-pb-0_5">
+                <label for="r_featureInfoUrl" class="layout__item u-1-of-5">
+                    {{ 'url.information'|trans }}
+                </label><!--
+
+             --><div class="layout__item u-4-of-5 u-mb-0_5">
+                    <input id="r_featureInfoUrl" class="o-form__control-input width-100p" type="text" name="r_featureInfoUrl" value="{{ templateVars.featureInfoUrl.url()|default }}">
+
+                    <label class="weight--normal u-mb-0_5 u-mt-0_25">
+                        <input type="checkbox" name="r_featureInfoUrlProxyEnabled" value="1" {% if templateVars.featureInfoUrl.isProxyEnabled|default == true %}checked="checked"{% endif %}>
+                        {{ 'explanation.proxy.use'|trans}}
+                    </label>
+                </div>
+            </fieldset>
+
+            <div class="text-right space-inline-s">
+                <input class="btn btn--primary" type="submit" name="saveFeatureInfoUrl" value="{{ "save"|trans }}">
+                <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer_global') }}">
+                    {{ 'abort'|trans }}
+                </a>
+            </div>
+        {% endif %}
+
+    </form>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}

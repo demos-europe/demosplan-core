@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -18,7 +18,7 @@
     <dp-bulk-edit-header
       v-if="hasBulkEdit"
       v-show="selectedElements.length > 0"
-      class="u-mv-0_5"
+      class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-count="selectedElements.length"
       :selection-text="Translator.trans('elements.selected')"
       @reset-selection="resetSelection">
@@ -67,7 +67,7 @@
         <elements-admin-item :element-id="nodeElement.id" />
       </template>
       <template v-slot:leaf="{ nodeElement }">
-        <div class="flex flex-content-end space-inline-s">
+        <div class="flex justify-end space-inline-s">
           <file-info
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"
@@ -84,8 +84,14 @@
 </template>
 
 <script>
-import { DpBulkEditHeader, DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
-import { dpRpc, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
+import {
+  DpBulkEditHeader,
+  DpLoading,
+  dpRpc,
+  DpTreeList,
+  hasAnyPermissions,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'

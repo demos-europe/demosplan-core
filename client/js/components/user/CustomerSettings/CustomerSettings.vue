@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -176,7 +176,7 @@
       </customer-settings-section>
 
       <!-- Button row -->
-      <div class="text--right space-inline-s">
+      <div class="text-right space-inline-s">
         <button
           type="submit"
           class="btn btn--primary"
@@ -193,8 +193,7 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpLabel, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'

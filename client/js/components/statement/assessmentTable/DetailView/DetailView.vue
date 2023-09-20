@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -12,10 +12,17 @@
 </documentation>
 
 <script>
-import { DpAccordion, DpButton, DpDatepicker, DpMultiselect, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import {
+  DpAccordion,
+  dpApi,
+  DpButton,
+  DpDatepicker,
+  DpMultiselect,
+  DpUploadFiles
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
-import { dpApi } from '@demos-europe/demosplan-utils'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
@@ -25,6 +32,7 @@ export default {
 
   components: {
     DetailViewFinalEmailBody,
+    DpBoilerPlateModal,
     DpButton,
     DpDatepicker,
     DpMapModal,

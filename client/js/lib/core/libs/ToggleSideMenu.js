@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -25,7 +25,7 @@ class ToggleSideMenu {
     this.css = {
       iconMenuOpen: 'fa-chevron-right',
       iconMenuClosed: 'fa-chevron-left',
-      hide: 'display--none',
+      hide: 'hidden',
       isExpanded: 'is-expanded'
     }
 

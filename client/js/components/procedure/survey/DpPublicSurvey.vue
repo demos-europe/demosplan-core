@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -51,7 +51,7 @@
 
             <dp-text-area
               :attributes="['rows=5', 'cols=10']"
-              :class="prefixClass('display--inline-block u-mv-0_5')"
+              :class="prefixClass('inline-block u-mv-0_5')"
               :hint="Translator.trans('survey.hint.public.check')"
               id="vote_comment"
               :label="Translator.trans('survey.comment.yours')"
@@ -122,7 +122,7 @@
             {{ Translator.trans('survey.comments.list') }}:
           </p>
           <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up')">
-            <h3 :class="prefixClass('color-brand-cta-dark u-mb-0')">
+            <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-up u-mr-0_25')"
                 aria-hidden="true" />
@@ -139,8 +139,8 @@
               {{ Translator.trans('explanation.noentries') }}
             </p>
           </div>
-          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up float--right-lap-up')">
-            <h3 :class="prefixClass('color-brand-cta-dark u-mb-0')">
+          <div :class="prefixClass('layout__item u-pl-0 u-1-of-1-lap-down u-1-of-2-lap-up sm:float-right')">
+            <h3 :class="prefixClass('color-cta-dark u-mb-0')">
               <i
                 :class="prefixClass('fa fa-thumbs-o-down u-mr-0_25')"
                 aria-hidden="true" />
@@ -164,8 +164,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, MatchMedia, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpCheckbox, DpTextArea } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpTextArea,
+  MatchMedia,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import DpPublicSurveyComment from '@DpJs/components/procedure/survey/DpPublicSurveyComment'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
 

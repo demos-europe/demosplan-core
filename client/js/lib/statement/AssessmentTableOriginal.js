@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -13,7 +13,7 @@
  * their functionality to other components.
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { scrollTo } from 'vue-scrollto'
 
 export default function AssessmentTableOriginal () {
@@ -87,6 +87,12 @@ export default function AssessmentTableOriginal () {
 
   // Scroll to Element
   if (window.location.hash) {
-    scrollTo(window.location.hash, { offset: -180 })
+    let hash = window.location.hash
+    const hasQuestionMark = window.location.hash.includes('?')
+
+    if (hasQuestionMark) {
+      hash = hash.split('?')[0]
+    }
+    scrollTo(hash, { offset: -180 })
   }
 }

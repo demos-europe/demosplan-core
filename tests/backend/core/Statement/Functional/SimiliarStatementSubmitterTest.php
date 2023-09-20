@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,7 @@ namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Tests\Base\FunctionalTestCase;

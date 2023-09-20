@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -12,7 +12,7 @@
  * inside the webpack scope. These are to be refactored, generalized or made obsolete by migrating
  * their functionality to other components.
  */
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 
 export default function AssessmentTable () {
   /*

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,18 +26,18 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Exception\TagNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use PHPUnit_Framework_MockObject_MockObject;

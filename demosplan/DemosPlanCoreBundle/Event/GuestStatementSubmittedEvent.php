@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,24 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 
 class GuestStatementSubmittedEvent extends DPlanEvent
 {
-    /**
-     * @var Statement
-     */
-    private $submittedStatement;
-    /**
-     * @var string
-     */
-    private $emailAddress;
-    /**
-     * @var string
-     */
-    private $emailText;
-
-    public function __construct(Statement $submittedStatement, string $emailText, string $emailAddress = '')
+    public function __construct(private readonly Statement $submittedStatement, private readonly string $emailText, private readonly string $emailAddress = '')
     {
-        $this->emailAddress = $emailAddress;
-        $this->emailText = $emailText;
-        $this->submittedStatement = $submittedStatement;
     }
 
     public function getSubmittedStatement(): Statement

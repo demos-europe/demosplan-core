@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -20,14 +21,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanStatementBundle\Exception\CopyException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
@@ -35,71 +35,14 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 use function in_array;
 
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 class StatementSynchronizer
 {
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
-    /**
-     * @var StatementCopier
-     */
-    private $statementCopier;
-
-    /**
-     * @var SearchIndexTaskService
-     */
-    private $searchIndexTaskService;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUserProvider;
-
-    public function __construct(
-        CurrentUserInterface $currentUserProvider,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementCopier $statementCopier,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        StatementRepository $statementRepository,
-        StatementService $statementService,
-        TransactionService $transactionService,
-        ValidatorInterface $validator
-    ) {
-        $this->currentUserProvider = $currentUserProvider;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementCopier = $statementCopier;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->statementRepository = $statementRepository;
-        $this->statementService = $statementService;
-        $this->transactionService = $transactionService;
-        $this->validator = $validator;
+    public function __construct(private readonly CurrentUserInterface $currentUserProvider, private readonly StatementCopier $statementCopier, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly StatementRepository $statementRepository, private readonly StatementService $statementService, private readonly TransactionService $transactionService, private readonly ValidatorInterface $validator)
+    {
     }
 
     /**
@@ -181,11 +124,6 @@ class StatementSynchronizer
         if (in_array(null, $statementIds, true)) {
             throw new InvalidArgumentException('Statement IDs not set yet.');
         }
-
-        $this->searchIndexTaskService->addIndexTask(
-            Statement::class,
-            $statementIds
-        );
     }
 
     /**
@@ -339,9 +277,7 @@ class StatementSynchronizer
             $fileContainerCopies[] = $newFileContainer;
         }
 
-        $targetStatement->setFiles(array_map(static function (FileContainer $fileContainer): string {
-            return $fileContainer->getFileString();
-        }, $fileContainerCopies));
+        $targetStatement->setFiles(array_map(static fn (FileContainer $fileContainer): string => $fileContainer->getFileString(), $fileContainerCopies));
 
         return $fileContainers;
     }

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -38,9 +38,7 @@
 </template>
 
 <script>
-import { dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-utils'
-import dayjs from 'dayjs'
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import draggable from 'vuedraggable'
@@ -221,7 +219,6 @@ export default {
 
     transformStatement (statement) {
       const {
-        createdDate,
         document,
         element,
         files,
@@ -232,7 +229,6 @@ export default {
         uName,
         dName,
         oName,
-        submittedDate,
         phase,
         polygon,
         elementId,
@@ -241,6 +237,10 @@ export default {
         submitted,
         rejectedReason
       } = statement
+
+      // Depending on `votedStatement` or `own Statement`, we receive one or the other from the Backend
+      const submittedDate = statement.submittedDate || statement.submit
+      const createdDate = statement.createdDate || statement.created
 
       const attachments = files.map(f => getFileInfo(f))
 
@@ -255,14 +255,16 @@ export default {
         priorityAreas = { priorityAreas: statementAttributes.priorityAreaKey ? statementAttributes.priorityAreaKey : Translator.trans('notspecified') }
       }
 
-      let statementDocument = (element && element.title) || ''
-      statementDocument += document && document.title ? ` / ${document.title}` : ''
+      let statementDocument = element?.title || ''
+      if (document?.title) {
+        statementDocument += ` / ${document.title}`
+      }
 
       const statementParagraph = (paragraph && paragraph.title) || Translator.trans('notspecified')
       const text = statement.text
 
-      const transformedSubmitDate = submitted === false ? {} : { submittedDate: dayjs(submittedDate).format('DD.MM.YYYY HH:mm') }
-      const transformedCreatedDate = dayjs(createdDate).format('DD.MM.YYYY HH:mm')
+      const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate, 'DD.MM.YYYY HH:mm') }
+      const transformedCreatedDate = formatDate(createdDate, 'DD.MM.YYYY HH:mm')
 
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 

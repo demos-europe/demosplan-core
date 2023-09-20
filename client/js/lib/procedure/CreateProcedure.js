@@ -1,4 +1,13 @@
 /**
+ * (c) 2010-present DEMOS plan GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+/**
  * (c) 2010-present DEMOS E-Partizipation GmbH.
  *
  * This file is part of the package demosplan,
@@ -6,7 +15,7 @@
  *
  * All rights reserved
  */
-import { dpApi } from '@demos-europe/demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 const setWarningForUnsetBounds = () => {
   const statusBox = document.querySelector('#js__statusBox')

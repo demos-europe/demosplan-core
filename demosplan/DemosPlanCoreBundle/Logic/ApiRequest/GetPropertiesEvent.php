@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,23 +23,11 @@ use EDT\Wrapping\Contracts\Types\TypeInterface;
 class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterface
 {
     /**
-     * @var array<int, PropertyBuilder>
-     */
-    private $properties;
-
-    /**
-     * @var TypeInterface<O>
-     */
-    private $type;
-
-    /**
      * @param TypeInterface<O>            $type
      * @param array<int, PropertyBuilder> $properties
      */
-    public function __construct(TypeInterface $type, array $properties)
+    public function __construct(private readonly TypeInterface $type, private array $properties)
     {
-        $this->properties = $properties;
-        $this->type = $type;
     }
 
     /**

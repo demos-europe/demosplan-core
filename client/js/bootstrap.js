@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -9,7 +9,7 @@
 
 import availableTranslations from '@DpJs/generated/translations.json'
 import exposedRoutes from '@DpJs/generated/routes.json'
-import { hasPermission } from '@demos-europe/demosplan-utils'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router'
 import Translator from '../../vendor/willdurand/js-translation-bundle/Resources/js/translator'
 

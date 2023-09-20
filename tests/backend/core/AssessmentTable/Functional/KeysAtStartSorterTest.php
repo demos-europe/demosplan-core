@@ -3,15 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace Tests\Core\AssessmentTable\Functional;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use Tests\Base\FunctionalTestCase;
 use TypeError;

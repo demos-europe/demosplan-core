@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -9,12 +9,14 @@
 
 @use 'sass:color';
 
-.o-wizard {
+$wizard-z-index-backdrop: $dp-z-modal - 1;
+$wizard-z-index-content: $dp-z-modal;
 
+.o-wizard {
     padding-bottom: $inuit-base-spacing-unit--small;
 
     &__trigger {
-        @include inuit-font-size($dp-token-font-size-large);
+        @include inuit-font-size($dp-font-size-large);
         bottom: $inuit-base-spacing-unit--small;
         position: absolute;
         right: 0;
@@ -27,7 +29,7 @@
     }
 
     &__trigger-icon {
-        @include inuit-font-size($dp-token-font-size-large);
+        @include inuit-font-size($dp-font-size-large);
         vertical-align: middle;
 
         line-height: 0;
@@ -65,7 +67,7 @@
             form:not(.o-wizard-mode) & {
                 padding: $inuit-base-spacing-unit--small;
 
-                background-color: $dp-token-color-ui-bg-neutral-medium;
+                background-color: $dp-color-background-medium;
             }
         }
     }
@@ -73,7 +75,7 @@
     // Hide plain tooltip texts that are revealed in wizard mode
     form:not(.o-wizard-mode) & {
         [data-wizard-tooltip-plain] {
-            display: none;
+            display: none !important;
         }
     }
 
@@ -86,7 +88,7 @@
             left: 0;
             position: absolute;
             top: 0;
-            z-index: $z-super;
+            z-index: $wizard-z-index-content;
 
             max-width: $dp-page-width;
             padding: 62px 22px 48px;
@@ -139,7 +141,7 @@
             right: 20px;
             top: 6px;
 
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
             cursor: pointer;
 
             font-size: 24px;
@@ -209,11 +211,11 @@
 
                     &.active,
                     &.active i {
-                        color: $dp-token-color-brand-main;
+                        color: $dp-color-main;
                     }
 
                     &.active i {
-                        background-color: $dp-token-color-brand-main;
+                        background-color: $dp-color-main;
                     }
 
                     &.finished i {
@@ -259,12 +261,12 @@
 }
 
 .o-wizard__bg {
+    position: fixed;
     bottom: 0;
     left: 0;
-    position: fixed;
     right: 0;
     top: 0;
-    z-index: $z-modal-overlay;
+    z-index: $wizard-z-index-backdrop;
 
     display: none;
 

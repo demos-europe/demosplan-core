@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <l-map
-    class="c-publicindex__map u-z-content"
+    class="c-publicindex__map isolate"
     ref="map"
     :zoom="initialZoom"
     :center="initialLocation"
@@ -58,7 +58,7 @@
 <script>
 import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from 'vue2-leaflet'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { getCssVariable } from '@demos-europe/demosplan-utils'
+import { getCssVariable } from '@demos-europe/demosplan-ui'
 import L from 'leaflet'
 import LMarkerCluster from 'vue2-leaflet-markercluster'
 import proj4 from 'proj4'

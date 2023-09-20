@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -68,7 +68,7 @@ class LocationRepository extends CoreRepository implements ImmutableObjectInterf
             ->getQuery();
         try {
             return $query->getQuery()->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -95,7 +95,7 @@ class LocationRepository extends CoreRepository implements ImmutableObjectInterf
             ->setParameter('radius', $radius);
         try {
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -114,7 +114,7 @@ class LocationRepository extends CoreRepository implements ImmutableObjectInterf
         return $query->execute();
     }
 
-    public function get($entityId)
+    public function get($entityId): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

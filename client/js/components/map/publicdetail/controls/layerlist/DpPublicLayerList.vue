@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -35,7 +35,7 @@
 import { mapGetters, mapState } from 'vuex'
 import DpPublicLayerListCategory from './DpPublicLayerListCategory'
 import DpPublicLayerListLayer from './DpPublicLayerListLayer'
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerList',

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,11 +25,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FloodControlEventSubscriber implements EventSubscriberInterface
 {
-    protected FloodControlService $floodControl;
-
-    public function __construct(FloodControlService $floodControl)
+    public function __construct(protected FloodControlService $floodControl)
     {
-        $this->floodControl = $floodControl;
     }
 
     /**

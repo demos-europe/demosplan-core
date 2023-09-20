@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,7 +22,7 @@
         ref="listComponent">
         <!-- List of voters -->
         <template v-slot:list="{entry, index}">
-          <ul class="o-list o-list--csv display--inline">
+          <ul class="o-list o-list--csv inline">
             <input
               type="hidden"
               :name="preFix(index) + '[id]'"
@@ -201,14 +201,14 @@
 
       <!-- Anonymous voters -->
       <div v-if="editable">
-        <p class="lbl display--inline-block">
+        <p class="lbl inline-block">
           {{ Translator.trans('more') }}
         </p>
-        <label class="lbl--text display--inline-block">
+        <label class="lbl--text inline-block">
           <input
             id="r_voters_anonym"
             name="r_voters_anonym"
-            class="layout__item text--center u-valign--baseline o-form__control-input u-3-of-12 u-mr-0_125"
+            class="layout__item text-center align-baseline o-form__control-input u-3-of-12 u-mr-0_125"
             :disabled="('1' === readonly)"
             type="number"
             placeholder=""
@@ -221,9 +221,8 @@
 </template>
 
 <script>
-import { DpEditableList, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
+import { DpEditableList, DpInput, DpRadio, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'StatementVoter',

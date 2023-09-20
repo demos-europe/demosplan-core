@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -44,8 +44,7 @@
 </template>
 
 <script>
-import { DpCard, DpLoading } from '@demos-europe/demosplan-ui'
-import { dpRpc } from '@demos-europe/demosplan-utils'
+import { DpCard, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 import { initLineChart } from '@DpJs/lib/procedure/charts/helpers/init'
 
 export default {

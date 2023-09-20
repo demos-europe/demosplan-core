@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -56,8 +56,7 @@ class Config {
         'demosplan/**/*.js.twig',
         'client/**/*.js',
         'client/**/*.vue',
-        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true }),
-        ...glob.sync('node_modules/@demos-europe/demosplan-utils/**/*.js', { nodir: true })
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [
@@ -76,11 +75,15 @@ class Config {
           /ol-.+/,
           /plyr-.+/,
           /uppy-.+/,
-          /color-ui-.+/,
+          /^color-.+/,
           /tabs-component.*/
         ],
+        deep: [
+          /split-statement/
+        ],
         greedy: [
-          /tooltip/
+          /tooltip/,
+          /swagger-ui/
         ]
       }
     }
@@ -88,7 +91,7 @@ class Config {
     this.cssPrefixExcludes = {
       externalClassPrefixes: [
         'ad-', // Classes for the a11y-datepicker
-        'cc-', // Classes for the cookieconsent banner (cc-banner etc)
+        'cc-', // Classes for the cookie consent banner (cc-banner etc)
         'ol-', // Classes for open layers (to prevent our overrides)
         'plupload_', // Classes for plUpload (to prevent our overrides)
         'v-tooltip', // V-tooltip

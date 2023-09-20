@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,19 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TagValidator
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(LoggerInterface $logger, ValidatorInterface $validator)
+    public function __construct(private readonly LoggerInterface $logger, private readonly ValidatorInterface $validator)
     {
-        $this->logger = $logger;
-        $this->validator = $validator;
     }
 
     /**
@@ -50,9 +39,7 @@ class TagValidator
         }
         $filteredByProcedureTags = array_filter(
             $tags,
-            function (Tag $tag) use ($procedureId) {
-                return $tag->getProcedure()->getId() === $procedureId;
-            }
+            fn (Tag $tag) => $tag->getProcedure()->getId() === $procedureId
         );
         if (count($filteredByProcedureTags) !== count($tags)) {
             $this->logger->error(

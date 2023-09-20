@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -17,7 +17,7 @@
       :name="`${instance}_name_${option.id}`">
     <label
       :class="{'weight--normal': highlight === false }"
-      class="display--inline-block u-m-0"
+      class="inline-block u-m-0"
       :for="`${instance}_id_${option.id}`">
       {{ option.attributes.label }} <template v-if="showCount">({{ option.attributes.count }})</template>
     </label>

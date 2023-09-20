@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <a
-    class="flex overflow-word-break font-size-small"
+    class="flex break-words font-size-small"
     target="_blank"
     :href="path">
     <i
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { formatBytes } from '@demos-europe/demosplan-utils'
+import { formatBytes } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'FileInfo',

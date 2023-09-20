@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -26,7 +26,7 @@
  * }
  */
 
-import { throttle } from '@demos-europe/demosplan-utils'
+import { throttle } from '@demos-europe/demosplan-ui'
 
 const updateElement = function (element) {
   const innerHeight = window.innerHeight || document.documentElement.clientHeight

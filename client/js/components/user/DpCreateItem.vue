@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -45,9 +45,8 @@
 </template>
 
 <script>
+import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { DpAccordion, DpButtonRow } from '@demos-europe/demosplan-ui'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpCreateItem',
@@ -68,8 +67,8 @@ export default {
   components: {
     DpAccordion,
     DpButtonRow,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
-    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserFormFields')
+    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields'),
+    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')
   },
 
   mixins: [dpValidateMixin],

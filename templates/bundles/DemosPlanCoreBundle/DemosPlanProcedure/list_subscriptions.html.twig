@@ -1,0 +1,154 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': "notifications"|trans,
+        'content_subheading': "text.notifications.new.procedures"|trans({ link: path("DemosPlan_user_portal") })|wysiwyg
+    }%}
+
+        {% block content %}
+
+            {% if templateVars.subscriptions is defined %}
+                {% set subscriptions = templateVars.subscriptions.result %}
+            {% endif %}
+
+            <list-subscriptions :subscriptions="JSON.parse('{{ subscriptions|default([])|map(el => {
+                id: el.ident|default,
+                postalcode: el.postcode|default,
+                city: el.city|default,
+                radius: el.distance|default,
+                created: el.createdDate|default
+            })|json_encode|e('js', 'utf-8') }}')">
+                <form
+                    class="u-nojs-show--block"
+                    id="subscriptionForm"
+                    action="{{ path('DemosPlan_procedure_list_subscriptions') }}"
+                    method="post">
+                    <h2 class="font-size-large u-mt-0_5">
+                      {{ 'notification.create'|trans }}
+                    </h2>
+
+                    <div class="flex items-end space-inline-s">
+                        {{ uiComponent('form.element', {
+                            elementSize: 'mini',
+                            id: 'r_postalCode',
+                            label: { text: 'postalcode'|trans },
+                            control: { name: 'r_postalCode', pattern: '^[0-9]{5}$' },
+                            type: 'text',
+                            required: true
+                        }) }}
+
+                        {{ uiComponent('form.element', {
+                            elementSize: 'small',
+                            id: 'r_city',
+                            label: { text: 'city'|trans },
+                            control: { name: 'r_city' },
+                            type: 'text',
+                            required: true
+                        }) }}
+
+                        {{ uiComponent('form.element', {
+                            elementSize: 'mini',
+                            id: 'r_radius',
+                            label: { text: 'radius'|trans },
+                            control: {
+                                name: 'r_radius',
+                                options: [5,10,50]|map(i => { label: i ~ ' km', value: i })
+                            },
+                            type: 'select'
+                        }) }}
+
+                        {#
+                            As long as `u-m-0` is applied to the button component, the `space-inline-*` classes
+                            will not work when the button component is a direct child. That's why we need the additional div wrapper.
+                        #}
+                        <div>
+                            {{ uiComponent('button', {
+                                style: 'primary',
+                                type: 'submit',
+                                attributes: ['name=newSubscription']
+                            }) }}
+                        </div>
+                    </div>
+
+
+                    <h2 class="font-size-large u-mt-1_5">
+                        {{ 'notifications.active'|trans }}
+                    </h2>
+
+                    {% if templateVars.subscriptions is defined %}
+                        <button
+                            class="btn--blank o-link--default weight--bold u-ml-0_25"
+                            name="deleteSubscription"
+                            data-form-actions-confirm="{{ "check.entries.marked.delete"|trans }}"
+                            type="submit">
+                            <i class="fa fa-times-circle u-mr-0_25" aria-hidden="true"></i>
+                            {{ 'items.marked.delete'|trans }}
+                        </button>
+
+                        <table class="c-table">
+                            <colgroup>
+                                <col class="width-40">
+                                <col>
+                                <col>
+                                <col>
+                                <col>
+                            </colgroup>
+
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span class="hide-visually">
+                                            {{ 'entries.checked'|trans }}
+                                        </span>
+                                    </th>
+                                    <th>{{ "postalcode"|trans }}</th>
+                                    <th>{{ "city"|trans }}</th>
+                                    <th>{{ "radius"|trans }}</th>
+                                    <th>{{ "date.created"|trans }}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for subscription in templateVars.subscriptions.result %}
+                                    <tr>
+                                        <td>
+                                            <input
+                                                name="region_selected[]"
+                                                type="checkbox"
+                                                value="{% if subscription.ident is defined %}{{ subscription.ident }}{% endif %}">
+                                        </td>
+                                        <td>
+                                            {% if subscription.postcode is defined and subscription.postcode != '' %}{{ subscription.postcode }}{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if subscription.city is defined %}{{ subscription.city }}{% else %}{{ 'notspecified'|trans }}{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if subscription.distance is defined %}{{ subscription.distance }} km {% else %}{{ 'notspecified'|trans }}{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if subscription.createdDate is defined %}{{ subscription.createdDate|default()|dplanDate }}{% else %}{{ 'notspecified'|trans }}{% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        {{ uiComponent('inline-notification', {
+                            message: 'explanation.noentries'|trans,
+                            type: 'info'
+                        }) }}
+                    {% endif %}
+                 </form>
+            </list-subscriptions>
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock component_part %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-listSubscriptions.js']) }}
+{% endblock javascripts %}

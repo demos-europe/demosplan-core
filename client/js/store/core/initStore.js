@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import Vue from 'vue'

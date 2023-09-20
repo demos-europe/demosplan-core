@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -10,7 +10,7 @@
 <script>
 import drawStyle from './utils/drawStyle'
 import { GeoJSON } from 'ol/format'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'

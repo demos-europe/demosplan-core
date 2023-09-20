@@ -3,13 +3,17 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use Doctrine\ORM\NonUniqueResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
@@ -29,7 +33,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function get($entityId)
     {
@@ -82,10 +86,10 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      */
     private function getEntryResponses($threadId)
     {
@@ -103,7 +107,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         foreach ($entries as $entry) {
             try {
                 $files = $forumEntryFileRepos->getFileResponsesAsString($entry->getIdent());
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $files = [];
             }
             $entryResponse = $this->convertToEntryResponse($entry, $files);
@@ -118,9 +122,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function add(array $data)
     {
@@ -197,8 +201,8 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry Beitrag der erstellt wurde, inkl. der generierten File-Einträge.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     private function createFileEntries($files, $entry)
     {
@@ -207,7 +211,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         foreach ($files as $singleFileString) {
             $fileToAdd = new ForumEntryFile();
             $fileToAdd->setString($singleFileString);
-            $exploded = explode(':', $singleFileString);
+            $exploded = explode(':', (string) $singleFileString);
             $fileToAdd->setHash($exploded[1]);
             $fileToAdd->setEntry($entry);
 
@@ -229,10 +233,10 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntry
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws NonUniqueResultException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function update($entityId, array $data)
     {
@@ -288,7 +292,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @throws Exception
      */
-    public function delete($entityId)
+    public function delete($entityId): never
     {
         throw new Exception('not used any more');
     }

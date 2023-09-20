@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -14,11 +14,11 @@
 <template>
   <div class="flex">
     <!-- Search Field -->
-    <label class="position--relative u-m-0">
+    <label class="relative u-m-0">
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
-        :class="{'color--highlight': true === highlighted}"
+        :class="{'color-highlight': true === highlighted}"
         @click="submit" />
       <dp-input
         has-icon
@@ -37,8 +37,8 @@
       type="button"
       data-cy="searchAdvanced"
       @click.prevent="toggleModal"
-      :class="{'color--highlight':true === highlighted}"
-      class="btn--blank o-link--default display--inline-block u-m-0 u-p-0 u-ml-0_5">
+      :class="{'color-highlight':true === highlighted}"
+      class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">
       {{ Translator.trans('search.advanced') }}
     </button>
 
@@ -51,7 +51,7 @@
         <h2>{{ Translator.trans('search.advanced') }}</h2>
 
         <!-- Search Field -->
-        <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 position--relative">
+        <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
           <dp-input
             id="searchterm2"
             name="search_word"
@@ -81,7 +81,7 @@
           {{ Translator.trans('search.in') }}
         </h3>
 
-        <div class="max-height-300 width-100p u-valign--top overflow-auto u-mb">
+        <div class="max-height-300 width-100p align-top overflow-auto u-mb">
           <div class="layout--flush">
             <dp-checkbox
               v-for="checkbox in filterCheckBoxesItems"
@@ -96,7 +96,7 @@
 
             <!-- department is added as hidden field when organisation is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
               name="search_fields[]"
@@ -104,7 +104,7 @@
               checked="checked">
             <!-- last name is added as hidden field if submitter is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('uName')"
               name="search_fields[]"
@@ -112,7 +112,7 @@
               checked="checked">
             <!-- sachbearbeiter is added as hidden field if submitter is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('uName')"
               name="search_fields[]"
@@ -120,7 +120,7 @@
               checked="checked">
             <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('uName')"
               name="search_fields[]"
@@ -128,7 +128,7 @@
               checked="checked">
             <!-- paragraph is added as hidden field if document is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('documentTitle')"
               name="search_fields[]"
@@ -136,7 +136,7 @@
               checked="checked">
             <!-- element title is added as hidden field if document is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('documentTitle')"
               name="search_fields[]"
@@ -144,7 +144,7 @@
               checked="checked">
             <!-- public/external id of group is added as hidden field if statement id is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('externId')"
               name="search_fields[]"
@@ -152,7 +152,7 @@
               checked="checked">
             <!-- counties is added as hidden field if municipalities is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
               name="search_fields[]"
@@ -160,7 +160,7 @@
               checked="checked">
             <!-- tags is added as hidden field if topics is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
               name="search_fields[]"
@@ -169,7 +169,7 @@
               aria-hidden="true">
             <!-- fragment consideration is added as hidden field if consideration is selected -->
             <input
-              class="display--none"
+              class="hidden"
               type="hidden"
               v-if="selectedFields.includes('recommendation')"
               name="search_fields[]"
@@ -179,7 +179,7 @@
         </div>
 
         <!-- Button row -->
-        <div class="text--right">
+        <div class="text-right">
           <button
             class="btn btn--primary u-mr"
             type="button"
@@ -199,9 +199,8 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
-import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import { mapMutations } from 'vuex'
 
 export default {

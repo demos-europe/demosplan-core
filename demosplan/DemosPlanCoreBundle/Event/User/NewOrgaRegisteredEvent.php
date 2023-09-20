@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,36 +14,6 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class NewOrgaRegisteredEvent extends DPlanEvent
 {
-    /**
-     * @var string
-     */
-    private $userEmail;
-
-    /**
-     * @var array
-     */
-    private $orgaTypeNames;
-
-    /**
-     * @var string
-     */
-    private $customerName;
-
-    /**
-     * @var string
-     */
-    private $userFirstName;
-
-    /**
-     * @var string
-     */
-    private $userLastName;
-
-    /**
-     * @var string
-     */
-    private $orgaName;
-
     public function getUserEmail(): string
     {
         return $this->userEmail;
@@ -74,19 +44,7 @@ class NewOrgaRegisteredEvent extends DPlanEvent
         return $this->orgaName;
     }
 
-    public function __construct(
-        string $userEmail,
-        array $orgaTypeNames,
-        string $customerName,
-        string $userFirstName,
-        string $userLastName,
-        string $orgaName
-    ) {
-        $this->userEmail = $userEmail;
-        $this->orgaTypeNames = $orgaTypeNames;
-        $this->customerName = $customerName;
-        $this->userFirstName = $userFirstName;
-        $this->userLastName = $userLastName;
-        $this->orgaName = $orgaName;
+    public function __construct(private readonly string $userEmail, private readonly array $orgaTypeNames, private readonly string $customerName, private readonly string $userFirstName, private readonly string $userLastName, private readonly string $orgaName)
+    {
     }
 }

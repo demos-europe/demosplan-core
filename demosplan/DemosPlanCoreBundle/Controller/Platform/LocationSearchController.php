@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,12 +25,8 @@ class LocationSearchController extends BaseController
      * Suggest locations.
      *
      * @DplanPermissions("area_demosplan")
-     * @Route(
-     *     path="/suggest/location/json",
-     *     name="core_suggest_location_json",
-     *     options={"expose": true}
-     * )
      */
+    #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
     public function searchLocationJsonAction(Request $request, LocationService $locationService): Response
     {
         try {
@@ -46,7 +42,7 @@ class LocationSearchController extends BaseController
             $result = $restResponse['body'] ?? [];
 
             $suggestions = [];
-            $maxSuggestions = $query['maxResults'] ?? count($result);
+            $maxSuggestions = $query['maxResults'] ?? (is_countable($result) ? count($result) : 0);
 
             for ($i = 0; $i < $maxSuggestions; ++$i) {
                 if (isset($result[$i])) {

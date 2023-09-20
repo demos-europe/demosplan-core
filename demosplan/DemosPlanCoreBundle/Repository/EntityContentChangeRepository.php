@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -265,9 +265,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         $segments = array_merge($editedSegments, $uneditedSegments);
 
-        usort($segments, static function (Segment $a, Segment $b): int {
-            return strcmp($a->getAssigneeId(), $b->getAssigneeId());
-        });
+        usort($segments, static fn(Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
 
         return $segments;
     }

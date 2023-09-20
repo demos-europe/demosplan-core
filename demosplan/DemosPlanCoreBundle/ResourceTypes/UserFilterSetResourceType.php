@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -64,17 +64,17 @@ class UserFilterSetResourceType extends DplanResourceType
         return true;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $user = $this->currentUser->getUser();
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        );
+        ];
     }
 }

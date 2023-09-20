@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -43,7 +43,7 @@
           v-model="options.newAssignee.checked">
         <label
           for="r_new_assignee"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('fragments.assign.other') }}
         </label>
 
@@ -59,15 +59,15 @@
           <!--</p>-->
           <dp-multiselect
             ref="newAssignee"
+            v-model="options.newAssignee.value"
             :allow-empty="false"
+            class="u-mb width-450"
+            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            class="u-mb width-450"
-            v-model="options.newAssignee.value"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`">
-            <template v-slot:option="{ option }">
-              {{ option.name }} {{ option.id === currentUserId? ` (Sie)` : '' }}
+            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            <template v-slot:option="{ props }">
+              {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
           </dp-multiselect>
         </div>
@@ -81,7 +81,7 @@
           v-model="options.consideration.checked">
         <label
           for="r_consideration"
-          class="display--inline-block">
+          class="inline-block">
           {{ Translator.trans('consideration.text.add') }}
         </label>
         <div
@@ -119,7 +119,7 @@
       </div>
 
       <!-- 'Continue' and 'Back to consideration table' buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <a
           class="btn btn--primary"
           role="button"
@@ -128,7 +128,7 @@
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -168,27 +168,24 @@
       </div>
 
       <!-- Back to edit and apply buttons-->
-      <div class="text--right">
+      <div class="text-right">
         <dp-button
           v-if="isError === false"
           :busy="isLoading"
-          @click.once="submitData">
-          {{ Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount }) }}
-          <i
-            class="fa fa-angle-right u-pl-0_25"
-            aria-hidden="true" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount })"
+          @click.once="submitData" />
         <!-- if there's an error in response (so edit failed), show the 'back to ATabelle' button -->
         <a
           v-if="isError"
-          class="btn btn--secondary float--right"
+          class="btn btn--secondary float-right"
           role="button"
           :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
           {{ Translator.trans('considerationtable.back') }}
         </a>
 
         <a
-          class="btn btn--secondary float--left"
+          class="btn btn--secondary float-left"
           role="button"
           @click.prevent="toggleMode('edit')">
           <i class="fa fa-angle-left u-pr-0_25" />
@@ -212,7 +209,7 @@
         {{ Translator.trans(options[option].successMessage) }}
       </p>
       <a
-        class="btn btn--primary float--left u-mt-0_5"
+        class="btn btn--primary float-left u-mt-0_5"
         role="button"
         :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
         <i class="fa fa-angle-left u-pr-0_25" />
@@ -223,8 +220,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpMultiselect, DpTextWrapper, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'

@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -7,9 +7,8 @@
  * All rights reserved
  */
 
+import { DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import { DpInput } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   components: {

@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for gateway_newUser.html.twig
  */
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {}

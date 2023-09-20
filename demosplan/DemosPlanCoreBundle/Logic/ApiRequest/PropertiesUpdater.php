@@ -5,30 +5,24 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use function array_key_exists;
-
 use EDT\Querying\Contracts\PropertyPathInterface;
+
+use function array_key_exists;
 
 class PropertiesUpdater
 {
     /**
-     * @var array<string,mixed>
-     */
-    private $properties;
-
-    /**
      * @param array<string,mixed> $properties
      */
-    public function __construct(array $properties)
+    public function __construct(private readonly array $properties)
     {
-        $this->properties = $properties;
     }
 
     /**

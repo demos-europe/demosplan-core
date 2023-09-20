@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -42,8 +42,8 @@
 
     <button
       :aria-label="Translator.trans('search')"
-      class="c-search__icon btn--blank position--absolute"
-      :class="{ 'display--none': !changed }"
+      class="c-search__icon btn--blank absolute"
+      :class="{ 'hidden': !changed }"
       type="button"
       @click="submit">
       <i
@@ -53,8 +53,8 @@
 
     <button
       :aria-label="Translator.trans('search.reset')"
-      class="c-search__icon c-search__icon--reset btn--blank position--absolute"
-      :class="{ 'display--none': !searchedAndNotChanged }"
+      class="c-search__icon c-search__icon--reset btn--blank absolute"
+      :class="{ 'hidden': !searchedAndNotChanged }"
       type="button"
       @click="reset">
       <svg
@@ -73,9 +73,8 @@
 </template>
 
 <script>
+import { debounce, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { debounce } from '@demos-europe/demosplan-utils'
-import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSearch',

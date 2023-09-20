@@ -1,7 +1,0 @@
-{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
-
-{% block demosplanbundlecontent %}
-	% Überschrift
-	\section*{{ '{' }}{{title}}{{ '}' }}
-		{% if templateVars.table.entries is defined %}{% if templateVars.table.entries.total is defined %}{% if templateVars.table.entries.total > 0 %}{% for statement in templateVars.table.entries.statements %}{% include '@DemosPlanAssessmentTable/DemosPlan/export_assessment_table_original_entry.tex.twig' %}{% endfor %}{% endif %}{% endif %}{% endif %}
-{% endblock %}

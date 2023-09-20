@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -42,8 +42,8 @@ the FB is ready with editing of fragments.
 <template>
   <!--data-assigned is needed for batch edit-->
   <button
-    class="flex flex-items-center space-inline-xs btn--blank o-link--default"
-    :class="{'cursor--pointer' : false === isLoading}"
+    class="flex items-center space-inline-xs btn--blank o-link--default"
+    :class="{'cursor-pointer' : false === isLoading}"
     :data-assigned="isAssignedToMe /* needed for checking checked elements*/"
     @click.prevent.stop="updateAssignment"
     data-cy="claimIcon"

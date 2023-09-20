@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,8 +8,17 @@
 </license>
 
 <script>
-import { dpApi, sortAlphabetically } from '@demos-europe/demosplan-utils'
-import { DpButton, DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpDateRangePicker,
+  DpDatetimePicker,
+  DpEditor,
+  DpInlineNotification,
+  DpInput,
+  DpMultiselect,
+  sortAlphabetically
+} from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'

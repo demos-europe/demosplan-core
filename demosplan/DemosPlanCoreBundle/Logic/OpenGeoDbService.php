@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,14 +15,8 @@ use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
 
 class OpenGeoDbService extends CoreService
 {
-    /**
-     * @var OpenGeoDbRepository
-     */
-    private $openGeoDbRepository;
-
-    public function __construct(OpenGeoDbRepository $openGeoDbRepository)
+    public function __construct(private readonly OpenGeoDbRepository $openGeoDbRepository)
     {
-        $this->openGeoDbRepository = $openGeoDbRepository;
     }
 
     /**

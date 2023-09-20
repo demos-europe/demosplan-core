@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,7 +22,7 @@
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text--center u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down"
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`">
           <div
@@ -47,8 +47,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpCard, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpCard, DpLoading } from '@demos-europe/demosplan-ui'
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 export default {

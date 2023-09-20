@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -68,7 +68,7 @@
     }
 
     [aria-current='page'] {
-        color: $default-font-color;
+        color: $dp-color-text-default;
         text-decoration: none;
     }
 }

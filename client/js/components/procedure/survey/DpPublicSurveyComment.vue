@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="prefixClass('u-p u-pl-0 overflow-word-break')">
+  <div :class="prefixClass('u-p u-pl-0 break-words')">
     <div :class="prefixClass('font-size-small color--grey u-mb-0_5')">
       <i
         :class="prefixClass('fa fa-calendar-check-o')"
@@ -20,8 +20,7 @@
 </template>
 
 <script>
-import { formatDate } from '@demos-europe/demosplan-utils'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { formatDate, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicSurveyComment',

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -62,13 +62,13 @@
       <!-- Components that depend on OpenLayers instance are mounted after map is initialized -->
       <div v-if="Boolean(map)">
         <!-- Controls -->
-        <div :class="prefixClass('c-ol-map__controls cf')">
+        <div :class="prefixClass('c-ol-map__controls flow-root')">
           <slot
             :map="map"
             name="controls" />
-          <div :class="prefixClass('float--right')">
+          <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
+              :class="prefixClass('u-mb inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
@@ -85,7 +85,7 @@
               @selected="zoomToSuggestion" />
 
             <dp-ol-map-scale-select
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 u-valign--top')"
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
               v-if="_options.scaleSelect" />
           </div>
         </div>
@@ -95,6 +95,7 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
+          :attributions="options?.defaultAttribution"
           :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
@@ -104,7 +105,7 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading
           v-if="!Boolean(map)"
@@ -114,7 +115,7 @@
       <!-- These blocks make it possible to set colors in _map.scss which then are read by map script -->
       <div
         ref="mapDrawStyles"
-        :class="prefixClass('display--none')">
+        :class="prefixClass('hidden')">
         <span :class="prefixClass('c-map__draw-fill')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-stroke')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-image')">&nbsp;</span>
@@ -125,8 +126,14 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, deepMerge, dpApi, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  deepMerge,
+  dpApi,
+  DpAutocomplete,
+  DpLoading,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
 import DpOlMapLayer from './DpOlMapLayer'
@@ -212,7 +219,8 @@ export default {
       },
       baselayer: '',
       baselayerLayers: '',
-      baseLayerProjection: ''
+      baseLayerProjection: '',
+      maxExtent: []
     }
   },
 
@@ -232,10 +240,12 @@ export default {
     /**
      * Transform function to only return results from inside current maxExtent to AutoComplete
      * @todo make it work - somehow there seem to be different projections ?:/
+     *
      * @return {function(*=): *}
      */
     transformAutoCompleteResult () {
       const maxExtent = this.maxExtent
+
       return function (response) {
         const parsedResponse = JSON.parse(response)
         const projection = this._options.projection.code
@@ -282,13 +292,15 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
-        this.maxExtent = mapOptions.procedureDefaultMaxExtent
-      } else {
-        this.maxExtent = mapOptions.defaultMapExtent
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent?.length > 0) {
+        return mapOptions.procedureMaxExtent
       }
+
+      if (mapOptions.procedureDefaultMaxExtent?.length > 0) {
+        return mapOptions.procedureDefaultMaxExtent
+      }
+
+      return mapOptions.defaultMapExtent
     },
 
     /**
@@ -342,7 +354,6 @@ export default {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
           html.classList.toggle(this.prefixClass('fullscreen-mode'))
-          this.updateMapInstance()
         }, false)
       })
     },
@@ -424,7 +435,7 @@ export default {
     this.publicSearchAutozoom = mapOptions.publicSearchAutoZoom || 8
 
     //  Define extent & center
-    this.defineExtent(mapOptions)
+    this.maxExtent = this.defineExtent(mapOptions)
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -37,7 +37,7 @@
           :location="procedureLocation"
           v-if="hasPermission('feature_procedures_located_by_maintenance_service')" />
 
-        <div :class="prefixClass('display--inline-block')">
+        <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
             target="procedureCoordinateDrawer"
@@ -244,17 +244,26 @@ export default {
     //  Only assign coordinate from props if it is valid
     this.coordinate = this.isValidProcedureCoordinate(this.procedureCoordinate) || this.coordinate
 
-    //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
-    window.Bus.on('wizard:show toggleAnything:clicked', (sender, data) => {
-      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+    const handleWizardShow = data => {
       if (data === Translator.trans('wizard.topic.location') || data === 'procedureLocation') {
         this.$refs.map.updateMapInstance()
       }
+    }
+    //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
+    document.addEventListener('wizard:show', ({ data }) => {
+      //  Only fire when relevant wizard step is transmitted
+      handleWizardShow(data)
+    })
+
+    document.addEventListener('toggleAnything:clicked', ({ data }) => {
+      //  Only fire when relevant toggleAnything toggleId is transmitted
+      handleWizardShow(data)
     })
 
     document.addEventListener('customValidationPassed', () => {
       this.setProcedureCoordinateValidState()
     })
+
     document.addEventListener('customValidationFailed', () => {
       this.setProcedureCoordinateValidState()
     })

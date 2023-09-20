@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,13 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocxResponseGenerator extends FileResponseGeneratorAbstract
 {
-    public function __construct(array $supportedTypes)
+    public function __construct(array $supportedTypes, NameGenerator $nameGenerator)
     {
+        parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
     }
 
@@ -46,7 +48,7 @@ class DocxResponseGenerator extends FileResponseGeneratorAbstract
         );
         $response->headers->set(
             'Content-Disposition',
-            $this->generateDownloadFilename($file['filename'])
+            $this->nameGenerator->generateDownloadFilename($file['filename'])
         );
 
         return $response;

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -48,9 +48,8 @@ Hopefully in the future we will be able to refactor this and write it in a corre
 </template>
 
 <script>
-import { DpLoading } from '@demos-europe/demosplan-ui'
+import { DpLoading, hasOwnProp } from '@demos-europe/demosplan-ui'
 import Fragment from './Fragment'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapGetters } from 'vuex'
 
 export default {

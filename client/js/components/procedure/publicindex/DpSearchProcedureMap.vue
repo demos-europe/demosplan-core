@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex')">
+    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
         data-cy="procedureSearch"
@@ -74,13 +74,13 @@
       <button
         type="button"
         @click.prevent="showFilter = !showFilter"
-        :class="prefixClass('btn btn--primary weight--bold display--block u-1-of-1')">
+        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')">
         Filter
       </button>
     </div>
 
     <!-- Sorting -->
-    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'display--block' : 'display--none'))">
+    <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'block' : 'hidden'))">
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"
@@ -194,11 +194,14 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
+          role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
         </h2>
         <h2
           v-else-if="isNoSearchAndNoResult"
+          id="noSearchResultHeading"
+          role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           {{ Translator.trans('search.results.none') }}.
         </h2>
@@ -218,8 +221,7 @@
   </div>
 </template>
 <script>
-import { dpApi, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, DpInput, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 import qs from 'qs'
 
@@ -431,8 +433,8 @@ export default {
       if (mapVars.length === 0) {
         // If there are no procedures found, don't show the info that there are no procedures in the shown bounding box - the hint, that there are no procedures for the filter/search is below the filters
         const noProcedureNotification = document.getElementById('noProcedureNotification')
-        if (noProcedureNotification.classList.contains(this.prefixClass('display--none')) === false) {
-          noProcedureNotification.classList.add(this.prefixClass('display--none'))
+        if (noProcedureNotification.classList.contains(this.prefixClass('hidden')) === false) {
+          noProcedureNotification.classList.add(this.prefixClass('hidden'))
         }
       }
 

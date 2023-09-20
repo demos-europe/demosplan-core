@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,10 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\RoleHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
@@ -32,49 +32,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
-
-    /**
-     * @var RoleHandler
-     */
-    private $roleHandler;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var \demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface
-     */
-    private $eventDispatcherPost;
-
-    public function __construct(
-        CustomerService $customerService,
-        EventDispatcherPostInterface $eventDispatcherPost,
-        LoggerInterface $logger,
-        OrgaService $orgaService,
-        RoleHandler $roleHandler,
-        UserService $userService
-    ) {
-        $this->customerService = $customerService;
-        $this->eventDispatcherPost = $eventDispatcherPost;
-        $this->logger = $logger;
-        $this->orgaService = $orgaService;
-        $this->roleHandler = $roleHandler;
-        $this->userService = $userService;
+    public function __construct(private readonly CustomerService $customerService, private readonly EventDispatcherPostInterface $eventDispatcherPost, private readonly LoggerInterface $logger, private readonly OrgaService $orgaService, private readonly RoleHandler $roleHandler, private readonly UserService $userService)
+    {
     }
 
     public function createUser($username, array $attributes = []): UserInterface
@@ -158,9 +117,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(function (User $user) {
-            return User::DEFAULT_ORGA_USER_NAME === $user->getLastname();
-        });
+        $user = $users->filter(fn(User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();

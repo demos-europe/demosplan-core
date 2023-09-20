@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 
 /**
  * @method string|null            getDestinationAddress()

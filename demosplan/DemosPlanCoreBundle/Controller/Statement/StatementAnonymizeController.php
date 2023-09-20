@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,13 +29,9 @@ class StatementAnonymizeController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      *
-     * @Route(
-     *     path="/procedure/{procedureId}/statement/{statementId}/anonymize",
-     *     name="DemosPlan_statement_anonymize_view",
-     *     options={"expose": true}
-     * )
      * @DplanPermissions("area_statement_anonymize")
      */
+    #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]
     public function statementAnonymizeAction(
         AssessmentHandler $assessmentHandler,
         StatementHandler $statementHandler,

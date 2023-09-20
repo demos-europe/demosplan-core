@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,7 +19,7 @@
       @mouseover="toggleOpacityControl(true)"
       @mouseout="toggleOpacityControl(false)">
       <button
-        :class="prefixClass('btn--blank btn--focus width-16 text--left')"
+        :class="prefixClass('btn--blank btn--focus width-16 text-left')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
@@ -217,7 +217,7 @@ export default {
 
           // If feature layerGroupsAlternateVisibility is activated
           if (this.layerGroupsAlternateVisibility) {
-            this.$root.emit('layer:hideOtherCategories', { groupId: this.layer.attributes.visibilityGroupId, categoryId: this.layer.attributes.categoryId })
+            this.$root.$emit('layer:hideOtherCategories', { groupId: this.layer.attributes.visibilityGroupId, categoryId: this.layer.attributes.categoryId })
           }
         }
 

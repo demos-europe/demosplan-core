@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -16,14 +16,14 @@
       type="info" />
     <div
       v-if="!addNewPlace"
-      class="text--right">
+      class="text-right">
       <dp-button
         @click="addNewPlace = true"
         :text="Translator.trans('places.addPlace')" />
     </div>
     <div
       v-if="addNewPlace"
-      class="position--relative"
+      class="relative"
       data-dp-validate="addNewPlaceForm">
       <dp-loading
         v-if="isLoading"
@@ -70,7 +70,7 @@
           id="editPlaceName"
           maxlength="250"
           required
-          v-model="rowData.name" />
+          v-model="newRowData.name" />
       </template>
       <template v-slot:description="rowData">
         <div
@@ -80,21 +80,20 @@
           v-else
           id="editPlaceDescription"
           maxlength="250"
-          v-model="rowData.description" />
+          v-model="newRowData.description" />
       </template>
       <template v-slot:flyout="rowData">
-        <div class="float--right">
-          <template v-if="!rowData.edit">
-            <button
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              @click="editPlace(rowData)">
-              <i
-                class="fa fa-pencil"
-                aria-hidden="true" />
-            </button>
-          </template>
-          <template v-if="rowData.edit">
+        <div class="float-right">
+          <button
+            v-if="!rowData.edit"
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            @click="editPlace(rowData)">
+            <i
+              class="fa fa-pencil"
+              aria-hidden="true" />
+          </button>
+          <template v-else>
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
@@ -120,8 +119,18 @@
 </template>
 
 <script>
-import { dpApi, dpRpc, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpButton, DpButtonRow, DpDataTable, DpIcon, DpInlineNotification, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpButtonRow,
+  DpDataTable,
+  DpIcon,
+  DpInlineNotification,
+  DpInput,
+  DpLoading,
+  dpRpc,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationPlaces',
@@ -173,6 +182,7 @@ export default {
       isLoading: false,
       addNewPlace: false,
       newPlace: {},
+      newRowData: {},
       places: []
     }
   },
@@ -192,7 +202,9 @@ export default {
     abort (rowData) {
       rowData.name = this.initialRowData.name
       rowData.description = this.initialRowData.description
-      rowData.edit = false
+      this.newRowData = {}
+
+      this.setEditMode(rowData.id, false)
     },
 
     changeManualsort (val) {
@@ -212,7 +224,11 @@ export default {
       // Save initial state of currently edited row
       this.initialRowData.name = rowData.name
       this.initialRowData.description = rowData.description
-      rowData.edit = true
+
+      this.newRowData.name = rowData.name
+      this.newRowData.description = rowData.description
+
+      this.setEditMode(rowData.id)
     },
 
     fetchPlaces () {
@@ -299,6 +315,19 @@ export default {
         })
     },
 
+    setEditMode (id, state = true) {
+      const idx = this.places.findIndex(el => el.id === id)
+
+      this.places[idx].edit = state
+    },
+
+    updatePlaceData (id) {
+      const idx = this.places.findIndex(el => el.id === id)
+
+      this.places[idx].name = this.newRowData.name
+      this.places[idx].description = this.newRowData.description
+    },
+
     updatePlace (rowData) {
       if (!this.isUniquePlaceName(rowData.name)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
@@ -308,8 +337,8 @@ export default {
           id: rowData.id,
           type: 'Place',
           attributes: {
-            name: rowData.name,
-            description: rowData.description
+            name: this.newRowData.name,
+            description: this.newRowData.description
           }
         }
       }
@@ -318,7 +347,8 @@ export default {
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
-          rowData.edit = false
+          this.setEditMode(rowData.id, false)
+          this.updatePlaceData(rowData.id)
         })
     },
 

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -36,13 +36,12 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
 import { TileWMS, WMTS } from 'ol/source'
-import { DpAutocomplete } from '@demos-europe/demosplan-ui'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -452,12 +451,6 @@ export default {
       }
     },
 
-    deleteCustomAjaxHeaders () {
-      if ($.ajaxSettings.headers) {
-        delete $.ajaxSettings.headers['X-Requested-With']
-      }
-    },
-
     bindLoadingEvents (source) {
       /*
        *  Only bind to ol source instances
@@ -594,64 +587,9 @@ export default {
     },
 
     createLayerSource (layer) {
-      let options
-      let source
-      let url
-      const serviceType = layer.attributes.serviceType
-
-      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
-      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
-      const projection = new Projection({
-        code: projectionLabel,
-        units: this.projectionUnits,
-        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
-      })
-
-      if (serviceType === 'wmts') {
-        // Delete custom Ajax headers as they may not be allowed by cors
-        this.deleteCustomAjaxHeaders()
-        const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
-        const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
-        $.ajax({
-          dataType: 'xml',
-          url: url || '',
-          async: false,
-          success: response => {
-            const result = this.parser.read(response)
-            options = optionsFromCapabilities(result, {
-              layer: layerArray[0] || '',
-              matrixSet: layer.attributes.tileMatrixSet
-            })
-
-            source = new WMTS({ ...options, layers: layerArray })
-          }
-        })
-        this.restoreCustomAjaxHeaders()
-      } else if (serviceType === 'wms') {
-        // @TODO find out why 'SERVICE=WMS&' is added twice to url
-        url = layer.attributes.url ? layer.attributes.url : null
-        if (url) {
-          //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
-          const indexOfService = url.indexOf('SERVICE')
-          if (indexOfService > 0) {
-            url = url.slice(0, indexOfService)
-          }
-        }
-
-        source = new TileWMS({
-          url: url,
-          params: {
-            LAYERS: layer.attributes.layers || '',
-            FORMAT: 'image/png',
-            VERSION: layer.attributes.layerVersion || '1.3.0'
-          },
-          projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
-          tileGrid: new TileGrid({
-            origin: getTopLeft(projection.getExtent()),
-            resolutions: this.resolutions
-          })
-        })
-      }
+      const source = (layer.attributes.serviceType === 'wmts')
+        ? this.getWMTSSource(layer)
+        : this.getWMSSource(layer)
 
       this.bindLoadingEvents(source)
 
@@ -1011,12 +949,12 @@ export default {
                         /*
                          * Roll back to this one when we can handle procedure versions
                          * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                         *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                         *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                          *     Translator.trans('procedure.goto') +
                          *     '</a>';
                          */
                         const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                         Translator.trans('procedures.all.show') +
                         '</a>'
                         this.showPopup('contentPopup', {
@@ -1344,12 +1282,12 @@ export default {
                     /*
                      * Roll back to this one when we can handle procedure versions
                      * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                     *     '<a class="btn btn--primary float--right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
                      *     Translator.trans('procedure.goto') +
                      *     '</a>';
                      */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float--right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                       Translator.trans('procedures.all.show') +
                       '</a>'
                       this.showPopup('contentPopup', {
@@ -1601,6 +1539,60 @@ export default {
       return layers
     },
 
+    getWMTSSource (layer) {
+      const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
+      const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
+
+      return $.ajax({
+        dataType: 'xml',
+        url: url || '',
+        async: false,
+        success: response => {
+          const result = this.parser.read(response)
+          const options = optionsFromCapabilities(result, {
+            layer: layerArray[0] || '',
+            matrixSet: layer.attributes.tileMatrixSet
+          })
+
+          return new WMTS({ ...options, layers: layerArray })
+        }
+      })
+    },
+
+    getWMSSource (layer) {
+      // @TODO find out why 'SERVICE=WMS&' is added twice to url
+      let url = layer.attributes.url || null
+      if (url) {
+        //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
+        const indexOfService = url.indexOf('SERVICE')
+        if (indexOfService > 0) {
+          url = url.slice(0, indexOfService)
+        }
+      }
+
+      // We have to create this temporaryProjection to be able to get extent that will be used as origin for WMS TileGrid
+      const projectionLabel = layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel
+      const projection = new Projection({
+        code: projectionLabel,
+        units: this.projectionUnits,
+        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
+      })
+
+      return new TileWMS({
+        url: url,
+        params: {
+          LAYERS: layer.attributes.layers || '',
+          FORMAT: 'image/png',
+          VERSION: layer.attributes.layerVersion || '1.3.0'
+        },
+        projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
+        tileGrid: new TileGrid({
+          origin: getTopLeft(projection.getExtent()),
+          resolutions: this.resolutions
+        })
+      })
+    },
+
     getXMLPart (xml, needle) {
       const $xml = $(xml)
 
@@ -1691,14 +1683,6 @@ export default {
       }
     },
 
-    restoreCustomAjaxHeaders () {
-      $.ajaxSetup({
-        headers: {
-          'X-Requested-With': 'dplan'
-        }
-      })
-    },
-
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this.projectionName].x, suggestion.data[this.projectionName].y]
@@ -1718,7 +1702,6 @@ export default {
     },
 
     handleZoom (delta, duration) {
-      const map = this.map
       const view = this.map.getView()
       if (!view) {
         return
@@ -1749,14 +1732,26 @@ export default {
       if (PROJECT && PROJECT !== 'robobsh') {
         controls.push(new MousePosition({ className: this.prefixClass('c-map__mouseposition') }))
       }
+
+      // Add either the attribution from procedureSettings or the attribution defined globally via translation key
+      const currentYear = formatDate(new Date(), 'YYYY')
+      let label = ''
+
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        controls.push(new Attribution({
-          collapsed: false,
-          collapsible: false,
-          label: this.procedureSettings.copyright,
-          tipLabel: this.procedureSettings.copyright
-        }))
+        label = this.procedureSettings.copyright.replace('{currentYear}', currentYear)
+      } else {
+        label = Translator.trans('map.attribution.default', {
+          linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
+          currentYear
+        })
       }
+
+      controls.push(new Attribution({
+        collapsed: false,
+        collapsible: false,
+        label: label,
+        tipLabel: label
+      }))
 
       this.map = new Map({
         controls: controls,
@@ -1778,7 +1773,6 @@ export default {
     },
 
     redrawMap () {
-      const map = this.map
       this.map.updateSize()
       this.map.getView().fit(this.initialExtent, this.map.getSize())
     },
@@ -1921,7 +1915,6 @@ export default {
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
-        constrainOnlyCenter: true,
         constrainResolution: true
       })
     },
@@ -1941,7 +1934,7 @@ export default {
             .replace(/___id___/g, content.key)
           // Specialcase priorityArea with key 'Sonderregel' should not have an html view
           if (content.key === 'Sonderregel') {
-            $('#popupContent').find('a').first().removeClass(this.prefixClass('display--block')).hide()
+            $('#popupContent').find('a').first().removeClass(this.prefixClass('block')).hide()
           }
         } else if (templateId === 'miscPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)

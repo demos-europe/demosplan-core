@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -27,14 +27,15 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 use Tightenco\Collect\Support\Collection;
 
 /**
  * @template T of object
  *
- * @template-extends ServiceEntityRepository<T>
+ * @template-extends FluentRepository<T>
  */
-abstract class CoreRepository extends ServiceEntityRepository
+abstract class CoreRepository extends FluentRepository
 {
     /**
      * @var LoggerInterface
@@ -51,10 +52,9 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
-     *
      * @return $this
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -65,10 +65,9 @@ abstract class CoreRepository extends ServiceEntityRepository
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
      *
-     * @required
-     *
      * @return $this
      */
+    #[Required]
     public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
@@ -146,9 +145,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             return $all[$randomKeys];
         } else {
             return array_map(
-                function ($key) use ($all) {
-                    return $all[$key];
-                },
+                fn ($key) => $all[$key],
                 $randomKeys
             );
         }
@@ -338,7 +335,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFieldFromData($entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         return function ($fieldName) use ($entity, $data) {
@@ -368,7 +365,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFlagFieldFromData($entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         return function ($fieldName) use ($entity, $data) {
@@ -384,7 +381,7 @@ abstract class CoreRepository extends ServiceEntityRepository
                 $entity->$fieldSetterMethod($data[$fieldName]);
                 if ('' === $data[$fieldName] && !is_bool($data[$fieldName])) {
                     $this->getLogger()->warning(
-                        'Property should have default value. Property: '.$fieldName.' Entity '.get_class($entity)
+                        'Property should have default value. Property: '.$fieldName.' Entity '.$entity::class
                     );
                 }
             }
@@ -403,7 +400,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFieldsOnFieldCollection(Collection $fields, $entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         $fields->each($this->setEntityFieldFromData($entity, $data));
@@ -421,7 +418,7 @@ abstract class CoreRepository extends ServiceEntityRepository
     protected function setEntityFlagFieldsOnFlagFieldCollection(Collection $fields, $entity, array $data)
     {
         if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
-            throw new LogicException('This method only supports CoreEntity and User. Got '.get_class($entity));
+            throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
         $fields->each($this->setEntityFlagFieldFromData($entity, $data));
@@ -482,9 +479,7 @@ abstract class CoreRepository extends ServiceEntityRepository
             ]
         )->merge($additionalAllowedTags)
             ->flatMap(
-                function ($tagName) {
-                    return ["<{$tagName}>", "</{$tagName}>"];
-                }
+                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
         return strip_tags($text, $allowedTags);
@@ -501,7 +496,7 @@ abstract class CoreRepository extends ServiceEntityRepository
         return $this->getEntityManager()->getUnitOfWork()->getOriginalEntityData($entity);
     }
 
-    protected function validate(object $entityToValidate)
+    protected function validate(object $entityToValidate): void
     {
         $violations = $this->validator->validate($entityToValidate);
         if (0 !== $violations->count()) {

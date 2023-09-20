@@ -1,0 +1,148 @@
+<form class="" method="post" action="{{ path('DemosPlan_user_edit') }}">
+
+
+    {# Gib einen Hinweis aus, wenn eine ungünstige Rollenkombination vorhanden ist. #}
+    {% if templateVars.multiroleFP is defined %}
+        <p class="{{ 'flash flash-info'|prefixClass }}">
+            {{ "explanation.role.conflict.fpafpsb"|trans }}
+        </p>
+    {% endif %}
+    {% if templateVars.multiroleToeB is defined %}
+        <p class="{{ 'flash flash-info'|prefixClass }}">
+            {{ "explanation.role.conflict.tbkotbsb"|trans }}
+        </p>
+    {% endif %}
+
+
+    {% block personalData %}
+
+        {# If the User is logged in trough a Serviceprovider (via Keycloak) the Username is somehow Cryptic and leads to confusion.
+Therefor we want to hide it from the User #}
+        {% if not hasIdentityprovider %}
+            <label>
+                {{ "username"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" value="{{ user.username|default('-') }}" disabled>
+            </label>
+        {% endif %}
+
+        {% if hasPermission('area_mydata_organisation') %}
+            <label>
+                {{ "organisation"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" value="{{ user.orga.name|default('-') }}" disabled>
+                <input class="{{ 'layout__item'|prefixClass }}" type="hidden" name="organisationId" value="{{ user.orga.id|default }}">
+            </label>
+            <label>
+                {{ "department"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" value="{{ user.department.name|default('-') }}" disabled>
+                <input class="{{ 'layout__item'|prefixClass }}" type="hidden" name="departmentId" value="{{ user.department.id|default("Keine Abteilung") }}">
+            </label>
+        {% endif %}
+
+        <input type="hidden" name="address" value="{% if user.address_ident is defined %}{{ user.address_ident }}{% endif %}">
+
+        <label>
+            {{ "name"|trans }}
+            <input class="{{ 'layout__item u-pt-0_25'|prefixClass }}" type="text" name="lastname" value="{{ user.lastname|default }}">
+        </label>
+
+        <label>
+            {{ "name.first"|trans }}
+            <input class="{{ 'layout__item u-pt-0_25'|prefixClass }}" type="text" name="firstname" value="{{ user.firstname|default }}">
+        </label>
+
+        <label>
+            {{ "email"|trans }}
+            <input class="{{ 'layout__item u-pt-0_25'|prefixClass }}" type="text" name="email" value="{{ user.email|default }}">
+        </label>
+
+    {% endblock personalData %}
+
+
+    {% block newsletter %}
+        <div class="{{ 'u-mv'|prefixClass }}">
+            <p class="{{ 'weight--bold u-mb-0'|prefixClass }}">
+                {{ "newsletter"|trans }}
+            </p>
+            {% if hasPermission('feature_alternative_newsletter') %}
+                <p>
+                    Mit unserem Newsletter erhalten Sie regelmäßig Informationen zu Neuigkeiten und
+                    Schulungen unserer Beteiligungsplattform. Sie können diesen Service in jedem Newsletter wieder abbestellen.
+                </p>
+
+                <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
+            {% else %}
+                {{ uiComponent('form.element', {
+                    label: { text: 'newsletter.send.to.address'|trans({ address: projectName|wysiwyg }) },
+                    control: { name: 'newsletter', value: 'on', checked: user.newsletter is defined and user.newsletter == true },
+                    type: 'checkbox',
+                    id: 'newsletter'
+                }) }}
+            {% endif %}
+        </div>
+    {% endblock newsletter %}
+
+
+    {% if
+        hasPermission('feature_forum_dev_release_edit') or
+        (hasPermission('area_manage_orgadata') and user.isPublicAgency) or
+        hasPermission('feature_send_email_on_procedure_ending_phase')
+    %}
+        <div class="u-mv">
+            <p class="{{ 'weight--bold u-mb-0'|prefixClass }}">
+                {{ 'via.mail.notified'|trans }}
+            </p>
+
+            {# Forum Moderators may receive email notifications #}
+            {% if hasPermission('feature_forum_dev_release_edit') %}
+                {{ uiComponent('form.element', {
+                    label: { text: 'advisory.board.activities'|trans },
+                    control: {
+                        name: 'forumNotification',
+                        value: 'on',
+                        checked: user.forumNotification is defined and user.forumNotification == true
+                    },
+                    type: 'checkbox',
+                    id: 'forumNotification'
+                }) }}
+            {% endif %}
+
+            {% if hasPermission('area_manage_orgadata') and user.isPublicAgency %}
+                {{ uiComponent('form.element', {
+                    label: { text: 'explanation.notification.released.statement'|trans },
+                    control: {
+                        name: 'emailNotificationReleasedStatement',
+                        value: 'on',
+                        checked: templateVars.emailNotificationReleasedStatement is defined and templateVars.emailNotificationReleasedStatement == true
+                    },
+                    type: 'checkbox',
+                    id: 'emailNotificationReleasedStatement'
+                }) }}
+            {% else %}
+                <input
+                    type="hidden"
+                    name="emailNotificationReleasedStatement"
+                    {{ templateVars.emailNotificationReleasedStatement is defined and templateVars.emailNotificationReleasedStatement == true ? 'checked="true"' : '' }}>
+            {% endif %}
+
+            {% if hasPermission('feature_send_email_on_procedure_ending_phase') %}
+                {{ uiComponent('form.element', {
+                    label: { text: 'unpublished.statements.if.participation.ends'|trans },
+                    control: {
+                        name: 'draftStatementSubmissionReminderEnabled',
+                        value: 'on',
+                        checked: user.draftStatementSubmissionReminderEnabled is defined and user.draftStatementSubmissionReminderEnabled == true
+                    },
+                    type: 'checkbox',
+                    id: 'draftStatementSubmissionReminderEnabled'
+                }) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="{{ 'text-right space-inline-s'|prefixClass }}">
+        <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" value="{{ "save"|trans }}">
+        <input class="{{ 'btn btn--secondary'|prefixClass }}" type="reset" value="{{ "abort"|trans }}">
+    </div>
+
+
+</form>

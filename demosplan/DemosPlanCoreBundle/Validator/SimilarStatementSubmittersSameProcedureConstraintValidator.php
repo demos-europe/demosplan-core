@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -35,9 +35,7 @@ class SimilarStatementSubmittersSameProcedureConstraintValidator extends Constra
         $procedureId = $statement->getProcedure()->getId();
         if (is_string($procedureId)) {
             $mismatch = $statement->getSimilarStatementSubmitters()
-                ->exists(static function (int $key, ProcedurePerson $person) use ($procedureId): bool {
-                    return $person->getProcedure()->getId() !== $procedureId;
-                });
+                ->exists(static fn(int $key, ProcedurePerson $person): bool => $person->getProcedure()->getId() !== $procedureId);
 
             if (!$mismatch) {
                 return;

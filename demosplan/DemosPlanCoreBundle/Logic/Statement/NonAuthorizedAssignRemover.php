@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,10 +19,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -30,56 +31,21 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 class NonAuthorizedAssignRemover
 {
     /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
      * @var ObjectManager
      */
     private $entityManager;
 
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var EntityContentChangeService
-     */
-    private $entityContentChangeService;
-
     public function __construct(
-        EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
+        private readonly EntityContentChangeService $entityContentChangeService,
         ManagerRegistry $registry,
-        MessageBagInterface $messageBag,
-        DqlConditionFactory $conditionFactory,
-        ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureService $procedureService
+        private readonly MessageBagInterface $messageBag,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureService $procedureService,
+        private readonly StatementRepository $statementRepository,
+        private readonly UserRepository $userRepository
     ) {
         $this->entityManager = $registry->getManager();
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->procedureService = $procedureService;
-        $this->entityFetcher = $entityFetcher;
-        $this->conditionFactory = $conditionFactory;
-        $this->messageBag = $messageBag;
-        $this->entityContentChangeService = $entityContentChangeService;
     }
 
     /**
@@ -120,7 +86,7 @@ class NonAuthorizedAssignRemover
             $assigneeId = $claimable->getAssignee()->getId();
 
             $claimable->setAssignee(null);
-            $this->entityContentChangeService->saveEntityChanges($claimable, get_class($claimable));
+            $this->entityContentChangeService->saveEntityChanges($claimable, $claimable::class);
 
             return $assigneeId;
         }, $claimables);
@@ -135,13 +101,11 @@ class NonAuthorizedAssignRemover
     {
         $ownsProcedureCondition = $this->procedureAccessEvaluator->getOwnsProcedureCondition($procedure);
         $authorizedUsers = $this->procedureService->getAuthorizedUsers($procedure->getId());
-        $owningUsers = $this->entityFetcher->listEntitiesUnrestricted(User::class, [$ownsProcedureCondition]);
+        $owningUsers = $this->userRepository->getEntities([$ownsProcedureCondition], []);
 
         return $authorizedUsers
             ->merge($owningUsers)
-            ->map(static function (User $user): string {
-                return $user->getId();
-            })
+            ->map(static fn (User $user): string => $user->getId())
             ->unique()
             ->all();
     }
@@ -154,20 +118,16 @@ class NonAuthorizedAssignRemover
      */
     private function getClaimablesToUnassign(Procedure $procedure): array
     {
-        return $this->entityFetcher->listEntitiesUnrestricted(
-            // Fetches not only statements but child classes too (i.e. segments)
-            Statement::class,
-            [
-                $this->conditionFactory->propertyIsNotNull(['assignee']),
-                $this->conditionFactory->propertyHasNotAnyOfValues(
-                    $this->getAssignableUserIds($procedure),
-                    ['assignee', 'id']
-                ),
-                $this->conditionFactory->propertyHasValue(
-                    $procedure->getId(),
-                    ['procedure', 'id']
-                ),
-            ]
-        );
+        return $this->statementRepository->getEntities([
+            $this->conditionFactory->propertyIsNotNull(['assignee']),
+            $this->conditionFactory->propertyHasNotAnyOfValues(
+                $this->getAssignableUserIds($procedure),
+                ['assignee', 'id']
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                ['procedure', 'id']
+            ),
+        ], []);
     }
 }

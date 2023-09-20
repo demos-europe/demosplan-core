@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,15 +26,9 @@ class ProdLogger implements LoggerInterface
      */
     private $environment;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger, ParameterBagInterface $parameterBag)
+    public function __construct(private readonly LoggerInterface $logger, ParameterBagInterface $parameterBag)
     {
         $this->environment = $parameterBag->get('kernel.environment');
-        $this->logger = $logger;
     }
 
     public function log($level, $message, array $context = []): void

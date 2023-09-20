@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,8 @@
 namespace Tests\Project\Core\Unit\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ElasticSearchDefinitionProvider;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use InvalidArgumentException;
 use Tests\Base\UnitTestCase;
 

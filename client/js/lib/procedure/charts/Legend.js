@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -8,7 +8,7 @@
  */
 
 import { format } from 'd3-format'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { select } from 'd3-selection'
 import { sum } from 'd3-array'
 

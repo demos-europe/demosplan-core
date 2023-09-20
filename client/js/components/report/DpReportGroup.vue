@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -23,7 +23,7 @@
         </template>
         <template v-slot:content="rowData">
           <div
-            class="overflow-word-break"
+            class="break-words"
             v-cleanhtml="rowData.attributes.message" />
         </template>
         <template v-slot:user="rowData">
@@ -43,7 +43,7 @@
      --><div class="layout__item u-1-of-2">
         <dp-loading
           v-if="isLoading"
-          class="u-mt-0_5 float--right" />
+          class="u-mt-0_5 float-right" />
         </div>
       </div>
     </template>
@@ -55,8 +55,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDataTable, DpLoading, DpSlidingPagination } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpDataTable, DpLoading, DpSlidingPagination, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpReportGroup',

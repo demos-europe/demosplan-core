@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Functional;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCoordinateDataFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\MapCoordinate;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Provider\Nominatim\Model\NominatimAddress;
@@ -33,6 +33,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateData($in, $out): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $sut = $this->createSut(
             $out['postalCode'],
             $out['city'],
@@ -90,6 +92,8 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
      */
     public function testFetchCoordinateDataException($in, $out, $exception): void
     {
+        self::markTestSkipped('This test is skipped because it calls external resources.');
+
         $this->expectException($exception);
 
         $sut = $this->createSut(

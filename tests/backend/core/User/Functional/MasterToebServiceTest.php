@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,14 +14,14 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
+use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class MasterToebServiceTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\MasterToebService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService
      */
     protected $sut;
 
@@ -161,7 +161,7 @@ class MasterToebServiceTest extends FunctionalTestCase
     public function testUpdateOrgaOnMasterToebUpdate()
     {
         $masterToebBeforeUpdate = clone $this->fixtures->getReference('testMasterToeb');
-        $ident = $masterToebBeforeUpdate->getIdent();
+        $ident = $masterToebBeforeUpdate->getId();
         $data = [
             'departmentName' => 'newAbteilung',
             'orgaName'       => 'newOrganame',

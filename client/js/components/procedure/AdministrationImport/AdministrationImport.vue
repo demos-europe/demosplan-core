@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -34,8 +34,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
-import { DpLoading, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -110,7 +109,6 @@ export default {
   computed: {
     availableImportOptions () {
       return [
-        ...this.asyncComponents,
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
@@ -123,7 +121,7 @@ export default {
         }
       ].filter((component) => {
         return hasAnyPermissions(component.permissions)
-      })
+      }).concat(this.asyncComponents)
     }
   },
 
@@ -163,7 +161,6 @@ export default {
 
             this.asyncComponents.push({
               name: addon.entry,
-              permissions: ['feature_statements_import_excel'],
               title: addon.options.title
             })
           }

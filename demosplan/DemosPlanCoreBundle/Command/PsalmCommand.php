@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -66,10 +66,7 @@ class PsalmCommand extends CoreCommand
         );
     }
 
-    /**
-     * @return int|null
-     */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $configFilePath = DemosPlanPath::getTemporaryPath(uniqid('', true).'psalm.xml');
 
@@ -123,6 +120,6 @@ class PsalmCommand extends CoreCommand
             $output->write($process->getOutput());
         }
 
-        return $process->getExitCode();
+        return (int) $process->getExitCode();
     }
 }

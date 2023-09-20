@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -11,7 +11,7 @@
  * This is the entrypoint for public_index.html.twig
  * where the Map is on the left hand side and the Procedurelist on the right.
  */
-import { dpApi, prefixClass } from '@demos-europe/demosplan-utils/index'
+import { dpApi, prefixClass } from '@demos-europe/demosplan-ui'
 import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
 import { initialize } from '@DpJs/InitVue'
 

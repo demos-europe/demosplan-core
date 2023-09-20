@@ -1,0 +1,324 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{# shorten template vars #}
+{% set element = templateVars.element|default([]) %}
+{% set documents = templateVars.documents|default([]) %}
+{% set deleteEnable = templateVars.deleteEnable|default([]) %}
+
+{# are we calling this from elementAdminEditAction or elementAdminNewAction ? #}
+{# set vars for edit category view #}
+{% if element is not empty %}
+
+    {% set pageHeading =
+        "plandocuments"|trans ~ ": " ~ "plandocuments.category.edit"|trans
+    %}
+
+    {% set pathFormGeneral = path(
+        'DemosPlan_elements_administration_edit',
+        { 'procedure': procedure, 'elementId': element.ident }
+    ) %}
+
+{# set vars for new category view #}
+{% else %}
+
+    {% set pageHeading =
+        "plandocuments"|trans ~ ": " ~ "plandocuments.category.new"|trans
+    %}
+
+    {% set pathFormGeneral = path( 'DemosPlan_elements_administration_new', { 'procedure': procedure } ) %}
+
+{% endif %}
+
+{% set documentsForTable = documents|map(el => {
+    title: el.title,
+    status: el.visible,
+    statementEnabled: el.statement_enabled,
+    fileName: el.document|getFile('name'),
+    mimeType: el.document|getFile('mimeType'),
+    size: el.document|getFile('size'),
+    hash: el.document|getFile('hash'),
+    id: el.ident,
+    hasDocument: el.document|default(''),
+    procedure: procedure })
+%}
+
+{% block demosplanbundlecontent %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: pageHeading|responsive
+    } %}
+
+    {% if element is not empty and permissions.feature_admin_element_create_subelement.enabled == true %}
+        <div class="flow-root u-mb-0_5">
+            <a class="btn btn--primary float-right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
+                {{ "elements.create.subcategory"|trans }}
+            </a>
+        </div>
+    {% endif %}
+
+    <dp-element-admin-edit
+        inline-template
+        {% if templateVars.element.designatedSwitchDate|default|length > 0 %}
+            :designated-to-switch="true"
+        {% endif %}
+        init-datetime="{{ templateVars.element.designatedSwitchDate|default|isoDate }}"
+        :orgas-of-procedure="JSON.parse('{{ templateVars.orgasOfProcedure|default([])|map(orga => { id: orga.id, name: orga.nameLegal})|default([])|json_encode|e('js', 'utf-8') }}')"
+        :init-selected-orgas="JSON.parse('{{ templateVars.authorisedOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
+        element-id="{{ element.ident|default('') }}"
+        category="{{ category|default('') }}"
+        procedure="{{ procedure }}"
+        :documents="JSON.parse('{{ documentsForTable|default([])|json_encode|e('js', 'utf-8') }}')"
+    >
+        <div
+            @keydown="handleKeyDown"
+            @keyup="closeOnSelect = true">
+
+            {# general settings for category #}
+            <form
+                name="xsubmititem"
+                enctype="multipart/form-data"
+                method="post"
+                data-dp-validate
+                action="{{ pathFormGeneral }}">
+
+                <input name="r_action" type="hidden" value="elementedit">
+                <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
+                <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+
+                <label
+                    class="o-form__label"
+                    for="r_title">
+                    {{ "category"|trans }} / {{ "heading"|trans }}*
+                    {% if permissions.feature_admin_element_edit.enabled == true %}
+                        <p class="lbl__hint">
+                            {{ "input.text.maxlength"|trans({ maxlength: 255, id: 'counter_category_title' })|wysiwyg('input') }}
+                        </p>
+                    {% endif %}
+                </label>
+                <input
+                    {% if not hasPermission('feature_admin_element_edit') %} disabled {% endif %}
+                    class="o-form__control-input width-100p u-mb-0_75"
+                    id="r_title"
+                    type="text"
+                    value="{{ element.title|default() }}"
+                    name="r_title"
+                    maxlength="255"
+                    data-cy="ElementCategoryTitle"
+                    {% if hasPermission('feature_admin_element_edit') %}data-counter="counter_category_title"{% endif %}>
+
+                {# use hidden input field when field may not be edited as it is required #}
+                {% if not hasPermission('feature_admin_element_edit') %}
+                    <input type="hidden" name="r_title" value="{{ element.title|default() }}">
+                {% endif %}
+
+                {# choose type of category when generating new cat #}
+                {% if element is empty %}
+                    <label
+                        class="o-form__label"
+                        for="r_category">
+                        {{ 'plandocuments.category.type.set'|trans }}*
+                    </label>
+                    <select
+                         class="o-form__control-select width-100p u-mb-0_75"
+                         id="r_category"
+                         name="r_category"
+                         data-cy="selectCategoryType">
+                        {% if hasPermission ('feature_documents_category_use_paragraph') %}
+                            <option value="paragraph">{{ 'plandocuments.category.type.paragraph'|trans }}</option>
+                        {% endif %}
+                        {% if hasPermission ('feature_documents_category_use_file') %}
+                            <option value="file">{{ 'plandocuments.category.type.file'|trans }}</option>
+                        {% endif %}
+                    </select>
+                {% else %}
+                    <dl class="description-list u-mb-0_75">
+                        <dt>{{ 'plandocuments.category.type'|trans }}</dt>
+                        <dd>{{ (element.category|default == 'paragraph' ? 'plandocuments.category.type.paragraph' : 'plandocuments.category.type.file')|trans }}</dd>
+                    </dl>
+                {% endif %}
+
+                <label
+                    class="o-form__label"
+                    for="noteText">
+                    {{ "instruction"|trans }}
+                </label>
+                <dp-editor
+                    :value="JSON.parse('{{ element.text|default|json_encode|e('js') }}')"
+                    class="u-mb-0_75"
+                    hidden-input="r_text"
+                    editor-id="noteText"
+                    :toolbar-items="{
+                        linkButton: true,
+                        headings: [3, 4, 5]
+                    }"
+                    data-cy="noteText">
+                </dp-editor>
+
+                {% if hasPermission('feature_auto_switch_element_state') %}
+                    <div
+                        class="u-mb-0_75"
+                        :class="designatedToSwitchState ? 'is-active' : ''">
+                        <label class="u-mb-0">
+                            <input
+                                name="r_autoSwitchState"
+                                data-toggle="#autoSwitchState"
+                                type="checkbox"
+                                @change="toggleAutoSwitchState"
+                                value="1"
+                                {% if templateVars.element.designatedSwitchDate|default|length > 0 %} checked {% endif %}
+                            >
+                            {{ 'element.state.autoswitch'|trans({ state: element.enabled|default(false) ? 'unpublished'|trans : 'published'|trans }) }}
+
+                        </label>
+
+                        <div
+                            class="layout--flush u-pv-0_5"
+                            v-show="designatedToSwitchState">
+                            <dp-datetime-picker
+                                hidden-input
+                                id="r_designatedSwitchDate"
+                                label="{{ 'phase.autoswitch.datetime'|trans }}"
+                                min-date="{{ 'now'|date('d.m.Y') }}"
+                                name="r_designatedSwitchDate"
+                                :required="designatedToSwitchState"
+                                v-model="changeDatetime">
+                            </dp-datetime-picker>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if hasPermission('feature_admin_element_invitable_institution_or_public_authorisations') %}
+
+                    <label class="o-form__label u-mb-0_25">
+                        {{ 'visibility.category'|trans }}
+                    </label>
+                    <div class="u-mb-0_75">
+                        <label class="lbl--text block u-mb-0_25">
+                            <input
+                                type="radio"
+                                name="r_permission"
+                                value=""
+                                class="u-mh-0_25"
+                                {% if templateVars.element.permission is defined
+                                    and templateVars.element.permission == null %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                            {{ "visibility.category.for.unlimited"|trans }}
+                        </label>
+                        <label  class="lbl--text block u-mb-0_25">
+                            <input
+                                type="radio"
+                                name="r_permission"
+                                value="feature_admin_element_invitable_institution_access"
+                                class="u-mh-0_25"
+                                {% if templateVars.element.permission is defined
+                                    and templateVars.element.permission == "feature_admin_element_invitable_institution_access" %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                            {{ "visibility.category.for.invitable_institution"|trans }}
+                        </label>
+                        <label class="lbl--text block u-mb-0_25">
+                            <input
+                                type="radio"
+                                name="r_permission"
+                                value="feature_admin_element_public_access"
+                                class="u-mh-0_25"
+                                {% if templateVars.element.permission is defined
+                                    and templateVars.element.permission == "feature_admin_element_public_access" %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                            {{ "visibility.category.for.citizens"|trans }}
+                        </label>
+
+                    </div>
+                {% endif %}
+
+                {# allow access only for specific orgas #}
+                {% if hasPermission('feature_admin_element_authorisations') %}
+                    <label class="o-form__label">
+                        {{ "invitable_institution.authorisations"|trans }}
+                        <p class="lbl__hint">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{ "explanation.invitable_institution.authorisations"|trans }}
+                        </p>
+                    </label>
+                    <dp-multiselect
+                        v-model="selectedOrgas"
+                        class="layout__item u-1-of-1 u-pl-0 u-mb-0_75"
+                        :close-on-select="closeOnSelect"
+                        label="name"
+                        multiple
+                        :options="orgasOfProcedure"
+                        track-by="id"
+                        @input="sortSelected('Orgas')">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                        </template>
+                        <template v-slot:tag="{ props }">
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_orga[]"/>
+                            </span>
+                        </template>
+                    </dp-multiselect>
+                {% endif %}
+
+                <div class="text-right space-inline-s">
+                    <input
+                        class="btn btn--primary"
+                        type="submit"
+                        value="{{ "save"|trans }}"
+                        data-cy="saveCategory">
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+                        {{ "abort"|trans }}
+                    </a>
+                </div>
+
+            </form>
+
+            {# paragraph based category: paragraph_admin_list.twig is rendered by controller #}
+            {% block elements_paragraphs %}{% endblock %}
+
+            {# document based category: single_document_admin_list.twig is rendered by controller #}
+            {% block elements_documentlist %}{% endblock %}
+
+            {% if hasPermission('feature_admin_element_delete')%}
+
+                {% if deleteEnable and element is not empty %}
+                    {# delete category #}
+                    <form
+                        class="bg-color-light border-radius-medium space-inset-m u-mt-2"
+                        name="xsubmititem"
+                        enctype="multipart/form-data"
+                        method="post"
+                        action="{{ pathFormGeneral }}">
+
+                        <input name="r_action" type="hidden" value="elementedit">
+                        <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
+                        <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+
+                        <fieldset class="u-pb-0">
+                            <legend>{{ "category.delete"|trans }}</legend>
+                            <p>{{ "explanation.category.delete"|trans }}</p>
+                            <input
+                                class="btn btn--warning"
+                                type="submit"
+                                name="deleteCategory"
+                                data-cy="deletePlanDocumentCategory"
+                                value="{{ "category.delete"|trans }}"
+                                data-form-actions-confirm="{{ "check.category.delete"|trans({ categoryTitle: element.title|default('n/a') }) }}">
+                        </fieldset>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </dp-element-admin-edit>
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('document-elementsAdminEdit.js') }}
+{% endblock javascripts %}

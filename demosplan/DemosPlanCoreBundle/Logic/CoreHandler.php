@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * Enthält die Handlerfunktionalitäten, die alle Handler nutzen können
@@ -176,9 +177,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
@@ -196,9 +196,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setStopwatch(Stopwatch $stopwatch)
     {
         $this->stopwatch = $stopwatch;
@@ -206,9 +205,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setDemosplanConfig(GlobalConfigInterface $demosplanConfig)
     {
         $this->demosplanConfig = $demosplanConfig;
@@ -248,9 +246,8 @@ class CoreHandler
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
-     *
-     * @required
      */
+    #[Required]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;

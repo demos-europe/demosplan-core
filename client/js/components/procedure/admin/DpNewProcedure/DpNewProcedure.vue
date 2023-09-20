@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -54,7 +54,7 @@
       <addon-wrapper hook-name="procedure.fields" />
 
       <template v-if="hasPermission('feature_use_plis')">
-        <dp-form-row>
+        <dp-form-row class="u-mb-0_75">
           <dp-select
             id="r_plisId"
             :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
@@ -67,10 +67,12 @@
             class="weight--bold" />
           <dd
             id="js__plisPlanungsanlass"
-            class="list-style-none" />
+            class="u-m-0" />
         </dl>
       </template>
-      <dp-form-row v-else>
+      <dp-form-row
+        class="u-mb-0_75"
+        v-else>
         <dp-input
           data-cy="newProcedureTitle"
           id="r_name"
@@ -80,7 +82,9 @@
           :required="requireField"
           type="text" />
       </dp-form-row>
-      <dp-form-row v-if="hasPermission('feature_procedure_templates')">
+      <dp-form-row
+        class="u-mb-0_75"
+        v-if="hasPermission('feature_procedure_templates')">
         <dp-select
           id="blueprint"
           :label="{
@@ -88,6 +92,7 @@
             text: Translator.trans('master')
           }"
           name="r_copymaster"
+          data-cy="newProcedureForm:blueprintOptions"
           :options="blueprintOptions"
           :selected="masterBlueprintId"
           @select="setBlueprintData" />
@@ -102,12 +107,12 @@
           required />
         <dp-multiselect
           v-model="currentProcedureType"
-          class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
+          class="layout__item u-1-of-1 u-pl-0 u-mb inline-block"
           label="name"
           :options="procedureTypes"
           required
           track-by="id">
-          <template v-slot:option="props">
+          <template v-slot:option="{ props }">
             {{ props.option.name }}<br>
             <span class="font-size-small">{{ props.option.description }}</span>
           </template>
@@ -124,7 +129,7 @@
         type="hidden"
         :value="procedureTypes[0].id">
 
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-input
           id="main-email"
           data-cy="agencyMainEmailAddress"
@@ -137,11 +142,12 @@
           type="email"
           :value="mainEmail" />
       </dp-form-row>
-      <dp-form-row>
+      <dp-form-row class="u-mb-0_75">
         <dp-text-area
           :hint="Translator.trans('internalnote.visibility.hint')"
           id="r_desc"
           :label="Translator.trans('internalnote')"
+          data-cy="newProcedureForm:internalNote"
           name="r_desc"
           reduced-height />
       </dp-form-row>
@@ -150,7 +156,7 @@
         <dp-label
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :text="Translator.trans('period')" />
 
         <dp-date-range-picker
@@ -159,7 +165,7 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
 
@@ -185,15 +191,16 @@
         <couple-token-input :token-length="tokenLength" />
       </div>
 
-      <div class="space-inline-s text--right">
+      <div class="space-inline-s text-right">
         <dp-button
           id="saveBtn"
           :text="Translator.trans('save')"
           type="submit"
           @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
-          data-cy="saveNewProcedure" />
+          data-cy="newProcedureForm:saveNewProcedure" />
         <dp-button
           color="secondary"
+          data-cy="newProcedureForm:abort"
           :href="Routing.generate('DemosPlan_procedure_administration_get')"
           :text="Translator.trans('abort')" />
       </div>
@@ -202,8 +209,8 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
 import {
+  dpApi,
   DpButton,
   DpDateRangePicker,
   DpFormRow,
@@ -212,7 +219,8 @@ import {
   DpLabel,
   DpMultiselect,
   DpSelect,
-  DpTextArea
+  DpTextArea,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'

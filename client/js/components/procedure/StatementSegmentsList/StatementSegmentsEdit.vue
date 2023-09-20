@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,10 +22,10 @@
         :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id">
         <div
-          class="display--inline-block"
+          class="inline-block"
           style="width: 5%">
           <dp-claim
-            class="c-at-item__row-icon display--inline-block"
+            class="c-at-item__row-icon inline-block"
             entity-type="segment"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -36,7 +36,7 @@
             @click="() => toggleClaimSegment(segment)" />
         </div><!--
         --><div
-              class="display--inline-block overflow-word-break"
+              class="inline-block break-words"
               style="width: 95%">
           <dp-edit-field
             label=""
@@ -95,8 +95,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpLoading,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'

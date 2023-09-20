@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,20 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 class SamlAttributesParser
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var array
-     */
-    private $samlAttributes;
-
-    public function __construct(User $user, array $samlAttributes)
+    public function __construct(private readonly User $user, private readonly array $samlAttributes)
     {
-        $this->user = $user;
-        $this->samlAttributes = $samlAttributes;
     }
 
     public function parse()

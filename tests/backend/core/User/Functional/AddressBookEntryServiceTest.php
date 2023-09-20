@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
-use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
+use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Tests\Base\FunctionalTestCase;

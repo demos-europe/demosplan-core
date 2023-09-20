@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -29,9 +29,9 @@
     </dp-slidebar>
 
     <dp-sticky-element>
-      <header class="border--bottom u-pv-0_5 cf">
-        <div class="flex-inline space-inline-m">
-          <h1 :class="['font-size-larger u-valign--middle display--inline-block u-m-0']">
+      <header class="border--bottom u-pv-0_5 flow-root">
+        <div class="inline-flex space-inline-m">
+          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
             {{ Translator.trans('statement') }} #{{ statementExternId }}
           </h1>
           <div
@@ -53,10 +53,9 @@
             </button>
           </div>
         </div>
-        <ul class="float--right u-m-0 space-inline-s flex">
-          <li class="display--inline-block">
+        <ul class="float-right space-inline-s flex">
+          <li v-if="!statement.attributes.synchronized">
             <dp-claim
-              v-if="!statement.attributes.synchronized"
               class="o-flyout__trigger u-ph-0_25 line-height--2"
               entity-type="statement"
               :assigned-id="currentAssignee.id"
@@ -67,18 +66,14 @@
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
               @click="toggleClaimStatement" />
           </li>
-          <li class="display--inline-block">
-            <a
-              class="line-height--2 display--inline-block u-ph-0_25"
+          <li>
+            <dp-button
+              class="u-ph-0_25"
               :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
-              rel="noopener">
-
-              {{ Translator.trans('export.verb') }}
-            </a>
+              :text="Translator.trans('export.verb')"
+              variant="subtle" />
           </li>
-          <li
-            class="display--inline-block"
-            v-if="hasPermission('feature_read_source_statement_via_api')">
+          <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
               <template slot="trigger">
                 <span>
@@ -90,27 +85,27 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
-                  <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
+                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
                     :attachment="originalAttachment"
-                    class="display--block whitespace--normal u-mr-0_75"
+                    class="block whitespace-normal u-mr-0_75"
                     :procedure-id="procedureId" />
                   <span
                     v-if="additionalAttachments.length > 0"
-                    class="display--block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                    class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
                     :key="attachment.hash"
                     :attachment="attachment"
-                    class="display--block whitespace--normal u-mr-0_75"
+                    class="block whitespace-normal u-mr-0_75"
                     :procedure-id="procedureId" />
                 </div>
               </template>
             </dp-flyout>
           </li>
-          <li class="display--inline-block">
+          <li>
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
@@ -163,8 +158,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpFlyout, DpSlidebar, DpStickyElement } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpFlyout,
+  DpSlidebar,
+  DpStickyElement
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
@@ -181,6 +182,7 @@ export default {
 
   components: {
     DpClaim,
+    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,

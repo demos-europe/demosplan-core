@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -30,7 +30,7 @@
 
 <script>
 import DpNewOrgaModal from './DpNewOrgaModal'
-import { makeFormPost } from '@demos-europe/demosplan-utils'
+import { makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpNewMasterToeb',

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<MasterToeb>
@@ -34,6 +33,11 @@ final class MasterToebResourceType extends DplanResourceType
         return 'MasterToeb';
     }
 
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
+    }
+
     public function isAvailable(): bool
     {
         return $this->currentUser->hasAnyPermissions(
@@ -43,9 +47,9 @@ final class MasterToebResourceType extends DplanResourceType
         );
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isReferencable(): bool

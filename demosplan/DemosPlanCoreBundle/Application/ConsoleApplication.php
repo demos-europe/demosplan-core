@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,16 +17,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConsoleApplication extends Application
 {
-    /**
-     * @var bool
-     */
-    private $isDeprecatedFrontController;
-
-    public function __construct(KernelInterface $kernel, bool $isDeprecatedFrontController)
+    public function __construct(KernelInterface $kernel, private readonly bool $isDeprecatedFrontController)
     {
         parent::__construct($kernel);
-
-        $this->isDeprecatedFrontController = $isDeprecatedFrontController;
 
         /* @var DemosPlanKernel $kernel */
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');

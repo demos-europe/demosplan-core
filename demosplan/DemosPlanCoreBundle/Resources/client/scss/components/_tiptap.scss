@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -162,7 +162,7 @@
         & .button_submenu {
             position: absolute;
             display: inline-block;
-            z-index: $z-super;
+            z-index: $dp-z-flyout;
             min-width: 200px;
             border: 2px solid $dp-color-neutral-light-3;
             border-radius: 3px;
@@ -219,7 +219,7 @@
                 padding: 15px;
 
                 &.is-invalid {
-                    border: 2px solid $dp-color-system-error !important;
+                    border: 2px solid $dp-color-status-failed-border !important;
                 }
             }
 
@@ -250,9 +250,16 @@
                 font-weight: bold;
             }
 
-            ul,
-            ol {
+            ul, ol {
                 padding-left: 1rem;
+            }
+
+            ul {
+                list-style: disc;
+            }
+
+            ol {
+                list-style: decimal;
             }
 
             li > p,
@@ -287,12 +294,12 @@
             // styling of del and ins tags should match diff styling in version sidebar in assessment table
 
             del {
-                background-color: $dp-color-system-warning--light;
+                background-color: $dp-color-text-deleted-bg;
                 text-decoration: line-through;
             }
 
             ins {
-                background-color: $dp-color-system-info--light-1;
+                background-color: $dp-color-text-inserted-bg;
             }
 
             table {
@@ -380,7 +387,7 @@
 
             &:active,
             &:focus {
-                border: 2px solid $dp-token-color-brand-link;
+                border: 2px solid $dp-color-interactive-default;
             }
         }
     }
@@ -389,7 +396,7 @@
         position: fixed;
         left: 0;
         top: 0;
-        z-index: $z-fixed;
+        z-index: $dp-z-fixed;
 
         height: 100%;
         width: 100%;
@@ -412,7 +419,7 @@
         white-space: nowrap;
         overflow: hidden;
         padding: 0;
-        box-shadow: $dp-token-box-shadow-1;
+        box-shadow: $dp-box-shadow;
     }
 
     &__list-item {
@@ -437,6 +444,16 @@
         border-radius: 3px;
         padding: .15rem .5rem !important;
         color: $dp-color-neutral-dark-1 !important;
+    }
+}
+
+.ProseMirror {
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
     }
 }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -43,22 +43,25 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 {
-    public const TESTPROCEDURE = 'testProcedure';
-    public const TESTPROCEDURE_DRAFTSTATEMENT = 'testDraftStatement';
-    public const TESTPROCEDURE_DRAFTSTATEMENTVERSION = 'testdraftStatementVersion';
-    public const TESTPROCEDURE_GISLAYER = 'testGisLayer';
-    public const TESTPROCEDURE_NEWS = 'testNews';
-    public const TESTPROCEDURE_PARAGRAPHPROCEDURE = 'testParagraphProcedure';
-    public const TESTPROCEDURE_PARAGRAPHVERSION = 'testParagraphVersion';
-    public const TESTPROCEDURE_REPORT = 'testReport';
-    public const TESTPROCEDURE_SINGLEDOCUMENT = 'testSingleDocument1';
-    public const TESTPROCEDURE_SINGLEDOCUMENTELEMENT = 'testSingleDocumentElement';
-    public const TESTPROCEDURE_SINGLEDOCUMENTVERSION = 'testSingleDocumentVersion';
-    public const TESTPROCEDURE_STATEMENT = 'testStatement';
-    public const TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE = 'procedureInPublicParticipationPhase';
-    public const TEST_PROCEDURE_2 = 'testProcedure2';
+    final public const TESTPROCEDURE = 'testProcedure';
+    final public const TESTPROCEDURE_DRAFTSTATEMENT = 'testDraftStatement';
+    final public const TESTPROCEDURE_DRAFTSTATEMENTVERSION = 'testdraftStatementVersion';
+    final public const TESTPROCEDURE_GISLAYER = 'testGisLayer';
+    final public const TESTPROCEDURE_NEWS = 'testNews';
+    final public const TESTPROCEDURE_PARAGRAPHPROCEDURE = 'testParagraphProcedure';
+    final public const TESTPROCEDURE_PARAGRAPHVERSION = 'testParagraphVersion';
+    final public const TESTPROCEDURE_REPORT = 'testReport';
+    final public const TESTPROCEDURE_SINGLEDOCUMENT = 'testSingleDocument1';
+    final public const TESTPROCEDURE_SINGLEDOCUMENTELEMENT = 'testSingleDocumentElement';
+    final public const TESTPROCEDURE_SINGLEDOCUMENTVERSION = 'testSingleDocumentVersion';
+    final public const TESTPROCEDURE_STATEMENT = 'testStatement';
+    final public const TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE = 'procedureInPublicParticipationPhase';
+    final public const TEST_PROCEDURE_2 = 'testProcedure2';
 
     private $currentDate;
     private $existingExternalPhasesWrite;

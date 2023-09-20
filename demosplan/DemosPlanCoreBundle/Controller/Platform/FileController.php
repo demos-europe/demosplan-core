@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,12 +29,10 @@ class FileController extends BaseController
      * Serve file.
      *
      * @DplanPermissions("area_main_file")
-     * @Route(path="/file/{hash}",
-     *        name="core_file",
-     *        options={"expose": true})
      *
      * @return BinaryFileDownload|Response
      */
+    #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
     public function fileAction(FileService $fileService, string $hash)
     {
         try {
@@ -49,10 +47,8 @@ class FileController extends BaseController
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
      *
      * @DplanPermissions("area_main_file")
-     * @Route(path="/file/{procedureId}/{hash}",
-     *        name="core_file_procedure",
-     *        options={"expose": true})
      */
+    #[Route(path: '/file/{procedureId}/{hash}', name: 'core_file_procedure', options: ['expose' => true])]
     public function fileProcedureAction(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
@@ -120,12 +116,10 @@ class FileController extends BaseController
      * TODO: This should probably be renamed to `core_image`, `core_logo` is misleading
      *
      * @DplanPermissions("area_demosplan")
-     * @Route(path="/image/{hash}",
-     *        name="core_logo",
-     *        options={"expose": true})
      *
      * @param string $hash
      */
+    #[Route(path: '/image/{hash}', name: 'core_logo', options: ['expose' => true])]
     public function imageAction(Request $request, FileService $fileService, $hash): Response
     {
         // Für den Abruf der Bilder muss keine extra Session gestartet werden
@@ -153,7 +147,7 @@ class FileController extends BaseController
             }
 
             $response = new BinaryFileDownload($file->getAbsolutePath(), $file->getFileName());
-        } catch (Exception $e) {
+        } catch (Exception) {
             // gib ein Standardbild zurück
             $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '');
         }

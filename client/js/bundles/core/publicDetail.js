@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -12,18 +12,18 @@
  * See map-publicdetail.js for the entrypoint loaded when there is a Map
  */
 
-import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui'
+import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import { TableWrapper } from '@demos-europe/demosplan-utils'
 
 const components = {
   DpPublicDetailNoMap,
   DpUploadFiles,
   DpVideoPlayer,
-  DpRegisterFlyout
+  RegisterFlyout
 }
 
 const stores = {

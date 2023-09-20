@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,16 +21,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_address")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\AddressRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AddressRepository")
  */
-class Address extends CoreEntity implements UuidEntityInterface
+class Address extends CoreEntity implements UuidEntityInterface, AddressInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -38,40 +43,40 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_code", type="string", length=10, nullable=true)
-     * @Assert\Length(min=0, max=10)
      */
+    #[Assert\Length(min: 0, max: 10)]
     protected $code;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_street", type="string", length=100, nullable=true)
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $street;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_street_1", type="string", length=100, nullable=true)
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $street1;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_postalcode", type="string", length=10, nullable=true)
-     * @Assert\Length(min=5, max=5)
      */
+    #[Assert\Length(min: 5, max: 5)]
     protected $postalcode;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_city", type="string", length=100, nullable=true)
-     * @Assert\Length(min=1, max=100)
      */
+    #[Assert\Length(min: 1, max: 100)]
     protected $city = '';
 
     /**
@@ -113,22 +118,23 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_email", type="string", length=364, nullable=true)
-     * @Assert\Email(message="email.address.invalid")
      */
+    #[Assert\Email(message: 'email.address.invalid')]
     protected $email;
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="_a_url", type="string", length=364, nullable=true)
-     * @Assert\Url
      */
+    #[Assert\Url]
     protected $url;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_a_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
@@ -137,6 +143,7 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_a_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;

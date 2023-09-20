@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,26 +16,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 
 class ImportError
 {
-    /**
-     * @var int
-     */
-    private $lineNumber;
-
-    /**
-     * @var ConstraintViolation
-     */
-    private $violation;
-
-    /**
-     * @var string
-     */
-    private $worksheetTitle;
-
-    public function __construct(ConstraintViolation $violation, int $lineNumber, string $worksheetTitle = '')
+    public function __construct(private readonly ConstraintViolation $violation, private readonly int $lineNumber, private readonly string $worksheetTitle = '')
     {
-        $this->violation = $violation;
-        $this->lineNumber = $lineNumber;
-        $this->worksheetTitle = $worksheetTitle;
     }
 
     public function getLine(): int

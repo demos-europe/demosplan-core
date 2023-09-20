@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -36,9 +36,9 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         return $this->currentUser->hasAllPermissions('area_admin_assessmenttable', 'feature_statement_cluster');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     public function isDirectlyAccessible(): bool
@@ -55,9 +55,7 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
     {
         $properties = parent::getProperties();
         $properties[] = $this->createToManyRelationship($this->statements, true)
-            ->readable(true, static function (Statement $statement): Collection {
-                return $statement->getCluster();
-            });
+            ->readable(true, static fn(Statement $statement): Collection => $statement->getCluster());
         $properties[] = $this->createAttribute($this->authorName)
             ->readable(true)->filterable()->aliasedPath($this->meta->authorName);
         $properties[] = $this->createAttribute($this->submitName)

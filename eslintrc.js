@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -32,7 +32,6 @@ module.exports = {
   ],
   globals: {
     '$': true,
-    Bus: true,
     dpconfirm: true,
     dplan: true,
     hasPermission: true,

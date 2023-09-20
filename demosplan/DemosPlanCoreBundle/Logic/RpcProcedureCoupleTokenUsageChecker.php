@@ -5,25 +5,25 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-
-use function is_string;
-
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+
+use function is_string;
 
 /**
  * Checks if a token entity exists for a given token string and returns some token information.
@@ -66,29 +66,8 @@ use stdClass;
  */
 class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
 {
-    /**
-     * @var RpcErrorGenerator
-     */
-    private $errorGenerator;
-
-    /**
-     * @var ProcedureCoupleTokenRepository
-     */
-    private $procedureCoupleTokenRepository;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-
-    public function __construct(
-        CurrentUserInterface $currentUser,
-        ProcedureCoupleTokenRepository $procedureCoupleTokenRepository,
-        RpcErrorGenerator $rpcErrorGenerator
-    ) {
-        $this->procedureCoupleTokenRepository = $procedureCoupleTokenRepository;
-        $this->errorGenerator = $rpcErrorGenerator;
-        $this->currentUser = $currentUser;
+    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ProcedureCoupleTokenRepository $procedureCoupleTokenRepository, private readonly RpcErrorGenerator $errorGenerator)
+    {
     }
 
     public function supports(string $method): bool
@@ -96,7 +75,7 @@ class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
         return 'procedure.token.usage' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -123,9 +102,9 @@ class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
                     'targetProcedure' => $targetProcedure,
                 ];
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $resultData);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
             }
         }

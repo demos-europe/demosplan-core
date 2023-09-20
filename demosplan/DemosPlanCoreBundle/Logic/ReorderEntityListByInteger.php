@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,28 +21,16 @@ class ReorderEntityListByInteger
     /**
      * @var int
      */
-    private $newIndex;
-
-    /**
-     * @var Collection<int, SortableInterface>
-     */
-    private $allAffectedEntities;
-
-    /**
-     * @var int
-     */
     private $oldIndex;
 
     /**
      * @param Collection<int, SortableInterface> $allAffectedEntities
      */
     public function __construct(
-        int $newIndex,
+        private int $newIndex,
         string $entityId,
-        Collection $allAffectedEntities
+        private readonly Collection $allAffectedEntities
     ) {
-        $this->newIndex = $newIndex;
-        $this->allAffectedEntities = $allAffectedEntities;
         $this->oldIndex = $this->getMovedEntity($entityId)->getSortIndex();
     }
 
@@ -75,9 +63,7 @@ class ReorderEntityListByInteger
     private function getMovedEntity(string $entityId): SortableInterface
     {
         return $this->allAffectedEntities->filter(
-            static function (SortableInterface $entity) use ($entityId) {
-                return $entity->getId() === $entityId;
-            }
+            static fn(SortableInterface $entity) => $entity->getId() === $entityId
         )->first();
     }
 
@@ -148,12 +134,8 @@ class ReorderEntityListByInteger
         // resort them in order to get the lowest currently used index.
 
         $lowestIndex = collect($entities)
-            ->map(static function (SortableInterface $entity): int {
-                return $entity->getSortIndex();
-            })
-            ->sort(static function (int $indexA, int $indexB): int {
-                return $indexA - $indexB;
-            })
+            ->map(static fn(SortableInterface $entity): int => $entity->getSortIndex())
+            ->sort(static fn(int $indexA, int $indexB): int => $indexA - $indexB)
             ->first();
 
         $entitiesCount = $entities->count();

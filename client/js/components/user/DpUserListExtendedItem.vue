@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,16 +9,16 @@
 
 <template>
   <dp-table-card
-    class="layout__item c-card list-style-none u-1-of-1"
+    class="layout__item c-card u-1-of-1"
     :open="isOpen">
     <!-- card header -->
     <template
       v-slot:header="">
       <div
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
-        class="cursor--pointer"
+        class="cursor-pointer"
         @click="handleToggle">
-        <div class="width-20 u-pv-0_25 display--inline-block">
+        <div class="width-20 u-pv-0_25 inline-block">
           <input
             type="checkbox"
             :id="`selected` + user.id"
@@ -32,14 +32,14 @@
           {{ user.attributes.firstname }} {{ user.attributes.lastname }}
         </div><!--
      --><div
-          class="overflow-word-break layout__item u-1-of-4 u-pv-0_25">
+          class="break-words layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes.login }}
         </div><!--
      --><div
         class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
           {{ user.attributes.email }}
         </div><!--
-      --><div class="text--right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
+      --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
             <button
               type="button"
               title="Löschen"
@@ -95,9 +95,8 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, DpTableCard } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { DpTableCard } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpUserListExtendedItem',

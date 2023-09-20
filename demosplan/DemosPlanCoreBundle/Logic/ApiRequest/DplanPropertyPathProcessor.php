@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,17 +23,11 @@ use Psr\Log\LoggerInterface;
 
 class DplanPropertyPathProcessor extends PropertyPathProcessor
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private readonly AbstractProcessorConfig $processorConfig;
 
-    private AbstractProcessorConfig $processorConfig;
-
-    public function __construct(AbstractProcessorConfig $processorConfig, LoggerInterface $logger)
+    public function __construct(AbstractProcessorConfig $processorConfig, private readonly LoggerInterface $logger)
     {
         parent::__construct($processorConfig);
-        $this->logger = $logger;
         $this->processorConfig = $processorConfig;
     }
 

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <!-- second template is needed because we have two root-elements-->
-  <div class="display--inline-block">
+  <div class="inline-block">
     <!--if all items are claimed and at least one statement in this procedure is chosen, go to group edit or if claiming is not enabled in project -->
     <a
       class="o-link--default u-mr-0_5"

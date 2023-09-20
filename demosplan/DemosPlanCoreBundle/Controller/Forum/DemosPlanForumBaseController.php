@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Forum\ForumHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanForumBaseController extends BaseController
@@ -27,14 +27,8 @@ class DemosPlanForumBaseController extends BaseController
      */
     protected $forumHandler;
 
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserService $currentUser, ForumHandler $forumHandler, TranslatorInterface $translator)
+    public function __construct(private readonly CurrentUserService $currentUser, ForumHandler $forumHandler, TranslatorInterface $translator)
     {
-        $this->currentUser = $currentUser;
         $this->forumHandler = $forumHandler;
         $this->translator = $translator;
     }
@@ -58,11 +52,12 @@ class DemosPlanForumBaseController extends BaseController
      */
     protected function generateImagesAndDocuments($files)
     {
+        $result = [];
         $images = [];
         $documents = [];
 
         foreach ($files as $file) {
-            if (false != stripos($file, 'image')) {
+            if (false != stripos((string) $file, 'image')) {
                 $images[] = $file;
             } else {
                 $documents[] = $file;

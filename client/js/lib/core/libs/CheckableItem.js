@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -12,7 +12,7 @@ export default function CheckableItem () {
    *
    *  Markup Example [data-form-actions-check-all]:
    *
-   *  <label class="btn-icns display--inline" for="select_all">
+   *  <label class="btn-icns inline" for="select_all">
    *      <input id="select_all" type="checkbox" data-form-actions-check-all>
    *      {{ Translator.trans('markall') }}
    *  </label>

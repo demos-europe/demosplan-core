@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -34,14 +34,8 @@ class PasswordValidator
      */
     protected $passwordRequireNumbers;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(ValidatorInterface $validator, ParameterBagInterface $parameterBag)
+    public function __construct(private readonly ValidatorInterface $validator, ParameterBagInterface $parameterBag)
     {
-        $this->validator = $validator;
         $this->passwordMinLength = $parameterBag->get('password_min_length');
         $this->passwordRequireCaseDiff = $parameterBag->get('password_require_case_diff');
         $this->passwordRequireNumbers = $parameterBag->get('password_require_numbers');

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,7 +20,7 @@ class AiApiAuthenticator extends JWTTokenAuthenticator
     /**
      * Jwt payload may be given as URL query parameter "jwt".
      */
-    public const JWT_TOKEN_PARAMETER = 'jwt';
+    final public const JWT_TOKEN_PARAMETER = 'jwt';
 
     protected function getTokenExtractor(): TokenExtractorInterface
     {

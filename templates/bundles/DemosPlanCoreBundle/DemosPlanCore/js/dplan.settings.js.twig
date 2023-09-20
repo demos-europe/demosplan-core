@@ -17,11 +17,12 @@ window.dplan = {
     },
 
     paths                   : {
-        uploadPost          : "{{path('tus_upload') }}", {# global path for file uploader endpoint #}
+        uploadPost          : "{{url('tus_upload') }}", {# global path for file uploader endpoint #}
         urlPathPrefix       : "{{ urlPathPrefix|default('') }}"
     },
 
     permissions             :  JSON.parse("{{ exposedPermissions|default([])|json_encode }}"),
+    projectCoreVersion      : "{{ projectCoreVersion|default('') }}",
     projectName             : "{{ projectName|default('') }}",
     projectVersion          : "{{ projectVersion|default('') }}",
     loggedIn                : Boolean({{ loggedin|default(0) }}),

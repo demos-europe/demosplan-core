@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -50,6 +50,6 @@ class EntrypointRoute extends ValueObject
 
     public function redirectLeavesPlatform(): bool
     {
-        return $this->doRedirect && 0 === strpos($this->route, 'http');
+        return $this->doRedirect && str_starts_with($this->route, 'http');
     }
 }

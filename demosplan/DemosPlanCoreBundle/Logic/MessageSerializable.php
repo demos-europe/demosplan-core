@@ -3,37 +3,30 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Stringable;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use JsonSerializable;
 
 /**
  * ViewObject for Messages.
  */
-class MessageSerializable implements JsonSerializable, MessageSerializableInterface
+class MessageSerializable implements JsonSerializable, MessageSerializableInterface, Stringable
 {
-    protected $severity = '';
-    protected $text = '';
-    protected $textParameters = [];
-
     /**
      * @param string $severity
      * @param string $text
      * @param array  $textParameters
      */
-    public function __construct($severity, $text, $textParameters = [])
+    public function __construct(protected $severity, protected $text, protected $textParameters = [])
     {
-        $this->severity = $severity;
-        $this->text = $text;
-        $this->textParameters = $textParameters;
     }
-
     /**
      * @param string $severity
      * @param string $text           #TranslationKey
@@ -45,7 +38,6 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return new self($severity, $text, $textParameters);
     }
-
     /**
      * @return string
      */
@@ -53,7 +45,6 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->severity;
     }
-
     /**
      * @param string $severity
      *
@@ -65,7 +56,6 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
 
         return $this;
     }
-
     /**
      * @return string
      */
@@ -73,7 +63,6 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->text;
     }
-
     /**
      * @param string $text
      *
@@ -85,12 +74,10 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
 
         return $this;
     }
-
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->text;
+        return (string) $this->text;
     }
-
     /**
      * @return array
      */
@@ -98,7 +85,6 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->textParameters;
     }
-
     /**
      * @param array $textParameters
      */
@@ -106,11 +92,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         $this->textParameters = $textParameters;
     }
-
-    /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return ['message' => $this->text, 'severity' => $this->severity];
     }

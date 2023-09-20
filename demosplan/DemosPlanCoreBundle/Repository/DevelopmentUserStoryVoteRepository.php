@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 
-class DevelopmentUserStoryVoteRepository extends CoreRepository implements ArrayInterface
+class DevelopmentUserStoryVoteRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Get Entity by Id.
@@ -124,7 +124,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
      *
      * @return CoreEntity
      */
-    public function update($entityId, array $data)
+    public function update($entityId, array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -178,7 +178,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
      * @return void
      */
@@ -260,7 +260,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
             ->find($userStoryId);
 
         if (!is_null($story)) {
-            if (0 !== strcmp($story->getReleaseId(), $releaseId)) {
+            if (0 !== strcmp($story->getReleaseId(), (string) $releaseId)) {
                 $result = false;
             }
         } else {

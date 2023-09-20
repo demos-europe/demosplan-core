@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,22 +11,28 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_statement_version_fields", indexes={@ORM\Index(name="_st_id", columns={"_st_id"})})
+ *
  * @ORM\Entity
  */
-class StatementVersionField implements UuidEntityInterface
+class StatementVersionField implements UuidEntityInterface, StatementVersionFieldInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_sv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -79,14 +85,16 @@ class StatementVersionField implements UuidEntityInterface
      * @var DateTime
      *
      * @ORM\Column(name="_sv_created_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $created;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
+     * @var StatementInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="version")
+     *
      * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     protected $statement;
@@ -108,7 +116,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $userIdent
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setUserIdent($userIdent)
     {
@@ -132,7 +140,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $userName
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setUserName($userName)
     {
@@ -156,7 +164,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $sessionIdent
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setSessionIdent($sessionIdent)
     {
@@ -180,7 +188,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $name
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setName($name)
     {
@@ -204,7 +212,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $type
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setType($type)
     {
@@ -228,7 +236,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param string $value
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setValue($value)
     {
@@ -252,7 +260,7 @@ class StatementVersionField implements UuidEntityInterface
      *
      * @param DateTime $created
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
     public function setCreated($created)
     {
@@ -274,11 +282,11 @@ class StatementVersionField implements UuidEntityInterface
     /**
      * Set st.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
-     * @return StatementVersionField
+     * @return StatementVersionFieldInterface
      */
-    public function setStatement(Statement $statement = null)
+    public function setStatement(StatementInterface $statement = null)
     {
         $this->statement = $statement;
 
@@ -288,7 +296,7 @@ class StatementVersionField implements UuidEntityInterface
     /**
      * Get st.
      *
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -300,7 +308,7 @@ class StatementVersionField implements UuidEntityInterface
      */
     public function getStatementIdent()
     {
-        if ($this->getStatement() instanceof Statement) {
+        if ($this->getStatement() instanceof StatementInterface) {
             return $this->getStatement()->getId();
         }
 

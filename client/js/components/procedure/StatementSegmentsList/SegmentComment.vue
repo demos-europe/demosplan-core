@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -25,8 +25,7 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { CleanHtml, formatDate } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
 
 export default {

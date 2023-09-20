@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,9 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,24 +24,29 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_para_doc")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository")
  */
-class Paragraph extends CoreEntity implements UuidEntityInterface
+class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="_pd_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -49,17 +57,19 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $pId;
 
     /**
-     * @var Paragraph
+     * @var ParagraphInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_pd_parent_id", referencedColumnName="_pd_id", onDelete="SET NULL")
      */
     protected $parent;
 
     /**
-     * @var Paragraph[]
+     * @var ParagraphInterface[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
+     *
      * @ORM\OrderBy({"order" = "ASC"})
      */
     protected $children;
@@ -70,9 +80,10 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     protected $elementId;
 
     /**
-     * @var Elements
+     * @var ElementsInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/
     protected $element;
@@ -130,6 +141,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -138,6 +150,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -146,14 +159,16 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
 
     /**
-     * @var ParagraphVersion[]
+     * @var ParagraphVersionInterface[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", mappedBy="paragraph")
+     *
      * @ORM\JoinColumn(name="_pd_id", referencedColumnName="_pd_id")
      */
     protected $versions;
@@ -169,7 +184,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getParent(): ?Paragraph
+    public function getParent(): ?ParagraphInterface
     {
         return $this->parent;
     }
@@ -177,9 +192,9 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function setParent(?Paragraph $parent): self
+    public function setParent(?ParagraphInterface $parent): self
     {
-        if ($parent instanceof Paragraph) {
+        if ($parent instanceof ParagraphInterface) {
             $parent->addChild($this);
         }
         $this->parent = $parent;
@@ -188,7 +203,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Paragraph[]
+     * @return ParagraphInterface[]
      */
     public function getChildren(): array
     {
@@ -200,7 +215,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Paragraph[] $children
+     * @param ParagraphInterface[] $children
      *
      * @return $this
      */
@@ -214,7 +229,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function addChild(Paragraph $child): self
+    public function addChild(ParagraphInterface $child): self
     {
         if (!$this->children->contains($child)) {
             $this->children->add($child);
@@ -226,7 +241,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * @return $this
      */
-    public function removeChild(Paragraph $child): self
+    public function removeChild(ParagraphInterface $child): self
     {
         if ($this->children instanceof Collection && $this->children->contains($child)) {
             $this->children->removeElement($child);
@@ -238,7 +253,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * Set procedure.
      */
-    public function setProcedure(Procedure $procedure): self
+    public function setProcedure(ProcedureInterface $procedure): self
     {
         $this->procedure = $procedure;
         $this->pId = $procedure->getId();
@@ -249,7 +264,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     /**
      * Get procedure.
      */
-    public function getProcedure(): Procedure
+    public function getProcedure(): ProcedureInterface
     {
         return $this->procedure;
     }
@@ -261,7 +276,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      */
     public function getPId()
     {
-        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+        if (is_null($this->pId) && $this->procedure instanceof ProcedureInterface) {
             $this->pId = $this->procedure->getId();
         }
 
@@ -275,19 +290,19 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
      */
     public function getElementId()
     {
-        if (is_null($this->elementId) && $this->element instanceof Elements) {
+        if (is_null($this->elementId) && $this->element instanceof ElementsInterface) {
             $this->elementId = $this->element->getId();
         }
 
         return $this->elementId;
     }
 
-    public function getElement(): Elements
+    public function getElement(): ElementsInterface
     {
         return $this->element;
     }
 
-    public function setElement(Elements $element): void
+    public function setElement(ElementsInterface $element): void
     {
         $this->element = $element;
     }
@@ -473,7 +488,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int, ParagraphVersion>
+     * @return Collection<int, ParagraphVersionInterface>
      */
     public function getVersions(): Collection
     {

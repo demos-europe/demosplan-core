@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,21 +16,15 @@ use Twig\TwigFilter;
 
 class DatasheetNumberFormatExtension extends ExtensionBase
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(ContainerInterface $container, Environment $twig)
+    public function __construct(ContainerInterface $container, private readonly Environment $twig)
     {
         parent::__construct($container);
-        $this->twig = $twig;
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('datasheet_number_format', [&$this, 'numberFormatFilter']),
+            new TwigFilter('datasheet_number_format', $this->numberFormatFilter(...)),
         ];
     }
 
