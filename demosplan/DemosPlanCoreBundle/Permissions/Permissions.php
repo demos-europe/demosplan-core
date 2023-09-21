@@ -507,19 +507,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             ]);
         }
 
-        // Sonderfälle, wenn Öffentlichkeitsbeteiligung aktiviert ist
-        if ($this->permissions['area_public_participation']->isEnabled()) {
-            // Alle User dürfen die Liste öffentlicher Stellungnahmen ansehen, wenn Öffentlichkeitsbeteiligung aktiviert
-            $this->permissions['area_statements_public_published_public']->enable(); // Stellungnahmen anderer Bürger Bürgerebene
-
-            // Alle Bürger und Gäste dürfen Stellungnahmen abgeben, wenn Öffentlichkeitsbeteiligung aktiviert
-            if ($this->user->isPublicUser()) {
-                // feature_new_statement depends on procedurephase
-                $this->permissions['feature_new_statement']->setLoginRequired(false);
-                $this->permissions['area_statements_public_published']->enable(); // Stellungnahmen anderer Bürger*innen Institutions-Ebene
-            }
-        }
-
         if ($this->user->hasRole(Role::API_AI_COMMUNICATOR)) {
             // disable all permissions
             $this->permissions = \array_map(
