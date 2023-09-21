@@ -53,7 +53,7 @@ class SubdomainHandler implements SubdomainHandlerInterface
 
             return $urlSubdomain;
         } catch (\Exception $e) {
-            $this->logger->warning('Customer not found', [$e->getMessage()]);
+            $this->logger->info('Customer not found, using default customer', [$e->getMessage()]);
         }
 
         return $this->getGlobalConfig()->getSubdomain();
