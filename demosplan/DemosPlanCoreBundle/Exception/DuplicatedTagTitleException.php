@@ -19,7 +19,7 @@ class DuplicatedTagTitleException extends Exception
                                 protected readonly TagTopic $topic,
                                 protected readonly string $tagTitle,
     ) {
-        parent::__construct($message, 0, null);
+        parent::__construct($message);
     }
 
     /**
