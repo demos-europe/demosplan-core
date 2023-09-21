@@ -1704,7 +1704,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *                            the given topicId.
      *
      * @throws DuplicatedTagTitleException
-     * @throws Exception
+     * @throws BadRequestException|TagTopicNotFoundException
      */
     public function createTagFromTopicId(string $topicId, string $tagstring, string $procedureId): Tag
     {
