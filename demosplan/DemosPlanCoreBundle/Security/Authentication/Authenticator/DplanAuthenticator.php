@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
+use demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway;
 use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Exception;
@@ -162,10 +163,10 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $firewallName): Response
     {
         // verification pages need to be loaded before logging user in
-        if (null !== $this->verificationRoute) {
+        if ($this->userMapper instanceof UserMapperDataportGateway && null !== $this->userMapper->getVerificationRoute()) {
             $this->logger->info('User Orga/Department needs to be verified');
 
-            return new RedirectResponse($this->urlGenerator->generate($this->verificationRoute));
+            return new RedirectResponse($this->urlGenerator->generate($this->userMapper->getVerificationRoute()));
         }
 
         /** @var User $user */
