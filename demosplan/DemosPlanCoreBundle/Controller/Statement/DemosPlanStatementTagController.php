@@ -185,7 +185,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 } catch (DuplicatedTagTitleException $e) {
                     $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicName' => $e->getTopic()->getTitle()]);
                 } catch (TagTopicNotFoundException $e) {
-                    $this->getMessageBag()->add('error','error.topic.notfound');
+                    $this->getMessageBag()->add('error', 'error.topic.notfound');
                     $this->logger->error('error.topic.notfound', [$e]);
                 } catch (Exception $e) {
                     $this->getMessageBag()->add('error', 'error.tag.add');
