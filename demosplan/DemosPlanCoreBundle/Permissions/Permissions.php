@@ -422,7 +422,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::PLATFORM_SUPPORT)) {         // Verfahrenssupport GTSUPP Verfahrenssupport
             $this->enablePermissions([
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
-                'area_admin_gislayer_global_edit',  // Globale Gis Layer bearbeiten
                 'area_manage_orgadata',  // Abteilungenverwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations',
