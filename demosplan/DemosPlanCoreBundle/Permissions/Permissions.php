@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
@@ -1047,7 +1046,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
-
             $this->setProcedurePermissions();
 
             $readPermission = $this->hasPermissionsetRead();
