@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
@@ -1053,7 +1054,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if (null !== $this->procedure) {
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
-            $hasPermissionToEnter = $readPermission || $owns;
+            $isAuthenticatedAiUser = $this->user->hasRole(RoleInterface::API_AI_COMMUNICATOR);
+            $hasPermissionToEnter = $readPermission || $owns || $isAuthenticatedAiUser;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different
