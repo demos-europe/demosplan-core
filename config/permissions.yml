@@ -1287,6 +1287,10 @@ feature_platform_public_index_map_settings:
     loginRequired: true
     expose: true
     parent: area_customer_settings
+feature_procedure_api_access:
+    description: 'Enables access to the API for procedures even in hidden procedure phases.'
+    label: 'Enables access to the API for procedures even in hidden procedure phases'
+    loginRequired: true
 feature_procedure_agency_email_addresses:
     description:  |-
         Note that this permission is not consistently used. Twig template overriding may be used instead to adjust
