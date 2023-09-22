@@ -12,4 +12,8 @@ use demosplan\DemosPlanCoreBundle\Application\FrontController;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
+// set user and group for generated cache and log files to current user
+posix_setuid(1001);
+posix_setgid(1001);
+
 FrontController::bootstrap();
