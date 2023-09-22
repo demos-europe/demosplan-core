@@ -17,9 +17,7 @@ require dirname(__DIR__, 2).'/vendor/autoload.php';
 $userId = 1001;
 $tmpDir = DemosPlanPath::getTemporaryPath('dplan');
 if (!mkdir($tmpDir) && !is_dir($tmpDir)) {
-    throw new \RuntimeException(
-        sprintf('Directory "%s" was not created', $tmpDir)
-    );
+    throw new \RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));
 }
 chown($tmpDir, $userId);
 posix_setuid($userId);
