@@ -1047,10 +1047,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
+
+            $this->setProcedurePermissions();
+
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
-            $isAuthenticatedAiUser = $this->user->hasRole(RoleInterface::API_AI_COMMUNICATOR);
-            $hasPermissionToEnter = $readPermission || $owns || $isAuthenticatedAiUser;
+            $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different
@@ -1059,8 +1062,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
                 throw new AccessDeniedException('Sie haben nicht die nötigen Rechte, um diese Seite aufzurufen.');
             }
-            // Update die Verfahrensberechtigungen
-            $this->setProcedurePermissions();
         }
     }
 
