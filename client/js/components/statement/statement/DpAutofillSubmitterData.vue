@@ -512,11 +512,11 @@ export default {
     //  Display an option for select
     renderOptionWithMarkup ({ organisation, department, name, postalCode, city }, role) {
       if (role === '0') {
-        return `<strong>${organisation}</strong><br><ul class="list-style-none u-mb-0"><li>${name}</li><li>${postalCode} ${city}</li></ul>`
+        return `<strong>${organisation}</strong><br><ul><li>${name}</li><li>${postalCode} ${city}</li></ul>`
       }
 
       if (role === '1') {
-        return `<strong>${organisation}</strong><br><ul class="list-style-none u-mb-0"><li>${department}</li><li>${name}</li></ul>`
+        return `<strong>${organisation}</strong><br><ul><li>${department}</li><li>${name}</li></ul>`
       }
     },
 

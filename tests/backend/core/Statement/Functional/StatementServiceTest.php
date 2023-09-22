@@ -168,7 +168,7 @@ class StatementServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIElasticsearchUnavailable();
 
-        $filters = ['publicVerified' => true];
+        $filters = ['publicVerified' =>  Statement::PUBLICATION_APPROVED];
         $sort = null;
         $search = null;
         $procedure = $this->getProcedureReference('testProcedure');

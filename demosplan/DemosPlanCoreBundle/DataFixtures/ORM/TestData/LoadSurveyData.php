@@ -17,6 +17,9 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadSurveyData extends TestFixture implements DependentFixtureInterface
 {
     final public const PARK_SURVEY = 'parkSurvey';

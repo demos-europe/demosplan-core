@@ -97,6 +97,11 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
     //  component container
     .c-map {
+        $z-map:           1000;
+        $z-map-popups:    1010;
+        $z-map-toolbar:   1020;
+        $z-map-hint:      1030;
+        $z-map-progress:  1040;
 
         width: 100%;
 

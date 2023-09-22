@@ -9,12 +9,13 @@
 
 //  object: o-modal
 
-//  local vars
-$modal-bg-color: rgb(0 0 0 / 60%);
-$modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
-
 //  object container for modal
 .o-modal {
+    $modal-bg-color: rgb(0 0 0 / 60%);
+    $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
+    $modal-z-content: $dp-z-modal;
+    $modal-z-backdrop: $dp-z-modal - 1;
+
     &__content,
     &__backdrop {
         position: fixed;
@@ -25,7 +26,7 @@ $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
     }
 
     &__content {
-        z-index: $z-modal-window;
+        z-index: $modal-z-content;
         margin: auto;
         width: $dp-page-width - $inuit-base-spacing-unit--huge;
         height: fit-content;
@@ -42,7 +43,7 @@ $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
     }
 
     &__backdrop {
-        z-index: $z-modal-overlay;
+        z-index: $modal-z-backdrop;
         content: '';
 
         background-color: $modal-bg-color;
@@ -82,5 +83,15 @@ $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
         padding: 0 $inuit-base-spacing-unit $inuit-base-spacing-unit;
         margin: $inuit-base-spacing-unit 0 0;
         height: auto;
+    }
+
+    // Can be removed in favor of implementing an `inverted` prop in DpBadge
+    &.recommendation-modal {
+        li:hover {
+            background-color: $dp-color-background-light;
+            .badge {
+                background-color: $dp-color-main;
+            }
+        }
     }
 }

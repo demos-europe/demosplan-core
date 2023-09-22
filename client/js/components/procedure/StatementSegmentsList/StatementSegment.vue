@@ -114,12 +114,46 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               @insert="text => modalProps.handleInsertText(text)" />
-            <dp-recommendation-modal
-              v-if="segment.hasRelationship('tags')"
+            <dp-modal
               ref="recommendationModal"
-              :procedure-id="procedureId"
-              :segment-id="segment.id"
-              @insert-recommendation="text => modalProps.appendText(text)" />
+              class="recommendation-modal"
+              content-classes="u-2-of-3">
+              <div class="flex width-100p">
+                <h3 class="u-mb">
+                  {{ Translator.trans('segment.recommendation.insert.similar') }}
+                </h3>
+                <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
+                  class="u-ml-0_25"
+                  icon="ai"
+                  size="large"
+                  :text="Translator.trans('segment.oracle.tooltip')" />
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
+                  class="absolute u-right-0 u-mr"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')" />
+              </div>
+              <dp-tabs
+                v-if="allComponentsLoaded"
+                :active-id="activeId"
+                @change="(id) => setActiveTabId(id)">
+                <dp-tab
+                  v-for="(component, idx) in asyncComponents"
+                  :key="idx"
+                  :id="component.options.id"
+                  :label="Translator.trans(component.options.title)">
+                  <slot>
+                    <component
+                      :procedure-id="addonProps.procedureId"
+                      :segment-id="addonProps.segmentId"
+                      class="u-mt"
+                      :is="component.name"
+                      @recommendation:insert="toggleRecommendationModal" />
+                  </slot>
+                </dp-tab>
+              </dp-tabs>
+            </dp-modal>
           </template>
           <template v-slot:button>
             <button
@@ -130,11 +164,11 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="segment.hasRelationship('tags')"
+              v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              @click.stop="openRecommendationModal">
+              @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -207,6 +241,7 @@
           }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
@@ -237,7 +272,9 @@
           }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
-          <dp-icon icon="history" />
+          <dp-icon
+            class="inline-block"
+            icon="history" />
         </button>
 
         <button
@@ -287,18 +324,24 @@ import {
   checkResponse,
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpIcon,
   DpLabel,
+  DpModal,
   DpMultiselect,
+  DpTab,
+  DpTabs,
   prefixClassMixin,
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'StatementSegment',
@@ -306,18 +349,23 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    AddonWrapper,
+    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpClaim,
     DpIcon,
     DpLabel,
+    DpModal,
     DpMultiselect,
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
-    DpRecommendationModal,
+    DpTab,
+    DpTabs,
     VPopover
   },
 
@@ -364,6 +412,13 @@ export default {
 
   data () {
     return {
+      activeId: '',
+      addonProps: {
+        segmentId: this.segment.id,
+        procedureId: this.procedureId
+      },
+      allComponentsLoaded: false,
+      asyncComponents: [],
       showWorkflowActions: false,
       selectedAssignee: {},
       claimLoading: false,
@@ -372,6 +427,7 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      refRecModal: 'recommendationModal',
       selectedPlace: { id: '', type: 'Place' }
     }
   },
@@ -395,6 +451,7 @@ export default {
         name: Translator.trans('not.assigned'),
         id: 'noAssigneeId'
       })
+
       return assigneeOptions
     },
 
@@ -406,6 +463,7 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
+
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -435,6 +493,7 @@ export default {
       if (this.segment.hasRelationship('tags')) {
         return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
       }
+
       return '-'
     },
 
@@ -547,8 +606,8 @@ export default {
       this.$refs.boilerPlateModal.toggleModal()
     },
 
-    openRecommendationModal () {
-      this.$refs.recommendationModal.toggleModal('open')
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
     },
 
     /**
@@ -599,6 +658,10 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    setActiveTabId (id) {
+      this.activeId = id
     },
 
     showComments () {
@@ -682,6 +745,7 @@ export default {
           }
         }
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
@@ -773,6 +837,16 @@ export default {
         if (this.segment.relationships?.assignee?.data?.id) {
           this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
         }
+      })
+
+    loadAddonComponents('segment.recommendationModal.tab')
+      .then(response => {
+        this.asyncComponents = response
+        this.allComponentsLoaded = true
+
+        response.forEach(component => {
+          this.$options.components[component.name] = window[component.name].default
+        })
       })
   }
 }

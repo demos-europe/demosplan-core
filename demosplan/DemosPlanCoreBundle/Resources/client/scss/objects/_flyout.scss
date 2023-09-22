@@ -15,10 +15,15 @@
     position: relative;
 
     &__trigger {
+        border-radius: $dp-button-radius;
+
         &:hover,
         .o-flyout.is-expanded & {
-            background-color: $dp-color-neutral-light-2;
-            border-radius: $dp-button-radius;
+            background-color: $dp-color-interactive-subtle-hover;
+        }
+
+        &:active {
+            background-color: $dp-color-interactive-subtle-active;
         }
     }
 
@@ -38,7 +43,7 @@
         display: none;
         position: absolute;
         background-color: $dp-color-white;
-        z-index: $z-flyout;
+        z-index: $dp-z-flyout;
         text-align: left;
 
         > * {

@@ -531,10 +531,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $subdomain;
     /** @var array<string,string> */
     protected $subdomainMap;
-    /**
-     * @var array<int,string>
-     */
-    protected $subdomainsAllowed;
     // End bauleitplanung-online
 
     /** @var array */
@@ -812,7 +808,6 @@ class GlobalConfig implements GlobalConfigInterface
             $this->setSubdomain($parameterBag->get('subdomain'));
         }
         $this->subdomainMap = $parameterBag->get('subdomain_map');
-        $this->subdomainsAllowed = $parameterBag->get('subdomains_allowed');
 
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
@@ -1678,11 +1673,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function setSubdomain(string $subdomain): void
     {
         $this->subdomain = $subdomain;
-    }
-
-    public function getSubdomainsAllowed(): array
-    {
-        return $this->subdomainsAllowed;
     }
 
     /**

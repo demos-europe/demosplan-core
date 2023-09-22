@@ -9,7 +9,7 @@
 
 <template>
   <dp-table-card
-    class="layout__item c-card list-style-none u-1-of-1"
+    class="layout__item c-card u-1-of-1"
     :open="isOpen">
     <!-- card header -->
     <template

@@ -345,7 +345,7 @@ export default {
         isAllowed = false
       }
 
-      if (this.selectionContainsUnclaimedFragments && hasPermission('area_statements_fragment')) {
+      if (hasPermission('area_statements_fragment') && this.selectionContainsUnclaimedFragments) {
         this.triggerWarning('warning.edit.selection.fragments.not.claimed')
         isAllowed = false
       }

@@ -67,7 +67,7 @@
 
                 {# Content of category.
                    This may be one file/video for categories of type 'paragraph' or many files/videos for categories of type 'file'. #}
-                <ul class="{{ 'elements__content list-style-none hide-empty u-mb-0'|prefixClass }}">
+                <ul class="{{ 'elements__content hide-empty'|prefixClass }}">
                     {%- apply spaceless %}
 
                         {% if element.category == 'paragraph' %}

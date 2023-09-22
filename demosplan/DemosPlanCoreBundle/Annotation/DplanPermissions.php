@@ -28,6 +28,8 @@ use function is_string;
  *
  *  @Attribute("permissions", type="mixed")
  * )
+ *
+ * @deprecated use {@link \demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions} instead
  */
 class DplanPermissions
 {
