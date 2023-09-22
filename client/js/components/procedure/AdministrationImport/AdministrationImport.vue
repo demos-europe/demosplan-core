@@ -8,33 +8,35 @@
 </license>
 
 <template>
-  <dp-tabs
-    v-if="allComponentsLoaded"
-    :active-id="activeTabId"
-    use-url-fragment
-    @change="setActiveTabId">
-    <dp-tab
-      v-for="(option, index) in availableImportOptions"
-      :key="index"
-      :id="option.name"
-      :label="Translator.trans(option.title)">
-      <slot>
-        <keep-alive>
-          <component
-            class="u-mt"
-            :is="option.name" />
-        </keep-alive>
-      </slot>
-    </dp-tab>
-  </dp-tabs>
+  <div v-if="availableImportOptions.length > 0">
+    <dp-tabs
+      v-if="allComponentsLoaded"
+      :active-id="activeTabId"
+      use-url-fragment
+      @change="setActiveTabId">
+      <dp-tab
+        v-for="(option, index) in availableImportOptions"
+        :key="index"
+        :id="option.name"
+        :label="Translator.trans(option.title)">
+        <slot>
+          <keep-alive>
+            <component
+              class="u-mt"
+              :is="option.name" />
+          </keep-alive>
+        </slot>
+      </dp-tab>
+    </dp-tabs>
 
-  <dp-loading
-    v-else
-    class="u-mv" />
+    <dp-loading
+      v-else
+      class="u-mv" />
+  </div>
 </template>
 
 <script>
-import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'

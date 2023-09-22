@@ -228,6 +228,14 @@
                                 </dp-email-list>
                             </div>
 
+                            <div class="u-mb">
+                                {% set addonProps = { 'procedureId': templateVars.proceduresettings.id } %}
+                                <addon-wrapper
+                                    hook-name="adminstration.edit.extra_fields"
+                                    :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
+                                </addon-wrapper>
+                            </div>
+
                             {% if hasPermission('feature_use_data_input_orga') %}
                                 <div class="u-mb">
                                     <label class="inline-block u-mb-0" for="r_dataInputOrga">
