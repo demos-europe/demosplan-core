@@ -14,6 +14,9 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadContextualHelpData extends TestFixture
 {
     public function load(ObjectManager $manager): void

@@ -740,13 +740,11 @@ class DemosPlanDocumentController extends BaseController
      *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
-     * @param string $procedure
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedure}/verwalten/planunterlagen/import')]
+    #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedureId}/verwalten/planunterlagen/import')]
     public function elementAdminImportAction(
         CurrentUserInterface $currentUser,
         Request $request,

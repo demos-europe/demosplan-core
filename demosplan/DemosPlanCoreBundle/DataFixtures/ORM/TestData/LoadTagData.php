@@ -16,6 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadTagData extends TestFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void

@@ -59,9 +59,9 @@ final class GisLayerCategoryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_map_participation_area');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     protected function getProperties(): array

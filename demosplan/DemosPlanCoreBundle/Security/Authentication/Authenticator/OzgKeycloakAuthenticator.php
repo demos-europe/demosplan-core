@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,8 +32,14 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    public function __construct(private readonly ClientRegistry $clientRegistry, private readonly EntityManagerInterface $entityManager, private readonly KeycloakUserDataInterface $keycloakUserData, private readonly LoggerInterface $logger, private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper, private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly ClientRegistry $clientRegistry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly KeycloakUserDataInterface $keycloakUserData,
+        private readonly LoggerInterface $logger,
+        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface $router
+    ) {
     }
 
     public function supports(Request $request): ?bool
@@ -63,7 +68,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->info('doctrine transaction commit.');
                     $request->getSession()->set('userId', $user->getId());
 
-                    return new SecurityUser($user);
+                    return $user;
                 } catch (Exception $e) {
                     $this->entityManager->getConnection()->rollBack();
                     $this->logger->info('doctrine transaction rollback.');

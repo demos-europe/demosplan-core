@@ -52,9 +52,9 @@ final class StatementFragmentsElementsResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
     }
 
     protected function getProperties(): array

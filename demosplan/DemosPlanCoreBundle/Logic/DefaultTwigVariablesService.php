@@ -164,6 +164,7 @@ class DefaultTwigVariablesService
             'piwik'                            => $this->loadPiwikVariables(),
             'procedureObject'                  => $this->currentProcedureService->getProcedure(),
             'proceduresettings'                => $this->currentProcedureService->getProcedureArray(),
+            'projectCoreVersion'               => $this->globalConfig->getProjectCoreVersion(),
             'projectFolder'                    => $this->globalConfig->getProjectFolder(),
             'projectName'                      => $this->globalConfig->getProjectName(),
             'projects'                         => $projects,

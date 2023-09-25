@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -77,7 +77,7 @@ class ExportReportService extends CoreService
      */
     public function generateProcedureReport(array $reportInfo, array $reportMeta, string $format = 'PDF')
     {
-        $phpWord = new PhpWord();
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection();
 
         $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');

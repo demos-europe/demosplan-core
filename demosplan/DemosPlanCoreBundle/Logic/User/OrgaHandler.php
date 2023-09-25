@@ -159,7 +159,6 @@ class OrgaHandler extends CoreHandler
             'ccEmail2',
             'copySpec',
             'cssvars',
-            'email2',
             'emailNotificationEndingPhase',
             'emailNotificationNewStatement',
             'participationEmail',
@@ -168,6 +167,10 @@ class OrgaHandler extends CoreHandler
             'showlistChangeReason',
             'showname',
         ];
+
+        if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
+            $writableAttributes[] = 'email2';
+        }
 
         if ($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
             $writableAttributes[] = 'copy';

@@ -47,12 +47,12 @@ final class AssignableUserResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_json_api_user');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             // you need a procedure to know who can be an assignee
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $authorizedUsers = $this->procedureService->getAuthorizedUsers($currentProcedure->getId());
@@ -63,10 +63,10 @@ final class AssignableUserResourceType extends DplanResourceType
         }
         if (0 < count($authorizedUsers)) {
             // only return users that are on the list of authorized users
-            return $this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id);
+            return [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];
         }
 
-        return $this->conditionFactory->false();
+        return [$this->conditionFactory->false()];
     }
 
     public function isReferencable(): bool

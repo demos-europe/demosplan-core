@@ -13,13 +13,15 @@
 
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
   AddonWrapper,
   ElementsAdminList,
-  DpMapSettingsPreview
+  DpMapSettingsPreview,
+  DpUploadFiles
 }
 
 const apiStores = ['elements']

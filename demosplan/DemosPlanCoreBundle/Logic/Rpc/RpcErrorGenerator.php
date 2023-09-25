@@ -16,27 +16,6 @@ use stdClass;
 
 class RpcErrorGenerator implements RpcErrorGeneratorInterface
 {
-    final public const ACCESS_DENIED_CODE = -32768;
-    final public const ACCESS_DENIED_MESSAGE = 'Access denied';
-
-    final public const INTERNAL_ERROR_CODE = -32603;
-    final public const INTERNAL_ERROR_MESSAGE = 'Internal error';
-
-    final public const INVALID_PARAMS_CODE = -32602;
-    final public const INVALID_PARAMS_MESSAGE = 'Invalid params';
-
-    final public const INVALID_REQUEST_CODE = -32600;
-    final public const INVALID_REQUEST_MESSAGE = 'Invalid Request';
-
-    final public const METHOD_NOT_FOUND_CODE = -32601;
-    final public const METHOD_NOT_FOUND_MESSAGE = 'Method not found';
-
-    final public const PARSE_ERROR_CODE = -32700;
-    final public const PARSE_ERROR_MESSAGE = 'Parse error';
-
-    final public const SERVER_ERROR_CODE = -32000;
-    final public const SERVER_ERROR_MESSAGE = 'Server error';
-
     /**
      * @var array
      *
@@ -49,49 +28,49 @@ class RpcErrorGenerator implements RpcErrorGeneratorInterface
     public function __construct(private readonly LoggerInterface $logger)
     {
         $this->errorMessages = [
-            self::ACCESS_DENIED_CODE    => self::ACCESS_DENIED_MESSAGE,
-            self::INTERNAL_ERROR_CODE   => self::INTERNAL_ERROR_MESSAGE,
-            self::INVALID_PARAMS_CODE   => self::INVALID_PARAMS_MESSAGE,
-            self::INVALID_REQUEST_CODE  => self::INVALID_REQUEST_MESSAGE,
-            self::METHOD_NOT_FOUND_CODE => self::METHOD_NOT_FOUND_MESSAGE,
-            self::PARSE_ERROR_CODE      => self::PARSE_ERROR_MESSAGE,
-            self::SERVER_ERROR_CODE     => self::SERVER_ERROR_MESSAGE,
+            RpcErrorGeneratorInterface::ACCESS_DENIED_CODE    => RpcErrorGeneratorInterface::ACCESS_DENIED_MESSAGE,
+            RpcErrorGeneratorInterface::INTERNAL_ERROR_CODE   => RpcErrorGeneratorInterface::INTERNAL_ERROR_MESSAGE,
+            RpcErrorGeneratorInterface::INVALID_PARAMS_CODE   => RpcErrorGeneratorInterface::INVALID_PARAMS_MESSAGE,
+            RpcErrorGeneratorInterface::INVALID_REQUEST_CODE  => RpcErrorGeneratorInterface::INVALID_REQUEST_MESSAGE,
+            RpcErrorGeneratorInterface::METHOD_NOT_FOUND_CODE => RpcErrorGeneratorInterface::METHOD_NOT_FOUND_MESSAGE,
+            RpcErrorGeneratorInterface::PARSE_ERROR_CODE      => RpcErrorGeneratorInterface::PARSE_ERROR_MESSAGE,
+            RpcErrorGeneratorInterface::SERVER_ERROR_CODE     => RpcErrorGeneratorInterface::SERVER_ERROR_MESSAGE,
         ];
     }
 
     public function parseError(?object $rpcRequest = null): object
     {
-        return $this->generate(self::PARSE_ERROR_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::PARSE_ERROR_CODE, $rpcRequest);
     }
 
     public function invalidRequest(?object $rpcRequest = null): object
     {
-        return $this->generate(self::INVALID_REQUEST_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::INVALID_REQUEST_CODE, $rpcRequest);
     }
 
     public function methodNotFound(?object $rpcRequest = null): object
     {
-        return $this->generate(self::METHOD_NOT_FOUND_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::METHOD_NOT_FOUND_CODE, $rpcRequest);
     }
 
     public function invalidParams(?object $rpcRequest = null): object
     {
-        return $this->generate(self::INVALID_PARAMS_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::INVALID_PARAMS_CODE, $rpcRequest);
     }
 
     public function internalError(?object $rpcRequest = null): object
     {
-        return $this->generate(self::INTERNAL_ERROR_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::INTERNAL_ERROR_CODE, $rpcRequest);
     }
 
     public function serverError(?object $rpcRequest = null): object
     {
-        return $this->generate(self::SERVER_ERROR_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::SERVER_ERROR_CODE, $rpcRequest);
     }
 
     public function accessDenied(?object $rpcRequest = null): object
     {
-        return $this->generate(self::ACCESS_DENIED_CODE, $rpcRequest);
+        return $this->generate(RpcErrorGeneratorInterface::ACCESS_DENIED_CODE, $rpcRequest);
     }
 
     /**
@@ -100,7 +79,7 @@ class RpcErrorGenerator implements RpcErrorGeneratorInterface
     public function generate(int $errorCode, $rpcRequest = null): object
     {
         if (!array_key_exists($errorCode, $this->errorMessages)) {
-            $error = ['code' => -32000, 'message' => self::SERVER_ERROR_MESSAGE];
+            $error = ['code' => -32000, 'message' => RpcErrorGeneratorInterface::SERVER_ERROR_MESSAGE];
         } else {
             $error = [
                 'code'    => $errorCode,

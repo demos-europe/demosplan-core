@@ -59,7 +59,6 @@
             :custom-label="nameFromAttributes"
             :options="userFilterSets"
             track-by="id">
-
             <template v-slot:option="{ props }">
               <a
                 class="multiselect__option-extention"
@@ -69,7 +68,7 @@
                   class="fa fa-trash"
                   aria-hidden="true" />
               </a>
-              {{ hasOwnProp(option, 'attributes') ? props.option.attributes.name : '' }}
+              {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
             </template>
             <template v-slot:singleLabel="{ props }">
               {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
@@ -188,7 +187,7 @@
         </div>
 
         <!-- Button row -->
-        <div class="text--right...
+        <div class="text-right space-inline-s">
           <button
             class="btn btn--primary"
             :class="{'pointer-events-none': disabledInteractions}"

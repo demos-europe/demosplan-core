@@ -162,7 +162,7 @@
         & .button_submenu {
             position: absolute;
             display: inline-block;
-            z-index: $z-super;
+            z-index: $dp-z-flyout;
             min-width: 200px;
             border: 2px solid $dp-color-neutral-light-3;
             border-radius: 3px;
@@ -250,9 +250,16 @@
                 font-weight: bold;
             }
 
-            ul,
-            ol {
+            ul, ol {
                 padding-left: 1rem;
+            }
+
+            ul {
+                list-style: disc;
+            }
+
+            ol {
+                list-style: decimal;
             }
 
             li > p,
@@ -389,7 +396,7 @@
         position: fixed;
         left: 0;
         top: 0;
-        z-index: $z-fixed;
+        z-index: $dp-z-fixed;
 
         height: 100%;
         width: 100%;
@@ -412,7 +419,7 @@
         white-space: nowrap;
         overflow: hidden;
         padding: 0;
-        box-shadow: $dp-box-shadow-1;
+        box-shadow: $dp-box-shadow;
     }
 
     &__list-item {
@@ -437,6 +444,16 @@
         border-radius: 3px;
         padding: .15rem .5rem !important;
         color: $dp-color-neutral-dark-1 !important;
+    }
+}
+
+.ProseMirror {
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
     }
 }
 

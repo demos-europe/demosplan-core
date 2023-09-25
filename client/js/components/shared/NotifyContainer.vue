@@ -48,7 +48,7 @@ export default {
 
   data () {
     return {
-      isVisible: false
+      isVisible: true
     }
   },
 
@@ -60,7 +60,7 @@ export default {
     },
 
     messageRole () {
-      return (this.isVisible) ? 'message' : 'none'
+      return (this.isVisible) ? 'status' : 'none'
     }
   },
 

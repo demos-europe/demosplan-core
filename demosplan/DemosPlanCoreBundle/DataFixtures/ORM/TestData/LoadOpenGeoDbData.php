@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use demosplan\DemosPlanCoreBundle\Entity\OpenGeoDbShortTable;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadOpenGeoDbData extends TestFixture
 {
     public function load(ObjectManager $manager): void

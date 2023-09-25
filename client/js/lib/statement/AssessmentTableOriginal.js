@@ -87,6 +87,12 @@ export default function AssessmentTableOriginal () {
 
   // Scroll to Element
   if (window.location.hash) {
-    scrollTo(window.location.hash, { offset: -180 })
+    let hash = window.location.hash
+    const hasQuestionMark = window.location.hash.includes('?')
+
+    if (hasQuestionMark) {
+      hash = hash.split('?')[0]
+    }
+    scrollTo(hash, { offset: -180 })
   }
 }
