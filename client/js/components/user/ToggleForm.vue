@@ -1,0 +1,62 @@
+<template>
+  <dp-accordion
+    ref="accordion"
+    :title="title">
+    <!-- this is where the form fields go -->
+    <slot />
+
+    <slot name="buttons">
+      <dp-button-row
+        primary
+        secondary
+        @primary-action="dpValidateAction(formId, save, false)"
+        @secondary-action="abort" />
+    </slot>
+  </dp-accordion>
+</template>
+
+<script>
+import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
+
+export default {
+  name: 'ToggleForm',
+
+  components: {
+    DpAccordion,
+    DpButtonRow
+  },
+
+  mixins: [dpValidateMixin],
+
+  props: {
+    formId: {
+      type: String,
+      default: ''
+    },
+
+    title: {
+      type: String,
+      default: ''
+    }
+  },
+
+  methods: {
+    abort () {
+      if (this.formId !== '') {
+        document.querySelector(`form#${this.formId}`).reset()
+      } else {
+        this.$emit('form-abort')
+      }
+      this.$refs.accordion.toggle()
+    },
+
+    save () {
+      if (this.formId !== '') {
+        document.querySelector(`form#${this.formId}`).submit()
+      } else {
+        this.$emit('form-save')
+      }
+    }
+  }
+}
+</script>

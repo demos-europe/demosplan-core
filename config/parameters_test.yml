@@ -7,9 +7,5 @@ parameters:
     fileservice_filepath: "/tmp/uploads"
     doctrine.dbal.connection_factory.class: Liip\TestFixturesBundle\Factory\ConnectionFactory
     subdomain: 'hindsight'
-    subdomains_allowed:
-        - 'sh'
-        - 'hindsight'
-        - 'brandenburg'
     project_prefix: 'dplan_test'
     honeypot_disabled: true
