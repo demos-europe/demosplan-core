@@ -56,48 +56,36 @@
               {{ Translator.trans('organisation.kind.explanation') }}
             </p>
             <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group flex-col')">
-              <div :class="prefixClass('u-mb-0_75')">
-                <dp-checkbox
-                  id="orgatype_invitable_institution"
-                  data-cy="orgatype_institution"
-                  :class="prefixClass('o-form__group-item')"
-                  :label="{
-                    text: Translator.trans('invitable_institution')
-                  }"
-                  name="r_orgatype[]"
-                  value-to-send="OPSORG" />
-                <p :class="prefixClass('u-pl lbl__hint')">
-                  {{ Translator.trans('register.institution.hint') }}
-                </p>
-              </div>
-              <div :class="prefixClass('u-mb-0_75')">
-                <dp-checkbox
-                  id="orgatype_municipality"
-                  data-cy="orgatype_municipality"
-                  :class="prefixClass('o-form__group-item')"
-                  :label="{
-                    text: Translator.trans('municipality')
-                  }"
-                  name="r_orgatype[]"
-                  value-to-send="OLAUTH" />
-                <p :class="prefixClass('u-pl lbl__hint')">
-                  {{ Translator.trans('register.municipality.hint') }}
-                </p>
-              </div>
-              <div>
-                <dp-checkbox
-                  id="orgatype_planning-agency"
-                  data-cy="orgatype_planningagency"
-                  :class="prefixClass('o-form__group-item')"
-                  :label="{
-                    text: Translator.trans('planningagency')
-                  }"
-                  name="r_orgatype[]"
-                  value-to-send="OPAUTH" />
-                <p :class="prefixClass('u-pl lbl__hint')">
-                  {{ Translator.trans('register.planningagency.hint') }}
-                </p>
-              </div>
+              <dp-checkbox
+                id="orgatype_invitable_institution"
+                data-cy="orgatype_institution"
+                :class="prefixClass('o-form__group-item u-mb-0_75 u-ml-0')"
+                :label="{
+                  text: Translator.trans('invitable_institution'),
+                  hint: Translator.trans('register.institution.hint')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OPSORG" />
+              <dp-checkbox
+                id="orgatype_municipality"
+                data-cy="orgatype_municipality"
+                :class="prefixClass('o-form__group-item u-mb-0_75 u-ml-0')"
+                :label="{
+                  text: Translator.trans('municipality'),
+                  hint: Translator.trans('register.municipality.hint')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OLAUTH" />
+              <dp-checkbox
+                id="orgatype_planning-agency"
+                data-cy="orgatype_planningagency"
+                :class="prefixClass('o-form__group-item u-mb-0_75 u-ml-0')"
+                :label="{
+                  text: Translator.trans('planningagency'),
+                  hint: Translator.trans('register.planningagency.hint')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OPAUTH" />
             </div>
           </fieldset>
 
