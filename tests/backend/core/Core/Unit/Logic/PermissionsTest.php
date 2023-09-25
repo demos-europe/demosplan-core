@@ -74,8 +74,6 @@ class PermissionsTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->permissions = $this->getPermissionsInstance();
-
         $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = [
             'orgaId'            => $this->userOrgaId,
@@ -117,7 +115,7 @@ class PermissionsTest extends FunctionalTestCase
      *
      * @throws Exception
      */
-    protected function getPermissionsInstance(): Permissions
+    protected function getPermissionsInstance(bool $ownsProcedure, bool $inviteOrgaForDataInput): Permissions
     {
         // reconfigure logger to send messages to STDERR instead of STDOUT
         $logger = new Logger('UnitTest');
@@ -135,7 +133,11 @@ class PermissionsTest extends FunctionalTestCase
         $customerService = static::$container->get(CustomerService::class);
         $addonRegistry = static::$container->get(AddonRegistry::class);
 
-        $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
+        $tokenMockMethods = [
+            new MockMethodDefinition('isOwningProcedure', $ownsProcedure),
+            new MockMethodDefinition('isAllowedAsDataInputOrga', $inviteOrgaForDataInput),
+        ];
+        $procedureAccessEvaluator = $this->getMock(ProcedureAccessEvaluator::class, $tokenMockMethods);
         /** @var Permissions $permissions */
         $permissions = (new ReflectionClass($permissionsClass))
             ->newInstance(
@@ -3224,6 +3226,7 @@ class PermissionsTest extends FunctionalTestCase
                 $inviteOrgaForDataInput
             );
 
+            $this->permissions = $this->getPermissionsInstance($ownsProcedure, $inviteOrgaForDataInput);
             $this->permissions->setProcedure($procedureMock);
             if (null !== $procedureMock) {
                 $procedureRepositoryMock = $this->setUpProcedureRepositoryForTestCase($procedureMock);
@@ -3257,7 +3260,6 @@ class PermissionsTest extends FunctionalTestCase
      * Create a mock testuser.
      *
      * @param array $testCase
-     * @param array $procedure
      *
      * @return User|PHPUnit_Framework_MockObject_MockObject
      */
@@ -3444,7 +3446,6 @@ class PermissionsTest extends FunctionalTestCase
     }
 
     /**
-     * @param array  $procedureArray
      * @param string $procedurePhase
      * @param array  $testCase
      * @param User   $user
