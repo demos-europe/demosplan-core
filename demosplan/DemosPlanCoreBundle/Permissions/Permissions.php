@@ -809,7 +809,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     }
 
     /**
-     * Permissions to set to any user when write access is granted
+     * Permissions to set to any user when write access is granted.
      */
     protected function setProcedurePermissionsetWrite(): void
     {
