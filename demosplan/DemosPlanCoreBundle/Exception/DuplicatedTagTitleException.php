@@ -16,8 +16,8 @@ use Exception;
 class DuplicatedTagTitleException extends Exception
 {
     public function __construct(string $message,
-                                protected readonly TagTopic $topic,
-                                protected readonly string $tagTitle,
+        protected readonly TagTopic $topic,
+        protected readonly string $tagTitle,
     ) {
         parent::__construct($message);
     }
