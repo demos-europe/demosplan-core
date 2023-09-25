@@ -77,7 +77,7 @@
                 name="r_orgatype[]"
                 value-to-send="OLAUTH" />
               <dp-checkbox
-                id="orgatype_planning-agency"
+                id="orgatype_planningagency"
                 data-cy="orgatype_planningagency"
                 :class="prefixClass('o-form__group-item u-mb-0_75 u-ml-0')"
                 :label="{
