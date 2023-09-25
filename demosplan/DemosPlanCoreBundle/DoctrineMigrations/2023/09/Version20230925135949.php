@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -25,7 +35,6 @@ class Version20230925135949 extends AbstractMigration
         $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
     }
 
-
     /**
      * @throws Exception
      */
@@ -33,7 +42,7 @@ class Version20230925135949 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-            $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 UNIQUE INDEX UNIQ_E7F5DA961624BCD2 (procedure_id)');
+        $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 UNIQUE INDEX UNIQ_E7F5DA961624BCD2 (procedure_id)');
     }
 
     /**
