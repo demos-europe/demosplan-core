@@ -49,9 +49,12 @@
           </fieldset>
 
           <fieldset>
-            <legend :class="prefixClass('font-size-medium is-label u-mb-0_5')">
+            <legend :class="prefixClass('font-size-medium is-label u-mb-0_25')">
               {{ Translator.trans('organisation.type') }}
             </legend>
+            <p :class="prefixClass('u-mb')">
+              {{ Translator.trans('organisation.kind.explanation') }}
+            </p>
             <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group flex-col')">
               <div :class="prefixClass('u-mb-0_75')">
                 <dp-checkbox
