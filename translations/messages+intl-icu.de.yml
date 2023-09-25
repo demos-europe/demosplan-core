@@ -1191,7 +1191,7 @@ error.statement.update: "Beim Aktualisieren der Stellungnahme ist ein Fehler auf
 error.statements.marked.submitted: "Die Stellungnahmen konnten nicht eingereicht werden!"
 error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
-error.topic.notfound: "Das Thema wurde nicht gefunden, es wurde möglicherweise von einem anderen user gelöscht "
+error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
 error.text: "Bitte geben Sie einen Text der Stellungnahme ein."
 error.timeout: "Ihre Anfrage kann derzeit nicht bearbeitet werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
 error.type.submit: "Bitte geben Sie die Art der Einreichung ein."
