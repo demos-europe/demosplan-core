@@ -3238,7 +3238,6 @@ class PermissionsTest extends FunctionalTestCase
      * Create a mock testuser.
      *
      * @param array $testCase
-     * @param array $procedure
      *
      * @return User|PHPUnit_Framework_MockObject_MockObject
      */
@@ -3425,7 +3424,6 @@ class PermissionsTest extends FunctionalTestCase
     }
 
     /**
-     * @param array  $procedureArray
      * @param string $procedurePhase
      * @param array  $testCase
      * @param User   $user
