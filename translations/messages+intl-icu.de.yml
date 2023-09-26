@@ -2872,6 +2872,7 @@ segments.import.error.submitType: "Unbekannte Einreichungsart {value}, valide Ar
 segments.none.yet: "Es sind noch keine Abschnitte vorhanden."
 segments.recommendations.create: "Erwiderungen verfassen"
 segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
+segments.recommendations.oracle.none: "Zu diesem Abschnitt konnten keine ähnlichen Abschnitte mit Erwiderung gefunden werden."
 segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
 items.selected.multi.page: |
