@@ -488,7 +488,7 @@ trait ElasticsearchQueryTrait
      *
      * @param array $elasticsearchResult
      */
-    protected function toLegacyResultES($elasticsearchResult): array
+    public function toLegacyResultES($elasticsearchResult): array
     {
         $list = [];
         // avoid undefined index
