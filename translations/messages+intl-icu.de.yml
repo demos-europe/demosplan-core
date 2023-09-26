@@ -2680,6 +2680,7 @@ register: "Als Bürger*in registrieren"
 register.action: "Registrieren"
 register.email: "Mit E-Mail-Adresse registrieren"
 register.intro: "Sie haben noch kein Konto auf Bauleitplanung Online?"
+register.institution.hint: "Als Behörde oder sonstiger Träger öffentlicher Belange (TöB) müssen Sie sich registrieren, um im Namen Ihrer Organisation eine Stellungnahme abzugeben. Mit der Registrierung Ihrer Institution können Sie mehrere Nutzer*innen Ihrer Organisation registrieren und verwalten, um Stellungnahmen gemeinsam abzugeben."
 register.municipality.hint: "Als Kommune können Sie Verfahren der Bauleitplanung einrichten und durchführen."
 register.orga: "Als Organisation registrieren"
 
