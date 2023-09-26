@@ -55,7 +55,7 @@
             <p :class="prefixClass('u-mb')">
               {{ Translator.trans('organisation.kind.explanation') }}
             </p>
-            <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group flex-col')">
+            <div :class="prefixClass('space-stack-s')">
               <dp-checkbox
                 id="orgatype_invitable_institution"
                 data-cy="orgatype_institution"
