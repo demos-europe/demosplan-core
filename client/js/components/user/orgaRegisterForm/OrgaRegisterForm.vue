@@ -59,7 +59,6 @@
               <dp-checkbox
                 id="orgatype_invitable_institution"
                 data-cy="orgatype_institution"
-                :class="prefixClass('u-mb-0_75')"
                 :label="{
                   text: Translator.trans('invitable_institution'),
                   hint: Translator.trans('register.institution.hint')
@@ -69,7 +68,6 @@
               <dp-checkbox
                 id="orgatype_municipality"
                 data-cy="orgatype_municipality"
-                :class="prefixClass('u-mb-0_75')"
                 :label="{
                   text: Translator.trans('municipality'),
                   hint: Translator.trans('register.municipality.hint')
@@ -79,7 +77,6 @@
               <dp-checkbox
                 id="orgatype_planningagency"
                 data-cy="orgatype_planningagency"
-                :class="prefixClass('u-mb-0_75')"
                 :label="{
                   text: Translator.trans('planningagency'),
                   hint: Translator.trans('register.planningagency.hint')
