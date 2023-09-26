@@ -48,6 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
@@ -57,6 +58,7 @@
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
         @upload-success="setVideoSrcId" />
 
