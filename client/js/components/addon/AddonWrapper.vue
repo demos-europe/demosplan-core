@@ -1,10 +1,9 @@
 <template>
   <div>
     <component
-      :ref="refComponent"
       v-bind="addonProps"
       :is="component"
-    />
+      :ref="refComponent" />
   </div>
 </template>
 

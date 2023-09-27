@@ -165,6 +165,10 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
+          :data-cy="{
+            endDate: 'newProcedureForm:endDate',
+            startDate: 'newProcedureForm:startDate'
+          }"
           :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />

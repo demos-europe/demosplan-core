@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
@@ -88,6 +89,8 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     protected $statementCopier;
 
+    protected readonly StatementDeleter $statementDeleter;
+
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
@@ -99,7 +102,8 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementResourceType $statementResourceType,
         StatementService $statementService,
         StatementCopier $statementCopier,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        StatementDeleter $statementDeleter
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -111,6 +115,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementResourceType = $statementResourceType;
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
+        $this->statementDeleter = $statementDeleter;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
