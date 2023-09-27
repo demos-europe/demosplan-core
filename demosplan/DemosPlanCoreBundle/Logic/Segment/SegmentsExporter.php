@@ -160,10 +160,6 @@ class SegmentsExporter
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
         if ($this->getSimilarStatementSubmitters($statement) !== '') {
-            // add an empty line ( emplty row ) so that the next block will not stick to the previous one.
-            $emptyLineRow = $table->addRow();
-            $this->addSegmentCell($emptyLineRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoEmptyCell']);
-            // add statement Similar Submitters row
             $statementSimilarSubmittersRow = $table->addRow();
             $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
             $this->addSegmentCell($statementSimilarSubmittersRow, $statementSimilarSubmittersText, $this->styles['statementInfoTextCell']);
