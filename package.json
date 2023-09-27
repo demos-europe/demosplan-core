@@ -88,7 +88,7 @@
     "swagger-ui-dist": "^5.7.0",
     "timers-browserify": "^2.0.12",
     "tippy.js": "^6.3.7",
-    "uuid": "^9.0.0",
+    "uuid": "^9.0.1",
     "vue": "~2.7.10",
     "vue-multiselect": "^2.1.7",
     "vue-scrollto": "^2.20.0",
