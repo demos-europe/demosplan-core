@@ -101,7 +101,7 @@ class SegmentsExporter
                 $submitter->getStreetName(true),
                 $submitter->getPostalCode(),
             ];
-            $values = array_filter($values, fn(?string $value):bool =>null !== $value);
+            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
             $values = trim($values);
             if ('' !== $values) {
@@ -159,7 +159,7 @@ class SegmentsExporter
         $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
-        if ($this->getSimilarStatementSubmitters($statement) !== '') {
+        if ('' !== $this->getSimilarStatementSubmitters($statement)) {
             $statementSimilarSubmittersRow = $table->addRow();
             $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
             $this->addSegmentCell($statementSimilarSubmittersRow, $statementSimilarSubmittersText, $this->styles['statementInfoTextCell']);
