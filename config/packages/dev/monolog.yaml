@@ -3,8 +3,7 @@ monolog:
         main:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
-            level: debug
-            channels: ["!event"]
+            level: "%symfony_loglevel%"
         console:
             type:   console
             channels: ["!event", "!doctrine","!console"]

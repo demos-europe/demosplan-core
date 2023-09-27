@@ -881,9 +881,20 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->permissions['feature_statements_released_email']['enabled'] = true; // Eigene Stellungnahmen (Freigaben) E-Mail
     }
 
+    /**
+     * Permissions to set to any user when write access is granted
+     */
     protected function setProcedurePermissionsetWrite(): void
     {
-        // hook that may be overridden
+        $this->logger->debug('Set Permissionset write');
+        $this->permissions['feature_documents_new_statement']['enabled'] = true; // Planungsdokumente Neue Stellungnahme
+        $this->permissions['feature_map_new_statement']['enabled'] = true; // Planzeichnung Neue Stellungnahme
+        $this->permissions['feature_new_statement']['enabled'] = true; // Stellungnahmen verfassen
+        $this->permissions['feature_new_statement_form']['enabled'] = true; // Stellungnahmen verfassen
+        $this->permissions['feature_statements_draft_delete']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Loeschen
+        $this->permissions['feature_statements_draft_edit']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Bearbeiten
+        $this->permissions['feature_statements_draft_release']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Freigeben
+        $this->permissions['feature_statements_draft_relocate']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Neu verorten
     }
 
     /**
