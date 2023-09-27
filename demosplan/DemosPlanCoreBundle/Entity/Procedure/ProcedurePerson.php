@@ -136,9 +136,19 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
         return $this;
     }
 
-    public function getStreetName(): ?string
+    public function getStreetName(bool $withStreetNumber = false): ?string
     {
-        return $this->streetName;
+        if (null === $this->streetName) {
+            return null;
+        }
+
+        if (!$withStreetNumber) {
+            return $this->streetName;
+        }
+
+        return null === $this->streetNumber
+            ? $this->streetName
+            : "$this->streetName $this->streetNumber";
     }
 
     public function setStreetName(?string $streetName): ProcedurePerson
