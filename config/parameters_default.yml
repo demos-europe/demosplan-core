@@ -20,6 +20,8 @@ parameters:
     # Maschinenlesbarer Prefix für das Projekt, z.B. Elasticsearchindex und RabbitMQ Queue
     project_prefix: "dplan"
     project_version: "0"
+    # core version used by the project
+    project_core_version: "0"
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
@@ -157,8 +159,8 @@ parameters:
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
 
-    #RabbitMQ setting with default values
-    rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
+    #RabbitMQ setting like amqp://:@localhost:5672/%2f
+    rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
     rabbitmq_routing_disabled: false
 
     # Route to docxImporter without trailing slash
@@ -330,6 +332,8 @@ parameters:
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
     oauth_keycloak_realm: ''
+    # roles may be granted via keycloak groups
+    keycloak_group_role_string: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
@@ -452,8 +456,7 @@ parameters:
     # This parameter may be used to map some external URL to an internal customer like
     # planungsportal.brandenburg.de: bb.bauleitplanung-online.de
     subdomain_map: []
-    # Defines which subdomains (aka customers) are allowed in current project
-    subdomains_allowed: ['sh']
+
 
     ai_service_salt: ""
     ai_service_post_url: ""

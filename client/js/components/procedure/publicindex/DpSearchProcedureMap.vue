@@ -193,11 +193,14 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
+          role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
         </h2>
         <h2
           v-else-if="isNoSearchAndNoResult"
+          id="noSearchResultHeading"
+          role="status"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
           {{ Translator.trans('search.results.none') }}.
         </h2>

@@ -50,12 +50,12 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(true, $this->enabled)
-        );
+        ];
     }
 
     protected function getProperties(): array

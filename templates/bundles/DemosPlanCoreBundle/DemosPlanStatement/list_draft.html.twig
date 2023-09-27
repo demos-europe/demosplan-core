@@ -1,7 +1,7 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
 {% block demosplanbundlecontent %}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}"><div>
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}"><div>
 
     {% set owndraftText = "text.statements.owndraft"|trans %}
     {% set permissionSubmit = 'feature_statements_released_group_submit' %}

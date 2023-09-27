@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonContractUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -25,7 +26,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository
     ) {
     }
@@ -36,7 +36,11 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
             throw new UnsupportedUserException(sprintf('Invalid user class %s', $user::class));
         }
 
-        return new SecurityUser($this->loadUserByLogin($user->getUsername()));
+        // Return User object here as we want to have the User object in the Session instead,
+        // as the SecurityUser is only meant to be used during Authentication.
+        // In {@DemosPlanResponseListener::transformTokenUserObjectToSecurityUserObject()} we
+        // transform the User object to a SecurityUser object to save it between requests.
+        return $this->loadUserByLogin($user->getUsername());
     }
 
     public function supportsClass(string $class): bool
@@ -44,29 +48,34 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
         return SecurityUser::class === $class;
     }
 
-    public function loadUserByUsername(string $username): SecurityUser
+    public function loadUserByUsername(string $username): User
     {
         return $this->loadUserByIdentifier($username);
     }
 
-    public function loadUserByIdentifier(string $identifier): SecurityUser
+    public function loadUserByIdentifier(string $identifier): User
+    {
+        return $this->loadUserByLogin($identifier);
+    }
+
+    public function getSecurityUser(string $identifier): SecurityUser
     {
         return new SecurityUser($this->loadUserByLogin($identifier));
     }
 
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
-        $userEntity = $this->loadUserByLogin($user->getUsername());
-        // set the new encoded password on the User object
-        $userEntity->setPassword($newEncodedPassword);
-        $userEntity->setAlternativeLoginPassword($newEncodedPassword);
-
-        // execute the queries on the database
-        $this->entityManager->flush();
+        $userEntity = $this->loadUserByLogin($user->getUserIdentifier());
+        $this->userRepository->upgradePassword($userEntity, $newHashedPassword);
     }
 
     private function loadUserByLogin(string $login): User
     {
+        // avoid database call for anonymous user
+        if (AddonContractUserInterface::ANONYMOUS_USER_LOGIN === $login) {
+            return new AnonymousUser();
+        }
+
         $userEntity = $this->userRepository->findOneBy(['login' => $login]);
         if (!$userEntity) {
             throw new UserNotFoundException(sprintf('No user found for "%s"', $login));

@@ -58,6 +58,7 @@ const postCssPlugins = [
     },
     ignoreFiles: [/.+style\.scss/]
   }),
+  require('tailwindcss'),
   require('postcss-flexbugs-fixes'),
   /*
    * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be

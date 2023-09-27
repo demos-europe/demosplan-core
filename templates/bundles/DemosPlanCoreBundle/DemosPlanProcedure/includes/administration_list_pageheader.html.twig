@@ -10,12 +10,14 @@
         current: 'admin_procedures' == highlighted|default,
         href: path('DemosPlan_procedure_administration_get'),
         label: 'procedures.orga',
+        datacy: 'administrationListPageHeader:proceduresOrga',
         feature: 'area_admin_procedures'
     },
     {
         current: 'search_submitter_in_procedures' == highlighted|default,
         href: path('DemosPlan_procedure_search_statements'),
         label: 'search.submitter',
+        datacy: 'administrationListPageHeader:searchSubmitter',
         feature: 'area_search_submitter_in_procedures'
     }
 ]|filter(item => item.feature is not defined or hasPermission(item.feature)) %}

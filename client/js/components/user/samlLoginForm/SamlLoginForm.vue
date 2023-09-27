@@ -25,7 +25,7 @@
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
 
-          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
+          <div :class="prefixClass('u-mb-0_75 space-stack-s')">
             <dp-input
               id="r_useremail"
               data-cy="username"
@@ -58,7 +58,7 @@
               :text="Translator.trans('login')"
               type="submit"
               @click.prevent="submit" />
-          </dp-form-row>
+          </div>
           <a
             :class="prefixClass('o-link--default')"
             data-cy="password_forgot"
@@ -108,14 +108,13 @@
 </template>
 
 <script>
-import { DpButton, DpFormRow, DpInput, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInput, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SamlLoginForm',
 
   components: {
     DpButton,
-    DpFormRow,
     DpInput
   },
 

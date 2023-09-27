@@ -17,6 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadSegmentData extends TestFixture implements DependentFixtureInterface
 {
     final public const SEGMENT_BULK_EDIT_1 = 'segmentTestTagsBulkEdit1';

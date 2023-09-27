@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
@@ -41,6 +40,11 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     public static function getName(): string
     {
         return 'GlobalNews';
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     /**
@@ -87,9 +91,9 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     /**
      * @throws PathException
      */
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     /**

@@ -59,10 +59,10 @@
                 <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
                     <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="u-m-0 u-p-0">
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
                         </li>
-                        <li class="list-style-none">
+                        <li>
                             <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
                         </li>
                         {% block a11y_jump_markers %}{% endblock a11y_jump_markers %}
@@ -139,10 +139,6 @@
 
                         {% block component_part %}{% endblock component_part %}
 
-                        {% block base_backtotop %}
-                            <back-to-top-button></back-to-top-button>
-                        {% endblock base_backtotop %}
-
                     </section><!--
 
                  -->{% block base_aside %}<!--
@@ -171,6 +167,10 @@
                             </div>
                         </aside>
                     {% endblock base_aside %}
+
+                    {% block base_backtotop %}
+                        <back-to-top-button></back-to-top-button>
+                    {% endblock base_backtotop %}
 
                 {% endblock maincontent_section %}
             </main>

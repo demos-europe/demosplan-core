@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
@@ -23,12 +24,20 @@ use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
+use Twig\Extension\EscaperExtension;
 
 /**
  * Stellt Adminfunktionen zur Verfügung.
  */
 class DemosPlanAdminController extends BaseController
 {
+    private const ROLES_EXCLUDED_IN_EXPORT = [
+        RoleInterface::API_AI_COMMUNICATOR,
+        RoleInterface::GUEST,
+        RoleInterface::PROSPECT,
+        RoleInterface::CITIZEN,
+    ];
+
     /**
      * Generiert die HTML Seite für die Statistik.
      *
@@ -98,6 +107,14 @@ class DemosPlanAdminController extends BaseController
         $templateVars['rolesList'] = $userService->collectRoleStatistics($undeletedUsers);
         $templateVars['orgaList'] = $orgaService->getOrgaCountByTypeTranslated($customerProvider->getCurrentCustomer());
         $templateVars['orgaUsersList'] = $userService->getOrgaUsersList();
+        $allowedRoleCodeMap = [];
+        foreach ($this->getParameter('roles_allowed') as $allowedRoleCode) {
+            if (!in_array($allowedRoleCode, self::ROLES_EXCLUDED_IN_EXPORT, true)
+            ) {
+                $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
+            }
+        }
+        $templateVars['allowedRoleCodeMap'] = $allowedRoleCodeMap;
 
         $title = 'statistic';
         if ('html' === $format) {
@@ -108,7 +125,10 @@ class DemosPlanAdminController extends BaseController
         }
 
         // set csv Escaper
-        $twig->getExtension('EscaperExtension')->setEscaper('csv', fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string));
+        $twig->getExtension(EscaperExtension::class)->setEscaper(
+            'csv',
+            fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
+        );
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,

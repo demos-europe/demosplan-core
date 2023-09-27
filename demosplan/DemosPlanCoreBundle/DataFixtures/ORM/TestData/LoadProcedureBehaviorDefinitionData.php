@@ -14,6 +14,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadProcedureBehaviorDefinitionData extends TestFixture implements DependentFixtureInterface
 {
     // for procedureTypes

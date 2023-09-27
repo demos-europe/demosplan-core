@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use InvalidArgumentException;
 
 /**
@@ -52,6 +51,11 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
     public static function getName(): string
     {
         return 'ProcedureNews';
+    }
+
+    public function getIdentifierPropertyPath(): array
+    {
+        return $this->ident->getAsNames();
     }
 
     /**
@@ -90,17 +94,17 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         return $this->currentUser->hasPermission('area_admin_news');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->pId),
-            $this->conditionFactory->propertyHasValue(false, $this->deleted)
-        );
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+        ];
     }
 
     public function isCreatable(): bool

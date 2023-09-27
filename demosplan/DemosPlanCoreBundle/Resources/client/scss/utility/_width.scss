@@ -62,6 +62,10 @@ $width-map-percentage: (
     &-m {
         min-width: $inuit-base-spacing-unit;
     }
+
+    &-l {
+        min-width: 120px;
+    }
 }
 
 .width {

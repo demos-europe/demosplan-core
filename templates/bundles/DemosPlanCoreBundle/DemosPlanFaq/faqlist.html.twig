@@ -21,7 +21,7 @@
                     <h2 id="faqHeading" class="{{ 'u-mb-0_25'|prefixClass }}">
                         {{ 'topics'|trans }}
                     </h2>
-                    <ul class="{{ 'list-style-none'|prefixClass }}">
+                    <ul>
                         {# @improve T11733 use slugify #}
                         {% for category in templateVars.list|keys %}
                             <li>
