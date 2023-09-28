@@ -87,7 +87,7 @@ class TagService extends CoreService
         }
 
         if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);
