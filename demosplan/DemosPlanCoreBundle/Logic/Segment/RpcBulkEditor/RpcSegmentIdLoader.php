@@ -45,14 +45,21 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         $expectedProcedureId = $procedure?->getId();
         Assert::stringNotEmpty($expectedProcedureId);
 
+        $rpcRequests = is_object($rpcRequests)
+            ? [$rpcRequests]
+            : $rpcRequests;
+
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 $params = $rpcRequest->params;
 
                 $conditions = $this->getConditions($params, $expectedProcedureId);
-                $sortMethods = $this->sortingParser->createFromQueryParamValue($params->sort);
+                if (isset($params->sort)) {
+                    $sortMethods = $this->sortingParser->createFromQueryParamValue($params->sort);
+                } else {
+                    $sortMethods = [];
+                }
                 $segmentIdentifiers = $this->segmentResourceType->listEntityIdentifiers($conditions, $sortMethods);
-
                 $searchParams = SearchParams::createOptional($params->search ?? []);
                 if ($searchParams instanceof SearchParams) {
                     $elasticsearchResult = $this->jsonApiEsService->getEsFilteredResult(
@@ -81,11 +88,9 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
      */
     public function generateMethodResult(object $rpcRequest, array $segmentIds): object
     {
-        $segmentIdsString = implode(',', $segmentIds);
-
         $result = new stdClass();
         $result->jsonrpc = '2.0';
-        $result->result = "[$segmentIdsString]";
+        $result->result = $segmentIds;
         $result->id = $rpcRequest->id;
 
         return $result;
@@ -113,13 +118,13 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
 
     private function getConditions(stdClass $params, string $procedureId)
     {
-        $drupalFilter = $params->filter;
+        $drupalFilter = json_decode(json_encode($params->filter), true);
         $conditions = null === $drupalFilter || [] === $drupalFilter
             ? []
             : $this->drupalFilterParser->parseFilter($drupalFilter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ['parentStatementOfSegment', 'procedure']
+            $this->segmentResourceType->parentStatement->procedure->id
         );
 
         return $conditions;
