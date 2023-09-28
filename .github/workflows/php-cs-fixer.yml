@@ -8,7 +8,7 @@ on:
             - '!lib/**'
 jobs:
   call:
-    uses: demos-europe/demosplan-workflows/.github/workflows/php-cs-fixer.yml@main
+    uses: demos-europe/demosplan-workflows/.github/workflows/php-cs-fixer.yml@f-fix-php-cs-fixter
     with:
         gpg_user_name: Demos-CI
     secrets:
