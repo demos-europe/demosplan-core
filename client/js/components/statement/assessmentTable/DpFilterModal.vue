@@ -75,7 +75,7 @@
             </template>
           </dp-multiselect>
 
-          <div class="text-right u-mb u-pt-0_5">
+          <div class="text--right u-mb u-pt-0_5">
             <button
               type="button"
               class="btn btn--primary"
@@ -187,7 +187,7 @@
         </div>
 
         <!-- Button row -->
-        <div class="text--right space-inline-s">
+        <div class="text-right space-inline-s">
           <button
             class="btn btn--primary"
             :class="{'pointer-events-none': disabledInteractions}"
