@@ -1,19 +1,22 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-
-
-
-use function array_key_exists;
-
 use ArrayAccess;
-
-use const E_USER_DEPRECATED;
-
 use RuntimeException;
 
+use function array_key_exists;
 use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Permission Value Object.
@@ -53,7 +56,7 @@ class Permission implements ArrayAccess
     /**
      * @var bool Used to control the menu bar
      */
-        protected $active =  false;
+    protected $active = false;
 
     /**
      * @param string $name
@@ -209,7 +212,6 @@ class Permission implements ArrayAccess
 
     /**
      * @param string $offset
-     * @param mixed  $value
      *
      * @throws RuntimeException
      */
