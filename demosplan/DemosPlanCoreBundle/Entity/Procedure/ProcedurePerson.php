@@ -146,6 +146,7 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
             ? $this->streetName
             : "$this->streetName $this->streetNumber";
     }
+
     public function getStreetName(bool $withStreetNumber = false): ?string
     {
         return $this->streetName;
