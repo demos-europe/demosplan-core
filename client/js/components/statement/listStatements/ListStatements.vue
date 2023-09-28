@@ -161,7 +161,7 @@
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
-              :href="Routing.generate('core_file', { hash: originalPdf })"
+              :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
