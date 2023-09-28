@@ -160,9 +160,10 @@ class SegmentsExporter
         $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
-        if ('' !== $this->getSimilarStatementSubmitters($statement)) {
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ('' !== $similarStatementSubmitters) {
             $statementSimilarSubmittersRow = $table->addRow();
-            $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
+            $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
             $this->addSegmentCell($statementSimilarSubmittersRow, $statementSimilarSubmittersText, $this->styles['statementInfoTextCell']);
         }
 
