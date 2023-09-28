@@ -98,8 +98,9 @@ class SegmentsExporter
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
             $values = [
                 $submitter->getEmailAddress(),
-                $submitter->getStreetName(true),
+                $submitter->getStreetNameWithStreetNumber(),
                 $submitter->getPostalCode(),
+                $submitter->getCity(),
             ];
             $values = array_filter($values, fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
