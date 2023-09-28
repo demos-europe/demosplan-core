@@ -60,7 +60,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
                     $sortMethods = [];
                 }
                 $segmentIdentifiers = $this->segmentResourceType->listEntityIdentifiers($conditions, $sortMethods);
-                $searchParams = SearchParams::createOptional($params->search ?? []);
+                $searchParams = SearchParams::createOptional(isset($params->search) ? $this->toArray($params->search) : []);
                 if ($searchParams instanceof SearchParams) {
                     $elasticsearchResult = $this->jsonApiEsService->getEsFilteredResult(
                         $this->segmentResourceType,
@@ -118,7 +118,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
 
     private function getConditions(stdClass $params, string $procedureId)
     {
-        $drupalFilter = json_decode(json_encode($params->filter), true);
+        $drupalFilter = $this->toArray($params->filter);
         $conditions = null === $drupalFilter || [] === $drupalFilter
             ? []
             : $this->drupalFilterParser->parseFilter($drupalFilter);
@@ -128,5 +128,9 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         );
 
         return $conditions;
+    }
+    private function toArray(stdClass $object):array
+    {
+        return json_decode(json_encode($object), true);
     }
 }
