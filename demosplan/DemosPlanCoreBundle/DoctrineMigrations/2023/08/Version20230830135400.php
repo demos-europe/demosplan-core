@@ -31,7 +31,7 @@ class Version20230830135400 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(256) DEFAULT NULL');
+        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(250) DEFAULT NULL');
     }
 
     /**
