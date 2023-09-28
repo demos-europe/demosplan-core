@@ -114,9 +114,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     private array $addonPermissionCollections = [];
 
-    /**
-     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
-     */
     public function __construct(
         AddonRegistry $addonRegistry,
         private readonly CustomerService $currentCustomerProvider,
@@ -940,8 +937,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     public function hasPermissionsetRead($scope = null): bool
     {
         // Read ist in Write inbegriffen
-        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope) ||
-               $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
+        return $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_READ, $scope)
+               || $this->hasPermissionset(self::PROCEDURE_PERMISSIONSET_WRITE, $scope);
     }
 
     /**
@@ -956,8 +953,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     /**
      * Setzt das initiale Set von kontxtbezogenen Menue-Highlights.
-     *
-     * @param array $context
      */
     protected function initMenuhightlighting(array $context = null): void
     {
@@ -1062,9 +1057,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     {
         // Prüfe, ob der User ins Verfahren darf
         if (null !== $this->procedure) {
+            $this->setProcedurePermissions();
+
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
-            $hasPermissionToEnter = $readPermission || $owns;
+            $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different
@@ -1073,8 +1071,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
                 throw new AccessDeniedException('Sie haben nicht die nötigen Rechte, um diese Seite aufzurufen.');
             }
-            // Update die Verfahrensberechtigungen
-            $this->setProcedurePermissions();
         }
     }
 

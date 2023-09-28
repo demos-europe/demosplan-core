@@ -154,7 +154,7 @@
         <template v-slot:text="rowData">
           <div
             v-cleanhtml="rowData.attributes.text"
-            class="overflow-word-break" />
+            class="overflow-word-break c-styled-html" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />

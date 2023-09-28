@@ -371,8 +371,7 @@
                   @field:update="updateStatement"
                   @field:save="data => saveStatement(data, 'attribute', 'voteStk')"
                   ref="voteStk"
-                  :editable="isClaimed"
-                  :readonly="hasPermission('feature_statements_fragment_vote')" />
+                  :editable="isClaimed" />
               </dd><!--
              --><dd
                   v-if="hasPermission('field_statement_vote_pla') && hasPermission('feature_statements_fragment_vote')"
