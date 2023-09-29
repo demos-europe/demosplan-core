@@ -92,6 +92,28 @@ class SegmentsExporter
         );
     }
 
+    public function getSimilarStatementSubmitters(Statement $statement)
+    {
+        $submitterStrings = [];
+        foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
+            $values = [
+                $submitter->getEmailAddress(),
+                $submitter->getStreetNameWithStreetNumber(),
+                $submitter->getPostalCodeWithCity(),
+            ];
+            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = implode(', ', $values);
+            $values = trim($values);
+            if ('' !== $values) {
+                $values = " ($values)";
+            }
+
+            $submitterStrings[] = "{$submitter->getFullName()}$values";
+        }
+
+        return implode(', ', $submitterStrings);
+    }
+
     protected function addStatementInfo(Section $section, Statement $statement): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
@@ -136,6 +158,13 @@ class SegmentsExporter
         $row6 = $table->addRow();
         $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
+
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ('' !== $similarStatementSubmitters) {
+            $statementSimilarSubmittersRow = $table->addRow();
+            $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
+            $this->addSegmentCell($statementSimilarSubmittersRow, $statementSimilarSubmittersText, $this->styles['statementInfoTextCell']);
+        }
 
         $section->addTextBreak(2);
     }
