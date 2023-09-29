@@ -737,6 +737,9 @@ export default {
     },
 
     toggleRecommendationModal () {
+      if (this.asyncComponents[0]) {
+        this.activeId = this.asyncComponents[0].options.id
+      }
       this.$refs.recommendationModal.toggle()
     },
 
