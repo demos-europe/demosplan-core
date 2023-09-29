@@ -58,11 +58,6 @@ class ExceptionListener
             return;
         }
 
-        // improve DX by throwing exception to see error
-        if ($this->debug) {
-            throw $exception;
-        }
-
         if ($exception instanceof NotFoundHttpException) {
             // log 404
             $this->logger->info($exception->getMessage());
@@ -70,6 +65,11 @@ class ExceptionListener
             $event->setResponse($this->exceptionService->create404Response());
 
             return;
+        }
+
+        // improve DX by throwing exception to see error
+        if ($this->debug) {
+            throw $exception;
         }
 
         $event->setResponse($this->exceptionService->handleError($exception));

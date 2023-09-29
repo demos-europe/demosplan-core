@@ -68,7 +68,7 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l overflow-word-break"
+      class="segment-list-col--l overflow-word-break c-styled-html"
       v-cleanhtml="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
@@ -122,6 +122,18 @@
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
                 </h3>
+                <dp-contextual-help
+                  v-if="activeId === 'oracleRec'"
+                  class="u-ml-0_25"
+                  icon="ai"
+                  size="large"
+                  :text="Translator.trans('segment.oracle.tooltip')" />
+                <dp-badge
+                  v-if="activeId === 'oracleRec'"
+                  class="absolute u-right-0 u-mr-0_75"
+                  size="smaller"
+                  :text="Translator.trans('segment.oracle.beta')"
+                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
               </div>
               <dp-tabs
                 v-if="allComponentsLoaded"
@@ -137,7 +149,8 @@
                       :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
                       class="u-mt"
-                      :is="component.name" />
+                      :is="component.name"
+                      @recommendation:insert="closeRecommendationModalAfterInsert" />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -152,11 +165,11 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="segment.hasRelationship('tags')"
+              v-if="asyncComponents"
               :class="prefixClass('menubar__button')"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              @click.stop="openRecommendationModal">
+              @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -229,6 +242,7 @@
           }"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
+            class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
             aria-hidden="true" />
         </button>
@@ -259,7 +273,9 @@
           }"
           @click.prevent="showSegmentVersionHistory"
           data-cy="segmentVersionHistory">
-          <dp-icon icon="history" />
+          <dp-icon
+            class="inline-block"
+            icon="history" />
         </button>
 
         <button
@@ -309,8 +325,10 @@ import {
   checkResponse,
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
+  DpContextualHelp,
   DpIcon,
   DpLabel,
   DpModal,
@@ -318,6 +336,7 @@ import {
   DpTab,
   DpTabs,
   prefixClassMixin,
+  Tooltip,
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -333,9 +352,11 @@ export default {
 
   components: {
     AddonWrapper,
+    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
+    DpContextualHelp,
     DpClaim,
     DpIcon,
     DpLabel,
@@ -351,7 +372,8 @@ export default {
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
+    tooltip: Tooltip
   },
 
   mixins: [prefixClassMixin],
@@ -444,7 +466,6 @@ export default {
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
-
         return { id: '', name: '', orgaName: '' }
       }
     },
@@ -583,12 +604,13 @@ export default {
         })
     },
 
-    openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+    closeRecommendationModalAfterInsert () {
+      this.toggleRecommendationModal()
+      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
-    openRecommendationModal () {
-      this.$refs.recommendationModal.toggle()
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     /**
@@ -714,6 +736,10 @@ export default {
       }
     },
 
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
+    },
+
     unclaimSegment () {
       const payload = {
         data: {
@@ -821,14 +847,14 @@ export default {
       })
 
     loadAddonComponents('segment.recommendationModal.tab')
-      .then((response) => {
+      .then(response => {
         this.asyncComponents = response
         this.allComponentsLoaded = true
 
         response.forEach(component => {
           this.$options.components[component.name] = window[component.name].default
         })
-    })
+      })
   }
 }
 </script>

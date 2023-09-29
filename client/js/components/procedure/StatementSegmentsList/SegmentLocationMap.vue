@@ -188,9 +188,11 @@ export default {
     segmentId (newVal) {
       if (newVal) {
         this.setInitDrawings()
-        this.$nextTick(() => {
-          this.setCenterAndExtent()
-        })
+        if (this.featuresObject.features.length > 0) {
+          this.$nextTick(() => {
+            this.setCenterAndExtent()
+          })
+        }
       }
     }
   },
