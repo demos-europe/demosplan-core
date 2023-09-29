@@ -99,8 +99,7 @@ class SegmentsExporter
             $values = [
                 $submitter->getEmailAddress(),
                 $submitter->getStreetNameWithStreetNumber(),
-                $submitter->getPostalCode(),
-                $submitter->getCity(),
+                $submitter->getPostalCodeWithCity(),
             ];
             $values = array_filter($values, fn (?string $value): bool =>null !== $value);
             $values = implode(', ', $values);
