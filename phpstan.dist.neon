@@ -4,12 +4,6 @@ includes:
 parameters:
     tmpDir: /tmp/phpstan
     scanFiles:
-        - %rootDir%/../../../vendor/phayes/geophp/lib/adapters/GeoJSON.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Collection.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Geometry.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/LineString.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Point.class.php
-        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Polygon.class.php
         - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
     scanDirectories:
 #    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4
