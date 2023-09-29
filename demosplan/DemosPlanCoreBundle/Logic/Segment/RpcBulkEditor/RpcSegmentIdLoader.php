@@ -49,6 +49,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
             ? [$rpcRequests]
             : $rpcRequests;
 
+        $resultResponse = [];
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 $params = $rpcRequest->params;
