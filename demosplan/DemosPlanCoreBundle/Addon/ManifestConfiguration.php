@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,7 +15,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class ManifestConfiguration implements ConfigurationInterface
 {
-    public const MANIFEST_ROOT = 'demosplan_addon';
+    final public const MANIFEST_ROOT = 'demosplan_addon';
 
     public function getConfigTreeBuilder(): TreeBuilder
     {
@@ -27,6 +27,11 @@ class ManifestConfiguration implements ConfigurationInterface
         $rootChildren->scalarNode('description')->defaultValue('')->end();
         $rootChildren->scalarNode('entry')->isRequired()->end();
         $rootChildren->scalarNode('permissionInitializer')->isRequired()->end();
+        $rootChildren->arrayNode('controller_paths')
+            ->defaultValue([AddonInfo::DEFAULT_CONTROLLER_PATH])
+            ->treatNullLike([AddonInfo::DEFAULT_CONTROLLER_PATH])
+            ->scalarPrototype()->end()
+            ->end();
 
         $ui = $rootChildren->arrayNode('ui')->children();
         $ui->scalarNode('manifest')->defaultValue('');

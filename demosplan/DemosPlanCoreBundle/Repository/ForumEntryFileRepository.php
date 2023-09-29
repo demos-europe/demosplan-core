@@ -3,13 +3,18 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -26,7 +31,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      *
      * @return ForumEntryFile file-Eintrag als FileResponse Objekt
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function get($hash)
     {
@@ -41,7 +46,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
 
         try {
             return $query->getSingleResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -82,7 +87,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
     {
         try {
             $files = $this->getFileResponses($entryIdent);
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             $files = [];
         }
 
@@ -145,7 +150,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
             $forumEntryFile->setBlocked(false);
             $forumEntryFile->setDeleted(false);
             $forumEntryFile->setString($singleFileString);
-            $exploded = explode(':', $singleFileString);
+            $exploded = explode(':', (string) $singleFileString);
             $forumEntryFile->setHash($exploded[1]);
             $forumEntryFile->setEntry($this->getEntityManager()->getRepository(ForumEntry::class)->find($data['entryId']));
             $forumEntryFile->setOrder($this->calculateOrder());
@@ -185,9 +190,9 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      *
      * @return bool true wenn die ID als gültig eingestuft wird, ansonsten false
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      */
     private function isValidEntry($entryId)
     {
@@ -265,7 +270,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
      * Set Objectvalues by array
      * Set "@param" according to specific entity to get autocompletion.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $entity
+     * @param CoreEntity $entity
      *
      * @return void
      */

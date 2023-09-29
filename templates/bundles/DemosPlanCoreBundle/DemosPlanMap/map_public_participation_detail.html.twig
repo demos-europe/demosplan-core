@@ -171,7 +171,7 @@
 
                             <button
                                 type="button"
-                                class="{{ 'c-actionbox__title--button u-mt-0_5 display--none'|prefixClass }}"
+                                class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
                                 id="saveStatementButton"
                                 title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
                                 {{ "statement.map.draw_to_map"|trans }}
@@ -278,7 +278,7 @@
 
             {# Display getFeatureInfo Tool only if set #}
             {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
+                <li>
                     <button
                         type="button"
                         id="criteriaButton"
@@ -288,7 +288,7 @@
                         {{ 'map.getfeatureinfo.label'|trans }}
                     </button>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        cssClasses: 'o-tooltip--question-circle float--right u-mt-0_25',
+                        cssClasses: 'o-tooltip--question-circle float-right u-mt-0_25',
                         helpText: "map.getfeatureinfo.description"|trans,
                         omitCssPrefix: false
                     } %}
@@ -297,12 +297,12 @@
 
             {# Drawing of procedure #}
             {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
+                <li>
                     <a
                         class="{{ 'c-map__tool o-link--default'|prefixClass }}"
                         target="_blank"
                         rel="noopener"
-                        href="{{ path('core_file', { 'hash': procedureSettings.planDrawPDF|getFile('hash') }) }}"
+                        href="{{ path('core_file_procedure', { 'hash': procedureSettings.planDrawPDF|getFile('hash'), 'procedureId': procedure|default() }) }}"
                         title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
                         <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
                         {{ "drawing.download"|trans }}
@@ -327,7 +327,8 @@
                 <dp-layer-legend
                     v-show="Boolean({{ display_legend_box }})"
                     :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
+                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
+                    procedure-id="{{ procedure|default('') }}">
                 </dp-layer-legend>
 
                 {# Zoom to extend, measure length + area #}
@@ -384,7 +385,7 @@
         {% endblock callToActionLayerSwitcherButtons %}
 
         {#  markup templates used in map popups #}
-        <div class="{{ 'display--none'|prefixClass }}">
+        <div class="{{ 'hidden'|prefixClass }}">
 
             <div id="popup" class="{{ 'c-map__popup'|prefixClass }}">
                 <a href="#" id="popupCloser" class="{{ 'c-map__popup__button-close'|prefixClass }}"></a>
@@ -405,10 +406,10 @@
             {% if procedureStatementPriorityArea %}
                 <div id="priorityAreaPopup">
                     <h3 class="{{ 'c-map__popup__title o-spinner'|prefixClass }}">___content___</h3>
-                    <span class="{{ 'display--inline-block u-mr-0_5'|prefixClass }}">___id___</span>
+                    <span class="{{ 'inline-block u-mr-0_5'|prefixClass }}">___id___</span>
                     {% if templateVars.htmlAvailable %}
                         <a
-                            class="{{ 'c-map__popup__link display--block u-mt-0_5'|prefixClass }}"
+                            class="{{ 'c-map__popup__link block u-mt-0_5'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
                             href="{{ path('dplan_project_procedure_show_datasheet', { 'priorityArea': '___id___', 'procedureId': procedure|default()  }) }}">
@@ -417,7 +418,7 @@
                     {% endif %}
 
                     <a
-                        class="{{ 'c-map__popup__link display--block u-mv-0_25 '|prefixClass }}"
+                        class="{{ 'c-map__popup__link block u-mv-0_25 '|prefixClass }}"
                         target="_blank"
                         rel="noopener"
                         href="{{ path('dplan_project_procedure_procedure_show_datasheet_pdf', { 'priorityArea': '___id___', 'procedureId': procedure|default() }) }}">
@@ -474,7 +475,7 @@
                         </a>
                     </p>
                     <div id="mapHintContent">
-                        <div class="{{ 'c-map__hint__content text--justify'|prefixClass }}">{{ procedureSettings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault|default)|nl2br }}</div>
+                        <div class="{{ 'c-map__hint__content text-left'|prefixClass }}">{{ procedureSettings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault|default)|nl2br }}</div>
                     </div>
 
 
@@ -501,11 +502,11 @@
             </a>
         {% else %}
             {# needed to have aria-describedby for map element even if map hint is not activated #}
-            <span id="mapHintContent" class="{{ 'display--none'|prefixClass }}">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault) }}</span>
+            <span id="mapHintContent" class="{{ 'hidden'|prefixClass }}">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault) }}</span>
         {% endif %}
 
         {#  these blocks are needed to make it possible to set colors in _map.scss which then are grabbed by map script #}
-        <div class="{{ 'display--none'|prefixClass }}">
+        <div class="{{ 'hidden'|prefixClass }}">
             <span class="{{ 'c-map__draw-fill'|prefixClass }}"></span>
             <span class="{{ 'c-map__draw-stroke'|prefixClass }}"></span>
             <span class="{{ 'c-map__draw-image'|prefixClass }}"></span>
@@ -513,7 +514,7 @@
 
         <div id="mapProgress" class="{{ 'c-map--progress'|prefixClass }}"></div>
 
-        <div class="{{ 'c-map__zoom position--absolute'|prefixClass }} ol-zoom ol-unselectable ol-control">
+        <div class="{{ 'c-map__zoom absolute'|prefixClass }} ol-zoom ol-unselectable ol-control">
             <button id="mapCustomZoomIn" class="ol-zoom-in" type="button" title="{{ 'map.zoom.in'|trans }}" aria-label="{{ 'map.zoom.in'|trans }}">+</button>
             <button id="mapCustomZoomReset" class="{{ 'zoom-reset'|prefixClass }}" type="button" title="{{ 'map.zoom.reset'|trans }}" aria-label="{{ 'map.zoom.reset'|trans }}">o</button>
             <button id="mapCustomZoomOut" class="ol-zoom-out" type="button" title="{{ 'map.zoom.out'|trans }}" aria-label="{{ 'map.zoom.out'|trans }}">−</button>

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -27,13 +27,9 @@ use Throwable;
 class WerDenktWasAPIController extends BaseController
 {
     /**
-     * @Route(
-     *      path="/api/werdenktwas/procedures",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("area_public_participation")
      */
+    #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
     public function procedureListGeoJSONAction(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(
@@ -44,7 +40,7 @@ class WerDenktWasAPIController extends BaseController
             return new JsonResponse(null);
         }
 
-        $data = json_decode($searchProceduresResponse->getContent(), true);
+        $data = json_decode($searchProceduresResponse->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $geojson = [
             'type'       => 'FeatureCollection',
@@ -61,9 +57,7 @@ class WerDenktWasAPIController extends BaseController
                     'type' => 'Feature',
                 ];
 
-                $coordinates = array_map(static function ($coordinate) {
-                    return (float) $coordinate;
-                }, explode(',', $procedureInfo['attributes']['coordinate']));
+                $coordinates = array_map(static fn ($coordinate) => (float) $coordinate, explode(',', (string) $procedureInfo['attributes']['coordinate']));
 
                 // skip procedures without coordinates (should not happen on production)
                 if ([0.0] === $coordinates) {

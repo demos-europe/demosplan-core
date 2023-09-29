@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -21,14 +21,14 @@ $tooltip-width: 400px;
 
 //  Placeholder that styles the tooltip content
 %tooltip-content-styles {
-    @include inuit-font-size($dp-token-font-size-small);
+    @include inuit-font-size($dp-font-size-small);
 
     position: relative;
 
     padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small $inuit-base-spacing-unit--tiny * 1.5;
 
-    background-color: $default-font-color;
-    color: $alternate-font-color;
+    background-color: $dp-color-text-default;
+    color: $dp-color-text-on-dark;
 
     font-family: $normal-font-family;
     font-weight: $normal-font-weight;
@@ -47,12 +47,10 @@ $tooltip-width: 400px;
     }
 }
 
-//  Tooltip styles used by the Js and Vue implementation
-//  Templates:
-//  * DemosPlanCoreBundle/Resources/client/js/lib/Tooltips.js
-//  * DemosPlanCoreBundle/Resources/client/js/VueConfigCore.js
+//  Tooltip styles used by the Vue implementation
+//  Template: @demos-europe/demosplan-ui/src/components/DpTooltip/utils/tooltip.js
 .tooltip {
-    z-index: $z-tooltip-super;
+    z-index: $dp-z-tooltip;
 
     max-width: $tooltip-width;
 
@@ -74,7 +72,7 @@ $tooltip-width: 400px;
         margin: - $inuit-base-spacing-unit--tiny 0;
         width: $inuit-base-spacing-unit--small;
 
-        background: $default-font-color;
+        background: $dp-color-text-default;
 
         transform: rotate(45deg);
 
@@ -124,7 +122,7 @@ $tooltip-width: 400px;
         .nojs .o-tooltip.is-open & {
             bottom: 0;
             position: absolute;
-            z-index: $z-tooltip-super;
+            z-index: $dp-z-tooltip;
 
             display: block;
 
@@ -138,7 +136,7 @@ $tooltip-width: 400px;
 //  Tooltip trigger with question mark icon
 .o-tooltip--question-circle {
     @extend .fa;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 
     &::before {
         content: $fa-var-question-circle; // variable from font awesome core scss holding the question circle
@@ -149,7 +147,7 @@ $tooltip-width: 400px;
 
 .o-tooltip--exclamation-circle {
     @extend .fa;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 
     &::before {
         content: $fa-var-exclamation-circle; // variable from font awesome core scss holding the question circle

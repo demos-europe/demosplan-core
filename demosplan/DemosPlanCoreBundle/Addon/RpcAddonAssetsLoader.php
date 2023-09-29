@@ -5,33 +5,26 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    private RpcErrorGenerator $errorGenerator;
-    private FrontendAssetProvider $assetProvider;
-
-    public function __construct(
-        FrontendAssetProvider $assetProvider,
-        RpcErrorGenerator $errorGenerator)
+    public function __construct(private readonly FrontendAssetProvider $assetProvider, private readonly RpcErrorGenerator $errorGenerator)
     {
-        $this->errorGenerator = $errorGenerator;
-        $this->assetProvider = $assetProvider;
     }
 
     public function supports(string $method): bool
@@ -39,7 +32,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
         return 'addons.assets.load' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
@@ -55,11 +48,11 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
-            } catch (InvalidArgumentException|InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException $e) {
+            } catch (AccessDeniedException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

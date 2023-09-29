@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -25,7 +25,7 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('register.email')" />
           <fieldset>
-            <dp-form-row :class="prefixClass('space-stack-s')">
+            <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
               <dp-input
                 id="r_organame"
                 data-cy="orga"
@@ -37,6 +37,7 @@
                 required />
               <dp-input
                 id="r_orgaphone"
+                data-cy="orga_phone"
                 :label="{
                   bold: false,
                   text: Translator.trans('phone.call.back')
@@ -51,28 +52,34 @@
             <legend :class="prefixClass('font-size-medium is-label u-mb-0_25')">
               {{ Translator.trans('organisation.type') }}
             </legend>
-            <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group')">
+            <p :class="prefixClass('u-mb')">
+              {{ Translator.trans('organisation.kind.explanation') }}
+            </p>
+            <div :class="prefixClass('space-stack-s')">
               <dp-checkbox
                 id="orgatype_invitable_institution"
-                :class="prefixClass('o-form__group-item')"
+                data-cy="orgatype_institution"
                 :label="{
-                  text: Translator.trans('invitable_institution')
+                  text: Translator.trans('invitable_institution'),
+                  hint: Translator.trans('register.institution.hint')
                 }"
                 name="r_orgatype[]"
                 value-to-send="OPSORG" />
               <dp-checkbox
                 id="orgatype_municipality"
-                :class="prefixClass('o-form__group-item')"
+                data-cy="orgatype_municipality"
                 :label="{
-                  text: Translator.trans('municipality')
+                  text: Translator.trans('municipality'),
+                  hint: Translator.trans('register.municipality.hint')
                 }"
                 name="r_orgatype[]"
                 value-to-send="OLAUTH" />
               <dp-checkbox
                 id="orgatype_planningagency"
-                :class="prefixClass('o-form__group-item')"
+                data-cy="orgatype_planningagency"
                 :label="{
-                  text: Translator.trans('planningagency')
+                  text: Translator.trans('planningagency'),
+                  hint: Translator.trans('register.planningagency.hint')
                 }"
                 name="r_orgatype[]"
                 value-to-send="OPAUTH" />
@@ -80,14 +87,14 @@
           </fieldset>
 
           <fieldset>
-            <dp-form-row :class="prefixClass('u-mb-0_25 u-mt-0_25 space-stack-s')">
+            <dp-form-row :class="prefixClass('u-mb-0_75 u-mt-0_25 space-stack-s')">
               <legend class="font-size-medium is-label u-mb-0_25 u-mt">
                 {{ Translator.trans('organisation.administration') }}
               </legend>
               <div>
                 <dp-input
                   id="r_useremail"
-                  data-cy="username"
+                  data-cy="useremail"
                   :label="{
                     bold: false,
                     text: Translator.trans('email.address')
@@ -99,6 +106,7 @@
               <div class="flex">
                 <dp-input
                   id="r_firstname"
+                  data-cy="user_firstname"
                   :label="{
                     bold: false,
                     text: Translator.trans('name.first')
@@ -107,6 +115,7 @@
                   required />
                 <dp-input
                   id="r_lastname"
+                  data-cy="user_lastname"
                   :label="{
                     bold: false,
                     text: Translator.trans('name.last')
@@ -119,13 +128,21 @@
 
           <dp-checkbox
             id="gdpr_consent"
+            data-cy="gdpr_consent"
             :class="prefixClass('u-mb-0_5')"
             :label="{
-              text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
+              text: Translator.trans('confirm.gdpr.consent.registration', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection'), projectName: dplan.projectName })
             }"
             name="gdpr_consent"
             required
             value-to-send="on" />
+
+          <dp-input
+            id="_csrf_token"
+            name="_csrf_token"
+            type="hidden"
+            :value="csrfToken" />
+
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
@@ -184,6 +201,10 @@ export default {
 
   props: {
     customer: {
+      type: String,
+      required: true
+    },
+    csrfToken: {
       type: String,
       required: true
     }

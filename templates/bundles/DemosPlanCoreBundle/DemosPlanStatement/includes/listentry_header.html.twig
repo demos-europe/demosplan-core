@@ -8,7 +8,7 @@
             {% if checkbox_name is defined %}
                 <label
                     data-cy="statementNumber"
-                    class="{{ 'lbl--text display--inline'|prefixClass }}">
+                    class="{{ 'lbl--text inline'|prefixClass }}">
                     <input
                         class="{{ 'o-form__control-input'|prefixClass }}"
                         name="{{ checkbox_name|default( 'item_check[]' ) }}"
@@ -35,7 +35,7 @@
 
         {% elseif statement.externId is defined and show_extern_id is defined %}
             {% if checkbox_name is defined %}
-                <label class="{{ 'lbl--text display--inline'|prefixClass }}">
+                <label class="{{ 'lbl--text inline'|prefixClass }}">
                     <input
                         name="{{ checkbox_name|default( 'item_check[]' ) }}"
                         value="{{ statement.ident|default() }}"
@@ -48,7 +48,7 @@
             {% endif %}
         {% endif %}
 
-        <span class="{{ 'font-size-smaller float--right-lap-up o-piped o-piped--small'|prefixClass }}">
+        <span class="{{ 'font-size-smaller sm:float-right o-piped o-piped--small'|prefixClass }}">
             {% apply spaceless %}
 
 	        {% if statement.createdDate is defined %}

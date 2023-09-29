@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -34,7 +34,7 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
-            class="whitespace--preline"
+            class="whitespace-pre-line"
             v-cleanhtml="nodeElement.attributes.text" />
         </template>
         <template v-slot:leaf="{ nodeElement }">

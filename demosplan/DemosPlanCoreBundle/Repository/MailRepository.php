@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Exception;
 
-class MailRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
+class MailRepository extends FluentRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -155,7 +155,7 @@ class MailRepository extends CoreRepository implements ImmutableArrayInterface, 
     public function replacePlaceholder($string, array $placeholder)
     {
         foreach ($placeholder as $toReplace => $value) {
-            $string = preg_replace('/\$\{'.$toReplace.'\}/', $value, $string);
+            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, $string);
         }
 
         return $string;

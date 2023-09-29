@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -18,10 +18,10 @@
       class="u-mb"
       :label="{
         bold: true,
-        text: Translator.trans('select.all')
+        text: Translator.trans('aria.select.all')
       }"
       @change="toggleAll" />
-    <div class="display--inline-block u-pr u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
+    <div class="inline-block u-pr align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
       <p
         class="weight--bold u-mb-0_25"
         id="submitter">
@@ -38,20 +38,20 @@
       :options="metaDataFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(metaDataFields)"
-    class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
+    class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
  --><dp-checkbox-group
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
       :options="documentFields"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(documentFields)"
-    class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
+    class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
       @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(publicationField)"
-      class="display--inline-block u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
+      class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
   </div>
 </template>
 

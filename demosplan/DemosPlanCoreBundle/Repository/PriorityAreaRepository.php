@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,10 +16,11 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 
-class PriorityAreaRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class PriorityAreaRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -42,7 +43,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea
+     * @return PriorityArea
      *
      * @throws Exception
      */
@@ -94,7 +95,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return CoreEntity
      */
-    public function update($entityId, array $data)
+    public function update($entityId, array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -180,7 +181,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
                 ->getQuery();
 
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -210,7 +211,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

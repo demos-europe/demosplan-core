@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 class ViewOrientation
 {
     /** @var string */
-    public const PORTRAIT_NAME = 'portrait';
+    final public const PORTRAIT_NAME = 'portrait';
     /** @var string */
-    public const LANDSCAPE_NAME = 'landscape';
+    final public const LANDSCAPE_NAME = 'landscape';
 
     /** @var string */
     private $name;

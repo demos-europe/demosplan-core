@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
  */
 class JsonApiPaginationParser
 {
-    public const DEFAULT_PAGE_SIZE = 10;
+    final public const DEFAULT_PAGE_SIZE = 10;
 
     public function parseApiPaginationProfile(
         array $profile,

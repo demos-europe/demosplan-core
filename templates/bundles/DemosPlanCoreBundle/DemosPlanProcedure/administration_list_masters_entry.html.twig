@@ -1,0 +1,28 @@
+<tr>
+    <td>
+        {% if hasPermission('feature_admin_delete_procedure') %}
+            <input
+                name="procedure_selected[]"
+                type="checkbox"
+                data-cy="ListMasters"
+                value="{% if procedure.ident is defined %}{{ procedure.ident }}{% else %}{{ "notspecified"|trans }}{% endif %}">
+        {% endif %}
+    </td>
+    <td class="weight--bold">
+        <a
+            data-cy="procedureSettingLink"
+            href="{{ path('DemosPlan_procedure_edit_master',{'procedure':procedure.ident}) }}">
+        	{% if procedure.name is defined %}{{ procedure.name }}{% else %}{{ "notspecified"|trans }}{% endif %}
+        </a>
+        {% if procedure.isCustomerMasterBlueprint is defined and procedure.isCustomerMasterBlueprint == true %}
+            <span class="float-right u-mr u-mt-0_5">
+                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                    helpText: 'explanation.customer.masterblueprint'|trans,
+                    cssClasses:'o-tooltip--exclamation-circle'
+                } %}
+                {{  'master.of.customer'|trans }}</span>
+        {% endif %}
+        <br>
+        {{ "from.date"|trans }} {% if procedure.createdDate is defined %}{{ procedure.createdDate|default()|dplanDate }}{% else %}{{ "notspecified"|trans }}{% endif %}
+    </td>
+</tr>

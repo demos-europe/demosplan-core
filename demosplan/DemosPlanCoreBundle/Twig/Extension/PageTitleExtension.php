@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
@@ -23,39 +23,22 @@ use Twig\TwigFunction;
 class PageTitleExtension extends ExtensionBase
 {
     /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ProcedureExtension
-     */
-    private $procedureExtension;
-
-    /**
      * @var GlobalConfig
      */
     protected $globalConfig;
 
-    /**
-     * @var CurrentProcedureService
-     */
-    private $currentProcedureService;
-
-    public function __construct(ContainerInterface $container, GlobalConfigInterface $globalConfig, TranslatorInterface $translator, CurrentProcedureService $currentProcedureService, ProcedureExtension $procedureExtension)
+    public function __construct(ContainerInterface $container, GlobalConfigInterface $globalConfig, private readonly TranslatorInterface $translator, private readonly CurrentProcedureService $currentProcedureService, private readonly ProcedureExtension $procedureExtension)
     {
         parent::__construct($container);
 
         $this->globalConfig = $globalConfig;
-        $this->translator = $translator;
-        $this->procedureExtension = $procedureExtension;
-        $this->currentProcedureService = $currentProcedureService;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('pageTitle', [$this, 'pageTitle']),
-            new TwigFunction('breadcrumbTitle', [$this, 'breadcrumbTitle']),
+            new TwigFunction('pageTitle', $this->pageTitle(...)),
+            new TwigFunction('breadcrumbTitle', $this->breadcrumbTitle(...)),
         ];
     }
 

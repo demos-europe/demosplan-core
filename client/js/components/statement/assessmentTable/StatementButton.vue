@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <a
-    class="c-at-item__tab-trigger o-link--icon display--inline-block u-pv-0_5 u-ph u-ml-0_5"
+    class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_5 u-ph u-ml-0_5"
     :class="{'is-active-toggle':active}"
     :href="'#' + statementId + '_statement'"
     @click="showStatement(statementId)">

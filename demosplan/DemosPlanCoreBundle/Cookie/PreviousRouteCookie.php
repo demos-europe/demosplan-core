@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,12 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Cookie;
 
 use Carbon\Carbon;
-
-use function str_replace;
-use function strpos;
-
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+
+use function str_replace;
 
 /**
  * Class PreviousRouteCookie.
@@ -30,13 +28,13 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PreviousRouteCookie extends Cookie
 {
-    public const NAME = 'dplan-loggedInRoute';
+    final public const NAME = 'dplan-loggedInRoute';
 
     public function __construct(Request $request)
     {
         $path = str_replace($request->getSchemeAndHttpHost(), '', $request->getUri());
 
-        if (0 === strpos($path, '/app_dev.php')) {
+        if (str_starts_with($path, '/app_dev.php')) {
             $path = str_replace('/app_dev.php', '', $path);
         }
 

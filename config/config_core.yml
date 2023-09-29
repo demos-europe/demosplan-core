@@ -1,0 +1,23 @@
+parameters:
+    container.autowiring.strict_mode: true
+    container.dumper.inline_class_loader: true
+
+    # These parameters are set at build time but defined here for code completion
+    demosplan.project_dir: ''
+    demosplan.project_name: ''
+    demosplan.project_version: ''
+    demosplan.project_core_version: ''
+
+imports:
+    - { resource: "allowedMimeTypes.yml" }
+    - { resource: "elasticsearch.yml" }
+    - { resource: "entity_content_change_fields_mapping.yml" }
+    - { resource: "secrets.yml", ignore_errors: true }
+
+    # do not change the ordering here, it matters! <3
+    - { resource: "services_autowire.yml" }
+    - { resource: "services_repositories.yml" }
+    - { resource: "services.yml" }
+    # allow to override services in config_dev_container.yml if needed
+    - { resource: "config_dev_container.yml" }
+    - { resource: "doctrine_extensions.yml" }

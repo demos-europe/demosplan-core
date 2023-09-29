@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -30,7 +30,7 @@
         </div>
         <!-- Displaying value in non-edit mode, also toggles edit mode -->
         <div
-          :class="{'cursor--pointer': editable}"
+          :class="{'cursor-pointer': editable}"
           :title="Translator.trans('edit.entity', { entity: translatedLabel })"
           @click="toggleEditing"
           v-if="!editable || !editingEnabled">
@@ -39,7 +39,7 @@
         <!-- Edit Trigger -->
         <div
           class="c-edit-field__trigger"
-          :class="{ 'display--block': persistIcons }">
+          :class="{ 'block': persistIcons }">
           <dp-loading
             v-if="loading"
             hide-label />

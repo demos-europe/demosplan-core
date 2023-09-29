@@ -3,28 +3,28 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -40,32 +40,15 @@ class GdprConsentRevokeTokenService extends CoreService
     /** @var PermissionsInterface */
     protected $permissions;
 
-    /**
-     * @var StatementAnonymizeService
-     */
-    private $statementAnonymizeService;
-
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
-    /**
-     * @var GdprConsentRevokeTokenRepository
-     */
-    private $gdprConsentRevokeTokenRepository;
-
     public function __construct(
         EmailAddressService $emailAddressService,
-        GdprConsentRevokeTokenRepository $gdprConsentRevokeTokenRepository,
+        private readonly GdprConsentRevokeTokenRepository $gdprConsentRevokeTokenRepository,
         PermissionsInterface $permissions,
-        StatementAnonymizeService $statementAnonymizeService,
-        TokenFactory $tokenFactory
+        private readonly StatementAnonymizeService $statementAnonymizeService,
+        private readonly TokenFactory $tokenFactory
     ) {
         $this->emailAddressService = $emailAddressService;
-        $this->gdprConsentRevokeTokenRepository = $gdprConsentRevokeTokenRepository;
         $this->permissions = $permissions;
-        $this->statementAnonymizeService = $statementAnonymizeService;
-        $this->tokenFactory = $tokenFactory;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,12 +13,14 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,18 +35,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Renders the admin view of a single tag.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tag",
-     *     path="/verfahren/{procedure}/tag/{tag}",
-     *     defaults={"master": false}
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false])]
     public function tagViewAction(
         ProcedureService $procedureService,
         Request $request,
@@ -108,19 +105,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * List of Tags that are being used in this procedures.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tags",
-     *     path="/verfahren/{procedure}/schlagworte",
-     *     defaults={"master": false},
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListAction(
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
@@ -146,18 +137,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Edit Tags and topics that are being used in this procedures.
      *
-     * @Route(
-     *     name="DemosPlan_statement_administration_tags_edit",
-     *     path="/verfahren/{procedure}/schlagworte/edit",
-     *     defaults={"master": false},
-     * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false])]
     public function tagListEditAction(
         FileUploadService $fileUploadService,
         Request $request,
@@ -172,12 +158,12 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_create', $requestPost)
             && \array_key_exists('r_newTopic', $requestPost)
         ) {
-            if (0 < \strlen(\trim($requestPost['r_newTopic']))) {
+            if (0 < \strlen(\trim((string) $requestPost['r_newTopic']))) {
                 try {
                     $result = $statementHandler->createTopic($requestPost['r_newTopic'], $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.topic.created');
                     $anchor = $result->getId();
-                } catch (DuplicatedTagTopicTitleException $exception) {
+                } catch (DuplicatedTagTopicTitleException) {
                     $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
                 }
             } else {
@@ -191,13 +177,19 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             && \array_key_exists('r_newtags', $requestPost[$requestPost['r_createtags']])
         ) {
             $newTag = $requestPost[$requestPost['r_createtags']]['r_newtags'];
-            if (0 < \strlen(\trim($newTag))) {
+            if (0 < \strlen(\trim((string) $newTag))) {
                 try {
                     $result = $statementHandler->createTagFromTopicId($requestPost['r_createtags'], $newTag, $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.tag.created');
                     $anchor = $result->getId();
+                } catch (DuplicatedTagTitleException $e) {
+                    $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicName' => $e->getTopic()->getTitle()]);
+                } catch (TagTopicNotFoundException $e) {
+                    $this->getMessageBag()->add('error', 'error.topic.notfound');
+                    $this->logger->error('error.topic.notfound', [$e]);
                 } catch (Exception $e) {
-                    $this->getMessageBag()->add('warning', 'warning.tag.created');
+                    $this->getMessageBag()->add('error', 'error.tag.add');
+                    $this->logger->error('error.tag.add', [$e]);
                 }
             } else {
                 $this->getMessageBag()->add('warning', 'warning.tag.empty');
@@ -224,7 +216,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_renametag', $requestPost)
             && \array_key_exists($requestPost['r_renametag'], $requestPost)
             && \array_key_exists('r_tag_newname', $requestPost[$requestPost['r_renametag']])
-            && 0 < \strlen(\trim($requestPost[$requestPost['r_renametag']]['r_tag_newname']))
+            && 0 < \strlen(\trim((string) $requestPost[$requestPost['r_renametag']]['r_tag_newname']))
         ) {
             $result = $statementHandler->renameTag($requestPost['r_renametag'], $requestPost[$requestPost['r_renametag']]['r_tag_newname']);
             if ($result instanceof Tag) {
@@ -247,7 +239,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 } else {
                     $result = $statementHandler->deleteTag($requestPost['r_deletetag']);
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add('error', 'warning.tag.deleted', ['tagname' => $tagname]);
             }
 
@@ -271,10 +263,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                             } else {
                                 $result = $statementHandler->deleteTag($key);
                             }
-                        } catch (InvalidArgumentException $e) {
+                        } catch (InvalidArgumentException) {
                             // Tag may be deleted already if topic is deleted before
                             $result = true;
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             $this->getMessageBag()->add('error', 'warning.tag.deleted', ['tagname' => $val['r_tag_newname']]);
                             $success = false;
                             continue;
@@ -286,7 +278,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                             } else {
                                 $result = $statementHandler->deleteTopic($key);
                             }
-                        } catch (Exception $e) {
+                        } catch (Exception) {
                             $this->getMessageBag()->add('error', 'warning.topic.deleted', ['topicname' => $val['r_rename']]);
                             $success = false;
                             continue;
@@ -333,8 +325,15 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         // Check if we need to import tags
         if (\array_key_exists('r_import', $requestPost)) {
             if (\array_key_exists('r_importCsv', $requestPost) && '' != $requestPost['r_importCsv']) {
-                $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
-                $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
+                try {
+                    $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
+                    $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
+                } catch (DuplicatedTagTitleException $e) {
+                    $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicName' => $e->getTopic()->getTitle()]);
+                } catch (Exception $e) {
+                    $this->getMessageBag()->add('error', 'error.tag.add');
+                    $this->logger->error('error.tag.add', [$e]);
+                }
             } else {
                 $this->getMessageBag()->add('warning', 'explanation.file.noupload');
             }

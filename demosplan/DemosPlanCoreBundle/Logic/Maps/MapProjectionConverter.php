@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,24 +22,18 @@ use Psr\Log\LoggerInterface;
 
 class MapProjectionConverter
 {
-    public const OBJECT_RETURN_TYPE = 'object';
-    public const ARRAY_RETURN_TYPE = 'array';
-    public const STRING_RETURN_TYPE = 'string';
+    final public const OBJECT_RETURN_TYPE = 'object';
+    final public const ARRAY_RETURN_TYPE = 'array';
+    final public const STRING_RETURN_TYPE = 'string';
 
     /**
      * @var Proj4php
      */
     private $projectionTransformer;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
         $this->projectionTransformer = new Proj4php();
-        $this->logger = $logger;
     }
 
     /**
@@ -127,7 +121,7 @@ class MapProjectionConverter
                         $newProjection
                     )
                 );
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 $this->logger->warning('Could not convert viewport', [$viewport]);
             }
         }

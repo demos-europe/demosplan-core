@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,10 +17,12 @@ use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use InvalidArgumentException;
 
-class ReportRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ReportRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Gets an ReportEntry.
@@ -62,7 +64,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @throws DeprecatedException
      */
-    public function add(array $data)
+    public function add(array $data): never
     {
         throw new DeprecatedException('Use addObject instead.');
     }
@@ -104,8 +106,8 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool true if the entry was found and deleted, otherwise false
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function delete($procedureId)
     {
@@ -167,8 +169,8 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return int number of deleted Reports
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function deleteByProcedure(string $procedureId): int
     {
@@ -190,7 +192,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

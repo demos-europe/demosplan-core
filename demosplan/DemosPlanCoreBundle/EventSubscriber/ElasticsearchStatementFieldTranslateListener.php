@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -38,14 +38,8 @@ class ElasticsearchStatementFieldTranslateListener implements EventSubscriberInt
      */
     protected $formOptions;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(TranslatorInterface $translator, GlobalConfigInterface $globalConfig)
+    public function __construct(private readonly TranslatorInterface $translator, GlobalConfigInterface $globalConfig)
     {
-        $this->translator = $translator;
         $this->formOptions = $globalConfig->getFormOptions();
     }
 
@@ -66,7 +60,7 @@ class ElasticsearchStatementFieldTranslateListener implements EventSubscriberInt
                     $dbValue = $document->get($statementField);
                     $transKey = $this->formOptions[$formOptionKey]['values'][$dbValue] ?? $dbValue ?? '';
                     $document->set($statementField, $this->translator->trans($transKey));
-                } catch (Throwable $exception) {
+                } catch (Throwable) {
                     // could not get or translate content
                 }
             }
@@ -80,7 +74,7 @@ class ElasticsearchStatementFieldTranslateListener implements EventSubscriberInt
                 try {
                     $dbValue = $document->get($translatableField);
                     $document->set($translatableField, $this->translator->trans($dbValue));
-                } catch (Throwable $exception) {
+                } catch (Throwable) {
                     // could not get or translate content
                 }
             }

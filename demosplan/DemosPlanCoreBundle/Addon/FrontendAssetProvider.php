@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,11 +16,8 @@ use Symfony\Component\Yaml\Yaml;
 
 final class FrontendAssetProvider
 {
-    private AddonRegistry $registry;
-
-    public function __construct(AddonRegistry $registry)
+    public function __construct(private readonly AddonRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     /**
@@ -40,7 +37,7 @@ final class FrontendAssetProvider
             }
 
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath =  DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+            $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
             try {
                 $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
@@ -61,9 +58,13 @@ final class FrontendAssetProvider
                 if (0 === count($assetContents)) {
                     return [];
                 }
-            } catch (AddonException $e) {
+            } catch (AddonException) {
                 return [];
             }
+
+            // TODO: filter assets based on their permission to only send
+            //       usable addons to the client and relieve ourselves from outer
+            //       permission checks in addon components
 
             return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());

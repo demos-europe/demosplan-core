@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,16 +18,13 @@ class LocaleSubscriber extends BaseEventSubscriber
 {
     use RequiresLoggerTrait;
 
-    private $defaultLocale;
-
     private const LOCALE_REQUEST_KEY = '_locale';
 
     /**
      * @param string $defaultLocale
      */
-    public function __construct($defaultLocale = 'de')
+    public function __construct(private $defaultLocale = 'de')
     {
-        $this->defaultLocale = $defaultLocale;
     }
 
     public function onKernelRequest(RequestEvent $event): void

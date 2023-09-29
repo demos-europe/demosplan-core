@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -23,14 +23,8 @@ use Throwable;
 
 class GeoJsonDataCollector extends DataCollector
 {
-    /**
-     * @var DraftStatementHandler
-     */
-    private $draftStatementHandler;
-
-    public function __construct(DraftStatementHandler $draftStatementHandler)
+    public function __construct(private readonly DraftStatementHandler $draftStatementHandler)
     {
-        $this->draftStatementHandler = $draftStatementHandler;
     }
 
     /**
@@ -74,7 +68,7 @@ class GeoJsonDataCollector extends DataCollector
 
     public function getGeoJsonInfo(): ?array
     {
-        return isset($this->data['geo_json_info']) ? $this->data['geo_json_info'] : null;
+        return $this->data['geo_json_info'] ?? null;
     }
 
     private function jsonPrettify(string $json): string
@@ -83,7 +77,7 @@ class GeoJsonDataCollector extends DataCollector
             str_replace(
                 ' ',
                 '&nbsp;',
-                Json::encode(
+                (string) Json::encode(
                     Json::decodeToMatchingType($json), JSON_PRETTY_PRINT
                 )
             )

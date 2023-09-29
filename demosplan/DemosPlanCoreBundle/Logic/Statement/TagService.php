@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,61 +17,24 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
-use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 
 class TagService extends CoreService
 {
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var TagResourceType
-     */
-    private $tagResourceType;
-    /**
-     * @var BoilerplateRepository
-     */
-    private $boilerplateRepository;
-    /**
-     * @var TagRepository
-     */
-    private $tagRepository;
-    /**
-     * @var TagTopicRepository
-     */
-    private $tagTopicRepository;
-
     public function __construct(
-        BoilerplateRepository $boilerplateRepository,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        TagRepository $tagRepository,
-        TagResourceType $tagResourceType,
-        TagTopicRepository $tagTopicRepository
+        private readonly BoilerplateRepository $boilerplateRepository,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository
     ) {
-        $this->boilerplateRepository = $boilerplateRepository;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->tagRepository = $tagRepository;
-        $this->tagResourceType = $tagResourceType;
-        $this->tagTopicRepository = $tagTopicRepository;
     }
 
     /**
@@ -114,21 +77,17 @@ class TagService extends CoreService
     /**
      * Creates a new Tag with the given title.
      *
-     * @param string $title
-     *
      * @throws DuplicatedTagTitleException
-     * @throws Exception
      */
-    public function createTag($title, TagTopic $topic, bool $persistAndFlush = true): Tag
+    public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
     {
         $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
-        $titleCount = $this->tagRepository->count(['id' => $procedureId, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($title, $procedureId);
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);
@@ -222,7 +181,7 @@ class TagService extends CoreService
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic|false
+     * @return TagTopic|false
      */
     public function renameTopic($id, $name)
     {
@@ -238,7 +197,7 @@ class TagService extends CoreService
      * @param string $id
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag|false
+     * @return Tag|false
      */
     public function renameTag($id, $name)
     {
@@ -265,7 +224,7 @@ class TagService extends CoreService
      *
      * @param TagTopic $topic
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteTopic($topic): bool
     {
@@ -297,7 +256,7 @@ class TagService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         ];
 
-        $tags = $this->entityFetcher->listEntitiesUnrestricted(Tag::class, $conditions);
+        $tags = $this->tagRepository->getEntities($conditions, []);
 
         $count = count($tags);
         if (1 < $count) {

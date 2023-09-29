@@ -62,7 +62,7 @@
                     {%- apply spaceless %}
                         <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
                             <li>
-                                <label class="u-mb-0_25 cursor--pointer">
+                                <label class="u-mb-0_25 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="r_type"
@@ -74,7 +74,7 @@
                                 </label>
                             </li>
                             <li>
-                                <label class="u-mb-0_25 cursor--pointer">
+                                <label class="u-mb-0_25 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="r_type"
@@ -84,10 +84,10 @@
                                     {{ "overlay"|trans }}
                                 </label>
                                 {% if hasPermission('area_public_participation') and hasPermission('feature_map_use_territory') %}
-                                    <ul class="list-style-none u-pl">
+                                    <ul class="u-pl">
                                         <li>
                                             <label
-                                                class="u-mb-0_25 cursor--pointer"
+                                                class="u-mb-0_25 cursor-pointer"
                                                 title="Mit Planzeichnung können Sie einen B-Plan anlegen. Dieser wird ein-/ausblendbar über die Grundkarten gelegt.">
                                                 <input
                                                     type="checkbox"
@@ -104,7 +104,7 @@
                                         </li>
                                         <li>
                                             <label
-                                                class="u-mb-0_25 cursor--pointer"
+                                                class="u-mb-0_25 cursor-pointer"
                                                 title="Geltungsbereich zeigt nur in der Beteiligungsebene die Umrandung des Plans über der Grundkarte an.">
                                                 <input
                                                     type="checkbox"
@@ -125,7 +125,7 @@
                         </ul>
 
                         {% if hasPermission('feature_xplan_defaultlayers') %}
-                            <label class="layout__item u-1-of-5 u-mb-0_5 cursor--pointer"
+                            <label class="layout__item u-1-of-5 u-mb-0_5 cursor-pointer"
                                    title="Mit XPlan können Sie einen XPlanlayer anlegen.">
                                 <input type="checkbox" name="r_xplan" {% if gislayer.xplan == true %}checked{% endif %}>
                                 {{ "xplan"|trans }}
@@ -227,7 +227,7 @@
                 {{ "explanation.gislayer.print"|trans }}
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                     helpText: 'explanation.gislayer.print.help'|trans,
-                    cssClasses:'o-tooltip--question-circle float--right u-mt-0_125'
+                    cssClasses:'o-tooltip--question-circle float-right u-mt-0_125'
                 } %}
             </label>
 
@@ -271,7 +271,7 @@
             </label>
 
 
-            <div class="text--right u-mt-0_5 space-inline-s">
+            <div class="text-right u-mt-0_5 space-inline-s">
                 <input class="btn btn--primary" type="submit" name="saveLayer" value="{{ "save"|trans }}">
                 <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}">
                     {{ "abort"|trans }}

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,10 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -51,25 +55,22 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $id;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic
+     * @var TagTopicInterface
      *
      * @ORM\ManyToOne(targetEntity="TagTopic", inversedBy="tags", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
-     *
-     * @Assert\NotNull(groups={"Default", "segments_import"})
-     *
-     * @Assert\Type(groups={"segments_import"}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic")
      */
+    #[Assert\NotNull(groups: ['Default', 'segments_import'])]
+    #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
     protected $topic;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
-     *
-     * @Assert\NotBlank(groups={"Default", "segments_import"}, message="Tag title may not be empty.");
      */
+    #[Assert\NotBlank(groups: ['Default', 'segments_import'], message: 'Tag title may not be empty.')]
     protected $title = '';
 
     /**
@@ -82,7 +83,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $createDate;
 
     /**
-     * @var Collection<int,Statement>
+     * @var Collection<int,StatementInterface>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="tags", cascade={"persist", "refresh"})
      *
@@ -95,7 +96,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $statements;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate
+     * @var BoilerplateInterface
      *
      * @ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id", onDelete="SET NULL")
      *
@@ -129,7 +130,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
         $this->id = $id;
     }
 
-    public function getTopic(): TagTopic
+    public function getTopic(): TagTopicInterface
     {
         return $this->topic;
     }
@@ -139,7 +140,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      */
     public function getTopicTitle()
     {
-        if ($this->topic instanceof TagTopic) {
+        if ($this->topic instanceof TagTopicInterface) {
             return $this->topic->getTitle();
         }
 
@@ -151,13 +152,13 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * Because a Tag can have one Topic only, it is necessary to remove this Tag from the current Topic (if exists).
      * Add this Tag to the given Topic and save the information of relation in this object.
      *
-     * @param TagTopic $newTopic
+     * @param TagTopicInterface $newTopic
      *
-     * @return Tag $this
+     * @return TagInterface $this
      */
     public function setTopic($newTopic)
     {
-        if ($newTopic instanceof TagTopic) {
+        if ($newTopic instanceof TagTopicInterface) {
             $this->getTopic()->removeTag($this);
             $newTopic->addTag($this);
             $this->topic = $newTopic;
@@ -201,9 +202,9 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     }
 
     /**
-     * @return Procedure
+     * @return ProcedureInterface
      *
-     * @deprecated Only needed for Elasticsearch indexing. Use {@link TagTopic::getProcedure()} instead.
+     * @deprecated Only needed for Elasticsearch indexing. Use {@link TagTopicInterface::getProcedure()} instead.
      */
     public function getProcedure()
     {
@@ -213,7 +214,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * Add Statement.
      *
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
      * @return bool - true if the given statement was added to this tag, otherwise false
      */
@@ -230,7 +231,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * Sets the boilerplate text that is associated to this tag.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate|null $boilerplate
+     * @param BoilerplateInterface|null $boilerplate
      */
     public function setBoilerplate($boilerplate)
     {
@@ -240,7 +241,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * Returns the boilerplate text that is associated with this tag.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate|null
+     * @return BoilerplateInterface|null
      */
     public function getBoilerplate()
     {

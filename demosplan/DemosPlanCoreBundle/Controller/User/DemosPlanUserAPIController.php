@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,12 +29,12 @@ use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdministratableUserResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
@@ -86,15 +86,11 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/user/{userId}/get",
-     *        methods={"GET"},
-     *        name="dplan_api_user_get",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/user/{userId}/get', methods: ['GET'], name: 'dplan_api_user_get', options: ['expose' => true])]
     public function getAction(string $userId): APIResponse
     {
         try {
@@ -121,15 +117,11 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/user/",
-     *        methods={"GET"},
-     *        name="dplan_api_users_get",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
      */
+    #[Route(path: '/api/1.0/user/', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
     public function listAction(
         AdministratableUserResourceType $userType,
         DrupalFilterParser $filterParser,
@@ -184,17 +176,13 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/user/",
-     *        methods={"POST"},
-     *        name="dplan_api_user_create",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
      *
      * @deprecated Use `/api/2.0/User` instead ({@link GenericApiController::createAction()})
      */
+    #[Route(path: '/api/1.0/user/', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
     public function createAction(UserHandler $userHandler): APIResponse
     {
         try {
@@ -204,7 +192,7 @@ class DemosPlanUserAPIController extends APIController
 
             $resourceObject = $this->requestData->getObjectToCreate();
 
-            if ('User' !== ucfirst($resourceObject['type'])) {
+            if ('User' !== ucfirst((string) $resourceObject['type'])) {
                 throw new BadRequestException('Invalid resource object type');
             }
 
@@ -214,7 +202,7 @@ class DemosPlanUserAPIController extends APIController
                 try {
                     $userHandler->inviteUser($user);
                     $this->messageBag->add('confirm', 'confirm.email.invitation.sent');
-                } catch (SendMailException $e) {
+                } catch (SendMailException) {
                     $this->messageBag->add('error', 'error.email.invitation.send.to.user');
                 }
 
@@ -244,15 +232,11 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/user/{id}",
-     *        methods={"DELETE"},
-     *        name="dplan_api_user_delete",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
      */
+    #[Route(path: '/api/1.0/user/{id}', methods: ['DELETE'], name: 'dplan_api_user_delete', options: ['expose' => true])]
     public function deleteAction(string $id): Response
     {
         $this->userService->wipeUser($id);
@@ -261,13 +245,9 @@ class DemosPlanUserAPIController extends APIController
     }
 
     /**
-     * @Route(path="/api/1.0/user/{id}",
-     *        methods={"PATCH"},
-     *        name="dplan_api_user_update",
-     *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_edit")
      */
+    #[Route(path: '/api/1.0/user/{id}', methods: ['PATCH'], name: 'dplan_api_user_update', options: ['expose' => true])]
     public function updateAction(string $id, UserHandler $userHandler): APIResponse
     {
         if (!($this->requestData instanceof TopLevel)) {
@@ -282,9 +262,7 @@ class DemosPlanUserAPIController extends APIController
                 switch ($relationshipName) {
                     case 'roles':
                         $userData['roles'] = array_map(
-                            static function ($relObject) {
-                                return $relObject['id'];
-                            },
+                            static fn ($relObject) => $relObject['id'],
                             $relationship['data']
                         );
                         break;
@@ -301,7 +279,7 @@ class DemosPlanUserAPIController extends APIController
                         throw new LogicException("Unexpected relationship {$relationship}");
                 }
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             // nothing to do here, we just don't have changed relationships
         }
 

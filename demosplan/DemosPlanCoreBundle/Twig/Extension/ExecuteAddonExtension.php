@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -25,9 +25,9 @@ class ExecuteAddonExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('executeAddonFunction', [$this, 'executeAddonFunction']),
-            new TwigFunction('extensionPointMarkup', [$this, 'extensionPointMarkup']), // Is this really secure enough?
-            new TwigFunction('extensionPointData', [$this, 'extensionPointData']),
+            new TwigFunction('executeAddonFunction', $this->executeAddonFunction(...)),
+            new TwigFunction('extensionPointMarkup', $this->extensionPointMarkup(...)), // Is this really secure enough?
+            new TwigFunction('extensionPointData', $this->extensionPointData(...)),
         ];
     }
 
@@ -110,7 +110,7 @@ class ExecuteAddonExtension extends ExtensionBase
     }
 
     /**
-     * @return \Twig\Environment
+     * @return Environment
      */
     protected function getTwig()
     {
@@ -118,7 +118,7 @@ class ExecuteAddonExtension extends ExtensionBase
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher
+     * @return TraceableEventDispatcher
      */
     protected function getEventDispatcher()
     {

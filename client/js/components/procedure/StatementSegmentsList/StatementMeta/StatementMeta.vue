@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,10 +9,10 @@
 
 <template>
   <div class="c-statement-meta-box u-mb-0_5">
-    <div class="position--relative border--bottom u-pb-0_5">
+    <div class="relative border--bottom u-pb-0_5">
       {{ Translator.trans(editable ? 'statement.info.edit' : 'statement.info') }}
       <button
-        class="btn--blank o-link--default float--right"
+        class="btn--blank o-link--default float-right"
         @click="close">
         <dp-icon icon="close" />
       </button>
@@ -21,7 +21,7 @@
     <div
       class="u-mt-0_5"
       data-dp-validate="statementMetaData">
-      <div class="display--inline-block u-1-of-2 u-valign--top">
+      <div class="inline-block u-1-of-2 align-top">
         <dp-input
           id="statementSubmitter"
           v-model="localStatement.attributes.authorName"
@@ -106,7 +106,7 @@
         </div>
       </div><!--
 
-   --><div class="display--inline-block u-1-of-2 u-pl">
+   --><div class="inline-block u-1-of-2 u-pl">
         <dp-input
           id="statementInternId"
           v-model="localStatement.attributes.internId"
@@ -209,6 +209,7 @@
       :editable="editable"
       :attachments="attachments"
       class="u-pt-0_5 border--bottom u-pb-0_5"
+      :procedure-id="procedureId"
       :statement-id="statement.id"
       @change="(value) => emitInput('attachments', value)" />
 

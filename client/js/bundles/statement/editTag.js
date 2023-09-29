@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -23,9 +23,9 @@ initialize(components).then(() => {
   radios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       if (radio.value === 'new') {
-        newBoilerplateForm.classList.remove(prefixClass('display--none'))
+        newBoilerplateForm.classList.remove(prefixClass('hidden'))
       } else {
-        newBoilerplateForm.classList.add(prefixClass('display--none'))
+        newBoilerplateForm.classList.add(prefixClass('hidden'))
       }
     })
   })

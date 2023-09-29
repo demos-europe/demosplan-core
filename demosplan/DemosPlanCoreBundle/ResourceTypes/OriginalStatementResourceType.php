@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -51,20 +51,20 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
-        return $this->conditionFactory->allConditionsApply(
+        return [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyIsNull($this->original->id),
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
-        );
+        ];
     }
 
     public function isReferencable(): bool

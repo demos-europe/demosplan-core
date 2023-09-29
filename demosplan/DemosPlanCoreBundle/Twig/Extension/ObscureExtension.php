@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,15 +21,9 @@ use Twig\TwigFilter;
  */
 class ObscureExtension extends ExtensionBase
 {
-    /**
-     * @var EditorService
-     */
-    private $editorService;
-
-    public function __construct(ContainerInterface $container, EditorService $editorService)
+    public function __construct(ContainerInterface $container, private readonly EditorService $editorService)
     {
         parent::__construct($container);
-        $this->editorService = $editorService;
     }
 
     /**
@@ -40,7 +34,7 @@ class ObscureExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('dpObscure', [$this, 'obscure']),
+            new TwigFilter('dpObscure', $this->obscure(...)),
         ];
     }
 

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <ul
-    class="list-style-none bg-color--grey-light-2"
+    class="bg-color--grey-light-2"
     :class="depth === 0 ? 'c-toc c-toc--level-0 height-100p overflow-x-auto u-ph u-pv-0_25' : 'c-toc--level-1'">
     <li
       v-for="(subgroup, idx) in group.subgroups"

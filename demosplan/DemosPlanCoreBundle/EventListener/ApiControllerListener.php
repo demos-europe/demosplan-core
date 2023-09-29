@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,19 +17,8 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 class ApiControllerListener
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-    /**
-     * @var ApiResourceService
-     */
-    private $resourceService;
-
-    public function __construct(RequestStack $requestStack, ApiResourceService $resourceService)
+    public function __construct(private readonly RequestStack $requestStack, private readonly ApiResourceService $resourceService)
     {
-        $this->requestStack = $requestStack;
-        $this->resourceService = $resourceService;
     }
 
     public function onKernelController(ControllerEvent $event): void

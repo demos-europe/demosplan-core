@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,7 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -33,17 +35,18 @@ use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementFragmentNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
@@ -52,12 +55,8 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
@@ -65,7 +64,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Exception\ClientException;
@@ -76,15 +74,13 @@ use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Exception;
+use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService extends CoreService
 {
     use RefreshElasticsearchIndexTrait;
-
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
 
     /** @var PermissionsInterface */
     protected $permissions;
@@ -114,120 +110,42 @@ class StatementFragmentService extends CoreService
      * @var TranslatorInterface
      */
     protected $translator;
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var ElasticSearchService
-     */
-    private $searchService;
 
     /**
      * @var array
      */
     protected $paginatorLimits = [25, 50, 100];
 
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-    /**
-     * @var \Doctrine\Persistence\ManagerRegistry
-     */
-    private $managerRegistry;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var StatementFragmentRepository
-     */
-    private $statementFragmentRepository;
-    /**
-     * @var StatementFragmentVersionRepository
-     */
-    private $statementFragmentVersionRepository;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-    /**
-     * @var ElasticsearchFilterArrayTransformer
-     */
-    private $elasticsearchFilterArrayTransformer;
-
     public function __construct(
         AssignService $assignService,
-        CurrentUserInterface $currentUser,
-        DqlConditionFactory $conditionFactory,
-        ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
-        ElasticSearchService $elasticSearchService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
+        private readonly ElasticSearchService $searchService,
         ElementsService $elementService,
         EntityContentChangeService $entityContentChangeService,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        GlobalConfigInterface $globalConfig,
-        ManagerRegistry $managerRegistry,
-        MessageBagInterface $messageBag,
+        private readonly EntityHelper $entityHelper,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly MessageBagInterface $messageBag,
         ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        SearchIndexTaskService $searchIndexTaskService,
-        SortMethodFactory $sortMethodFactory,
-        StatementFragmentRepository $statementFragmentRepository,
-        StatementFragmentVersionRepository $statementFragmentVersionRepository,
-        StatementService $statementService,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementFragmentRepository $statementFragmentRepository,
+        private readonly StatementFragmentVersionRepository $statementFragmentVersionRepository,
+        private readonly StatementService $statementService,
         TranslatorInterface $translator,
-        UserRepository $userRepository,
+        private readonly UserRepository $userRepository,
         UserService $userService
     ) {
         $this->assignService = $assignService;
-        $this->conditionFactory = $conditionFactory;
-        $this->currentUser = $currentUser;
-        $this->elasticsearchFilterArrayTransformer = $elasticsearchFilterArrayTransformer;
         $this->elementService = $elementService;
         $this->entityContentChangeService = $entityContentChangeService;
-        $this->entityFetcher = $entityFetcher;
-        $this->entityHelper = $entityHelper;
-        $this->globalConfig = $globalConfig;
-        $this->managerRegistry = $managerRegistry;
-        $this->messageBag = $messageBag;
         $this->paragraphService = $paragraphService;
         $this->permissions = $permissions;
         $this->procedureService = $procedureService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->searchService = $elasticSearchService;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->statementFragmentRepository = $statementFragmentRepository;
-        $this->statementFragmentVersionRepository = $statementFragmentVersionRepository;
-        $this->statementService = $statementService;
         $this->translator = $translator;
-        $this->userRepository = $userRepository;
         $this->userService = $userService;
     }
 
@@ -337,10 +255,6 @@ class StatementFragmentService extends CoreService
             // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
             $this->statementFragmentRepository->delete($fragmentToDelete);
 
-            $this->searchIndexTaskService->deleteFromIndexTask(
-                StatementFragment::class,
-                $statementFragmentId
-            );
             $success = true;
         } catch (Exception $e) {
             $this->getLogger()->error('Fehler beim Löschen eines StatementFragments: ', [$e]);
@@ -427,20 +341,16 @@ class StatementFragmentService extends CoreService
         // only fields to return
         $versions = \collect($fragment['versions'])
             ->filter(
-                function ($version) use ($departmentId) {
-                    return array_key_exists('modifiedByDepartmentId', $version)
-                        && $version['modifiedByDepartmentId'] == $departmentId;
-                }
+                fn ($version) => array_key_exists('modifiedByDepartmentId', $version)
+                    && $version['modifiedByDepartmentId'] == $departmentId
             )->filter(
                 function ($version) use (&$currentValues) {
                     return $this->hasModifiedValues($version, $currentValues);
                 }
             )
-            ->transform(function ($fragment) use ($fieldsToReturn) {
-                return \collect($fragment)
-                    ->only($fieldsToReturn)
-                    ->toArray();
-            })
+            ->transform(fn ($fragment) => \collect($fragment)
+                ->only($fieldsToReturn)
+                ->toArray())
             ->values()
             ->toArray();
 
@@ -457,11 +367,11 @@ class StatementFragmentService extends CoreService
     public function getStatementFragmentsStatement($statementId)
     {
         try {
-            return $this->entityFetcher->listEntitiesUnrestricted(
-                StatementFragment::class,
-                [$this->conditionFactory->propertyHasValue($statementId, ['statement'])],
-                [$this->sortMethodFactory->propertyAscending(['sortIndex'])]
-            );
+            return $this->statementFragmentRepository->findBy([
+                'statement' => $statementId,
+            ], [
+                'sortIndex' => Criteria::ASC,
+            ]);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment List', [$e]);
 
@@ -530,27 +440,14 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->statementFragmentRepository->addObject($newFragment);
-                // index Fragment
-                $this->searchIndexTaskService->addIndexTask(
-                    StatementFragment::class,
-                    $newFragment->getId()
-                );
                 $this->getLogger()->debug('Cluster single fragment copied');
             }
-        } catch (NotAssignedException $e) {
+        } catch (NotAssignedException) {
             throw NotAssignedException::mustBeAssignedException();
         } catch (Exception $e) {
             $this->getLogger()->error('Could not copy StatementFragment', [$e]);
 
             return null;
-        }
-
-        if (null !== $statementToCopyTo) {
-            // somehow fragments are not updated in Cluster
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $statementToCopyTo->getId()
-            );
         }
 
         return $statementToCopyTo;
@@ -703,7 +600,7 @@ class StatementFragmentService extends CoreService
                         $esQuery->addFilterMustMissing($filterDisplay->getAggregationField());
                         unset($filterValues[array_search('', $filterValues)]);
                     }
-                    if (count($filterValues) > 0) {
+                    if ((is_countable($filterValues) ? count($filterValues) : 0) > 0) {
                         $esQuery->addFilterMust($filterDisplay->getAggregationField(), $filterValues);
                     }
                 }
@@ -733,6 +630,7 @@ class StatementFragmentService extends CoreService
      */
     public function getStatementFragmentVersions($fragmentId, $departmentId, $isReviewer = true): ?array
     {
+        $filters = [];
         try {
             $filters['id'] = $fragmentId;
             // reviewers should only see versions made by their own department
@@ -780,6 +678,7 @@ class StatementFragmentService extends CoreService
      */
     public function getStatementFragmentsProcedure(string $procedureId, $limit = 0, $page = 1): ElasticsearchResultSet
     {
+        $filters = [];
         try {
             $filters['procedureId'] = $procedureId;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters, '', null, $limit, $page);
@@ -804,6 +703,7 @@ class StatementFragmentService extends CoreService
      */
     public function getStatementFragmentsStatementES($statementId, $filters, $search = '', $limit = 10000, $page = 1): ElasticsearchResultSet
     {
+        $userFilters = [];
         try {
             $userFilters['statementId'] = $statementId;
 
@@ -819,7 +719,7 @@ class StatementFragmentService extends CoreService
             ];
 
             foreach ($filterMapArrays as $incomingKey => $userFilterKey) {
-                if (array_key_exists($incomingKey, $filters) && 0 < count($filters[$incomingKey])) {
+                if (array_key_exists($incomingKey, $filters) && 0 < (is_countable($filters[$incomingKey]) ? count($filters[$incomingKey]) : 0)) {
                     $userFilters[$userFilterKey] = $filters[$incomingKey];
                 }
             }
@@ -921,35 +821,6 @@ class StatementFragmentService extends CoreService
     }
 
     /**
-     * Reindexes StatementFragment in Elasticsearch.
-     *
-     * @param StatementFragment|false $statementFragment
-     * @param bool                    $updateSiblings    Should other StatementFragments of the parent Statement be updated as well?
-     */
-    public function reindexStatementFragment($statementFragment, $updateSiblings = true)
-    {
-        $this->searchIndexTaskService->addIndexTask(
-            StatementFragment::class,
-            $statementFragment->getId()
-        );
-
-        // Should other StatementFragments of the parent Statement be updated as well
-        if ($updateSiblings) {
-            $siblings = $this->getStatementFragmentsStatement($statementFragment->getStatement()->getId());
-            // insert also $statementFragment, it doesn't matter if it is inserted twice
-            foreach ($siblings as $sibling) {
-                $this->searchIndexTaskService->addIndexTask(
-                    StatementFragment::class,
-                    $sibling->getId()
-                );
-            }
-        }
-
-        // nested fragments at parent statement index needs to be updated in any case
-        $this->statementService->reindexStatement($statementFragment->getStatement());
-    }
-
-    /**
      * @param array $data
      *
      * @throws NoResultException
@@ -968,17 +839,8 @@ class StatementFragmentService extends CoreService
         $statementFragment->getStatement()->addFragment($statementFragment);
         // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
 
-        // add StatementFragment to Elasticsearch index
-        $this->searchIndexTaskService->addIndexTask(
-            StatementFragment::class,
-            $statementFragment->getId()
-        );
-
         $version = new StatementFragmentVersion($statementFragment);
         $this->statementFragmentVersionRepository->addObject($version);
-
-        // when creating a new fragment no update of siblings needed as nothing could have changed
-        $this->reindexStatementFragment($statementFragment, false);
 
         return $statementFragment;
     }
@@ -1025,7 +887,6 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->createStatementFragmentVersion($version);
-                $this->reindexStatementFragment($result);
             }
         } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
@@ -1055,7 +916,7 @@ class StatementFragmentService extends CoreService
 
         // Wenn das Fragment einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (array_key_exists('paragraphId', $fragmentArray) &&
-            0 < \strlen($fragmentArray['paragraphId']) &&
+            0 < \strlen((string) $fragmentArray['paragraphId']) &&
             $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
             $paragraphVersion = $em->getReference(
                 Paragraph::class,
@@ -1117,7 +978,6 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->createStatementFragmentVersion($version);
-                $this->reindexStatementFragment($result);
             }
         } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
@@ -1142,14 +1002,14 @@ class StatementFragmentService extends CoreService
         $result = [];
         try {
             foreach ($requestValues as $filterName => $filterValue) {
-                if (0 != \strpos($filterName, '_raw')) {
+                if (!str_starts_with($filterName, '_raw')) {
                     unset($requestValues[$filterName]);
                     $requestValues[\str_replace('_raw', '.raw', $filterName)] = $filterValue;
                 }
             }
             $fragmentList = $this->getStatementFragmentsDepartment($esQuery, $requestValues);
 
-            if (0 === count($fragmentList)) {
+            if (0 === count((array) $fragmentList)) {
                 return $result;
             }
 
@@ -1396,10 +1256,10 @@ class StatementFragmentService extends CoreService
                         // user wants to see not existent query as well as some filter
                         if (0 < count($shouldNotFilter)) {
                             $shouldNotBool = new BoolQuery();
-                            array_map([$shouldNotBool, 'addMustNot'], $shouldNotFilter);
+                            array_map($shouldNotBool->addMustNot(...), $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
                         }
-                        array_map([$shouldQuery, 'addShould'], $shouldFilter);
+                        array_map($shouldQuery->addShould(...), $shouldFilter);
                         $shouldQuery = $this->searchService->setMinimumShouldMatch(
                             $shouldQuery,
                             1
@@ -1424,13 +1284,13 @@ class StatementFragmentService extends CoreService
                 }
             }
 
-            if (0 < count($boolMustFilter)) {
-                array_map([$boolQuery, 'addMust'], $boolMustFilter);
+            if (0 < (is_countable($boolMustFilter) ? count($boolMustFilter) : 0)) {
+                array_map($boolQuery->addMust(...), $boolMustFilter);
             }
 
             // do not include procedures in configuration
-            if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
+            if (0 < (is_countable($boolMustNotFilter) ? count($boolMustNotFilter) : 0)) {
+                array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
             // generate Query
@@ -1522,7 +1382,7 @@ class StatementFragmentService extends CoreService
             $this->logger->debug('Elasticsearch StatementFragmentList Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
             $search = $this->esStatementFragmentType;
-            $elasticaAdapter = new \Pagerfanta\Adapter\ElasticaAdapter($search, $query);
+            $elasticaAdapter = new ElasticaAdapter($search, $query);
             $paginator = new DemosPlanPaginator($elasticaAdapter);
             $paginator->setLimits($this->getPaginatorLimits());
 
@@ -1700,23 +1560,16 @@ class StatementFragmentService extends CoreService
         return $statementFragment;
     }
 
-    public function reindexStatementFragments(Statement $statement): void
-    {
-        $fragmentIds = $statement->getFragments()->map(static function (StatementFragment $fragment): string {
-            return $fragment->getId();
-        })->getValues();
-
-        $this->searchIndexTaskService->addIndexTask(StatementFragment::class, $fragmentIds);
-    }
-
     protected function getFragmentElasticsearchRepository(): FragmentElasticsearchRepository
     {
         return new FragmentElasticsearchRepository(
+            $this->conditionFactory,
             $this->esStatementFragmentType,
             $this->managerRegistry,
             $this->globalConfig,
             $this->getLogger(),
             $this->translator,
+            $this->sortMethodFactory,
             $this->elementService,
             $this->paragraphService,
             StatementFragment::class
@@ -1795,7 +1648,7 @@ class StatementFragmentService extends CoreService
             if (!$this->areAllStatementFragmentsClaimedByCurrentUser($statementFragments)) {
                 throw new InvalidArgumentException('not all statementFragments are claimed by the current user');
             }
-            if (count($statementFragments) !== count($statementFragmentIds)) {
+            if (count($statementFragments) !== (is_countable($statementFragmentIds) ? count($statementFragmentIds) : 0)) {
                 throw new InvalidArgumentException('Not all given statementFragments IDs could be found for the given procedure ID');
             }
             foreach ($statementFragments as $statementFragment) {
@@ -1844,11 +1697,7 @@ class StatementFragmentService extends CoreService
             $statementFragments = $this->statementFragmentRepository->findBy(
                 ['id' => $statementFragmentIds, 'procedure' => $procedureId]
             );
-            // This can be optimized by reindexing multiple objects at once
-            // however it is of minor priority as this is an edge case anyway
-            foreach ($statementFragments as $statementFragment) {
-                $this->reindexStatementFragment($statementFragment);
-            }
+
             $this->refreshElasticsearchIndexes();
             throw $e;
         }

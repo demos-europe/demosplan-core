@@ -3,20 +3,22 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -24,13 +26,14 @@ use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
 use Exception;
+
 use function array_key_exists;
 
 class ElasticSearchService extends CoreService
 {
-    public const EXISTING_FIELD_FILTER = '*';
-    public const KEINE_ZUORDNUNG = 'keinezuordnung';
-    public const EMPTY_FIELD = 'no_value';
+    final public const EXISTING_FIELD_FILTER = '*';
+    final public const KEINE_ZUORDNUNG = 'keinezuordnung';
+    final public const EMPTY_FIELD = 'no_value';
 
     /**
      * Number of Documents to be counted as an Elasticsearch aggregation.
@@ -38,35 +41,9 @@ class ElasticSearchService extends CoreService
      * @var int
      */
     protected $aggregationsMinDocumentCount = 1;
-    /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\UserService
-     */
-    private $userService;
 
-    /**
-     * @var EditorService
-     */
-    private $editorService;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var ElasticsearchFilterArrayTransformer
-     */
-    private $elasticsearchFilterArrayTransformer;
-
-    public function __construct(
-        EditorService $editorService,
-        ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
-        PermissionsInterface $permissions,
-        UserService $userService
-    ) {
-        $this->editorService = $editorService;
-        $this->elasticsearchFilterArrayTransformer = $elasticsearchFilterArrayTransformer;
-        $this->permissions = $permissions;
-        $this->userService = $userService;
+    public function __construct(private readonly EditorService $editorService, private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer, private readonly PermissionsInterface $permissions, private readonly UserService $userService)
+    {
     }
 
     /**
@@ -79,7 +56,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsMissingAggregation(Query $query, $key): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -98,7 +75,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsAggregation(Query $query, $key, $orderBy = null, $orderDir = null, $bucketKey = null): Query
     {
-        $bucketKey = $bucketKey ?? $key;
+        $bucketKey ??= $key;
         $aggPriority = new \Elastica\Aggregation\Terms($bucketKey);
         $aggPriority->setField($key);
         // we usually need all Aggregations, 0 is not allowed any more. Use some reasonably big magic number
@@ -273,9 +250,7 @@ class ElasticSearchService extends CoreService
         // sort by Label
         \usort(
             $bucket,
-            function ($a, $b) {
-                return \strnatcasecmp($a['label'], $b['label']);
-            }
+            fn($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
         );
 
         return $bucket;
@@ -348,7 +323,7 @@ class ElasticSearchService extends CoreService
         $usedSearchFields = [];
         foreach ($searchFields as $esField) {
             if (is_array($esField)) {
-                $usedSearchFields = array_merge($usedSearchFields, $esField);
+                $usedSearchFields = [...$usedSearchFields, ...$esField];
             } else {
                 $usedSearchFields[] = $esField;
             }
@@ -368,7 +343,7 @@ class ElasticSearchService extends CoreService
      */
     public function addEsFragmentsMissingAggregation($key, Query $query): Query
     {
-        $aggPriority = new \Elastica\Aggregation\Missing(
+        $aggPriority = new Missing(
             $key.'_missing', $key
         );
         $aggPriority->setField($key);
@@ -381,7 +356,7 @@ class ElasticSearchService extends CoreService
         // we do only need the amount, not the ids
         $aggPriority->addAggregation($statementCount);
 
-        $nested = new \Elastica\Aggregation\Nested(
+        $nested = new Nested(
             $key.'_missing',
             'fragments'
         );
@@ -398,7 +373,7 @@ class ElasticSearchService extends CoreService
      * @param string $field
      * @param array  $terms
      *
-     * @return \Elastica\Query\Terms
+     * @return Terms
      *
      * @throws Exception
      */
@@ -438,9 +413,9 @@ class ElasticSearchService extends CoreService
      */
     public function addUserFilter($key, $userFilters, $boolMustFilter, $boolMustNotFilter, $nullvalue = null, $rawFields = [], $addAllAggregations = true)
     {
-        if (array_key_exists($key, $userFilters) && ($addAllAggregations || $this->hasFilterValue(
-            $userFilters[$key]
-        ))) {
+        if (array_key_exists($key, $userFilters)
+            && ($addAllAggregations || $this->hasFilterValue($userFilters[$key]))
+        ) {
             $value = \is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
             $key = \in_array($key, $rawFields, true) ? $key.'.raw' : $key;
             $count = count($value);
@@ -498,9 +473,9 @@ class ElasticSearchService extends CoreService
      * Convert Result to Legacy.
      *
      * @param string|null $search
-     * @param array  $filters
-     * @param array  $sort
-     * @param string $resultKey
+     * @param array       $filters
+     * @param array       $sort
+     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,
@@ -510,7 +485,7 @@ class ElasticSearchService extends CoreService
         $resultKey = 'statements'
     ): ElasticsearchResultSet {
         $filterSet = [
-            'total'   => count($elasticsearchResult->getAggregations()),
+            'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,
             'offset'  => 0,
             'limit'   => 0,
             'filters' => $elasticsearchResult->getAggregations(),
@@ -547,7 +522,7 @@ class ElasticSearchService extends CoreService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits']));
+        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits'] ?? []));
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($elasticsearchResult->getPager());

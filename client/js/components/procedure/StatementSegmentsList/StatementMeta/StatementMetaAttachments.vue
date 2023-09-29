@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -17,9 +17,9 @@
         v-if="attachments.originalAttachment.hash"
         :attachment="attachments.originalAttachment" />
       <p
+        v-else
         class="color--grey"
-        v-text="Translator.trans('none')"
-        v-else />
+        v-text="Translator.trans('none')" />
     </div>
     <div class="space-stack-s">
       <dp-label
@@ -33,26 +33,29 @@
         </li>
       </ul>
       <p
+        v-else
         class="color--grey"
-        v-text="Translator.trans('none')"
-        v-else />
-      <dp-upload-files
-        :class="editable ? '' : 'pointer-events-none opacity-7'"
-        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
-        ref="uploadStatementAttachment"
-        id="uploadStatementAttachment"
-        name="uploadStatementAttachment"
-        allowed-file-types="all"
-        :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
-        :max-number-of-files="1000"
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
-        @file-remove="removeFileId"
-        @upload-success="setFileId" />
-      <dp-button
-        :busy="isProcessing"
-        :disabled="fileIds.length === 0"
-        :text="Translator.trans('save')"
-        @click="save('generic')" />
+        v-text="Translator.trans('none')" />
+      <template v-if="editable">
+        <dp-upload-files
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+          ref="uploadStatementAttachment"
+          id="uploadStatementAttachment"
+          name="uploadStatementAttachment"
+          allowed-file-types="all"
+          :basic-auth="dplan.settings.basicAuth"
+          :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
+          :max-number-of-files="1000"
+          :tus-endpoint="dplan.paths.tusEndpoint"
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+          @file-remove="removeFileId"
+          @upload-success="setFileId" />
+        <dp-button
+          :busy="isProcessing"
+          :disabled="fileIds.length === 0"
+          :text="Translator.trans('save')"
+          @click="save('generic')" />
+      </template>
     </div>
   </div>
 </template>
@@ -78,13 +81,18 @@ export default {
     },
 
     /**
-     * Editable can be used to disable DpUploadFiles on css level
-     * but keep the uploaded files list accessible at the same time.
+     * When true upload files and save button will not be rendered,
+     * but the attachments are still shown
      */
     editable: {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    procedureId: {
+      type: String,
+      required: true
     },
 
     statementId: {

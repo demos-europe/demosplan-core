@@ -3,34 +3,24 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 
 class CountyService extends CoreService
 {
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
-    /**
-     * @var CountyRepository
-     */
-    private $countyRepository;
-
-    public function __construct(CountyRepository $countyRepository, CustomerService $customerService)
+    public function __construct(private readonly CountyRepository $countyRepository, private readonly CustomerService $customerService)
     {
-        $this->countyRepository = $countyRepository;
-        $this->customerService = $customerService;
     }
 
     /**
@@ -71,9 +61,7 @@ class CountyService extends CoreService
         $counties = $this->getAllCounties();
 
         return \collect($counties)->map(
-            function (County $county) {
-                return ['id' => $county->getId(), 'name' => $county->getName()];
-            }
+            fn(County $county) => ['id' => $county->getId(), 'name' => $county->getName()]
         )
             ->sortBy('name')
             ->values()
@@ -103,9 +91,9 @@ class CountyService extends CoreService
      *
      * @param string $name
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\County|null
+     * @return County|null
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function findCountyByName($name)
     {

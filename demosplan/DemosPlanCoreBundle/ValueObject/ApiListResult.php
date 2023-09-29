@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,7 +15,7 @@ use EDT\JsonApi\RequestHandling\ApiListResultInterface;
 use Pagerfanta\Pagerfanta;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  *
  * @template-implements ApiListResultInterface<O>
  *

@@ -1,0 +1,54 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'master.new' |trans
+    } %}
+    <p class="u-mb">
+        {{ "text.master.new"|trans }}
+    </p>
+
+    {% set copyMasterOptions = [{ label: 'master.empty'|trans, value: templateVars.masterTemplateId }] %}
+    {% if templateVars.list.procedures is defined %}
+        {% for procedure in templateVars.list.procedures %}
+            {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default, value: procedure.ident|default }]) %}
+        {% endfor %}
+    {% endif %}
+
+    {% set emailAddresses = [] %}
+    {% for agencyExtraEmailAddress in form.agencyExtraEmailAddresses %}
+        {%  set emailAddresses = emailAddresses|merge([{'mail': agencyExtraEmailAddress.vars.value.fullAddress|default('')}]) %}
+    {% endfor %}
+
+    {#  To correctly inform planners about which fields are inherited from the selected procedure template,
+        all fields activated in a certain project are passed to the respective translation string. #}
+    {% set procedureTemplateFields = [
+        { name: 'planningagency', active: hasPermission('field_procedure_adjustments_planning_agency') },
+        { name: 'authorized.users', active: hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') },
+        { name: 'internalnote', active: true },
+        { name: 'email.procedure.agency', active: true },
+        { name: 'email.address.more', active: true },
+        { name: 'procedure.pictogram', active: hasPermission(['field_procedure_pictogram', 'area_public_participation']) },
+        { name: 'linkbox', active: hasPermission('field_procedure_linkbox') },
+        { name: 'public.participation.contact', active: hasPermission('field_procedure_contact_person') },
+        { name: 'procedure.notifyCountry', active: hasPermission('feature_statement_notify_counties') }
+    ]|filter(field => field.active)|map(field => field.name|trans)|join(', ') %}
+
+    <new-blueprint-form
+        agency-main-email-id="{{ form.agencyMainEmailAddress.vars.id }}"
+        agency-main-email-full-address="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+        procedure-template-fields="{{ procedureTemplateFields }}"
+        :init-email-addresses="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')"
+        :is-customer-master-blueprint-existing="Boolean({{ templateVars.isCustomerMasterBlueprintExisting }})"
+        public-participation-contact="{{ proceduresettings.publicParticipationContact|default('notspecified'|trans) }}"
+        token-vars-value="{{ form._token.vars.value }}"
+        master-blueprint-id="{{ templateVars.masterTemplateId }}"
+        :blueprint-options="JSON.parse('{{ copyMasterOptions|json_encode|e('js', 'utf-8') }}')">
+    </new-blueprint-form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationNewMaster.js']) }}
+{% endblock javascripts %}

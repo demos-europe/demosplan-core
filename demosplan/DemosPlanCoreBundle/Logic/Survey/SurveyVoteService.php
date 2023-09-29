@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,14 +20,8 @@ use UnexpectedValueException;
 
 class SurveyVoteService extends CoreService
 {
-    /**
-     * @var SurveyVoteRepository
-     */
-    private $surveyVoteRepository;
-
-    public function __construct(SurveyVoteRepository $surveyVoteRepository)
+    public function __construct(private readonly SurveyVoteRepository $surveyVoteRepository)
     {
-        $this->surveyVoteRepository = $surveyVoteRepository;
     }
 
     public function findById(string $id): SurveyVote

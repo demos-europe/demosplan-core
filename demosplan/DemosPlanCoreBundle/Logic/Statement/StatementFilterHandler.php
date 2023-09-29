@@ -3,17 +3,17 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -21,15 +21,10 @@ class StatementFilterHandler extends CoreHandler
 {
     /** @var Permissions */
     protected $permissions;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
 
-    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, TranslatorInterface $translator)
+    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
-        $this->translator = $translator;
         $this->permissions = $permissions;
     }
 
@@ -166,9 +161,7 @@ class StatementFilterHandler extends CoreHandler
     {
         $translator = $this->translator;
         $statusLabels = collect($this->getFormParameter('statement_status'))
-            ->transform(function ($transkey) use ($translator) {
-                return $translator->trans($transkey);
-            })
+            ->transform(fn($transkey) => $translator->trans($transkey))
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);

@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -10,10 +10,10 @@
 <template>
   <div>
     <i
-      class="fa cursor--help"
+      class="fa cursor-help"
       :class="{
-        'fa-microphone color--system-confirm': enabled,
-        'fa-microphone-slash color--system-error': enabled === false
+        'fa-microphone color-message-success-fill': enabled,
+        'fa-microphone-slash color-message-severe-fill': enabled === false
       }"
       aria-hidden="true"
       v-tooltip="text"

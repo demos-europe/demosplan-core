@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <l-map
-    class="c-publicindex__map u-z-content"
+    class="c-publicindex__map isolate"
     ref="map"
     :zoom="initialZoom"
     :center="initialLocation"

@@ -1,0 +1,219 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    <h1>
+        {{ templateVars.organisation.name|default() }} : {{ "departments.administer"|trans }}
+    </h1>
+    <p class="font-size-small">
+        {{ "text.department.edit"|trans }}
+    </p>
+
+    {% if templateVars.orgaList is defined and templateVars.orgaList == true and templateVars.orgaList|length > 0 %}
+        <form action="{{ path('DemosPlan_department_list', {'orgaId': templateVars.organisation.ident})}}" method="post">
+            <label class="push--bottom">
+                <p class="u-mb-0_25">
+                    {{ "organisation"|trans }}
+                </p>
+                <select
+                    class="u-1-of-2 bg-color--white"
+                    name="orgaId"
+                    style="height: 28px;"
+                    data-cy="OrgaSelectMenu">
+                    {%  for orga in templateVars.orgaList %}
+                        <option value="{{ orga.ident }}" {% if orga.ident == templateVars.organisation.ident %}selected{% endif %}>{{orga.name }}</option>
+                    {% endfor %}
+                </select>
+                <input
+                    class="btn btn--primary float-right"
+                    type="submit"
+                    value="{{ "organisation.switch"|trans }}"
+                    data-cy="changeOrganization">
+            </label>
+        </form>
+    {% endif %}
+
+    <form
+        class="push--top"
+        id="departmentlist"
+        action="{{ path('DemosPlan_department_add',{'orgaId': templateVars.organisation.ident}) }}"
+        method="post">
+        <input
+            type="hidden"
+            name="orgaId"
+            value="{{ templateVars.organisation.ident|default() }}">
+
+        <dp-accordion
+            title="{{ "department.create"|trans }}"
+            data-cy="newDepartmentToggle"
+            ref="accordion-new-department">
+            <div class="o-box--dark soft u-mb-0_5">
+                <label
+                    for="departmentName"
+                    class="u-pt-0_5 u-mb-0 u-ml-0_5">
+                    {{ "department.name"|trans }}*
+                </label>
+                <input
+                    class="grid__item u-ml-0_5 u-1-of-2"
+                    style="height: 28px;"
+                    id="departmentName"
+                    name="name"
+                    type="text"
+                    value=""
+                    data-cy="newDepartment">
+
+                <div class="text-right u-mt-0_5 u-mr-0_5 space-inline-s">
+                    <input
+                        class="btn btn--primary"
+                        type="submit"
+                        value="{{ "save"|trans }}"
+                        data-cy="saveNewDepartment">
+                    <input
+                        class="btn btn--secondary color--white"
+                        type="reset"
+                        @click="$refs['accordion-new-department'].toggle(false)"
+                        value="{{ "abort"|trans }}">
+                </div>
+            </div>
+        </dp-accordion>
+    </form>
+
+
+    {% if feedback.success_message is defined %}
+        <p class="flash flash-confirm">
+            <i class="fa fa-check-circle" aria-hidden="true"></i>
+            {{ feedback.success_message }}
+        </p>
+    {% endif %}
+    {% if feedback.fail_message is defined %}
+        <p class="flash flash-error">
+            {% for message in feedback.fail_message %}
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                {{ message }}
+                <br>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if templateVars.departmentList == true %}
+        <form
+            class="push--top"
+            action="{{ path('DemosPlan_departments_admin', { orgaId: templateVars.organisation.ident } ) }}"
+            method="post"
+            name="departmentsList">
+
+            <div class="u-mt u-mb-0_5 layout">
+                {% if hasPermission('feature_department_delete') %}
+                    <div class="layout__item u-3-of-7">
+                        <input
+                            type="checkbox"
+                            id="select_all"
+                            name="checkAllItems"
+                            value=""
+                            data-form-actions-check-all
+                            data-cy="selectAllDepartmentsList">
+                        <label
+                            for="select_all"
+                            class="u-pl-0_125 btn-icns u-nojs-hide--inline-block">
+                            {{ "departments.mark"|trans }}
+                        </label>
+                    </div><!--
+              -->{% endif %}<!--
+              --><div class="text-right layout__item {% if hasPermission('feature_department_delete') %}u-4-of-7 {% endif %}space-inline-s">
+                    <button type="submit" class="btn btn--primary" name="manageDepartments" value="saveAll">
+                        {{ 'save.all.changes'|trans }}
+                    </button><!--
+
+                  -->{% if hasPermission('feature_department_delete') %}<!--
+                      --><button
+                            type="submit"
+                            class="btn btn--warning"
+                            data-cy="deleteSelectedItem"
+                            name="manageDepartments"
+                            data-form-actions-confirm-value="deleteSelected"
+                            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}"
+                        >
+                            {{ 'departments.marked.delete'|trans }}
+                        </button><!--
+                  -->{% endif %}<!--
+               --></div>
+            </div>
+
+            <ul class="o-list o-list--card">
+                {% for department in templateVars.departmentList %}
+                    <dp-table-card
+                        data-cy="departmentList"
+                        class="o-list__item u-p-0_5 u-pl-0"
+                        ref="table-card-{{ department.ident }}">
+                        <template v-slot:header="">
+                            <div class="layout__item">
+                                {% if hasPermission('feature_department_delete') %}
+                                    <input
+                                        type="checkbox"
+                                        name="elementsToAdminister[]"
+                                        value="{{ department.ident|default }}"
+                                        data-checkable-item
+                                        data-cy="checkDepartmentList">
+                                {% endif %}
+                                <span class="weight--bold">
+                                    {{ department.name|default }}
+                                </span>
+                                <div
+                                    class="float-right inline-block weight--bold u-mr-0_5">
+                                    <button
+                                        @click="$refs['table-card-{{ department.ident }}'].toggle()"
+                                        type="button"
+                                        data-cy="editDepartmentToggle"
+                                        class="btn--blank o-link--default">
+                                        <i class="fa fa-angle-down" style="font-size: 1.8rem; line-height: 1.2rem;" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                        <aside class="layout__item">
+                            <label class="u-mv-0_5">
+                                <p class="u-mb-0_25">
+                                    {{ "department.name"|trans }}*
+                                </p>
+                                <input
+                                    class="layout__item u-1-of-2"
+                                    style="height: 28px;"
+                                    name="{{ department.ident }}:name"
+                                    type="text"
+                                    value="{{ department.name|default() }}"
+                                    data-cy="editDepartment">
+                            </label>
+
+                            <div class="text-right space-inline-s">
+                                <button
+                                    class="btn btn--primary"
+                                    type="submit"
+                                    name="manageDepartments"
+                                    value="save:{{ department.ident|default() }}"
+                                    data-cy="saveEditDepartment">
+                                    {{ "save"|trans }}
+                                </button>
+                                <input
+                                    class="btn btn--secondary color--white"
+                                    type="reset"
+                                    value="{{ "abort"|trans }}"
+                                    @click="$refs['table-card-{{ department.ident }}'].toggle(false)">
+                            </div>
+
+                        </aside>
+
+                    </dp-table-card>
+
+                {% endfor %}
+            </ul>
+
+            <div class="layout u-mt">
+                {% include '@DemosPlanCore/DemosPlanUser/includes/list_controls.html.twig' with {'controlName' : 'manageDepartments', 'entityName': 'Abteilung'} only %}
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('user-listDepartments.js')}}
+{% endblock javascripts %}

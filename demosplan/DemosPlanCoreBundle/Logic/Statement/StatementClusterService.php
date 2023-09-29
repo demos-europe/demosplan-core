@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,15 +14,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
@@ -31,46 +28,14 @@ class StatementClusterService extends CoreService
 {
     /** @var StatementService */
     protected $statementService;
-    /** @var SearchIndexTaskService */
-    protected $searchIndexTaskService;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var ClusterStatementResourceType
-     */
-    private $clusterStatementResourceType;
-
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
-
-    /** @var StatementCopier */
-    private $statementCopier;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
 
     public function __construct(
-        ClusterStatementResourceType $clusterStatementResourceType,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementCopier $statementCopier,
-        StatementRepository $statementRepository,
+        private readonly ClusterStatementResourceType $clusterStatementResourceType,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository,
         StatementService $statementService
     ) {
-        $this->clusterStatementResourceType = $clusterStatementResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->entityFetcher = $entityFetcher;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementCopier = $statementCopier;
-        $this->statementRepository = $statementRepository;
         $this->statementService = $statementService;
     }
 
@@ -106,16 +71,6 @@ class StatementClusterService extends CoreService
                 ->addCluster($statementAssessmentTable, $statementIdsToCluster);
 
             $doctrineConnection->commit();
-
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $headStatement->getId()
-            );
-            // update original statement in ES index to hide it from list
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $headStatement->getParent()->getId()
-            );
 
             return $headStatement;
         } catch (Exception $e) {
@@ -157,14 +112,12 @@ class StatementClusterService extends CoreService
     public function getClustersOfProcedure(string $procedureId)
     {
         $sortMethods = $this->clusterStatementResourceType->getDefaultSortMethods();
-        $conditions = [
-            $this->clusterStatementResourceType->getAccessCondition(),
-            $this->conditionFactory->propertyHasValue(
-                $procedureId,
-                $this->clusterStatementResourceType->procedure->id
-            ),
-        ];
+        $conditions = $this->clusterStatementResourceType->getAccessConditions();
+        $conditions[] = $this->conditionFactory->propertyHasValue(
+            $procedureId,
+            $this->clusterStatementResourceType->procedure->id
+        );
 
-        return $this->entityFetcher->listEntitiesUnrestricted(Statement::class, $conditions, $sortMethods);
+        return $this->statementRepository->getEntities($conditions, $sortMethods);
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,16 +23,10 @@ class MasterTemplateService
      *
      * @deprecated
      */
-    public const FORMER_MASTER_TEMPLATE_ID = 'ae65efdb-8414-4deb-bc81-26efdfc9560b';
+    final public const FORMER_MASTER_TEMPLATE_ID = 'ae65efdb-8414-4deb-bc81-26efdfc9560b';
 
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly ManagerRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function getMasterTemplate(): Procedure

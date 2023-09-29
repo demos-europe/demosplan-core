@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -11,7 +11,7 @@
 // It serves as the starting point for user interaction on a procedure detail page.
 
 .c-actionbox {
-    $actionbox-border-radius:           $dp-token-rounded-small;               // buttons, input field
+    $actionbox-border-radius:           $dp-rounded-small;               // buttons, input field
     $actionbox-color:                   $dp-token-color-brand-cta;             // tab + content bg
     $actionbox-color-dark:              $dp-token-color-brand-cta-dark;        // inactive tab
     $actionbox-color-light:             $dp-token-color-brand-cta-light;       // tab:hover tab
@@ -129,7 +129,7 @@
         }
 
         &.is-active:active {
-            box-shadow: $dp-token-box-shadow-1;
+            box-shadow: $dp-box-shadow;
             color: $actionbox-color-dark;
         }
 
@@ -143,13 +143,13 @@
 
         &.is-active {
             background-color: $actionbox-color-contrast;
-            box-shadow: $dp-token-box-shadow-1;
+            box-shadow: $dp-box-shadow;
             color: $actionbox-color;
 
             &:hover:not(:active),
             &.is-activated:not(:active) {
                 color: $actionbox-color-dark;
-                box-shadow: $dp-token-box-shadow-2;
+                box-shadow: $dp-box-shadow-md;
                 cursor: pointer;
             }
         }
@@ -202,7 +202,7 @@
     &__hint {
         color: $actionbox-color-contrast;
 
-        font-size: $dp-token-font-size-small;
+        font-size: $dp-font-size-small;
 
         &:last-of-type {
             margin-bottom: 0;

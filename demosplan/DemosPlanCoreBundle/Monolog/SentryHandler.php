@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -30,14 +30,8 @@ use Throwable;
  */
 class SentryHandler implements HandlerInterface
 {
-    /**
-     * @var HandlerInterface
-     */
-    private $decoratedHandler;
-
-    public function __construct(HandlerInterface $decoratedHandler)
+    public function __construct(private readonly HandlerInterface $decoratedHandler)
     {
-        $this->decoratedHandler = $decoratedHandler;
     }
 
     /**
@@ -72,7 +66,7 @@ class SentryHandler implements HandlerInterface
                             } elseif ($value instanceof Throwable) {
                                 $decodedValue = $value->getMessage().' '.$value->getTraceAsString();
                             }
-                        } catch (JsonException $e) {
+                        } catch (JsonException) {
                             $decodedValue = $value;
                         }
                         $scope->setExtra($key, $decodedValue);

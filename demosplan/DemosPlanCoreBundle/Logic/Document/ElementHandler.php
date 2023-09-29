@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,14 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_key_exists;
 
 class ElementHandler extends CoreHandler
@@ -30,35 +31,9 @@ class ElementHandler extends CoreHandler
      */
     protected $elementsWitchChildrenFlat;
 
-    /** @var ElementsService */
-    private $elementService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var FlashMessageHandler
-     */
-    private $flashMessageHandler;
-    /**
-     * @var ArrayHelper
-     */
-    private $arrayHelper;
-
-    public function __construct(ArrayHelper $arrayHelper, ElementsService $elementService, FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, PermissionsInterface $permissions, TranslatorInterface $translator)
+    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ElementsService $elementService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
-        $this->arrayHelper = $arrayHelper;
-        $this->elementService = $elementService;
-        $this->flashMessageHandler = $flashMessageHandler;
-        $this->permissions = $permissions;
-        $this->translator = $translator;
     }
 
     /**
@@ -95,9 +70,7 @@ class ElementHandler extends CoreHandler
         $elements = $this->elementService->getElementsByEnabledStatus($procedureId, $enabled);
 
         return array_map(
-            static function (Elements $element) {
-                return $element->getId();
-            },
+            static fn (Elements $element) => $element->getId(),
             $elements
         );
     }
@@ -111,9 +84,7 @@ class ElementHandler extends CoreHandler
     public function getFileNamedPath(array $elementIds, string $fileName): string
     {
         $elements = $this->elementService->getElementsByIds($elementIds, ['order' => 'asc']);
-        $fileNamedPathArray = array_map(function (Elements $element) {
-            return $element->getTitle();
-        }, $elements);
+        $fileNamedPathArray = array_map(fn (Elements $element) => $element->getTitle(), $elements);
 
         return implode('/', $fileNamedPathArray).'/'.$fileName;
     }
@@ -160,7 +131,7 @@ class ElementHandler extends CoreHandler
             ];
         }
 
-        if (!array_key_exists('title', $element) || '' === trim($element['title'])) {
+        if (!array_key_exists('title', $element) || '' === trim((string) $element['title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.mandatoryfield', ['name' => 'title']),

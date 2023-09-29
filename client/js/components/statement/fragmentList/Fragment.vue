@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -16,11 +16,11 @@
     :data-fragment-id="fragment.id || 0"
     :data-fragment-vote-advice="fragment.voteAdvice === null ? '' : fragment.voteAdvice">
     <!-- header -->
-    <div class="c-at-item__header can-animate cf">
+    <div class="c-at-item__header can-animate flow-root">
       <!-- claim, id, date created -->
-      <div class="layout--flush weight--bold display--inline-block u-mv-0_25 u-mh-0_5 u-mr">
+      <div class="layout--flush weight--bold inline-block u-mv-0_25 u-mh-0_5 u-mr">
         <dp-claim
-          class="c-at-item__row-icon display--inline-block"
+          class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
           :assigned-id="(fragment.assignee.id || '')"
@@ -33,11 +33,11 @@
           v-if="!isArchive && hasPermission('feature_statement_assignment')"
           @click="updateClaim" />
 
-        <v-popover class="display--inline-block u-mr">
+        <v-popover class="inline-block u-mr">
           <div>
             <span
               v-if="isArchive"
-              class="c-at-item__row-icon display--inline-block">
+              class="c-at-item__row-icon inline-block">
               <input
                 type="checkbox"
                 :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
@@ -57,7 +57,7 @@
               aria-describedby="exportCheckboxDescription">
 
             <label
-              class="u-m-0 display--inline-block"
+              class="u-m-0 inline-block"
               :for="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'">
               ID {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }} ({{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }})
             </label>
@@ -82,16 +82,16 @@
         :fragment-id="fragment.id || 0"
         :badge="true"
         :tooltip="true"
-        class="display--inline-block u-mv-0_25 u-mh-0_5">
+        class="inline-block u-mv-0_25 u-mh-0_5">
         <template v-slot:title>
           {{ Translator.trans('fragment.voteAdvice.short') }}
         </template>
       </dp-fragment-status>
 
       <!-- Tabs -->
-      <div class="text--right float--right">
+      <div class="text-right float-right">
         <a
-          class="c-at-item__tab-trigger o-link--icon display--inline-block u-pv-0_25 u-ph-0_5"
+          class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_25 u-ph-0_5"
           :class="{'is-active-toggle': tab==='fragment'}"
           @click="setActiveTab('fragment')"
           :href="`#fragment_${fragment.id || 0}`"
@@ -103,7 +103,7 @@
         </a>
 
         <a
-          class="c-at-item__tab-trigger o-link--icon display--inline-block u-pv-0_25 u-ph-0_5"
+          class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_25 u-ph-0_5"
           :class="{'is-active-toggle': tab==='statement'}"
           @click="setActiveTab('statement')"
           :href="`#statement_${fragment.id || 0}`"
@@ -146,7 +146,7 @@
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
                 <div>
-                  <strong class="display--block">{{ tag.topicTitle }}</strong>
+                  <strong class="block">{{ tag.topicTitle }}</strong>
                   {{ tag.title }}
                 </div>
               </template>
@@ -305,7 +305,7 @@
         <!-- edit fragment: toggle -->
         <div class="layout--flush u-pv-0_25 u-ph-0_5 u-pl-0_25">
           <a
-            class="display--inline-block cursor--pointer"
+            class="inline-block cursor-pointer"
             :class="{ 'is-active-toggle': editing }"
             @click="toggleEditing"
             rel="noopener"
@@ -347,16 +347,16 @@
         title="tags.assigned">
         <template v-if="fragment.statement.tags.length">
           <ul
-            class="o-list o-list--csv display--inline-block u-pb-0_25"
+            class="o-list o-list--csv inline-block u-pb-0_25"
             style="max-width: 95%">
             <v-popover
               v-for="(tag, idx) in fragment.statement.tags"
               :key="idx"
-              class="o-list__item display--inline">
+              class="o-list__item inline">
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
                 <div>
-                  <strong class="display--block">{{ tag.topicTitle }}</strong>
+                  <strong class="block">{{ tag.topicTitle }}</strong>
                   {{ tag.title }}
                 </div>
               </template>
@@ -468,14 +468,14 @@
           v-for="file in statementFiles"
           :key="file.hash"
           class="o-hellip u-pr-0_5"
-          :href="Routing.generate('core_file', { hash: file.hash })"
+          :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: fragment.procedureId })"
           rel="noopener"
           target="_blank">
           {{ file.name }}
         </a>
       </dp-item-row>
 
-      <!-- statement text-->
+      <!-- statement text -->
       <dp-item-row
         icon="fa-comment"
         title="statement.text"

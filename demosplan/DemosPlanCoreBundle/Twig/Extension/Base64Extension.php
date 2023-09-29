@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,7 +23,7 @@ class Base64Extension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('base64', [$this, 'base64Filter']),
+            new TwigFilter('base64', $this->base64Filter(...)),
         ];
     }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,17 +13,13 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,25 +30,20 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class DemosPlanDepartmentController extends BaseController
 {
     /**
-     * @Route(
-     *     name="DemosPlan_user_verify_department_switch_or_update",
-     *     path="/department/verifychanges",
-     *     methods={"GET"}
-     * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_user_verify_department_switch_or_update', path: '/department/verifychanges', methods: ['GET'])]
     public function verifyDepartmentSwitchOrUpdateAction(AuthenticationUtils $authenticationUtils, Request $request)
     {
         try {
             $session = $request->getSession();
 
             return $this->renderTemplate(
-                '@DemosPlanUser/DemosPlanUser/verify_orga_switch_or_update.html.twig',
+                '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
                 [
                     'templateVars' => [
                         'type'        => 'Department',
@@ -70,11 +61,6 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * List departments of specific organisation.
      *
-     * @Route(
-     *     name="DemosPlan_department_list",
-     *     path="/department/list/{orgaId}"
-     * )
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param null $orgaId
@@ -83,17 +69,16 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_department_list', path: '/department/list/{orgaId}')]
     public function listDepartmentsAction(
         CurrentUserService $currentUser,
         CustomerHandler $customerHandler,
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
         OrgaService $orgaService,
         Request $request,
-        SortMethodFactory $sortMethodFactory,
         UserHandler $userHandler,
         $orgaId)
     {
+        $templateVars = [];
         $requestPost = $request->request;
         // Hole die User Entity
         $user = $currentUser->getUser();
@@ -110,13 +95,7 @@ class DemosPlanDepartmentController extends BaseController
         // Falls es sich um den SupportUser handelt, hole alle Orgas des customers,
         // damit er zwischen der orgas wechseln kann
         if (in_array(Role::PLATFORM_SUPPORT, $userRoles, true)) {
-            $condition[] = $conditionFactory->propertyHasValue(
-                $customerHandler->getCurrentCustomer()->getId(),
-                ['statusInCustomers', 'customer']
-            );
-            $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
-            $sortMethod = $sortMethodFactory->propertyAscending(['name']);
-            $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
+            $orgaList = $orgaService->getOrgasInCustomer($customerHandler->getCurrentCustomer());
         }
 
         $templateVars['orgaList'] = $orgaList;
@@ -124,7 +103,7 @@ class DemosPlanDepartmentController extends BaseController
         $templateVars['organisation'] = $orga;
 
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/list_departments.html.twig',
+            '@DemosPlanCore/DemosPlanUser/list_departments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'user.admin.departments',
@@ -135,17 +114,13 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Creates a new department and relate to a existing organisation.
      *
-     * @Route(
-     *     name="DemosPlan_department_add",
-     *     path="/department/add"
-     * )
-     *
      * @DplanPermissions("feature_department_add")
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[Route(name: 'DemosPlan_department_add', path: '/department/add')]
     public function addDepartmentAction(Request $request, UserHandler $userHandler)
     {
         $requestPost = $request->request;
@@ -178,21 +153,17 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Edit Departments.
      *
-     * @Route(
-     *     name="DemosPlan_department_edit",
-     *     path="/department/edit/{departmentId}"
-     * )
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_department_edit', path: '/department/edit/{departmentId}')]
     public function editDepartmentAction(Request $request)
     {
         return $this->renderTemplate(
-            '@DemosPlanUser/DemosPlanUser/edit_department.html.twig',
+            '@DemosPlanCore/DemosPlanUser/edit_department.html.twig',
             [
                 'templateVars' => [],
                 'title'        => 'project.name',
@@ -204,11 +175,6 @@ class DemosPlanDepartmentController extends BaseController
      * Administrate departments of a specific organisation.
      * In this case administrate means, save or delete departments.
      *
-     * @Route(
-     *     name="DemosPlan_departments_admin",
-     *     path="/departments/admin/{orgaId}"
-     * )
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param string $orgaId
@@ -217,6 +183,7 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_departments_admin', path: '/departments/admin/{orgaId}')]
     public function adminDepartmentsAction(Request $request, UserHandler $userHandler, $orgaId)
     {
         // wenn der request gefüllt ist, bearbeite ihn

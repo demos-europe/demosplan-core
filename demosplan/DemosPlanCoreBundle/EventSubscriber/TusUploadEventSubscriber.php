@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,6 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Throwable;
 use TusPhp\Cache\FileStore;
 use TusPhp\Events\UploadComplete;
+use TusPhp\File;
 
 /**
  * Hook into the Tus events for upload processing.
@@ -31,26 +32,8 @@ use TusPhp\Events\UploadComplete;
  */
 class TusUploadEventSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
-    /**
-     * @var FileStore
-     */
-    private $fileStore;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(FileService $fileService, FileStore $fileStore, LoggerInterface $logger)
+    public function __construct(private readonly FileService $fileService, private readonly FileStore $fileStore, private readonly LoggerInterface $logger)
     {
-        $this->fileService = $fileService;
-        $this->logger = $logger;
-        $this->fileStore = $fileStore;
     }
 
     /**
@@ -66,7 +49,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
     public function onUploadComplete(UploadComplete $completedEvent): void
     {
         /**
-         * @var \TusPhp\File
+         * @var File
          */
         $file = $completedEvent->getFile();
         $request = $completedEvent->getRequest();
@@ -81,7 +64,8 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
             $filePathParts[] = $filename;
             $sanitizedPath = implode('/', $filePathParts);
             // rename uploaded file and update reference in uploaded file
-            $fs->rename($file->getFilePath(), $sanitizedPath);
+            // in order to avoid dangling file data is prevented renaming, simply allow overwriting.
+            $fs->rename($file->getFilePath(), $sanitizedPath, true);
             $file->setFilePath($sanitizedPath);
         }
 

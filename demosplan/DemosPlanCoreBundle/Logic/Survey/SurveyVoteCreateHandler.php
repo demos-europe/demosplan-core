@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,27 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Exception;
 use JsonSchema\Exception\InvalidArgumentException;
 
 class SurveyVoteCreateHandler
 {
-    /** @var SurveyVoteValidator */
-    private $surveyVoteValidator;
-
-    /** @var UserHandler */
-    private $userHandler;
-
-    /** @var SurveyHandler */
-    private $surveyHandler;
-
-    public function __construct(SurveyVoteValidator $surveyVoteValidator, UserHandler $userHandler, SurveyHandler $surveyHandler)
+    public function __construct(private readonly SurveyVoteValidator $surveyVoteValidator, private readonly UserHandler $userHandler, private readonly SurveyHandler $surveyHandler)
     {
-        $this->surveyVoteValidator = $surveyVoteValidator;
-        $this->userHandler = $userHandler;
-        $this->surveyHandler = $surveyHandler;
     }
 
     public function getRequestUserId(ResourceObject $resourceObject): string

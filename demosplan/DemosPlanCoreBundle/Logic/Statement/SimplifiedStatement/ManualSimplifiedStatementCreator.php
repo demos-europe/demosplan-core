@@ -3,19 +3,19 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,18 +26,14 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ManualSimplifiedStatementCreator extends SimplifiedStatementCreator
 {
-    /** @var FileUploadService */
-    private $fileUploadService;
-
     public function __construct(
         CurrentUserInterface $currentUser,
-        FileUploadService $fileUploadService,
+        private readonly FileUploadService $fileUploadService,
         MessageBagInterface $messageBag,
         StatementHandler $statementHandler,
         RouterInterface $router
     ) {
         $this->currentUser = $currentUser;
-        $this->fileUploadService = $fileUploadService;
         $this->messageBag = $messageBag;
         $this->statementHandler = $statementHandler;
         $this->router = $router;

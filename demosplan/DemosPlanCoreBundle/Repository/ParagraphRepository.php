@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,7 +28,7 @@ use Exception;
 
 use function array_key_exists;
 
-class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class ParagraphRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
     /**
      * Get a paragraph.
@@ -427,7 +427,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
         return $entity;
     }
 
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -459,7 +459,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

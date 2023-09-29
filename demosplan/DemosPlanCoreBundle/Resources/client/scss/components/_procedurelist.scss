@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -25,12 +25,12 @@
 
             &:hover,
             &:hover .c-procedurelist__trans {
-                color: $dp-token-color-brand-alt-contrast;
+                color: $dp-color-alt-contrast;
                 transition: color #{$transition-speed-style-delay};
             }
 
             &:hover {
-                background-color: $dp-token-color-brand-alt;
+                background-color: $dp-color-alt;
                 transition: background-color #{$transition-speed-style-delay};
             }
 

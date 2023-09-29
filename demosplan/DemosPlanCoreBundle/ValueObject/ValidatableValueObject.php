@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -21,25 +21,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ValidatableValueObject extends ValueObject
 {
-    /**
-     * These assertions are not really needed but an example how to annotate
-     * properties with validation assertions.
-     *
-     * @Assert\NotNull()
-     *
-     * @var ValidatorInterface
-     */
-    private $validator;
-
     /** @var bool */
     private $validated = false;
 
     /**
-     * @param ValidatorInterface $valdiator will be used automatically when accessing get methods of this instance
+     * @param ValidatorInterface $validator will be used automatically when accessing get methods of this instance
      */
-    public function __construct(ValidatorInterface $valdiator)
+    public function __construct(#[Assert\NotNull]
+    private readonly ValidatorInterface $validator)
     {
-        $this->validator = $valdiator;
     }
 
     /**

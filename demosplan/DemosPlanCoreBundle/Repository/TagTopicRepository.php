@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
-class TagTopicRepository extends CoreRepository implements ObjectInterface
+class TagTopicRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -128,7 +128,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($entity)
     {

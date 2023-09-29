@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,14 +47,7 @@ class RestoreCommand extends DatabaseManagementCommand
         $databaseHost = $this->getDatabaseHost($input);
         $databasePassword = $this->getDatabasePassword($input);
 
-        $cmd = sprintf(
-            'mysql --user %s --host %s --password=%s %s < %s',
-            $databaseUser,
-            $databaseHost,
-            '' === $databasePassword ? '""' : $databasePassword,
-            $databaseName,
-            $file
-        );
+        $cmd = ['mysql', '--user', $databaseUser, '--host', $databaseHost, '--password=%s', '' === $databasePassword ? '""' : $databasePassword, '<', $databaseName];
 
         $mysql = new Process($cmd);
         $mysql->setTimeout(null);
@@ -64,6 +58,6 @@ class RestoreCommand extends DatabaseManagementCommand
 
         $output->success('Done.');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,22 +14,12 @@ use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 
 class SegmentableStatementValidator
 {
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /**
-     * @var CurrentUserService
-     */
-    private $currentUser;
-
-    public function __construct(CurrentUserService $currentUser, StatementHandler $statementHandler)
+    public function __construct(private readonly CurrentUserService $currentUser, private readonly StatementHandler $statementHandler)
     {
-        $this->currentUser = $currentUser;
-        $this->statementHandler = $statementHandler;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,6 +14,9 @@ use demosplan\DemosPlanCoreBundle\Entity\MigrationVersions;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadMigrationVersionData extends ProdFixture
 {
     /**
@@ -37,7 +40,7 @@ class LoadMigrationVersionData extends ProdFixture
         return $versionNumbers;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $versionNumbers = $this->getMigrationVersions();
 

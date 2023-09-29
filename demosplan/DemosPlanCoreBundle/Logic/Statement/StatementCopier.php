@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,7 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateInterval;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -28,18 +30,15 @@ use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -55,83 +54,25 @@ class StatementCopier extends CoreService
     /** @var ReportService */
     protected $reportService;
 
-    /** @var StatementFragmentService */
-    private $statementFragmentService;
-
-    /** @var ElementsService */
-    private $elementService;
-
-    /** @var MessageBagInterface */
-    private $messageBag;
-
-    /** @var StatementAttachmentService */
-    private $statementAttachmentService;
-
-    /** @var SearchIndexTaskService */
-    private $searchIndexTaskService;
-
-    /** @var FileService */
-    private $fileService;
-
-    /** @var StatementCopyAndMoveService */
-    private $statementCopyAndMoveService;
-
-    /** @var StatementService */
-    private $statementService;
-
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var AssignService */
-    private $assignService;
-
-    /** @var StatementReportEntryFactory */
-    private $statementReportEntryFactory;
-
-    /** @var CurrentUserInterface */
-    private $currentUser;
-    /**
-     * @var StatementRepository
-     */
-    private $statementRepository;
-
     public function __construct(
-        AssignService $assignService,
-        CurrentUserInterface $currentUser,
-        ElementsService $elementService,
-        FileService $fileService,
+        private readonly AssignService $assignService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementService,
+        private readonly FileService $fileService,
         IndexManager $elasticsearchIndexManager,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PermissionsInterface $permissions,
         ReportService $reportService,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementAttachmentService $statementAttachmentService,
-        StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementFragmentService $statementFragmentService,
-        StatementHandler $statementHandler,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        StatementRepository $statementRepository,
-        StatementService $statementService
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
+        private readonly StatementFragmentService $statementFragmentService,
+        private readonly StatementHandler $statementHandler,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementService $statementService
     ) {
-        $this->assignService = $assignService;
-        $this->currentUser = $currentUser;
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
-        $this->elementService = $elementService;
-        $this->fileService = $fileService;
-        $this->messageBag = $messageBag;
-        $this->permissions = $permissions;
         $this->reportService = $reportService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->statementCopyAndMoveService = $statementCopyAndMoveService;
-        $this->statementFragmentService = $statementFragmentService;
-        $this->statementHandler = $statementHandler;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->statementRepository = $statementRepository;
-        $this->statementService = $statementService;
     }
 
     /**
@@ -301,13 +242,6 @@ class StatementCopier extends CoreService
             return false;
         }
 
-        if ($addedStatement instanceof Statement) {
-            $this->searchIndexTaskService->addIndexTask(
-                Statement::class,
-                $addedStatement->getId()
-            );
-        }
-
         $doctrineConnection->commit();
 
         $this->addReportOfCopingStatement($sourceStatement, $copiedStatement);
@@ -408,7 +342,7 @@ class StatementCopier extends CoreService
         );
         $statementToCopy->setFiles($relatedFiles);
 
-        $hasFiles = is_array($statementToCopy->getFiles()) && 0 < count($statementToCopy->getFiles());
+        $hasFiles = is_array($statementToCopy->getFiles()) && 0 < (is_countable($statementToCopy->getFiles()) ? count($statementToCopy->getFiles()) : 0);
         $hasMapFile = '' !== $statementToCopy->getMapFile() && null !== $statementToCopy->getMapFile();
 
         if (!$hasFiles && !$hasMapFile) {
@@ -421,7 +355,7 @@ class StatementCopier extends CoreService
             // filestring is written into $fileService on copy
             try {
                 $this->fileService->copyByFileString($fileString, $targetProcedureId);
-            } catch (FileNotFoundException $exception) {
+            } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
                     'error.copy.files',
@@ -441,7 +375,7 @@ class StatementCopier extends CoreService
             try {
                 // filestring is written into $fileService on copy
                 $this->fileService->copyByFileString($statementToCopy->getMapFile(), $targetProcedureId);
-            } catch (FileNotFoundException $e) {
+            } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
                     'error.copy.mapfile',
@@ -646,13 +580,6 @@ class StatementCopier extends CoreService
             } else {
                 $this->getLogger()->info(
                     'Can not copy files, because the given statement to copy does not exist in database yet.'
-                );
-            }
-
-            if ($persistAndFlush && $newStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $newStatement->getId()
                 );
             }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,20 +19,8 @@ use Exception;
 
 class FieldConfigurator
 {
-    /**
-     * @var ExportFieldsConfigurationRepository
-     */
-    private $fieldsConfigRepo;
-
-    /**
-     * @var EntityPreparator
-     */
-    private $entityPreparator;
-
-    public function __construct(EntityPreparator $entityPreparator, ExportFieldsConfigurationRepository $fieldsConfigRepo)
+    public function __construct(private readonly EntityPreparator $entityPreparator, private readonly ExportFieldsConfigurationRepository $fieldsConfigRepo)
     {
-        $this->entityPreparator = $entityPreparator;
-        $this->fieldsConfigRepo = $fieldsConfigRepo;
     }
 
     public function add(ExportFieldsConfiguration $fieldsConfiguration): ExportFieldsConfiguration

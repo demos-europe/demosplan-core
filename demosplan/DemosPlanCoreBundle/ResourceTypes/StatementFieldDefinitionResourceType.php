@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -33,9 +33,9 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementFieldDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
-        return $this->conditionFactory->true();
+        return [];
         // todo: allow accessFilter by modelling bidirectional relationship of between StatementFieldDefinition and StatementFormDefinition
         // to ensure related ProcedureType and ProcedureType is available here
     }
@@ -51,16 +51,11 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
     public function updateObject(object $object, array $properties): ResourceChange
     {
         foreach ($properties as $propertyName => $value) {
-            switch ($propertyName) {
-                case $this->enabled->getAsNamesInDotNotation():
-                    $object->setEnabled($value);
-                    break;
-                case $this->required->getAsNamesInDotNotation():
-                    $object->setRequired($value);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Property not available for update: {$propertyName}");
-            }
+            match ($propertyName) {
+                $this->enabled->getAsNamesInDotNotation() => $object->setEnabled($value),
+                $this->required->getAsNamesInDotNotation() => $object->setRequired($value),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+            };
         }
 
         $this->resourceTypeService->validateObject($object);

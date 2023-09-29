@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,10 +15,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="location", indexes={
+ *
  *     @ORM\Index(name="postcode", columns={"postcode"}),
  *     @ORM\Index(name="municipalCode", columns={"municipal_code"}),
  *     @ORM\Index(name="ars", columns={"ars"})
  * })
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\LocationRepository")
  */
 class Location extends CoreEntity implements UuidEntityInterface
@@ -27,8 +29,11 @@ class Location extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;

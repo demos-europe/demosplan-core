@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,48 +13,22 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Elements;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\CategoryReorderingData;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\FunctionInterface;
 use InvalidArgumentException;
 
 class PlanningDocumentCategoryTreeReorderer
 {
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var PlanningDocumentCategoryResourceType
-     */
-    private $categoryResourceType;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
     public function __construct(
-        DqlConditionFactory $conditionFactory,
-        EntityFetcher $entityFetcher,
-        PlanningDocumentCategoryResourceType $categoryResourceType,
-        SortMethodFactory $sortMethodFactory
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsRepository $elementsRepository,
+        private readonly PlanningDocumentCategoryResourceType $categoryResourceType
     ) {
-        $this->entityFetcher = $entityFetcher;
-        $this->categoryResourceType = $categoryResourceType;
-        $this->conditionFactory = $conditionFactory;
-        $this->sortMethodFactory = $sortMethodFactory;
     }
 
     // @improve T26005
@@ -140,21 +114,19 @@ class PlanningDocumentCategoryTreeReorderer
             $categoryToMoveAndNewParentIds[] = $newParentId;
         }
 
-        $categoryToMoveAndNewParent = $this->entityFetcher->listEntities(
-            $this->categoryResourceType,
-            [
-                $this->getProcedureCondition($procedureId),
-                $this->conditionFactory->propertyHasAnyOfValues(
-                    $categoryToMoveAndNewParentIds,
-                    $this->categoryResourceType->id
-                ),
-            ]
-        );
+        $categoryToMoveAndNewParent = $this->categoryResourceType->listEntities([
+            $this->conditionFactory->propertyHasValue(
+                $procedureId,
+                $this->categoryResourceType->procedure->id
+            ),
+            $this->conditionFactory->propertyHasAnyOfValues(
+                $categoryToMoveAndNewParentIds,
+                $this->categoryResourceType->id
+            ),
+        ]);
 
         $categoryToMoveAndNewParent = array_column(
-            array_map(static function (Elements $category): array {
-                return [$category->getId(), $category];
-            }, $categoryToMoveAndNewParent),
+            array_map(static fn (Elements $category): array => [$category->getId(), $category], $categoryToMoveAndNewParent),
             1,
             0
         );
@@ -222,46 +194,18 @@ class PlanningDocumentCategoryTreeReorderer
      */
     private function getNeighbors(?Elements $parent, string $procedureId): Collection
     {
-        $sortMethods = [
-            $this->sortMethodFactory->propertyAscending(
-                $this->categoryResourceType->order
-            ),
-        ];
+        $neighbors = null !== $parent
+            ? $parent->getChildren()
+            : $this->elementsRepository->findBy([
+                'procedure' => $procedureId,
+                'parent'    => null,
+            ], [
+                'order' => Criteria::ASC,
+            ]);
 
-        if (null !== $parent) {
-            $neighbors = $this->entityFetcher->listPrefilteredEntitiesUnrestricted(
-                $parent->getChildren()->toArray(),
-                [],
-                $sortMethods
-            );
-        } else {
-            $rootCondition = [
-                $this->getProcedureCondition($procedureId),
-                $this->conditionFactory->propertyIsNull($this->categoryResourceType->parent),
-            ];
-            $neighbors = $this->entityFetcher->listEntitiesUnrestricted(
-                $this->categoryResourceType->getEntityClass(),
-                $rootCondition,
-                $sortMethods
-            );
-        }
-
-        $neighbors = collect($neighbors)->mapWithKeys(static function (Elements $neighbor): array {
-            return [$neighbor->getOrder() => $neighbor];
-        })->all();
+        $neighbors = collect($neighbors)->mapWithKeys(static fn (Elements $neighbor): array => [$neighbor->getOrder() => $neighbor])->all();
 
         return new ArrayCollection($neighbors);
-    }
-
-    /**
-     * @return FunctionInterface<bool>
-     */
-    private function getProcedureCondition(string $procedureId): FunctionInterface
-    {
-        return $this->conditionFactory->propertyHasValue(
-            $procedureId,
-            $this->categoryResourceType->procedure->id
-        );
     }
 
     /**

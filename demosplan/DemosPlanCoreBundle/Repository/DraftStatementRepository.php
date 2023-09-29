@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -25,10 +26,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class DraftStatementRepository extends CoreRepository implements ArrayInterface
+class DraftStatementRepository extends FluentRepository implements ArrayInterface
 {
     /**
      * Gib eine Liste der Versionen der Stellungnahme zurück.
@@ -44,11 +47,12 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             ->setParameter('draftStatementId', $draftStatementId)
             ->setParameter('organisationId', $organisationId)
             ->orderBy('draftStatementVersion.versionDate', 'DESC')
+            ->orderBy('draftStatementVersion.lastModifiedDate', 'DESC')
             ->getQuery();
 
         try {
             return $query->getResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -124,7 +128,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return DraftStatement
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -164,7 +168,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         );
         $this->setEntityFlagFieldsOnFlagFieldCollection($flagFields, $entity, $data);
 
-        if (array_key_exists('dId', $data) && 0 < strlen($data['dId'])) {
+        if (array_key_exists('dId', $data) && 0 < strlen((string) $data['dId'])) {
             $entity->setDepartment($em->getReference(Department::class, $data['dId']));
         }
         if (array_key_exists('dName', $data)) {
@@ -174,7 +178,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setDocument($data['document']);
         }
         if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) && 0 < strlen(
-            $data['documentId']
+            (string) $data['documentId']
         )
         ) {
             $entity->setDocument(
@@ -189,7 +193,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('element', $data)) {
             $entity->setElement($data['element']);
         }
-        if (array_key_exists('elementId', $data) && 0 < strlen($data['elementId'])) {
+        if (array_key_exists('elementId', $data) && 0 < strlen((string) $data['elementId'])) {
             $entity->setElement(
                 $em->getReference(Elements::class, $data['elementId'])
             );
@@ -206,7 +210,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
 
             foreach ($data['files'] as $fileString) {
                 $draftStatementFile = new DraftStatementFile();
-                $parts = explode(':', $fileString);
+                $parts = explode(':', (string) $fileString);
                 $draftStatementFile->setFile($em->getReference(File::class, $parts[1] ?? ''));
                 $entity->addFile($draftStatementFile);
             }
@@ -230,7 +234,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('number', $data)) {
             $entity->setNumber($data['number']);
         }
-        if (array_key_exists('oId', $data) && 0 < strlen($data['oId'])) {
+        if (array_key_exists('oId', $data) && 0 < strlen((string) $data['oId'])) {
             $entity->setOrganisation($em->getReference(Orga::class, $data['oId']));
         }
         if (array_key_exists('oName', $data)) {
@@ -241,7 +245,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         }
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
         if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) && 0 < strlen(
-            $data['paragraphId']
+            (string) $data['paragraphId']
         )
         ) {
             $entity->setParagraph(
@@ -253,7 +257,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         ) {
             $entity->setParagraph(null);
         }
-        if (array_key_exists('pId', $data) && 0 < strlen($data['pId'])) {
+        if (array_key_exists('pId', $data) && 0 < strlen((string) $data['pId'])) {
             $entity->setProcedure(
                 $em->getReference(Procedure::class, $data['pId'])
             );
@@ -286,7 +290,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('title', $data)) {
             $entity->setTitle($data['title']);
         }
-        if (array_key_exists('uId', $data) && 0 < strlen($data['uId'])) {
+        if (array_key_exists('uId', $data) && 0 < strlen((string) $data['uId'])) {
             $entity->setUser($em->getReference(User::class, $data['uId']));
         }
         if (array_key_exists('uCity', $data)) {
@@ -361,7 +365,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         try {
             // cast int from null == 1
             return (int) $query->getSingleScalarResult();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return 0;
         }
     }
@@ -423,7 +427,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\CoreEntity $draftStatement
+     * @param CoreEntity $draftStatement
      *
      * @return bool
      *
@@ -445,8 +449,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
     /**
      * Deletes all DraftStatements of a procedure.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function deleteByProcedureId(string $procedureId): int
     {

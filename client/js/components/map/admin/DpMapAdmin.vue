@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -8,8 +8,8 @@
 </license>
 
 <script>
+import { DpMultiselect, DpTooltipIcon } from '@demos-europe/demosplan-ui'
 import DpMapView from '@DpJs/components/map/map/DpMapView'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 
 export default {
@@ -18,7 +18,8 @@ export default {
   components: {
     DpOlMap,
     DpMapView,
-    DpMultiselect
+    DpMultiselect,
+    DpTooltipIcon
   },
 
   props: {

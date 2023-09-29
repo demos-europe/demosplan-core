@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,18 +32,12 @@ class DemosPlanRequestListener
     /** @var SubdomainHandlerInterface */
     protected $subdomainHandler;
 
-    /**
-     * @var JsonApiRequestValidator
-     */
-    private $jsonApiRequestValidator;
-
     public function __construct(
         GlobalConfigInterface $globalConfig,
-        JsonApiRequestValidator $jsonApiRequestValidator,
+        private readonly JsonApiRequestValidator $jsonApiRequestValidator,
         RouterInterface $router,
         SubdomainHandlerInterface $subdomainHandler
     ) {
-        $this->jsonApiRequestValidator = $jsonApiRequestValidator;
         $this->subdomainHandler = $subdomainHandler;
         $this->globalConfig = $globalConfig;
         $this->router = $router;

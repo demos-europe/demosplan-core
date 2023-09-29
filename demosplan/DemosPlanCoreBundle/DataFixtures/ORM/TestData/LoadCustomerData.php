@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,19 +13,22 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadCustomerData extends TestFixture
 {
     /**
      * @deprecated use {@link LoadCustomerData::BRANDENBURG} instead
      */
-    public const BB = 'testCustomerBrandenburg';
-    public const HINDSIGHT = 'testCustomer';
-    public const ROSTOCK = 'Rostock';
-    public const BRANDENBURG = 'Brandenburg';
-    public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
-    public const DEMOS = 'Demos';
+    final public const BB = 'testCustomerBrandenburg';
+    final public const HINDSIGHT = 'testCustomer';
+    final public const ROSTOCK = 'Rostock';
+    final public const BRANDENBURG = 'Brandenburg';
+    final public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
+    final public const DEMOS = 'Demos';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $customerRostock = new Customer(self::ROSTOCK, 'rostock');
         $customerRostock->setAccessibilityExplanation('Barrierefreiheitserklärung');
@@ -44,6 +47,8 @@ class LoadCustomerData extends TestFixture
 
         $customerDemos = new Customer(self::DEMOS, 'demos');
         $customerDemos->setAccessibilityExplanation('Barrierefreiheitserklärung');
+        $customerDemos->setBaseLayerUrl('https://sgx.geodatenzentrum.de/wms_basemapde');
+        $customerDemos->setBaseLayerLayers('de_basemapde_web_raster_farbe');
         $manager->persist($customerDemos);
         $this->setReference(self::DEMOS, $customerDemos);
 

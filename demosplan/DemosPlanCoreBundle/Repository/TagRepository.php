@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,11 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Exception;
+use Webmozart\Assert\Assert;
 
-class TagRepository extends CoreRepository implements ObjectInterface
+class TagRepository extends FluentRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -140,5 +143,28 @@ class TagRepository extends CoreRepository implements ObjectInterface
     public function findByIds(array $ids): array
     {
         return $this->findBy(['id' => $ids]);
+    }
+
+    public function isTagTitleFree(string $procedureId, string $title): bool
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('count(tag.id)')
+            ->from(Tag::class, 'tag')
+            ->leftJoin(
+                TagTopic::class,
+                'topic',
+                Join::WITH,
+                'tag.topic = topic.id')
+            ->where('topic.procedure = :procedure')
+            ->andWhere('tag.title = :title')
+            ->setParameter('procedure', $procedureId)
+            ->setParameter('title', $title)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        $singleScalarResult = $query->getSingleScalarResult();
+        Assert::integer($singleScalarResult);
+
+        return 0 === $singleScalarResult;
     }
 }

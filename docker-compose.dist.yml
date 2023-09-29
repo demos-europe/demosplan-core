@@ -1,0 +1,191 @@
+# This is an example file for a working demosplan development setup
+# You need to pass a `DEMOSPLAN_PATH` environment variable
+# with the current path to docker-compose.
+# To be able to log in to development container you need to provide
+# `CURRENT_HOST_USERNAME` and `CURRENT_HOST_USERID`
+#
+version: '3.4'
+services:
+    db:
+        image: 'mariadb:10.5'
+        networks:
+            demosplan_development_network:
+                aliases:
+                    - database
+                ipv4_address: 172.22.255.3
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
+            - MYSQL_USER=${MYSQL_USER:-dockerdb}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+        restart: always
+        volumes:
+            - 'db_storage:/var/lib/mysql'
+            - '/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
+    web:
+        image: nginx:latest
+        ports:
+            - "0.0.0.0:80:80"
+        depends_on:
+            - "php"
+        volumes:
+            - '${DEMOSPLAN_PATH:-}:/srv/www:ro'
+            - './docker/nginx/site.conf:/etc/nginx/conf.d/default.conf'
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.9
+        restart: always
+    php:
+        build:
+            context: docker/php8.1-fpm
+        image: 'demosdeutschland/demosplan-php8.1-fpm:1.0'
+        volumes:
+            - '${DEMOSPLAN_PATH:-}:/srv/www:ro'
+            - 'file_storage:/opt/uploads'
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.10
+        environment:
+            - BLACKFIRE_CLIENT_ID=${BLACKFIRE_CLIENT_ID:-}
+            - BLACKFIRE_CLIENT_TOKEN=${BLACKFIRE_CLIENT_TOKEN:-}
+            - BLACKFIRE_SERVER_ID=${BLACKFIRE_SERVER_ID:-}
+            - BLACKFIRE_SERVER_TOKEN=${BLACKFIRE_SERVER_TOKEN:-}
+            - DATABASE_HOST=${DATABASE_HOST:-db}
+            - DATABASE_USER=${DATABASE_USER:-root}
+        restart: always
+    php-xdebug:
+        build:
+            context: docker/php8.1-fpm-xdebug
+        image: 'demosdeutschland/demosplan-php8.1-fpm-xdebug:1.0'
+        volumes:
+            - '${DEMOSPLAN_PATH:-}:/srv/www:ro'
+            - 'file_storage:/opt/uploads'
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.11
+        environment:
+            - DATABASE_HOST=${DATABASE_HOST:-db}
+            - DATABASE_USER=${DATABASE_USER:-root}
+        depends_on:
+            - "php"
+        restart: always
+     # Each activated project needs a maintenance container
+#    php-maintenance-project:
+#        build:
+#            context: docker/php8.1-cli-maintenance
+#        image: 'some/image:1.0'
+#        volumes:
+#            - ${DEMOSPLAN_PATH:-}:/srv/www:ro
+#            - 'file_storage:/opt/uploads'
+#        networks:
+#            demosplan_development_network:
+#                ipv4_address: 172.22.255.14
+#        environment:
+#            - DATABASE_USER=${DATABASE_USER:-root}
+#            - DATABASE_HOST=${DATABASE_HOST:-db}
+#            - DEVELOPMENT_CONTAINER=1
+#            - ACTIVE_PROJECT=project
+    development:
+        build:
+            context: docker/php8.1-cli-development
+        image: 'demosdeutschland/demosplan-development:4.8'
+        depends_on:
+            - "web"
+        environment:
+            - BLACKFIRE_CLIENT_ID=${BLACKFIRE_CLIENT_ID:-}
+            - BLACKFIRE_CLIENT_TOKEN=${BLACKFIRE_CLIENT_TOKEN:-}
+            - BLACKFIRE_SERVER_ID=${BLACKFIRE_SERVER_ID:-}
+            - BLACKFIRE_SERVER_TOKEN=${BLACKFIRE_SERVER_TOKEN:-}
+            - CURRENT_HOST_USERNAME=${CURRENT_HOST_USERNAME:-}
+            - CURRENT_HOST_USERID=${CURRENT_HOST_USERID:-}
+            - DATABASE_HOST=${DATABASE_HOST:-db}
+            - DATABASE_USER=${DATABASE_USER:-root}
+        volumes:
+            - '${DEMOSPLAN_PATH:-}:/srv/www'
+            - './.runtime/id_ed25519.pub:/.authorized_key:ro'
+            - 'file_storage:/opt/uploads'
+        hostname: demosplan-development
+        networks:
+            demosplan_development_network:
+                aliases:
+                    - demosplan
+                    - dplan
+                ipv4_address: 172.22.255.2
+        restart: always
+    java_service:
+        build:
+            context: docker/javaservice
+        image: 'demosdeutschland/demosplan-java-service:1.0'
+        depends_on:
+            - "message_queue"
+        volumes:
+            - 'file_storage:/opt/uploads'
+            - './projects:/srv/www/projects:ro'
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.12
+        environment:
+            - JAVASERVICE_MEMORY=${JAVASERVICE_MEMORY:-1024m}
+            - RABBITMQ_USER_PASSWORD=${RABBITMQ_USER_PASSWORD:-}
+        restart: always
+    message_queue:
+        build:
+            context: docker/rabbitmq
+        image: 'demosdeutschland/demosplan-rabbitmq:1.0'
+        # use a password hash as calculated in https://gist.github.com/komuw/c6fb1a1c757afb43fe69bdd736d5cf63
+        hostname: message-queue
+        networks:
+            demosplan_development_network:
+                aliases:
+                    - rabbitmq
+                    - message-queue
+                    - mq
+                ipv4_address: 172.22.255.5
+        volumes:
+            - './docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro'
+            - './docker/rabbitmq/definitions-raw.json:/etc/rabbitmq/definitions-raw.json:ro'
+        environment:
+            - RABBITMQ_PASSWORD_HASH=${RABBITMQ_PASSWORD_HASH:-}
+        restart: always
+    search7:
+        build:
+            context: docker/elasticsearch7
+        image: 'demosdeutschland/demosplan-elasticsearch7:1.0'
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.7
+        volumes:
+            - 'es7_storage:/usr/share/elasticsearch/data'
+        environment:
+            - discovery.type=single-node
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        restart: always
+    mailhog:
+        image: mailhog/mailhog
+        networks:
+            demosplan_development_network:
+                ipv4_address: 172.22.255.13
+        ports:
+            - 1025:1025 # smtp server
+            - 8025:8025 # web ui
+        restart: always
+
+networks:
+    demosplan_development_network:
+        internal: false
+        driver: bridge
+        ipam:
+            config:
+                -
+                    subnet: 172.22.255.0/24
+volumes:
+    db_storage:
+        driver: local
+    file_storage:
+        driver: local
+    es6_storage:
+        driver: local
+    es7_storage:
+        driver: local

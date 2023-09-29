@@ -1,5 +1,6 @@
 .idea/
 */vendor
+addonZip
 addons
 node_modules
 yarn-error.log
@@ -21,6 +22,16 @@ phpstan.neon
 .lnav
 !.github
 logs
+/docker-compose.override.yml
+
+# Core project
+/projects/core/app/cache/*
+/projects/core/app/logs/*
+/projects/core/web/css/*
+/projects/core/web/fonts
+/projects/core/web/img
+/projects/core/web/js
+/projects/core/web/video
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -33,7 +44,7 @@ logs
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
-/demosplan/DemosPlanCoreBundle/Resources/config/jwt/*.pem
+/config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
 ###> friendsofphp/php-cs-fixer ###

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -41,7 +41,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
         $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
         $outputResult = $this->assessmentHandler->prepareOutputResult($procedureId, $original, $parameters);
         try {
-            $viewOrientation = false !== \strpos($parameters['template'], 'landscape')
+            $viewOrientation = str_contains((string) $parameters['template'], 'landscape')
                 ? ViewOrientation::createLandscape()
                 : ViewOrientation::createPortrait();
             $objWriter = $this->assessmentTableOutput->generateDocx(

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -44,9 +45,12 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
@@ -54,24 +58,23 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
+use EDT\Querying\Pagination\PagePagination;
 use Exception;
+use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass
     ) {
         parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -95,7 +98,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }
@@ -119,7 +122,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->getQuery();
         try {
             return $query->getResult();
-        } catch (\Doctrine\ORM\NoResultException $e) {
+        } catch (NoResultException $e) {
             $this->logger->error('Get Files of Statements failed ', [$e]);
 
             return null;
@@ -141,7 +144,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
             foreach ($statementIdsToCluster as $statementId) {
                 if (is_string($statementId)) {
-                    $statements[] = $manager->getReference(\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement::class, $statementId);
+                    $statements[] = $manager->getReference(Statement::class, $statementId);
                 } else {
                     $statements[] = $statementId;
                 }
@@ -312,7 +315,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
             try {
                 $submitConsentee = $em->getRepository(User::class)->find($consenteeIds['submitter']);
-            } catch (ORMException $e) {
+            } catch (ORMException) {
                 $submitConsentee = null;
             }
 
@@ -468,6 +471,22 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     }
 
     /**
+     * @return array<int, Statement|Segment>
+     */
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    {
+        return parent::getEntities($conditions, $sortMethods, $offset, $limit);
+    }
+
+    /**
+     * @return DemosPlanPaginator&Pagerfanta<Statement|Segment>
+     */
+    public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
+    {
+        return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
+    }
+
+    /**
      * Some Statements does not have any StatementMeta. Whysoever.
      */
     protected function ensureHasMeta(Statement $statement): Statement
@@ -559,7 +578,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     /**
      * Add Entity to database.
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike
+     * @return StatementLike
      *
      * @throws Exception
      */
@@ -622,7 +641,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('author_feedback', $data)) {
             $statement->getMeta()->setAuthorFeedback($data['author_feedback']);
         }
-        if (array_key_exists('author_name', $data) && 0 < strlen($data['author_name'])) {
+        if (array_key_exists('author_name', $data) && 0 < strlen((string) $data['author_name'])) {
             $statement->getMeta()->setAuthorName($data['author_name']);
         }
 
@@ -630,7 +649,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->setManual(true);
         }
 
-        if (array_key_exists('case_worker', $data) && 0 < strlen($data['case_worker'])) {
+        if (array_key_exists('case_worker', $data) && 0 < strlen((string) $data['case_worker'])) {
             $statement->getMeta()->setCaseWorkerName($data['case_worker']);
         }
 
@@ -642,7 +661,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
         if (!array_key_exists('document', $data)
             && array_key_exists('documentId', $data)
-            && 36 === strlen($data['documentId'])
+            && 36 === strlen((string) $data['documentId'])
         ) {
             $statement->setDocument($em->getReference(SingleDocumentVersion::class, $data['documentId']));
         }
@@ -655,7 +674,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('element', $data)) {
             $statement->setElement($data['element']);
         }
-        if (array_key_exists('elementId', $data) && 36 === strlen($data['elementId'])) {
+        if (array_key_exists('elementId', $data) && 36 === strlen((string) $data['elementId'])) {
             $statement->setElement($em->getReference(Elements::class, $data['elementId']));
         }
         if (array_key_exists('elementId', $data) && '' === $data['elementId']) {
@@ -705,25 +724,25 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
             $statement->getMeta()->setMiscData($miscData);
         }
-        if (array_key_exists('oId', $data) && 36 === strlen($data['oId'])) {
+        if (array_key_exists('oId', $data) && 36 === strlen((string) $data['oId'])) {
             $statement->setOrganisation($em->getReference(Orga::class, $data['oId']));
         }
-        if (array_key_exists('orga_city', $data) && 0 < strlen($data['orga_city'])) {
+        if (array_key_exists('orga_city', $data) && 0 < strlen((string) $data['orga_city'])) {
             $statement->getMeta()->setOrgaCity($data['orga_city']);
         }
-        if (array_key_exists('orga_department_name', $data) && 0 < strlen($data['orga_department_name'])) {
+        if (array_key_exists('orga_department_name', $data) && 0 < strlen((string) $data['orga_department_name'])) {
             $statement->getMeta()->setOrgaDepartmentName($data['orga_department_name']);
         }
-        if (array_key_exists('orga_email', $data) && 0 < strlen($data['orga_email'])) {
+        if (array_key_exists('orga_email', $data) && 0 < strlen((string) $data['orga_email'])) {
             $statement->getMeta()->setOrgaEmail($data['orga_email']);
         }
-        if (array_key_exists('orga_name', $data) && 0 < strlen($data['orga_name'])) {
+        if (array_key_exists('orga_name', $data) && 0 < strlen((string) $data['orga_name'])) {
             $statement->getMeta()->setOrgaName($data['orga_name']);
         }
-        if (array_key_exists('orga_postalcode', $data) && 0 < strlen($data['orga_postalcode'])) {
+        if (array_key_exists('orga_postalcode', $data) && 0 < strlen((string) $data['orga_postalcode'])) {
             $statement->getMeta()->setOrgaPostalCode($data['orga_postalcode']);
         }
-        if (array_key_exists('orga_street', $data) && 0 < strlen($data['orga_street'])) {
+        if (array_key_exists('orga_street', $data) && 0 < strlen((string) $data['orga_street'])) {
             $statement->getMeta()->setOrgaStreet($data['orga_street']);
         }
 
@@ -734,7 +753,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
         if (!array_key_exists('paragraph', $data) &&
             array_key_exists('paragraphId', $data) &&
-            36 === strlen($data['paragraphId'])) {
+            36 === strlen((string) $data['paragraphId'])) {
             $statement->setParagraph($em->getReference(ParagraphVersion::class, $data['paragraphId']));
         }
 
@@ -747,7 +766,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
         }
-        if (array_key_exists('pId', $data) && 36 === strlen($data['pId'])) {
+        if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $statement->setProcedure($em->getReference(Procedure::class, $data['pId']));
         }
         if (array_key_exists('polygon', $data)) {
@@ -776,15 +795,15 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('status', $data)) {
             $statement->setStatus($data['status']);
         }
-        if (array_key_exists('submit_name', $data) && 0 < strlen($data['submit_name'])) {
+        if (array_key_exists('submit_name', $data) && 0 < strlen((string) $data['submit_name'])) {
             $statement->getMeta()->setSubmitName($data['submit_name']);
         }
-        if (array_key_exists('submitUId', $data) && 36 === strlen($data['submitUId'])) {
+        if (array_key_exists('submitUId', $data) && 36 === strlen((string) $data['submitUId'])) {
             $statement->getMeta()->setSubmitUId($data['submitUId']);
         }
 
         if (array_key_exists('submittedDate', $data)) {
-            $date = Carbon::createFromTimestamp(strtotime($data['submittedDate']))->toDateTime();
+            $date = Carbon::createFromTimestamp(strtotime((string) $data['submittedDate']))->toDateTime();
             if ($date instanceof DateTime) {
                 $statement->setSubmit($date);
             }
@@ -852,7 +871,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('title', $data)) {
             $statement->setTitle($data['title']);
         }
-        if (array_key_exists('uId', $data) && 36 === strlen($data['uId'])) {
+        if (array_key_exists('uId', $data) && 36 === strlen((string) $data['uId'])) {
             $statement->setUser($em->getReference(User::class, $data['uId']));
         }
         if (array_key_exists('voteStk', $data)) {
@@ -870,7 +889,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         if (array_key_exists('sentAssessment', $data)) {
             $statement->setSentAssessment($data['sentAssessment']);
         }
-        if (array_key_exists('authoredDate', $data) && 0 < strlen($data['authoredDate'])) {
+        if (array_key_exists('authoredDate', $data) && 0 < strlen((string) $data['authoredDate'])) {
             $dateTime = new DateTime();
             $date = $dateTime->createFromFormat('d.m.Y', $data['authoredDate']);
             if ($date instanceof DateTime) {
@@ -878,7 +897,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
         }
 
-        if (array_key_exists('submitOrgaId', $data) && 36 === strlen($data['submitOrgaId'])) {
+        if (array_key_exists('submitOrgaId', $data) && 36 === strlen((string) $data['submitOrgaId'])) {
             $statement->getMeta()->setSubmitOrgaId($data['submitOrgaId']);
         }
 
@@ -925,7 +944,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // T14715: never attach an original STN to an headStatement
-        if (!$statement->isOriginal() && array_key_exists('headStatementId', $data) && 36 === strlen($data['headStatementId'])) {
+        if (!$statement->isOriginal() && array_key_exists('headStatementId', $data) && 36 === strlen((string) $data['headStatementId'])) {
             /** @var Statement $relatedHeadStatement */
             $relatedHeadStatement = $em->getReference(Statement::class, $data['headStatementId']);
             $relatedHeadStatement->addStatement($statement);
@@ -965,17 +984,11 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $voteRepository = $this->getEntityManager()
                 ->getRepository(StatementVote::class);
 
-        $votesToDelete = $currentVotes->filter(function ($vote) use ($votesToSet) {
-            return !$votesToSet->keyBy('id')->has($vote->getId());
-        });
+        $votesToDelete = $currentVotes->filter(fn ($vote) => !$votesToSet->keyBy('id')->has($vote->getId()));
 
-        $votesToUpdate = $votesToSet->filter(function ($vote) {
-            return array_key_exists('id', $vote) && '' != $vote['id'];
-        });
+        $votesToUpdate = $votesToSet->filter(fn ($vote) => array_key_exists('id', $vote) && '' != $vote['id']);
 
-        $votesToCreate = $votesToSet->filter(function ($vote) {
-            return !array_key_exists('id', $vote) || '' == $vote['id'];
-        });
+        $votesToCreate = $votesToSet->filter(fn ($vote) => !array_key_exists('id', $vote) || '' == $vote['id']);
 
         /** @var StatementVote $voteToDelete */
         foreach ($votesToDelete as $voteToDelete) {
@@ -1027,7 +1040,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * @return string|null null if be none found, otherwise the found ID as string
      *
      * @throws NonUniqueResultException
-     * @throws \Doctrine\ORM\NoResultException
+     * @throws NoResultException
      */
     public function getNewestInternId($procedureId)
     {
@@ -1043,7 +1056,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->setMaxResults(1)
             ->getQuery();
         $statements = $query->getResult();
-        if (0 === count($statements)) {
+        if (0 === (is_countable($statements) ? count($statements) : 0)) {
             return null;
         }
 
@@ -1143,7 +1156,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->from(Statement::class, 'statement')
             ->andWhere('statement.original IS NOT NULL')
             ->andWhere('statement.id IN (:ids)')
-            ->setParameter('ids', $headStatementIds->toArray(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $headStatementIds->toArray(), Connection::PARAM_STR_ARRAY)
             ->getQuery()->getResult();
 
         return $result;
@@ -1162,7 +1175,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->select('statement')
             ->from(Statement::class, 'statement')
             ->andWhere('statement.headStatement IN (:ids)')
-            ->setParameter('ids', $statementIds, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $statementIds, Connection::PARAM_STR_ARRAY)
             ->getQuery();
 
         return $query->getResult();
@@ -1181,7 +1194,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->select('statement')
             ->from(Statement::class, 'statement')
             ->andWhere('statement.id IN (:ids)')
-            ->setParameter('ids', $statementIds, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('ids', $statementIds, Connection::PARAM_STR_ARRAY)
             ->getQuery();
 
         return $query->getResult();
@@ -1229,7 +1242,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         foreach ($statementArrays as $entityArray) {
             $externId = $entityArray['externId'];
             if (false === is_numeric($externId)) {
-                preg_match('/([0-9]).*/', $externId, $matches);
+                preg_match('/([0-9]).*/', (string) $externId, $matches);
                 $externId = array_key_exists(0, $matches) ? $matches[0] : 0;
             }
             // with is_numeric we exclude external ids from segments which have a
@@ -1270,8 +1283,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return array
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      *
      * @deprecated use {@link Statement::isManual()} instead
      */
@@ -1348,13 +1361,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $statements = $this->getStatements($statementIds);
 
         return collect($statements)->filter(
-            static function (Statement $statement) {
-                return $statement->isPlaceholder();
-            }
+            static fn (Statement $statement) => $statement->isPlaceholder()
         )->map(
-            static function (Statement $statement) {
-                return $statement->getId();
-            }
+            static fn (Statement $statement) => $statement->getId()
         )->toArray();
     }
 
@@ -1463,9 +1472,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static function (string $count): int {
-            return (int) $count;
-        }, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**
@@ -1484,9 +1491,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('statement.original'));
         $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
-        return array_map(static function (string $count): int {
-            return (int) $count;
-        }, array_column($queryResult, 'count', 'procedureId'));
+        return array_map(static fn (string $count): int => (int) $count, array_column($queryResult, 'count', 'procedureId'));
     }
 
     /**
@@ -1518,7 +1523,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * @return int Amount of deleted Statements
      *
      * @throws ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws OptimisticLockException
      * @throws Exception
      */
     public function deleteByProcedure(string $procedureId): int
@@ -1676,7 +1681,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             try {
                 $this->getEntityManager()->remove($headStatement);
                 $this->getEntityManager()->flush();
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 $this->getLogger()->debug('11111 exeption on resolve cluster!');
             }
         } else {

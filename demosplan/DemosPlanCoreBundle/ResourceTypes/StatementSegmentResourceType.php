@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -53,34 +53,17 @@ use Elastica\Index;
 final class StatementSegmentResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, ReadableEsResourceTypeInterface
 {
     /**
-     * @var QuerySegment
-     */
-    private $esQuery;
-    /**
      * @var Index
      */
     private $esType;
 
-    /**
-     * @var ProcedureAccessEvaluator
-     */
-    private $procedureAccessEvaluator;
-
-    /**
-     * @var PlaceResourceType
-     */
-    private $placeResourceType;
-
     public function __construct(
-        QuerySegment $queryStatement,
+        private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
-        PlaceResourceType $placeResourceType,
-        ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly PlaceResourceType $placeResourceType,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
     ) {
-        $this->esQuery = $queryStatement;
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
-        $this->procedureAccessEvaluator = $procedureAccessEvaluator;
-        $this->placeResourceType = $placeResourceType;
     }
 
     public function getEntityClass(): string
@@ -102,11 +85,11 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
-    public function getAccessCondition(): PathsBasedInterface
+    protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
-            return $this->conditionFactory->false();
+            return [$this->conditionFactory->false()];
         }
 
         $procedureId = $procedure->getId();
@@ -119,10 +102,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
-        return $this->conditionFactory->propertyHasAnyOfValues(
+        return [$this->conditionFactory->propertyHasAnyOfValues(
             $procedureIds,
-            $this->parentStatement->procedure->id
-        );
+            $this->parentStatementOfSegment->procedure->id
+        )];
     }
 
     /**
@@ -254,8 +237,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
-        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
-            return $property->filterable()->sortable();
-        }, $properties);
+        return array_map(static fn(PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,15 +19,9 @@ use Twig\TwigFilter;
  */
 class WysiwygExtension extends ExtensionBase
 {
-    /**
-     * @var HTMLSanitizer
-     */
-    private $htmlSanitizer;
-
-    public function __construct(ContainerInterface $container, HTMLSanitizer $htmlSanitizer)
+    public function __construct(ContainerInterface $container, private readonly HTMLSanitizer $htmlSanitizer)
     {
         parent::__construct($container);
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     /* (non-PHPdoc)
@@ -36,7 +30,7 @@ class WysiwygExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('wysiwyg', [$this, 'wysiwygFilter'], ['is_safe' => ['html']]),
+            new TwigFilter('wysiwyg', $this->wysiwygFilter(...), ['is_safe' => ['html']]),
         ];
     }
 

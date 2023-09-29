@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -17,9 +17,8 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
 
 //  component
 .c-slidebar {
-
     position: fixed;
-    z-index: $z-super;
+    z-index: $dp-z-fixed;
     left: 0;
     top: 0;
     width: 100%;
@@ -39,7 +38,8 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
         flex-direction: column;
         will-change: transform;
         pointer-events: all;
-        box-shadow: $dp-token-box-shadow-4;
+        box-shadow: $dp-box-shadow-xl;
+        overflow-y: auto;
 
         @include media-query('desk-down') {
             max-width: 25%;

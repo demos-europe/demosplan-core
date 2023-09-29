@@ -1,0 +1,6 @@
+############### Deployment
+services:
+  demosplan\deployment\:
+    autowire: true
+    autoconfigure: true
+    resource: '../deploy/'

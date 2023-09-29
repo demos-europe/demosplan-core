@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -28,15 +30,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {
-    /**
-     * The maximum number of parents (technically) allowed when nesting {@link Elements} entities.
-     *
-     * E.g. `0` and smaller values would mean that no nesting of {@link Elements} entities is
-     * allowed. This value can be increased/decreased if necessary but before that look up and
-     * understand its usage, as it has performance implications.
-     */
-    public const MAX_PARENTS_COUNT = 10;
-
     /**
      * @var string|null
      *
@@ -58,7 +51,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     protected $elementParentId;
 
     /**
-     * @var Elements|null
+     * @var ElementsInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="children")
      *
@@ -257,10 +250,8 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * Set parent element.
-     *
-     * @param Elements $parent
      */
-    public function setParent(?Elements $parent): void
+    public function setParent(?ElementsInterface $parent): void
     {
         $this->parent = $parent;
     }
@@ -316,7 +307,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @return $this
      */
-    public function setProcedure(Procedure $procedure): self
+    public function setProcedure(ProcedureInterface $procedure): self
     {
         $this->procedure = $procedure;
         $this->pId = $procedure->getId();
@@ -531,7 +522,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return ArrayCollection Elements
+     * @return Collection<int,Elements>|Elements[]
      */
     public function getChildren(): Collection
     {
@@ -562,14 +553,14 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         $this->organisations = $organisations;
     }
 
-    public function addOrganisation(Orga $organisation): void
+    public function addOrganisation(OrgaInterface $organisation): void
     {
         if (!$this->organisations->contains($organisation)) {
             $this->organisations->add($organisation);
         }
     }
 
-    public function removeOrganisation(Orga $organisation): void
+    public function removeOrganisation(OrgaInterface $organisation): void
     {
         if ($this->organisations->contains($organisation)) {
             $this->organisations->removeElement($organisation);

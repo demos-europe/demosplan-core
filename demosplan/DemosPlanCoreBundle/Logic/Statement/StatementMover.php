@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -21,15 +22,13 @@ use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedEx
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,74 +39,24 @@ use Psr\Log\LoggerInterface;
 
 class StatementMover extends CoreService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var ElementsService */
-    private $elementsService;
-
-    /** @var PermissionsInterface */
-    private $permissions;
-
-    /** @var MessageBagInterface */
-    private $messageBag;
-
-    /** @var StatementService */
-    private $statementService;
-
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var StatementCopyAndMoveService */
-    private $statementCopyAndMoveService;
-
-    /** @var StatementHandler */
-    private $statementHandler;
-
-    /** @var EntityContentChangeService */
-    private $entityContentChangeService;
-
-    /** @var SearchIndexTaskService */
-    private $searchIndexTaskService;
-
-    /** @var StatementReportEntryFactory */
-    private $statementReportEntryFactory;
-
-    /** @var ReportService */
-    private $reportService;
-    /**
-     * @var StatementCopier
-     */
-    private $statementCopier;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        ElementsService $elementsService,
-        PermissionsInterface $permissions,
-        MessageBagInterface $messageBag,
-        StatementService $statementService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ElementsService $elementsService,
+        private readonly PermissionsInterface $permissions,
+        private readonly MessageBagInterface $messageBag,
+        private readonly StatementService $statementService,
         LoggerInterface $logger,
-        StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementHandler $statementHandler,
-        EntityContentChangeService $entityContentChangeService,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        ReportService $reportService,
-        StatementCopier $statementCopier
+        private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
+        private readonly StatementHandler $statementHandler,
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly StatementCopier $statementCopier
     ) {
-        $this->entityManager = $entityManager;
-        $this->elementsService = $elementsService;
-        $this->permissions = $permissions;
-        $this->messageBag = $messageBag;
-        $this->statementService = $statementService;
         $this->logger = $logger;
-        $this->statementCopyAndMoveService = $statementCopyAndMoveService;
-        $this->statementHandler = $statementHandler;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->reportService = $reportService;
-        $this->statementCopier = $statementCopier;
     }
 
     /**
@@ -268,13 +217,6 @@ class StatementMover extends CoreService
                 return false;
             }
 
-            if ($updatedStatementToMove instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $updatedStatementToMove->getId()
-                );
-            }
-
             if (!$updatedOriginalStatementToMove instanceof Statement) {
                 $this->messageBag->add('error', 'error.statement.move');
                 $this->logger->error('Cant move Statement: '.$statementToMove->getId().'.');
@@ -282,28 +224,7 @@ class StatementMover extends CoreService
 
                 return false;
             }
-
-            if ($updatedOriginalStatementToMove instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $updatedOriginalStatementToMove->getId()
-                );
-            }
-
-            if ($placeholderStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $placeholderStatement->getId()
-                );
-            }
-
-            if ($originalStatement instanceof Statement) {
-                $this->searchIndexTaskService->addIndexTask(
-                    Statement::class,
-                    $originalStatement->getId()
-                );
-            }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $doctrineConnection->rollBack();
 
             return false;
@@ -358,7 +279,7 @@ class StatementMover extends CoreService
 
         try {
             $copyStatementAllowed = $this->statementCopier->isCopyStatementAllowed($statement);
-        } catch (ClusterStatementCopyNotImplementedException $e) {
+        } catch (ClusterStatementCopyNotImplementedException) {
             $copyStatementAllowed = false;
         }
         if (false === $copyStatementAllowed) {

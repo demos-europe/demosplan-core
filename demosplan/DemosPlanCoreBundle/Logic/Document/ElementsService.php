@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,8 +23,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -34,7 +34,6 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -59,83 +58,22 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     protected $paragraphService;
 
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var ElementsRepository
-     */
-    private $elementsRepository;
-
-    /**
-     * @var PlanningDocumentCategoryResourceType
-     */
-    private $elementResourceType;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var FileService
-     */
-    private $fileService;
-    /**
-     * @var SingleDocumentRepository
-     */
-    private $singleDocumentRepository;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
     public function __construct(
-        DateHelper $dateHelper,
-        DqlConditionFactory $conditionFactory,
-        ElementsRepository $elementsRepository,
-        EntityFetcher $entityFetcher,
-        EntityHelper $entityHelper,
-        EntityManagerInterface $entityManager,
-        FileService $fileService,
-        GlobalConfigInterface $globalConfig,
+        private readonly DateHelper $dateHelper,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ElementsRepository $elementsRepository,
+        private readonly EntityHelper $entityHelper,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
         ParagraphService $paragraphService,
-        PlanningDocumentCategoryResourceType $elementResourceType,
-        SingleDocumentRepository $singleDocumentRepository,
+        private readonly PlanningDocumentCategoryResourceType $elementResourceType,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->elementResourceType = $elementResourceType;
-        $this->elementsRepository = $elementsRepository;
-        $this->entityFetcher = $entityFetcher;
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->dateHelper = $dateHelper;
-        $this->entityHelper = $entityHelper;
-        $this->entityManager = $entityManager;
-        $this->fileService = $fileService;
-        $this->singleDocumentRepository = $singleDocumentRepository;
-        $this->globalConfig = $globalConfig;
     }
 
     /**
@@ -172,7 +110,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
             $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-            $elements = $this->entityFetcher->listEntitiesUnrestricted(Elements::class, $conditions, [$sortMethod]);
+            $elements = $this->elementsRepository->getEntities($conditions, [$sortMethod]);
 
             return $this->getElementsRepository()->filterElementsByPermissions($elements);
         } catch (Exception $e) {
@@ -202,11 +140,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
-        $result = $this->entityFetcher->listEntitiesUnrestricted(
-            Elements::class,
-            $conditions,
-            [$sortMethod]
-        );
+        $result = $this->elementsRepository->getEntities($conditions, [$sortMethod]);
 
         return $this->getElementsRepository()->filterElementsByPermissions($result);
     }
@@ -252,10 +186,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
-            function ($element) {
+            fn ($element) =>
                 /* @var Elements $element */
-                return $element->getId();
-            }
+                $element->getId()
         )->toArray();
     }
 
@@ -343,14 +276,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function getEnabledFileAndParagraphElements(string $procedureId, ?string $organisationId, bool $isOwner = false): array
     {
         $elements = $this->getElementsListObjects($procedureId, $organisationId, $isOwner);
-        $elements = array_filter($elements, static function (Elements $element) {
-            return in_array(
-                $element->getCategory(),
-                [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
-                true
-            );
-        });
-        $elements = array_map([$this, 'convertElementToArray'], $elements);
+        $elements = array_filter($elements, static fn (Elements $element) => in_array(
+            $element->getCategory(),
+            [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
+            true
+        ));
+        $elements = array_map($this->convertElementToArray(...), $elements);
         foreach ($elements as $key => $element) {
             $elements[$key]['paragraphDocs'] = false;
             if (ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element['category']) {
@@ -404,7 +335,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if ($negativeReportElement instanceof Elements && $negativeReportElement->getEnabled()) {
                 return true;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->logger->warning('Negative report element could not be found',
                 ['procedureId' => $procedureId]
             );
@@ -616,9 +547,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static function ($title) {
-            return ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title;
-        });
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
@@ -849,7 +778,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             );
 
         /** @var Elements[] $elements */
-        $elements = $this->entityFetcher->listEntities($this->elementResourceType, [$condition]);
+        $elements = $this->elementResourceType->listEntities([$condition]);
 
         foreach ($elements as $element) {
             $element->setDesignatedSwitchDate($designatedSwitchDateTime);

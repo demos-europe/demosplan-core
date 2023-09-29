@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,10 +35,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository")
  */
-class TagTopic extends CoreEntity implements UuidEntityInterface
+class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterface
 {
-    public const TAG_TOPIC_MISC = 'Sonstiges';
-
     /**
      * @var string|null
      *
@@ -67,7 +67,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     protected $createDate;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
      *
@@ -76,7 +76,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     protected $procedure;
 
     /**
-     * @var Collection<int, Tag>
+     * @var Collection<int, TagInterface>
      *
      * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "topic", cascade={"remove"})
      *
@@ -87,8 +87,8 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     /**
      * * Necessary to set Type of $this->tags.
      *
-     * @param string    $title
-     * @param Procedure $procedure
+     * @param string             $title
+     * @param ProcedureInterface $procedure
      */
     public function __construct($title, $procedure)
     {
@@ -98,7 +98,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return Collection<int, Tag>
+     * @return Collection<int, TagInterface>
      */
     public function getTags(): Collection
     {
@@ -110,7 +110,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      *
      * @param string $id identifies the tag
      *
-     * @return Tag|null
+     * @return TagInterface|null
      */
     public function getTag($id)
     {
@@ -130,7 +130,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      *
      * @param Tag $tag
      *
-     * @return TagTopic
+     * @return TagTopicInterface
      */
     public function addTag($tag)
     {
@@ -144,9 +144,9 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     /**
      * Removes a specific Tag from this Topic.
      *
-     * @param Tag $tag
+     * @param TagInterface $tag
      *
-     * @return TagTopic
+     * @return TagTopicInterface
      */
     public function removeTag($tag)
     {
@@ -202,7 +202,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
      * @param string $title
      *
      * @return string
-     * @return TagTopic
+     * @return TagTopicInterface
      */
     public function setTitle($title)
     {
@@ -212,7 +212,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+     * @return ProcedureInterface
      */
     public function getProcedure()
     {
@@ -220,7 +220,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure $procedure
+     * @param ProcedureInterface $procedure
      */
     public function setProcedure($procedure)
     {

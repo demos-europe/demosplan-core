@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,36 +22,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class WmsToWmtsCoordinatesConverter
 {
-    /**
-     * @var Filesystem
-     */
-    private $fileSystem;
-
-    /**
-     * @var ImageManager
-     */
-    private $imageManager;
-
-    /**
-     * @var UrlFileReader
-     */
-    private $urlFileReader;
-
-    /**
-     * @var MapProjectionConverter
-     */
-    private $mapProjectionConverter;
-
-    public function __construct(
-        Filesystem $fileSystem,
-        ImageManager $imageManager,
-        MapProjectionConverter $mapProjectionConverter,
-        UrlFileReader $urlFileReader
-    ) {
-        $this->fileSystem = $fileSystem;
-        $this->imageManager = $imageManager;
-        $this->mapProjectionConverter = $mapProjectionConverter;
-        $this->urlFileReader = $urlFileReader;
+    public function __construct(private readonly Filesystem $fileSystem, private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader)
+    {
     }
 
     /**

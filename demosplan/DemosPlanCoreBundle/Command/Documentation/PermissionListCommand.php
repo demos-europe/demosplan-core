@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
@@ -46,18 +47,18 @@ class PermissionListCommand extends CoreCommand
 
         try {
             $output->writeln(Json::encode($data, \JSON_PRETTY_PRINT));
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             $output->writeln('{"error": "Permission export failed."}');
 
-            return 1;
+            return (int) Command::FAILURE;
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function loadGlobalPermissions(): Collection
     {
-        $permissionsPath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml');
+        $permissionsPath = DemosPlanPath::getConfigPath('permissions.yml');
 
         $permissions = Yaml::parseFile($permissionsPath);
 
@@ -66,23 +67,21 @@ class PermissionListCommand extends CoreCommand
                 static function ($permission, $name) {
                     $permission['name'] = $name;
 
-                    preg_match('/^([a-z]+)_\w*?$/', $permission['name'], $permissionTypeMatches);
+                    preg_match('/^([a-z]+)_\w*?$/', (string) $permission['name'], $permissionTypeMatches);
                     $permission['type'] = $permissionTypeMatches[1];
 
                     if (array_key_exists('description', $permission)) {
                         $permission['description'] = preg_replace(
                             '/T\d+/',
                             '[$0](https://yaits.demos-deutschland.de/$0)',
-                            $permission['description']
+                            (string) $permission['description']
                         );
                     }
 
                     return $permission;
                 }
             )->sort(
-                static function (array $permissionA, array $permissionB) {
-                    return strcmp($permissionA['name'], $permissionB['name']);
-                }
+                static fn (array $permissionA, array $permissionB) => strcmp((string) $permissionA['name'], (string) $permissionB['name'])
             )
             ->groupBy('type');
     }
@@ -160,7 +159,7 @@ class PermissionListCommand extends CoreCommand
             $projectPermissionsProcess->mustRun();
 
             return $projectPermissionsProcess->getOutput();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return null;
         }
     }
@@ -181,7 +180,7 @@ class PermissionListCommand extends CoreCommand
             $projectRolesProcess->mustRun();
 
             return Yaml::parse($projectRolesProcess->getOutput());
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }

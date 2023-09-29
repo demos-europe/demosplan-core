@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -19,14 +19,14 @@
           @search="(term, selectedFields) => applySearch(term, selectedFields)"
           ref="searchModal" />
         <dp-button
-          class="flex-item-end"
+          class="ml-auto"
           variant="outline"
           :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
           :disabled="searchValue === ''"
           :text="Translator.trans('search.reset')" />
       </div>
       <dp-bulk-edit-header
-        class="u-mt-0_5"
+        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
         :selected-items-count="selectedItemsCount"
         :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
@@ -61,7 +61,7 @@
             {{ Translator.trans('export.statements.xlsx') }}
           </a>
         </dp-flyout>
-        <div class="flex-item-end flex flex-items-center space-inline-xs">
+        <div class="ml-auto flex items-center space-inline-xs">
           <label class="u-mb-0">
             {{ Translator.trans('sorting') }}
           </label>
@@ -92,11 +92,12 @@
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId }">
+        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />
           <dp-claim
+            v-if="!synchronized"
             entity-type="statement"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
@@ -133,14 +134,13 @@
           <div class="o-hellip__wrapper">
             <div
               v-tooltip="internId"
-              class="o-hellip--nowrap text--right"
-              dir="rtl"
+              class="o-hellip--nowrap text-right"
               v-text="internId" />
           </div>
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 overflow-word-break"
+            class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
@@ -155,20 +155,19 @@
             </button>
             <a
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
-              :class="{'is-disabled': synchronized }"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
-              :href="Routing.generate('core_file', { hash: originalPdf })"
+              :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
-              :class="`${ !synchronized || assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
@@ -222,7 +221,7 @@
                   <dd>{{ formattedAuthoredDate }}</dd>
                   <dt>{{ Translator.trans('statement.date.submitted') }}:</dt>
                   <dd>{{ formattedSubmitDate }}</dd>
-                  <dt class="whitespace--nowrap">
+                  <dt class="whitespace-nowrap">
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
@@ -232,13 +231,13 @@
           </statement-meta-data>
 
           <!-- Statement text -->
-          <div class="u-pt-0_5 overflow-word-break">
+          <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
             <template v-if="typeof fullText === 'undefined'">
               <div v-cleanhtml="text" />
               <a
                 v-if="statementsObject[id].attributes.textIsTruncated"
-                class="show-more cursor--pointer"
+                class="show-more cursor-pointer"
                 @click.prevent.stop="() => getStatementsFullText(id)"
                 rel="noopener">
                 {{ Translator.trans('show.more') }}
@@ -247,7 +246,7 @@
             <template v-else>
               <div v-cleanhtml="statementsObject[id].attributes.isFulltextDisplayed ? fullText : text" />
               <a
-                class="cursor--pointer"
+                class="cursor-pointer"
                 @click="() => toggleFulltext(id)"
                 rel="noopener">
                 {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
@@ -257,12 +256,18 @@
         </template>
       </dp-data-table>
 
-      <dp-sliding-pagination
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'invisible': isLoading }"
+        class="u-pt-0_5 text-right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="getItemsByPage"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
 
     <dp-inline-notification
@@ -283,15 +288,16 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  DpPager,
   dpRpc,
   DpSelect,
-  DpSlidingPagination,
   DpStickyElement,
   formatDate,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
@@ -306,8 +312,8 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpPager,
     DpSelect,
-    DpSlidingPagination,
     DpStickyElement,
     SearchModal,
     StatementMetaData
@@ -317,7 +323,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -350,6 +356,11 @@ export default {
   data () {
     return {
       claimLoadingIds: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -357,6 +368,7 @@ export default {
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
       ],
+      pagination: {},
       searchFields: [
         'authorName',
         'department',
@@ -394,7 +406,6 @@ export default {
     ...mapState('statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages',
       totalFiles: 'totalFiles',
       isLoading: 'loading'
     }),
@@ -441,6 +452,10 @@ export default {
             originalPdf: originalPdf
           }
         })
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
     }
   },
 
@@ -489,6 +504,12 @@ export default {
         name: '',
         orgaName: ''
       }
+    },
+
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.getItemsByPage(page)
     },
 
     /**
@@ -628,7 +649,8 @@ export default {
     getItemsByPage (page) {
       this.fetchStatements({
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         search: {
           value: this.searchValue,
@@ -686,7 +708,13 @@ export default {
           ].join()
         }
       }).then((data) => {
+        /**
+         * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+         */
+        this.setLocalStorage(data.meta.pagination)
+
         this.setNumSelectableItems(data)
+        this.updatePagination(data.meta.pagination)
       })
     },
 
@@ -865,7 +893,8 @@ export default {
         Orga: 'name'
       }
     })
-    this.getItemsByPage(1)
+    this.initPagination()
+    this.getItemsByPage(this.pagination.currentPage)
   }
 }
 </script>

@@ -5,27 +5,26 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -54,11 +53,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      * @var CurrentUserInterface
      */
     protected $currentUser;
-
-    /**
-     * @var EntityFetcher
-     */
-    protected $entityFetcher;
 
     /**
      * @var JsonSchemaValidator
@@ -95,16 +89,12 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     protected $statementCopier;
 
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
+    protected readonly StatementDeleter $statementDeleter;
 
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
         CurrentUserInterface $currentUser,
-        EntityFetcher $entityFetcher,
         JsonSchemaValidator $jsonValidator,
         ProcedureResourceType $procedureResourceType,
         ProcedureService $procedureService,
@@ -112,12 +102,12 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementResourceType $statementResourceType,
         StatementService $statementService,
         StatementCopier $statementCopier,
-        TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        StatementDeleter $statementDeleter
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
         $this->currentUser = $currentUser;
-        $this->entityFetcher = $entityFetcher;
         $this->jsonValidator = $jsonValidator;
         $this->procedureResourceType = $procedureResourceType;
         $this->procedureService = $procedureService;
@@ -125,7 +115,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementResourceType = $statementResourceType;
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
-        $this->transactionService = $transactionService;
+        $this->statementDeleter = $statementDeleter;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
@@ -143,12 +133,10 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            function () use ($procedure, $rpcRequests): array {
-                return $this->prepareAction($procedure->getId(), $rpcRequests);
-            });
+            fn (): array => $this->prepareAction($procedure->getId(), $rpcRequests));
     }
 
     public function isTransactional(): bool
@@ -190,7 +178,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
             $this->statementResourceType->procedure->id
         );
 
-        return $this->entityFetcher->listEntities($this->statementResourceType, [$idCondition, $procedureCondition]);
+        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
     }
 
     /**
@@ -201,7 +189,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $this->jsonValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath($this->getJsonSchemaPath())
+            $this->getJsonSchemaPath()
         );
     }
 
@@ -217,7 +205,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $resultResponse = [];
 
         if (!$this->checkIfAuthorized($procedureId)) {
-            return array_map([$this->errorGenerator, 'accessDenied'], $rpcRequests);
+            return array_map($this->errorGenerator->accessDenied(...), $rpcRequests);
         }
 
         foreach ($rpcRequests as $rpcRequest) {
@@ -226,7 +214,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
                 $statementIds = $rpcRequest->params->statementIds;
                 $statementEntities = $this->loadRequestedStatements($statementIds, $procedureId);
 
-                if (count($statementEntities) !== count($statementIds)) {
+                if (count($statementEntities) !== (is_countable($statementIds) ? count($statementIds) : 0)) {
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
 
                     return $resultResponse;
@@ -239,11 +227,11 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
                 }
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
-            } catch (AccessException $e) {
+            } catch (AccessException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (InvalidSchemaException|JsonException|PathException $e) {
+            } catch (InvalidSchemaException|JsonException|PathException) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

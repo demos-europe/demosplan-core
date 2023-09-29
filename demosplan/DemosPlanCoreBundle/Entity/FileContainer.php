@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,22 +11,28 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileContainerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="file_container",indexes={@ORM\Index(columns={"entity_id", "entity_class"})})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository")
  */
-class FileContainer extends CoreEntity implements UuidEntityInterface
+class FileContainer extends CoreEntity implements UuidEntityInterface, FileContainerInterface
 {
     /**
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -56,6 +62,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -64,6 +71,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -84,6 +92,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
+     *
      * @ORM\JoinColumn(name="file_id", referencedColumnName="_f_ident", nullable=false, onDelete="CASCADE")
      */
     protected $file;
@@ -223,7 +232,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return File
+     * @return FileInterface
      */
     public function getFile()
     {
@@ -231,7 +240,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param File $file
+     * @param FileInterface $file
      */
     public function setFile($file)
     {

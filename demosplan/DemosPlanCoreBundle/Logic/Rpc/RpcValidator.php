@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,12 +22,12 @@ class RpcValidator
     /**
      * Path to the file that defines a generic JSON-RPC conform schema for a request.
      */
-    public const RPC_JSON_SCHEMA_PATH_REQUEST = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schemas/rpc-schema-request.json';
+    final public const RPC_JSON_SCHEMA_PATH_REQUEST = 'json-schemas/rpc-schema-request.json';
 
     /**
      * Path to the file that defines a generic JSON-RPC schema for a result.
      */
-    public const RPC_JSON_SCHEMA_PATH_RESULT = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schemas/rpc-schema-result.json';
+    final public const RPC_JSON_SCHEMA_PATH_RESULT = 'json-schemas/rpc-schema-result.json';
 
     /**
      * @var JsonSchemaValidator
@@ -50,7 +50,7 @@ class RpcValidator
      */
     public function validateRpcJsonRequest(string $json, string $schemaPath = ''): void
     {
-        $this->jsonSchemaValidator->validate($json, DemosPlanPath::getRootPath(self::RPC_JSON_SCHEMA_PATH_REQUEST));
+        $this->jsonSchemaValidator->validate($json, DemosPlanPath::getConfigPath(self::RPC_JSON_SCHEMA_PATH_REQUEST));
         if ('' !== $schemaPath) {
             $this->jsonSchemaValidator->validate($json, $schemaPath);
         }

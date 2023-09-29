@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Tools;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -26,7 +25,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Monolog\Logger;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
-use PhpAmqpLib\Exception\AMQPTimeoutException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -39,11 +37,6 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ServiceImporter implements ServiceImporterInterface
 {
-    /**
-     * @var Logger
-     */
-    private $logger;
-
     /**
      * @var FileService
      */
@@ -68,36 +61,22 @@ class ServiceImporter implements ServiceImporterInterface
      * @var GlobalConfigInterface
      */
     protected $globalConfig;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    /**
-     * @var ParagraphRepository
-     */
-    private $paragraphRepository;
 
     public function __construct(
+        private readonly DocxImporterInterface $docxImporter,
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
-        MessageBagInterface $messageBag,
-        ParagraphRepository $paragraphRepository,
+        private LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
-        RouterInterface $router
+        private readonly PdfCreatorInterface $pdfCreator,
+        private readonly RouterInterface $router,
+        RpcClient $client
     ) {
-        $this->router = $router;
-        $this->messageBag = $messageBag;
+        $this->client = $client;
         $this->fileService = $fileService;
         $this->paragraphService = $paragraphService;
-        $this->logger = $logger;
-        $this->paragraphRepository = $paragraphRepository;
         $this->globalConfig = $globalConfig;
     }
 
@@ -138,45 +117,7 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function exportPdfWithRabbitMQ($content, $pictures = [])
     {
-        $payload = [
-            'file' => $content,
-        ];
-        $payload = array_merge($payload, $pictures);
-        $msg = Json::encode($payload);
-
-        $this->getLogger()->debug(
-            'Export pdf with RabbitMQ, with routingKey: '.$this->globalConfig->getProjectPrefix());
-        $this->getLogger()->debug(
-            'Content to send to RabbitMQ: '.DemosPlanTools::varExport(base64_decode($content), true));
-        $this->getLogger()->debug(
-            'Number of pictures send to RabbitMQ: '.count($pictures));
-
-        try {
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-            $this->client->addRequest($msg, 'pdfDemosPlan', 'exportPDF', $routingKey, 600);
-            $replies = $this->client->getReplies();
-            $this->getLogger()->debug('Got replies ', [DemosPlanTools::varExport($replies, true)]);
-
-            $exportResult = Json::decodeToArray($replies['exportPDF']);
-            if (null === $exportResult) {
-                $this->getLogger()->error('Reply from RabbitMQ: ', [DemosPlanTools::varExport($replies, true)]);
-                throw new Exception('Could not decode export result');
-            } elseif (!isset($exportResult['file'])) {
-                $this->getLogger()->error('AMPQResult has wrong format ', [DemosPlanTools::varExport($exportResult, true)]);
-                throw new Exception('AMPQResult has wrong format');
-            }
-
-            return $exportResult['file'];
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException('Timeout ');
-        } catch (Exception $e) {
-            $this->getLogger()->error('Could not create PDF ', [$e]);
-            throw new Exception('Could not create PDF ');
-        }
+        return $this->pdfCreator->createPdf($content, $pictures);
     }
 
     /**
@@ -192,40 +133,12 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
-        try {
-            // Generiere Message
-            $msg = Json::encode([
-                'procedure' => $procedure,
-                'category'  => $category,
-                'elementId' => $elementId,
-                'path'      => $file->getRealPath(),
-             ]);
-
-            $routingKey = $this->globalConfig->getProjectPrefix();
-            if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
-                $routingKey = '';
-            }
-
-            // Füge Message zum Request hinzu
-            $this->getLogger()->debug(
-                'Import docx with RabbitMQ, with routingKey: '.$routingKey);
-            $this->client->addRequest($msg, 'importDemosPlan', 'import', $routingKey, 300);
-            // Anfrage absenden
-            $replies = $this->client->getReplies();
-
-            if ('' != $replies['import']) {
-                $this->getLogger()->info(
-                    'Incoming message size:'.strlen($replies['import']));
-            }
-
-            return Json::decodeToArray($replies['import']);
-        } catch (AMQPTimeoutException $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw new TimeoutException($e->getMessage());
-        } catch (Exception $e) {
-            $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
-            throw $e;
-        }
+        return $this->docxImporter->importDocx(
+            $file,
+            $elementId,
+            $procedure,
+            $category
+        );
     }
 
     /**
@@ -284,7 +197,7 @@ class ServiceImporter implements ServiceImporterInterface
                          * Teil 1 = Dateiname
                          * Teil 2 = Dateiinhalt base64 encoded
                          */
-                        $ca = explode('::', $c);
+                        $ca = explode('::', (string) $c);
                         if (2 === count($ca)) {
                             $fs = new Filesystem();
                             // Speichere dekodierte Datei als temporäre Datei
@@ -328,13 +241,14 @@ class ServiceImporter implements ServiceImporterInterface
                                 ).DIRECTORY_SEPARATOR.$ca[0]
                             );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr($f, 2);
+                            $stringToReplace = '/file/'.substr((string) $f, 2);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
-                                $this->router->generate('core_file', [
-                                    'hash' => $hash,
+                                $this->router->generate('core_file_procedure', [
+                                    'hash'        => $hash,
+                                    'procedureId' => $procedureId,
                                 ]),
-                                $paragraph['text']
+                                (string) $paragraph['text']
                             );
                         }
                     }
@@ -373,7 +287,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < count($exception->getErrorParagraphs())) {
+        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
             throw $exception;
         }
     }

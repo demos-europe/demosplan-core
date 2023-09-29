@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -18,19 +18,8 @@ use UnexpectedValueException;
 
 class LegacyFlashMessageCreator
 {
-    /**
-     * @var \Symfony\Contracts\Translation\TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
-
-    public function __construct(TranslatorInterface $translator, MessageBagInterface $messageBag)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly MessageBagInterface $messageBag)
     {
-        $this->translator = $translator;
-        $this->messageBag = $messageBag;
     }
 
     /**

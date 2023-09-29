@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="box-shadow-1 height-fit-content width-300"
+          class="shadow height-fit-content width-300"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
@@ -48,6 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
+        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
@@ -57,6 +58,7 @@
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
         @upload-success="setVideoSrcId" />
 

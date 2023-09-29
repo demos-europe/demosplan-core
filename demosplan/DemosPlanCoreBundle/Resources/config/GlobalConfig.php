@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
-use function array_map;
 use function explode;
 use function filter_var;
 use function in_array;
@@ -280,6 +279,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $mapDefaultProjection;
 
+    protected string $projectCoreVersion;
     /**
      * @var string
      */
@@ -414,27 +414,8 @@ class GlobalConfig implements GlobalConfigInterface
     /** @var int */
     protected $elasticsearchNumReplicas;
 
-    /** @var bool */
-    protected $elasticsearchAsyncIndexing;
-
-    /** @var bool */
-    protected $elasticsearchAsyncIndexingLogStatus;
-
-    /** @var int */
-    protected $elasticsearchAsyncIndexingPoolSize;
-
     /** @var int */
     protected $elasticsearchMajorVersion;
-
-    /** @var array */
-    protected $datasheetVersions;
-
-    /**
-     * Path to store datasheet pdf and images.
-     *
-     * @var string
-     */
-    protected $datasheetFilePath;
 
     /**
      * @var string
@@ -550,10 +531,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $subdomain;
     /** @var array<string,string> */
     protected $subdomainMap;
-    /**
-     * @var array<int,string>
-     */
-    protected $subdomainsAllowed;
     // End bauleitplanung-online
 
     /** @var array */
@@ -705,6 +682,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->urlPathPrefix = trim($parameterBag->get('url_path_prefix'));
 
         // Programmversion
+        $this->projectCoreVersion = $parameterBag->get('project_core_version');
         $this->projectVersion = $parameterBag->get('project_version');
 
         $this->gatewayURL = $parameterBag->get('gateway_url');
@@ -774,21 +752,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->elasticsearchQueryDefinition = $parameterBag->get('elasticsearch_query');
         $this->elasticsearchNumReplicas = $parameterBag->get('elasticsearch_number_of_replicas');
-        $this->elasticsearchAsyncIndexing = $parameterBag->get('elasticsearch_async_indexing');
-        $this->elasticsearchAsyncIndexingLogStatus = $parameterBag->get('elasticsearch_async_indexing_log_status');
-        $this->elasticsearchAsyncIndexingPoolSize = $parameterBag->get('elasticsearch_async_indexing_pool_size');
         $this->elasticsearchMajorVersion = $parameterBag->get('elasticsearch_major_version');
-
-        $this->datasheetFilePath = $parameterBag->get('datasheet_file_path');
-        // datasheet version keys store lists
-        if ($parameterBag->has('datasheetVersions')) {
-            $this->datasheetVersions = array_map(
-                static function ($version) {
-                    return explode(',', $version);
-                },
-                $parameterBag->get('datasheetVersions')
-            );
-        }
 
         $this->kernelEnvironment = $parameterBag->get('kernel.environment');
 
@@ -844,7 +808,6 @@ class GlobalConfig implements GlobalConfigInterface
             $this->setSubdomain($parameterBag->get('subdomain'));
         }
         $this->subdomainMap = $parameterBag->get('subdomain_map');
-        $this->subdomainsAllowed = $parameterBag->get('subdomains_allowed');
 
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
@@ -972,21 +935,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getElasticsearchNumReplicas(): int
     {
         return $this->elasticsearchNumReplicas;
-    }
-
-    public function isElasticsearchAsyncIndexing(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexing, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function isElasticsearchAsyncIndexingLogStatus(): bool
-    {
-        return filter_var($this->elasticsearchAsyncIndexingLogStatus, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    public function getElasticsearchAsyncIndexingPoolSize(): int
-    {
-        return $this->elasticsearchAsyncIndexingPoolSize;
     }
 
     public function getElasticsearchMajorVersion(): int
@@ -1285,6 +1233,11 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->proxyTrusted;
     }
 
+    public function getProjectCoreVersion(): string
+    {
+        return $this->projectCoreVersion;
+    }
+
     public function getProjectVersion(): string
     {
         return $this->projectVersion;
@@ -1554,37 +1507,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $realpath;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function getDatasheetFilePathAbsolute(): string
-    {
-        $absolutePath = $this->datasheetFilePath;
-        // Wenn ein relativer Pfad konfiguriert ist, baue den absoluten Pfad zusammen
-        if (0 === strpos($absolutePath, '.')) {
-            $absolutePath = $this->getInstanceAbsolutePath().'/'.$this->datasheetFilePath;
-        }
-
-        $realpath = realpath($absolutePath);
-
-        // fallback if path could not be resolved
-        if (false === $realpath) {
-            $realpath = $this->getKernelRootDir().'/datasheets';
-        }
-
-        // check path
-        // mkdir, create recursively
-        // !is_dir needs to checked twice. First check: Only try to create
-        // dir if folder does not exist
-        // second check: Did something happen during mkdir?
-        if (!is_dir($realpath) && !mkdir($realpath, 0755, true)
-            && !is_dir($realpath)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $realpath));
-        }
-
-        return $realpath;
-    }
-
     public function getInstanceAbsolutePath(): string
     {
         return $this->instanceAbsolutePath;
@@ -1631,24 +1553,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProjectSubmissionType(): string
     {
         return $this->projectSubmissionType;
-    }
-
-    /**
-     * @param string $procedureId
-     */
-    public function getDatasheetVersion($procedureId): int
-    {
-        if (null === $this->datasheetVersions) {
-            return 0;
-        }
-
-        foreach ($this->datasheetVersions as $version => $procedureIds) {
-            if (in_array($procedureId, $procedureIds, true)) {
-                return $version;
-            }
-        }
-
-        return 0; // Invalid version
     }
 
     public function getKernelEnvironment(): string
@@ -1769,11 +1673,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function setSubdomain(string $subdomain): void
     {
         $this->subdomain = $subdomain;
-    }
-
-    public function getSubdomainsAllowed(): array
-    {
-        return $this->subdomainsAllowed;
     }
 
     /**

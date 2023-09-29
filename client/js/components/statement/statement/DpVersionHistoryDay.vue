@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -13,7 +13,7 @@
 </documentation>
 
 <template>
-  <tbody class="o-accordion u-valign--top">
+  <tbody class="o-accordion align-top">
     <tr>
       <td colspan="4">
         <h3 class="border--bottom u-pb-0_5 u-mb-0_5 u-mt">

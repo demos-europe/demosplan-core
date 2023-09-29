@@ -5,21 +5,22 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Elements;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use stdClass;
@@ -48,43 +49,8 @@ use stdClass;
  */
 final class RpcElementsListReorderer implements RpcMethodSolverInterface
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    private $jsonSchemaValidator;
-
-    /**
-     * @var ElementsRepository
-     */
-    private $elementsRepository;
-
-    /**
-     * @var PlanningDocumentCategoryTreeReorderer
-     */
-    private $categoryTreeReorderer;
-
-    /**
-     * @var ElementsService
-     */
-    private $elementsService;
-
-    public function __construct(
-        JsonSchemaValidator $jsonSchemaValidator,
-        PermissionsInterface $permissions,
-        PlanningDocumentCategoryTreeReorderer $categoryTreeReorderer,
-        ElementsRepository $elementsRepository,
-        ElementsService $elementsService
-    ) {
-        $this->jsonSchemaValidator = $jsonSchemaValidator;
-        $this->permissions = $permissions;
-        $this->elementsRepository = $elementsRepository;
-        $this->categoryTreeReorderer = $categoryTreeReorderer;
-        $this->elementsService = $elementsService;
+    public function __construct(private readonly JsonSchemaValidator $jsonSchemaValidator, private readonly PermissionsInterface $permissions, private readonly PlanningDocumentCategoryTreeReorderer $categoryTreeReorderer, private readonly ElementsRepository $elementsRepository, private readonly ElementsService $elementsService)
+    {
     }
 
     public function supports(string $method): bool
@@ -92,7 +58,7 @@ final class RpcElementsListReorderer implements RpcMethodSolverInterface
         return 'planningCategoryList.reorder' === $method;
     }
 
-    public function execute(?Procedure $procedure, $rpcRequests): array
+    public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         $this->validateRpcRequest($rpcRequests);
 
@@ -136,9 +102,7 @@ final class RpcElementsListReorderer implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getRootPath(
-                'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-elements-list-reorder-schema.json'
-            )
+            DemosPlanPath::getConfigPath('config/json-schema/rpc-elements-list-reorder-schema.json')
         );
     }
 

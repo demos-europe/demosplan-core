@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,20 +23,8 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DraftsInfoHandler
 {
-    /** @var DraftsInfoService */
-    private $draftsInfoService;
-
-    /** @var DraftsInfoValidator */
-    private $draftsInfoValidator;
-
-    /** @var SegmentableStatementValidator */
-    private $segmentableStatementValidator;
-
-    public function __construct(DraftsInfoService $draftsInfoService, DraftsInfoValidator $draftsInfoValidator, SegmentableStatementValidator $segmentableStatementValidator)
+    public function __construct(private readonly DraftsInfoService $draftsInfoService, private readonly DraftsInfoValidator $draftsInfoValidator, private readonly SegmentableStatementValidator $segmentableStatementValidator)
     {
-        $this->draftsInfoService = $draftsInfoService;
-        $this->draftsInfoValidator = $draftsInfoValidator;
-        $this->segmentableStatementValidator = $segmentableStatementValidator;
     }
 
     /**

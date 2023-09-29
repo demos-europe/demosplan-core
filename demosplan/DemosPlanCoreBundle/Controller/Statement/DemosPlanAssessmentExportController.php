@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -35,29 +35,13 @@ use function array_key_exists;
  */
 class DemosPlanAssessmentExportController extends BaseController
 {
-    /** @var AssessmentHandler */
-    private $assessmentHandler;
-
-    public function __construct(AssessmentHandler $assessmentHandler)
+    public function __construct(private readonly AssessmentHandler $assessmentHandler)
     {
-        $this->assessmentHandler = $assessmentHandler;
     }
 
     /**
      * An Assessment table export Action that can handle all types of exports
      * specified in the export options yml.
-     *
-     * @Route(
-     *     name="DemosPlan_assessment_table_export",
-     *     methods={"POST", "GET"},
-     *     path="/verfahren/abwaegung/export/{procedureId}",
-     *        options={"expose": true})
-     * @Route(
-     *     name="DemosPlan_assessment_table_original_export",
-     *     path="/verfahren/abwaegung/original/export/{procedureId}",
-     *     defaults={"original": true},
-     *     options={"expose": true}
-     * )
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
@@ -65,6 +49,8 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @throws Exception
      */
+    #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_assessment_table_original_export', path: '/verfahren/abwaegung/original/export/{procedureId}', defaults: ['original' => true], options: ['expose' => true])]
     public function exportAction(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
@@ -92,8 +78,8 @@ class DemosPlanAssessmentExportController extends BaseController
     private function getExportParameters(Request $request, string $procedureId, bool $original): array
     {
         $parameters = $this->assessmentHandler->getFormValues($request->request->all());
-        $parameters['request']['limit'] = 1000000;
-        $parameters['searchFields'] = explode(',', $request->request->get('searchFields'));
+        $parameters['request']['limit'] = 1_000_000;
+        $parameters['searchFields'] = explode(',', (string) $request->request->get('searchFields'));
         $parameters['exportFormat'] = $request->request->get('r_export_format');
         $parameters['procedureId'] = $procedureId;
         $parameters['original'] = $original;
@@ -112,7 +98,7 @@ class DemosPlanAssessmentExportController extends BaseController
             : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;
         try {
             $parameters['viewMode'] = $this->getStringParameter($request, 'r_view_mode');
-        } catch (MissingPostParameterException $e) {
+        } catch (MissingPostParameterException) {
             $parameters['viewMode'] = AssessmentTableViewMode::DEFAULT_VIEW;
         }
         if (AssessmentTableViewMode::ELEMENTS_VIEW === $parameters['viewMode']) {

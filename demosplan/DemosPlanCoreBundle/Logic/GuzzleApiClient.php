@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,16 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GuzzleApiClient implements ApiClientInterface
 {
-    /** @var GlobalConfigInterface */
-    private $globalConfig;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(GlobalConfigInterface $globalConfig, LoggerInterface $logger)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger)
     {
-        $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
     }
 
     /**
@@ -82,9 +74,7 @@ class GuzzleApiClient implements ApiClientInterface
         }
 
         $stack = HandlerStack::create();
-        $stack->push(Middleware::mapRequest(static function (RequestInterface $request) {
-            return $request;
-        }));
+        $stack->push(Middleware::mapRequest(static fn (RequestInterface $request) => $request));
 
         $config['handler'] = $stack;
 

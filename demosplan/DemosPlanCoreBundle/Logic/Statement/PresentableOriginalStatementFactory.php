@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -17,36 +18,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PresentableOriginalStatementFactory
 {
-    /** @var TranslatorInterface */
-    private $translator;
-    /** @var DateExtension */
-    private $dateExtension;
-    /** @var MapService */
-    private $mapService;
-    /** @var EditorService */
-    private $editorService;
-    /** @var AssessmentTableServiceOutput */
-    private $assessmentTableServiceOutput;
-    /** @var CurrentUserInterface */
-    private $currentUser;
-    /** @var StatementService */
-    private $statementService;
-
-    public function __construct(AssessmentTableServiceOutput $assessmentTableServiceOutput, TranslatorInterface $translator, DateExtension $dateExtension, MapService $mapService, EditorService $editorService, CurrentUserInterface $currentUser, StatementService $statementService)
+    public function __construct(private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput, private readonly TranslatorInterface $translator, private readonly DateExtension $dateExtension, private readonly MapService $mapService, private readonly EditorService $editorService, private readonly CurrentUserInterface $currentUser, private readonly StatementService $statementService)
     {
-        $this->translator = $translator;
-        $this->dateExtension = $dateExtension;
-        $this->mapService = $mapService;
-        $this->editorService = $editorService;
-        $this->currentUser = $currentUser;
-        $this->statementService = $statementService;
-        $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
     }
 
     /**

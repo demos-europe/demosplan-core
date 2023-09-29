@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,110 +20,113 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadUserData extends TestFixture
 {
     /**
      * Test user with guest role.
      */
-    public const TEST_USER_GUEST = 'testUserGuest';
+    final public const TEST_USER_GUEST = 'testUserGuest';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN = 'testUser3';
+    final public const TEST_USER_CITIZEN = 'testUser3';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN2 = 'citizen2';
+    final public const TEST_USER_CITIZEN2 = 'citizen2';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN3 = 'citizen3';
+    final public const TEST_USER_CITIZEN3 = 'citizen3';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN4 = 'citizen4';
+    final public const TEST_USER_CITIZEN4 = 'citizen4';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN5 = 'citizen5';
+    final public const TEST_USER_CITIZEN5 = 'citizen5';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN6 = 'citizen6';
+    final public const TEST_USER_CITIZEN6 = 'citizen6';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN7 = 'citizen7';
+    final public const TEST_USER_CITIZEN7 = 'citizen7';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN8 = 'citizen8';
+    final public const TEST_USER_CITIZEN8 = 'citizen8';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN9 = 'citizen9';
+    final public const TEST_USER_CITIZEN9 = 'citizen9';
 
     /**
      * Test user with citizen role.
      */
-    public const TEST_USER_CITIZEN10 = 'citizen10';
+    final public const TEST_USER_CITIZEN10 = 'citizen10';
 
     /**
      * Test user with public agency role.
      */
-    public const TEST_USER_INVITABLE_INSTITUTION_ONLY = 'testUserInvitableInstitutionOnly';
+    final public const TEST_USER_INVITABLE_INSTITUTION_ONLY = 'testUserInvitableInstitutionOnly';
 
     /**
      * Test user with planner role.
      */
-    public const TEST_USER_FP_ONLY = 'testUserFpOnly';
+    final public const TEST_USER_FP_ONLY = 'testUserFpOnly';
 
-    public const TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY = 'testUser';
+    final public const TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY = 'testUser';
 
     /**
      * Test user with unfinished registration.
      */
-    public const TEST_USER_UNFINISHED_REGISTRATION = 'testUserUnfinishedRegistration';
+    final public const TEST_USER_UNFINISHED_REGISTRATION = 'testUserUnfinishedRegistration';
 
     /**
      * Test user with FP role used in XBauleitplanungServiceTest.
      */
-    public const TEST_USER_XBAULEITPLANUNG = 'testUserXBauleitplanung';
+    final public const TEST_USER_XBAULEITPLANUNG = 'testUserXBauleitplanung';
 
-    public const TEST_USER_CONTENT_EDITOR = 'testUserContentEditor';
+    final public const TEST_USER_CONTENT_EDITOR = 'testUserContentEditor';
 
-    public const TEST_DEPARTMENT = 'testDepartment';
-    public const TEST_ORGA_PUBLIC_AGENCY = 'testOrgaInvitableInstitution';
+    final public const TEST_DEPARTMENT = 'testDepartment';
+    final public const TEST_ORGA_PUBLIC_AGENCY = 'testOrgaInvitableInstitution';
 
-    public const TEST_ORGA_FP = 'testOrgaFP';
-    public const TEST_ORGA_WITH_REJECTED_ORGA_TYPE = 'orgaWithRejectedOrgaType';
+    final public const TEST_ORGA_FP = 'testOrgaFP';
+    final public const TEST_ORGA_WITH_REJECTED_ORGA_TYPE = 'orgaWithRejectedOrgaType';
 
-    public const DATA_INPUT_ORGA = 'dataInputOrga';
-    public const TEST_ORGA_PB = 'testOrgaPB';
+    final public const DATA_INPUT_ORGA = 'dataInputOrga';
+    final public const TEST_ORGA_PB = 'testOrgaPB';
 
-    public const TEST_USER_2_PLANNER_ADMIN = 'testUser2';
+    final public const TEST_USER_2_PLANNER_ADMIN = 'testUser2';
 
-    public const DEFAULT_PW_HASH = '2308912f941bd13be84578fa73877453f0e3eef455e6674aee57c78cd354fda94087762e9ea4d5e7a56a330f824edf7d125950ce7e5fda7080b34fe1836a0b4e';
+    final public const DEFAULT_PW_HASH = '2308912f941bd13be84578fa73877453f0e3eef455e6674aee57c78cd354fda94087762e9ea4d5e7a56a330f824edf7d125950ce7e5fda7080b34fe1836a0b4e';
 
     public function __construct(EntityManagerInterface $entityManager, private readonly OrgaService $orgaService)
     {
         parent::__construct($entityManager);
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $address = new Address();
         $address->setStreet('Departmentstraße');

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,14 +17,12 @@ class CheckFileIsUsedEvent extends DPlanEvent
      */
     private $isUsed = false;
 
-    /**
-     * @param string
-     */
-    private $fileId;
-
-    public function __construct(string $fileId)
-    {
-        $this->fileId = $fileId;
+    public function __construct(
+        /**
+         * @param string
+         */
+        private readonly string $fileId
+    ) {
     }
 
     public function getFileId(): string

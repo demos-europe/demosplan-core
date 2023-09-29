@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -110,17 +110,17 @@ const filterProceduresByPhase = function () {
 
       // If phase of procedure matches selected filter option, show it
       if (showElement) {
-        if (listElements[i].classList.contains('display--none')) {
-          listElements[i].classList.remove('display--none')
-          listElements[i].classList.add('display--block')
+        if (listElements[i].classList.contains('hidden')) {
+          listElements[i].classList.remove('hidden')
+          listElements[i].classList.add('block')
         }
         visibleElementsCount++
       } else if (showElement === false) {
         // If phase of procedure does not match selected filter option, hide it
-        if (listElements[i].classList.contains('display--block')) {
-          listElements[i].classList.remove('display--block')
+        if (listElements[i].classList.contains('block')) {
+          listElements[i].classList.remove('block')
         }
-        listElements[i].classList.add('display--none')
+        listElements[i].classList.add('hidden')
       }
     }
 

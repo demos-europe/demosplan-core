@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -26,17 +26,13 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Planungsanlass zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @Route(
-     *     name="DemosPlan_plis_get_procedure",
-     *     path="/plis/getProcedure/{uuid}",
-     *     options={"expose": true},
-     * )
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid
      *
      * @return Response
      */
+    #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
     public function getLgvPlisPlanningcauseAction(Plis $procedureHandlerBobhh, $uuid)
     {
         try {
@@ -66,17 +62,13 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Namen zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @Route(
-     *     name="DemosPlan_plis_get_procedure_name",
-     *     path="/plis/getProcedureName/{uuid}",
-     *     options={"expose": true},
-     * )
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier
      *
      * @return JsonResponse
      */
+    #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
     public function getLgvPlisProcedureNameJsonAction(Plis $plis, $uuid)
     {
         try {

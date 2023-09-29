@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,14 +16,17 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadNewsData extends TestFixture implements DependentFixtureInterface
 {
-    public const TEST_SINGLE_NEWS_1 = 'testSingleNews1';
-    public const TEST_SINGLE_NEWS_2 = 'testSingleNews2';
-    public const TEST_SINGLE_NEWS_3 = 'testSingleNews3';
-    public const TEST_SINGLE_NEWS_4 = 'testSingleNews4';
+    final public const TEST_SINGLE_NEWS_1 = 'testSingleNews1';
+    final public const TEST_SINGLE_NEWS_2 = 'testSingleNews2';
+    final public const TEST_SINGLE_NEWS_3 = 'testSingleNews3';
+    final public const TEST_SINGLE_NEWS_4 = 'testSingleNews4';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $procedureId = $this->getReference('testProcedure2')->getId();
 

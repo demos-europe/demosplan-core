@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -87,7 +87,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
         // This test fails yet depending on which project config is used as form_options may be overridden
 
-        $yaml = Yaml::parseFile(__DIR__.'/../../../../Resources/config/form_options.yml');
+        $yaml = Yaml::parseFile(__DIR__.'/../../../../config/form_options.yml');
         $options = $yaml['parameters']['form_options'];
 
         static::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));

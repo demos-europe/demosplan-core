@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -9,7 +9,7 @@
 
 <template>
   <button
-    class="o-link--default text--left btn--blank weight--bold display--block u-1-of-1"
+    class="o-link--default text-left btn--blank weight--bold block u-1-of-1"
     type="button"
     @click="$emit('input', 'DpList')">
     {{ Translator.trans('back.to.results.list') }}

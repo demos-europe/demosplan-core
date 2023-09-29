@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -14,7 +14,7 @@
 
   <div v-else>
     <div
-      class="float--right u-mt-0_25"
+      class="float-right u-mt-0_25"
       v-if="hasPermission('feature_export_protocol')">
       <a :href="Routing.generate('dplan_export_report', { procedureId })">
         <i

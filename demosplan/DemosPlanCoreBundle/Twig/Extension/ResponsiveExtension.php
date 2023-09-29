@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -20,15 +20,9 @@ use Twig\TwigFilter;
  */
 class ResponsiveExtension extends ExtensionBase
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(ContainerInterface $container, LoggerInterface $logger)
+    public function __construct(ContainerInterface $container, private readonly LoggerInterface $logger)
     {
         parent::__construct($container);
-        $this->logger = $logger;
     }
 
     /* (non-PHPdoc)
@@ -38,7 +32,7 @@ class ResponsiveExtension extends ExtensionBase
     {
         return [
             new TwigFilter(
-                'responsive', [$this, 'responsiveFilter'],
+                'responsive', $this->responsiveFilter(...),
                 ['needs_environment' => true, 'is_safe' => ['html']]
             ),
         ];

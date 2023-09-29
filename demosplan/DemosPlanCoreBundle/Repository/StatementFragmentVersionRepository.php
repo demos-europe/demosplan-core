@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -157,7 +157,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function deleteObject($entity)
     {
@@ -173,7 +173,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
     {
         try {
             return $this->findAll();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             return null;
         }
     }

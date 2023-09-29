@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -19,11 +19,14 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadFileData extends TestFixture implements DependentFixtureInterface
 {
-    public const PDF_TEST_FILE = 'testFile';
+    final public const PDF_TEST_FILE = 'testFile';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $file1 = new File();
         $file1->setHash('df055eb7-5405-425b-9e21-7faa63f69a70');
@@ -43,7 +46,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file1->setInfected(0);
         $file1->setLastVScan(new DateTime());
         $file1->setBlocked(0);
-        $file1->setSize(5000000); // 5MB
+        $file1->setSize(5_000_000); // 5MB
 
         $manager->persist($file1);
         $this->setReference(self::PDF_TEST_FILE, $file1);
@@ -72,7 +75,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file2->setInfected(0);
         $file2->setLastVScan(new DateTime());
         $file2->setBlocked(0);
-        $file2->setSize(5000000); // 5MB
+        $file2->setSize(5_000_000); // 5MB
 
         $manager->persist($file2);
         $this->setReference('testFile2', $file2);
@@ -114,7 +117,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file3->setInfected(0);
         $file3->setLastVScan(new DateTime());
         $file3->setBlocked(0);
-        $file3->setSize(5000000); // 5MB
+        $file3->setSize(5_000_000); // 5MB
 
         $manager->persist($file3);
         $this->setReference('testFile3', $file3);
@@ -133,7 +136,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file4->setInfected(0);
         $file4->setLastVScan(new DateTime());
         $file4->setBlocked(0);
-        $file4->setSize(5000000); // 5MB
+        $file4->setSize(5_000_000); // 5MB
 
         $manager->persist($file4);
         $this->setReference('testFile4', $file4);
@@ -152,7 +155,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file5->setInfected(0);
         $file5->setLastVScan(new DateTime());
         $file5->setBlocked(0);
-        $file5->setSize(5000000); // 5MB
+        $file5->setSize(5_000_000); // 5MB
 
         $manager->persist($file5);
         $this->setReference('testFile5', $file5);
@@ -171,7 +174,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file6->setInfected(0);
         $file6->setLastVScan(new DateTime());
         $file6->setBlocked(0);
-        $file6->setSize(5000000); // 5MB
+        $file6->setSize(5_000_000); // 5MB
 
         $manager->persist($file6);
         $this->setReference('testFile6', $file6);
@@ -190,7 +193,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file7->setInfected(0);
         $file7->setLastVScan(new DateTime());
         $file7->setBlocked(0);
-        $file7->setSize(5000000); // 5MB
+        $file7->setSize(5_000_000); // 5MB
 
         $manager->persist($file7);
         $this->setReference('testFile7', $file7);
@@ -209,7 +212,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file8->setInfected(0);
         $file8->setLastVScan(new DateTime());
         $file8->setBlocked(0);
-        $file8->setSize(5000000); // 5MB
+        $file8->setSize(5_000_000); // 5MB
 
         $manager->persist($file8);
         $this->setReference('testFile8', $file8);
@@ -228,7 +231,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file9->setInfected(0);
         $file9->setLastVScan(new DateTime());
         $file9->setBlocked(0);
-        $file9->setSize(5000000); // 5MB
+        $file9->setSize(5_000_000); // 5MB
 
         $manager->persist($file9);
         $this->setReference('testFile9', $file9);
@@ -323,7 +326,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file10->setInfected(0);
         $file10->setLastVScan(new DateTime());
         $file10->setBlocked(0);
-        $file10->setSize(5000000); // 5MB
+        $file10->setSize(5_000_000); // 5MB
         $file10->setProcedure($this->getReference('masterBlaupause'));
 
         $manager->persist($file10);

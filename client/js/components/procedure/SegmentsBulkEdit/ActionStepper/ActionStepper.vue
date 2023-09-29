@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -16,38 +16,35 @@
     <template v-if="step === 1">
       <slot name="step-1" />
 
-      <div class="u-mt cf">
+      <div class="u-mt flow-root">
         <dp-button
           color="secondary"
           :href="sanitizedReturnLink"
           :text="Translator.trans('bulk.edit.actions.back.to.list')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :disabled="!valid"
-          @click="$emit('confirm')">
-          {{ Translator.trans('continue.confirm') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('continue.confirm')"
+          @click="$emit('confirm')" />
       </div>
     </template>
 
     <template v-if="step === 2">
       <slot name="step-2" />
 
-      <div class="u-mt cf">
+      <div class="u-mt flow-root">
         <dp-button
           color="secondary"
-          @click="$emit('edit')">
-          <i class="fa fa-angle-left u-pr-0_25" />
-          {{ Translator.trans('bulk.edit.actions.edit') }}
-        </dp-button>
+          icon="chevron-left"
+          :text="Translator.trans('bulk.edit.actions.edit')"
+          @click="$emit('edit')" />
         <dp-button
-          class="float--right"
+          class="float-right"
           :busy="busy"
-          @click="$emit('apply')">
-          {{ Translator.trans('bulk.edit.actions.apply') }}
-          <i class="fa fa-angle-right u-pl-0_25" />
-        </dp-button>
+          icon-after="chevron-right"
+          :text="Translator.trans('bulk.edit.actions.apply')"
+          @click="$emit('apply')" />
       </div>
     </template>
 

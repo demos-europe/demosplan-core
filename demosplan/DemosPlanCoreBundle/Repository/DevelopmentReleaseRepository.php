@@ -3,13 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
@@ -25,9 +27,9 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @param string $entityId
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+     * @return CoreEntity
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function get($entityId)
     {
@@ -43,7 +45,7 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
     /**
      * @return array
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws EntityNotFoundException
      */
     public function getDevelopmentReleaseList()
     {
@@ -61,8 +63,8 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @return CoreEntity
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function add(array $data)
     {
@@ -87,9 +89,9 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @param string $entityId
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function update($entityId, array $data)
     {
@@ -132,9 +134,9 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @param string $entityId
      *
-     * @throws \Doctrine\ORM\EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws EntityNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function delete($entityId)
     {
@@ -156,7 +158,7 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @param DevelopmentRelease $entity
      *
-     * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+     * @return CoreEntity
      *
      * @throws Exception
      */

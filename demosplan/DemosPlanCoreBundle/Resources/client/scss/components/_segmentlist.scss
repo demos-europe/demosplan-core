@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -7,7 +7,7 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$utility-border-color: $default-border-color;
+$utility-border-color: $dp-color-border-default;
 $utility-border-thickness: $dp-border-thickness;
 
 .segment-list {
@@ -28,10 +28,10 @@ $utility-border-thickness: $dp-border-thickness;
         }
 
         &--assigned {
-            background-color: $dp-color-system-info--light-1;
+            background-color: $dp-color-selection-bg;
         }
 
-        &--assigned + .segment-list-row--assigned {
+        &--assigned + .segment-list-row--assigned:not(.fullscreen) {
             margin-top: $inuit-base-spacing-unit--tiny;
         }
 
@@ -41,7 +41,7 @@ $utility-border-thickness: $dp-border-thickness;
             left: 0;
             top: 0;
             position: fixed;
-            z-index: $z-modal-overlay;
+            z-index: $dp-z-fixed;
             overflow-y: auto;
 
             .tiptap .editor__content {
@@ -92,7 +92,7 @@ $utility-border-thickness: $dp-border-thickness;
 
     &-toolbar {
         background: $dp-color-white;
-        border-radius: $dp-token-rounded-large; // 5px
+        border-radius: $dp-rounded-large; // 5px
         padding: 5px;
 
         &.segment-list-toolbar--dark {
@@ -100,7 +100,7 @@ $utility-border-thickness: $dp-border-thickness;
         }
 
         &__badge {
-            font-size: $dp-token-font-size-smallest;
+            font-size: $dp-font-size-smallest;
             padding: 4px 5px 1px;
             border: 1px solid $dp-color-white;
             border-radius: 20px;
@@ -119,7 +119,7 @@ $utility-border-thickness: $dp-border-thickness;
 
             .segment-list-toolbar--dark & {
                 background: $dp-color-white;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
 
             &:last-child {
@@ -128,13 +128,13 @@ $utility-border-thickness: $dp-border-thickness;
 
             &:hover {
                 border: 1px solid $dp-color-neutral-dark-2;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
 
             &.is-active {
                 background: $dp-color-main;
                 color: $dp-color-white;
-                border-radius: $dp-token-rounded-medium;
+                border-radius: $dp-rounded-medium;
             }
         }
     }

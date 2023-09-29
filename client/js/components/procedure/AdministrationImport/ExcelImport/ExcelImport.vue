@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -35,13 +35,15 @@
       enctype="multipart/form-data">
       <dp-upload-files
         allowed-file-types="xls"
-        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+        :basic-auth="dplan.settings.basicAuth"
+        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="removeFileIds"
         @upload-success="setFileIds" />
-      <div class="text--right">
+      <div class="text-right">
         <button
           :disabled="fileIds.length === 0"
           type="submit"

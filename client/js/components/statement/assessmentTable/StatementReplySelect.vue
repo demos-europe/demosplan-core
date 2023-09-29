@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -16,7 +16,7 @@
     <dp-checkbox
       id="r_replied"
       v-model="checked"
-      class="u-mb-0_5 u-1-of-2 display--inline-block u-valign--middle"
+      class="u-mb-0_5 u-1-of-2 inline-block align-middle"
       :disabled="readonly"
       :label="{
         text: Translator.trans('statement.in.compass.was.answered')

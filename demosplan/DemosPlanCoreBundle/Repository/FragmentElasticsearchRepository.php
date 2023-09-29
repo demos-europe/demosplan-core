@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,13 +13,16 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
+use Elastica\Query\Exists;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -46,11 +49,13 @@ class FragmentElasticsearchRepository extends CoreRepository
     protected $translator;
 
     public function __construct(
+        DqlConditionFactory $conditionFactory,
         Index $fragmentSearchType,
         ManagerRegistry $registry,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         TranslatorInterface $translator,
+        SortMethodFactory $sortMethodFactory,
         ElementsService $elementsService,
         ParagraphService $paragraphService,
         string $entityClass
@@ -62,13 +67,13 @@ class FragmentElasticsearchRepository extends CoreRepository
         $this->elementsService = $elementsService;
         $this->paragraphService = $paragraphService;
 
-        parent::__construct($registry, $entityClass);
+        parent::__construct($conditionFactory, $registry, $sortMethodFactory, $entityClass);
     }
 
     /**
      * Search for Fragments.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment $esQuery
+     * @param QueryFragment $esQuery
      *
      * @return array
      */
@@ -80,7 +85,7 @@ class FragmentElasticsearchRepository extends CoreRepository
     /**
      * Do actual Elasticsearch Query.
      *
-     * @param \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment $esQuery
+     * @param QueryFragment $esQuery
      *
      * @return array
      */
@@ -93,8 +98,8 @@ class FragmentElasticsearchRepository extends CoreRepository
             $boolQuery = new BoolQuery();
 
             // The parent should not be in cluster or an original statement
-            $boolMustNotFilter[] = new Query\Exists('statement.headStatementId');
-            $boolMustFilter[] = new Query\Exists('statement.originalId');
+            $boolMustNotFilter[] = new Exists('statement.headStatementId');
+            $boolMustFilter[] = new Exists('statement.originalId');
 
             $boolQuery = $this->buildFilterMust($boolQuery, $esQuery, $boolMustFilter, $boolMustNotFilter);
 
@@ -102,7 +107,7 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $boolMustNotFilter[] = $this->getTermsQuery($filter);
             }
             if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
+                array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
             $query = new Query();

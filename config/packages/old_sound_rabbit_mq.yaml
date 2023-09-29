@@ -1,0 +1,23 @@
+#RabbitMQ Settings
+old_sound_rabbit_mq:
+    connections:
+        default:
+            url: '%rabbitmq_dsn%'
+            lazy:     true
+            connection_timeout: 3
+            read_write_timeout: 3
+    rpc_clients:
+        demos_plan_import:
+            connection: default
+            expect_serialized_response: false
+#    producers:
+#        # use 'old_sound_rabbit_mq.task_producer' service to send data.
+#        task:
+#            connection:       default
+#            exchange_options: { name: 'task', type: direct }
+#    consumers:
+#        task:
+#            connection:       default
+#            exchange_options: { name: 'task', type: direct }
+#            queue_options:    { name: 'task'}
+#            callback:         App\Consumer\TaskConsumer

@@ -5,15 +5,15 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySHStatic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySHStatic;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
@@ -30,7 +30,7 @@ final class OsiSHStaticAuthenticator extends OsiAuthenticator
             && $request->query->has('TokenTest');
     }
 
-    public function getCredentials(Request $request): Credentials
+    protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('TokenTest');
         $request->getSession()->set(Security::LAST_USERNAME, $osiToken);

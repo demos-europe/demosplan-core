@@ -23,12 +23,12 @@
     {%  set omitPrefix = omit_css_class_prefix ?? true %}
 
     {% if field_label != "hide" %}
-        <label class="{{ 'u-mb-0 cf'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
+        <label class="{{ 'u-mb-0 flow-root'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
             {% autoescape false %}
-                <span class="{{ 'display--block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
+                <span class="{{ 'block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
             {% endautoescape %}
             {% if field_hint|default != "" %}
-                <span class="{{ 'lbl__hint display--block'|prefixClass(omitPrefix) }}">{{ field_hint|trans }}</span>
+                <span class="{{ 'lbl__hint block'|prefixClass(omitPrefix) }}">{{ field_hint|trans }}</span>
             {% endif %}
         </label>
     {% endif %}
@@ -37,6 +37,7 @@
         id="{{ element_id }}"
         :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
         :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
+        :basic-auth="dplan.settings.basicAuth"
         :chunk-size="{{ chunksize|default('Infinity') }}"
         :get-file-by-hash="(hash) => {
             return Routing.generate('core_file', { hash: hash })
@@ -46,5 +47,6 @@
         :max-number-of-files="{{ maxfiles|default(1) }}"
         needs-hidden-input
         :required="{{ field_required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }">
+        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }"
+        :tus-endpoint="dplan.paths.tusEndpoint">
     </dp-upload-files>

@@ -3,16 +3,15 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use function array_merge;
-
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
+use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
@@ -23,9 +22,6 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPa
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
-
-use function file_exists;
-
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -34,7 +30,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+use function array_merge;
+use function file_exists;
 
 /**
  * This class loads all classes used by DPlan core and may be
@@ -58,32 +57,28 @@ class DemosPlanKernel extends Kernel
      *
      * @const string
      */
-    public const ENVIRONMENT_TEST = 'test';
+    final public const ENVIRONMENT_TEST = 'test';
 
     /**
      * String that defines dev environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_DEV = 'dev';
+    final public const ENVIRONMENT_DEV = 'dev';
 
     /**
      * String that defines production environment.
      *
      * @const string
      */
-    public const ENVIRONMENT_PROD = 'prod';
-
-    private string $activeProject;
+    final public const ENVIRONMENT_PROD = 'prod';
 
     public function __construct(
-        string $activeProject,
+        private readonly string $activeProject,
         string $environment,
         bool $debug
     ) {
         parent::__construct($environment, $debug);
-
-        $this->activeProject = $activeProject;
 
         DemosPlanPath::setProjectPathFromConfig("projects/{$activeProject}");
     }
@@ -107,12 +102,12 @@ class DemosPlanKernel extends Kernel
         yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
-        $coreConfigPath = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/config');
+        $coreConfigPath = DemosPlanPath::getConfigPath();
 
-        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($coreConfigPath.'/{routes}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
+        $routes->import($coreConfigPath.'/{routes}/*'.self::CONFIG_EXTS, 'glob');
 
         $routesConfig = DemosPlanPath::getProjectPath('app/config/routing.yml');
 
@@ -125,9 +120,7 @@ class DemosPlanKernel extends Kernel
 
     protected function configureContainer(ContainerBuilder $containerBuilder, LoaderInterface $loader): void
     {
-        $coreConfigPath = DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config'
-        );
+        $coreConfigPath = DemosPlanPath::getConfigPath();
         $projectConfigPath = DemosPlanPath::getProjectPath('app/config');
 
         // load bundles
@@ -161,14 +154,14 @@ class DemosPlanKernel extends Kernel
 
         if ($this->isLocalContainer()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/cache/%s', $this->activeProject, $this->environment)
+                sprintf('dplan/%s/cache/%s', $this->activeProject, $this->environment)
             );
         }
 
         // use distinct caches for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+                sprintf('dplan/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
@@ -185,7 +178,7 @@ class DemosPlanKernel extends Kernel
 
         if ($this->isLocalContainer()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/logs/%s', $this->activeProject, $this->environment)
+                sprintf('dplan/%s/logs/%s', $this->activeProject, $this->environment)
             );
         }
 
@@ -249,9 +242,7 @@ class DemosPlanKernel extends Kernel
 
     private function getBundlesConfigPath(): string
     {
-        return DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config/bundles.php'
-        );
+        return DemosPlanPath::getConfigPath('bundles.php');
     }
 
     /**
@@ -259,9 +250,7 @@ class DemosPlanKernel extends Kernel
      */
     private function getLocalContainerConfigGlob(): string
     {
-        return DemosPlanPath::getRootPath(
-            'demosplan/DemosPlanCoreBundle/Resources/config/config_dev_container'
-        );
+        return DemosPlanPath::getConfigPath('config_dev_container');
     }
 
     protected function build(ContainerBuilder $container): void
@@ -282,11 +271,14 @@ class DemosPlanKernel extends Kernel
             );
         }
 
-        $container->addCompilerPass(new DeploymentStrategyLoaderPass());
-        $container->addCompilerPass(new RpcMethodSolverPass());
-        $container->addCompilerPass(new MenusLoaderPass());
-        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
-        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
+        $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
+        if ('test' !== $this->getEnvironment()) {
+            $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+            $container->addCompilerPass(new AddonDoctrineMigrationsPass());
+        }
     }
 
     public function getActiveProject(): string

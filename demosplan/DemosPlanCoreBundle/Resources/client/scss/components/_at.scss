@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -27,7 +27,7 @@ $at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
         background-color: $dp-color-white;
 
         &.is-fixed {
-            z-index: $z-fixed;
+            z-index: $dp-z-fixed;
         }
 
         &-input {
@@ -192,6 +192,14 @@ $at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
     &__focus-border {
         box-shadow: 0 0 0 3px $dp-color-neutral-light-1;
     }
+
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
+    }
 }
 
 
@@ -213,7 +221,7 @@ $at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
         // Highlight statement item currently targeted by #id in url
         &:target tr,
         &:target:hover tr {
-            background-color: $msg-confirm-bg-color;
+            background-color: $dp-color-message-success-bg;
         }
 
         & > td {

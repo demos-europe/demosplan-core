@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -28,14 +28,14 @@
 
 <template>
   <div
-    class="position--relative"
+    class="relative"
     :class="{'pointer-events-none': false === isEditable}">
     <div class="layout--flush u-mt">
       <h3 class="layout__item u-1-of-3">
         {{ Translator.trans('map.overlays') }}
       </h3><!--
    --><div
-        class="layout__item u-2-of-3 text--right"
+        class="layout__item u-2-of-3 text-right"
         v-if="canHaveCategories">
         <button
           @click.prevent="setActiveTab('treeOrder')"
@@ -61,19 +61,19 @@
         <div class="layout__item u-9-of-12">
           {{ Translator.trans('description') }}
         </div><!--
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
             <i
               class="fa fa-link u-mr-0_5"
               v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-width-none' }" />
         </div><!--
 
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
             <i
               class="fa fa-eye u-mr-0_5"
               v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
         </div><!--
 
-     --><div class="layout__item u-1-of-12 text--right">
+     --><div class="layout__item u-1-of-12 text-right">
           {{ Translator.trans('edit') }}
         </div>
       </div>
@@ -117,12 +117,12 @@
           <div class="layout__item u-10-of-12 u-pl-0_5">
             {{ Translator.trans('description') }}
           </div><!--
-       --><div class="layout__item u-1-of-12 text--right">
+       --><div class="layout__item u-1-of-12 text-right">
           <i
             class="fa fa-eye u-mr-0_5"
             v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
           </div><!--
-       --><div class="layout__item u-1-of-12 text--right">
+       --><div class="layout__item u-1-of-12 text-right">
               {{ Translator.trans('edit') }}
           </div>
       </div>
@@ -167,7 +167,7 @@
     </div>
 
     <div
-      class="text--right u-mv space-inline-s"
+      class="text-right u-mv space-inline-s"
       v-if="false === isLoading">
       <dp-button
         :busy="!isEditable"

@@ -49,8 +49,8 @@
     } %}
 
     {% if element is not empty and permissions.feature_admin_element_create_subelement.enabled == true %}
-        <div class="cf u-mb-0_5">
-            <a class="btn btn--primary float--right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
+        <div class="flow-root u-mb-0_5">
+            <a class="btn btn--primary float-right" href="{{ path('DemosPlan_elements_administration_new', {'procedure':procedure, 'parentElement':element.ident}) }}">
                 {{ "elements.create.subcategory"|trans }}
             </a>
         </div>
@@ -193,7 +193,7 @@
                         {{ 'visibility.category'|trans }}
                     </label>
                     <div class="u-mb-0_75">
-                        <label class="lbl--text display--block u-mb-0_25">
+                        <label class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -206,7 +206,7 @@
                             >
                             {{ "visibility.category.for.unlimited"|trans }}
                         </label>
-                        <label  class="lbl--text display--block u-mb-0_25">
+                        <label  class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -219,7 +219,7 @@
                             >
                             {{ "visibility.category.for.invitable_institution"|trans }}
                         </label>
-                        <label class="lbl--text display--block u-mb-0_25">
+                        <label class="lbl--text block u-mb-0_25">
                             <input
                                 type="radio"
                                 name="r_permission"
@@ -245,19 +245,18 @@
                         </p>
                     </label>
                     <dp-multiselect
+                        v-model="selectedOrgas"
                         class="layout__item u-1-of-1 u-pl-0 u-mb-0_75"
                         :close-on-select="closeOnSelect"
+                        label="name"
                         multiple
                         :options="orgasOfProcedure"
-                        v-model="selectedOrgas"
-                        @input="sortSelected('Orgas')"
                         track-by="id"
-                        label="name"
-                    >
-                        <template v-slot:option="props">
+                        @input="sortSelected('Orgas')">
+                        <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
-                        <template v-slot:tag="props">
+                        <template v-slot:tag="{ props }">
                             <span class="multiselect__tag">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
@@ -267,7 +266,7 @@
                     </dp-multiselect>
                 {% endif %}
 
-                <div class="text--right space-inline-s">
+                <div class="text-right space-inline-s">
                     <input
                         class="btn btn--primary"
                         type="submit"
@@ -286,20 +285,21 @@
             {# document based category: single_document_admin_list.twig is rendered by controller #}
             {% block elements_documentlist %}{% endblock %}
 
-            {% if deleteEnable and element is not empty %}
-                {# delete category #}
-                <form
-                    class="bg-color-ui-neutral-light border-radius-medium space-inset-m u-mt-2"
-                    name="xsubmititem"
-                    enctype="multipart/form-data"
-                    method="post"
-                    action="{{ pathFormGeneral }}">
+            {% if hasPermission('feature_admin_element_delete')%}
 
-                    <input name="r_action" type="hidden" value="elementedit">
-                    <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
-                    <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+                {% if deleteEnable and element is not empty %}
+                    {# delete category #}
+                    <form
+                        class="bg-color-light border-radius-medium space-inset-m u-mt-2"
+                        name="xsubmititem"
+                        enctype="multipart/form-data"
+                        method="post"
+                        action="{{ pathFormGeneral }}">
 
-                    {% if hasPermission('feature_admin_element_edit')%}
+                        <input name="r_action" type="hidden" value="elementedit">
+                        <input type="hidden" name="r_ident" value="{{ element.ident|default() }}">
+                        <input type="hidden" name="r_parent" value="{{ templateVars.parent|default('') }}">
+
                         <fieldset class="u-pb-0">
                             <legend>{{ "category.delete"|trans }}</legend>
                             <p>{{ "explanation.category.delete"|trans }}</p>
@@ -311,9 +311,8 @@
                                 value="{{ "category.delete"|trans }}"
                                 data-form-actions-confirm="{{ "check.category.delete"|trans({ categoryTitle: element.title|default('n/a') }) }}">
                         </fieldset>
-                    {% endif %}
-
-                </form>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
     </dp-element-admin-edit>

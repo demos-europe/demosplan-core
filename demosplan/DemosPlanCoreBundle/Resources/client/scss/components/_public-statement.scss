@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -33,13 +33,13 @@
     &__tooltip,
     &__toggle {
         color: $dp-button-bg-color;
-        font-size: $dp-token-font-size-medium;
+        font-size: $dp-font-size-medium;
         font-weight: 600;
         cursor: pointer;
     }
 
     &__toggle {
-        font-size: $dp-token-font-size-brand-header;
+        font-size: $dp-font-size-header;
     }
 
     &__content-item {
@@ -54,5 +54,13 @@
     &__label {
         font-weight: $bold-font-weight;
         font-family: $bold-font-family;
+    }
+
+    ul {
+        list-style: disc;
+    }
+
+    ol {
+        list-style: decimal;
     }
 }

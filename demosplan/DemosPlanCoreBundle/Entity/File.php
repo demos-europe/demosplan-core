@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -191,7 +192,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     protected $size;
 
     /**
-     * @var Procedure
+     * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="files")
      *
@@ -352,10 +353,10 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     {
         $path = $this->getPath();
         $filename = $this->getHash();
-        if (!is_string($filename) || '' === $filename || '..' === $filename || false !== strpos($filename, '/')) {
+        if (!is_string($filename) || '' === $filename || '..' === $filename || str_contains($filename, '/')) {
             throw new InvalidDataException(sprintf('invalid filename: %s', $filename));
         }
-        $delimiter = '/' === substr($path, -1) ? '' : '/';
+        $delimiter = str_ends_with($path, '/') ? '' : '/';
 
         return $path.$delimiter.$filename;
     }
@@ -388,7 +389,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this->procedure;
     }
 
-    public function setProcedure(Procedure $procedure): void
+    public function setProcedure(ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }

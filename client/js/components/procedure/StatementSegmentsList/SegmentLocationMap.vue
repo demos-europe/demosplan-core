@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -32,7 +32,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('map.relation.set'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
@@ -46,7 +46,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
@@ -60,7 +60,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'u-z-super'
+              classes: 'z-ultimate'
             }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
@@ -102,6 +102,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import { extend } from 'ol/extent'
 
 export default {
   name: 'SegmentLocationMap',
@@ -187,6 +188,11 @@ export default {
     segmentId (newVal) {
       if (newVal) {
         this.setInitDrawings()
+        if (this.featuresObject.features.length > 0) {
+          this.$nextTick(() => {
+            this.setCenterAndExtent()
+          })
+        }
       }
     }
   },
@@ -236,6 +242,23 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    /*
+     * Center the map around all drawings and zoom to the combined extent.
+     */
+    setCenterAndExtent () {
+      const extentPolygon = this.$refs.drawPolygon.getExtent()
+      const extentPoint = this.$refs.drawPoint.getExtent()
+      const extentLine = this.$refs.drawLine.getExtent()
+
+      let completeExtend = extend(extentPolygon, extentPoint)
+      completeExtend = extend(completeExtend, extentLine)
+
+      this.$refs.map.map.updateSize()
+      this.$nextTick(() => {
+        this.$refs.map.map.getView().fit(completeExtend, { size: this.$refs.map.map.getSize() })
+      })
     },
 
     setInitDrawings () {

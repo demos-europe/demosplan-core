@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -91,7 +91,7 @@ class GdprConsentRepository extends CoreRepository implements ObjectInterface
      *
      * @param string $gdprConsentId
      */
-    public function delete($gdprConsentId)
+    public function delete($gdprConsentId): never
     {
         // implement if needed but check for correct 'onDelete' settings regarding user and statetment
         throw new NotYetImplementedException('not needed till now');
@@ -102,7 +102,7 @@ class GdprConsentRepository extends CoreRepository implements ObjectInterface
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }

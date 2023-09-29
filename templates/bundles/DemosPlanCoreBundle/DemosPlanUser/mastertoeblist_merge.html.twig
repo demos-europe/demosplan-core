@@ -1,0 +1,41 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanUser/includes/mastertoeblist_pageheader.html.twig' with {
+        heading: 'invitable_institution.master.merge'|trans,
+        highlighted: 'mastertoeblist_merge'
+    } %}
+
+    <p class="u-mt">
+        Sie können TöB, die sich neu im Hamburg Government Gateway registriert haben, zu bestehenden Einträgen aus der
+        Master-TöB-Liste zuweisen. Organisationen mit existierenden Stellungnahmen können nicht zusammengeführt werden.
+        Diese Aktion kann nicht rückgängig gemacht werden!
+    </p>
+
+    <form action="{{ path('DemosPlan_user_mastertoeblist_merge') }}" method="POST">
+        <master-toeb-list-merge
+            :organisations="JSON.parse('{{ templateVars.organisations|default([])|json_encode|e('js', 'utf-8') }}')"
+            :organisations-master-toeb="JSON.parse('{{ templateVars.orgasMasterToeb|default([])|json_encode|e('js', 'utf-8') }}')">
+        </master-toeb-list-merge>
+
+        <div class="text-right u-mt space-inline-s">
+            <input
+                class="btn btn--primary"
+                type="submit"
+                value="{{ 'merge'|trans }}"
+                data-form-actions-confirm="{{ 'confirm.merge.orgas'|trans }}"
+                name="r_submit_button">
+            <a
+                class="btn btn--secondary"
+                href='{{ path('DemosPlan_user_mastertoeblist') }}'>
+                {{ 'abort'|trans }}
+            </a>
+        </div>
+    </form>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-mastertoeblistMerge.js']) }}
+{% endblock javascripts %}

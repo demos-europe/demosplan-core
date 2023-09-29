@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -37,7 +37,7 @@
           :location="procedureLocation"
           v-if="hasPermission('feature_procedures_located_by_maintenance_service')" />
 
-        <div :class="prefixClass('display--inline-block')">
+        <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
             target="procedureCoordinateDrawer"

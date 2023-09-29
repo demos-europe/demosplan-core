@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,12 +23,9 @@ class AddonBuildFrontendCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:build-frontend';
 
-    private AddonRegistry $registry;
-
-    public function __construct(AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
     {
         parent::__construct($parameterBag, $name);
-        $this->registry = $registry;
     }
 
     protected function configure()

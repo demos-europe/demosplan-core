@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -17,10 +17,10 @@ use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
-use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
-use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -37,46 +37,21 @@ class RegisterUserForCustomerCommand extends CoreCommand
      * @var QuestionHelper
      */
     protected $helper;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var OrgaTypeRepository
-     */
-    private $orgaTypeRepository;
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-    /**
-     * @var Helpers
-     */
-    private $helpers;
 
     public function __construct(
-        Helpers $helpers,
-        OrgaRepository $orgaRepository,
-        OrgaTypeRepository $orgaTypeRepository,
+        private readonly Helpers $helpers,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
         ParameterBagInterface $parameterBag,
-        RoleRepository $roleRepository,
-        UserRepository $userRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
-        $this->orgaRepository = $orgaRepository;
-        $this->orgaTypeRepository = $orgaTypeRepository;
-        $this->roleRepository = $roleRepository;
-        $this->userRepository = $userRepository;
-        $this->helpers = $helpers;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $userToRegister = $this->askUserLogin($input, $output);
         if (null === $userToRegister) {
@@ -120,9 +95,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
     private function askUserLogin(InputInterface $input, OutputInterface $output): ?User
     {
         $questionUser = new Question('Please enter the login of the user to be registered: ');
-        $questionUser->setValidator(function ($answer) {
-            return $this->userRepository->findOneBy(['login' => $answer]);
-        });
+        $questionUser->setValidator(fn ($answer) => $this->userRepository->findOneBy(['login' => $answer]));
 
         return $this->helper->ask($input, $output, $questionUser);
     }
@@ -134,7 +107,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
      */
     private function getOrgaTypesByRoles(array $roles): array
     {
-        $orgaTypeStrings = array_map([$this->roleRepository, 'getOrgaTypeString'], $roles);
+        $orgaTypeStrings = array_map($this->roleRepository->getOrgaTypeString(...), $roles);
 
         $orgaTypes = [];
         foreach (array_unique($orgaTypeStrings) as $orgaTypeString) {

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -23,7 +23,7 @@ use RuntimeException;
  */
 class StoredQueryType extends JsonType
 {
-    public const DPLAN_STORED_QUERY = 'dplan.stored_query';
+    final public const DPLAN_STORED_QUERY = 'dplan.stored_query';
 
     private const TYPE_CLASSES = [
         AssessmentTableQuery::class,
@@ -60,11 +60,7 @@ class StoredQueryType extends JsonType
                 }
             )
             ->filter(
-                static function (StoredQueryInterface $query) use (
-                    $queryFormat
-                ) {
-                    return $query->getFormat() === $queryFormat;
-                }
+                static fn (StoredQueryInterface $query) => $query->getFormat() === $queryFormat
             )
             ->map(
                 static function (StoredQueryInterface $query) use (

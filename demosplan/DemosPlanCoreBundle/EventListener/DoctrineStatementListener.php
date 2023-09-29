@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -28,19 +28,13 @@ class DoctrineStatementListener
      */
     protected $formOptions;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
     public function __construct(
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
-        TranslatorInterface $translator)
+        private readonly TranslatorInterface $translator)
     {
         $this->fileService = $fileService;
         $this->formOptions = $globalConfig->getFormOptions();
-        $this->translator = $translator;
     }
 
     public function postLoad(Statement $statement)
@@ -52,7 +46,7 @@ class DoctrineStatementListener
             // translate Values
             $transKey = $this->formOptions['statement_submit_types']['values'][$statement->getSubmitType()] ?? '';
             $statement->setSubmitTypeTranslated($this->translator->trans($transKey));
-        } catch (Exception $e) {
+        } catch (Exception) {
             // bad luck :-(
         }
     }

@@ -4,7 +4,7 @@
 
     <hr class="u-mv border--top width-100p">
 
-    <form class="cf" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
+    <form class="flow-root" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
 
         <input type="hidden" name="r_action" value="singledocumentdelete">
         <input type="hidden" value="{{ element.ident }}" name="r_elementIdent">
@@ -16,7 +16,7 @@
             <legend class="u-mb-0_5">{{ "plandocuments.uploaded"|trans }}</legend>
 
             <a
-                class="btn btn--primary float--right"
+                class="btn btn--primary float-right"
                 data-cy="uploadNewPlanDocument"
                 href="{{ path('DemosPlan_singledocument_administration_new', {'procedure':procedure, 'category':category, 'elementId':element.ident }) }}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
@@ -44,7 +44,7 @@
                 @items-selected="setSelection"
                 track-by="id">
                 <template #file="rowData">
-                    <span class="overflow-word-break" v-text="rowData.file" />
+                    <span class="break-words" v-text="rowData.file" />
                 </template>
                 <template #actions="rowData">
                     <a

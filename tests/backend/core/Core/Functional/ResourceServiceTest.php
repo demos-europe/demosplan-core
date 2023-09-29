@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,11 +11,10 @@
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Tests\Base\FunctionalTestCase;
@@ -36,11 +35,6 @@ class ResourceServiceTest extends FunctionalTestCase
     private $orgaResourceType;
 
     /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
      * @var ConditionFactoryInterface
      */
     private $conditionFactory;
@@ -51,7 +45,6 @@ class ResourceServiceTest extends FunctionalTestCase
 
         /* @var JsonApiActionService sut */
         $this->sut = self::$container->get(JsonApiActionService::class);
-        $this->entityFetcher = self::$container->get(EntityFetcher::class);
         $this->conditionFactory = self::$container->get(DqlConditionFactory::class);
         $this->statementResourceType = self::$container->get(StatementResourceType::class);
         $this->orgaResourceType = self::$container->get(OrgaResourceType::class);
@@ -82,10 +75,7 @@ class ResourceServiceTest extends FunctionalTestCase
         $currentProcedureService = self::$container->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
 
-        $actual = $this->entityFetcher->getEntityAsReadTarget(
-            $this->statementResourceType,
-            $expected->getId()
-        );
+        $actual = $this->statementResourceType->getEntityAsReadTarget($expected->getId());
 
         self::assertSame($expected, $actual);
     }
@@ -113,13 +103,12 @@ class ResourceServiceTest extends FunctionalTestCase
         self::assertFalse($expected->isDeleted());
         self::assertNull($expected->getHeadStatement());
 
-        $listResult = $this->entityFetcher->listEntities(
-            $this->statementResourceType,
-            [$this->conditionFactory->propertyHasValue(
+        $listResult = $this->statementResourceType->listEntities([
+            $this->conditionFactory->propertyHasValue(
                 $expected->getAuthorName(),
                 $this->statementResourceType->authorName
-            )],
-        );
+            ),
+        ]);
 
         self::assertCount(1, $listResult);
         self::assertSame($expected, $listResult[0]);
@@ -142,8 +131,7 @@ class ResourceServiceTest extends FunctionalTestCase
         self::assertNotNull($masterToeb);
         self::assertFalse($expected->isDeleted());
 
-        $listResult = $this->entityFetcher->listEntities(
-            $this->orgaResourceType,
+        $listResult = $this->orgaResourceType->listEntities(
             [$this->conditionFactory->propertyIsNotNull($this->orgaResourceType->masterToeb)]
         );
 
@@ -171,8 +159,7 @@ class ResourceServiceTest extends FunctionalTestCase
 
         self::assertEmpty($expected->getSegmentsOfStatement());
 
-        $listResult = $this->entityFetcher->listEntities(
-            $this->statementResourceType,
+        $listResult = $this->statementResourceType->listEntities(
             [$this->conditionFactory->propertyHasSize(0, $this->statementResourceType->segments)]
         );
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,8 +14,8 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -23,24 +23,8 @@ use Exception;
 
 class SurveyHandler
 {
-    /** @var SurveyService */
-    private $surveyService;
-
-    /** @var array */
-    private $surveyStatuses;
-
-    /** @var ProcedureHandler */
-    private $procedureHandler;
-
-    /** @var SurveyValidator */
-    private $surveyValidator;
-
-    public function __construct(SurveyService $surveyService, array $surveyStatuses, ProcedureHandler $procedureHandler, SurveyValidator $surveyValidator)
+    public function __construct(private readonly SurveyService $surveyService, private readonly array $surveyStatuses, private readonly ProcedureHandler $procedureHandler, private readonly SurveyValidator $surveyValidator)
     {
-        $this->surveyService = $surveyService;
-        $this->surveyStatuses = $surveyStatuses;
-        $this->procedureHandler = $procedureHandler;
-        $this->surveyValidator = $surveyValidator;
     }
 
     public function findById(string $id): ?Survey
@@ -113,7 +97,7 @@ class SurveyHandler
 
         $startDate = empty($surveyDataJson['startDate'])
             ? date('Y-m-d')
-            : date('Y-m-d', strtotime($surveyDataJson['startDate']));
+            : date('Y-m-d', strtotime((string) $surveyDataJson['startDate']));
         $surveyDataJson['startDate'] = $startDate;
 
         $procedureEndDate = $procedure->getPublicParticipationEndDate()->format('Y-m-d');
@@ -123,7 +107,7 @@ class SurveyHandler
 
         $endDate = empty($surveyDataJson['endDate'])
             ? $defaultDate
-            : date('Y-m-d', strtotime($surveyDataJson['endDate']));
+            : date('Y-m-d', strtotime((string) $surveyDataJson['endDate']));
         $surveyDataJson['endDate'] = $endDate;
 
         $surveyDataJson['surveyId'] = $surveyId;

@@ -21,7 +21,7 @@
                     <h2 id="faqHeading" class="{{ 'u-mb-0_25'|prefixClass }}">
                         {{ 'topics'|trans }}
                     </h2>
-                    <ul class="{{ 'list-style-none'|prefixClass }}">
+                    <ul>
                         {# @improve T11733 use slugify #}
                         {% for category in templateVars.list|keys %}
                             <li>
@@ -53,7 +53,7 @@
                             <dt class="{{ 'u-mt-0_5'|prefixClass }}">
                                 <button
                                     type="button"
-                                    class="{{ 'o-link--default o-toggle__trigger text--left js__toggleAnything'|prefixClass }}"
+                                    class="{{ 'o-link--default o-toggle__trigger text-left js__toggleAnything'|prefixClass }}"
                                     data-toggle="#{{ faq.id }}"
                                     data-toggle-container=".o-toggle"
                                     aria-controls="infolistContentNews"

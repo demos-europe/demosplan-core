@@ -3,13 +3,14 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -18,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\ORMException;
@@ -339,7 +339,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
      *
      * @return Elements
      */
-    public function addObject($entity)
+    public function addObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -349,7 +349,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
      *
      * @return bool
      */
-    public function deleteObject($entity)
+    public function deleteObject($entity): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');
     }
@@ -405,11 +405,10 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $paragraphs = $paragraphRepository->findBy(['procedure' => $procedureId]);
         $documents = $documentRepository->findBy(['procedure' => $procedureId]);
         $elementIdsWithParagraphsOrDocuments = array_map(
-            static function ($paragraphOrDocument) {
+            static fn($paragraphOrDocument) =>
                 /* @var Paragraph|SingleDocument $paragraphOrDocument */
-                return $paragraphOrDocument->getElement()->getId();
-            },
-            array_merge($paragraphs, $documents)
+                $paragraphOrDocument->getElement()->getId(),
+            [...$paragraphs, ...$documents]
         );
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -426,9 +425,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $elements = $queryBuilder->getQuery()->getResult();
 
         return array_map(
-            static function (Elements $element) {
-                return $element->getId();
-            },
+            static fn(Elements $element) => $element->getId(),
             $this->filterElementsByPermissions($elements)
         );
     }

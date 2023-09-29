@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -37,6 +37,7 @@ use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 
 class MapScreenshotter
@@ -68,114 +69,31 @@ class MapScreenshotter
     public $viewport;
 
     /**
-     * @var WmsToWmtsCoordinatesConverter
-     */
-    private $wmsToWmtsCoordinatesConverter;
-
-    /**
-     * @var ApiClientInterface
-     */
-    private $apiClient;
-
-    /**
-     * @var ImageManager
-     */
-    private $imageManager;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var GeoJsonToFeaturesConverter
-     */
-    private $geoJsonToFeaturesConverter;
-
-    /**
-     * @var WktToGeoJsonConverter
-     */
-    private $wktToGeoJsonConverter;
-
-    /**
      * @var bool
      */
     private $mapEnableWmtsExport;
 
-    /**
-     * @var MapImageToPolygonCropper
-     */
-    private $mapImageToPolygonCropper;
-
-    /**
-     * @var MapLayerMerger
-     */
-    private $mapLayerMerger;
-
-    /**
-     * @var MinCoordinatesExtractor
-     */
-    private $minCoordinatesExtractor;
-
-    /**
-     * @var MapImageToCoordinatesCropper
-     */
-    private $mapImageToCoordinatesCropper;
-
-    /**
-     * @var PolygonIntoMapLayerMerger
-     */
-    private $polygonIntoMapLayerMerger;
-
-    /**
-     * @var FeaturesToMapLayersConverter
-     */
-    private $featuresToMapLayersConverter;
-
-    /**
-     * @var TextIntoImageInserter
-     */
-    private $textIntoImageInserter;
-
-    /**
-     * @var UrlFileReader
-     */
-    private $urlFileReader;
-
     public function __construct(
-        ApiClientInterface $apiClient,
-        Filesystem $filesystem,
-        GeoJsonToFeaturesConverter $geoJsonToFeaturesConverter,
+        private readonly ApiClientInterface $apiClient,
+        private readonly Filesystem $filesystem,
+        private readonly GeoJsonToFeaturesConverter $geoJsonToFeaturesConverter,
         GlobalConfigInterface $globalConfig,
-        ImageManager $imageManager,
-        WktToGeoJsonConverter $wktToGeoJsonConverter,
+        private readonly ImageManager $imageManager,
+        private readonly WktToGeoJsonConverter $wktToGeoJsonConverter,
         LoggerInterface $logger,
-        MapImageToCoordinatesCropper $mapImageToCoordinatesCropper,
-        MapImageToPolygonCropper $mapImageToPolygonCropper,
-        MapLayerMerger $mapLayerMerger,
-        MinCoordinatesExtractor $minCoordinatesExtractor,
-        PolygonIntoMapLayerMerger $polygonIntoMapLayerMerger,
-        FeaturesToMapLayersConverter $featuresToMapLayersConverter,
-        TextIntoImageInserter $textIntoImageInserter,
-        UrlFileReader $urlFileReader,
-        WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter
+        private readonly MapImageToCoordinatesCropper $mapImageToCoordinatesCropper,
+        private readonly MapImageToPolygonCropper $mapImageToPolygonCropper,
+        private readonly MapLayerMerger $mapLayerMerger,
+        private readonly MinCoordinatesExtractor $minCoordinatesExtractor,
+        private readonly PolygonIntoMapLayerMerger $polygonIntoMapLayerMerger,
+        private readonly FeaturesToMapLayersConverter $featuresToMapLayersConverter,
+        private readonly TextIntoImageInserter $textIntoImageInserter,
+        private readonly TranslatorInterface $translator,
+        private readonly UrlFileReader $urlFileReader,
+        private readonly WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter
     ) {
-        $this->apiClient = $apiClient;
-        $this->filesystem = $filesystem;
-        $this->geoJsonToFeaturesConverter = $geoJsonToFeaturesConverter;
-        $this->imageManager = $imageManager;
-        $this->wktToGeoJsonConverter = $wktToGeoJsonConverter;
         $this->logger = $logger;
         $this->mapEnableWmtsExport = $globalConfig->getMapEnableWmtsExport();
-        $this->mapImageToCoordinatesCropper = $mapImageToCoordinatesCropper;
-        $this->mapImageToPolygonCropper = $mapImageToPolygonCropper;
-        $this->mapLayerMerger = $mapLayerMerger;
-        $this->minCoordinatesExtractor = $minCoordinatesExtractor;
-        $this->polygonIntoMapLayerMerger = $polygonIntoMapLayerMerger;
-        $this->featuresToMapLayersConverter = $featuresToMapLayersConverter;
-        $this->textIntoImageInserter = $textIntoImageInserter;
-        $this->urlFileReader = $urlFileReader;
-        $this->wmsToWmtsCoordinatesConverter = $wmsToWmtsCoordinatesConverter;
     }
 
     /**
@@ -196,8 +114,7 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = '© basemap.de BKG (www.basemap.de) /'.
-                    'LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                    $copyrightText = $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
@@ -263,8 +180,7 @@ class MapScreenshotter
         $copyrightText = null
     ): ?string {
         try {
-            $copyrightText = $copyrightText
-                ?? '© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+            $copyrightText ??= $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
 
             $features = $this
                 ->geoJsonToFeaturesConverter
@@ -397,7 +313,7 @@ class MapScreenshotter
         // Bild-Typ ermitteln, wenn nicht mit übergeben
         if (empty($type)) {
             // Bilder, die nicht statisch sind (WMS-Aufrufe bspw.)
-            if (false === strpos(substr($path, -4), '.')
+            if (!str_contains(substr($path, -4), '.')
                 || 'http' === strtolower(substr($path, 0, 4))) {
                 $func = 'https:' === strtolower(substr($path, 0, 6)) ? 'file_get_contents_https'
                     : 'fileGetContentsCurl';
@@ -437,18 +353,13 @@ class MapScreenshotter
      */
     private function saveImage(GdImage $image, string $file, string $format): bool
     {
-        switch ($format) {
-            case 'PNG':
-                return imagepng($image, $file);
-            case 'GIF':
-                return imagegif($image, $file);
-            case 'BMP':
-                return imagebmp($image, $file);
-            case 'JPG':
-                return imagejpeg($image, $file);
-        }
-
-        return false;
+        return match ($format) {
+            'PNG' => imagepng($image, $file),
+            'GIF' => imagegif($image, $file),
+            'BMP' => imagebmp($image, $file),
+            'JPG' => imagejpeg($image, $file),
+            default => false,
+        };
     }
 
     private function imagecopymergeAlpha(

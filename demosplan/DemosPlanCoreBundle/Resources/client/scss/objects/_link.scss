@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//  (c) 2010-present DEMOS plan GmbH.
 //
 //  This file is part of the package demosplan,
 //  for more information see the license file.
@@ -28,12 +28,12 @@
 
         &,
         &:visited {
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-default;
         }
 
         &:hover,
         &:active {
-            color: $dp-token-color-brand-link-hover;
+            color: $dp-color-interactive-hover;
         }
 
         //  @TODO unify disabled styles, see _at.scss
@@ -41,18 +41,18 @@
             @extend %disabled-opacity;
 
             &:hover {
-                color: $dp-token-color-brand-link;
+                color: $dp-color-interactive-default;
             }
         }
     }
 
     // Assuming links on $dp-color-alt
     &--on-alt {
-        color: $dp-color-white;
+        color: $dp-color-alt-contrast;
         text-decoration: underline;
 
         &:hover {
-            color: $dp-color-alt--light-1;
+            opacity: .8;
         }
     }
 
@@ -60,10 +60,10 @@
     /// @name .o-link--active
     ///
     /// @example markup
-    /// <a class="o-link--active display--inline u-mr" href="#">
+    /// <a class="o-link--active inline u-mr" href="#">
     ///     Active Link
     /// </a>
-    /// <a class="o-link--default display--inline" href="#">
+    /// <a class="o-link--default inline" href="#">
     ///     Inactive Link
     /// </a>
     &--active {
@@ -72,7 +72,7 @@
             @include keyboard-focus;
 
             pointer-events: none;
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-highlight;
             text-decoration: #{$dp-links-textdecoration-hover};
         }
     }

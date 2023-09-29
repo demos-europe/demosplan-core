@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -12,7 +12,7 @@
     <dp-sticky-element
       border
       class="u-pv-0_5">
-      <div class="flex flex-items-start space-inline-s">
+      <div class="flex items-start space-inline-s">
         <custom-search
           ref="customSearch"
           id="customSearch"
@@ -42,7 +42,7 @@
             @filter-apply="sendFilterQuery" />
         </div>
         <dp-button
-          class="flex-item-end"
+          class="ml-auto"
           variant="outline"
           @click="resetQuery"
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -50,7 +50,7 @@
           :text="Translator.trans('reset')" />
       </div>
       <dp-bulk-edit-header
-        class="u-mt-0_5"
+        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0"
         :selected-items-count="selectedItemsCount"
         :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
@@ -60,7 +60,7 @@
           @click.prevent="handleBulkEdit"
           :text="Translator.trans('segments.bulk.edit')" />
       </dp-bulk-edit-header>
-      <div class="u-mt text--right">
+      <div class="u-mt text-right">
         <dp-column-selector
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
@@ -91,7 +91,7 @@
         :should-be-selected-items="currentlySelectedItems">
         <template v-slot:externId="rowData">
           <v-popover>
-            <div class="whitespace--nowrap">
+            <div class="whitespace-nowrap">
               {{ rowData.attributes.externId }}
             </div>
             <template v-slot:popover>
@@ -106,7 +106,7 @@
         <template v-slot:internId="rowData">
           <div class="o-hellip__wrapper">
             <div
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap text-right"
               v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
               dir="rtl">
               {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
@@ -152,7 +152,9 @@
           {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
         </template>
         <template v-slot:text="rowData">
-          <div v-cleanhtml="rowData.attributes.text" />
+          <div
+            v-cleanhtml="rowData.attributes.text"
+            class="overflow-word-break c-styled-html" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -199,7 +201,7 @@
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
+              :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
               {{ Translator.trans('original.pdf') }}
             </a>
@@ -216,13 +218,18 @@
         </p>
       </div>
 
-      <dp-sliding-pagination
-        class="u-mt-0_5"
-        v-if="totalPages > 1"
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="applyQuery" />
+      <dp-pager
+        v-if="pagination.currentPage"
+        :class="{ 'invisible': isLoading }"
+        class="u-pt-0_5 text-right u-1-of-1"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="applyQuery"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
     </template>
   </div>
 </template>
@@ -238,7 +245,7 @@ import {
   DpDataTable,
   DpFlyout,
   DpLoading,
-  DpSlidingPagination,
+  DpPager,
   DpStickyElement,
   tableSelectAllItems,
   VPopover
@@ -247,6 +254,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 
 export default {
@@ -260,7 +268,7 @@ export default {
     DpDataTable,
     DpFlyout,
     DpLoading,
-    DpSlidingPagination,
+    DpPager,
     DpStickyElement,
     FilterFlyout,
     StatementMetaTooltip,
@@ -271,7 +279,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [tableSelectAllItems],
+  mixins: [paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -307,6 +315,11 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       currentSelection: ['text', 'tags'],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10
+      },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -324,6 +337,7 @@ export default {
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
         toggledSegments: `${this.procedureId}:toggledSegments`
       },
+      pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: []
     }
@@ -339,9 +353,7 @@ export default {
     }),
 
     ...mapState('statementSegment', {
-      currentPage: 'currentPage',
-      segmentsObject: 'items',
-      totalPages: 'totalPages'
+      segmentsObject: 'items'
     }),
 
     ...mapState('statement', {
@@ -402,6 +414,10 @@ export default {
 
     selectableColumns () {
       return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
     }
   },
 
@@ -437,7 +453,8 @@ export default {
       const payload = {
         include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
         page: {
-          number: page
+          number: page,
+          size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter: filter,
@@ -491,10 +508,15 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then(data => {
-          this.isLoading = false
+        .then((data) => {
+          /**
+           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
+           */
+          this.setLocalStorage(data.meta.pagination)
+
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
+          this.updatePagination(data.meta.pagination)
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
@@ -504,6 +526,9 @@ export default {
               StatementSegment: ['id'].join()
             }
           })
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -540,6 +565,13 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    handleSizeChange (newSize) {
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.applyQuery(page)
     },
 
     resetQuery () {
@@ -645,7 +677,8 @@ export default {
         this.updateFilterQuery(query)
       })
     }
-    this.applyQuery(1)
+    this.initPagination()
+    this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
     this.fetchAssignableUsers()

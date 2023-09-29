@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -13,20 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
@@ -34,45 +34,35 @@ use Doctrine\ORM\ORMException;
 
 class StatementDeleter extends CoreService
 {
-    protected AssignService $assignService;
-    protected PermissionsInterface $permissions;
-    protected StatementFragmentService $statementFragmentService;
-    protected ConsultationTokenService $consultationTokenService;
-    protected StatementAttachmentService $statementAttachmentService;
-    private SearchIndexTaskService $searchIndexTaskService;
-    private StatementRepository $statementRepository;
-    private StatementReportEntryFactory $statementReportEntryFactory;
-    private ReportService $reportService;
-    private MessageBagInterface $messageBag;
-    private EntityContentChangeService $entityContentChangeService;
-    private StatementService $statementService;
-
     public function __construct(
-        AssignService $assignService,
-        PermissionsInterface $permissions,
-        StatementFragmentService $statementFragmentService,
-        ConsultationTokenService $consultationTokenService,
-        StatementAttachmentService $statementAttachmentService,
-        SearchIndexTaskService $searchIndexTaskService,
-        StatementRepository $statementRepository,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        ReportService $reportService,
-        MessageBagInterface $messageBag,
-        EntityContentChangeService $entityContentChangeService,
-        StatementService $statementService
+        protected AssignService $assignService,
+        protected PermissionsInterface $permissions,
+        protected StatementFragmentService $statementFragmentService,
+        protected ConsultationTokenService $consultationTokenService,
+        protected StatementAttachmentService $statementAttachmentService,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly MessageBagInterface $messageBag,
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly StatementService $statementService
     ) {
-        $this->assignService = $assignService;
-        $this->permissions = $permissions;
-        $this->statementFragmentService = $statementFragmentService;
-        $this->consultationTokenService = $consultationTokenService;
-        $this->statementAttachmentService = $statementAttachmentService;
-        $this->searchIndexTaskService = $searchIndexTaskService;
-        $this->statementRepository = $statementRepository;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->reportService = $reportService;
-        $this->messageBag = $messageBag;
-        $this->entityContentChangeService = $entityContentChangeService;
-        $this->statementService = $statementService;
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws StatementNotFoundException
+     */
+    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
+    {
+        $statement = $this->statementService->getStatement($statementId);
+        if (!$statement instanceof Statement) {
+            throw StatementNotFoundException::createFromId($statementId);
+        }
+        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
+
+        return $this->statementService->updateStatementObject($statement);
     }
 
     /**
@@ -129,14 +119,6 @@ class StatementDeleter extends CoreService
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
                     $this->statementAttachmentService->deleteStatementAttachments($statement->getAttachments()->getValues());
-
-                    // remove placeholderstatement from index if exists
-                    if ($statement->wasMoved()) {
-                        $this->searchIndexTaskService->deleteFromIndexTask(
-                            Statement::class,
-                            $statement->getPlaceholderStatement()->getId()
-                        );
-                    }
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
                     try {
@@ -150,11 +132,6 @@ class StatementDeleter extends CoreService
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
                     $doctrineConnection->commit();
-                    // remove Statement from Elasticsearch Index
-                    $this->searchIndexTaskService->deleteFromIndexTask(
-                        Statement::class,
-                        $statementId
-                    );
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -100,9 +100,7 @@ class QueryProcedure extends AbstractQuery
         if (self::SCOPE_PLANNER === $scope && $scopes->contains(self::SCOPE_EXTERNAL)) {
             // reset existing scopes without external scope
             $this->setScopes(
-                $scopes->filter(function ($value) {
-                    return self::SCOPE_EXTERNAL !== $value;
-                })->toArray()
+                $scopes->filter(fn($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
             );
         }
 

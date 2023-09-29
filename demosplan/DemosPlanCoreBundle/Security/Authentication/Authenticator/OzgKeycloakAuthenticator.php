@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -32,27 +32,14 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    private OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper;
-    private ClientRegistry $clientRegistry;
-    private EntityManagerInterface $entityManager;
-    private LoggerInterface $logger;
-    private RouterInterface $router;
-    private KeycloakUserDataInterface $keycloakUserData;
-
     public function __construct(
-        ClientRegistry $clientRegistry,
-        EntityManagerInterface $entityManager,
-        KeycloakUserDataInterface $keycloakResponse,
-        LoggerInterface $logger,
-        OzgKeycloakUserDataMapper $ozgKeycloakUserLogin,
-        RouterInterface $router
+        private readonly ClientRegistry $clientRegistry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly KeycloakUserDataInterface $keycloakUserData,
+        private readonly LoggerInterface $logger,
+        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface $router
     ) {
-        $this->ozgKeycloakUserDataMapper = $ozgKeycloakUserLogin;
-        $this->clientRegistry = $clientRegistry;
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->router = $router;
-        $this->keycloakUserData = $keycloakResponse;
     }
 
     public function supports(Request $request): ?bool

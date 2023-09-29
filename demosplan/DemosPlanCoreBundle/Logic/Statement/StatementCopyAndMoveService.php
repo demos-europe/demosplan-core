@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -22,21 +22,12 @@ class StatementCopyAndMoveService extends CoreService
     /** @var ReportService */
     protected $reportService;
 
-    /** @var StatementService */
-    private $statementService;
-    /**
-     * @var StatementVoteRepository
-     */
-    private $statementVoteRepository;
-
     public function __construct(
         ReportService $reportService,
-        StatementService $statementService,
-        StatementVoteRepository $statementVoteRepository
+        private readonly StatementService $statementService,
+        private readonly StatementVoteRepository $statementVoteRepository
     ) {
         $this->reportService = $reportService;
-        $this->statementService = $statementService;
-        $this->statementVoteRepository = $statementVoteRepository;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -29,14 +29,9 @@ class StatementAnonymizeController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      *
-     * @Route(
-     *     path="/procedure/{procedureId}/statement/{statementId}/anonymize",
-     *     name="DemosPlan_statement_anonymize_view",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_statement_anonymize")
      */
+    #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]
     public function statementAnonymizeAction(
         AssessmentHandler $assessmentHandler,
         StatementHandler $statementHandler,

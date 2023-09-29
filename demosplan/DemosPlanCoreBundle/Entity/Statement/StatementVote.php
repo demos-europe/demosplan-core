@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -11,8 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -21,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository")
  */
-class StatementVote implements UuidEntityInterface
+class StatementVote implements UuidEntityInterface, StatementVoteInterface
 {
     /**
      * @var string|null
@@ -37,8 +39,8 @@ class StatementVote implements UuidEntityInterface
     protected $id;
 
     /**
-     * @var Statement
-     *                onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
+     * @var StatementInterface
+     *                         onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="votes")
      *
@@ -47,7 +49,7 @@ class StatementVote implements UuidEntityInterface
     protected $statement;
 
     /**
-     * @var User|null
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
@@ -179,7 +181,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @return Statement
+     * @return StatementInterface
      */
     public function getStatement()
     {
@@ -187,9 +189,9 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @param Statement $statement
+     * @param StatementInterface $statement
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setStatement($statement)
     {
@@ -199,7 +201,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @return User|null
+     * @return UserInterface|null
      */
     public function getUser()
     {
@@ -207,9 +209,9 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @param User $user
+     * @param UserInterface $user
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setUser($user)
     {
@@ -223,7 +225,7 @@ class StatementVote implements UuidEntityInterface
      */
     public function getUId()
     {
-        if (is_null($this->uId) && $this->user instanceof User) {
+        if (is_null($this->uId) && $this->user instanceof UserInterface) {
             $this->uId = $this->user->getId();
         }
 
@@ -241,7 +243,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param string $firstName
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setFirstName($firstName)
     {
@@ -261,7 +263,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param string $lastName
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setLastName($lastName)
     {
@@ -291,7 +293,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param bool $active
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setActive($active)
     {
@@ -311,7 +313,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param bool $deleted
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setDeleted($deleted)
     {
@@ -331,7 +333,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param DateTime $createdDate
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setCreatedDate($createdDate)
     {
@@ -351,7 +353,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param DateTime $modifiedDate
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setModifiedDate($modifiedDate)
     {
@@ -371,7 +373,7 @@ class StatementVote implements UuidEntityInterface
     /**
      * @param DateTime $deletedDate
      *
-     * @return StatementVote
+     * @return StatementVoteInterface
      */
     public function setDeletedDate($deletedDate)
     {

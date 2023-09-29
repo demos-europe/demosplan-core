@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -14,21 +14,15 @@ use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterf
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
 class AfterResourceCreationEvent extends DPlanEvent implements AfterResourceCreationEventInterface
 {
     /**
-     * @var ResourceChange<O>
-     */
-    private $resourceChange;
-
-    /**
      * @param ResourceChange<O> $resourceChange
      */
-    public function __construct(ResourceChange $resourceChange)
+    public function __construct(private readonly ResourceChange $resourceChange)
     {
-        $this->resourceChange = $resourceChange;
     }
 
     /**

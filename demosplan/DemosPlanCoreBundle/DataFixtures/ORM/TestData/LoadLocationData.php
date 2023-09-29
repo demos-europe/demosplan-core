@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -16,21 +16,24 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * @deprecated loading fixture data via Foundry-Factories instead
+ */
 class LoadLocationData extends TestFixture
 {
-    public const COUNTY_1 = 'County1';
-    public const COUNTY_2 = 'County2';
-    public const AMT_1 = 'Amt1';
-    public const AMT_2 = 'Amt2';
-    public const AMT_3 = 'Amt3';
-    public const MUNICIPALTIY_1 = 'Municipality1';
-    public const MUNICIPALTIY_2 = 'Municipality2';
-    public const MUNICIPALTIY_3 = 'Municipality3';
-    public const MUNICIPALTIY_4 = 'Municipality4';
-    public const MUNICIPALTIY_5 = 'Municipality5';
-    public const MUNICIPALTIY_6 = 'Municipality6';
+    final public const COUNTY_1 = 'County1';
+    final public const COUNTY_2 = 'County2';
+    final public const AMT_1 = 'Amt1';
+    final public const AMT_2 = 'Amt2';
+    final public const AMT_3 = 'Amt3';
+    final public const MUNICIPALTIY_1 = 'Municipality1';
+    final public const MUNICIPALTIY_2 = 'Municipality2';
+    final public const MUNICIPALTIY_3 = 'Municipality3';
+    final public const MUNICIPALTIY_4 = 'Municipality4';
+    final public const MUNICIPALTIY_5 = 'Municipality5';
+    final public const MUNICIPALTIY_6 = 'Municipality6';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $entity = new County();
         $entity->setName('Kreis 1');

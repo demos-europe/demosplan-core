@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -33,36 +33,8 @@ use Faker\Provider\Uuid;
  */
 class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
 {
-    /**
-     * @var SegmentableStatementValidator
-     */
-    private $segmentableStatementValidator;
-
-    /**
-     * @var DraftsInfoValidator
-     */
-    private $draftsInfoValidator;
-
-    /**
-     * @var StatementHandler
-     */
-    private $statementHandler;
-
-    /**
-     * @var TagService
-     */
-    private $tagService;
-
-    public function __construct(
-        DraftsInfoValidator $draftsInfoValidator,
-        SegmentableStatementValidator $segmentableStatementValidator,
-        StatementHandler $statementHandler,
-        TagService $tagService
-    ) {
-        $this->draftsInfoValidator = $draftsInfoValidator;
-        $this->segmentableStatementValidator = $segmentableStatementValidator;
-        $this->statementHandler = $statementHandler;
-        $this->tagService = $tagService;
+    public function __construct(private readonly DraftsInfoValidator $draftsInfoValidator, private readonly SegmentableStatementValidator $segmentableStatementValidator, private readonly StatementHandler $statementHandler, private readonly TagService $tagService)
+    {
     }
 
     /**
@@ -75,6 +47,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
      */
     public function transform($statementId): string
     {
+        $draftsInfo = [];
         $this->segmentableStatementValidator->validate($statementId);
         /** @var Statement $statement */
         $statement = $this->statementHandler->getStatement($statementId);

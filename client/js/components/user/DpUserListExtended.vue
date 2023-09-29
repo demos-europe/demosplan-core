@@ -1,5 +1,5 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
   This file is part of the package demosplan,
   for more information see the license file.
@@ -22,7 +22,7 @@
       <template
         v-if="hasPermission('feature_user_delete')"
         v-slot:header-buttons>
-        <div class="layout__item u-1-of-2 text--right u-mb-0_5">
+        <div class="layout__item u-1-of-2 text-right u-mb-0_5">
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"

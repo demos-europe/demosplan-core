@@ -17,7 +17,7 @@
             {{- 'delete'|trans -}}
         </button>
 
-        <a class="btn btn--primary float--right" href="{{ path('DemosPlan_map_administration_gislayer_global_new') }}">
+        <a class="btn btn--primary float-right" href="{{ path('DemosPlan_map_administration_gislayer_global_new') }}">
             {{ 'gislayer.global.create'|trans }}
         </a>
 
@@ -43,7 +43,7 @@
                     <th>
                         {{ 'type'|trans }}
                     </th>
-                    <th class="text--center white">
+                    <th class="text-center white">
                         {{ 'gislayer.defaultVisible'|trans }}
                     </th>
                 </tr>
@@ -72,9 +72,9 @@
                                 {{ 'map.mini'|trans }}
                             {% endif %}
                         </td>
-                        <td class="text--center">
+                        <td class="text-center">
                             {% if gislayer.HasDefaultVisibility == 1 %}
-                                <i class="fa fa-check color--system-confirm" aria-hidden="true"></i>
+                                <i class="fa fa-check color-message-success-fill" aria-hidden="true"></i>
                                 <span class="hide-visually">
                                     {{ 'entries.checked'|trans }}
                                 </span>
@@ -105,7 +105,7 @@
                 </div>
             </fieldset>
 
-            <div class="text--right space-inline-s">
+            <div class="text-right space-inline-s">
                 <input class="btn btn--primary" type="submit" name="saveFeatureInfoUrl" value="{{ "save"|trans }}">
                 <a class="btn btn--secondary" href="{{ path('DemosPlan_map_administration_gislayer_global') }}">
                     {{ 'abort'|trans }}

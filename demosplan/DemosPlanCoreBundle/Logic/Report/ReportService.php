@@ -3,7 +3,7 @@
 /**
  * This file is part of the package demosplan.
  *
- * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -15,20 +15,21 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Pagination\PagePagination;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -36,66 +37,19 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ReportService extends CoreService
 {
     /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface
+     * @var CurrentUserInterface
      */
     protected $currentUser;
 
-    /**
-     * @var \demosplan\DemosPlanUserBundle\Logic\CustomerHandler
-     */
-    private $customerHandler;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
-
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
-
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var StatementReportEntryFactory
-     */
-    private $statementReportEntryFactory;
-    /**
-     * @var ReportRepository
-     */
-    private $reportRepository;
-
     public function __construct(
-        DqlConditionFactory $conditionFactory,
-        CustomerHandler $customerHandler,
-        EntityFetcher $entityFetcher,
-        ReportRepository $reportRepository,
-        SortMethodFactory $sortMethodFactory,
-        StatementReportEntryFactory $statementReportEntryFactory,
-        TranslatorInterface $translator,
-        ValidatorInterface $validator
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly CustomerHandler $customerHandler,
+        private readonly ReportRepository $reportRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
     ) {
-        $this->conditionFactory = $conditionFactory;
-        $this->customerHandler = $customerHandler;
-        $this->entityFetcher = $entityFetcher;
-        $this->reportRepository = $reportRepository;
-        $this->sortMethodFactory = $sortMethodFactory;
-        $this->statementReportEntryFactory = $statementReportEntryFactory;
-        $this->translator = $translator;
-        $this->validator = $validator;
     }
 
     /**
@@ -170,8 +124,9 @@ class ReportService extends CoreService
         ];
 
         $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
+        $pagination = new PagePagination(9_999_999, 1);
 
-        return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9999999, [$sorting]);
+        return $this->reportRepository->getEntitiesForPage($conditions, [$sorting], $pagination);
     }
 
     /**
