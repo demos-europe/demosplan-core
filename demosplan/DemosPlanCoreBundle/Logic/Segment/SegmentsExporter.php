@@ -69,10 +69,23 @@ class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
+        $this->addSimilarStatementSubmitters($section,$statement);
         $this->addSegments($section, $statement);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    {
+        $SimilarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
+        $section->addText(
+            $SimilarStatementSubmittersText,
+            $this->styles['globalFont'],
+            $this->styles['globalSection']
+        );
+
+        $section->addTextBreak(2);
     }
 
     protected function addHeader(Section $section, Procedure $procedure): void
@@ -158,13 +171,6 @@ class SegmentsExporter
         $row6 = $table->addRow();
         $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
-
-        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
-        if ('' !== $similarStatementSubmitters) {
-            $statementSimilarSubmittersRow = $table->addRow();
-            $statementSimilarSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
-            $this->addSegmentCell($statementSimilarSubmittersRow, $statementSimilarSubmittersText, $this->styles['statementInfoTextCell']);
-        }
 
         $section->addTextBreak(2);
     }
