@@ -737,9 +737,6 @@ export default {
     },
 
     toggleRecommendationModal () {
-      if (this.asyncComponents[0]) {
-        this.activeId = this.asyncComponents[0].options.id
-      }
       this.$refs.recommendationModal.toggle()
     },
 
@@ -852,6 +849,7 @@ export default {
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
         this.asyncComponents = response
+        this.activeId = response[0].options.id || ''
         this.allComponentsLoaded = true
 
         response.forEach(component => {
