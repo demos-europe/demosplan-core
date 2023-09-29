@@ -78,9 +78,9 @@ class SegmentsExporter
 
     public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
     {
-        $SimilarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
+        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
         $section->addText(
-            $SimilarStatementSubmittersText,
+            $similarStatementSubmittersText,
             $this->styles['globalFont'],
             $this->styles['globalSection']
         );
