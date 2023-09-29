@@ -92,7 +92,7 @@ class SegmentsExporter
         );
     }
 
-    public function getSimilarStatementSubmitters(Statement $statement)
+    public function getSimilarStatementSubmitters(Statement $statement): string
     {
         $submitterStrings = [];
         foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
