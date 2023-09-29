@@ -69,7 +69,7 @@ class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
-        $this->addSimilarStatementSubmitters($section,$statement);
+        $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement);
         $this->addFooter($section, $statement);
 
