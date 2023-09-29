@@ -183,7 +183,7 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
         return $this;
     }
 
-    public function getPostalCodeWithCity(bool $withCity= false): ?string
+    public function getPostalCodeWithCity(bool $withCity = false): ?string
     {
         return null === $this->city
             ? $this->postalCode
