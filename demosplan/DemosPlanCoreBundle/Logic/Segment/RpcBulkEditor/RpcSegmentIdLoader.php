@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -19,7 +27,6 @@ use Psr\Log\LoggerInterface;
 use stdClass;
 use Webmozart\Assert\Assert;
 
-
 class RpcSegmentIdLoader implements RpcMethodSolverInterface
 {
     final public const SEGMENT_ID_LOAD = 'segment.load.id';
@@ -33,7 +40,8 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         protected readonly JsonApiEsService $jsonApiEsService,
         protected readonly LoggerInterface $logger,
         protected RpcErrorGenerator $errorGenerator
-    ) {}
+    ) {
+    }
 
     public function supports(string $method): bool
     {
@@ -97,7 +105,6 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         return $result;
     }
 
-
     public function isTransactional(): bool
     {
         return false;
@@ -130,7 +137,8 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
 
         return $conditions;
     }
-    private function toArray(stdClass $object):array
+
+    private function toArray(stdClass $object): array
     {
         return json_decode(json_encode($object), true);
     }
