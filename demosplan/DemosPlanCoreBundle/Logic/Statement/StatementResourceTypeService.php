@@ -100,7 +100,10 @@ class StatementResourceTypeService extends ResourceTypeService
         $updater->ifPresent($resourceType->submitterCity, $meta->setOrgaCity(...));
         $updater->ifPresent($resourceType->submitterPostalCode, $meta->setOrgaPostalCode(...));
         $updater->ifPresent($resourceType->memo, $object->setMemo(...));
-        $updater->ifPresent($resourceType->segmentDraftList, $object->setDraftsListJson(...));
+        $updater->ifPresent($resourceType->segmentDraftList, function (string $rawJson) use ($object): void {
+            $object->setDraftsListJson($rawJson);
+            $this->validateObject($object, [Statement::DRAFT_JSON_VALIDATION_GROUP]);
+        });
         $updater->ifPresent($resourceType->similarStatementSubmitters, $object->setSimilarStatementSubmitters(...));
 
         $this->resourceTypeService->validateObject($object);
