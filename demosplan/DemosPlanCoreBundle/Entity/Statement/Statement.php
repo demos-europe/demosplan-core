@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Constraint\SegmentDraftJsonConstraint;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
@@ -40,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\SegmentDraftJsonConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -93,7 +93,7 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
-    public final const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
+    final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
 
     /**
      * @var string|null

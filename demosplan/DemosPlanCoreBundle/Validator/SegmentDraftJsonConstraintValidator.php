@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -18,7 +26,7 @@ class SegmentDraftJsonConstraintValidator extends ConstraintValidator
 
         $json = Json::decodeToArray($rawJson);
         $jsonSegments = $json[ContentField::DATA][ContentField::ATTRIBUTES]['segments'];
-        usort($jsonSegments, static fn(array $a, array $b) => $a['charStart'] - $b['charStart']);
+        usort($jsonSegments, static fn (array $a, array $b) => $a['charStart'] - $b['charStart']);
 
         $lastEnd = PHP_INT_MIN;
         foreach ($jsonSegments as $jsonSegment) {
