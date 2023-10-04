@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 /**
  * Teste LatexExtension
@@ -47,10 +47,8 @@ class LatexExtensionTest extends UnitTestCase
     {
         $result = $this->sut->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-        $callable = $result[0]->getCallable();
-        static::assertTrue('latexFilter' === $callable[1]);
-        static::assertTrue('latex' === $result[0]->getName());
+        static::assertInstanceOf(TwigFilter::class, $result[0]);
+        static::assertSame('latex', $result[0]->getName());
     }
 
     /**
