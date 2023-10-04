@@ -9,13 +9,9 @@ use EDT\JsonApi\Schema\ContentField;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Webmozart\Assert\Assert;
-use Symfony\Contracts\Translation\TranslatorInterface;
+
 class SegmentDraftJsonConstraintValidator extends ConstraintValidator
 {
-    public function __construct(protected TranslatorInterface $translation)
-    {
-    }
-
     public function validate($rawJson, Constraint $constraint)
     {
         Assert::string($rawJson);
@@ -30,11 +26,10 @@ class SegmentDraftJsonConstraintValidator extends ConstraintValidator
             $end = $jsonSegment['charEnd'];
             Assert::greaterThan($end, $start);
             if ($start < $lastEnd) {
-                $this->context->addViolation(
-                    $this->translation->trans(
-                        'error.segmentation.invalid_draft_json',
-                    ['segmentText' => $jsonSegment['text']]
-                    ));
+                $this->context
+                    ->buildViolation($constraint->message)
+                    ->setParameter('{{ segmentText }}', $jsonSegment['text'])
+                    ->addViolation();
             }
             $lastEnd = $end;
         }

@@ -14,6 +14,10 @@ use Symfony\Component\Validator\Constraint;
 #[Attribute]
 class SegmentDraftJsonConstraint extends Constraint
 {
+    /**
+     * @var string
+     */
+    public $message = 'error.segmentation.invalid_draft_json';
     public function validatedBy(): string
     {
         return SegmentDraftJsonConstraintValidator::class;

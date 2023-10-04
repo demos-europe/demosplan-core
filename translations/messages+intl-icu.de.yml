@@ -1012,7 +1012,6 @@ error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht 
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
-error.segmentation.invalid_draft_json: 'Der Abschnitt {segmentText} überschneidet sich mit dem vorherigem Abschnitt. Sie können versuchen die Abschnitte neu zu erstellen.'
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
 error.enddate.required: "Bitte geben Sie ein Enddatum ein"
 error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
