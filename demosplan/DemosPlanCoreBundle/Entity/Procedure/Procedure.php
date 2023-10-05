@@ -154,7 +154,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $phase = '';
 
     /**
-     *
      * @var int
      *
      * @ORM\Column(name="p_phase_count", type="integer", nullable=false)
@@ -2158,8 +2157,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Returns first Survey in the list.
      *
      * @param string $surveyId
-     *
-     * @return Survey
      */
     public function getSurvey($surveyId): ?Survey
     {

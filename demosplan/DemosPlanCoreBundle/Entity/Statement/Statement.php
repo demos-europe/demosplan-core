@@ -295,7 +295,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $phase;
 
     /**
-     *
      * @var int
      *
      * @ORM\Column(name="st_phase_count", type="integer", nullable=false)
@@ -849,7 +848,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This is the user that is currently assigned to this statement. Assigned users are
      * exclusively permitted to change statements
      */
-    protected $assignee = null;
+    protected $assignee;
 
     /**
      * The representative Statement defines the cluster.
@@ -866,7 +865,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
-    protected $headStatement = null;
+    protected $headStatement;
 
     /**
      * @var Collection<int, Statement>
