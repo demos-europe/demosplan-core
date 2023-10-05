@@ -613,9 +613,10 @@ class StatementCopier extends CoreService
      * Will check for headStatement, assignment and claimant.
      * Will also add a corresponding message.
      *
-     * @param Statement $statement     - statement to check
-     * @param Statement $statement     - statement to check
-     * @param bool      $ignoreCluster - Determines if this method is called on create a Statement
+     * @param Statement $statement             - statement to check
+     * @param bool      $copyOnCreateStatement - Determines if this method is called on create a Statement
+     * @param Statement $statement             - statement to check
+     * @param bool      $ignoreCluster         - Determines if this method is called on create a Statement
      *
      * @return bool false, if the given statement<ul>
      *              <li>is a headstatement</li>

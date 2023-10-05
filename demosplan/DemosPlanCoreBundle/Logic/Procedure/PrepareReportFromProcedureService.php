@@ -405,8 +405,8 @@ class PrepareReportFromProcedureService extends CoreService
 
     private function hasPhaseChanged(Procedure $sourceProcedure, Procedure $destinationProcedure): bool
     {
-        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase())
-            || 0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
+        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase()) ||
+            0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
     }
 
     /**

@@ -20,7 +20,7 @@ class ValuedLabel extends ValueObject
 {
     /** @var string */
     protected $label;
-
+    /** @var mixed */
     protected $value;
 
     public static function create(string $label, $value): self

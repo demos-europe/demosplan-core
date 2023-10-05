@@ -49,13 +49,13 @@ class ReportRepository extends FluentRepository implements ArrayInterface, Objec
     private function hasNecessaryKeys(array $array): bool
     {
         return
-            array_key_exists('category', $array)
-            && array_key_exists('group', $array)
-            && array_key_exists('user', $array)
-            && array_key_exists('identifierType', $array)
-            && array_key_exists('ident', $array)
-            && array_key_exists('message', $array)
-            && array_key_exists('customer', $array)
+            array_key_exists('category', $array) &&
+            array_key_exists('group', $array) &&
+            array_key_exists('user', $array) &&
+            array_key_exists('identifierType', $array) &&
+            array_key_exists('ident', $array) &&
+            array_key_exists('message', $array) &&
+            array_key_exists('customer', $array)
         ;
     }
 

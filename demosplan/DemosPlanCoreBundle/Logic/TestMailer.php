@@ -102,6 +102,6 @@ EOT;
      */
     private function getStringFromAddresses(array $address): string
     {
-        return implode(',', collect($address)->transform(static fn (Address $address) => $address->toString())->toArray());
+        return implode(',', collect($address)->transform(static fn(Address $address) => $address->toString())->toArray());
     }
 }

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<SurveyVote>
@@ -73,11 +74,11 @@ final class SurveyVoteResourceType extends DplanResourceType
             $this->createAttribute($this->textReview)
                 ->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->createdDate)
-                ->readable(true, fn (SurveyVote $surveyVote): string => $this->formatDate($surveyVote->getCreatedDate())),
+                ->readable(true, fn(SurveyVote $surveyVote): string => $this->formatDate($surveyVote->getCreatedDate())),
             $this->createAttribute($this->hasText)
-                ->readable(true, static fn (SurveyVote $surveyVote): bool => $surveyVote->hasText()),
+                ->readable(true, static fn(SurveyVote $surveyVote): bool => $surveyVote->hasText()),
             $this->createAttribute($this->hasApprovedText)
-                ->readable(true, static fn (SurveyVote $surveyVote): bool => $surveyVote->hasApprovedText()),
+                ->readable(true, static fn(SurveyVote $surveyVote): bool => $surveyVote->hasApprovedText()),
             $this->createAttribute($this->getTextReviewAllowedValues)
                 ->readable(true, [SurveyVote::class, 'getTextReviewAllowedValues']),
             $this->createToOneRelationship($this->user)->readable()->filterable()->sortable(),

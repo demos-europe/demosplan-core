@@ -102,7 +102,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", inversedBy="tags")
      */
-    protected $boilerplate;
+    protected $boilerplate = null;
 
     /**
      * Create a Tag-Entity.

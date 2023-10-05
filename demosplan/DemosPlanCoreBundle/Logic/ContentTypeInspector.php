@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\ContentTypeInspectorException;
-use Symfony\Component\HttpFoundation\Request;
 
 use function explode;
+
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Get more info out of HTTP content-type with media queries.

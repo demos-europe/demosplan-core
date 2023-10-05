@@ -63,7 +63,7 @@ class ReorderEntityListByInteger
     private function getMovedEntity(string $entityId): SortableInterface
     {
         return $this->allAffectedEntities->filter(
-            static fn (SortableInterface $entity) => $entity->getId() === $entityId
+            static fn(SortableInterface $entity) => $entity->getId() === $entityId
         )->first();
     }
 
@@ -134,8 +134,8 @@ class ReorderEntityListByInteger
         // resort them in order to get the lowest currently used index.
 
         $lowestIndex = collect($entities)
-            ->map(static fn (SortableInterface $entity): int => $entity->getSortIndex())
-            ->sort(static fn (int $indexA, int $indexB): int => $indexA - $indexB)
+            ->map(static fn(SortableInterface $entity): int => $entity->getSortIndex())
+            ->sort(static fn(int $indexA, int $indexB): int => $indexA - $indexB)
             ->first();
 
         $entitiesCount = $entities->count();

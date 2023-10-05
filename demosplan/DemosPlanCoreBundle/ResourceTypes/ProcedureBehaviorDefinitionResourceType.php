@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureBehaviorDefinition>
@@ -41,7 +42,7 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
             return [
                 $this->conditionFactory->propertyIsNull($this->procedure),
-                $this->conditionFactory->propertyIsNotNull($this->procedureType),
+                $this->conditionFactory->propertyIsNotNull($this->procedureType)
             ];
         }
 
@@ -74,10 +75,10 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->allowedToEnableMap->getAsNamesInDotNotation()     => $object->setAllowedToEnableMap($value),
-                $this->hasPriorityArea->getAsNamesInDotNotation()        => $object->setHasPriorityArea($value),
+                $this->allowedToEnableMap->getAsNamesInDotNotation() => $object->setAllowedToEnableMap($value),
+                $this->hasPriorityArea->getAsNamesInDotNotation() => $object->setHasPriorityArea($value),
                 $this->participationGuestOnly->getAsNamesInDotNotation() => $object->setParticipationGuestOnly($value),
-                default                                                  => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 

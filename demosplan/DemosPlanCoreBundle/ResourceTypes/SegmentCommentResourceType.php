@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\SegmentCommentFactory;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\Contracts\AccessException;
 
 /**
@@ -122,7 +123,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
         $segment = $this->createToOneRelationship($this->segment);
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
-            $creationDate->readable(false, fn (SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
+            $creationDate->readable(false, fn(SegmentComment $comment): string => $this->formatDate($comment->getCreationDate()));
             $text->readable();
             $submitter->readable();
             $place->readable();

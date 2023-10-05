@@ -89,7 +89,7 @@ class Search
         $availableFieldsPerScope = array_map($this->getAvailableFieldsScope(...), $this->scopes);
         $availableFields = array_merge($defaultFields, ...$availableFieldsPerScope);
 
-        return array_filter($availableFields, fn (SearchField $searchField): bool => !in_array($searchField->getField(), $this->excludedFields));
+        return array_filter($availableFields, fn(SearchField $searchField): bool => !in_array($searchField->getField(), $this->excludedFields));
     }
 
     /**

@@ -135,6 +135,8 @@ class CoreHandler
 
     /**
      * Definition der incoming Data.
+     *
+     * @return mixed
      */
     protected function incomingDataDefinition()
     {

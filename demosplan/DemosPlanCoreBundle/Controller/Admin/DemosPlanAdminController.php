@@ -46,6 +46,8 @@ class DemosPlanAdminController extends BaseController
      * @param string $part
      * @param string $format
      *
+     * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]

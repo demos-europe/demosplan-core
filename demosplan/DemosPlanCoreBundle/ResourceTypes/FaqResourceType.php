@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Faq>
@@ -79,9 +80,9 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->enabled)->readable(true),
             $this->createAttribute($this->title)->readable(true),
-            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG)),
-            $this->createAttribute($this->publicVisible)->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST)),
-            $this->createAttribute($this->fpVisible)->readable(true, fn (Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH)),
+            $this->createAttribute($this->invitableInstitutionVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GPSORG)),
+            $this->createAttribute($this->publicVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GGUEST)),
+            $this->createAttribute($this->fpVisible)->readable(true, fn(Faq $faq): bool => $faq->hasRoleGroupCode(Role::GLAUTH)),
         ];
     }
 

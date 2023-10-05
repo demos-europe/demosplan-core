@@ -97,6 +97,9 @@ class Location extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
+    /**
+     * @return string
+     */
     public function getPostcode(): ?string
     {
         return $this->postcode;
@@ -145,6 +148,9 @@ class Location extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getLat(): ?string
     {
         return $this->lat;
@@ -157,6 +163,9 @@ class Location extends CoreEntity implements UuidEntityInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getLon(): ?string
     {
         return $this->lon;

@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use Stringable;
 use ArrayAccess;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use LogicException;
-use Stringable;
 
 /**
  * This class is to be used instead of creating an `array{to: string, by: string}` manually.
@@ -30,11 +30,9 @@ class ToBy implements ArrayAccess, Stringable
 {
     final public const DIRECTION_ASC = 'asc';
     final public const DIRECTION_DESC = 'desc';
-
     public function __construct(private $propertyName, private $direction)
     {
     }
-
     /**
      * @return array{to: string, by: string}
      */
@@ -45,17 +43,14 @@ class ToBy implements ArrayAccess, Stringable
             'by' => $propertyName,
         ];
     }
-
     public static function createEmptyArray(): array
     {
         return [];
     }
-
     public static function create($propertyName, $direction): self
     {
         return new self($propertyName, $direction);
     }
-
     public static function createFromArray(array $array, string $defaultPropertyName, string $defaultDirection = self::DIRECTION_ASC): self
     {
         return new self(
@@ -63,7 +58,6 @@ class ToBy implements ArrayAccess, Stringable
             $array['to'] ?? $defaultDirection
         );
     }
-
     public static function createFromString(string $sort): self
     {
         $direction = self::DIRECTION_ASC;
@@ -76,22 +70,18 @@ class ToBy implements ArrayAccess, Stringable
 
         return self::create($propertyName, $direction);
     }
-
     public function setPropertyName($name): void
     {
         $this->propertyName = $name;
     }
-
     public function setDirection($direction): void
     {
         $this->direction = $direction;
     }
-
     public function offsetExists($offset): bool
     {
         return 'to' === $offset || 'by' === $offset;
     }
-
     public function offsetGet($offset): mixed
     {
         if ('to' === $offset) {
@@ -104,7 +94,6 @@ class ToBy implements ArrayAccess, Stringable
 
         throw new InvalidArgumentException("Unknown offset: $offset");
     }
-
     public function offsetSet($offset, $value): void
     {
         if ('to' === $offset) {
@@ -117,12 +106,10 @@ class ToBy implements ArrayAccess, Stringable
 
         throw new InvalidArgumentException("Unknown offset: $offset");
     }
-
     public function offsetUnset($offset): void
     {
         throw new LogicException("Can't unset offset: $offset");
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -130,17 +117,14 @@ class ToBy implements ArrayAccess, Stringable
     {
         return self::createArray($this->propertyName, $this->direction);
     }
-
     public function getDirection()
     {
         return $this->direction;
     }
-
     public function getPropertyName()
     {
         return $this->propertyName;
     }
-
     public function __toString(): string
     {
         $direction = '';

@@ -27,6 +27,7 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
     /**
      * @param StatementIdsInProcedureVO         $statementIdsInProcedure
      * @param StatementIdsInProcedureConstraint $constraint
+     *                                                                   {@inheritdoc}
      */
     public function validate($statementIdsInProcedure, Constraint $constraint)
     {
@@ -44,7 +45,7 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
         $statementIds = $statementIdsInProcedure->getStatementIds();
 
         $statementsInProcedure = $this->statementService->getStatementsInProcedureWithId($procedureId, $statementIds);
-        $statementsInProcedure = collect($statementsInProcedure)->filter(fn ($statement) =>
+        $statementsInProcedure = collect($statementsInProcedure)->filter(fn($statement) =>
             /* @var Statement $statement */
             !$statement->isPlaceholder())->all();
         $invalidStatementIdsCount = count($statementIds) - count($statementsInProcedure);
@@ -54,7 +55,7 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
                 ->setParameter('{{ invalidStatementCount }}', $invalidStatementIdsCount)
                 ->addViolation();
         } elseif (0 !== $invalidStatementIdsCount) {
-            $statementsInProcedureExternIds = collect($statementsInProcedure)->map(fn ($statement) =>
+            $statementsInProcedureExternIds = collect($statementsInProcedure)->map(fn($statement) =>
                 /* @var Statement $statement */
                 $statement->getExternId())->all();
             $this->context->buildViolation($constraint->getSomeNotFoundMessage())

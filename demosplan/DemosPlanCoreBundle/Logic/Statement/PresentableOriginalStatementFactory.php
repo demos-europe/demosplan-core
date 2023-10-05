@@ -146,6 +146,9 @@ class PresentableOriginalStatementFactory
         return $data->lock();
     }
 
+    /**
+     * @param mixed $value
+     */
     protected function createValuedLabel(string $labelTranslationKey, $value): ValuedLabel
     {
         return ValuedLabel::create($this->translator->trans($labelTranslationKey), $value);

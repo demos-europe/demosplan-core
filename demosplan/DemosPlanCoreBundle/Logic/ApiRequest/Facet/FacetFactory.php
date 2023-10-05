@@ -169,6 +169,11 @@ class FacetFactory
 
     /**
      * @param array<string,int>                               $itemCount
+     * @param array<string,bool>                              $selections mapping from the item IDs
+     *                                                                    to the boolean if the
+     *                                                                    corresponding aggregation
+     *                                                                    item is selected in the
+     *                                                                    UI
      * @param array<string,array<string,array<string,mixed>>> $rawFilter
      *
      * @return Collection<string,AggregationFilterItem>

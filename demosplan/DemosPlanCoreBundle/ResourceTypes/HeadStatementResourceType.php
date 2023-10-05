@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\Collection;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @property-read StatementResourceType $statements
@@ -54,7 +55,7 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
     {
         $properties = parent::getProperties();
         $properties[] = $this->createToManyRelationship($this->statements, true)
-            ->readable(true, static fn (Statement $statement): Collection => $statement->getCluster());
+            ->readable(true, static fn(Statement $statement): Collection => $statement->getCluster());
         $properties[] = $this->createAttribute($this->authorName)
             ->readable(true)->filterable()->aliasedPath($this->meta->authorName);
         $properties[] = $this->createAttribute($this->submitName)

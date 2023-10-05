@@ -75,7 +75,7 @@ class SurveyVoteHandler
         $surveyId = $survey->getId();
         $userVotes = $user->getSurveyVotes();
         $userSurveyVotes = $userVotes->filter(
-            static fn (SurveyVote $vote) => $surveyId === $vote->getSurvey()->getId()
+            static fn(SurveyVote $vote) => $surveyId === $vote->getSurvey()->getId()
         );
 
         return 0 === $userSurveyVotes->count();

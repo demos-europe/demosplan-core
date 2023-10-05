@@ -35,6 +35,7 @@ use function is_dir;
 use function min;
 use function realpath;
 use function strncasecmp;
+use function strpos;
 use function substr;
 use function trim;
 
@@ -1272,6 +1273,9 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicExtent;
     }
 
+    /**
+     * @return mixed
+     */
     public function getMapPublicAvailableScales()
     {
         return $this->mapPublicAvailableScales;
@@ -1308,9 +1312,9 @@ class GlobalConfig implements GlobalConfigInterface
 
         return array_filter($phases, static function ($phase) use ($permissionsets, $includePreviewed) {
             $ignorePermissionset =
-                $includePreviewed
-                && array_key_exists('previewed', $phase)
-                && true === $phase['previewed'];
+                $includePreviewed &&
+                array_key_exists('previewed', $phase) &&
+                true === $phase['previewed'];
 
             return $ignorePermissionset || in_array($phase['permissionset'], $permissionsets, true);
         });
@@ -1513,6 +1517,9 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->allowedMimeTypes;
     }
 
+    /**
+     * @return mixed
+     */
     public function getProcedureEntrypointRoute()
     {
         return $this->procedureEntrypointRoute;

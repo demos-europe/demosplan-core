@@ -39,9 +39,9 @@ class SurveyVoteValidator
      */
     public function surveyInVotingPeriod(Survey $survey): void
     {
-        if (Survey::STATUS_PARTICIPATION !== $survey->getStatus()
-            || $survey->getEndDate() < new DateTime('today')
-            || $survey->getStartDate() > new DateTime()
+        if (Survey::STATUS_PARTICIPATION !== $survey->getStatus() ||
+            $survey->getEndDate() < new DateTime('today') ||
+            $survey->getStartDate() > new DateTime()
         ) {
             $errorMsg = 'Survey#'.$survey->getId().' not open for voting';
             throw new InvalidArgumentException($errorMsg);

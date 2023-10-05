@@ -609,6 +609,8 @@ class DemosPlanDocumentController extends BaseController
      * reset document title from filename if title could not be explicitly set.
      *
      * @param array $inData
+     *
+     * @return mixed
      */
     protected function calculateSingleDocumentTitleNewFile($inData)
     {
@@ -1204,8 +1206,8 @@ class DemosPlanDocumentController extends BaseController
             $storageResult = $elementHandler->administrationElementNewHandler($procedure, $inData);
 
             // Wenn Storage erfolgreich: zurueck zur Liste
-            if (array_key_exists('ident', $storageResult)
-                && !array_key_exists('mandatoryfieldwarning', $storageResult)
+            if (array_key_exists('ident', $storageResult) &&
+                !array_key_exists('mandatoryfieldwarning', $storageResult)
             ) {
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
 

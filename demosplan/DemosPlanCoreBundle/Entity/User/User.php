@@ -295,7 +295,7 @@ class User implements SamlUserInterface, AddonUserInterface
     protected $addresses;
 
     /** @var CustomerInterface */
-    protected $currentCustomer;
+    protected $currentCustomer = null;
 
     /**
      * @var Collection<int, SurveyVoteInterface>
@@ -919,6 +919,7 @@ class User implements SamlUserInterface, AddonUserInterface
      * Setzt eine Userflag. Wenn nicht vorhanden, wird sie neu generiert.
      *
      * @param string $flagKey
+     * @param mixed  $flagValue
      */
     protected function setFlagValue($flagKey, $flagValue)
     {

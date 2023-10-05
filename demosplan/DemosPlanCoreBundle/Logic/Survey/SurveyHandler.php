@@ -66,8 +66,8 @@ class SurveyHandler
     {
         $result = [];
         foreach ($this->surveyStatuses as $status) {
-            if ('participation' === $status
-                && 'participation' !== $procedure->getPublicParticipationPhase()) {
+            if ('participation' === $status &&
+                'participation' !== $procedure->getPublicParticipationPhase()) {
                 continue;
             }
             $result[] = $this->getSurveyStatusArray($status);

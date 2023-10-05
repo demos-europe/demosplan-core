@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<PriorityArea>

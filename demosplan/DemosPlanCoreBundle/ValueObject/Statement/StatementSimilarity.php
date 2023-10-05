@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
-use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Stringable;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 class StatementSimilarity extends ValueObject implements Stringable
 {

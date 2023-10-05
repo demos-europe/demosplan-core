@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFormDefinition>
@@ -48,7 +49,7 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         // connected to the given Procedure.
         return [
             $this->conditionFactory->propertyHasValue($currentProcedure->getId(), $this->procedure->id),
-            $this->conditionFactory->propertyIsNull($this->procedureType),
+            $this->conditionFactory->propertyIsNull($this->procedureType)
         ];
     }
 

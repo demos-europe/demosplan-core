@@ -15,12 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\ContentTypeInspectorException;
 use Exception;
+
+use function in_array;
+
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-
-use function in_array;
 
 class JsonApiRequestValidator
 {
@@ -85,8 +86,8 @@ class JsonApiRequestValidator
         try {
             $inspector = new ContentTypeInspector($request);
 
-            if ($jsonApiContentType !== $inspector->getCanonicalType()
-                || ($jsonApiContentType === $inspector->getCanonicalType() && $inspector->hasParameters())) {
+            if ($jsonApiContentType !== $inspector->getCanonicalType() ||
+                ($jsonApiContentType === $inspector->getCanonicalType() && $inspector->hasParameters())) {
                 // there MUST NOT be any parameters on the content type
                 // and it MUST be the json:api content type
                 return new Response('', Response::HTTP_UNSUPPORTED_MEDIA_TYPE);

@@ -186,11 +186,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     public function selectFormat(string $formatIdentifier): array
     {
         $columnsDefinition = match ($formatIdentifier) {
-            'topicsAndTags'  => $this->createColumnsDefinitionForTopicsAndTags(),
+            'topicsAndTags' => $this->createColumnsDefinitionForTopicsAndTags(),
             'potentialAreas' => $this->createColumnsDefinitionForPotentialAreas(),
-            'statements'     => $this->createColumnsDefinitionForStatementsOrSegments(true),
-            'segments'       => $this->createColumnsDefinitionForStatementsOrSegments(false),
-            default          => $this->createColumnsDefinitionDefault(),
+            'statements' => $this->createColumnsDefinitionForStatementsOrSegments(true),
+            'segments' => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            default => $this->createColumnsDefinitionDefault(),
         };
 
         return $columnsDefinition;

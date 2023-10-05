@@ -170,9 +170,9 @@ class DemosPlanMapController extends BaseController
                 $templateVars['inData'] = $inData;
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult
-                    && array_key_exists('ident', $storageResult)
-                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -250,9 +250,9 @@ class DemosPlanMapController extends BaseController
                 $storageResult = $serviceStorage->administrationGislayerEditHandler($procedure, $inData);
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult
-                    && array_key_exists('ident', $storageResult)
-                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -488,8 +488,8 @@ class DemosPlanMapController extends BaseController
             }
 
             // upload Planzeichnung
-            if ((array_key_exists('uploadedFiles', $requestPost)
-                    && '' !== $requestPost['uploadedFiles']['r_planDrawPDF']) || array_key_exists('r_planDrawDelete', $requestPost)) {
+            if ((array_key_exists('uploadedFiles', $requestPost) &&
+                    '' !== $requestPost['uploadedFiles']['r_planDrawPDF']) || array_key_exists('r_planDrawDelete', $requestPost)) {
                 $inData = $this->prepareIncomingData($request, 'plandraw');
                 if (array_key_exists('r_planDrawDelete', $requestPost)) {
                     $inData['r_planDrawPDF'] = '';
@@ -656,8 +656,8 @@ class DemosPlanMapController extends BaseController
                     $adminLayers = $mapService->getGisAdminList($masterTemplateId);
                     $masterBlaupauseGisLayers = $mapService->getLayerObjects($adminLayers);
                     foreach ($masterBlaupauseGisLayers as $masterBlaupauseLayer) {
-                        if (array_key_exists('ident', $storageResult)
-                            && $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()
+                        if (array_key_exists('ident', $storageResult) &&
+                            $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()
                         ) {
                             // überschreibe die relevanten Werte, damit die Masterblaupause geupdated wird
                             $inDataMaster = $inData;
@@ -673,9 +673,9 @@ class DemosPlanMapController extends BaseController
                 }
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult
-                    && array_key_exists('ident', $storageResult)
-                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -774,7 +774,6 @@ class DemosPlanMapController extends BaseController
             }
             if ($noSpecificAreaVal === $procedureObject->getPlanningArea()) {
                 $this->getLogger()->debug('Do not check for specific planning area');
-
                 // what should be the correct return value? tbd when transforming to jsonApi
                 return new JsonResponse([
                     'code'    => 100,

@@ -91,7 +91,7 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
      *
      * @param AddressBookEntry $toDelete
      *
-     * @throws EntityNotFoundException
+     *@throws EntityNotFoundException
      */
     public function deleteObject($toDelete): bool
     {

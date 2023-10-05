@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResour
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
 
 /**
@@ -143,15 +144,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->email)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->profileCompleted)
-                ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
+                ->readable(true, static fn(User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed()),
+                ->readable(true, static fn(User $user): bool => $user->isAccessConfirmed()),
             $this->createAttribute($this->invited)
-                ->readable(true, static fn (User $user): bool => $user->isInvited()),
+                ->readable(true, static fn(User $user): bool => $user->isInvited()),
             $this->createAttribute($this->newsletter)
-                ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
+                ->readable(true, static fn(User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
+                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles)
                 // Send only the user roles for the current customer.
                 ->readable(true, function (User $user): array {
@@ -159,17 +160,17 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
                     return $user->getRoleInCustomers()
                         ->filter(
-                            static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
+                            static fn(UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
                         )
                         ->map(
-                            static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
+                            static fn(UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
                         )
                         ->getValues();
                 }),
             $this->createToOneRelationship($this->department)
-                ->readable(true, static fn (User $user): ?Department => $user->getDepartment()),
+                ->readable(true, static fn(User $user): ?Department => $user->getDepartment()),
             $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user): ?Orga => $user->getOrga()),
+                ->readable(true, static fn(User $user): ?Orga => $user->getOrga()),
         ];
     }
 }

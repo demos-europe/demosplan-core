@@ -99,7 +99,7 @@ class WebpackBundleExtension extends ExtensionBase
         $this->loadManifestsIfRequired();
 
         return collect($bundles)->map(
-            fn ($bundleName) => $this->webpackBundle($bundleName, $legacy)
+            fn($bundleName) => $this->webpackBundle($bundleName, $legacy)
         )
             ->implode("\n");
     }
@@ -212,10 +212,10 @@ ERR);
         return collect($this->$manifest)
             ->keys()
             ->filter(
-                static fn ($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
+                static fn($possibleBundleName) => str_contains((string) $possibleBundleName, $bundleName)
             )
             ->map(
-                fn ($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
+                fn($relatedBundleName) => $this->{$manifest}[$relatedBundleName]
             );
     }
 

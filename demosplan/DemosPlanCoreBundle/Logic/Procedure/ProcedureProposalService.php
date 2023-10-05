@@ -97,8 +97,8 @@ class ProcedureProposalService extends CoreService
 
         // Localization by MaintenanceService:
         $procedureCoordinate = $generatedProcedure->getCoordinate();
-        if ('' !== $procedureCoordinate && null !== $procedureCoordinate
-            && $this->currentUser->hasPermission('feature_procedures_located_by_maintenance_service')) {
+        if ('' !== $procedureCoordinate && null !== $procedureCoordinate &&
+            $this->currentUser->hasPermission('feature_procedures_located_by_maintenance_service')) {
             $this->contentService->setSetting('needLocalization', ['procedureId' => $generatedProcedure->getId()]);
         }
 

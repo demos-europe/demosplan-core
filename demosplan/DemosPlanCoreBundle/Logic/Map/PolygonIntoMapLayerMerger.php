@@ -163,6 +163,8 @@ class PolygonIntoMapLayerMerger
      * wkt2px()
      * Umrechnen einer Koordinate in Pixel.
      *
+     * @param mixed    $x
+     * @param mixed    $y
      * @param stdClass $viewport
      * @param int      $width
      * @param int      $height
@@ -179,6 +181,8 @@ class PolygonIntoMapLayerMerger
     /**
      * html2rgb()
      * Transformiert eine CSS-Farbangabe nach RGB.
+     *
+     * @param mixed $color
      *
      * @return array|false
      */

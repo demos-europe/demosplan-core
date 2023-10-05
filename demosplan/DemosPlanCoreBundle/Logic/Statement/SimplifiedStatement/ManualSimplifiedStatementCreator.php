@@ -43,6 +43,8 @@ class ManualSimplifiedStatementCreator extends SimplifiedStatementCreator
      * Checks whether there is an uploaded file to attach to the Statement.
      * If there is returns it, otherwise returns null.
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     protected function getFileUpload(Request $request)

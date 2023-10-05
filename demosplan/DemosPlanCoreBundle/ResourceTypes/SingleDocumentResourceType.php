@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<SingleDocument>
@@ -81,7 +82,7 @@ final class SingleDocumentResourceType extends DplanResourceType
                 $this->createAttribute($this->title)
                     ->readable(true)->filterable()->sortable(),
                 $this->createAttribute($this->fileInfo)
-                    ->readable(true, fn (SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
+                    ->readable(true, fn(SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
                 $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order),
             ]);
         }

@@ -51,17 +51,16 @@ class FileInUseChecker
     public function isFileInUse(string $fileId): bool
     {
         if (
-            $this->isUsedInProcedure($fileId)
-            || $this->isUsedInProcedureSettings($fileId)
-            || $this->isUsedOutsideProcedure($fileId)
-            || $this->isUsedOutsideProcedureManyToOne($fileId)
-            || $this->isUsedInReferences($fileId)
+            $this->isUsedInProcedure($fileId) ||
+            $this->isUsedInProcedureSettings($fileId) ||
+            $this->isUsedOutsideProcedure($fileId) ||
+            $this->isUsedOutsideProcedureManyToOne($fileId) ||
+            $this->isUsedInReferences($fileId)
         ) {
             return true;
         }
 
         $this->logger->info('File not used any more', [$fileId]);
-
         // if we did not find any occurrence file is unused
         return false;
     }
@@ -97,9 +96,9 @@ class FileInUseChecker
             }
         }
 
-        return $this->isGisLayerFileUsedInProcedure($fileId)
-            || $this->isNewsFileUsedInProcedure($fileId)
-            || $this->isLogoFileUsedInProcedure($fileId);
+        return $this->isGisLayerFileUsedInProcedure($fileId) ||
+            $this->isNewsFileUsedInProcedure($fileId) ||
+            $this->isLogoFileUsedInProcedure($fileId);
     }
 
     private function isUsedInProcedureSettings(string $fileId): bool
@@ -130,7 +129,6 @@ class FileInUseChecker
                 }
             } catch (Exception $e) {
                 $this->logger->error('Some error occurred', [$e]);
-
                 // better be safe
                 return true;
             }
@@ -164,7 +162,6 @@ class FileInUseChecker
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Some error occurred', [$e]);
-
                     // better be safe
                     return true;
                 }
@@ -207,7 +204,6 @@ class FileInUseChecker
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Something happened', [$e]);
-
                     // better be safe
                     return true;
                 }

@@ -177,6 +177,10 @@ class EntrypointController extends BaseController
     /**
      * Public index start page template.
      *
+     * @param string $title Must be empty instead of null to allow
+     *                      URL generation without $orgaSlug somewhere
+     *                      else in the application
+     *
      * @return RedirectResponse|Response|null
      *
      * @throws Exception

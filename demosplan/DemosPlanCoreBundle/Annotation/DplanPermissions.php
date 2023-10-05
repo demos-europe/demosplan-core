@@ -37,6 +37,8 @@ class DplanPermissions
      * The permissions that must be enabled for the annotated route to be available.
      * **All** permissions must be enabled, i.e. they are combined using an AND conjunction.
      *
+     * @var mixed
+     *
      * @Required()
      */
     public $permissions;

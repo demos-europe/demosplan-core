@@ -10,13 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use ArrayAccess;
-use RuntimeException;
-
 use function array_key_exists;
-use function trigger_error;
+
+use ArrayAccess;
 
 use const E_USER_DEPRECATED;
+
+use RuntimeException;
+
+use function trigger_error;
 
 /**
  * Permission Value Object.
@@ -212,6 +214,7 @@ class Permission implements ArrayAccess
 
     /**
      * @param string $offset
+     * @param mixed  $value
      *
      * @throws RuntimeException
      */

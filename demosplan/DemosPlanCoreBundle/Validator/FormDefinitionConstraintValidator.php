@@ -32,6 +32,9 @@ class FormDefinitionConstraintValidator extends ConstraintValidator
      */
     private $message;
 
+    /**
+     * @param mixed $value
+     */
     public function validate($value, Constraint $constraint): void
     {
         if (!$value instanceof Statement && !$value instanceof DraftStatement) {
@@ -48,18 +51,18 @@ class FormDefinitionConstraintValidator extends ConstraintValidator
         $formDefinition = $currentProcedure->getStatementFormDefinition();
         if (null !== $formDefinition) {
             collect($formDefinition->getFieldDefinitions())
-                ->filter(static fn (StatementFieldDefinition $field): bool =>
+                ->filter(static fn(StatementFieldDefinition $field): bool =>
                     // Check all field definitions for required ones
                     $field->isRequired())->each(function (StatementFieldDefinition $field) use ($value): void {
-                        // Choose the correct validation function. Can be easily expanded in the future
-                        switch ($field->getName()) {
-                            case 'citizenXorOrgaAndOrgaName':
-                                $this->validateOrgaName($value);
-                                break;
-                            default:
-                                break;
-                        }
-                    });
+                    // Choose the correct validation function. Can be easily expanded in the future
+                    switch ($field->getName()) {
+                        case 'citizenXorOrgaAndOrgaName':
+                            $this->validateOrgaName($value);
+                            break;
+                        default:
+                            break;
+                    }
+                });
         }
     }
 

@@ -40,6 +40,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         // replaced by the SecurityUser. One example is the collection of data
         // for the symfony toolbar
         if ($user instanceof SecurityUser) {
+
             return $this->userFromSecurityUserProvider->fromSecurityUser($user);
         }
 
@@ -57,11 +58,17 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         $this->tokenStorage->setToken($token);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getPermissions(): PermissionsInterface
     {
         return $this->permissions;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasPermission(string $permission): bool
     {
         return $this->permissions->hasPermission($permission);

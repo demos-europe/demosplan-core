@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<User>
@@ -34,9 +35,9 @@ final class ClaimResourceType extends DplanResourceType
         return [
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->name)
-                ->readable(true, static fn (User $user): string => $user->getName()),
+                ->readable(true, static fn(User $user): string => $user->getName()),
             $this->createAttribute($this->orgaName)
-                ->readable(true, static fn (User $user): string => $user->getOrgaName()),
+                ->readable(true, static fn(User $user): string => $user->getOrgaName()),
         ];
     }
 

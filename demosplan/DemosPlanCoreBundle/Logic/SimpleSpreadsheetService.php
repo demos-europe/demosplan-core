@@ -66,11 +66,11 @@ class SimpleSpreadsheetService
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function addWorksheet(Spreadsheet $phpExcel,
-        array $formattedData = [],
-        array $columnTitles = [],
-        $sheetTitle = 'untitled',
-        $wrapText = true,
-        $forceNewSheet = false
+                                 array $formattedData = [],
+                                 array $columnTitles = [],
+                                 $sheetTitle = 'untitled',
+                                 $wrapText = true,
+                                 $forceNewSheet = false
     ) {
         // if there's only one worksheet in the document, we assume that it's the first one and just return it
         if (1 === $phpExcel->getSheetCount() && !$forceNewSheet) {

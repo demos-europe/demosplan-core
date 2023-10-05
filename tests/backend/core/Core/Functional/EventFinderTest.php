@@ -1,16 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-/**
- * This file is part of the package demosplan.
- *
- * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
- * All rights reserved
- */
 
 namespace Tests\Core\Core\Functional;
+
 
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
@@ -18,6 +10,7 @@ use Tests\Base\FunctionalTestCase;
 class EventFinderTest extends FunctionalTestCase
 {
     use CommandTesterTrait;
+
 
     public function testEventFinder(): void
     {
@@ -31,7 +24,7 @@ class EventFinderTest extends FunctionalTestCase
         $commandTester->assertCommandIsSuccessful();
         $output = $commandTester->getDisplay();
 
-        // asserting some of the found events. Most likely this will be change, so this test needs to be adjusted.
+        //asserting some of the found events. Most likely this will be change, so this test needs to be adjusted.
         static::assertStringContainsString('"className": "DPlanEvent"', $output);
         static::assertStringContainsString('"matchingParent": "DPlanEvent"', $output);
         static::assertStringContainsString('"className": "RpcEvent', $output);

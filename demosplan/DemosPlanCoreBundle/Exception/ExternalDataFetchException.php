@@ -17,12 +17,12 @@ use Throwable;
 
 class ExternalDataFetchException extends RuntimeException
 {
-    private function __construct(?string $message, ?int $code = 0, Throwable $previous = null)
+    private function __construct(?string $message, ?int $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
-    public static function fetchFailed(int $status, Throwable $previous = null): self
+    public static function fetchFailed(int $status, ?Throwable $previous = null): self
     {
         return new self("Fetch failed with response status {$status}", $status, $previous);
     }

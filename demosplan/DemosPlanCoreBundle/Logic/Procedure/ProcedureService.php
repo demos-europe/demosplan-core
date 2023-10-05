@@ -1038,7 +1038,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Update eines Verfahren.
      *
-     * @param array $data
+     * @param array   $data
+     * @param Session $session
      *
      * @return array
      *
@@ -1102,6 +1103,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     /**
      * Update of a procedure-object.
+     *
+     * @param User|null $user
      *
      * @return array|Procedure
      *
@@ -1296,6 +1299,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string $procedureId
      * @param bool   $useDistance
+     *
+     * @return mixed
      *
      * @throws Exception
      */
@@ -2548,8 +2553,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // use array_key_exists, because value of key 'customer' is null
         if (\array_key_exists('customer', $filters)) {
             // T15644 customer master procedure has customer set
-            if ($template
-                && $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
+            if ($template &&
+                $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
             ) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
                     $this->conditionFactory->propertyIsNull(['customer']),

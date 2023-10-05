@@ -62,11 +62,11 @@ class QueryProcedure extends AbstractQuery
         }
 
         if (
-            !array_key_exists('filter', $queryDefinition['procedure'])
-            || !array_key_exists('search', $queryDefinition['procedure'])
-            || !array_key_exists('sort', $queryDefinition['procedure'])
-            || !array_key_exists('sort_default', $queryDefinition['procedure'])
-            || !array_key_exists('internal', $queryDefinition['procedure']['sort_default'])
+            !array_key_exists('filter', $queryDefinition['procedure']) ||
+            !array_key_exists('search', $queryDefinition['procedure']) ||
+            !array_key_exists('sort', $queryDefinition['procedure']) ||
+            !array_key_exists('sort_default', $queryDefinition['procedure']) ||
+            !array_key_exists('internal', $queryDefinition['procedure']['sort_default'])
         ) {
             throw new InvalidElasticsearchQueryConfigurationException();
         }
@@ -74,6 +74,9 @@ class QueryProcedure extends AbstractQuery
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function getOrgaId(): ?string
     {
         return $this->orgaId;
@@ -97,7 +100,7 @@ class QueryProcedure extends AbstractQuery
         if (self::SCOPE_PLANNER === $scope && $scopes->contains(self::SCOPE_EXTERNAL)) {
             // reset existing scopes without external scope
             $this->setScopes(
-                $scopes->filter(fn ($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
+                $scopes->filter(fn($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
             );
         }
 

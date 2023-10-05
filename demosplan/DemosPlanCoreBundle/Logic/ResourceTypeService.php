@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use function array_key_exists;
+
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
@@ -19,8 +21,6 @@ use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-use function array_key_exists;
 
 class ResourceTypeService implements ResourceTypeServiceInterface
 {

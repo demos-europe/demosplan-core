@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Throwable;
 use Tightenco\Collect\Support\Collection;
 
 class TransformMessageBagService
@@ -33,7 +32,7 @@ class TransformMessageBagService
         try {
             // in some cases like console commands, the request stack is not available
             $this->flashBag = $requestStack->getSession()->getFlashBag();
-        } catch (Throwable) {
+        } catch (\Throwable) {
             $this->flashBag = new FlashBag();
         }
     }

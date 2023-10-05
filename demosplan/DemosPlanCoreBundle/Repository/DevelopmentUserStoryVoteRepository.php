@@ -220,7 +220,7 @@ class DevelopmentUserStoryVoteRepository extends FluentRepository implements Arr
 
             /** @var DevelopmentUserStoryVote $vote */
             foreach ($votes as $vote) {
-                $sum += $vote->getNumberOfVotes();
+                $sum = $sum + $vote->getNumberOfVotes();
             }
 
             $story->setOnlineVotes($sum);

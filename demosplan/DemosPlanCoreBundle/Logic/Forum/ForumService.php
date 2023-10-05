@@ -107,6 +107,8 @@ class ForumService extends CoreService
      *
      * @param string $threadId
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getThreadEntryList($threadId)
@@ -140,6 +142,8 @@ class ForumService extends CoreService
      *
      * @param string $threadEntryId
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getThreadEntry($threadEntryId)
@@ -166,6 +170,8 @@ class ForumService extends CoreService
      * Get all info of a thread by threadId.
      *
      * @param string $threadId
+     *
+     * @return mixed
      *
      * @throws Exception
      */
@@ -330,6 +336,8 @@ class ForumService extends CoreService
      *
      * @param string $releaseId
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getRelease($releaseId)
@@ -380,6 +388,8 @@ class ForumService extends CoreService
      * @param string $releaseId
      * @param array  $data
      *
+     * @return mixed
+     *
      * @throws HttpException
      * @throws Exception
      */
@@ -405,6 +415,8 @@ class ForumService extends CoreService
      *
      * @param string $storyId
      * @param array  $data
+     *
+     * @return mixed
      *
      * @throws Exception
      */
@@ -451,6 +463,8 @@ class ForumService extends CoreService
      *
      * @param string $releaseId
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getUserStories($releaseId)
@@ -482,6 +496,8 @@ class ForumService extends CoreService
      *
      * @param string $storyId
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getUserStory($storyId)
@@ -512,6 +528,8 @@ class ForumService extends CoreService
      * @param string $releaseId
      * @param array  $votes
      *
+     * @return mixed
+     *
      * @throws HttpException
      * @throws Exception
      */
@@ -540,6 +558,8 @@ class ForumService extends CoreService
      * Get the votes of particular UserStory.
      *
      * @param string $storyId
+     *
+     * @return mixed
      *
      * @throws Exception
      */

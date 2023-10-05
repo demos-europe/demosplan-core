@@ -47,6 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -105,6 +106,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -1153,7 +1155,7 @@ class DemosPlanProcedureController extends BaseController
     {
         // todo: move this method in service?
 
-        //        refs T6189: Only toeb, who were selected to recive the invitation mail are listed in mail-body.
+//        refs T6189: Only toeb, who were selected to recive the invitation mail are listed in mail-body.
         $organization = $procedure->getOrga();
         if (0 === count($selectedOrganisations)) {
             $procedureServiceOutput = $this->procedureServiceOutput;
@@ -1287,9 +1289,9 @@ class DemosPlanProcedureController extends BaseController
                 // If there is no institution participation, only the externalName aka. publicly visible name
                 // can be edited. To prevent both values to be displayed (which is the default behavior when
                 // values differ) the fields are synced.
-                if (false === $this->permissions->hasPermission('feature_institution_participation')
-                    && true === $this->permissions->hasPermission('area_public_participation')
-                    && isset($inData['r_externalName'])) {
+                if (false === $this->permissions->hasPermission('feature_institution_participation') &&
+                    true === $this->permissions->hasPermission('area_public_participation') &&
+                    isset($inData['r_externalName'])) {
                     $inData['r_name'] = $inData['r_externalName'];
                 }
 
@@ -1897,10 +1899,10 @@ class DemosPlanProcedureController extends BaseController
             ++$tabCount;
         }
         if (
-            $this->permissions->hasPermission('area_statements_public_published_public')
-            && \array_key_exists('publicStatements', $templateVars)
-            && \array_key_exists('statements', $templateVars['publicStatements'])
-            && 0 < sizeof($templateVars['publicStatements']['statements'])
+            $this->permissions->hasPermission('area_statements_public_published_public') &&
+            \array_key_exists('publicStatements', $templateVars) &&
+            \array_key_exists('statements', $templateVars['publicStatements']) &&
+            0 < sizeof($templateVars['publicStatements']['statements'])
         ) {
             ++$tabCount;
 
@@ -2237,8 +2239,8 @@ class DemosPlanProcedureController extends BaseController
         );
         if (\is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
-                if (\array_key_exists('organisation', $invitedOrga)
-                    && $invitedOrga['organisation'] instanceof Orga
+                if (\array_key_exists('organisation', $invitedOrga) &&
+                    $invitedOrga['organisation'] instanceof Orga
                 ) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();
                 }

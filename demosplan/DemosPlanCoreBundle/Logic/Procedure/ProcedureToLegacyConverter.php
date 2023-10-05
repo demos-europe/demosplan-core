@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\LegacyResult;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-
 use function collect;
 
 /**
@@ -58,7 +57,7 @@ class ProcedureToLegacyConverter extends CoreService
 
         $procedureArray['agencyExtraEmailAddresses'] = $procedure
             ->getAgencyExtraEmailAddresses()
-            ->map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress());
+            ->map(static fn(EmailAddress $emailAddress) => $emailAddress->getFullAddress());
 
         // When using objects this is not needed any more
 
@@ -70,7 +69,7 @@ class ProcedureToLegacyConverter extends CoreService
         $procedureArray['isMapEnabled'] = false;
         if (isset($procedureArray['elements']) && $procedureArray['elements'] instanceof Collection) {
             $mapElements = $procedureArray['elements']->filter(
-                static fn ($entry) => 'map' === $entry->getCategory()
+                static fn($entry) => 'map' === $entry->getCategory()
                     && true === $entry->getEnabled()
             );
             if (0 < $mapElements->count()) {
@@ -105,7 +104,7 @@ class ProcedureToLegacyConverter extends CoreService
         $planningOfficeIds = $this->procedureRepository->getPlanningOfficeIds($procedure->getId());
         $isCustomerMasterBlueprint = $procedure->isCustomerMasterBlueprint();
         $planningOfficeOrganisations = collect($procedure->getPlanningOffices())
-            ->transform(static fn (Orga $orga) => [
+            ->transform(static fn(Orga $orga) => [
                 'ident'     => $orga->getId(),
                 'name'      => $orga->getName(),
                 'nameLegal' => $orga->getName(),
@@ -188,9 +187,9 @@ class ProcedureToLegacyConverter extends CoreService
     /**
      * Convert Result to Legacy.
      *
-     * @param array       $list
+     * @param array  $list
      * @param string|null $search
-     * @param array       $aggregation Elasticsearch aggregation converted to legacy
+     * @param array  $aggregation Elasticsearch aggregation converted to legacy
      *
      * @internal param array $filter
      */

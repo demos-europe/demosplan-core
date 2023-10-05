@@ -37,7 +37,6 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
 
         return new self("Der Zugriff ist nicht gestattet $additionalUserData");
     }
-
     /**
      * @param non-empty-string $permissionName
      * @param non-empty-string $addonIdentifier

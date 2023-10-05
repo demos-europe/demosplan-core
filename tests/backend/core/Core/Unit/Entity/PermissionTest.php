@@ -30,7 +30,7 @@ class PermissionTest extends UnitTestCase
     /**
      * @var Permission
      */
-    protected $sut;
+    protected $sut = null;
 
     public function setUp(): void
     {

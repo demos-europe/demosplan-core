@@ -45,7 +45,7 @@ class MunicipalityService extends CoreService
         $municipalities = $this->getAllMunicipalities();
 
         return \collect($municipalities)->map(
-            fn (Municipality $municipality) => ['id' => $municipality->getId(), 'name' => $municipality->getName()]
+            fn(Municipality $municipality) => ['id' => $municipality->getId(), 'name' => $municipality->getName()]
         )
             ->sortBy('name')
             ->values()

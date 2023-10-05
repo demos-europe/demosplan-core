@@ -158,7 +158,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      *
      * @ORM\Column(name="_stm_authored_date", type="datetime", nullable=true, options={"comment":"T441: Store the date on which manual statements have been (allegedly) submitted"})
      */
-    protected $authoredDate;
+    protected $authoredDate = null;
 
     /**
      * @var string|null
@@ -277,6 +277,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
 
     /**
      * Get submitUser.
+     *
+     * @return string
      */
     public function getSubmitUId(): ?string
     {
@@ -547,6 +549,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
 
     /**
      * @param string $key
+     * @param mixed  $value
      *
      * @return StatementMetaInterface
      */

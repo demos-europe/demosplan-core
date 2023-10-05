@@ -396,7 +396,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
      */
     protected function findRole($roleName): Collection
     {
-        return $this->roles->filter(fn ($value) =>
+        return $this->roles->filter(fn($value) =>
             // compare filtered strings to avoid encoding problems
             Utf8::filter($value['key']) === Utf8::filter($roleName))->values();
     }

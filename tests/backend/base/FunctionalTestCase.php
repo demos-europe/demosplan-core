@@ -241,8 +241,8 @@ class FunctionalTestCase extends WebTestCase
         }
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
-        return $this->isTimestamp($timestamp)
-            && $currentDate == $entityDate;
+        return $this->isTimestamp($timestamp) &&
+            $currentDate == $entityDate;
     }
 
     /**
@@ -254,10 +254,10 @@ class FunctionalTestCase extends WebTestCase
      */
     public function isTimestamp($timestamp)
     {
-        return null !== $timestamp
-                && is_numeric($timestamp)
-                && !is_string($timestamp)
-                && (0 < $timestamp);
+        return null !== $timestamp &&
+                is_numeric($timestamp) &&
+                !is_string($timestamp) &&
+                (0 < $timestamp);
     }
 
     /**
@@ -677,6 +677,9 @@ class FunctionalTestCase extends WebTestCase
      * indirectly via public methods.
      *
      * @param array{class-string|object,string} $classAndMethod
+     * @param mixed $args
+     *
+     * @return mixed
      *
      * @throws ReflectionException
      */

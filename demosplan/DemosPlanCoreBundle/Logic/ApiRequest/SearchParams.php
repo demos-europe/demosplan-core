@@ -26,12 +26,12 @@ class SearchParams
     /**
      * @var string|null
      */
-    private $searchPhrase;
+    private $searchPhrase = null;
 
     /**
      * @var array<int,string>|null
      */
-    private $fieldsToSearch;
+    private $fieldsToSearch = null;
 
     /**
      * The identifier for the facet is used as both key and value.

@@ -162,7 +162,6 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
     {
         try {
             $singleNews = $this->newsRepository->add($data);
-
             // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
         } catch (Exception $e) {

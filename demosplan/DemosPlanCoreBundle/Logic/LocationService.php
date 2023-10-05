@@ -35,6 +35,8 @@ class LocationService
      * @param string     $searchString
      * @param int        $limit
      * @param array|null $maxExtent
+     *
+     * @return array
      */
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {

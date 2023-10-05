@@ -1642,6 +1642,7 @@ class DocxExporter
     }
 
     /**
+     * @param array $procedure
      * @param array $rowStyleLocation
      * @param array $cellRowContinue
      * @param Table $assessmentTable
@@ -1710,8 +1711,8 @@ class DocxExporter
 
             // resize Image
             if (0 != $factor) {
-                $width /= $factor;
-                $height /= $factor;
+                $width = $width / $factor;
+                $height = $height / $factor;
             }
             $this->getLogger()->info('Docx Image resize to width: '.$width.' and height: '.$height);
         }

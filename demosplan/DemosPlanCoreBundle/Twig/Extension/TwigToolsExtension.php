@@ -57,6 +57,8 @@ class TwigToolsExtension extends ExtensionBase
      * @param string $key
      * @param bool   $translate     Translate option values
      * @param string $sortDirection
+     *
+     * @return mixed
      */
     public function getFormOption($key = null, $translate = false, $sortDirection = 'ASC')
     {
@@ -74,7 +76,7 @@ class TwigToolsExtension extends ExtensionBase
 
         if ('asc' === strtolower($sortDirection)) {
             $options = $options->sort(
-                fn ($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
+                fn($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
             );
         }
 
@@ -97,7 +99,6 @@ class TwigToolsExtension extends ExtensionBase
                 if (is_string($value)) {
                     return $this->translator->trans($value);
                 }
-
                 // default: just return the value
                 return $value;
             }
@@ -106,6 +107,8 @@ class TwigToolsExtension extends ExtensionBase
 
     /**
      * Setter for a dynamic variable.
+     *
+     * @param mixed $value
      */
     public function setStaticVariable(string $key, $value): void
     {

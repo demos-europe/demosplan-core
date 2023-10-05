@@ -149,8 +149,8 @@ class ReportMessageConverter
     {
         [$procedureId, $messageId] = $this->handleAncientReportMessages($message);
 
-        if ('' === $procedureId
-            || !$this->permissions->hasPermission('area_admin_assessmenttable')
+        if ('' === $procedureId ||
+            !$this->permissions->hasPermission('area_admin_assessmenttable')
         ) {
             return $this->translator->trans($transKey.'.nolink', [
                 'externId' => $message['externId'] ?? '',
@@ -287,8 +287,8 @@ class ReportMessageConverter
                 'oldName' => $message['oldPublicName'], 'newName' => $message['newPublicName'],
             ]);
         }
-        if (array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message)
-            && array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
+        if (array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message) &&
+            array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
             $visibilityMessage = $this->translator->trans('invitable_institution.participation');
             $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
                 'oldStartDate' => $dateExtension->dateFilter($message['oldStartDate'] ?? ''),
@@ -299,8 +299,8 @@ class ReportMessageConverter
 
             $returnMessage[] = "$visibilityMessage: $mainMessage";
         }
-        if (!array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message)
-            && !array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
+        if (!array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message) &&
+            !array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
             // only required for initial report
             $agencyVisibilityMessage = $this->translator->trans('invitable_institution.participation');
             $citizenVisibilityMessage = $this->translator->trans('public.participation');
@@ -311,8 +311,8 @@ class ReportMessageConverter
             $returnMessage[] = "$agencyVisibilityMessage: $mainMessage";
             $returnMessage[] = "$citizenVisibilityMessage: $mainMessage";
         }
-        if (array_key_exists('oldPublicStartDate', $message) && array_key_exists('newPublicStartDate', $message)
-            && array_key_exists('oldPublicEndDate', $message) && array_key_exists('newPublicEndDate', $message)) {
+        if (array_key_exists('oldPublicStartDate', $message) && array_key_exists('newPublicStartDate', $message) &&
+            array_key_exists('oldPublicEndDate', $message) && array_key_exists('newPublicEndDate', $message)) {
             $visibilityMessage = $this->translator->trans('public.participation');
             $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
                 'oldStartDate' => $dateExtension->dateFilter($message['oldPublicStartDate'] ?? ''),
@@ -630,6 +630,8 @@ class ReportMessageConverter
      * Füge Metainformationen zu dem Eintrag bei einer Phasenänderung hinzu.
      *
      * @param array $message
+     *
+     * @return mixed
      */
     protected function alterPhaseEntry($message)
     {

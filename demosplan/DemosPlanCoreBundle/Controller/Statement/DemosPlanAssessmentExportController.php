@@ -45,6 +45,8 @@ class DemosPlanAssessmentExportController extends BaseController
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
+     * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_assessment_table_export', methods: ['POST', 'GET'], path: '/verfahren/abwaegung/export/{procedureId}', options: ['expose' => true])]

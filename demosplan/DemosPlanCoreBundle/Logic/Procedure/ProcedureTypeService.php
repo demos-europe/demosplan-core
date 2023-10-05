@@ -282,7 +282,8 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * Uses all names of each path to retrieve nested values from the given data. The last name of
      * each path will be used as key.
      *
-     * @param array<string,mixed> $data
+     * @param array<string,mixed>   $data
+     * @param PropertyPathInterface ...$keyValuePairs
      *
      * @return array<string,mixed>
      */

@@ -1051,6 +1051,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->uStreet;
     }
 
+    /**
+     * @return mixed
+     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {
@@ -1060,6 +1063,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return [];
     }
 
+    /**
+     * @param mixed $categories
+     */
     public function setCategories($categories)
     {
         $this->categories = $categories;
@@ -1734,6 +1740,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @param string $key
+     * @param mixed  $value
      *
      * @return DraftStatementInterface
      */

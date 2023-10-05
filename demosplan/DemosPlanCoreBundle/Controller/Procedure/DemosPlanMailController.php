@@ -31,6 +31,8 @@ class DemosPlanMailController extends BaseController
      *
      * @param string $procedureId
      *
+     * @return Response
+     *
      * @throws Exception
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_view', path: '/verfahren/{procedureId}/mail', methods: ['HEAD', 'GET'])]
@@ -111,6 +113,7 @@ class DemosPlanMailController extends BaseController
      * TODO: add parameterchecks.
      *
      * @param string $key
+     * @param mixed  $value
      */
     protected function saveSerializedInSession($key, $value, Request $request)
     {

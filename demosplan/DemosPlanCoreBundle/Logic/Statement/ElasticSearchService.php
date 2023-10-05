@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -17,8 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use Elastica\Aggregation\Missing;
-use Elastica\Aggregation\Nested;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -98,6 +98,9 @@ class ElasticSearchService extends CoreService
         return $query;
     }
 
+    /**
+     * @param mixed $aggregationsMinDocumentCount
+     */
     public function setAggregationsMinDocumentCount($aggregationsMinDocumentCount): void
     {
         $this->aggregationsMinDocumentCount = $aggregationsMinDocumentCount;
@@ -106,7 +109,7 @@ class ElasticSearchService extends CoreService
     /**
      * Set emtpy return result.
      */
-    public function getESEmptyResult(string $userWarningTransKey = null): ElasticsearchResult
+    public function getESEmptyResult(?string $userWarningTransKey = null): ElasticsearchResult
     {
         $elasticsearchResultStatement = new ElasticsearchResult();
         $elasticsearchResultStatement->setAggregations([]);
@@ -124,6 +127,8 @@ class ElasticSearchService extends CoreService
      * @param string $labelKey
      * @param string $valueKey
      * @param string $countKey
+     *
+     * @return mixed
      */
     protected function addAggregationResultToArrayFromArray($keyInAggregation, $fromArray, $aggregation, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
@@ -245,7 +250,7 @@ class ElasticSearchService extends CoreService
         // sort by Label
         \usort(
             $bucket,
-            fn ($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
+            fn($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
         );
 
         return $bucket;
@@ -257,6 +262,8 @@ class ElasticSearchService extends CoreService
      * @param array  $fragmentAggregations
      * @param array  $aggregation
      * @param array  $labelMap
+     *
+     * @return mixed
      */
     public function addFragmentEsResultToArray($keyInFragmentEsResult, $keyInAggregation, $fragmentAggregations, $aggregation, $labelMap = [])
     {
@@ -396,6 +403,7 @@ class ElasticSearchService extends CoreService
      * @param string $key
      * @param array  $userFilters
      * @param array  $boolMustFilter
+     * @param mixed  $nullvalue
      * @param array  $rawFields
      * @param bool   $addAllAggregations - If true, will add all filters existing on $userFilters. Otherwise only those who also has a not empty value.
      *
@@ -439,6 +447,8 @@ class ElasticSearchService extends CoreService
 
     /**
      * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
+     *
+     * @param mixed $filter
      *
      * @return bool
      */
@@ -524,6 +534,8 @@ class ElasticSearchService extends CoreService
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
      *
      * @param array $hit
+     *
+     * @return mixed
      */
     protected function convertElasticsearchHitToLegacy($hit)
     {

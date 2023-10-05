@@ -145,6 +145,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @throws UserNotFoundException
      */
     public function isAvailable(): bool

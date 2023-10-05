@@ -121,8 +121,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']
-            && (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
+        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'] &&
+            (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -296,6 +296,8 @@ class ServiceStorage implements MapServiceStorageInterface
      * @param string $procedure
      * @param array  $data
      *
+     * @return mixed
+     *
      * @throws MapValidationException
      */
     public function administrationGislayerEditHandler($procedure, $data)
@@ -357,8 +359,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'])
-            && (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
+        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']) &&
+            (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -408,7 +410,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
             $originalPath = parse_url((string) $data['r_url'], \PHP_URL_PATH);
             $encodedPathSegments = array_map(
-                static fn (string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
+                static fn(string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
             );
 
             $encodedPath = implode('/', $encodedPathSegments);

@@ -96,11 +96,17 @@ abstract class Strategy implements StrategyInterface
         return $process;
     }
 
+    /**
+     * @return mixed
+     */
     public function getProjectName()
     {
         return $this->projectName;
     }
 
+    /**
+     * @param mixed $projectName
+     */
     public function setProjectName($projectName)
     {
         $this->projectName = $projectName;

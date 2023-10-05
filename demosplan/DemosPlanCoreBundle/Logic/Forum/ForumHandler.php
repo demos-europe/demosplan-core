@@ -215,7 +215,6 @@ class ForumHandler extends CoreHandler
             // ansonsten  Platzhaltertext für Moderation
             $data['text'] = 'Moderator';
         }
-
         // die Beiträge  werden mit leeren Variablen überschrieben um einen Platzhalter zu generieren
         return $this->forumService->updateThreadEntry($threadEntry['ident'], $data);
     }
@@ -383,6 +382,8 @@ class ForumHandler extends CoreHandler
      * @param string $releaseId
      * @param array  $data
      * @param int    $limitForVotes
+     *
+     * @return mixed
      */
     public function saveOnlineVotesOfUserStories($releaseId, $data, $limitForVotes)
     {
@@ -442,6 +443,8 @@ class ForumHandler extends CoreHandler
 
     /**
      * Get a list of all releases.
+     *
+     * @return mixed
      */
     public function getReleases()
     {
@@ -452,6 +455,8 @@ class ForumHandler extends CoreHandler
      * Get all info of one release.
      *
      * @param string $releaseId
+     *
+     * @return mixed
      */
     public function getSingleRelease($releaseId)
     {
@@ -558,6 +563,8 @@ class ForumHandler extends CoreHandler
      * Get all info and user stories of one release.
      *
      * @param string $releaseId
+     *
+     * @return mixed
      */
     public function getUserStoriesForRelease($releaseId)
     {
@@ -568,6 +575,8 @@ class ForumHandler extends CoreHandler
      * Get all info about one user story.
      *
      * @param string $storyId
+     *
+     * @return mixed
      */
     public function getUserStory($storyId)
     {

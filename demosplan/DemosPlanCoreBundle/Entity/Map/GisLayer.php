@@ -308,6 +308,8 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * Set data from DSL.
      *
+     * @param mixed $data
+     *
      * @return GisLayer $this
      */
     public function set($data)

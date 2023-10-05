@@ -80,8 +80,14 @@ abstract class SimplifiedStatementCreator
         );
     }
 
+    /**
+     * @return mixed
+     */
     abstract protected function getFileUpload(Request $request);
 
+    /**
+     * @return mixed
+     */
     abstract protected function getOriginalFileUpload(Request $request);
 
     abstract protected function handleCreatedStatement(Request $request, Statement $statement): void;

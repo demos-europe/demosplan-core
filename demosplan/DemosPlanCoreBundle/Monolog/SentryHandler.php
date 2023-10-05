@@ -15,9 +15,10 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\HandlerInterface;
 use Sentry\State\Scope;
-use Throwable;
 
 use function Sentry\withScope;
+
+use Throwable;
 
 /**
  * This Monolog handler logs every message to a Sentry's server using the given
@@ -33,11 +34,17 @@ class SentryHandler implements HandlerInterface
     {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function isHandling(array $record): bool
     {
         return $this->decoratedHandler->isHandling($record);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function handle(array $record): bool
     {
         $result = false;
@@ -73,16 +80,25 @@ class SentryHandler implements HandlerInterface
         return $result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function handleBatch(array $records): void
     {
         $this->decoratedHandler->handleBatch($records);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function close(): void
     {
         $this->decoratedHandler->close();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function pushProcessor($callback)
     {
         $this->decoratedHandler->pushProcessor($callback);
@@ -90,11 +106,17 @@ class SentryHandler implements HandlerInterface
         return $this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function popProcessor()
     {
         return $this->decoratedHandler->popProcessor();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setFormatter(FormatterInterface $formatter)
     {
         $this->decoratedHandler->setFormatter($formatter);
@@ -102,6 +124,9 @@ class SentryHandler implements HandlerInterface
         return $this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getFormatter()
     {
         return $this->decoratedHandler->getFormatter();

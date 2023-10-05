@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NoResultException;
 use Exception;

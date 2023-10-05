@@ -637,6 +637,8 @@ class MapService extends CoreService
      *
      * @param string $path
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function sendGetCapabilitiesRequest($path)

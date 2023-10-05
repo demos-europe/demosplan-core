@@ -79,7 +79,7 @@ class StatementStatistic extends ValueObject
                 }
                 ++$this->amountOfGuestStatementsOfProcedure[$originalStatement['procedureId']];
 
-                // InstitutionStatements:
+            // InstitutionStatements:
             } elseif ($this->isCreatedByInvitableInstitution($originalStatement)) {
                 ++$this->totalAmountOfInstitutionStatements;
 
@@ -88,7 +88,7 @@ class StatementStatistic extends ValueObject
                 }
                 ++$this->amountOfInstitutionStatementsOfProcedure[$originalStatement['procedureId']];
 
-                // citizenStatements:
+            // citizenStatements:
             } elseif ($this->isCreatedByCitizen($originalStatement)) {
                 ++$this->totalAmountOfCitizenStatements;
 

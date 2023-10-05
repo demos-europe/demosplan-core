@@ -24,7 +24,7 @@ class AdditionalStatementDataEvent extends DPlanEvent
         private Statement $statement,
         /**
          * The array containing all the data to update a given statement.
-         * Subscribers need to check for the existence of relevant keys.
+        Subscribers need to check for the existence of relevant keys.
          */
         private array $data
     ) {

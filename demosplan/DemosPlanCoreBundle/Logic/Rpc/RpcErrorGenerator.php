@@ -38,37 +38,37 @@ class RpcErrorGenerator implements RpcErrorGeneratorInterface
         ];
     }
 
-    public function parseError(object $rpcRequest = null): object
+    public function parseError(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::PARSE_ERROR_CODE, $rpcRequest);
     }
 
-    public function invalidRequest(object $rpcRequest = null): object
+    public function invalidRequest(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::INVALID_REQUEST_CODE, $rpcRequest);
     }
 
-    public function methodNotFound(object $rpcRequest = null): object
+    public function methodNotFound(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::METHOD_NOT_FOUND_CODE, $rpcRequest);
     }
 
-    public function invalidParams(object $rpcRequest = null): object
+    public function invalidParams(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::INVALID_PARAMS_CODE, $rpcRequest);
     }
 
-    public function internalError(object $rpcRequest = null): object
+    public function internalError(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::INTERNAL_ERROR_CODE, $rpcRequest);
     }
 
-    public function serverError(object $rpcRequest = null): object
+    public function serverError(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::SERVER_ERROR_CODE, $rpcRequest);
     }
 
-    public function accessDenied(object $rpcRequest = null): object
+    public function accessDenied(?object $rpcRequest = null): object
     {
         return $this->generate(RpcErrorGeneratorInterface::ACCESS_DENIED_CODE, $rpcRequest);
     }

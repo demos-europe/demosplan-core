@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 class FilterMissing implements FilterInterface
 {
+    /** @var mixed */
     protected $value;
 
     /**
@@ -30,6 +31,9 @@ class FilterMissing implements FilterInterface
         return $this->field;
     }
 
+    /**
+     * @return mixed
+     */
     public function getValue()
     {
         return $this->value;

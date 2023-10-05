@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureUiDefinition>
@@ -76,12 +77,12 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->statementFormHintPersonalData->getAsNamesInDotNotation()         => $object->setStatementFormHintPersonalData($value),
-                $this->statementFormHintRecheck->getAsNamesInDotNotation()              => $object->setStatementFormHintRecheck($value),
-                $this->statementFormHintStatement->getAsNamesInDotNotation()            => $object->setStatementFormHintStatement($value),
-                $this->mapHintDefault->getAsNamesInDotNotation()                        => $object->setMapHintDefault($value),
+                $this->statementFormHintPersonalData->getAsNamesInDotNotation() => $object->setStatementFormHintPersonalData($value),
+                $this->statementFormHintRecheck->getAsNamesInDotNotation() => $object->setStatementFormHintRecheck($value),
+                $this->statementFormHintStatement->getAsNamesInDotNotation() => $object->setStatementFormHintStatement($value),
+                $this->mapHintDefault->getAsNamesInDotNotation() => $object->setMapHintDefault($value),
                 $this->statementPublicSubmitConfirmationText->getAsNamesInDotNotation() => $object->setStatementPublicSubmitConfirmationText($value),
-                default                                                                 => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 

@@ -53,7 +53,7 @@ class PrefixClassExtension extends ExtensionBase
         if (str_contains($classList, '.')) {
             return preg_replace_callback(
                 '/(\S+)/',
-                fn ($match) =>
+                fn($match) =>
                     // Only prefix matches that start with a dot
                     str_starts_with($match[0], '.') ? '.'.$prefix.substr((string) $match[0], 1) : $match[0],
                 $classList

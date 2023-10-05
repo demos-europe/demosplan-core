@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureType>
@@ -63,9 +64,9 @@ final class ProcedureTypeResourceType extends DplanResourceType implements Updat
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->name->getAsNamesInDotNotation()        => $object->setName($value),
+                $this->name->getAsNamesInDotNotation() => $object->setName($value),
                 $this->description->getAsNamesInDotNotation() => $object->setDescription($value),
-                default                                       => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 

@@ -58,6 +58,8 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
     /**
      * Get a descending list of EntityContentChange Objects.
      *
+     * @return mixed
+     *
      * @throws Exception
      */
     public function getDescListOfObjects(EntityContentChange $oldestRelevantVersionObject)
@@ -263,7 +265,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         $segments = array_merge($editedSegments, $uneditedSegments);
 
-        usort($segments, static fn (Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
+        usort($segments, static fn(Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
 
         return $segments;
     }

@@ -71,7 +71,7 @@ class HTMLSanitizer
             ->merge($additionalAllowedTags)
             ->flatMap(
                 // format as tags, as strip_tags() needs tags formatted as "<a>"
-                static fn ($tagName) => ["<{$tagName}>"]
+                static fn($tagName) => ["<{$tagName}>"]
             )
             ->implode('');
 

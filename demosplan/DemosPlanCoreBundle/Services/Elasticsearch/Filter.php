@@ -14,6 +14,7 @@ class Filter implements FilterInterface
 {
     /**
      * @param string $field
+     * @param mixed  $value
      */
     public function __construct(protected $field, protected $value)
     {
@@ -24,6 +25,9 @@ class Filter implements FilterInterface
         return $this->field;
     }
 
+    /**
+     * @return mixed
+     */
     public function getValue()
     {
         return $this->value;

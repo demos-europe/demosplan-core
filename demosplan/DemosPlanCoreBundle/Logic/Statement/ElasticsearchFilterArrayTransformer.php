@@ -82,7 +82,6 @@ class ElasticsearchFilterArrayTransformer
                     $this->logger->warning('Could not compare arrays',
                         ['a' => $a, 'b' => $b]
                     );
-
                     // what should be returned in that case?
                     return 0;
                 }

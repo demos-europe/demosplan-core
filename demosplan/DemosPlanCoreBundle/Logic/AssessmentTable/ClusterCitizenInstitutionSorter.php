@@ -18,6 +18,8 @@ class ClusterCitizenInstitutionSorter implements ArraySorterInterface
 {
     /**
      * @param Statement[]|StatementFragment[] $items
+     *
+     * {@inheritdoc}
      */
     public function sortArray(array $items): array
     {

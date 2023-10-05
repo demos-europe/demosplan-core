@@ -15,10 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\ConstraintValidator;
 
 use function is_string;
+
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
 class SimilarStatementSubmittersSameProcedureConstraintValidator extends ConstraintValidator
 {
@@ -34,7 +35,7 @@ class SimilarStatementSubmittersSameProcedureConstraintValidator extends Constra
         $procedureId = $statement->getProcedure()->getId();
         if (is_string($procedureId)) {
             $mismatch = $statement->getSimilarStatementSubmitters()
-                ->exists(static fn (int $key, ProcedurePerson $person): bool => $person->getProcedure()->getId() !== $procedureId);
+                ->exists(static fn(int $key, ProcedurePerson $person): bool => $person->getProcedure()->getId() !== $procedureId);
 
             if (!$mismatch) {
                 return;

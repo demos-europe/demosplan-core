@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

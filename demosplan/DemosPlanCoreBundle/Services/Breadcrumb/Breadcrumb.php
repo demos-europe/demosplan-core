@@ -15,12 +15,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresRouterTrait;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
+
+use const ENT_QUOTES;
+
 use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
-use const ENT_QUOTES;
 
 class Breadcrumb
 {
@@ -69,6 +70,7 @@ class Breadcrumb
     /**
      * Gib das Markup der Breadcrumb aus.
      *
+     * @param User        $user
      * @param string|null $titleKey  Key aus der page-title.yml
      * @param array|null  $procedure
      * @param bool        $isOwner

@@ -19,7 +19,7 @@ class AssessmentExportOptionsTest extends FunctionalTestCase
     /**
      * @var AssessmentExportOptions
      */
-    protected $sut;
+    protected $sut = null;
 
     public function setUp(): void
     {
