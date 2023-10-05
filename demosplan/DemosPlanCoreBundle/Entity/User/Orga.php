@@ -355,7 +355,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int,InstitutionTag>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", mappedBy="owningOrganisation")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
      *
      * @ORM\JoinColumn(referencedColumnName="id")
      *
