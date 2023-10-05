@@ -57,7 +57,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * @var TagTopicInterface
      *
-     * @ORM\ManyToOne(targetEntity="TagTopic", inversedBy="tags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic", inversedBy="tags", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
      */

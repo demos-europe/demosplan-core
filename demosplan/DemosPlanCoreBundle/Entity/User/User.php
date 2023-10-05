@@ -275,7 +275,7 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
     #[Assert\NotNull]

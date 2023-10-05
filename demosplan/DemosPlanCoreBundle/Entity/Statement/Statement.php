@@ -854,7 +854,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This is the owning side
      *
-     * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="cluster")
      *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
@@ -866,7 +866,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This should not be persists automatic, because of checking the assignment in updateStatement()!
      * Doctrine-sited persists, would bypass this check!
      *
-     * @ORM\OneToMany(targetEntity="Statement", mappedBy="headStatement", cascade={"merge"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="headStatement", cascade={"merge"})
      *
      * @ORM\OrderBy({"externId" = "ASC"})
      */

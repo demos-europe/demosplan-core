@@ -570,7 +570,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Many procedureTypes have one procedure. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
      *
-     * @ORM\ManyToOne(targetEntity="ProcedureType", inversedBy="procedures")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", inversedBy="procedures")
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -581,7 +581,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var StatementFormDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -592,7 +592,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var ProcedureBehaviorDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */
@@ -603,7 +603,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var ProcedureUiDefinition|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(nullable=true)
      */

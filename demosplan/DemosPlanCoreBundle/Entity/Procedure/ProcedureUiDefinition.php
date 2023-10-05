@@ -75,7 +75,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureUiDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureUiDefinition")
      *
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -88,7 +88,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureUiDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureUiDefinition")
      *
      * @JoinColumn()
      */
