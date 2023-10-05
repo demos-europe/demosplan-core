@@ -334,6 +334,12 @@ export default {
       validator: (val) => typeof val === 'string' || Array.isArray(val) || val === null,
       default: null
     },
+
+    procedureId: {
+      type: String,
+      required: true
+    },
+
     rejectedReason: {
       type: [String, null],
       required: false,
@@ -407,7 +413,7 @@ export default {
 
   methods: {
     renderAttachments (attachments) {
-      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file', { hash: a.hash })}">${a.name}</a>`)
+      const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash, procedureId: this.procedureId })}">${a.name}</a>`)
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 

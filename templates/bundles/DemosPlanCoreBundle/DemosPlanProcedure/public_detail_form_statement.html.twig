@@ -164,7 +164,7 @@
                             {{ "attachments" |trans }}
                         </p>
 
-                        <div class="{{ 'hidden o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file', {'hash': '---hash---'}) }}">
+                        <div class="{{ 'hidden o-hellip'|prefixClass }}" data-statement-files="{{ path('core_file_procedure', {'hash': '---hash---', 'procedureId': procedure}) }}">
                             <a href="#" target="_blank"></a>
                             <label class="{{ 'lbl--text inline-block u-mb-0_25 u-ml'|prefixClass }}">
                                 <input value="---hash---" name="delete_file[]" type="checkbox">

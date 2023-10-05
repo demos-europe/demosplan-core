@@ -52,7 +52,7 @@ class FileController extends BaseController
     public function fileProcedureAction(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
-            return $this->prepareResponseWithHash($fileService, $hash, $procedureId);
+            return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve Procedure file: ', [$e]);
             throw new NotFoundHttpException();
@@ -62,14 +62,14 @@ class FileController extends BaseController
     /**
      * @throws Exception
      */
-    protected function prepareResponseWithHash(FileService $fileService, string $hash, ?string $procedureId = null): Response
+    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null): Response
     {
         $fs = new Filesystem();
         // @improve T14122
         $file = $fileService->getFileInfo($hash);
 
         // ensure that procedure access check matches file procedure
-        if (!$this->isValidProcedure($procedureId, $file)) {
+        if (!$this->isValidProcedure($procedureId, $file, $strictCheck)) {
             $this->getLogger()->info(
                 'Tried to access file from different Procedure: ',
                 [$file->getProcedure()->getId(), $procedureId]
@@ -95,10 +95,10 @@ class FileController extends BaseController
         return $response;
     }
 
-    private function isValidProcedure(?string $procedureId, FileInfo $file): bool
+    private function isValidProcedure(?string $procedureId, FileInfo $file, bool $strictCheck): bool
     {
         // do not check if no procedure is given
-        if (null === $procedureId) {
+        if (!$strictCheck && null === $procedureId) {
             return true;
         }
 

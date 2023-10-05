@@ -13,15 +13,14 @@ declare(strict_types=1);
 namespace Application\Migrations;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20230830135400 extends AbstractMigration
+class Version20230925135949 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'External orga id from identity provider can be longer than 36 chars.';
+        return 'refs T32796: fix faulty unique index on procedure_message.procedure_id';
     }
 
     /**
@@ -31,7 +30,9 @@ class Version20230830135400 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(250) DEFAULT NULL');
+        $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
+        $this->addSql('ALTER TABLE procedure_message DROP INDEX UNIQ_E7F5DA961624BCD2');
+        $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
     }
 
     /**
@@ -41,7 +42,7 @@ class Version20230830135400 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(36) DEFAULT NULL');
+        $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 UNIQUE INDEX UNIQ_E7F5DA961624BCD2 (procedure_id)');
     }
 
     /**
@@ -50,7 +51,7 @@ class Version20230830135400 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            'mysql' !== $this->connection->getDatabasePlatform()->getName(),
             "Migration can only be executed safely on 'mysql'."
         );
     }
