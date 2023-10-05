@@ -69,10 +69,23 @@ class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
+        $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    public function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    {
+        $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $this->getSimilarStatementSubmitters($statement)]);
+        $section->addText(
+            $similarStatementSubmittersText,
+            $this->styles['globalFont'],
+            $this->styles['globalSection']
+        );
+
+        $section->addTextBreak(2);
     }
 
     protected function addHeader(Section $section, Procedure $procedure): void
@@ -90,6 +103,28 @@ class SegmentsExporter
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );
+    }
+
+    public function getSimilarStatementSubmitters(Statement $statement): string
+    {
+        $submitterStrings = [];
+        foreach ($statement->getSimilarStatementSubmitters() as $submitter) {
+            $values = [
+                $submitter->getEmailAddress(),
+                $submitter->getStreetNameWithStreetNumber(),
+                $submitter->getPostalCodeWithCity(),
+            ];
+            $values = array_filter($values, fn (?string $value): bool =>null !== $value);
+            $values = implode(', ', $values);
+            $values = trim($values);
+            if ('' !== $values) {
+                $values = " ($values)";
+            }
+
+            $submitterStrings[] = "{$submitter->getFullName()}$values";
+        }
+
+        return implode(', ', $submitterStrings);
     }
 
     protected function addStatementInfo(Section $section, Statement $statement): void

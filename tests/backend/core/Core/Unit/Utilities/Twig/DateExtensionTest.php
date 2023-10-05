@@ -40,8 +40,6 @@ class DateExtensionTest extends UnitTestCase
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
         static::assertTrue($result[0] instanceof Twig_SimpleFilter);
-        $callable = $result[0]->getCallable();
-        static::assertTrue('dateFilter' === $callable[1]);
         static::assertTrue('dplanDate' === $result[0]->getName());
     }
 

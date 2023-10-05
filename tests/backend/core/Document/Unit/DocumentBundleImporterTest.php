@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
+use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
@@ -47,12 +49,14 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = new ServiceImporter(
+            self::$container->get(DocxImporterInterface::class),
             self::$container->get(FileService::class),
             self::$container->get(GlobalConfigInterface::class),
             self::$container->get(LoggerInterface::class),
             self::$container->get(MessageBagInterface::class),
             self::$container->get(ParagraphRepository::class),
             self::$container->get(ParagraphService::class),
+            self::$container->get(PdfCreatorInterface::class),
             self::$container->get(RouterInterface::class),
             self::$container->get(RpcClient::class),
         );
