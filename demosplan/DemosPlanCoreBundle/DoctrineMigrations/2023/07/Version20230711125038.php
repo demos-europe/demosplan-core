@@ -39,6 +39,11 @@ class Version20230711125038 extends AbstractMigration
      */
     public function down(Schema $schema): void
     {
+        // the table needs to be truncated before adding back the unique constraint
+        // as there could be multiple meassages regarding the same procedure - as intended.
+        $this->addSql('TRUNCATE TABLE procedure_message');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_E7F5DA961624BCD2 ON procedure_message (procedure_id)');
+        $this->addSql('ALTER TABLE procedure_message ADD CONSTRAINT FK_E7F5DA961624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
         $this->abortIfNotMysql();
     }
 
