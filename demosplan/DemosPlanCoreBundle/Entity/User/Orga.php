@@ -355,7 +355,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int,InstitutionTag>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", mappedBy="owningOrganisation")
      *
      * @ORM\JoinColumn(referencedColumnName="id")
      *
@@ -1170,9 +1170,9 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         /** @var OrgaStatusInCustomer $item */
         foreach ($this->getStatusInCustomers() as $item) {
             if (
-                $customer === $item->getCustomer() &&
-                $orgaType === $item->getOrgaType() &&
-                $this === $item->getOrga()
+                $customer === $item->getCustomer()
+                && $orgaType === $item->getOrgaType()
+                && $this === $item->getOrga()
             ) {
                 $exists = true;
             }

@@ -2150,8 +2150,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Returns first Survey in the list.
      *
      * @param string $surveyId
-     *
-     * @return Survey
      */
     public function getSurvey($surveyId): ?Survey
     {
