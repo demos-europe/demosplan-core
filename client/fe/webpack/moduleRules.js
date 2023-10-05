@@ -108,8 +108,9 @@ const moduleRules =
               }
             }
           }
-        },
-      ]
+        }
+      ],
+      exclude: resolveDir('client/css/tailwind.css') // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.vue$/,
