@@ -751,15 +751,15 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            36 === strlen((string) $data['paragraphId'])) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && 36 === strlen((string) $data['paragraphId'])) {
             $statement->setParagraph($em->getReference(ParagraphVersion::class, $data['paragraphId']));
         }
 
-        if (!array_key_exists('paragraph', $data) &&
-            array_key_exists('paragraphId', $data) &&
-            '' === $data['paragraphId']) {
+        if (!array_key_exists('paragraph', $data)
+            && array_key_exists('paragraphId', $data)
+            && '' === $data['paragraphId']) {
             $statement->setParagraph(null);
         }
 
@@ -1818,7 +1818,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // todo. load clusterprefix from config
-//            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
+        //            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
         if ($originalToCopy->isClusterStatement()) {
             $newExternId = 'G'.$newExternId;
         }

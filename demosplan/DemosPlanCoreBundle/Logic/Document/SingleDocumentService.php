@@ -357,6 +357,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function convertSingleDocumentTitle($title)
     {
         $documentParts = \explode(':', $title);
+
         // set somehow misleading title 'title.pdf' to avoid missing docType in Windows
         return $documentParts[0] ?? 'title.pdf';
     }

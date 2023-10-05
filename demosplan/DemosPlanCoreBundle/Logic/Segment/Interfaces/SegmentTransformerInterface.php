@@ -22,10 +22,6 @@ interface SegmentTransformerInterface
 
     /**
      * Transform $data to Segment Entites.
-     *
-     * @param mixed $data
-     *
-     * @return mixed
      */
     public function transform($data);
 

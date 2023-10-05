@@ -65,7 +65,7 @@ class PriorityAreaService extends CoreService
         $priorityAreas = $this->getAllPriorityAreas();
 
         return \collect($priorityAreas)->map(
-            fn(PriorityArea $priorityArea) =>
+            fn (PriorityArea $priorityArea) =>
                 // use 'name' instead of 'key' to make it working in twig
                 ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()]
         )

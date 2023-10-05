@@ -164,7 +164,7 @@ class Xplanbox
         $targetProjection = new Proj($this->config->getMapDefaultProjection()['label'], $proj4);
 
         return array_map(
-            fn(array $coordinate) => $this->mapProjectionConverter->convertPoint(
+            fn (array $coordinate) => $this->mapProjectionConverter->convertPoint(
                 $coordinate,
                 $sourceProjection,
                 $targetProjection

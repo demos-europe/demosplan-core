@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<UserFilterSet>
@@ -74,7 +73,7 @@ class UserFilterSetResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 }

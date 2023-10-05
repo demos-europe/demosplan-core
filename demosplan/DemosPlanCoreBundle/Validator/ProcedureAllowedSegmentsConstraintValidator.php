@@ -43,9 +43,9 @@ class ProcedureAllowedSegmentsConstraintValidator extends ConstraintValidator
         $isTemplate = $procedure->isMasterTemplate() || $procedure->getMaster();
         $allowedProcedures = $procedure->getSettings()->getAllowedSegmentAccessProcedures();
         $referencesTemplate = $allowedProcedures
-            ->exists(static fn(int $key, Procedure $procedure): bool => $procedure->isMasterTemplate() || $procedure->getMaster());
+            ->exists(static fn (int $key, Procedure $procedure): bool => $procedure->isMasterTemplate() || $procedure->getMaster());
         $selfReference = $allowedProcedures
-            ->map(static fn(Procedure $procedure): string => $procedure->getId())
+            ->map(static fn (Procedure $procedure): string => $procedure->getId())
             ->contains($procedure);
 
         if ($isTemplate || $referencesTemplate || $selfReference) {

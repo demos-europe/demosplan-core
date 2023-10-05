@@ -559,7 +559,7 @@ class ExcelImporter extends CoreService
 
         // necessary to check incoming date-string:
         // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
-//        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        //        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
         if (0 === $violations->count()) {
             $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());

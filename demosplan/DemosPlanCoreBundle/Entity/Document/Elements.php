@@ -199,9 +199,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      */
     protected $organisations;
 
-    /**
-     * @var mixed
-     */
     protected $type;
 
     /**
@@ -567,17 +564,11 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         }
     }
 
-    /**
-     * @return DateTime
-     */
     public function getDesignatedSwitchDate(): ?DateTime
     {
         return $this->designatedSwitchDate;
     }
 
-    /**
-     * @param DateTime $designatedSwitchDate
-     */
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): void
     {
         $this->designatedSwitchDate = $designatedSwitchDate;
@@ -605,7 +596,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
         /** @var Elements $child */
         foreach ($children as $child) {
-            $numberOfChildren = $numberOfChildren + $child->countChildrenRecursively();
+            $numberOfChildren += $child->countChildrenRecursively();
         }
 
         return $numberOfChildren;

@@ -161,7 +161,7 @@ class StatementFilterHandler extends CoreHandler
     {
         $translator = $this->translator;
         $statusLabels = collect($this->getFormParameter('statement_status'))
-            ->transform(fn($transkey) => $translator->trans($transkey))
+            ->transform(fn ($transkey) => $translator->trans($transkey))
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);

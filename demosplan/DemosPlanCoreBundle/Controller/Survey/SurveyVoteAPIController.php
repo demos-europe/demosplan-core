@@ -150,18 +150,18 @@ class SurveyVoteAPIController extends APIController
     private function checkRequiredAgreements(ResourceObject $resourceObject): bool
     {
         $accepted = true;
-        if (!$resourceObject->isPresent('r_confirm_locality') ||
-            !$resourceObject->get('r_confirm_locality')) {
+        if (!$resourceObject->isPresent('r_confirm_locality')
+            || !$resourceObject->get('r_confirm_locality')) {
             $this->messageBag->add('warning', 'warning.local.participant.confirm');
             $accepted = false;
         }
-        if (!$resourceObject->isPresent('r_gdpr_consent') ||
-            !$resourceObject->get('r_gdpr_consent')) {
+        if (!$resourceObject->isPresent('r_gdpr_consent')
+            || !$resourceObject->get('r_gdpr_consent')) {
             $this->messageBag->add('warning', 'warning.gdpr.consent');
             $accepted = false;
         }
-        if (!$resourceObject->isPresent('r_privacy') ||
-            !$resourceObject->get('r_privacy')) {
+        if (!$resourceObject->isPresent('r_privacy')
+            || !$resourceObject->get('r_privacy')) {
             $this->messageBag->add('warning', 'warning.privacy.confirm');
             $accepted = false;
         }

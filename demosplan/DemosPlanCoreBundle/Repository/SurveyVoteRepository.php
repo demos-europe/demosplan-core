@@ -19,8 +19,6 @@ class SurveyVoteRepository extends FluentRepository
     /**
      * Get all votes of a specific procedure.
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function findByProcedure(Procedure $procedure)

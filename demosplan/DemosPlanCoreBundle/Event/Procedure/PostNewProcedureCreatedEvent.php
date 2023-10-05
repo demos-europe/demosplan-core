@@ -25,7 +25,7 @@ class PostNewProcedureCreatedEvent extends DPlanEvent implements PostNewProcedur
     public function __construct(Procedure $procedure, /**
      * Identifies a ProcedureCoupleToken, to allow to couple the procedures.
      */
-    private readonly ?string $token = null)
+        private readonly ?string $token = null)
     {
         $this->procedure = $procedure;
     }

@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Stringable;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use JsonSerializable;
+use Stringable;
 
 /**
  * ViewObject for Messages.
@@ -27,6 +27,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     public function __construct(protected $severity, protected $text, protected $textParameters = [])
     {
     }
+
     /**
      * @param string $severity
      * @param string $text           #TranslationKey
@@ -38,6 +39,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return new self($severity, $text, $textParameters);
     }
+
     /**
      * @return string
      */
@@ -45,6 +47,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->severity;
     }
+
     /**
      * @param string $severity
      *
@@ -56,6 +59,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
 
         return $this;
     }
+
     /**
      * @return string
      */
@@ -63,6 +67,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->text;
     }
+
     /**
      * @param string $text
      *
@@ -74,10 +79,12 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
 
         return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->text;
     }
+
     /**
      * @return array
      */
@@ -85,6 +92,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return $this->textParameters;
     }
+
     /**
      * @param array $textParameters
      */
@@ -92,6 +100,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         $this->textParameters = $textParameters;
     }
+
     public function jsonSerialize(): array
     {
         return ['message' => $this->text, 'severity' => $this->severity];

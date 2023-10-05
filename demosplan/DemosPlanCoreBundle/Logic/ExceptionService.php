@@ -62,6 +62,7 @@ class ExceptionService
 
             case $e instanceof AccessDeniedException:
                 $logger->warning($e);
+
                 // do not set redirect LoggedIn Route Cookie as it may lead to
                 // infinite redirects
                 return $this->redirectWithCurrentRouteState('accessdenied', false);

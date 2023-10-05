@@ -22,11 +22,11 @@ class StatementListHandlerResult
     protected $activeSort;
 
     /**
-     * @param mixed[] $activeFilters
-     * @param mixed[] $filters
+     * @param mixed[]     $activeFilters
+     * @param mixed[]     $filters
      * @param string|bool $manuallySorted
-     * @param mixed[] $sort
-     * @param mixed[] $statementList
+     * @param mixed[]     $sort
+     * @param mixed[]     $statementList
      */
     public function __construct(
         protected $statementList,

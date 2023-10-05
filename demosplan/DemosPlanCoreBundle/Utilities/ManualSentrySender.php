@@ -12,10 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utilities;
 
-use function Sentry\captureMessage;
-
 use Sentry\State\Scope;
 
+use function Sentry\captureMessage;
 use function Sentry\withScope;
 
 class ManualSentrySender

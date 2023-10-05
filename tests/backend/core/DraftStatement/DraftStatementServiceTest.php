@@ -1292,8 +1292,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
      */
@@ -1325,10 +1323,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
         static::assertEquals($gesamtStnElement->getId(), $determinedElement->getId());
     }
 
-    /**
-     * @param $providerData
-     * dataProvider getDetermineStatementCategoryData
-     */
     public function testDetermineStatementCategory(/* array $providerData */)
     {
         self::markSkippedForCIIntervention();
@@ -1365,9 +1359,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     * dataProvider getCreateDraftStatementData
-     *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
      */

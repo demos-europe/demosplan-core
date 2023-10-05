@@ -95,28 +95,28 @@ class RoleService extends CoreService
                 }
             }
 
-            if (in_array(OrgaType::HEARING_AUTHORITY_AGENCY, $acceptedOrgaTypeNames, true) &&
-                $this->currentUser->hasPermission('feature_assign_procedure_hearing_authority_roles')
+            if (in_array(OrgaType::HEARING_AUTHORITY_AGENCY, $acceptedOrgaTypeNames, true)
+                && $this->currentUser->hasPermission('feature_assign_procedure_hearing_authority_roles')
             ) {
                 $givableRoles[] = $allRoles[Role::HEARING_AUTHORITY_ADMIN];
                 $givableRoles[] = $allRoles[Role::HEARING_AUTHORITY_WORKER];
             }
 
-            if (in_array(OrgaType::PLANNING_AGENCY, $acceptedOrgaTypeNames, true) &&
-                $this->currentUser->hasPermission('feature_assign_procedure_planningoffice_roles')
+            if (in_array(OrgaType::PLANNING_AGENCY, $acceptedOrgaTypeNames, true)
+                && $this->currentUser->hasPermission('feature_assign_procedure_planningoffice_roles')
             ) {
                 $givableRoles[] = $allRoles[Role::PRIVATE_PLANNING_AGENCY];
             }
 
-            if (in_array(OrgaType::PUBLIC_AGENCY, $acceptedOrgaTypeNames, true) &&
-                $this->currentUser->hasPermission('feature_assign_procedure_invitable_institution_roles')
+            if (in_array(OrgaType::PUBLIC_AGENCY, $acceptedOrgaTypeNames, true)
+                && $this->currentUser->hasPermission('feature_assign_procedure_invitable_institution_roles')
             ) {
                 $givableRoles[] = $allRoles[Role::PUBLIC_AGENCY_COORDINATION];
                 $givableRoles[] = $allRoles[Role::PUBLIC_AGENCY_WORKER];
             }
 
-            if (in_array(OrgaType::MUNICIPALITY, $acceptedOrgaTypeNames, true) &&
-                $this->currentUser->hasPermission('feature_assign_procedure_fachplaner_roles')
+            if (in_array(OrgaType::MUNICIPALITY, $acceptedOrgaTypeNames, true)
+                && $this->currentUser->hasPermission('feature_assign_procedure_fachplaner_roles')
             ) {
                 $givableRoles[] = $allRoles[Role::PLANNING_AGENCY_ADMIN];
                 $givableRoles[] = $allRoles[Role::PLANNING_SUPPORTING_DEPARTMENT];

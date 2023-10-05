@@ -84,8 +84,6 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param BoilerplateVO $data
      */
     public function mapDataToForms($data, Traversable $forms)
@@ -100,8 +98,6 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param BoilerplateVO $boilerplateVO
      */
     public function mapFormsToData(Traversable $forms, &$boilerplateVO)

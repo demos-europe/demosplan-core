@@ -19,8 +19,6 @@ trait ResourcePropertyEventSubscriberTrait
     /**
      * @param list<PropertyBuilder> $propertyBuilders
      * @param non-empty-string      $propertyName
-     *
-     * @return PropertyBuilder
      */
     protected function getPropertyBuilder(array $propertyBuilders, string $propertyName): ?PropertyBuilder
     {

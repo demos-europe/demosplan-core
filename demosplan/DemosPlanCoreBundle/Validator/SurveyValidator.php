@@ -61,8 +61,8 @@ class SurveyValidator
         $procedureId = $surveyDataArray['procedureId'];
         $this->procedureExists($procedureId);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        if (Survey::STATUS_PARTICIPATION === $surveyDataArray['status'] &&
-            'participation' !== $procedure->getPublicParticipationPhase()) {
+        if (Survey::STATUS_PARTICIPATION === $surveyDataArray['status']
+            && 'participation' !== $procedure->getPublicParticipationPhase()) {
             throw new SurveyInputDataException('error.status.evaluation', 'Survey was send with "participation" status whereas Procedure\'s status is '.$procedure->getPhase(), SurveyInputDataException::SURVEY_EVALUATION_IN_WRONG_PROCEDURE_STATUS);
         }
         $this->validateSurveyDates($procedure, $surveyDataArray);
@@ -73,8 +73,8 @@ class SurveyValidator
      */
     public function validateSurveyDates(Procedure $procedure, array $surveyDataArray): void
     {
-        if ('participation' === $surveyDataArray['status'] &&
-            'participation' === $procedure->getPublicParticipationPhase()
+        if ('participation' === $surveyDataArray['status']
+            && 'participation' === $procedure->getPublicParticipationPhase()
         ) {
             if (empty($surveyDataArray['startDate'])) {
                 throw new SurveyInputDataException('error.startdate.required', 'No start date received for a survey n evaluation phase', SurveyInputDataException::MISSING_START_DATE);

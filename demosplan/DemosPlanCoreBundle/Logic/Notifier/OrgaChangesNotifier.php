@@ -68,7 +68,7 @@ class OrgaChangesNotifier
 
         // send Emails to customer master users
         $customerMasterUser = $this->userService->getUsersOfRole(Role::CUSTOMER_MASTER_USER);
-        $toAddresses = collect($customerMasterUser)->transform(static fn(User $user) => $user->getEmail())->unique();
+        $toAddresses = collect($customerMasterUser)->transform(static fn (User $user) => $user->getEmail())->unique();
         $vars['mailsubject'] = $this->translator->trans('email.subject.orga.new');
         $vars['mailbody'] = $newOrgaMailBody;
 

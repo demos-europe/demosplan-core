@@ -290,8 +290,8 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
             $entity->setParent($this->get($data['parent']));
         }
 
-        if (array_key_exists('permission', $data) &&
-            null !== $data['permission']) {
+        if (array_key_exists('permission', $data)
+            && null !== $data['permission']) {
             $entity->setPermission($data['permission']);
         }
 
@@ -373,8 +373,6 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Exception
      */
     public function updateObject($entity)
@@ -405,7 +403,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $paragraphs = $paragraphRepository->findBy(['procedure' => $procedureId]);
         $documents = $documentRepository->findBy(['procedure' => $procedureId]);
         $elementIdsWithParagraphsOrDocuments = array_map(
-            static fn($paragraphOrDocument) =>
+            static fn ($paragraphOrDocument) =>
                 /* @var Paragraph|SingleDocument $paragraphOrDocument */
                 $paragraphOrDocument->getElement()->getId(),
             [...$paragraphs, ...$documents]
@@ -425,7 +423,7 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         $elements = $queryBuilder->getQuery()->getResult();
 
         return array_map(
-            static fn(Elements $element) => $element->getId(),
+            static fn (Elements $element) => $element->getId(),
             $this->filterElementsByPermissions($elements)
         );
     }

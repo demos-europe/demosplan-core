@@ -27,11 +27,6 @@ class DraftsInfoTransformerPass
     {
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return mixed
-     */
     public function transform($data, string $format)
     {
         /** @var DraftsInfoTransformerInterface $transformer */

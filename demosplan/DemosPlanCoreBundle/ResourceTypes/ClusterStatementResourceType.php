@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @property-read End $assignee @deprecated refactor frontend and backend to use a relationship instead
@@ -69,7 +68,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
             $this->conditionFactory->propertyIsNull($this->headStatement),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 
@@ -91,9 +90,9 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         $properties = parent::getProperties();
         $additionalProperties = [
             $this->createAttribute($this->documentParentId)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentParentId()),
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId()),
             $this->createAttribute($this->documentTitle)
-                ->readable(true, static fn(Statement $statement): ?string => $statement->getDocumentTitle()),
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle()),
             $this->createAttribute($this->elementId)
                 ->readable(true)->aliasedPath($this->element->id),
             $this->createAttribute($this->elementTitle)

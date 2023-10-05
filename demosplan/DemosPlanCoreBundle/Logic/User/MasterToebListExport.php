@@ -59,7 +59,7 @@ class MasterToebListExport extends XlsxExporter
     private function setHeaderRow(array $headingFields): void
     {
         // Besorge die gültigen Klarnamen der Felder
-        $headings = array_map(fn(string $field) => $this->translator->trans($field, [], 'master-toeb-list'), $headingFields);
+        $headings = array_map(fn (string $field) => $this->translator->trans($field, [], 'master-toeb-list'), $headingFields);
 
         $this->spreadsheet->getActiveSheet()->fromArray($headings);
     }

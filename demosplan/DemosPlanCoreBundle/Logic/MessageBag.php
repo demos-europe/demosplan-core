@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use function collect;
-
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -21,6 +19,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
+
+use function collect;
 
 class MessageBag implements MessageBagInterface
 {
@@ -44,7 +44,7 @@ class MessageBag implements MessageBagInterface
     {
         $this->messages = collect(self::$definedSeverities)
             ->flip()
-            ->map(static fn() => collect());
+            ->map(static fn () => collect());
     }
 
     /**
@@ -155,8 +155,6 @@ class MessageBag implements MessageBagInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws MessageBagException will not add a message if it already exists
      */
     public function addObject(MessageSerializableInterface $message, bool $toStart = false): void

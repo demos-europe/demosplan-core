@@ -87,7 +87,7 @@ class DemosPlanPath
      */
     public static function getProjectPath(string $path = ''): string
     {
-        if(self::isInstalledAsLib()) {
+        if (self::isInstalledAsLib()) {
             return dirname(self::getRootPath(), 3).DIRECTORY_SEPARATOR.$path;
         }
 

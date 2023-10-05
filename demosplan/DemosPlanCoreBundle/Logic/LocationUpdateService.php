@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use GuzzleHttp\Client;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -21,6 +20,7 @@ use Doctrine\Persistence\ObjectManager;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
 use Goodby\CSV\Import\Standard\LexerConfig;
+use GuzzleHttp\Client;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;

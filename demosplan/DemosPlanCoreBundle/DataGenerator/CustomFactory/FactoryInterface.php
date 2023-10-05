@@ -24,8 +24,6 @@ interface FactoryInterface
 {
     /**
      * Create and persist entity instances.
-     *
-     * @return mixed
      */
     public function make(int $amount = 1, int $batchSize = 10);
 }

@@ -53,7 +53,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
     public function testConfigWithoutUser(): void
     {
         // test fails when performed multiple times
-        //self::markSkippedForCIIntervention();
+        // self::markSkippedForCIIntervention();
 
         $commandTester = $this->getCommandTester();
         $customers = $this->getCustomers('foobar');
@@ -147,6 +147,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
             ->getQuery()
             ->getResult();
     }
+
     private function removeCustomer(string $subdomain): int
     {
         $query = $this->getEntityManager()->createQueryBuilder()
@@ -154,6 +155,7 @@ class ContainerInitCommandTest extends FunctionalTestCase
             ->where('customer.subdomain = :subdomain')
             ->setParameter('subdomain', $subdomain)
             ->getQuery();
+
         return $query->execute();
     }
 }

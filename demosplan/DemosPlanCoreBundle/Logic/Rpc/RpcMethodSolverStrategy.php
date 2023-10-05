@@ -15,12 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use Exception;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 
 class RpcMethodSolverStrategy
 {

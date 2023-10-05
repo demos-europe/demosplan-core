@@ -66,16 +66,16 @@ class RpcController extends BaseController
      */
     private function getActions(array $requestData, array $requiredFields): array
     {
-        if (array_key_exists('actions', $requiredFields) && array_key_exists('actions', $requestData) &&
-            0 < count($requestData['actions']) && 0 < count($requiredFields['actions'])
+        if (array_key_exists('actions', $requiredFields) && array_key_exists('actions', $requestData)
+            && 0 < count($requestData['actions']) && 0 < count($requiredFields['actions'])
         ) {
             $providedActions = $requestData['actions'];
             $allowedActions = $requiredFields['actions'];
             $output = [];
             foreach ($allowedActions as $allowedActionName => $allowedActionType) {
                 if (
-                    array_key_exists($allowedActionName, $providedActions) &&
-                    $this->generallyIgnoreAllNullValuesInRpcActions($providedActions, $allowedActionName)
+                    array_key_exists($allowedActionName, $providedActions)
+                    && $this->generallyIgnoreAllNullValuesInRpcActions($providedActions, $allowedActionName)
                 ) {
                     $wrongTypeProvided = false;
                     if ('bool' === $allowedActionType) {

@@ -17,9 +17,6 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class IsOriginalStatementConstraintValidator extends ConstraintValidator
 {
-    /**
-     * @param mixed $value
-     */
     public function validate($value, Constraint $constraint): void
     {
         $this->validateStatement($value, $constraint);

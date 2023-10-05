@@ -139,6 +139,7 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
@@ -194,8 +195,6 @@ class ContentService extends CoreService
 
     /**
      * Get all global Settings.
-     *
-     * @return mixed
      *
      * @throws Exception
      */

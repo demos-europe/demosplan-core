@@ -52,8 +52,8 @@ class SurveyHandlerTest extends SurveyTestUtils
         $expectedSurveyStatuses = [];
         $allConfiguredStatuses = $this->getContainer()->getParameter('survey.statuses');
         foreach ($allConfiguredStatuses as $status) {
-            if ('participation' === $status &&
-                'participation' !== $procedure->getPublicParticipationPhase()) {
+            if ('participation' === $status
+                && 'participation' !== $procedure->getPublicParticipationPhase()) {
                 continue;
             }
             $expectedSurveyStatuses[] = $this->sut->getSurveyStatusArray($status);

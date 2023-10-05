@@ -58,6 +58,7 @@ class PreflightCommand extends CoreCommand
         $io = new SymfonyStyle($input, $output);
 
         $io->title('Update: Preflight');
+
         /*
          * - git checkout -- .
          * - git

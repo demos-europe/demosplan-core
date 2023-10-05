@@ -51,7 +51,7 @@ class Municipality extends CoreEntity implements UuidEntityInterface, Municipali
      *
      * @ORM\Column(type="string", nullable=true, options={"fixed":true, "default":null})
      */
-    protected $officialMunicipalityKey = null;
+    protected $officialMunicipalityKey;
 
     /**
      * @var Collection<int, StatementInterface>

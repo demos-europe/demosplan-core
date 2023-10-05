@@ -36,13 +36,13 @@ class QueryFragment extends AbstractQuery
         }
 
         if (
-            !array_key_exists('external', $queryDefinition['statementFragment']['sort_default']) ||
-            !array_key_exists('filter', $queryDefinition['statementFragment']) ||
-            !array_key_exists('search', $queryDefinition['statementFragment']) ||
-            !array_key_exists('sort', $queryDefinition['statementFragment']) ||
-            !array_key_exists('sort_default', $queryDefinition['statementFragment']) ||
-            !array_key_exists('internal', $queryDefinition['statementFragment']['sort_default']) ||
             !array_key_exists('external', $queryDefinition['statementFragment']['sort_default'])
+            || !array_key_exists('filter', $queryDefinition['statementFragment'])
+            || !array_key_exists('search', $queryDefinition['statementFragment'])
+            || !array_key_exists('sort', $queryDefinition['statementFragment'])
+            || !array_key_exists('sort_default', $queryDefinition['statementFragment'])
+            || !array_key_exists('internal', $queryDefinition['statementFragment']['sort_default'])
+            || !array_key_exists('external', $queryDefinition['statementFragment']['sort_default'])
         ) {
             throw new InvalidElasticsearchQueryConfigurationException();
         }

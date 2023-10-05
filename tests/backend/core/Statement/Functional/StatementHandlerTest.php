@@ -475,8 +475,6 @@ class StatementHandlerTest extends FunctionalTestCase
     /**
      * dataProvider getStatementFragmentUpdateData.
      *
-     * @param $providerData
-     *
      * @throws Exception
      */
     public function testUpdateStatementFragmentData(/* $providerData */)
@@ -583,8 +581,6 @@ class StatementHandlerTest extends FunctionalTestCase
 
     /**
      * dataProvider getStatementFragmentUpdateDataAsReviewer.
-     *
-     * @param $providerData
      *
      * @throws Exception
      */
@@ -779,36 +775,36 @@ class StatementHandlerTest extends FunctionalTestCase
         // get fragment
         // get text assert ++
 
-//        $data['r_tags'] = [''];
-//        $statementFragmentData['consideration'] = '';
-//        $statementService = $this->statementServie
-//        //worked once:
-//        foreach ($data['r_tags'] as $tagId) {
-//            $tag = null;
-//            try {
-//                $tag = $statementService->getTag($tagId);
-//                if (!$tag instanceof Tag) {
-//                    continue;
-//                }
-//                $tags[] = $tag;
-//
-//                // add boilerplate if defined
-//                if (is_null($tag->getBoilerplate())) {
-//                    continue;
-//                }
-//                $statementFragmentData['consideration'] = isset($statementFragmentData['consideration']) ? $statementFragmentData['consideration'] : '';
-//                $statementFragmentData['consideration'] .= '<p>'.$tag->getBoilerplate()->getText().'</p>';
-//            } catch (\Exception $e) {
-//                $this->logger->warning("Could not resolve Tag with ID: ".$tagId);
-//                continue;
-//            }
-//
-//        }
-//
-//        $statementFragmentData['consideration'] = '';
-//
-//        $this->sut->addBoilerplatesOfTags($data['r_tags'], $statementFragmentData['consideration']);
-//
+        //        $data['r_tags'] = [''];
+        //        $statementFragmentData['consideration'] = '';
+        //        $statementService = $this->statementServie
+        //        //worked once:
+        //        foreach ($data['r_tags'] as $tagId) {
+        //            $tag = null;
+        //            try {
+        //                $tag = $statementService->getTag($tagId);
+        //                if (!$tag instanceof Tag) {
+        //                    continue;
+        //                }
+        //                $tags[] = $tag;
+        //
+        //                // add boilerplate if defined
+        //                if (is_null($tag->getBoilerplate())) {
+        //                    continue;
+        //                }
+        //                $statementFragmentData['consideration'] = isset($statementFragmentData['consideration']) ? $statementFragmentData['consideration'] : '';
+        //                $statementFragmentData['consideration'] .= '<p>'.$tag->getBoilerplate()->getText().'</p>';
+        //            } catch (\Exception $e) {
+        //                $this->logger->warning("Could not resolve Tag with ID: ".$tagId);
+        //                continue;
+        //            }
+        //
+        //        }
+        //
+        //        $statementFragmentData['consideration'] = '';
+        //
+        //        $this->sut->addBoilerplatesOfTags($data['r_tags'], $statementFragmentData['consideration']);
+        //
     }
 
     /**
@@ -1152,7 +1148,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedStatement->getPriority(), $updatedPriority);
         static::assertEquals($updatedStatement->getExternId(), $updatedExternId);
         // intern id only gets from original statement -> null
-//        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
+        //        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
         static::assertEquals($updatedStatement->getPhase(), $updatedPhase);
         static::assertEquals($updatedStatement->getStatus(), $updatedStatus);
         static::assertEquals($updatedStatement->getSentAssessment(), $updatedSentAssessment);
@@ -2283,9 +2279,6 @@ class StatementHandlerTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     * dataProvider getFragmentUpdateVoteAdviceAndAssignmentAtTheSameTimeData
-     *
      * @throws Exception
      */
     public function testFragmentUpdateVoteAdviceAndAssignmentAtTheSameTime(/* $providerData */)
@@ -2326,7 +2319,7 @@ class StatementHandlerTest extends FunctionalTestCase
         if ($isReviewerGiven && $isVoteAdviceGiven) {
             // only the voteAdvice should be saved
             static::assertEquals($providerData['r_vote_advice'], $fragment->getVoteAdvice());
-//            assertNotEquals do not differentiate between '' and null
+            //            assertNotEquals do not differentiate between '' and null
             static::assertNotSame($providerData['r_reviewer'], $fragment->getDepartmentId());
         }
         if (!$isReviewerGiven && $isVoteAdviceGiven) {
@@ -2861,10 +2854,10 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getOriginal()->getProcedureId());
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getElement()->getProcedure()->getId());
         // will not work because of testdata?:
-//        static::assertContains($copiedStatement, $copiedStatement->getOriginal()->getChildren());
-//        static::assertNotContains($testStatement, $copiedStatement->getOriginal()->getChildren());
-//        static::assertContains($testStatement, $testStatement->getOriginal()->getChildren());
-//        static::assertNotContains($copiedStatement, $testStatement->getOriginal()->getChildren());
+        //        static::assertContains($copiedStatement, $copiedStatement->getOriginal()->getChildren());
+        //        static::assertNotContains($testStatement, $copiedStatement->getOriginal()->getChildren());
+        //        static::assertContains($testStatement, $testStatement->getOriginal()->getChildren());
+        //        static::assertNotContains($copiedStatement, $testStatement->getOriginal()->getChildren());
     }
 
     public function testAmountOfStatementsOnCopyEmptyStatementToProcedure()

@@ -146,8 +146,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
     /**
      * @dataProvider getDataProviderProcedureStartDate
      *
-     * @param $providerData
-     *
      * @throws Exception
      */
     public function testGetStartDate($procedure)

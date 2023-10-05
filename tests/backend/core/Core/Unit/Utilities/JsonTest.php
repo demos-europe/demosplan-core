@@ -14,11 +14,10 @@ namespace Tests\Core\Core\Unit\Utilities;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-
-use const NAN;
-
 use stdClass;
 use Tests\Base\UnitTestCase;
+
+use const NAN;
 
 class JsonTest extends UnitTestCase
 {
