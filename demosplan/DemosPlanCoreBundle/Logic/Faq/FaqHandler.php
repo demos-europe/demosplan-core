@@ -183,7 +183,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      * @throws CustomerNotFoundException
      * @throws MessageBagException
      */
-    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
+    public function addOrUpdateFaq($data, Faq $faq = null): ?Faq
     {
         // improve:
         // Sanitize and validate fields
@@ -337,6 +337,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
+
         // filter: custom categories only
         return $allFaqCategories->filter(
             static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()

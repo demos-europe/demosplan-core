@@ -110,7 +110,7 @@ class ConsultationToken
      *
      * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true)
      */
-    private $sentEmail = null;
+    private $sentEmail;
 
     /**
      * @var DateTime
@@ -138,9 +138,9 @@ class ConsultationToken
      *
      * @ORM\Column(type="string", length=8, nullable=false)
      */
-    #[Assert\NotBlank]
-    #[Assert\Regex('/^\w{8}$/')]
-    private string $token, /**
+        #[Assert\NotBlank]
+        #[Assert\Regex('/^\w{8}$/')]
+        private string $token, /**
      * The connection to the statement the token was created for.
      *
      * The value of this property should be considered final.
@@ -156,7 +156,7 @@ class ConsultationToken
      *
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
      */
-    private Statement $statement, /**
+        private Statement $statement, /**
      * Determines if this token entry was created manually by the user in the UI, in which
      * case it is `true`. The alternative would be that this instance was created automatically
      * via an {@link DPlanEvent} when a statement was submitted.
@@ -165,7 +165,7 @@ class ConsultationToken
      *
      * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
-    private bool $manuallyCreated)
+        private bool $manuallyCreated)
     {
         $this->originalStatement = $statement->getOriginal();
     }

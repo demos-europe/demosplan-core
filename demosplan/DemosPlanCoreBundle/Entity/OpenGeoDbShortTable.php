@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="geodb_short_table")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository")
  */
 class OpenGeoDbShortTable extends CoreEntity
@@ -24,8 +25,11 @@ class OpenGeoDbShortTable extends CoreEntity
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36)
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $uniqueId;

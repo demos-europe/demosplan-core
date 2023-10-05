@@ -241,6 +241,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
 
         static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
         static::assertEmpty($testProcedurePersons);
-//        static::assertNull($testProcedurePerson);
+        //        static::assertNull($testProcedurePerson);
     }
 }

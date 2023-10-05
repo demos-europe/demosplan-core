@@ -105,8 +105,6 @@ class FileUploadService implements FileUploadServiceInterface
      * @param string|null      $field
      * @param UploadedFile[][] $fileBag
      *
-     * @return mixed
-     *
      * @throws MessageBagException
      */
     protected function handleFileBag($field, $fileBag)

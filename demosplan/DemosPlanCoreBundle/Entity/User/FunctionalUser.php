@@ -47,6 +47,7 @@ class FunctionalUser extends User
 
         parent::__construct();
     }
+
     protected function setDefaultOrgaDepartment(): void
     {
         $this->functionalOrga = new Orga();
@@ -58,33 +59,22 @@ class FunctionalUser extends User
         $this->department->setName(self::ANONYMOUS_USER_DEPARTMENT_NAME);
         $this->functionalOrga->setDepartments([$this->department]);
     }
-    /**
-     * {@inheritDoc}
-     */
+
     public function isNewUser(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isProfileCompleted(): bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRoleBySubdomain(string $subdomain): string
     {
         return Role::GUEST;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getOrga(): Orga
     {
         return $this->functionalOrga;

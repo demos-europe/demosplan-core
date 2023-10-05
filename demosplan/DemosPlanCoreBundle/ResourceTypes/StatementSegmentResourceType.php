@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
 
 /**
@@ -237,6 +236,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
-        return array_map(static fn(PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
+        return array_map(static fn (PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
     }
 }

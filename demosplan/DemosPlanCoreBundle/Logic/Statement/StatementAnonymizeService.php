@@ -185,6 +185,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeText(string $anonymizedTextWithTags): string
     {
         $blackSharpie = '<span class="anonymized">***</span>';
+
         /*
          * (.+?) means:
          * - a group: ()

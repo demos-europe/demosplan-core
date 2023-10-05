@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Category>
@@ -54,7 +53,7 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     {
         return [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
-            $this->conditionFactory->propertyHasValue(true, $this->enabled)
+            $this->conditionFactory->propertyHasValue(true, $this->enabled),
         ];
     }
 

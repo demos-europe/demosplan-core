@@ -441,8 +441,6 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Save Filter params from Request to keep Filters between page loads e.g pager.
-     *
-     * @return mixed
      */
     protected function rememberFilters(Request $request)
     {

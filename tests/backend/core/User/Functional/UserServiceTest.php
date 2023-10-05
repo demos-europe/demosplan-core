@@ -952,7 +952,7 @@ class UserServiceTest extends FunctionalTestCase
         static::assertNull($wipedUser->getGender());
         static::assertNull($wipedUser->getLogin());
 
-//        delete addresses of user will be executed in handler method
+        //        delete addresses of user will be executed in handler method
         static::assertNotNull($wipedUser->getAddress());
 
         static::assertNull($wipedUser->getLanguage());

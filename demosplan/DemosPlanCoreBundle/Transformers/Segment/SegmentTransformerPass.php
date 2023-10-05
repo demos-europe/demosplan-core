@@ -27,11 +27,6 @@ class SegmentTransformerPass
     {
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return mixed
-     */
     public function transform($data, string $format)
     {
         /** @var SegmentTransformerInterface $transformer */

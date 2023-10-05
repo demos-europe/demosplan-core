@@ -159,10 +159,10 @@ class ServiceImporter implements ServiceImporterInterface
         $exception = new ServiceImporterException();
 
         if (
-            !array_key_exists('paragraphs', $importResult) ||
-            !array_key_exists('procedure', $importResult) ||
-            !array_key_exists('elementId', $importResult) ||
-            !array_key_exists('category', $importResult)
+            !array_key_exists('paragraphs', $importResult)
+            || !array_key_exists('procedure', $importResult)
+            || !array_key_exists('elementId', $importResult)
+            || !array_key_exists('category', $importResult)
         ) {
             $this->getLogger()->warning('Paragraph importresult format invalid. '.DemosPlanTools::varExport($importResult, true));
             throw new InvalidArgumentException('Paragraph importresult format invalid');
@@ -179,10 +179,10 @@ class ServiceImporter implements ServiceImporterInterface
 
         foreach ($importResult['paragraphs'] as $paragraph) {
             if (
-                !array_key_exists('text', $paragraph) ||
-                !array_key_exists('title', $paragraph) ||
-                !array_key_exists('files', $paragraph) ||
-                !array_key_exists('nestingLevel', $paragraph)
+                !array_key_exists('text', $paragraph)
+                || !array_key_exists('title', $paragraph)
+                || !array_key_exists('files', $paragraph)
+                || !array_key_exists('nestingLevel', $paragraph)
             ) {
                 $this->getLogger()->warning('Paragraph import format invalid. '.DemosPlanTools::varExport($paragraph, true));
                 $exception->addErrorParagraph($paragraph['title'] ?? 'noTitle');

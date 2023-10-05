@@ -196,8 +196,6 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
-     * @return mixed
-     *
      * @throws InvalidUserDataException on invalid user value
      */
     protected function determineUserInfo($baseData)
@@ -286,8 +284,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $userLogin
-     *
      * @throws DataProviderException
      */
     protected function fetchUser(?string $userLogin): void
@@ -306,8 +302,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $orgaId
-     *
      * @throws DataProviderException
      */
     protected function fetchOrga(?string $orgaId): void
@@ -320,8 +314,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $procedureId
-     *
      * @throws DataProviderException
      */
     protected function fetchProcedure(?string $procedureId): void

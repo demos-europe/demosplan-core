@@ -203,9 +203,9 @@ class DraftStatementHandler extends CoreHandler
                     false
                 );
                 // continue if user does not want to get mails
-                if (is_array($userSettings) &&
-                    1 === count($userSettings) &&
-                    false === $userSettings[0]->getContentBool()) {
+                if (is_array($userSettings)
+                    && 1 === count($userSettings)
+                    && false === $userSettings[0]->getContentBool()) {
                     continue;
                 }
                 // by default coordinator gets mails, if not explicitly denied

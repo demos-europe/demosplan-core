@@ -181,8 +181,6 @@ class ServiceOutput
     /**
      * Verarbeitet alle Anfragen aus der Listenansicht.
      *
-     * @param mixed $search
-     *
      * @return array
      *
      * @throws Exception
@@ -343,6 +341,7 @@ class ServiceOutput
     public function getProcedureWithPhaseNames($procedureId): array
     {
         $sResult = $this->service->getSingleProcedure($procedureId);
+
         // Füge den Phasennamen aus der Config hinzu
         return $this->addPhaseNames($sResult);
     }
@@ -522,8 +521,6 @@ class ServiceOutput
      * Füge den sprechenden Namen der Phase aus den Parametern hinzu.
      *
      * @param array $procedure
-     *
-     * @return mixed
      */
     protected function addPhaseNames($procedure)
     {

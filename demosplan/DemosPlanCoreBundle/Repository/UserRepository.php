@@ -27,8 +27,6 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -461,7 +459,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
             /** @var User $user */
             $user = $this->find($userId);
 
-//          wipeData:
+            //          wipeData:
             $user->setGender(null);
             $user->setTitle(null);
             $user->setFirstname(null);

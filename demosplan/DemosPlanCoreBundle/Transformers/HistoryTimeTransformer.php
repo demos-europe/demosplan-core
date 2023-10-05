@@ -28,7 +28,7 @@ class HistoryTimeTransformer extends BaseTransformer
     public function transform(HistoryTime $historyTime): array
     {
         $entityType = $historyTime->getEntityType();
-        $fieldNames = array_map(fn(string $fieldName): string => $this->entityContentChangeService->getMappingValue(
+        $fieldNames = array_map(fn (string $fieldName): string => $this->entityContentChangeService->getMappingValue(
             $fieldName,
             $entityType,
             'translationKey'

@@ -19,9 +19,6 @@ class MockMethodDefinition
      */
     private $method;
 
-    /**
-     * @var mixed
-     */
     private $returnValue;
 
     /**
@@ -82,9 +79,6 @@ class MockMethodDefinition
         return $this->method;
     }
 
-    /**
-     * @return mixed
-     */
     public function getReturnValue()
     {
         return $this->returnValue;

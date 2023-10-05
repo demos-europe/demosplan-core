@@ -257,17 +257,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this->getId();
     }
 
-    /**
-     * @return mixed
-     */
     public function getGatewayGroup()
     {
         return $this->gatewayGroup;
     }
 
     /**
-     * @param mixed $gatewayGroup
-     *
      * @return MasterToeb
      */
     public function setGatewayGroup($gatewayGroup)
@@ -277,17 +272,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getOrgaName()
     {
         return $this->orgaName;
     }
 
     /**
-     * @param mixed $orgaName
-     *
      * @return MasterToeb
      */
     public function setOrgaName($orgaName)
@@ -314,8 +304,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $orga
-     *
      * @return MasterToeb
      */
     public function setOrga($orga)
@@ -326,8 +314,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $orga
-     *
      * @return MasterToeb
      */
     public function setOrganisation($orga)
@@ -348,17 +334,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDepartment()
     {
         return $this->department;
     }
 
     /**
-     * @param mixed $department
-     *
      * @return MasterToeb
      */
     public function setDepartment($department)
@@ -381,17 +362,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDepartmentName()
     {
         return $this->departmentName;
     }
 
     /**
-     * @param mixed $departmentName
-     *
      * @return MasterToeb
      */
     public function setDepartmentName($departmentName)
@@ -401,17 +377,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getSign()
     {
         return $this->sign;
     }
 
     /**
-     * @param mixed $sign
-     *
      * @return MasterToeb
      */
     public function setSign($sign)
@@ -430,8 +401,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $email
-     *
      * @return MasterToeb
      */
     public function setEmail($email)
@@ -441,17 +410,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCcEmail()
     {
         return $this->ccEmail;
     }
 
     /**
-     * @param mixed $ccEmail
-     *
      * @return MasterToeb
      */
     public function setCcEmail($ccEmail)
@@ -461,9 +425,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getContactPerson()
     {
         return $this->contactPerson;
@@ -481,17 +442,12 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMemo()
     {
         return $this->memo;
     }
 
     /**
-     * @param mixed $memo
-     *
      * @return MasterToeb
      */
     public function setMemo($memo)
@@ -521,9 +477,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDistrictEimsbuettel()
     {
         return (int) $this->districtEimsbuettel;

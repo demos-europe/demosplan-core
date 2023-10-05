@@ -1170,9 +1170,9 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         /** @var OrgaStatusInCustomer $item */
         foreach ($this->getStatusInCustomers() as $item) {
             if (
-                $customer === $item->getCustomer() &&
-                $orgaType === $item->getOrgaType() &&
-                $this === $item->getOrga()
+                $customer === $item->getCustomer()
+                && $orgaType === $item->getOrgaType()
+                && $this === $item->getOrga()
             ) {
                 $exists = true;
             }

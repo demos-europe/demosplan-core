@@ -68,8 +68,8 @@ class DemosPlanRequestListener
         }
 
         // API-Requests are always master requests
-        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
-            $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
+        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType())
+            && $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
             if (null !== $response) {
                 $event->setResponse($response);

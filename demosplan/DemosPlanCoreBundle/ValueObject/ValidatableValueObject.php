@@ -28,13 +28,12 @@ class ValidatableValueObject extends ValueObject
      * @param ValidatorInterface $validator will be used automatically when accessing get methods of this instance
      */
     public function __construct(#[Assert\NotNull]
-    private readonly ValidatorInterface $validator)
+        private readonly ValidatorInterface $validator)
     {
     }
 
     /**
      * @param string $name
-     * @param mixed  $value
      */
     public function setProperty($name, $value): ValueObject
     {

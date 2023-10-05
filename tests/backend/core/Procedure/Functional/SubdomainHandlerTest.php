@@ -94,7 +94,6 @@ class SubdomainHandlerTest extends FunctionalTestCase
         $request = $this->getTestRequest($url);
         $this->assertSubdomainEquals(self::TESTDOMAIN, $request);
         $this->assertUrlSubdomainEquals(self::TESTDOMAIN, $request);
-
     }
 
     private function assertSubdomainEquals(string $expected, Request $request): void

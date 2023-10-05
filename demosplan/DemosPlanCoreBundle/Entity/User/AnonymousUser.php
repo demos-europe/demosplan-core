@@ -15,9 +15,6 @@ use RuntimeException;
 
 class AnonymousUser extends FunctionalUser
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __construct()
     {
         $this->id = self::ANONYMOUS_USER_ID;
@@ -34,9 +31,6 @@ class AnonymousUser extends FunctionalUser
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDraftStatementSubmissionReminderEnabled(): bool
     {
         return false;

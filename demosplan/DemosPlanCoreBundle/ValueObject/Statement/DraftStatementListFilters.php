@@ -98,8 +98,6 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
     /**
      * Ignore that ValueObject is not locked.
      * We need to modify on filter change.
-     *
-     * @return mixed
      */
     protected function getProperty(?string $name)
     {
@@ -158,9 +156,6 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
         throw new NotYetImplementedException('Not implemented yet.');
     }
 
-    /**
-     * @return mixed
-     */
     public function escapeValue($value)
     {
         throw new NotYetImplementedException('Not implemented yet.');

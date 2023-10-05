@@ -21,8 +21,8 @@ class EmailAddressVO extends ValueObject
      * @param string $fullAddress
      */
     public function __construct(#[Assert\NotBlank(message: 'email.address.invalid')]
-    #[Assert\Email(message: 'email.address.invalid')]
-    protected $fullAddress = null)
+        #[Assert\Email(message: 'email.address.invalid')]
+        protected $fullAddress = null)
     {
     }
 

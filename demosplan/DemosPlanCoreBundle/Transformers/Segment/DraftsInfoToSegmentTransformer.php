@@ -84,7 +84,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
         // The segments are received potentially unsorted. Hence sort them by their position
         // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn(array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {

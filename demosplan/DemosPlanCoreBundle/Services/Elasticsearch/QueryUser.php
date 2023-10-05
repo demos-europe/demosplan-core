@@ -27,10 +27,10 @@ class QueryUser extends AbstractQuery
         }
 
         if (
-            !array_key_exists('filter', $queryDefinition['statementFragment']) ||
-            !array_key_exists('search', $queryDefinition['statementFragment']) ||
-            !array_key_exists('sort', $queryDefinition['statementFragment']) ||
-            !array_key_exists('sort_default', $queryDefinition['statementFragment'])
+            !array_key_exists('filter', $queryDefinition['statementFragment'])
+            || !array_key_exists('search', $queryDefinition['statementFragment'])
+            || !array_key_exists('sort', $queryDefinition['statementFragment'])
+            || !array_key_exists('sort_default', $queryDefinition['statementFragment'])
         ) {
             throw new InvalidElasticsearchQueryConfigurationException();
         }

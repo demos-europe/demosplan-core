@@ -269,8 +269,8 @@ class FaqController extends BaseController
         if (!empty($requestPost['action']) && 'faqnew' === $requestPost['action']) {
             $inData = $this->prepareIncomingData($request, 'faq_new');
             // Wenn Gast ausgewählt wurde, sollen es auch gleichzeitig Bürger sehen
-            if (isset($inData['r_group_code']) &&
-                in_array(Role::GGUEST, $inData['r_group_code'], true)
+            if (isset($inData['r_group_code'])
+                && in_array(Role::GGUEST, $inData['r_group_code'], true)
             ) {
                 $inData['r_group_code'][] = Role::GCITIZ;
             }

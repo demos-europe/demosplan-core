@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
-use Symfony\Component\HttpFoundation\Request;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use Symfony\Component\HttpFoundation\Request;
 use Tightenco\Collect\Support\Collection;
 
 class PublicDetailStatementListLoadedEvent extends DPlanEvent

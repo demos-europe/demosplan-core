@@ -218,8 +218,8 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $logger->method('info')->with('Could not determine content changes for statement because of object structure.');
 
         // ->will(function($message) {
-//        $testCase::assertEquals('Could not determine content changes for statement because of object structure.', $message);
-//        });
+        //        $testCase::assertEquals('Could not determine content changes for statement because of object structure.', $message);
+        //        });
 
         $updatedStatementObject = null;
 

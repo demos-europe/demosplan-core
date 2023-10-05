@@ -29,7 +29,7 @@ class AddonDoctrineMigrationsPass implements CompilerPassInterface
 
         foreach ($addons as $config) {
             // check if the addon has a DoctrineMigrations directory
-            $migrationsPath = AddonPath::getRootPath($config['install_path'] . '/src/DoctrineMigrations');
+            $migrationsPath = AddonPath::getRootPath($config['install_path'].'/src/DoctrineMigrations');
             if (!is_dir($migrationsPath)) {
                 continue;
             }

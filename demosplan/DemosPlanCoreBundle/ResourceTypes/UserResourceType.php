@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<User>
@@ -188,15 +187,15 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
             $this->createAttribute($this->deleted)->filterable()->sortable(),
             $this->createAttribute($this->roleInCustomers)->filterable()->sortable(),
             $this->createAttribute($this->profileCompleted)
-                ->readable(true, static fn(User $user): bool => $user->isProfileCompleted()),
+                ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static fn(User $user): bool => $user->isAccessConfirmed()),
+                ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed()),
             $this->createAttribute($this->invited)
-                ->readable(true, static fn(User $user): bool => $user->isInvited()),
+                ->readable(true, static fn (User $user): bool => $user->isInvited()),
             $this->createAttribute($this->newsletter)
-                ->readable(true, static fn(User $user): bool => $user->getNewsletter()),
+                ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
             $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn(User $user): bool => $user->getNoPiwik()),
+                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
             $this->createToManyRelationship($this->roles, true)
                 ->readable(true, static function (User $user): array {
                     $roles = [];
@@ -212,9 +211,9 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
                     return $roles;
                 }),
             $this->createToOneRelationship($this->department, true)
-                ->readable(true, static fn(User $user) => $user->getDepartment()),
+                ->readable(true, static fn (User $user) => $user->getDepartment()),
             $this->createToOneRelationship($this->orga, true)
-                ->readable(true, static fn(User $user) => $user->getOrga()),
+                ->readable(true, static fn (User $user) => $user->getOrga()),
         ];
     }
 }

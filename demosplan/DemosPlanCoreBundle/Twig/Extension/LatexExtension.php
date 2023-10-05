@@ -13,13 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
-
-use function preg_quote;
-use function preg_replace;
-
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
+
+use function preg_quote;
+use function preg_replace;
 
 /**
  * Wysiwyg-Editor.
@@ -309,8 +308,6 @@ class LatexExtension extends ExtensionBase
      * Process Table.
      *
      * @param string $text
-     *
-     * @return mixed
      */
     public function processTable($text)
     {
@@ -638,8 +635,8 @@ class LatexExtension extends ExtensionBase
 
             // resize Image
             if (0 != $factor) {
-                $widthCm = $widthCm / $factor;
-                $heightCm = $heightCm / $factor;
+                $widthCm /= $factor;
+                $heightCm /= $factor;
             }
             $this->logger->info('Image resize to width: '.$widthCm.' and height: '.$heightCm);
         }

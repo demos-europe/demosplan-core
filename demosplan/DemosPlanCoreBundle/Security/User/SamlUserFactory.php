@@ -117,7 +117,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $users = $orga->getUsers();
 
         // return the orga default user
-        $user = $users->filter(fn(User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
+        $user = $users->filter(fn (User $user) => User::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
         if (1 === $user->count()) {
             return $user->first();

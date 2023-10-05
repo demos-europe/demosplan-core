@@ -57,6 +57,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             // zeige das jüngste an
             $sumActiveReleases = count($templateVars['releaseForVoting']);
             $latestActiveReleaseKey = $sumActiveReleases - 1;
+
             // nehme das älteste Release (1. aus der Liste) und zeige es an
             return $this->redirectToRoute(
                 'DemosPlan_forum_development_release_detail',

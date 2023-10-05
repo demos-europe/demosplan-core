@@ -105,8 +105,8 @@ class DemosPlanUserController extends BaseController
             }
         }
         // Kommune oder Planungsbüro
-        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true) ||
-            in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
+        if (in_array(OrgaType::MUNICIPALITY, $orga->getTypes($subdomain), true)
+            || in_array(OrgaType::PLANNING_AGENCY, $orga->getTypes($subdomain), true)) {
             $this->getLogger()->info('Welcomepage is ', ['types' => $orga->getTypes($subdomain)]);
         }
 

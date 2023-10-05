@@ -138,8 +138,6 @@ class PermissionListCommand extends CoreCommand
 
     /**
      * @param string[] $roleCombination
-     *
-     * @return string
      */
     protected function loadEnabledPermissionsForProject(
         string $projectName,

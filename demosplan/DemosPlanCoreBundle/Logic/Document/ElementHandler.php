@@ -303,8 +303,6 @@ class ElementHandler extends CoreHandler
      * Kategorie löschen.
      *
      * @param array|string $idents
-     *
-     * @return mixed
      */
     public function administrationElementDeleteHandler($idents)
     {

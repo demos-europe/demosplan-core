@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers;
 
-use function array_key_exists;
-
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+
+use function array_key_exists;
 
 class EntityContentChangeComparisonTransformer extends BaseTransformer
 {

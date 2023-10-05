@@ -56,12 +56,12 @@ class ProcedureFormData extends ValueObject
         } else {
             $this->agencyMainEmailAddress = new EmailAddressVO($procedure->getAgencyMainEmailAddress());
             $this->agencyExtraEmailAddresses = $procedure->getAgencyExtraEmailAddresses()->map(
-                static fn(EmailAddress $emailAddress): EmailAddressVO => new EmailAddressVO($emailAddress->getFullAddress())
+                static fn (EmailAddress $emailAddress): EmailAddressVO => new EmailAddressVO($emailAddress->getFullAddress())
             );
             $this->allowedSegmentAccessProcedureIds = $procedure
                 ->getSettings()
                 ->getAllowedSegmentAccessProcedures()
-                ->map(static fn(Procedure $allowedProcedure): string => $allowedProcedure->getId())
+                ->map(static fn (Procedure $allowedProcedure): string => $allowedProcedure->getId())
                 ->getValues();
         }
     }
@@ -113,7 +113,7 @@ class ProcedureFormData extends ValueObject
     public function getAgencyExtraEmailAddressesFullStrings(): array
     {
         return $this->agencyExtraEmailAddresses->map(
-            fn(EmailAddressVO $address): string => $address->getFullAddress()
+            fn (EmailAddressVO $address): string => $address->getFullAddress()
         )->toArray();
     }
 

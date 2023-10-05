@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use function collect;
-
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
+
+use function collect;
 
 class FileContainerRepository extends FluentRepository implements ObjectInterface
 {
@@ -50,8 +50,6 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
     }
 
     /**
-     * @param mixed $id
-     *
      * @return array<int, FileContainer>
      *
      * @throws Exception
@@ -89,7 +87,7 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
             $files = $this->findBy(['entityId' => $id, 'entityClass' => $entityClass, 'entityField' => $field]);
             if (null !== $files) {
                 return collect($files)
-                    ->map(static fn($item, $key) => $item->getFileString())->toArray();
+                    ->map(static fn ($item, $key) => $item->getFileString())->toArray();
             }
 
             return [];

@@ -27,7 +27,6 @@ class ClaimedStatementIdsValidator extends ConstraintValidator
     /**
      * @param string|StatementIdsInProcedureVO|Statement|string[]|StatementIdsInProcedureVO[]|Statement[] $value
      * @param ClaimedStatementIdsConstraint                                                               $constraint
-     *                                                                                                                {@inheritdoc}
      */
     public function validate($value, Constraint $constraint): void
     {
