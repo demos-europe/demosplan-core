@@ -32,11 +32,8 @@ class Version20231005081257 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _procedure ADD p_phase_count INT NOT NULL');
-        $this->addSql('ALTER TABLE _statement ADD st_phase_count INT NOT NULL');
-
-        $this->addSql('UPDATE _procedure SET p_phase_count = 1');
-        $this->addSql('UPDATE _statement SET st_phase_count = 1');
+        $this->addSql('ALTER TABLE _statement ADD st_phase_count INT DEFAULT 1 NOT NULL ');
+        $this->addSql('ALTER TABLE _procedure ADD p_phase_count INT DEFAULT 1 NOT NULL ');
     }
 
     /**
@@ -56,7 +53,7 @@ class Version20231005081257 extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }
