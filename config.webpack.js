@@ -87,7 +87,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui': resolveDir('./client/css/index.css'),
+      'demosplan-ui': resolveDir('./client/css/tailwind.css'), // In the End we will get the styling from demosplan-ui
       ...bundleEntryPoints(config.clientBundleGlob)
     }
   },
