@@ -154,6 +154,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $phase = '';
 
     /**
+     *
+     * @var int
+     *
+     * @ORM\Column(name="p_phase_count", type="integer", nullable=false)
+     */
+    protected $phaseCount = 1;
+
+    /**
      * Readable Phase name.
      *
      * @var string
@@ -2303,5 +2311,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         if (!$this->segmentPlaces->contains($place)) {
             $this->segmentPlaces->add($place);
         }
+    }
+
+    public function getPhaseCount(): int
+    {
+        return $this->phaseCount;
+    }
+
+    public function setPhaseCount(int $phaseCount): void
+    {
+        $this->phaseCount = $phaseCount;
     }
 }

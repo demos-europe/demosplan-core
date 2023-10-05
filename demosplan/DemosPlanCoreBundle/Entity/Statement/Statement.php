@@ -295,6 +295,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $phase;
 
     /**
+     *
+     * @var int
+     *
+     * @ORM\Column(name="st_phase_count", type="integer", nullable=false)
+     */
+    protected $phaseCount = 1;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_st_status", type="string", length=50, nullable=false, options={"fixed":true})
@@ -4152,5 +4160,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->anonymous = $anonymous;
 
         return $this;
+    }
+
+    public function getPhaseCount(): int
+    {
+        return $this->phaseCount;
+    }
+
+    public function setPhaseCount(int $phaseCount): void
+    {
+        $this->phaseCount = $phaseCount;
     }
 }
