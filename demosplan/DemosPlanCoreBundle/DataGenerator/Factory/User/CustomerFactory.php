@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -26,7 +34,6 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Customer[]|Proxy[]                 findBy(array $attributes)
  * @method static Customer[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Customer[]|Proxy[]                 randomSet(int $number, array $attributes = [])
- *
  */
 final class CustomerFactory extends ModelFactory
 {
@@ -38,10 +45,11 @@ final class CustomerFactory extends ModelFactory
     protected function getDefaults(): array
     {
         $name = self::faker()->country();
+
         return [
             'accessibilityExplanation' => self::faker()->text(2000),
-            'name' => $name,
-            'subdomain' => $name,
+            'name'                     => $name,
+            'subdomain'                => $name,
         ];
     }
 
