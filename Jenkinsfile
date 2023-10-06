@@ -74,7 +74,7 @@ pipeline {
                 stage('PHPUnit: Core') {
                     steps{
                         script {
-                            commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
+                            commandExec = _dockerExecAsUser("APP_ENV=test APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core -c /srv/www/phpunit.xml", containerName)
                             sh "$commandExec"
                         }
                     }
