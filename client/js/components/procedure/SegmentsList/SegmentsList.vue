@@ -154,7 +154,7 @@
         <template v-slot:text="rowData">
           <div
             v-cleanhtml="rowData.attributes.text"
-            class="overflow-word-break" />
+            class="overflow-word-break c-styled-html" />
         </template>
         <template v-slot:recommendation="rowData">
           <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -201,7 +201,7 @@
               v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
               target="_blank"
-              :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
+              :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
               rel="noopener noreferrer">
               {{ Translator.trans('original.pdf') }}
             </a>
@@ -246,7 +246,9 @@ import {
   DpFlyout,
   DpLoading,
   DpPager,
+  dpRpc,
   DpStickyElement,
+  hasOwnProp,
   tableSelectAllItems,
   VPopover
 } from '@demos-europe/demosplan-ui'
@@ -521,10 +523,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter: filter,
-            search: payload.search,
-            fields: {
-              StatementSegment: ['id'].join()
-            }
+            search: payload.search
           })
         })
         .finally(() => {
@@ -532,11 +531,14 @@ export default {
         })
     },
 
-    async fetchSegmentIds (payload) {
-      const response = await dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), payload, { serialize: true })
-      const allSegments = response.data.data.map(segment => segment.id)
-      this.storeAllSegments(allSegments)
-      this.allItemsCount = allSegments.length
+    fetchSegmentIds (payload) {
+      return dpRpc('segment.load.id', payload)
+        .then(response => checkResponse(response))
+        .then(response => {
+          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+          this.storeAllSegments(allSegments)
+          this.allItemsCount = allSegments.length
+        })
     },
 
     getTagsBySegment (id) {

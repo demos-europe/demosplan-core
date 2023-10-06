@@ -15,7 +15,7 @@
     <transition-group
       name="transition-slide-up"
       tag="span">
-      <dp-notify-message
+      <dp-notification
         v-for="message in messages"
         :key="message.uid"
         :message="message"
@@ -26,14 +26,14 @@
 </template>
 
 <script>
-import { DpNotifyMessage, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpNotification, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'NotifyContainer',
 
   components: {
-    DpNotifyMessage
+    DpNotification
   },
 
   mixins: [prefixClassMixin],

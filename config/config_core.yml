@@ -19,5 +19,5 @@ imports:
     - { resource: "services_repositories.yml" }
     - { resource: "services.yml" }
     # allow to override services in config_dev_container.yml if needed
-    - { resource: "config_dev_container.yml" }
+    - { resource: "config_dev_container.yml", ignore_errors: true }
     - { resource: "doctrine_extensions.yml" }

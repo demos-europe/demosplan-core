@@ -23,10 +23,11 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
-use geoPHP;
-use LineString;
-use Point;
-use Polygon;
+use geoPHP\Geometry\Collection as GeoCollection;
+use geoPHP\Geometry\LineString;
+use geoPHP\Geometry\Point;
+use geoPHP\Geometry\Polygon;
+use geoPHP\geoPHP;
 use SimpleXMLElement;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
@@ -67,8 +68,6 @@ class StatementGeoService extends CoreService
      * Add robob Data to statement.
      *
      * @param Statement $statement
-     *
-     * @return mixed
      */
     public function getStatementGeoData($statement)
     {
@@ -96,7 +95,7 @@ class StatementGeoService extends CoreService
             // Einfache Geometrien können gleich verarbeitet werden, komplexere einzeln
             if ($geo instanceof Point || $geo instanceof LineString || $geo instanceof Polygon) {
                 $geometries = $this->setSimpleGeoData($geo, $geometries);
-            } elseif ($geo instanceof \Collection) {
+            } elseif ($geo instanceof GeoCollection) {
                 $geoComponents = $geo->getComponents();
                 foreach ($geoComponents as $geoComponent) {
                     $geometries = $this->setSimpleGeoData($geoComponent, $geometries);
@@ -199,7 +198,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('priorityAreas', $data)) {
                 foreach ($data['priorityAreas'] as $priorityAreaString) {
                     $area = $allAreas->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var PriorityArea $entry */
                             $entry->getKey() === $priorityAreaString
                     );
@@ -215,7 +214,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('counties', $data)) {
                 foreach ($data['counties'] as $countyString) {
                     $county = $allCounties->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var County $entry */
                             $entry->getName() == $countyString
                     );
@@ -229,7 +228,7 @@ class StatementGeoService extends CoreService
             if (array_key_exists('municipalities', $data)) {
                 foreach ($data['municipalities'] as $municipalityString) {
                     $municipality = $allMunicipalities->filter(
-                        fn($entry) =>
+                        fn ($entry) =>
                             /* @var Municipality $entry */
                             $entry->getName() == $municipalityString
                     );
@@ -328,8 +327,6 @@ class StatementGeoService extends CoreService
      *
      * @param string       $path
      * @param array|string $data
-     *
-     * @return mixed
      *
      * @throws Exception
      */

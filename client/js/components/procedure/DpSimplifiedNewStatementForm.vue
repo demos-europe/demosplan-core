@@ -311,7 +311,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
           :basic-auth="dplan.settings.basicAuth"
@@ -331,7 +331,7 @@
         name="r_upload"
         allowed-file-types="all"
         :basic-auth="dplan.settings.basicAuth"
-        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input

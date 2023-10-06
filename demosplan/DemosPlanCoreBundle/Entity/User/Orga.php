@@ -149,7 +149,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_o_gw_id", type="string", length=256, nullable=true)
+     * @ORM\Column(name="_o_gw_id", type="string", length=250, nullable=true)
      */
     protected $gwId;
     /**
