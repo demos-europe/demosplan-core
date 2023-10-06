@@ -12,8 +12,32 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 
-class SupportContactRepository extends ServiceEntityRepository
+class SupportContactRepository extends FluentRepository
 {
+
+
+    public function get(string $supportContactId): SupportContact
+    {
+        return $this->find($supportContactId);
+    }
+
+    public function add(SupportContact $supportContact): void
+    {
+        $this->update($supportContact);
+    }
+
+    public function update(SupportContact $supportContact): void
+    {
+        $supportContact->setText($this->sanitize($supportContact->getText()));
+        $this->getEntityManager()->persist($supportContact);
+        $this->getEntityManager()->flush();
+    }
+
+    public function delete(SupportContact $supportContact): void
+    {
+        $this->getEntityManager()->remove($supportContact);
+        $this->getEntityManager()->flush();
+    }
 }
