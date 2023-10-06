@@ -21,9 +21,8 @@ class EventFinderTest extends FunctionalTestCase
 
     public function testEventFinder(): void
     {
-
         // this test can only be run when an addon folder exists
-        if(!is_dir('/srv/www/addons/vendor/demos-europe')) {
+        if (!is_dir('/srv/www/addons/vendor/demos-europe')) {
             static::markTestSkipped('No addon folder found');
         }
 
