@@ -403,6 +403,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
         }
+
+//        $procedure['phaseCount'] =
+
         if (array_key_exists('r_startdate', $data) && '----' != $data['r_startdate']) {
             $procedure['startDate'] = $data['r_startdate'];
         }
@@ -462,6 +465,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['publicParticipation'] = false;
             }
         }
+
+        $procedure['publicParticipationPhaseCount'] = array_key_exists('r_publicParticipationPhaseCount', $data) ?
+            $data['r_publicParticipationPhaseCount'] : 1;
 
         if (array_key_exists('r_publicParticipationStartDate', $data) && '----' !== $data['r_publicParticipationStartDate']) {
             $procedure['publicParticipationStartDate'] = $data['r_publicParticipationStartDate'];
