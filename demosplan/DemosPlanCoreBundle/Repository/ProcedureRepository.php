@@ -633,6 +633,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         if (array_key_exists('phase', $data)) {
             $procedure->setPhase($data['phase']);
         }
+        if (array_key_exists('phaseCount', $data)) {
+            $procedure->setPhaseCount($data);
+        }
         if (array_key_exists('shortUrl', $data)) {
             $procedure->setShortUrl($data['shortUrl']);
         }
@@ -664,6 +667,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('publicParticipationPhase', $data)) {
             $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
+        }
+        if (array_key_exists('publicParticipationPhaseCount', $data)) {
+            $procedure->setPublicParticipationPhaseCount($data['publicParticipationPhaseCount']);
         }
         if (array_key_exists('publicParticipationPublicationEnabled', $data)) {
             $procedure->setPublicParticipationPublicationEnabled($data['publicParticipationPublicationEnabled']);

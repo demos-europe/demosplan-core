@@ -1960,6 +1960,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $procedure->setStartDate($procedureSettings->getDesignatedSwitchDate());
             $procedure->setPhase($procedureSettings->getDesignatedPhase());
+            // T33127 A PhaseCount needs to be set
+            // - but it is not supported for automatic-phase-changes to choose a custom value yet.
+            $procedure->setPhaseCount(1);
             $procedure->setEndDate($procedureSettings->getDesignatedEndDate());
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
@@ -2002,6 +2005,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $procedure->setPublicParticipationStartDate($procedureSettings->getDesignatedPublicSwitchDate());
             $procedure->setPublicParticipationPhase($procedureSettings->getDesignatedPublicPhase());
+            // T33127 A PhaseCount needs to be set
+            // - but it is not supported for automatic-phase-changes to choose a custom value yet.
+            $procedure->setPublicParticipationPhaseCount(1);
             $procedure->setPublicParticipationEndDate($procedureSettings->getDesignatedPublicEndDate());
 
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);

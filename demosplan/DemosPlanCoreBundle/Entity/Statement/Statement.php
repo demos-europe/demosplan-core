@@ -4166,7 +4166,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->phaseCount;
     }
 
-    public function setPhaseCount(int $phaseCount): void
+    public function setPhaseCount(int $phaseCount = 1): void
     {
         $this->phaseCount = $phaseCount;
     }

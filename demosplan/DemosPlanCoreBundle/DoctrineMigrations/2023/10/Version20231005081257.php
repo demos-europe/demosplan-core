@@ -34,6 +34,7 @@ class Version20231005081257 extends AbstractMigration
 
         $this->addSql('ALTER TABLE _statement ADD st_phase_count INT DEFAULT 1 NOT NULL ');
         $this->addSql('ALTER TABLE _procedure ADD p_phase_count INT DEFAULT 1 NOT NULL ');
+        $this->addSql('ALTER TABLE _procedure ADD _p_public_participation_phase_count INT DEFAULT 1 NOT NULL ');
     }
 
     /**
@@ -45,6 +46,7 @@ class Version20231005081257 extends AbstractMigration
 
         $this->addSql('ALTER TABLE _statement DROP st_phase_count');
         $this->addSql('ALTER TABLE _procedure DROP p_phase_count');
+        $this->addSql('ALTER TABLE _procedure DROP _p_public_participation_phase_count');
     }
 
     /**

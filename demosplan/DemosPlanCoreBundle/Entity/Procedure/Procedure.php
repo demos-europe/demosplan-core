@@ -270,6 +270,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     protected $publicParticipationPhase = '';
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="_p_public_participation_phase_count", type="integer", nullable=false)
+     */
+    protected $publicParticipationPhaseCount = 1;
+
+    /**
      * Readable publicParticipationPhase name.
      *
      * @var string
@@ -831,13 +838,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * Set pPhase.
-     *
      * @param string $phase
-     *
-     * @return Procedure
      */
-    public function setPhase($phase)
+    public function setPhase($phase): self
     {
         $this->phase = $phase;
 
@@ -2315,8 +2318,18 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phaseCount;
     }
 
-    public function setPhaseCount(int $phaseCount): void
+    public function setPhaseCount(int $phaseCount = 1): void
     {
         $this->phaseCount = $phaseCount;
+    }
+
+    public function getPublicParticipationPhaseCount(): int
+    {
+        return $this->publicParticipationPhaseCount;
+    }
+
+    public function setPublicParticipationPhaseCount(int $publicParticipationPhaseCount = 1): void
+    {
+        $this->publicParticipationPhaseCount = $publicParticipationPhaseCount;
     }
 }
