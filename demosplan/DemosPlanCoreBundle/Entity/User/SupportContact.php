@@ -54,7 +54,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
      *     cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="email_id",
+     * @ORM\JoinColumn(name="email_address",
      *     referencedColumnName="id",
      *     nullable = true)
      */
@@ -67,7 +67,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $text;
 
     /**
-     * @ORM\Column(name="visible", type="boolean")
+     * @ORM\Column(name="visible", type="boolean", options={"default":false})
      */
     private bool $visible = false;
 
@@ -85,7 +85,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         ?EmailAddress $emailAddress,
         ?string $text,
         ?Customer $customer,
-        bool $visible
+        bool $visible = false
     ) {
         $this->title = $title;
         $this->phoneNumber = $phoneNumber;
@@ -100,42 +100,42 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
 
-    public function getPhoneNumber(): string
+    public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(string $phoneNumber): void
+    public function setPhoneNumber(?string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getEMailAddress(): string
+    public function getEMailAddress(): ?EmailAddress
     {
         return $this->eMailAddress;
     }
 
-    public function setEMailAddress(string $eMailAddress): void
+    public function setEMailAddress(?EmailAddress $eMailAddress): void
     {
         $this->eMailAddress = $eMailAddress;
     }
 
-    public function getText(): string
+    public function getText(): ?string
     {
         return $this->text;
     }
 
-    public function setText(string $text): void
+    public function setText(?string $text): void
     {
         $this->text = $text;
     }
