@@ -43,6 +43,6 @@ class EventFinderTest extends FunctionalTestCase
 
     private function getCommandTester(): CommandTester
     {
-        return $this->getCommandTesterByName(self::bootKernel(), 'dplan:documentation:generate:demos-event-list');
+        return $this->getCommandTesterByName(self::bootKernel(), 'dplan:documentation:generate:event-list');
     }
 }
