@@ -39,13 +39,44 @@ class JsonApiEsService
     ) {
     }
 
-    public function getEsFilteredResult(
+    /**
+     * Accesses the Elasticsearch index to determine the result. Depending on the provided {@link SearchParams}
+     * will behave differently to provide the requested data.
+     *
+     * Regarding the sorting of entities (if requested): if no specific `$sortMethods` were provided
+     * the score based sorting determined in the Elasticsearch index will be used to sort entities.
+     * However, if at least one {@link SortMethodInterface} was provided, then the sorting will be
+     * executed in the relational database and the scored sorting is lost.
+     *
+     * This sorting behavior explicitly ignores both {@link AbstractQuery::getSortDefault} and
+     * {@link TransferableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
+     * `search` parameter was provided by the client (which resulted in this method being called)
+     * that the scored sorting is wanted as default.
+     *
+     * @param ReadableEsResourceTypeInterface&DplanResourceType $resourceType
+     * @param array<int, string>                                $prefilteredIdentifiers the IDs of the entities to load
+     *
+     * @return ApiListResult contains an array of objects corresponding to the given
+     *                       {@link ResourceTypeInterface} of the given name as the primary result
+     *                       and an arbitrary meta information array as a secondary result
+     *
+     * @throws InvalidArgumentException given fieldsToSearch without given searchPhrase is an invalid
+     *                                  argument-combination, because we ca not know the intention.
+     *                                  In order to avoid wrong results (and recognize as such),
+     *                                  the exception is necessary.
+     *
+     * @see http://dplan-documentation.demos-europe.eu/development/application-architecture/elasticsearch/generic-facet-search.html
+     */
+    public function getEsFilteredObjects(
         ReadableEsResourceTypeInterface $resourceType,
         array $prefilteredIdentifiers,
         SearchParams $searchParams,
-        bool $scoredSort,
+        array $rawFilter,
+        bool $requireEntities,
+        array $sortMethods,
         ?APIPagination $pagination
-    ): array {
+    ): ApiListResult {
+        $scoredSort = [] === $sortMethods;
         $query = $resourceType->getQuery();
         $type = $resourceType->getSearchType();
 
@@ -89,55 +120,7 @@ class JsonApiEsService
         }
 
         // get raw elasticsearch result
-        return $this->getElasticsearchResult($query, $limit, $page, $type);
-    }
-
-    /**
-     * Accesses the Elasticsearch index to determine the result. Depending on the provided {@link SearchParams}
-     * will behave differently to provide the requested data.
-     *
-     * Regarding the sorting of entities (if requested): if no specific `$sortMethods` were provided
-     * the score based sorting determined in the Elasticsearch index will be used to sort entities.
-     * However, if at least one {@link SortMethodInterface} was provided, then the sorting will be
-     * executed in the relational database and the scored sorting is lost.
-     *
-     * This sorting behavior explicitly ignores both {@link AbstractQuery::getSortDefault} and
-     * {@link TransferableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
-     * `search` parameter was provided by the client (which resulted in this method being called)
-     * that the scored sorting is wanted as default.
-     *
-     * @param ReadableEsResourceTypeInterface&DplanResourceType $resourceType
-     * @param array<int, string>                                $prefilteredIdentifiers the IDs of the entities to load
-     *
-     * @return ApiListResult contains an array of objects corresponding to the given
-     *                       {@link ResourceTypeInterface} of the given name as the primary result
-     *                       and an arbitrary meta information array as a secondary result
-     *
-     * @throws InvalidArgumentException given fieldsToSearch without given searchPhrase is an invalid
-     *                                  argument-combination, because we ca not know the intention.
-     *                                  In order to avoid wrong results (and recognize as such),
-     *                                  the exception is necessary.
-     *
-     * @see http://dplan-documentation.demos-europe.eu/development/application-architecture/elasticsearch/generic-facet-search.html
-     */
-    public function getEsFilteredObjects(
-        ReadableEsResourceTypeInterface $resourceType,
-        array $prefilteredIdentifiers,
-        SearchParams $searchParams,
-        array $rawFilter,
-        bool $requireEntities,
-        array $sortMethods,
-        ?APIPagination $pagination
-    ): ApiListResult {
-        $scoredSort = [] === $sortMethods;
-        $elasticsearchResult = $this->getEsFilteredResult(
-            $resourceType,
-            $prefilteredIdentifiers,
-            $searchParams,
-            $scoredSort,
-            $pagination
-        );
-
+        $elasticsearchResult = $this->getElasticsearchResult($query, $limit, $page, $type);
         $esResultArrays = $this->toLegacyResultES($elasticsearchResult);
 
         // calculate facets
