@@ -11,7 +11,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
-class SupportContactRepository extends ServiceEntityRepository
+class SupportContactRepository extends FluentRepository
 {
 
 }
