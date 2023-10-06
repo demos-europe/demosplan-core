@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -7,14 +9,15 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
 /**
  * @ORM\Table(name="_support_contact")
@@ -26,8 +29,6 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     use TimestampableEntity;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -49,7 +50,6 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $phoneNumber;
 
     /**
-     *
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
      *     cascade={"persist"})
@@ -72,7 +72,6 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private bool $visible = false;
 
     /**
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="contacts")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)

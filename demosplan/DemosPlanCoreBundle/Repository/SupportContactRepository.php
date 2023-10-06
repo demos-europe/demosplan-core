@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -7,11 +9,11 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 class SupportContactRepository extends ServiceEntityRepository
 {
-
 }
