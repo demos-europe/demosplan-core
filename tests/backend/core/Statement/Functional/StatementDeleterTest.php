@@ -100,7 +100,6 @@ class StatementDeleterTest extends FunctionalTestCase
         static::assertInstanceOf(Statement::class, $createdCopy);
     }
 
-
     /**
      * testDeleteStatementWithSimilarStatementSubmitters
      * Cover deletion of a single statement with related procedure person, by just asserting that the statement

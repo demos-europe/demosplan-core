@@ -53,7 +53,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
         static::assertTrue($testStatement->getSimilarStatementSubmitters()->contains($testProcedurePerson));
     }
 
-
     public function testAddSimilarForeignStatement(): void
     {
         $testProcedurePerson = $this->getProcedurePersonReference('testProcedurePerson1');
@@ -202,6 +201,6 @@ class SimiliarStatementSubmitterTest extends FunctionalTestCase
 
         static::assertCount(0, $testStatement->getSimilarStatementSubmitters());
         static::assertEmpty($testProcedurePersons);
-//        static::assertNull($testProcedurePerson);
+        //        static::assertNull($testProcedurePerson);
     }
 }

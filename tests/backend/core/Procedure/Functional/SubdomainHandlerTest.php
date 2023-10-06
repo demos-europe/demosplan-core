@@ -100,7 +100,6 @@ class SubdomainHandlerTest extends FunctionalTestCase
         // TypeError : Cannot assign null to property Tests\Core\Procedure\Functional\SubdomainHandlerTest::$subdomainHandler of type demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface
         // /srv/www/tests/backend/base/FunctionalTestCase.php:112
         self::markSkippedForCIIntervention();
-
     }
 
     private function assertSubdomainEquals(string $expected, Request $request): void
