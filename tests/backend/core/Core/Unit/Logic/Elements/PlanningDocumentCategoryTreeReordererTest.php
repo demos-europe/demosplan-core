@@ -49,7 +49,6 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
         ?int $newOrder,
         bool $necessary
     ): void {
-
         self::markSkippedForCIIntervention();
 
         $this->loginTestUser();
@@ -118,7 +117,6 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
 
     public function testUpdateEntitiesWithNullIndex(): void
     {
-
         self::markSkippedForCIIntervention();
 
         $this->loginTestUser();
