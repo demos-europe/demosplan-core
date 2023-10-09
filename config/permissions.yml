@@ -731,7 +731,7 @@ feature_customer_support_contact_administration:
     description: |-
         Enables the option to create/edit/delete supportContact entities.
         A customer-admin can post support contact informattions visible to everyone who is in that customer context.
-        under /informationen
+        visible under /informationen
     label: 'Enables the option to create/edit/delete supportContact entities.'
     expose: true
     loginRequired: true
