@@ -23,6 +23,7 @@ import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
+import DpFaqSupport from "./components/faq/DpFaqSupport";
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
@@ -63,6 +64,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         ...components,
         BackToTopButton,
         DpAccordion,
+        DpFaqSupport,
         DpFlyout,
         HamburgerMenuButton,
         NotifyContainer
