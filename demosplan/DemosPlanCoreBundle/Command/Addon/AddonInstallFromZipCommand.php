@@ -291,7 +291,8 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
-        if (!array_key_exists($addonName, $composerContent['require'])) {
+        if (!array_key_exists('require', $composerContent) ||
+            !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
