@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -18,7 +19,6 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class SupportContactConstraintValidator extends ConstraintValidator
 {
-
     public function validate($value, Constraint $constraint): void
     {
         $this->validateTyped($value, $constraint);
