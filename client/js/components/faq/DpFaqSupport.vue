@@ -25,12 +25,12 @@ All rights reserved
           v-for="contact in contactList"
           class="c-support__groupcard space-inset-m layout__item">
           <div class="c-support__singlecard__content">
-            <p>{{ contact.title }}</p>
-            <p>
+            <h2>{{ contact.title }}</h2>
+            <p class="u-mv-0_75">
               <svg
                 class="u-mr-0_125 c-support__singlecard__content"
-                height="18px"
-                width="20px"
+                height="16px"
+                width="16px"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 28.314 28.323"
                 style="enable-background:new 0 0 28.314 28.323"
@@ -39,9 +39,12 @@ All rights reserved
             </svg>
               {{ contact.phoneNumber }}
             </p>
+            <p>
+              {{ contact.emailAddress }}
+            </p>
           </div>
           <div class="c-support__singlecard__content__fontsize">
-            <p>{{ contact.text }}</p>
+            <section class="u-mv-0_75">{{ contact.text }}</section>
           </div>
         </li>
       </ul>
@@ -53,8 +56,8 @@ All rights reserved
       <p class="c-support__singlecard__content">
         <svg
           class="u-mr-0_125"
-          height="18px"
-          width="20px"
+          height="16px"
+          width="16px"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 28.314 28.323"
           style="enable-background:new 0 0 28.314 28.323"
