@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraint;
 class SupportContactConstraint extends Constraint
 {
     public const NO_TITLE_MESSAGE = 'error.customer.support.contact.no.title';
-    public const MISSING_CONTACT_MESSAGE = 'error.customer.support.contact.missing.contact.info';
+    public const MISSING_CONTACT_MESSAGE = 'error.support.contact.missing.contact.info';
 
 
     public function validatedBy(): string
