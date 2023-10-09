@@ -61,6 +61,7 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
     {
         $connection = $this->getEntityManager()->getConnection();
 
+        // FIXME: update to include SupportContact in consideration
         return $connection->exec(
             'DELETE e'
             .' FROM email_address AS e'

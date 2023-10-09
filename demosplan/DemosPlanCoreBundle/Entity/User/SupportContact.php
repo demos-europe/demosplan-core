@@ -148,4 +148,9 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     {
         $this->visible = $visible;
     }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
 }

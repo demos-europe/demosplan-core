@@ -499,4 +499,20 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, SupportContact>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    /**
+     * @param Collection<int, SupportContact> $contacts
+     */
+    public function setContacts(Collection $contacts): void
+    {
+        $this->contacts = $contacts;
+    }
 }
