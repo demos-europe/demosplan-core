@@ -73,6 +73,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         );
 
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
+        $this->addOption('enable', '', InputOption::VALUE_NONE, 'Immediately enable addon during installation');
     }
 
     /**
@@ -84,6 +85,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $reinstall = $input->getOption('reinstall');
+        $enable = $input->getOption('enable');
 
         $this->setPaths($input->getArgument('path'));
         try {
