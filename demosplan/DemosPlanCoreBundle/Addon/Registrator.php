@@ -58,6 +58,23 @@ final class Registrator
     }
 
     /**
+     * Remove an addon from the list of installed addons.
+     */
+    public function remove(PackageInterface $addonComposerDefinition): string
+    {
+        if (PackageInformation::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
+            throw AddonException::invalidType($addonComposerDefinition->getName(), $addonComposerDefinition->getType());
+        }
+        $addonName = $addonComposerDefinition->getName();
+        if (isset($this->addons[$addonName])) {
+            unset($this->addons[$addonName]);
+        }
+        $this->refreshAddonsYaml();
+
+        return $addonComposerDefinition->getName();
+    }
+
+    /**
      * Writes the current collection of addons back into the addons.yaml.
      */
     private function refreshAddonsYaml(): void
