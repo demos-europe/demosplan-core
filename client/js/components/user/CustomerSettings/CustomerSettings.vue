@@ -175,6 +175,40 @@
           }" />
       </customer-settings-section>
 
+      <customer-settings-section title="Inhaltlicher Support">
+        <dp-editor
+          value="null"
+          :toolbar-items="{
+            fullscreenButton: true,
+            headings: [2,3,4],
+            imageButton: true,
+            linkButton: true
+          }" />
+        <div class="u-mb">
+          <p class="weight--bold u-mb-0">
+            Titel
+          </p>
+          <p class="u-mb-0">
+            Email/Telefonnummer
+            <br>
+            Montag - Freitag 8-18Uhr
+          </p>
+        </div>
+        <label
+          for="contact"
+          class="o-wizard__mark u-mb-0"
+          text="Diesen Kontakt sichtbar anzeigen">
+          <input
+            data-wizard-cb
+            data-cy="contact"
+            name="contact"
+            type="checkbox"
+            value="contact" />
+          Diesen Kontakt sichtbar anzeigen
+        </label>
+
+      </customer-settings-section>
+
       <!-- Button row -->
       <div class="text-right space-inline-s">
         <button
