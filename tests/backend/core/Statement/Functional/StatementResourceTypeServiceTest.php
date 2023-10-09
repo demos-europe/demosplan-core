@@ -13,6 +13,7 @@ namespace backend\core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Symfony\Component\Validator\Validation;
@@ -44,27 +45,8 @@ class StatementResourceTypeServiceTest extends FunctionalTestCase
         $statement = new Statement();
         $statement->setProcedure($testProcedure);
         $statement->setMeta($statementMeta);
+        $this->expectException(ViolationsException::class);
 
         $this->sut->update($statement, StatementResourceType::startPath(), ['segmentDraftList' => self::SEGMENT_DRAFT_LIST]);
-    }
-
-    public function testUpdate2(): void
-    {
-        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
-        $statementMeta = new StatementMeta();
-        $statementMeta->setMiscData([
-            StatementMeta::SUBMITTER_ROLE => StatementMeta::SUBMITTER_ROLE_CITIZEN,
-        ]);
-        $testProcedure = $this->fixtures->getReference('testProcedure');
-        $statement = new Statement();
-        $statement->setProcedure($testProcedure);
-        $statement->setMeta($statementMeta);
-        $statement->setDraftsListJson(self::SEGMENT_DRAFT_LIST);
-
-        $violations = $validator->validate($statement, null, [Statement::DRAFT_JSON_VALIDATION_GROUP]);
-        $this->assertCount(1, $violations);
-        $violation = $violations->get(0);
-        $message = $violation->getMessage();
-        self::assertSame('error.segmentation.invalid_draft_json', $message);
     }
 }
