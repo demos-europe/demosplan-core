@@ -5,6 +5,8 @@ branding.color.invalid: "{{ color }} ist keine gültige CSS-Farbe im Format '#12
 branding.var.invalid: "{{ var }} ist keine erlaubte CSS-Variable."
 branding.yaml.invalid: "Das eingegebene CSS entspricht nicht dem erwarteten YAML-Format."
 email.address.invalid: "Bitte tragen Sie in alle E-Mail-Adressfelder eine gültige E-Mail-Adresse ein."
+error.customer.support.contact.no.title: "Bitte füllen Sie auch das Feld \"Titel\" aus."
+error.customer.support.contact.missing.contact.info: "Bitte geben Sie entweder eine gültige E-Mail Adresse oder Telefonnummer ein."
 error.mandatoryfield.file: "Bitte füllen Sie auch das Feld \"Datei\" aus."
 error.mandatoryfield.heading: "Bitte füllen Sie auch das Feld \"Überschrift\" aus."
 error.mandatoryfield.status: "Bitte füllen Sie auch das Feld \"Status\" aus."
