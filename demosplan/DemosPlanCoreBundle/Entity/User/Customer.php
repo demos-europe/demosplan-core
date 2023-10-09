@@ -19,6 +19,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
+use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -196,6 +197,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @ORM\OneToMany(targetEntity="SupportContact", mappedBy="customer")
      */
+    #[Assert\All([new SupportContactConstraint()])]
     protected Collection $contacts;
 
     public function __construct(/**

@@ -175,6 +175,11 @@
           }" />
       </customer-settings-section>
 
+      <customer-settings-section
+        title="Inhaltlicher Support">
+        <customer-settings-content-support />
+      </customer-settings-section>
+
       <!-- Button row -->
       <div class="text-right space-inline-s">
         <button
@@ -195,6 +200,7 @@
 <script>
 import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
+import CustomerSettingsContentSupport from './CustomerSettingsContentSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 
@@ -203,6 +209,7 @@ export default {
 
   components: {
     CustomerSettingsBranding,
+    CustomerSettingsContentSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,

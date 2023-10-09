@@ -153,4 +153,9 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     {
         return $this->customer;
     }
+
+    public function setCustomer(?Customer $customer): void
+    {
+        $this->customer = $customer;
+    }
 }

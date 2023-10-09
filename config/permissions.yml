@@ -727,6 +727,14 @@ field_customer_accessibility_explanation_edit:
     expose: true
     loginRequired: true
     parent: area_customer_settings
+feature_customer_support_contact_administration:
+    description: |-
+        Enables the option to create/edit/delete supportContact entities.
+        A customer-admin can post support contact informattions visible to everyone who is in that customer context.
+        visible under /informationen
+    label: 'Enables the option to create/edit/delete supportContact entities.'
+    expose: true
+    loginRequired: true
 feature_customer_branding_edit:
     description: 'Allows the editing of the customer branding. At the moment this only includes css styling.'
     expose: true
