@@ -20,6 +20,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class AddonListCommand extends CoreCommand
 {
     protected static $defaultName = 'dplan:addon:list';
+    protected static $defaultDescription = 'List installed addons';
 
     public function __construct(
         private readonly AddonManifestCollectionWrapper $addonManifestCollectionWrapper,
@@ -27,11 +28,6 @@ class AddonListCommand extends CoreCommand
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
-    }
-
-    protected function configure(): void
-    {
-        $this->setDescription('List installed addons');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
