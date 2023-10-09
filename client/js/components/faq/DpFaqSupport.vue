@@ -49,6 +49,7 @@ All rights reserved
         <p>Montag bis Freitag: 6.30 - 18 Uhr<br>
           Freitag: 6.30 - 17Uhr
         </p>
+        <span>Ausgenommen am 24.12. und 31.12., sowie an gesetzlichen Feiertagen in Schleswig-Holstein.</span>
       </div>
     </div>
   </div>
