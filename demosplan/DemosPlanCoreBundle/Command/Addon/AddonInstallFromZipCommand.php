@@ -148,10 +148,17 @@ class AddonInstallFromZipCommand extends CoreCommand
                 ->run();
 
             if (0 === $batchReturn) {
+                $output->success("Addon {$name} successfully installed");
+
                 return Command::SUCCESS;
             }
         } catch (Exception $e) {
             $output->error($e->getMessage());
+            // this hint may be removed in symfony6 when we can update the efrane/console-additions
+            // to a version bigger than 0.7, as the batch will not swallow the exception anymore
+            $output->info('If you have no clue why this happened, you may try to install ' .
+                'the addon manually by performing
+                `composer bin addons update --prefer-lowest -a -o`');
         }
 
         return Command::FAILURE;
