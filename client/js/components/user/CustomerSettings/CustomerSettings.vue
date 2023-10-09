@@ -175,6 +175,31 @@
           }" />
       </customer-settings-section>
 
+      <customer-settings-section title="Inhaltlicher Support">
+        <div class="u-mb flow-root">
+          <template>
+            <dp-input
+                id="emailAddress"
+                data-cy="emailAddressList"
+                :placeholder="Translator.trans('email.address')"
+                type="email"
+                width="u-1-of-2"/>
+          </template>
+        </div>
+        <label
+          for="contact"
+          class="o-wizard__mark u-mb-0">
+          <input
+            data-wizard-cb
+            data-cy="contact"
+            name="contact"
+            type="checkbox"
+            value="contact" />
+          Diesen Kontakt sichtbar anzeigen
+        </label>
+
+      </customer-settings-section>
+
       <!-- Button row -->
       <div class="text-right space-inline-s">
         <button
@@ -193,7 +218,7 @@
 </template>
 
 <script>
-import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLabel, DpLoading, dpValidateMixin, DpInput } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
@@ -206,6 +231,7 @@ export default {
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
+    DpInput,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
