@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -11,7 +20,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
 
-class AddonListCommandTest  extends FunctionalTestCase
+class AddonListCommandTest extends FunctionalTestCase
 {
     public function testEmptyList(): void
     {
@@ -21,15 +30,13 @@ class AddonListCommandTest  extends FunctionalTestCase
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('Name', $output);
         $this->assertStringContainsString('Enabled', $output);
-
     }
 
     public function testListEnabled(): void
     {
-
         $addonName = 'demos-europe/demosplan-test-addon';
         $info = [
-            $addonName => ['enabled' => true,]
+            $addonName => ['enabled' => true],
         ];
         $commandTester = $this->executeCommand($info);
 
@@ -39,14 +46,13 @@ class AddonListCommandTest  extends FunctionalTestCase
         $this->assertStringContainsString('Enabled', $output);
         $this->assertStringContainsString($addonName, $output);
         $this->assertStringContainsString('true', $output);
-
     }
+
     public function testListDisabled(): void
     {
-
         $addonName = 'demos-europe/demosplan-test-addon';
         $info = [
-            $addonName => ['enabled' => false,]
+            $addonName => ['enabled' => false],
         ];
         $commandTester = $this->executeCommand($info);
 
@@ -56,7 +62,6 @@ class AddonListCommandTest  extends FunctionalTestCase
         $this->assertStringContainsString('Enabled', $output);
         $this->assertStringContainsString($addonName, $output);
         $this->assertStringContainsString('false', $output);
-
     }
 
     private function executeCommand(array $info): CommandTester
@@ -81,7 +86,7 @@ class AddonListCommandTest  extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         // Execute the command
         $commandTester->execute([]);
+
         return $commandTester;
     }
 }
-

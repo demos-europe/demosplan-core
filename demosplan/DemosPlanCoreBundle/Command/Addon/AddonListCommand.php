@@ -37,7 +37,7 @@ class AddonListCommand extends CoreCommand
 
         foreach ($addonsLoaded as $name => $addonLoaded) {
             $addons[] = [
-                'name' => $name,
+                'name'    => $name,
                 'enabled' => $addonLoaded['enabled'] ? 'true' : 'false',
             ];
         }
