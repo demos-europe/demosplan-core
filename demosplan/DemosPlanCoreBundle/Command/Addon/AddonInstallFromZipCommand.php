@@ -156,7 +156,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $output->error($e->getMessage());
             // this hint may be removed in symfony6 when we can update the efrane/console-additions
             // to a version bigger than 0.7, as the batch will not swallow the exception anymore
-            $output->info('If you have no clue why this happened, you may try to install ' .
+            $output->info('If you have no clue why this happened, you may try to install '.
                 'the addon manually by performing
                 `composer bin addons update --prefer-lowest -a -o`');
         }
@@ -291,8 +291,8 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
-        if (!array_key_exists('require', $composerContent) ||
-            !array_key_exists($addonName, $composerContent['require'])) {
+        if (!array_key_exists('require', $composerContent)
+            || !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
