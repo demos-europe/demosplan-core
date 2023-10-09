@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use Symfony\Component\Validator\Validation;
 use Tests\Base\FunctionalTestCase;
 
 class StatementResourceTypeServiceTest extends FunctionalTestCase
