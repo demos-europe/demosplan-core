@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -8,20 +9,21 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Constraint;
 
+use Attribute;
 use demosplan\DemosPlanCoreBundle\Validator\SupportContactConstraintValidator;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @Annotation
  */
-#[\Attribute]
+#[Attribute]
 class SupportContactConstraint extends Constraint
 {
     public const NO_TITLE_MESSAGE = 'error.customer.support.contact.no.title';
     public const MISSING_CONTACT_MESSAGE = 'error.customer.support.contact.missing.contact.info';
-
 
     public function validatedBy(): string
     {
