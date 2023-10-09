@@ -134,15 +134,17 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        // If composer update went well, add the addon to the registry
-        $name = $this->installer->register($packageDefinition);
-
         try {
+            // If composer update went well, add the addon to the registry
+            $name = $this->installer->register($packageDefinition, $enable);
+
+            $kernel = $this->getApplication()->getKernel();
+            $environment = $kernel->getEnvironment();
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear'])
-                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
+                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
+                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment])
                 ->run();
 
             if (0 === $batchReturn) {
