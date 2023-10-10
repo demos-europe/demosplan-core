@@ -13,6 +13,7 @@ All rights reserved
       <slot name="title"></slot>
       <div>
         <svg
+            class="inline-block"
             height="16px"
             width="16px"
             xmlns="http://www.w3.org/2000/svg"

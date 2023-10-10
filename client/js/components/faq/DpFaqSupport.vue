@@ -10,8 +10,8 @@ All rights reserved
 <template>
   <div
     id="scFaq"
-    class="c-support__wrapper">
-    <h2>
+    class="c-support__wrapper space-inset-m">
+    <h2 class="font-normal">
       {{ Translator.trans('support.heading') }}
     </h2>
     <section class="mb-5">
@@ -23,36 +23,36 @@ All rights reserved
       <ul class="grid lg:grid-cols-3 gap-3">
         <li
           v-for="contact in contactList"
-          class="c-support__groupcard space-inset-m">
+          class="c-support__groupcard space-inset-m h-48">
           <dp-faq-support-card>
             <template v-slot:title>
-              <h2>{{ contact.title }}</h2>
+              <h2 class="font-semibold">{{ contact.title }}</h2>
             </template>
             <template v-slot:phonenumber>
-              <p class="mt-5 lg:mt-4">{{ contact.phoneNumber }}</p>
+              <p class="mt-3 mb-0 inline-block font-semibold">{{ contact.phoneNumber }}</p>
             </template>
             <template v-slot:email>
-              <p>{{ contact.emailAddress }}</p>
+              <p class="mb-0 font-normal">{{ contact.emailAddress }}</p>
             </template>
             <template v-slot:reachability>
-              <p class="mt-4 lg:mt-2">{{ contact.text }}</p>
+              <p class="mt-4 lg:mt-2 font-normal">{{ contact.text }}</p>
             </template>
           </dp-faq-support-card>
         </li>
       </ul>
     </section>
-    <h3 class="font-size-h4">
+    <h3 class="font-size-h4 font-semibold">
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="c-support__singlecard lg:w-8/12 space-inset-m">
+    <div class="c-support__singlecard lg:w-8/12 space-inset-m pt-0 h-48">
       <dp-faq-support-card>
         <template v-slot:phonenumber>
-          <p class="mt-5">(+49) 40 428 46 2694</p>
+          <p class="mt-8 mb-0 inline-block font-semibold">(+49) 40 428 46 2694</p>
         </template>
         <template v-slot:reachability>
-          <p class="mt-4">
-            <h5>Servicezeiten</h5>
-            <p>Montag bis Freitag: 6.30 - 18 Uhr<br>
+          <p class="mt-3">
+            <h5 class="mb-0 font-semibold">Servicezeiten</h5>
+            <p class="font-normal">Montag bis Freitag: 6.30 - 18 Uhr<br>
               Freitag: 6.30 - 17Uhr
             </p>
           </p>
