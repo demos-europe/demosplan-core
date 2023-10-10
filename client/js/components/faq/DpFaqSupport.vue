@@ -10,49 +10,49 @@ All rights reserved
 <template>
   <div
     id="scFaq"
-    class="c-support__wrapper">
-    <h2>
+    class="c-support__wrapper space-inset-m">
+    <h2 class="font-normal">
       {{ Translator.trans('support.heading') }}
     </h2>
-    <section class="u-mb-0_75">
-      <p class="u-mb-0_75">{{ Translator.trans('support.introduction') }}</p>
+    <section class="mb-5">
+      <p class="mb-5">{{ Translator.trans('support.introduction') }}</p>
       <p>Sie haben eine Frage zur Technik? Dann hilft Ihnen unser technischer Support gerne weiter.</p>
-        <h3 class="font-size-h4 u-mt-0_75">
+        <h3 class="font-size-h4 mt-5">
           {{ Translator.trans('support.content') }}
         </h3>
-      <ul>
+      <ul class="grid lg:grid-cols-3 gap-3">
         <li
           v-for="contact in contactList"
-          class="c-support__groupcard space-inset-m layout__item">
+          class="c-support__groupcard space-inset-m h-48">
           <dp-faq-support-card>
             <template v-slot:title>
-              <h2>{{ contact.title }}</h2>
+              <h2 class="font-semibold">{{ contact.title }}</h2>
             </template>
             <template v-slot:phonenumber>
-              <p class="u-mt-0_75">{{ contact.phoneNumber }}</p>
+              <p class="mt-3 mb-0 inline-block font-semibold">{{ contact.phoneNumber }}</p>
             </template>
             <template v-slot:email>
-              <p>{{ contact.emailAddress }}</p>
+              <p class="mb-0 font-normal">{{ contact.emailAddress }}</p>
             </template>
             <template v-slot:reachability>
-              <p class="u-mt-0_125">{{ contact.text }}</p>
+              <p class="mt-4 lg:mt-2 font-normal">{{ contact.text }}</p>
             </template>
           </dp-faq-support-card>
         </li>
       </ul>
     </section>
-    <h3 class="font-size-h4">
+    <h3 class="font-size-h4 font-semibold">
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="c-support__singlecard space-inset-m">
+    <div class="c-support__singlecard lg:w-8/12 space-inset-m pt-0 h-48">
       <dp-faq-support-card>
         <template v-slot:phonenumber>
-          <p class="u-mt-0_75">(+49) 40 428 46 2694</p>
+          <p class="mt-8 mb-0 inline-block font-semibold">(+49) 40 428 46 2694</p>
         </template>
         <template v-slot:reachability>
-          <p class="u-mt-0_75">
-            <h5>Servicezeiten</h5>
-            <p>Montag bis Freitag: 6.30 - 18 Uhr<br>
+          <p class="mt-3">
+            <h5 class="mb-0 font-semibold">Servicezeiten</h5>
+            <p class="font-normal">Montag bis Freitag: 6.30 - 18 Uhr<br>
               Freitag: 6.30 - 17Uhr
             </p>
           </p>

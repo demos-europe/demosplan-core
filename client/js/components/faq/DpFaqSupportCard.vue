@@ -9,10 +9,11 @@ All rights reserved
 
 <template>
   <div>
-    <div class="c-support__singlecard__content">
+    <div class="c-support__singlecard__content col-span-2">
       <slot name="title"></slot>
       <div>
         <svg
+            class="inline-block"
             height="16px"
             width="16px"
             xmlns="http://www.w3.org/2000/svg"
