@@ -12,12 +12,10 @@
  */
 
 import DpFaqList from '@DpJs/components/faq/DpFaqList'
-import DpFaqSupport from "@DpJs/components/faq/DpFaqSupport.vue";
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpFaqList,
-  DpFaqSupport
+  DpFaqList
 }
 
 const stores = {}
