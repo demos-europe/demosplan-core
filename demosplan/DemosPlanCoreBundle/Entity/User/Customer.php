@@ -34,6 +34,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
+    final public const GROUP_UPDATE = 'group_update';
+
     /**
      * @var string|null
      *
@@ -85,6 +87,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $dataProtection = '';
     /**
      * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
@@ -95,6 +98,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $termsOfUse = '';
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
@@ -103,6 +107,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $xplanning = '';
     /**
      * T15644:.
@@ -123,6 +128,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
      */
+    #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $mapAttribution = '';
     /**
      * T16986
@@ -134,6 +140,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
+    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerUrl = '';
     /**
      * T16986
@@ -145,6 +152,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
+    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerLayers = '';
     /**
      * @var BrandingInterface|null
@@ -159,6 +167,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
      */
     #[Assert\Length(max: 65000)]
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $accessibilityExplanation = '';
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.

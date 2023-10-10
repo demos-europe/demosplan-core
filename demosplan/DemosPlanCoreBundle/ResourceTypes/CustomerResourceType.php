@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Customer>
@@ -33,8 +35,11 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                                   $termsOfUse
  * @property-read End                                   $xplanning
  * @property-read End                                   $accessibilityExplanation
+ * @property-read End                                   $baseLayerUrl
+ * @property-read End                                   $baseLayerLayers
+ * @property-read End                                   $mapAttribution
  */
-final class CustomerResourceType extends DplanResourceType
+final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
     public function getEntityClass(): string
     {
@@ -148,5 +153,74 @@ final class CustomerResourceType extends DplanResourceType
         }
 
         return $properties;
+    }
+
+    /**
+     * @param Customer $object
+     */
+    public function updateObject(object $object, array $properties): ResourceChange
+    {
+        $updater = new PropertiesUpdater($properties);
+
+        $updater->ifPresent($this->baseLayerUrl, $object->setBaseLayerUrl(...));
+        $updater->ifPresent($this->baseLayerLayers, $object->setBaseLayerLayers(...));
+        $updater->ifPresent($this->mapAttribution, $object->setMapAttribution(...));
+        $updater->ifPresent($this->imprint, $object->setImprint(...));
+        $updater->ifPresent($this->dataProtection, $object->setDataProtection(...));
+        $updater->ifPresent($this->termsOfUse, $object->setTermsOfUse(...));
+        $updater->ifPresent($this->xplanning, $object->setXplanning(...));
+        $updater->ifPresent($this->signLanguageOverviewDescription, $object->setSignLanguageOverviewDescription(...));
+        $updater->ifPresent($this->overviewDescriptionInSimpleLanguage, $object->setOverviewDescriptionInSimpleLanguage(...));
+        $updater->ifPresent($this->accessibilityExplanation, $object->setAccessibilityExplanation(...));
+
+        $this->resourceTypeService->validateObject($object, [Customer::GROUP_UPDATE]);
+
+        return new ResourceChange($object, $this, $properties);
+    }
+
+    /**
+     * @param Customer $updateTarget
+     */
+    public function getUpdatableProperties(object $updateTarget) : array
+    {
+        if (!$this->currentUser->hasPermission('area_customer_settings')) {
+            return [];
+        }
+
+        $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+        if (null === $currentCustomerId) {
+            return [];
+        }
+
+        if ($currentCustomerId !== $updateTarget->getId()) {
+            return [];
+        }
+
+        $properties = [
+            $this->baseLayerUrl,
+            $this->baseLayerLayers,
+            $this->mapAttribution,
+            $this->xplanning,
+            $this->signLanguageOverviewDescription,
+            $this->overviewDescriptionInSimpleLanguage,
+        ];
+
+        if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_customer')) {
+            $properties[] = $this->imprint;
+        }
+        if ($this->currentUser->hasPermission('field_data_protection_text_customized_edit_customer')) {
+            $properties[] = $this->dataProtection;
+        }
+        if ($this->currentUser->hasPermission('feature_customer_terms_of_use_edit')) {
+            $properties[] = $this->termsOfUse;
+        }
+        if ($this->currentUser->hasPermission('feature_customer_xplanning_edit')) {
+            $properties[] = $this->xplanning;
+        }
+        if ($this->currentUser->hasPermission('field_customer_accessibility_explanation_edit')) {
+            $properties[] = $this->accessibilityExplanation;
+        }
+
+        return $this->toProperties(...$properties);
     }
 }

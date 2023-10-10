@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -146,6 +147,15 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
      */
     public function getUpdatableProperties(object $updateTarget): array
     {
+        $currentCustomerVideoIds = $this->currentCustomerService->getCurrentCustomer()
+            ->getSignLanguageOverviewVideos()
+            ->map(fn (VideoInterface $video): ?string => $video->getId())
+            ->filter(fn (?string $videoId): bool => null !== $videoId);
+
+        if (!$currentCustomerVideoIds->contains($updateTarget->getId())) {
+            return [];
+        }
+
         return $this->toProperties(
             $this->title,
             $this->description
