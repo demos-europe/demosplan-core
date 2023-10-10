@@ -9,7 +9,7 @@ All rights reserved
 
 <template>
   <div>
-    <div class="c-support__singlecard__content">
+    <div class="c-support__singlecard__content col-span-2">
       <slot name="title"></slot>
       <div>
         <svg
