@@ -181,7 +181,7 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
     /**
      * @param Customer $updateTarget
      */
-    public function getUpdatableProperties(object $updateTarget) : array
+    public function getUpdatableProperties(object $updateTarget): array
     {
         if (!$this->currentUser->hasPermission('area_customer_settings')) {
             return [];
