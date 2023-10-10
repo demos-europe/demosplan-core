@@ -86,7 +86,6 @@ export default {
   },
 
   methods: {
-    visible,
     getContacts () {
       this.contactList = [{
         title: 'Naruto Uzumaki',
