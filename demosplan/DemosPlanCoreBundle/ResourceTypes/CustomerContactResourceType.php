@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use EDT\PathBuilding\End;
 use Webmozart\Assert\Assert;
 
@@ -38,6 +39,10 @@ use Webmozart\Assert\Assert;
  */
 class CustomerContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
 {
+    public function __construct(
+        protected readonly EmailAddressService $emailAddressService
+    ) {}
+
     protected function getProperties(): array
     {
         $properties = [
@@ -45,7 +50,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),
-            $this->createToOneRelationship($this->eMailAddress)->readable()->initializable(),
+            $this->createAttribute($this->eMailAddress)->aliasedPath($this->eMailAddress->fullAddress)->readable()->initializable(),
         ];
 
         if ($this->hasManagementPermission()) {
@@ -62,12 +67,25 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     protected function getAccessConditions(): array
     {
+        // A CustomerContact is only a CustomerContact if it is connected to a customer
         $conditions = [
             $this->conditionFactory->propertyIsNotNull($this->customer),
         ];
 
-        if (!$this->hasManagementPermission()) {
-            $conditions[] = $this->conditionFactory->propertyHasValue(true, $this->visible);
+        $visibilityCondition = $this->conditionFactory->propertyHasValue(true, $this->visible);
+        if ($this->hasManagementPermission()) {
+            // Users with management permission can access all CustomerContacts in their own customer
+            // and all CustomerContacts in other customers that are set visible. I.e. they can **not**
+            // access non-visible CustomerContacts of other customers.
+            $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+            $conditions[] = $this->conditionFactory->anyConditionApplies(
+                $visibilityCondition,
+                $this->conditionFactory->propertyHasValue($currentCustomer->getId(), $this->customer->id)
+            );
+        } else {
+            // Users without management permission can access all visible CustomerContacts,
+            // regardless of customer.
+            $conditions[] = $visibilityCondition;
         }
 
         return $conditions;
@@ -80,7 +98,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission(/* FIXME: check for permission that allows contacts at all */);
+        return true;
     }
 
     public function isDirectlyAccessible(): bool
@@ -96,11 +114,13 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
     public function createObject(array $properties): ResourceChange
     {
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+        $providedEmailAddress = $properties[$this->eMailAddress->getAsNamesInDotNotation()];
+        $emailAddressEntity = $this->emailAddressService->getOrCreateEmailAddress($providedEmailAddress);
 
         $contact = new SupportContact(
             $properties[$this->title->getAsNamesInDotNotation()],
             $properties[$this->phoneNumber->getAsNamesInDotNotation()],
-            $properties[$this->eMailAddress->getAsNamesInDotNotation()],
+            $emailAddressEntity,
             $properties[$this->text->getAsNamesInDotNotation()],
             $currentCustomer,
             $properties[$this->visible->getAsNamesInDotNotation()],
@@ -108,10 +128,12 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
         $currentCustomer->getContacts()->add($contact);
 
+        $this->resourceTypeService->validateObject($emailAddressEntity);
         $this->resourceTypeService->validateObject($contact);
         $this->resourceTypeService->validateObject($currentCustomer);
 
         $change = new ResourceChange($contact, $this, $properties);
+        $change->addEntityToPersist($emailAddressEntity);
         $change->addEntityToPersist($contact);
 
         return $change;
@@ -141,7 +163,7 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     public function getRequiredDeletionPermissions(): array
     {
-        // FIXME: same as hasManagementPermission
+        return ['feature_customer_support_contact_administration'];
     }
 
     public function getUpdatableProperties(object $updateTarget): array
@@ -167,20 +189,39 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
         Assert::same($contact->getCustomer(), $currentCustomer);
 
+        $resourceChange = new ResourceChange($contact, $this, $properties);
+
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->title, $contact->setTitle(...));
         $updater->ifPresent($this->phoneNumber, $contact->setPhoneNumber(...));
-        $updater->ifPresent($this->eMailAddress, $contact->setEMailAddress(...));
+        $updater->ifPresent(
+            $this->eMailAddress,
+            function (?string $fullEMailAddress) use ($contact, $resourceChange): void {
+                if (null === $fullEMailAddress) {
+                    $contact->setEMailAddress(null);
+                } else {
+                    $emailAddress = $contact->getEMailAddress();
+                    if (null === $emailAddress) {
+                        $emailAddress = $this->emailAddressService->getOrCreateEmailAddress($fullEMailAddress);
+                        $resourceChange->addEntityToPersist($emailAddress);
+                        $contact->setEMailAddress($emailAddress);
+                    } else {
+                        $emailAddress->setFullAddress($fullEMailAddress);
+                    }
+                }
+                $this->resourceTypeService->validateObject($emailAddress);
+            }
+        );
         $updater->ifPresent($this->text, $contact->setText(...));
         $updater->ifPresent($this->visible, $contact->setVisible(...));
 
         $this->resourceTypeService->validateObject($contact);
 
-        return new ResourceChange($contact, $this, $properties);
+        return $resourceChange;
     }
 
     protected function hasManagementPermission(): bool
     {
-        return $this->currentUser->hasPermission(/* FIXME: check for permission that allows contact management */);
+        return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
     }
 }
