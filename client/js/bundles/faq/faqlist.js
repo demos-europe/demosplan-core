@@ -12,11 +12,13 @@
  */
 
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import DpFaqSupport from '@DpJs/components/faq/DpFaqSupport'
 import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  RegisterFlyout
+  RegisterFlyout,
+  DpFaqSupport
 }
 
 initialize(components).then(() => {
