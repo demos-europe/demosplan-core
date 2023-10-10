@@ -33,8 +33,6 @@ All rights reserved
 </template>
 <script>
 
-import {visible} from "chalk";
-
 export default {
   name: 'DpFaqSupportCard'
 }

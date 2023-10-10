@@ -66,12 +66,11 @@ All rights reserved
 </template>
 <script>
 
-import {visible} from "chalk";
-import DpFaqSupportCard from "./DpFaqSupportCard.vue";
+import DpFaqSupportCard from './DpFaqSupportCard.vue'
 
 export default {
   name: 'DpFaqSupport',
-  components: {DpFaqSupportCard},
+  components: { DpFaqSupportCard },
 
   data () {
     return {
