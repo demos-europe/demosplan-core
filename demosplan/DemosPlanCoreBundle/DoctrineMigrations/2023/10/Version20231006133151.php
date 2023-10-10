@@ -31,9 +31,9 @@ class Version20231006133151 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('CREATE TABLE _support_contact (id CHAR(36) NOT NULL, email_address CHAR(36) DEFAULT NULL, customer CHAR(36) DEFAULT NULL, title VARCHAR(255) DEFAULT NULL, phone_number VARCHAR(255) DEFAULT NULL, text LONGTEXT DEFAULT NULL, visible TINYINT(1) DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, INDEX IDX_8C8C0928B08E074E (email_address), INDEX IDX_8C8C092881398E09 (customer), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE _support_contact ADD CONSTRAINT FK_8C8C0928B08E074E FOREIGN KEY (email_address) REFERENCES email_address (id)');
-        $this->addSql('ALTER TABLE _support_contact ADD CONSTRAINT FK_8C8C092881398E09 FOREIGN KEY (customer) REFERENCES customer (_c_id)');
+        $this->addSql('CREATE TABLE support_contact (id CHAR(36) NOT NULL, email_address CHAR(36) DEFAULT NULL, customer CHAR(36) DEFAULT NULL, title VARCHAR(255) DEFAULT NULL, phone_number VARCHAR(255) DEFAULT NULL, text LONGTEXT DEFAULT NULL, visible TINYINT(1) DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, INDEX IDX_8C8C0928B08E074E (email_address), INDEX IDX_8C8C092881398E09 (customer), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE support_contact ADD CONSTRAINT FK_8C8C0928B08E074E FOREIGN KEY (email_address) REFERENCES email_address (id)');
+        $this->addSql('ALTER TABLE support_contact ADD CONSTRAINT FK_8C8C092881398E09 FOREIGN KEY (customer) REFERENCES customer (_c_id)');
     }
 
     /**
@@ -43,9 +43,9 @@ class Version20231006133151 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _support_contact DROP FOREIGN KEY FK_8C8C0928B08E074E');
-        $this->addSql('ALTER TABLE _support_contact DROP FOREIGN KEY FK_8C8C092881398E09');
-        $this->addSql('DROP TABLE _support_contact');
+        $this->addSql('ALTER TABLE support_contact DROP FOREIGN KEY FK_8C8C0928B08E074E');
+        $this->addSql('ALTER TABLE support_contact DROP FOREIGN KEY FK_8C8C092881398E09');
+        $this->addSql('DROP TABLE support_contact');
     }
 
     /**

@@ -20,7 +20,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(name="_support_contact")
+ * @ORM\Table(name="support_contact")
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
