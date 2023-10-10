@@ -727,6 +727,19 @@ customer: |
 customer.accessibility.explanation.label: "Geben Sie hier die Informationen ein, die Sie auf der Informationsseite zur Barrierefreiheit anzeigen möchten."
 customer.branding.label: "Plattform-Branding"
 customer.branding.logo: "Plattform-Logo"
+customer.contact.add: "Kontakt hinzufügen"
+customer.contact.delete: "Kontakt löschen"
+customer.contact.new: "Neuen Kontakt anlegen"
+customer.contact.no: "Keine Kontakte angelegt"
+customer.contact.phoneNumber: "Telefonnummer"
+customer.contact.title: "Name"
+customer.contact.update: "Kontakt aktualisieren"
+customer.contact.visible: "Diesen Kontakt sichtbar anzeigen"
+customer.contact.visibleText: |
+    {isVisible, select,
+        true {Dieser Kontakt wird sichtbar angezeigt.}
+        other {Dieser Kontakt wird nicht sichtbar angezeigt.}
+    }
 customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
