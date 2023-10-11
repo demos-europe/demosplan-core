@@ -22,7 +22,9 @@
         <span v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
       </template>
       <template v-slot:form>
-        <div data-dp-validate="contactData">
+        <div
+          id="contactForm"
+          data-dp-validate="contactData">
           <dp-input
             id="contactTitle"
             v-model="customerContact.title"
@@ -60,11 +62,7 @@
             :toolbar-items="{
               fullscreenButton: true,
               headings: [2,3,4],
-              imageButton: true,
               linkButton: true
-            }"
-            :routes="{
-              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
             }" />
           <dp-checkbox
             id="contactVisible"
@@ -156,6 +154,7 @@ export default {
           }
         }
         this.createContact(payload).then((response) => {
+          this.getContacts()
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       } else {
@@ -179,6 +178,20 @@ export default {
       this.resetForm()
     },
 
+    getContacts () {
+      this.fetchContact({
+        fields: {
+          CustomerContact: [
+            'title',
+            'phoneNumber',
+            'text',
+            'visible',
+            'eMailAddress'
+          ].join()
+        }
+      })
+    },
+
     resetForm () {
       this.customerContact.title = ''
       this.customerContact.phoneNumber = ''
@@ -198,9 +211,9 @@ export default {
     updateForm (index) {
       const currentData = this.contacts[index].attributes
       this.customerContact.title = currentData.title
-      this.customerContact.phoneNumber = currentData.phoneNumber
-      this.customerContact.eMailAddress = currentData.eMailAddress
-      this.customerContact.text = currentData.text
+      this.customerContact.phoneNumber = currentData.phoneNumber ? currentData.phoneNumber : ''
+      this.customerContact.eMailAddress = currentData.eMailAddress ? currentData.eMailAddress : ''
+      this.customerContact.text = currentData.text ? currentData.text : ''
       this.customerContact.visible = currentData.visible
     }
   },
@@ -208,6 +221,9 @@ export default {
   mounted () {
     this.$on('showUpdateForm', (index) => {
       this.updateForm(index)
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
     })
 
     this.$on('delete', (id) => {
@@ -227,6 +243,8 @@ export default {
         ].join()
       }
     })
+      .then(() => {
+      })
   }
 }
 </script>
