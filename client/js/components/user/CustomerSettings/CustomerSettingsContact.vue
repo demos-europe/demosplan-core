@@ -211,9 +211,9 @@ export default {
     updateForm (index) {
       const currentData = this.contacts[index].attributes
       this.customerContact.title = currentData.title
-      this.customerContact.phoneNumber = currentData.phoneNumber
-      this.customerContact.eMailAddress = currentData.eMailAddress
-      this.customerContact.text = currentData.text
+      this.customerContact.phoneNumber = currentData.phoneNumber ? currentData.phoneNumber : ''
+      this.customerContact.eMailAddress = currentData.eMailAddress ? currentData.eMailAddress : ''
+      this.customerContact.text = currentData.text ? currentData.text : ''
       this.customerContact.visible = currentData.visible
     }
   },
