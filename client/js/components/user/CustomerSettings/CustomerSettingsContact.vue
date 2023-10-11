@@ -141,10 +141,10 @@ export default {
           type: 'CustomerContact',
           attributes: {
             title: this.customerContact.title,
-            phoneNumber: this.customerContact.phoneNumber,
-            text: this.customerContact.text,
+            phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
+            text: this.customerContact.text ? this.customerContact.text : null,
             visible: this.customerContact.visible,
-            eMailAddress: this.customerContact.eMailAddress
+            eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
           }
         }
         this.createContact(payload).then((response) => {
@@ -156,10 +156,10 @@ export default {
           type: 'CustomerContact',
           attributes: {
             title: this.customerContact.title,
-            phoneNumber: this.customerContact.phoneNumber,
-            text: this.customerContact.text,
+            phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
+            text: this.customerContact.text ? this.customerContact.text : null,
             visible: this.customerContact.visible,
-            eMailAddress: this.customerContact.eMailAddress
+            eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
           }
         }
         this.updateContact(payload)
@@ -195,7 +195,9 @@ export default {
     })
 
     this.$on('delete', (id) => {
-      this.deleteContact(id)
+      this.deleteContact(id).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('customer.contact.deleted'))
+      })
     })
 
     this.fetchContact({
