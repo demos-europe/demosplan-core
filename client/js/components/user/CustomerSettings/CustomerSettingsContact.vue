@@ -227,8 +227,6 @@ export default {
         ].join()
       }
     })
-      .then(() => {
-      })
   }
 }
 </script>
