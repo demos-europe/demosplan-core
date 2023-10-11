@@ -206,7 +206,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @ORM\OneToMany(targetEntity="SupportContact", mappedBy="customer")
      */
-    #[Assert\All([new SupportContactConstraint()])]
+    #[Assert\Valid]
     protected Collection $contacts;
 
     public function __construct(/**
