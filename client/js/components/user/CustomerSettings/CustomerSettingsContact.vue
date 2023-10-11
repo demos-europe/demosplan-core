@@ -61,9 +61,6 @@
               fullscreenButton: true,
               headings: [2,3,4],
               linkButton: true
-            }"
-            :routes="{
-              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
             }" />
           <dp-checkbox
             id="contactVisible"
