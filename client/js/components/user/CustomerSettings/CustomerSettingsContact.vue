@@ -60,7 +60,6 @@
             :toolbar-items="{
               fullscreenButton: true,
               headings: [2,3,4],
-              imageButton: true,
               linkButton: true
             }"
             :routes="{
