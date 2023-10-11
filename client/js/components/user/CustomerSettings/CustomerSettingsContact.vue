@@ -22,7 +22,9 @@
         <span v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
       </template>
       <template v-slot:form>
-        <div data-dp-validate="contactData">
+        <div
+          id="contactForm"
+          data-dp-validate="contactData">
           <dp-input
             id="contactTitle"
             v-model="customerContact.title"
@@ -219,6 +221,9 @@ export default {
   mounted () {
     this.$on('showUpdateForm', (index) => {
       this.updateForm(index)
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
     })
 
     this.$on('delete', (id) => {
