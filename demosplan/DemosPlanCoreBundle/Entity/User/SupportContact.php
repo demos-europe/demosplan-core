@@ -42,7 +42,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $id;
 
     /**
-     * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     * @ORM\Column(name="title", type="string", length=255, unique=true, nullable=true)
      */
     #[Assert\NotBlank(allowNull: true)]
     private ?string $title;
