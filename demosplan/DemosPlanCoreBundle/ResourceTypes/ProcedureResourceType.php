@@ -149,7 +149,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         return [
             $noBlueprintCondition,
             $undeletedCondition,
-            $customerCondition
+            $customerCondition,
         ];
     }
 
@@ -171,7 +171,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
         $properties = [
             $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->name)->readable(true, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $this->createAttribute($this->name)->readable(true, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $procedure->getName()
                 : null, true)->sortable()->filterable(),
             $owningOrganisation,
@@ -212,25 +212,25 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 return count($statementResult->getResult());
             });
 
-            $properties[] = $this->createAttribute($this->externalName)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->externalName)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $procedure->getExternalName()
                 : null);
-            $properties[] = $this->createAttribute($this->externalStartDate)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->externalStartDate)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getPublicParticipationStartDate())
                 : null);
-            $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getPublicParticipationEndDate())
                 : null);
-            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, fn(Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->globalConfig->getExternalPhaseTranslationKey($procedure->getPublicParticipationPhase())
                 : null);
-            $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getStartDate())
                 : null);
-            $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getEndDate())
                 : null);
-            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, fn(Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
                 : null);
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
