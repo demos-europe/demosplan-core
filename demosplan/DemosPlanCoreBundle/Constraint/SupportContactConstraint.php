@@ -29,4 +29,9 @@ class SupportContactConstraint extends Constraint
     {
         return SupportContactConstraintValidator::class;
     }
+
+    public function getTargets(): array|string
+    {
+        return self::CLASS_CONSTRAINT;
+    }
 }

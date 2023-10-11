@@ -115,9 +115,16 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
     public function createObject(array $properties): ResourceChange
     {
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
-        $providedEmailAddress = $properties[$this->eMailAddress->getAsNamesInDotNotation()];
-        $emailAddressEntity = $this->emailAddressService->getOrCreateEmailAddress($providedEmailAddress);
 
+        // create/get email address
+        $providedEmailAddress = $properties[$this->eMailAddress->getAsNamesInDotNotation()];
+        if (null !== $providedEmailAddress) {
+            $emailAddressEntity = $this->emailAddressService->getOrCreateEmailAddress($providedEmailAddress);
+        } else {
+            $emailAddressEntity = null;
+        }
+
+        // create support contact
         $contact = new SupportContact(
             $properties[$this->title->getAsNamesInDotNotation()],
             $properties[$this->phoneNumber->getAsNamesInDotNotation()],
@@ -127,15 +134,22 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             $properties[$this->visible->getAsNamesInDotNotation()],
         );
 
+        // update customer
         $currentCustomer->getContacts()->add($contact);
 
-        $this->resourceTypeService->validateObject($emailAddressEntity);
+        // validate entities
         $this->resourceTypeService->validateObject($contact);
         $this->resourceTypeService->validateObject($currentCustomer);
+        if (null !== $emailAddressEntity) {
+            $this->resourceTypeService->validateObject($emailAddressEntity);
+        }
 
+        // build resource change
         $change = new ResourceChange($contact, $this, $properties);
-        $change->addEntityToPersist($emailAddressEntity);
         $change->addEntityToPersist($contact);
+        if (null !== $emailAddressEntity) {
+            $change->addEntityToPersist($emailAddressEntity);
+        }
 
         return $change;
     }
@@ -209,8 +223,8 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
                     } else {
                         $emailAddress->setFullAddress($fullEMailAddress);
                     }
+                    $this->resourceTypeService->validateObject($emailAddress);
                 }
-                $this->resourceTypeService->validateObject($emailAddress);
             }
         );
         $updater->ifPresent($this->text, $contact->setText(...));

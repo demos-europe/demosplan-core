@@ -26,18 +26,21 @@ class SupportContactConstraintValidator extends ConstraintValidator
 
     private function validateTyped(SupportContact $supportContact, SupportContactConstraint $constraint): void
     {
-        // It is planned to create SupportContact entities for all customers in the future without the need of a title.
-        // in that case the customer property will be null
-        // otherwise - in customer context - a title is mandatory.
+        // In the future it is planned to create SupportContact entities independent of specific customers without
+        // the need of a title. In that case the customer property will be null.
+        // Otherwise - in customer context - a title is mandatory.
         $titleMissingButHasToBePresent = null !== $supportContact->getCustomer()
             && (null === $supportContact->getTitle() || '' === $supportContact->getTitle());
         if ($titleMissingButHasToBePresent) {
             $this->context->buildViolation($constraint::NO_TITLE_MESSAGE)
                 ->addViolation();
         }
-        // either an eMail address or a phone number has to be present.
-        $contactInfoIsMissing = (null === $supportContact->getPhoneNumber() || '' === $supportContact->getPhoneNumber())
-            && (null === $supportContact->getEMailAddress() || '' === $supportContact->getEMailAddress());
+
+        // Either an eMail address or a phone number has to be present.
+        $phoneNumber = $supportContact->getPhoneNumber();
+        $emailAddress = $supportContact->getEMailAddress();
+        $contactInfoIsMissing = (null === $phoneNumber || '' === $phoneNumber)
+            && (null === $emailAddress || '' === $emailAddress->getFullAddress());
         if ($contactInfoIsMissing) {
             $this->context->buildViolation($constraint::MISSING_CONTACT_MESSAGE)
                 ->addViolation();

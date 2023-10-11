@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
+#[SupportContactConstraint]
 class SupportContact extends CoreEntity implements UuidEntityInterface
 {
     use TimestampableEntity;
@@ -40,13 +42,15 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $id;
 
     /**
-     * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     * @ORM\Column(name="title", type="string", length=255, unique=true, nullable=true)
      */
+    #[Assert\NotBlank(allowNull: true)]
     private ?string $title;
 
     /**
      * @ORM\Column(name="phone_number", type="string", length=255, nullable=true)
      */
+    #[Assert\NotBlank(allowNull: true)]
     private ?string $phoneNumber;
 
     /**
@@ -64,6 +68,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     /**
      * @ORM\Column(name="text", type="text", nullable=true)
      */
+    #[Assert\NotBlank(allowNull: true)]
     private ?string $text;
 
     /**
