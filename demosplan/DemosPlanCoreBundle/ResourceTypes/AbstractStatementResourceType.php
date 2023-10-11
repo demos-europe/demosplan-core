@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -21,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
 
 /**
- * @template-extends DplanResourceType<Statement>
+ * @template-extends DplanResourceType<StatementInterface>
  *
  * @property-read ProcedureResourceType $procedure
  * @property-read StatementResourceType $original

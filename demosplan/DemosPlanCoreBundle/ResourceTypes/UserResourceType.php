@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -26,9 +27,9 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<User>
+ * @template-implements UpdatableDqlResourceTypeInterface<UserInterface>
  *
- * @template-extends DplanResourceType<User>
+ * @template-extends DplanResourceType<UserInterface>
  *
  * @property-read End $firstname
  * @property-read End $lastname
