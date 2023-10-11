@@ -162,6 +162,7 @@
           :text="Translator.trans('customer.simpleLanguage.label')" />
         <dp-editor
           id="r_simpleLanguage"
+          :basic-auth="dplan.settings.basicAuth"
           v-model="customer.overviewDescriptionInSimpleLanguage"
           hidden-input="r_simpleLanguage"
           :toolbar-items="{
@@ -172,7 +173,8 @@
           }"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
-          }" />
+          }"
+          :tus-endpoint="dplan.paths.tusEndpoint" />
       </customer-settings-section>
 
       <!-- Button row -->

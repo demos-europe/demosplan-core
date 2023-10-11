@@ -63,6 +63,7 @@
             class="u-mb"
             hidden-input="r_text"
             ref="r_text"
+            :basic-auth="dplan.settings.basicAuth"
             :toolbar-items="{
                 imageButton: true,
                 insertAndDelete: true,
@@ -72,6 +73,7 @@
             :routes="{
                getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
             }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
             procedure-id="{{ procedure }}"
             :required="true">
         </dp-editor>
