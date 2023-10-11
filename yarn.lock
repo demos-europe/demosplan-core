@@ -371,7 +371,7 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.19.1.tgz#7eea834cf32901ffdc1a7ee555e2f9c27e249ca2"
   integrity sha512-awrNfaMtnHUr653GgGEs++LlAvW6w+DcPrOliSMXWCKo597CwL5Acf/wWdNkf/tfEQE3mjkeD1YOVZOUV/od1w==
 
-"@babel/helper-validator-identifier@^7.22.20", "@babel/helper-validator-identifier@^7.22.20":
+"@babel/helper-validator-identifier@^7.22.20":
   version "7.22.20"
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.22.20.tgz#c4ae002c61d2879e724581d96665583dbc1dc0e0"
   integrity sha512-Y4OZ+ytlatR8AI+8KZfKuL5urKp7qey08ha31L8b3BwewJAoJamTzyvxPR/5D+KkdJCGPq/+8TukHBlY10FX9A==
@@ -450,12 +450,7 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.22.11.tgz#becf8ee33aad2a35ed5607f521fe6e72a615f905"
   integrity sha512-R5zb8eJIBPJriQtbH/htEQy4k7E2dHWlD2Y2VT07JCzwYZHBxV5ZYtM0UhXSNMT74LyxuM+b1jdL7pSesXbC/g==
 
-"@babel/parser@^7.22.15", "@babel/parser@^7.23.0":
-  version "7.23.0"
-  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.23.0.tgz#da950e622420bf96ca0d0f2909cdddac3acd8719"
-  integrity sha512-vvPKKdMemU85V9WE/l5wZEmImpCtLqbnTvqDS2U1fJ96KrxoW7KrXhNsNCblQlg8Ck4b85yxdTyelsMUgFUXiw==
-
-"@babel/parser@^7.12.0", "@babel/parser@^7.13.9":
+"@babel/parser@^7.12.0", "@babel/parser@^7.13.9", "@babel/parser@^7.22.15", "@babel/parser@^7.23.0":
   version "7.23.0"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.23.0.tgz#da950e622420bf96ca0d0f2909cdddac3acd8719"
   integrity sha512-vvPKKdMemU85V9WE/l5wZEmImpCtLqbnTvqDS2U1fJ96KrxoW7KrXhNsNCblQlg8Ck4b85yxdTyelsMUgFUXiw==
@@ -1253,16 +1248,7 @@
     "@babel/helper-validator-identifier" "^7.22.5"
     to-fast-properties "^2.0.0"
 
-"@babel/types@^7.22.15", "@babel/types@^7.22.19", "@babel/types@^7.23.0":
-  version "7.23.0"
-  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.23.0.tgz#8c1f020c9df0e737e4e247c0619f58c68458aaeb"
-  integrity sha512-0oIyUfKoI3mSqMvsxBdclDwxXKXAUA8v/apZbc+iSyARYou1o8ZGDxbUYyLFoW2arqS2jDGqJuZvv1d/io1axg==
-  dependencies:
-    "@babel/helper-string-parser" "^7.22.5"
-    "@babel/helper-validator-identifier" "^7.22.20"
-    to-fast-properties "^2.0.0"
-
-"@babel/types@^7.12.0", "@babel/types@^7.13.0":
+"@babel/types@^7.12.0", "@babel/types@^7.13.0", "@babel/types@^7.22.15", "@babel/types@^7.22.19", "@babel/types@^7.23.0":
   version "7.23.0"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.23.0.tgz#8c1f020c9df0e737e4e247c0619f58c68458aaeb"
   integrity sha512-0oIyUfKoI3mSqMvsxBdclDwxXKXAUA8v/apZbc+iSyARYou1o8ZGDxbUYyLFoW2arqS2jDGqJuZvv1d/io1axg==
@@ -8442,16 +8428,7 @@ postcss@^7.0.36:
     picocolors "^0.2.1"
     source-map "^0.6.1"
 
-postcss@^8.1.10:
-  version "8.4.31"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.31.tgz#92b451050a9f914da6755af352bdc0192508656d"
-  integrity sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==
-  dependencies:
-    nanoid "^3.3.6"
-    picocolors "^1.0.0"
-    source-map-js "^1.0.2"
-
-postcss@^8.4.14, postcss@^8.4.19, postcss@^8.4.21, postcss@^8.4.23, postcss@^8.4.24, postcss@^8.4.31, postcss@^8.4.4:
+postcss@^8.1.10, postcss@^8.4.14, postcss@^8.4.19, postcss@^8.4.21, postcss@^8.4.23, postcss@^8.4.24, postcss@^8.4.31, postcss@^8.4.4:
   version "8.4.31"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.31.tgz#92b451050a9f914da6755af352bdc0192508656d"
   integrity sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==
@@ -9552,11 +9529,6 @@ striptags@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/striptags/-/striptags-3.2.0.tgz#cc74a137db2de8b0b9a370006334161f7dd67052"
   integrity sha512-g45ZOGzHDMe2bdYMdIvdAfCQkCTDMGBazSw1ypMowwGIee7ZQ5dU0rBJ8Jqgl+jAKIv4dbeE1jscZq9wid1Tkw==
-
-style-loader@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-3.3.3.tgz#bba8daac19930169c0c9c96706749a597ae3acff"
-  integrity sha512-53BiGLXAcll9maCYtZi2RCQZKa8NQQai5C4horqKyRmHj9H7QmcUyucrH+4KW/gBQbXM2AsB0axoEcFZPlfPcw==
 
 style-search@^0.1.0:
   version "0.1.0"

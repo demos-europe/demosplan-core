@@ -98,7 +98,7 @@
         v-slot:header-count>
         {{ Translator.trans('quantity') }}
         <dp-icon
-          v-tooltip="Translator.trans('procedures.statements.count')"
+          v-tooltip="/* @todo This causes an error */Translator.trans('procedures.statements.count')"
           icon="info"
           size="small" />
       </template>
@@ -110,18 +110,18 @@
         <div v-text="Translator.trans('public')" />
       </template>
 
-      <template v-slot:name="{id, name, externalName, creationDate}">
+      <template v-slot:name="user">
         <a
           data-cy="procedurePath"
-          :data-cy-procedure-id="id"
-          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })">
-          <strong v-text="name" />
+          :data-cy-procedure-id="user.id"
+          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: user.id })">
+          <strong v-text="user.name" />
         </a>
-        <div v-if="externalName !== name">
-          <strong v-text="`(${Translator.trans('public.participation.name')}: ${externalName})`" />
+        <div v-if="user.externalName !== user.name">
+          <strong v-text="`(${Translator.trans('public.participation.name')}: ${user.externalName})`" />
         </div>
         <div>
-          <strong v-text="'vom ' + creationDate" />
+          <strong v-text="'vom ' + user.creationDate" />
         </div>
       </template>
 

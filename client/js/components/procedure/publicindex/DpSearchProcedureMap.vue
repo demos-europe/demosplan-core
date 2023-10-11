@@ -151,12 +151,13 @@
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
-          <i
+          <dp-tooltip-icon
             v-if="filter.contextHelp !== ''"
-            tabindex="0"
-            class="fa fa-question-circle u-ml-0_25"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{ content: filter.contextHelp }" />
+            class="u-ml-0_25"
+            tabindex="0"
+            icon="fa-question-circle"
+            :text="filter.contextHelp" />
         </label><!--
     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select

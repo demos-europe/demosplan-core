@@ -71,7 +71,7 @@ export default {
              * we're adding dynamically to use the provided addon's script from now on.
              */
             eval(content)
-            this.$options.components[addon.entry] = window[addon.entry].default
+            this.$.appContext.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
           }

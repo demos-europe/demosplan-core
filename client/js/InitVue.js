@@ -73,7 +73,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     loadSentry()
 
     app.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
-    // app.directive('tooltip', Tooltip)
+    app.directive('tooltip', Tooltip)
 
     // Add plugins to Vue instance
     app.use(PortalVue)
