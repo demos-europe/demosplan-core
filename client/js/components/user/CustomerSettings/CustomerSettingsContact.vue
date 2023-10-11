@@ -10,12 +10,16 @@
         <p
           class="weight--bold u-mt"
           v-text="contact.attributes.title" />
-        <span v-text="contact.attributes.phoneNumber" /><br>
-        <span v-text="contact.attributes.eMailAddress" /><br>
-        <span v-html="contact.attributes.text" /><br>
         <span
-          class=""
-          v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
+          class="block"
+          v-text="contact.attributes.phoneNumber" />
+        <span
+          class="block"
+          v-text="contact.attributes.eMailAddress" />
+        <span
+          class="block"
+          v-html="contact.attributes.text" />
+        <span v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
       </template>
       <template v-slot:form>
         <div data-dp-validate="contactData">
@@ -35,8 +39,9 @@
             data-cy="phoneNumber"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
             :placeholder="Translator.trans('customer.contact.phoneNumber')"
-            required
-            type="tel" />
+            :required="phoneIsRequired"
+            type="tel"
+            @input="input => setRequiredEmail(input)" />
           <dp-input
             id="emailAddress"
             v-model="customerContact.eMailAddress"
@@ -44,8 +49,9 @@
             class="u-mb-0_75"
             data-cy="emailAddress"
             :placeholder="Translator.trans('email.address')"
-            required
-            type="email" />
+            :required="emailIsRequired"
+            type="email"
+            @input="input => setRequiredPhone(input)" />
           <dp-editor
             id="supportText"
             class="u-mb-0_75"
@@ -91,6 +97,8 @@ export default {
 
   data () {
     return {
+      emailIsRequired: true,
+      phoneIsRequired: true,
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('customer.contact.new'),
@@ -177,6 +185,14 @@ export default {
       this.customerContact.eMailAddress = ''
       this.customerContact.visible = false
       this.customerContact.text = ''
+    },
+
+    setRequiredEmail (input) {
+      this.emailIsRequired = !input
+    },
+
+    setRequiredPhone (input) {
+      this.phoneIsRequired = !input
     },
 
     updateForm (index) {
