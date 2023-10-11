@@ -14,10 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use EDT\PathBuilding\End;
 
 /**
@@ -41,6 +43,10 @@ use EDT\PathBuilding\End;
  */
 final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
+    public function __construct(
+        protected readonly BrandingRepository $brandingRepository
+    ) {}
+
     public function getEntityClass(): string
     {
         return Customer::class;
@@ -125,7 +131,18 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             'feature_platform_logo_edit',
             'feature_customer_branding_edit'
         )) {
-            $properties[] = $this->createToOneRelationship($this->branding)->readable();
+            $properties[] = $this->createToOneRelationship($this->branding)
+                ->readable(false, function (Customer $customer): Branding {
+                    $branding = $customer->getBranding();
+                    if (null === $branding) {
+                        $branding = $this->brandingRepository->createFromData([]);
+                        $this->brandingRepository->persistEntities([$branding]);
+                        $customer->setBranding($branding);
+                        $this->brandingRepository->flushEverything();
+                    }
+
+                    return $branding;
+                });
         }
 
         if ($this->currentUser->hasPermission('feature_imprint_text_customized_view')) {
