@@ -1,12 +1,19 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
-
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\EmailAddressFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
-
 use Zenstruck\Foundry\ModelFactory;
 
 /**
@@ -27,7 +34,6 @@ use Zenstruck\Foundry\ModelFactory;
  * @method static SupportContact[]|Proxy[]                 findBy(array $attributes)
  * @method static SupportContact[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static SupportContact[]|Proxy[]                 randomSet(int $number, array $attributes = [])
- *
  */
 final class SupportContactFactory extends ModelFactory
 {
@@ -39,13 +45,14 @@ final class SupportContactFactory extends ModelFactory
     protected function getDefaults(): array
     {
         $name = self::faker()->country();
+
         return [
-            'title' => self::faker()->country(),
-            'phoneNumber' => self::faker()->phoneNumber(),
+            'title'        => self::faker()->country(),
+            'phoneNumber'  => self::faker()->phoneNumber(),
             'eMailAddress' => EmailAddressFactory::new(),
-            'text' => self::faker()->text(2000),
-            'customer' => null,
-            'visible' => true,
+            'text'         => self::faker()->text(2000),
+            'customer'     => null,
+            'visible'      => true,
         ];
     }
 
