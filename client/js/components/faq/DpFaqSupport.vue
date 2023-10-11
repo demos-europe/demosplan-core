@@ -15,27 +15,39 @@ All rights reserved
       {{ Translator.trans('support.heading') }}
     </h2>
     <section class="mb-5">
-      <p class="mb-5">{{ Translator.trans('support.introduction') }}</p>
-      <p>Sie haben eine Frage zur Technik? Dann hilft Ihnen unser technischer Support gerne weiter.</p>
+      <p class="mb-5">
+        {{ Translator.trans('support.introduction') }}
+      </p>
+      <p>
+        Sie haben eine Frage zur Technik? Dann hilft Ihnen unser technischer Support gerne weiter.
+      </p>
         <h3 class="font-size-h4 mt-5">
           {{ Translator.trans('support.content') }}
         </h3>
       <ul class="grid lg:grid-cols-3 gap-3">
         <li
-          v-for="contact in contactList"
+          v-for="contact in contacts"
           class="c-support__groupcard space-inset-m h-48">
           <dp-faq-support-card>
             <template v-slot:title>
-              <h2 class="font-semibold">{{ contact.title }}</h2>
+              <h2 class="font-semibold">
+                {{ contact.attributes.title }}
+              </h2>
             </template>
             <template v-slot:phonenumber>
-              <p class="mt-3 mb-0 inline-block font-semibold">{{ contact.phoneNumber }}</p>
+              <p class="mt-3 mb-0 inline-block font-semibold">
+                {{ contact.attributes.phoneNumber }}
+              </p>
             </template>
             <template v-slot:email>
-              <p class="mb-0 font-normal">{{ contact.emailAddress }}</p>
+              <p class="mb-0 font-normal">
+                {{ contact.attributes.eMailAddress }}
+              </p>
             </template>
             <template v-slot:reachability>
-              <p class="mt-4 lg:mt-2 font-normal">{{ contact.text }}</p>
+              <p class="mt-4 lg:mt-2 font-normal">
+                {{ (contact.attributes.text).replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, "") }}
+              </p>
             </template>
           </dp-faq-support-card>
         </li>
@@ -47,18 +59,25 @@ All rights reserved
     <div class="c-support__singlecard lg:w-8/12 space-inset-m pt-0 h-48">
       <dp-faq-support-card>
         <template v-slot:phonenumber>
-          <p class="mt-8 mb-0 inline-block font-semibold">(+49) 40 428 46 2694</p>
+          <p class="mt-8 mb-0 inline-block font-semibold">
+            (+49) 40 428 46 2694
+          </p>
         </template>
         <template v-slot:reachability>
           <p class="mt-3">
-            <h5 class="mb-0 font-semibold">Servicezeiten</h5>
-            <p class="font-normal">Montag bis Freitag: 6.30 - 18 Uhr<br>
+            <h5 class="mb-0 font-semibold">
+              Servicezeiten
+            </h5>
+            <p class="font-normal">
+              Montag bis Freitag: 6.30 - 18 Uhr<br>
               Freitag: 6.30 - 17Uhr
             </p>
           </p>
         </template>
         <template v-slot:special-reachability>
-          <span>Ausgenommen am 24.12. und 31.12., sowie an gesetzlichen Feiertagen in Schleswig-Holstein.</span>
+          <span>
+            Ausgenommen am 24.12. und 31.12., sowie an gesetzlichen Feiertagen in Schleswig-Holstein.
+          </span>
         </template>
       </dp-faq-support-card>
     </div>
@@ -67,52 +86,36 @@ All rights reserved
 <script>
 
 import DpFaqSupportCard from './DpFaqSupportCard.vue'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DpFaqSupport',
   components: { DpFaqSupportCard },
 
-  data () {
-    return {
-      contactList: [],
-      contact: {
-        title: '',
-        phoneNumber: '',
-        text: '',
-        visible: '',
-        emailAddress: ''
-      }
-    }
+  computed: {
+    ...mapState('customerContact', {
+      contacts: 'items'
+    })
   },
 
   methods: {
-    getContacts () {
-      this.contactList = [{
-        title: 'Naruto Uzumaki',
-        phoneNumber: '0145758798078',
-        text: 'Montag bis Freitag: 6.30 - 18 Uhr',
-        visible: true,
-        emailAddress: 'naruto@gmail.com'
-      },
-        {
-          title: 'Tanjiro Kamado',
-          phoneNumber: '0145756748',
-          text: 'Dienstag bis Freitag: 7.00 - 20 Uhr',
-          visible: true,
-          emailAddress: 'kamado@gmail.com'
-        },
-        {
-          title: 'Nezuko Kamado',
-          phoneNumber: '01457568078',
-          text: 'Montag bis Donnerstag: 9.00 - 15 Uhr',
-          visible: true,
-          emailAddress: 'kamadochan@gmail.com'
-        }]
-    }
+    ...mapActions('customerContact', {
+      fetchContact: 'list',
+    })
   },
 
   mounted () {
-    this.getContacts()
+    this.fetchContact({
+      fields: {
+        CustomerContact: [
+          'title',
+          'phoneNumber',
+          'text',
+          'visible',
+          'eMailAddress'
+        ].join()
+      }
+    })
   }
 }
 </script>
