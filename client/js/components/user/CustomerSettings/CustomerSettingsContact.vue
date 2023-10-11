@@ -156,6 +156,7 @@ export default {
           }
         }
         this.createContact(payload).then((response) => {
+          this.getContacts()
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       } else {
@@ -177,6 +178,20 @@ export default {
       }
       this.$refs.editableList.toggleFormVisibility(false)
       this.resetForm()
+    },
+
+    getContacts () {
+      this.fetchContact({
+        fields: {
+          CustomerContact: [
+            'title',
+            'phoneNumber',
+            'text',
+            'visible',
+            'eMailAddress'
+          ].join()
+        }
+      })
     },
 
     resetForm () {
@@ -216,19 +231,7 @@ export default {
       })
     })
 
-    this.fetchContact({
-      fields: {
-        CustomerContact: [
-          'title',
-          'phoneNumber',
-          'text',
-          'visible',
-          'eMailAddress'
-        ].join()
-      }
-    })
-      .then(() => {
-      })
+    this.getContacts()
   }
 }
 </script>
