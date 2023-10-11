@@ -3,6 +3,7 @@ name: Run Reviewdog
 on:
   pull_request:
     paths:
+      - '**.php'
       - '**.js'
       - '**.vue'
 
