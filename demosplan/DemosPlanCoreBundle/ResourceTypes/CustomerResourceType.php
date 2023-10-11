@@ -45,7 +45,8 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
 {
     public function __construct(
         protected readonly BrandingRepository $brandingRepository
-    ) {}
+    ) {
+    }
 
     public function getEntityClass(): string
     {
