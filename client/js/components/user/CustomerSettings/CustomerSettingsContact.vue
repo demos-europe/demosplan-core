@@ -91,7 +91,6 @@ export default {
 
   data () {
     return {
-      customerContactList: [],
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('customer.contact.new'),
@@ -148,7 +147,7 @@ export default {
             eMailAddress: this.customerContact.eMailAddress
           }
         }
-        this.createContact(payload).then(() => {
+        this.createContact(payload).then((response) => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       } else {
