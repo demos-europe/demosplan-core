@@ -219,7 +219,6 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             $this->baseLayerLayers,
             $this->mapAttribution,
             $this->signLanguageOverviewDescription,
-            $this->overviewDescriptionInSimpleLanguage,
         ];
 
         if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_customer')) {
@@ -236,6 +235,9 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
         }
         if ($this->currentUser->hasPermission('field_customer_accessibility_explanation_edit')) {
             $properties[] = $this->accessibilityExplanation;
+        }
+        if ($this->currentUser->hasPermission('field_simple_language_overview_description_edit')) {
+            $properties[] = $this->overviewDescriptionInSimpleLanguage;
         }
 
         return $this->toProperties(...$properties);
