@@ -124,7 +124,7 @@ export default {
   methods: {
     ...mapActions('customerContact', {
       createContact: 'create',
-      fetchContact: 'list',
+      fetchContacts: 'list',
       deleteContact: 'delete',
       saveContact: 'save'
     }),
@@ -175,7 +175,7 @@ export default {
     },
 
     getContacts () {
-      this.fetchContact({
+      this.fetchContacts({
         fields: {
           CustomerContact: [
             'title',
