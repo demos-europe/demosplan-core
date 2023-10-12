@@ -30,7 +30,7 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            data-dp-validate-error="error.customer.contact.title"
+            data-dp-validate-error="error.title"
             :placeholder="Translator.trans('customer.contact.title')"
             required
             type="text" />
@@ -40,23 +40,21 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            data-dp-validate-error="error.customer.contact.phone_or_email"
+            data-dp-validate-error="error.phone_or_email"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
             :placeholder="Translator.trans('customer.contact.phone_number')"
-            :required="phoneIsRequired"
-            type="tel"
-            @input="input => setRequiredEmail(input)" />
+            :required="customerContact.eMailAddress === ''"
+            type="tel" />
           <dp-input
             id="emailAddress"
             v-model="customerContact.eMailAddress"
             autocomplete="email"
             class="u-mb-0_75"
             data-cy="emailAddress"
-            data-dp-validate-error="error.customer.contact.phone_or_email"
+            data-dp-validate-error="error.phone_or_email"
             :placeholder="Translator.trans('email.address')"
-            :required="emailIsRequired"
-            type="email"
-            @input="input => setRequiredPhone(input)" />
+            :required="customerContact.phoneNumber === ''"
+            type="email" />
           <dp-editor
             id="supportText"
             class="u-mb-0_75"
@@ -98,8 +96,13 @@ export default {
 
   data () {
     return {
-      emailIsRequired: true,
-      phoneIsRequired: true,
+      customerContact: {
+        title: '',
+        phoneNumber: '',
+        eMailAddress: '',
+        text: '',
+        visible: false
+      },
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('customer.contact.new'),
@@ -115,23 +118,13 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    }),
-
-    customerContact () {
-      return {
-        title: '',
-        phoneNumber: '',
-        eMailAddress: '',
-        text: '',
-        visible: false
-      }
-    }
+    })
   },
 
   methods: {
     ...mapActions('customerContact', {
       createContact: 'create',
-      fetchContact: 'list',
+      fetchContacts: 'list',
       deleteContact: 'delete',
       saveContact: 'save'
     }),
@@ -182,7 +175,7 @@ export default {
     },
 
     getContacts () {
-      this.fetchContact({
+      this.fetchContacts({
         fields: {
           CustomerContact: [
             'title',
@@ -201,14 +194,6 @@ export default {
       this.customerContact.eMailAddress = ''
       this.customerContact.visible = false
       this.customerContact.text = ''
-    },
-
-    setRequiredEmail (input) {
-      this.emailIsRequired = !input
-    },
-
-    setRequiredPhone (input) {
-      this.phoneIsRequired = !input
     },
 
     updateForm (index) {
