@@ -80,7 +80,15 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+        if (null === $currentCustomerId) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            // allow access to current customer only
+            $this->conditionFactory->propertyHasValue($currentCustomerId, $this->id),
+        ];
     }
 
     public function isReferencable(): bool
