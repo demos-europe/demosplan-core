@@ -21,6 +21,8 @@ const components = {
   DpFaqSupport
 }
 
-initialize(components).then(() => {
+const apiStores = ['customerContact']
+
+initialize(components, {}, apiStores).then(() => {
   highlightActiveLinks('[data-highlight-current]')
 })

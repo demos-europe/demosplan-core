@@ -17,11 +17,15 @@ use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(name="support_contact")
+ * @ORM\Table(
+ *     name="support_contact",
+ *     uniqueConstraints= {@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})}
+ * )
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
@@ -42,7 +46,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
     private ?string $id;
 
     /**
-     * @ORM\Column(name="title", type="string", length=255, unique=true, nullable=true)
+     * @ORM\Column(name="title", type="string", length=255, nullable=true)
      */
     #[Assert\NotBlank(allowNull: true)]
     private ?string $title;

@@ -177,7 +177,7 @@
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
-        title="Inhaltlicher Support">
+        :title="Translator.trans('support')">
         <customer-settings-contact />
       </customer-settings-section>
 

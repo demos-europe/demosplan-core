@@ -10,20 +10,27 @@
         <p
           class="weight--bold u-mt"
           v-text="contact.attributes.title" />
-        <span v-text="contact.attributes.phoneNumber" /><br>
-        <span v-text="contact.attributes.eMailAddress" /><br>
-        <span v-html="contact.attributes.text" /><br>
         <span
-          class=""
-          v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
+          class="block"
+          v-text="contact.attributes.phoneNumber" />
+        <span
+          class="block"
+          v-text="contact.attributes.eMailAddress" />
+        <span
+          class="block"
+          v-html="contact.attributes.text" />
+        <span v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
       </template>
       <template v-slot:form>
-        <div data-dp-validate="contactData">
+        <div
+          id="contactForm"
+          data-dp-validate="contactData">
           <dp-input
             id="contactTitle"
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
+            data-dp-validate-error="error.customer.contact.title"
             :placeholder="Translator.trans('customer.contact.title')"
             required
             type="text" />
@@ -33,19 +40,23 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
+            data-dp-validate-error="error.customer.contact.phone_or_email"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
-            :placeholder="Translator.trans('customer.contact.phoneNumber')"
-            required
-            type="tel" />
+            :placeholder="Translator.trans('customer.contact.phone_number')"
+            :required="phoneIsRequired"
+            type="tel"
+            @input="input => setRequiredEmail(input)" />
           <dp-input
             id="emailAddress"
             v-model="customerContact.eMailAddress"
             autocomplete="email"
             class="u-mb-0_75"
             data-cy="emailAddress"
+            data-dp-validate-error="error.customer.contact.phone_or_email"
             :placeholder="Translator.trans('email.address')"
-            required
-            type="email" />
+            :required="emailIsRequired"
+            type="email"
+            @input="input => setRequiredPhone(input)" />
           <dp-editor
             id="supportText"
             class="u-mb-0_75"
@@ -54,11 +65,7 @@
             :toolbar-items="{
               fullscreenButton: true,
               headings: [2,3,4],
-              imageButton: true,
               linkButton: true
-            }"
-            :routes="{
-              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
             }" />
           <dp-checkbox
             id="contactVisible"
@@ -91,6 +98,8 @@ export default {
 
   data () {
     return {
+      emailIsRequired: true,
+      phoneIsRequired: true,
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('customer.contact.new'),
@@ -148,6 +157,7 @@ export default {
           }
         }
         this.createContact(payload).then((response) => {
+          this.getContacts()
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       } else {
@@ -171,6 +181,20 @@ export default {
       this.resetForm()
     },
 
+    getContacts () {
+      this.fetchContact({
+        fields: {
+          CustomerContact: [
+            'title',
+            'phoneNumber',
+            'text',
+            'visible',
+            'eMailAddress'
+          ].join()
+        }
+      })
+    },
+
     resetForm () {
       this.customerContact.title = ''
       this.customerContact.phoneNumber = ''
@@ -179,12 +203,20 @@ export default {
       this.customerContact.text = ''
     },
 
+    setRequiredEmail (input) {
+      this.emailIsRequired = !input
+    },
+
+    setRequiredPhone (input) {
+      this.phoneIsRequired = !input
+    },
+
     updateForm (index) {
       const currentData = this.contacts[index].attributes
       this.customerContact.title = currentData.title
-      this.customerContact.phoneNumber = currentData.phoneNumber
-      this.customerContact.eMailAddress = currentData.eMailAddress
-      this.customerContact.text = currentData.text
+      this.customerContact.phoneNumber = currentData.phoneNumber ? currentData.phoneNumber : ''
+      this.customerContact.eMailAddress = currentData.eMailAddress ? currentData.eMailAddress : ''
+      this.customerContact.text = currentData.text ? currentData.text : ''
       this.customerContact.visible = currentData.visible
     }
   },
@@ -192,6 +224,9 @@ export default {
   mounted () {
     this.$on('showUpdateForm', (index) => {
       this.updateForm(index)
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
     })
 
     this.$on('delete', (id) => {
@@ -200,19 +235,7 @@ export default {
       })
     })
 
-    this.fetchContact({
-      fields: {
-        CustomerContact: [
-          'title',
-          'phoneNumber',
-          'text',
-          'visible',
-          'eMailAddress'
-        ].join()
-      }
-    })
-      .then(() => {
-      })
+    this.getContacts()
   }
 }
 </script>
