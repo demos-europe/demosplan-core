@@ -218,7 +218,6 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             $this->baseLayerUrl,
             $this->baseLayerLayers,
             $this->mapAttribution,
-            $this->xplanning,
             $this->signLanguageOverviewDescription,
             $this->overviewDescriptionInSimpleLanguage,
         ];
