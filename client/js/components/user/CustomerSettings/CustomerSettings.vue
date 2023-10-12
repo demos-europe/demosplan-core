@@ -8,12 +8,9 @@
 </license>
 
 <template>
-  <form
-    :action="Routing.generate('DemosPlan_user_setting_page_post')"
+  <div
     data-dp-validate="customerSettings"
-    ref="customerSettings"
-    method="post"
-    enctype="multipart/form-data">
+    ref="customerSettings">
     <dp-loading v-if="isLoading" />
 
     <template v-else>
@@ -22,7 +19,8 @@
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"
         is-open
         :title="Translator.trans('customer.branding.label')">
-        <customer-settings-branding :branding="branding" />
+        <customer-settings-branding
+          :branding="branding" />
       </customer-settings-section>
 
       <!-- Map -->
@@ -180,26 +178,13 @@
         :title="Translator.trans('support')">
         <customer-settings-contact />
       </customer-settings-section>
-
-      <!-- Button row -->
-      <div class="text-right space-inline-s">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          v-text="Translator.trans('save')"
-          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
-        <!-- Reset link to reload the page to its initial values -->
-        <a
-          class="btn btn--secondary"
-          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
-          v-text="Translator.trans('reset')" />
-      </div>
     </template>
-  </form>
+  </div>
 </template>
 
 <script>
-import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsContact from './CustomerSettingsContact'
 import CustomerSettingsSection from './CustomerSettingsSection'
@@ -292,6 +277,10 @@ export default {
   },
 
   computed: {
+    ...mapState('customer', {
+      customer: 'items'
+    }),
+
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
       return this.signLanguageOverviewVideo.file && !this.signLanguageOverviewVideo.id
@@ -299,6 +288,17 @@ export default {
   },
 
   methods: {
+    ...mapActions('customer', {
+      createCustomer: 'create',
+      fetchCustomer: 'list',
+      deleteCustomer: 'delete',
+      saveCustomer: 'save'
+    }),
+
+    ...mapMutations('customer', {
+      updateCustomer: 'setItem'
+    }),
+
     addAttributesToField (field, attributes) {
       this.requestFields[field] = [
         ...(this.requestFields[field] ? this.requestFields[field] : []),
@@ -309,8 +309,9 @@ export default {
     fetchCustomerData () {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
-      dpApi.get(Routing.generate('api_resource_list', { resourceType: 'Customer' }), payload, { serialize: true })
-        .then((response) => this.handleCustomerResponse(response))
+      this.fetchCustomer(payload, { serialize: true }).then(() => {
+        this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
+      })
     },
 
     handleCustomerResponse (response) {
@@ -376,6 +377,10 @@ export default {
         this.requestIncludes.push('branding')
         this.addAttributesToField('Branding', ['cssvars'])
         this.addAttributesToField('Customer', ['branding'])
+      }
+
+      if (hasPermission('feature_platform_public_index_map_settings')) {
+        this.addAttributesToField('Customer', ['baseLayerUrl', 'baseLayerLayers', 'mapAttribution'])
       }
 
       if (hasPermission('field_sign_language_overview_video_edit')) {

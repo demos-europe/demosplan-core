@@ -69,16 +69,21 @@
         <span v-html="Translator.trans('branding.styling.details.description')" />
       </dp-details>
     </div>
+    <dp-button-row
+      primary
+      secondary
+      @primary-action="$emit('save')" />
   </div>
 </template>
 
 <script>
-import { DpCheckbox, DpDetails, DpLabel, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpCheckbox, DpDetails, DpLabel, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsBranding',
 
   components: {
+    DpButtonRow,
     DpCheckbox,
     DpDetails,
     DpLabel,
