@@ -10,7 +10,7 @@ All rights reserved
 <template>
   <div
     id="scFaq"
-    class="c-support__wrapper space-inset-m">
+    class="c-support-wrapper space-inset-m">
     <h2 class="font-normal">
       {{ Translator.trans('support.heading') }}
     </h2>
@@ -27,7 +27,7 @@ All rights reserved
       <ul class="grid lg:grid-cols-3 gap-3">
         <li
           v-for="contact in contacts"
-          class="c-support__groupcard space-inset-m h-48">
+          class="space-inset-m h-48 c-support-singlecard">
           <dp-faq-support-card>
             <template v-slot:title>
               <h2 class="font-semibold">
@@ -56,7 +56,7 @@ All rights reserved
     <h3 class="font-size-h4 font-semibold">
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="c-support__singlecard lg:w-8/12 space-inset-m pt-0 h-48">
+    <div class="lg:w-8/12 space-inset-m pt-0 h-48 c-support-singlecard">
       <dp-faq-support-card>
         <template v-slot:phonenumber>
           <p class="mt-8 mb-0 inline-block font-semibold">
