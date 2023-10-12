@@ -30,6 +30,7 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
+            data-dp-validate-error="error.customer.contact.title"
             :placeholder="Translator.trans('customer.contact.title')"
             required
             type="text" />
@@ -39,6 +40,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
+            data-dp-validate-error="error.customer.contact.phoneOrEmail"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
             :placeholder="Translator.trans('customer.contact.phoneNumber')"
             :required="phoneIsRequired"
@@ -50,6 +52,7 @@
             autocomplete="email"
             class="u-mb-0_75"
             data-cy="emailAddress"
+            data-dp-validate-error="error.customer.contact.phoneOrEmail"
             :placeholder="Translator.trans('email.address')"
             :required="emailIsRequired"
             type="email"
