@@ -9,7 +9,6 @@ All rights reserved
 
 <template>
   <div>
-    <div class="c-support__singlecard__content col-span-2">
       <slot name="title"></slot>
       <svg
           class="inline-block"
@@ -23,12 +22,9 @@ All rights reserved
       </svg>
       <slot name="phonenumber"></slot>
       <slot name="email"></slot>
-    </div>
-    <div class="c-support__singlecard__content">
       <slot name="reachability"></slot>
+      <slot name="special-reachability"></slot>
     </div>
-    <slot name="special-reachability"></slot>
-  </div>
 </template>
 <script>
 
