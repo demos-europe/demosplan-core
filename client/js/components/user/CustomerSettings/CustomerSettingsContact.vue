@@ -42,7 +42,7 @@
             data-cy="phoneNumber"
             data-dp-validate-error="error.customer.contact.phone_or_email"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
-            :placeholder="Translator.trans('customer.contact.phoneNumber')"
+            :placeholder="Translator.trans('customer.contact.phone_number')"
             :required="phoneIsRequired"
             type="tel"
             @input="input => setRequiredEmail(input)" />
