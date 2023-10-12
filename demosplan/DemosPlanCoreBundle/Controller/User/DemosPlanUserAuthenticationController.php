@@ -227,6 +227,9 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         $users = [];
+        $currentCustomer = $customerService->getCurrentCustomer()->getSubdomain();
+        $availableCustomers = $customerService->getReservedCustomerNamesAndSubdomains();
+        $customers = array_map(static fn(array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
         $useIdp = false;
@@ -268,6 +271,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             [
                 'title'     => 'user.login',
                 'useSaml'   => $useSaml,
+                'customers' => $customers,
+                'currentCustomer' => $currentCustomer,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
                     'useIdp'   => $useIdp,
