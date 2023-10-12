@@ -27,7 +27,7 @@ All rights reserved
       <ul class="grid lg:grid-cols-3 gap-3">
         <li
           v-for="contact in contacts"
-          class="space-inset-m h-48 c-support-singlecard">
+          class="space-inset-m h-48 c-support-card">
           <dp-faq-support-card>
             <template v-slot:title>
               <h2 class="font-semibold">
@@ -56,7 +56,7 @@ All rights reserved
     <h3 class="font-size-h4 font-semibold">
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12 space-inset-m pt-0 h-48 c-support-singlecard">
+    <div class="lg:w-8/12 space-inset-m pt-0 h-48 c-support-card">
       <dp-faq-support-card>
         <template v-slot:phonenumber>
           <p class="mt-8 mb-0 inline-block font-semibold">
