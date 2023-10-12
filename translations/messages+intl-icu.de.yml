@@ -11,6 +11,7 @@ access.token.send: "Zugangscode versenden"
 access.token.copied: "Zugangscode wurde kopiert."
 accessibility: "Barrierefreiheit"
 accessibility.explanation: "Erklärung zur Barrierefreiheit"
+accessibility.report_barrier: "Barriere melden"
 act: "Vorgang"
 action.irreversible: "Dieser Vorgang kann nicht rückgängig gemacht werden."
 
@@ -1875,6 +1876,8 @@ liked.by.persons: |
         other {Unterstützt von # Personen.}
     }
 line: "Zeile {line}:"
+link.external.to: "Externer Link zu {source}"
+link.open: "Link öffnet in einem neuen Fenster"
 link.text.drawing: "Zur Planzeichnung"
 link.text.privacy: "Zur Datenschutzerklärung"
 link.text.reason: "Zu den Kapiteln der Begründung"
