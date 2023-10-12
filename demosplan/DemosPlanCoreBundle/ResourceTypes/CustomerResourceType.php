@@ -154,11 +154,17 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
                 });
         }
 
-        if ($this->currentUser->hasPermission('feature_imprint_text_customized_view')) {
+        if ($this->currentUser->hasAnyPermissions(
+            'feature_imprint_text_customized_view',
+            'field_imprint_text_customized_edit_customer'
+        )) {
             $properties[] = $this->createAttribute($this->imprint)->readable();
         }
 
-        if ($this->currentUser->hasPermission('feature_data_protection_text_customized_view')) {
+        if ($this->currentUser->hasAnyPermissions(
+            'feature_data_protection_text_customized_view',
+            'field_data_protection_text_customized_edit_customer'
+        )) {
             $properties[] = $this->createAttribute($this->dataProtection)->readable();
         }
 
@@ -176,6 +182,12 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
 
         if ($this->currentUser->hasPermission('field_simple_language_overview_description_edit')) {
             $properties[] = $this->createAttribute($this->overviewDescriptionInSimpleLanguage)->readable();
+        }
+
+        if ($this->currentUser->hasPermission('area_customer_settings')) {
+            $properties[] = $this->createAttribute($this->baseLayerUrl)->readable();
+            $properties[] = $this->createAttribute($this->baseLayerLayers)->readable();
+            $properties[] = $this->createAttribute($this->mapAttribution)->readable();
         }
 
         return $properties;
