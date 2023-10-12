@@ -235,19 +235,7 @@ export default {
       })
     })
 
-    this.fetchContact({
-      fields: {
-        CustomerContact: [
-          'title',
-          'phoneNumber',
-          'text',
-          'visible',
-          'eMailAddress'
-        ].join()
-      }
-    })
-      .then(() => {
-      })
+    this.getContacts()
   }
 }
 </script>

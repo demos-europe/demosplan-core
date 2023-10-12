@@ -75,6 +75,8 @@
                 </alternative-login>
             {% endif %}
 
+            {# As this is debug output no translation keys are needed here #}
+            <div class="{{ 'u-m u-mt-0'|prefixClass }}">Current Customer: {{ currentCustomer }}, available customers: {{ customers|join(', ') }}</div>
         </div>
     {% endif %}
 

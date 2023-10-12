@@ -87,7 +87,7 @@ class BrandingResourceType extends DplanResourceType implements UpdatableDqlReso
      */
     public function getUpdatableProperties(object $updateTarget): array
     {
-        if ($this->currentUser->hasPermission('area_customer_settings')) {
+        if (!$this->currentUser->hasPermission('area_customer_settings')) {
             return [];
         }
 
