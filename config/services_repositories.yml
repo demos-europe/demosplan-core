@@ -96,8 +96,7 @@ services:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Slug'
 
     demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository:
-        arguments:
-            $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\SupportContact'
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\SupportContact'
 
     demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
