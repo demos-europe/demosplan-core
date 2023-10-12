@@ -14,10 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
-use Doctrine\ORM\Mapping\UniqueConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name="support_contact",
  *     uniqueConstraints= {@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})}
  * )
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
 #[SupportContactConstraint]
