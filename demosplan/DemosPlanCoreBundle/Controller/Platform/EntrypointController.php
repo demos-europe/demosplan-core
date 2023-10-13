@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -149,6 +150,15 @@ class EntrypointController extends BaseController
         $entrypointRoute = $this->entryPointDecider->determinePublicEntrypoint();
 
         return $this->processEntrypointRoute($entrypointRoute);
+    }
+
+    #[AttributeDplanPermissions('area_public_participation')]
+    #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
+    public function loginIdpError(): RedirectResponse|Response
+    {
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
+        );
     }
 
     /**
