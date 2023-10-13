@@ -80,7 +80,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      */
     #[Assert\NotNull]
     #[Assert\Email]
-    protected $eMailAddress;
+    protected $eMailAddress = '';
 
     public function getId(): ?string
     {
