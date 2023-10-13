@@ -55,7 +55,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $creationDate;
 
@@ -64,7 +64,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @Gedmo\Timestampable(on="update")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $modificationDate;
 
