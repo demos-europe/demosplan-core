@@ -28,7 +28,7 @@ All rights reserved
       :class="contactLength === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
       <li
         v-for="contact in contacts"
-        :v-key="contact.id"
+        :key="contact.id"
         class="space-inset-m c-support__card color--black bg-color--white"
         :class="contactLength === 1 ? 'lg:w-8/12' : ''">
         <dp-faq-support-card
@@ -49,7 +49,7 @@ All rights reserved
 <script>
 
 import { mapActions, mapState } from 'vuex'
-import DpFaqSupportCard from './DpFaqSupportCard.vue'
+import DpFaqSupportCard from './DpFaqSupportCard'
 
 export default {
   name: 'DpFaqSupport',
@@ -77,7 +77,7 @@ export default {
 
   methods: {
     ...mapActions('customerContact', {
-      fetchContact: 'list',
+      fetchContact: 'list'
     })
   },
 
