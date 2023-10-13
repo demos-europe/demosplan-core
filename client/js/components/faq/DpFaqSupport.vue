@@ -31,55 +31,18 @@ All rights reserved
         :v-key="contact.id"
         class="space-inset-m h-48 c-support-card"
         :class="contactLength === 1 ? 'lg:w-8/12' : ''">
-        <dp-faq-support-card>
-          <template v-slot:title>
-            <h4 class="font-semibold">
-              {{ contact.attributes.title }}
-            </h4>
-          </template>
-          <template v-slot:phonenumber>
-            <p class="mt-3 mb-0 inline-block font-semibold">
-              {{ contact.attributes.phoneNumber }}
-            </p>
-          </template>
-          <template v-slot:email>
-            <p class="mb-0 font-normal">
-              {{ contact.attributes.eMailAddress }}
-            </p>
-          </template>
-          <template v-slot:reachability>
-            <p class="mt-4 lg:mt-2 font-normal">
-              {{ (contact.attributes.text).replace(/<\/?p[^>]*>/g, "") }}
-            </p>
-          </template>
-        </dp-faq-support-card>
+        <dp-faq-support-card
+            :title="contact.attributes.title"
+            :email="contact.attributes.eMailAddress"
+            :phone-number="contact.attributes.phoneNumber"
+            :reachability="contact.attributes.text" />
       </li>
     </ul>
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
     <div class="lg:w-8/12 space-inset-m pt-0 h-48 c-support-card">
-      <dp-faq-support-card>
-        <template v-slot:phonenumber>
-          <p class="mt-8 mb-0 inline-block font-semibold">
-            (+49) 40 428 46 2694
-          </p>
-        </template>
-        <template v-slot:reachability>
-          <h4 class="mb-0 mt-3 font-semibold">
-            {{ Translator.trans('support.contact.service') }}
-          </h4>
-          <p class="font-normal">
-            Montag bis Freitag: 6.30 - 18 Uhr<br>
-            Freitag: 6.30 - 17Uhr
-          </p>
-        </template>
-        <template v-slot:special-reachability>
-          <span>
-            {{ Translator.trans('support.contact.exception') }}
-          </span>
-        </template>
-      </dp-faq-support-card>
+      <dp-faq-support-card />
     </div>
   </div>
 </template>
@@ -94,7 +57,11 @@ export default {
 
   data() {
     return {
-      contactList: this.contacts
+      contactList: this.contacts,
+      email: '',
+      phoneNumber: '',
+      reachability: '',
+      title: ''
     }
   },
 
