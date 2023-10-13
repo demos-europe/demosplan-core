@@ -162,8 +162,8 @@
           :text="Translator.trans('customer.simpleLanguage.label')" />
         <dp-editor
           id="r_simpleLanguage"
-          :basic-auth="dplan.settings.basicAuth"
           v-model="customer.overviewDescriptionInSimpleLanguage"
+          :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
           :toolbar-items="{
             fullscreenButton: true,

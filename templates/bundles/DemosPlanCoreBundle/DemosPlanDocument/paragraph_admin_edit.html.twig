@@ -68,23 +68,23 @@
             {{ "paragraph.text"|trans }}*
         </label>
         <dp-editor
-            value="{{ document.text }}"
-            class="u-mb"
-            hidden-input="r_text"
             ref="r_text"
             :basic-auth="dplan.settings.basicAuth"
+            class="u-mb"
+            hidden-input="r_text"
+            procedure-id="{{ procedure }}"
+            :required="true"
+            :routes="{
+             getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
+            }"
             :toolbar-items="{
                 imageButton: true,
                 insertAndDelete: true,
                 linkButton: true,
                 table: true
             }"
-            :routes="{
-             getFileByHash: (hash, procedure) => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
-            }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            procedure-id="{{ procedure }}"
-            :required="true">
+            value="{{ document.text }}">
         </dp-editor>
 
         <div class="text-right space-inline-s">
