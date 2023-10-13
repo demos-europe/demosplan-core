@@ -52,7 +52,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var OrgaInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers")
      *
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
      */
@@ -63,7 +63,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var OrgaTypeInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers")
      *
      * @ORM\JoinColumn(name="_ot_id", referencedColumnName="_ot_id", nullable=false)
      */
@@ -74,7 +74,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var CustomerInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses")
      *
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
      */

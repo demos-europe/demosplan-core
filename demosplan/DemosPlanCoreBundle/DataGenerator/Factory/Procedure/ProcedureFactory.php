@@ -39,7 +39,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  */
 class ProcedureFactory extends ModelFactory
 {
-    private GlobalConfigInterface $globalConfig;
+    protected GlobalConfigInterface $globalConfig;
 
     public function __construct(GlobalConfigInterface $globalConfig)
     {

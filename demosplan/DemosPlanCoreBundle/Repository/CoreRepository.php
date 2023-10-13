@@ -184,9 +184,6 @@ abstract class CoreRepository extends FluentRepository
      *
      * @param object[] $toUpdate
      * @param object[] $toDelete
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function persistAndDelete(array $toUpdate, array $toDelete): void
     {
