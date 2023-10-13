@@ -177,7 +177,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @var string
      *
-     * @ORM\Column(name="_ps_links", type="text", nullable=false, options={"default":""})
+     * @ORM\Column(name="_ps_links", type="text", nullable=false)
      */
     protected $links = '';
 
