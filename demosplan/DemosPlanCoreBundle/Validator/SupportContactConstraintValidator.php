@@ -36,11 +36,9 @@ class SupportContactConstraintValidator extends ConstraintValidator
         }
 
         // Either an eMail address or a phone number has to be present.
-        $phoneNumber = $supportContact->getPhoneNumber();
-        $emailAddress = $supportContact->getEMailAddress();
-        $contactInfoIsMissing = (null === $phoneNumber || '' === $phoneNumber)
-            && (null === $emailAddress || '' === $emailAddress->getFullAddress());
-        if ($contactInfoIsMissing) {
+        $phoneNumber = $supportContact->getPhoneNumber() ?? '';
+        $emailAddress = $supportContact->getEMailAddress() ?? '';
+        if ('' === $phoneNumber &&  '' === $emailAddress->getFullAddress()) {
             $this->context->buildViolation($constraint::MISSING_CONTACT_MESSAGE)
                 ->addViolation();
         }
