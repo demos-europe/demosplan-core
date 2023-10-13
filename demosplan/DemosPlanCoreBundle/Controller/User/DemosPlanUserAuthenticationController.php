@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -277,48 +276,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     * Ausloggen.
-     *
-     * Ausloggen bedeutet, dass ein Redirect auf die Homepage durchgeführt wird und bei diesem Response gleich
-     * noch der Cookie mit dem ident-Code entwertet wird.
-     *
-     * @DplanPermissions("area_demosplan")
-     *
-     * @param bool $toGateway
-     *
-     * @throws Exception
+     * Logout via security system.
      */
     #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
-    #[Route(name: 'DemosPlan_user_logout_gateway', path: '/user/logout/gateway', defaults: ['toGateway' => true])]
-    public function logoutAction(
-        ParameterBagInterface $parameterBag,
-        PermissionsInterface $permissions,
-        Request $request,
-        SessionHandler $sessionHandler,
-        $toGateway = false): RedirectResponse
+    public function logoutAction(): void
     {
-        // let SAML handle logout when defined. It does no harm when user is logged in locally
-        if ('' !== $parameterBag->get('saml_idp_slo_url')) {
-            return $this->redirectToRoute('saml_logout');
-        }
-
-        $sessionHandler->logoutUser($request);
-        $response = $this->redirectToRoute('core_home');
-
-        if ($permissions->hasPermission('feature_has_logout_landing_page')) {
-            $response = $this->redirectToRoute('DemosPlan_user_logout_success');
-        }
-
-        if ($toGateway) {
-            $response = $this->redirect($this->globalConfig->getGatewayURL());
-        }
-
-        // clear dplan Cookies
-        foreach ($this->allowedCookieNames as $cookieName) {
-            $response->headers->clearCookie($cookieName);
-        }
-
-        return $response;
+        // special cases are handled by the LogoutSubscriber
     }
 
     /**
