@@ -23,11 +23,14 @@ All rights reserved
     <h3 class="mt-5">
       {{ Translator.trans('support.content') }}
     </h3>
-    <ul class="grid lg:grid-cols-3 gap-3">
+    <ul
+      class="mb-5"
+      :class="contactLength === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
       <li
         v-for="contact in contacts"
         :v-key="contact.id"
-        class="space-inset-m h-48 c-support-card">
+        class="space-inset-m h-48 c-support-card"
+        :class="contactLength === 1 ? 'lg:w-8/12' : ''">
         <dp-faq-support-card>
           <template v-slot:title>
             <h4 class="font-semibold">
@@ -46,13 +49,13 @@ All rights reserved
           </template>
           <template v-slot:reachability>
             <p class="mt-4 lg:mt-2 font-normal">
-              {{ (contact.attributes.text).replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, "") }}
+              {{ (contact.attributes.text).replace(/<\/?p[^>]*>/g, "") }}
             </p>
           </template>
         </dp-faq-support-card>
       </li>
     </ul>
-    <h3 class="font-semibold">
+    <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
     <div class="lg:w-8/12 space-inset-m pt-0 h-48 c-support-card">
@@ -89,10 +92,20 @@ export default {
   name: 'DpFaqSupport',
   components: { DpFaqSupportCard },
 
+  data() {
+    return {
+      contactList: this.contacts
+    }
+  },
+
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    })
+    }),
+
+    contactLength () {
+      return Object.entries(this.contacts).length
+    }
   },
 
   methods: {

@@ -68,9 +68,16 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
 
     protected function getAccessConditions(): array
     {
-        // A CustomerContact is only a CustomerContact if it is connected to a customer
+        $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+        if (null === $currentCustomerId) {
+            return [$this->conditionFactory->false()];
+        }
+
         $conditions = [
+            // A CustomerContact is only a CustomerContact if it is connected to a customer
             $this->conditionFactory->propertyIsNotNull($this->customer),
+            // Additionally, we limit the access to contacts of the current customer
+            $this->conditionFactory->propertyHasValue($currentCustomerId, $this->customer->id),
         ];
 
         $visibilityCondition = $this->conditionFactory->propertyHasValue(true, $this->visible);
@@ -78,10 +85,9 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
             // Users with management permission can access all CustomerContacts in their own customer
             // and all CustomerContacts in other customers that are set visible. I.e. they can **not**
             // access non-visible CustomerContacts of other customers.
-            $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
             $conditions[] = $this->conditionFactory->anyConditionApplies(
                 $visibilityCondition,
-                $this->conditionFactory->propertyHasValue($currentCustomer->getId(), $this->customer->id)
+                $this->conditionFactory->propertyHasValue($currentCustomerId, $this->customer->id)
             );
         } else {
             // Users without management permission can access all visible CustomerContacts,
