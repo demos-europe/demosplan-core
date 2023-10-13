@@ -22,10 +22,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(
- *     name="support_contact",
- *     uniqueConstraints= {@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})}
- * )
+ * @ORM\Table(uniqueConstraints= {@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})})
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
  */
