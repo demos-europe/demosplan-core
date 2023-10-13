@@ -29,9 +29,8 @@ class SupportContactConstraintValidator extends ConstraintValidator
         // In the future it is planned to create SupportContact entities independent of specific customers without
         // the need of a title. In that case the customer property will be null.
         // Otherwise - in customer context - a title is mandatory.
-        $titleMissingButHasToBePresent = null !== $supportContact->getCustomer()
-            && (null === $supportContact->getTitle() || '' === $supportContact->getTitle());
-        if ($titleMissingButHasToBePresent) {
+        $titleMissing = (null === $supportContact->getTitle() || '' === $supportContact->getTitle())
+        if ($titleMissing && null !== $supportContact->getCustomer()) {
             $this->context->buildViolation($constraint::NO_TITLE_MESSAGE)
                 ->addViolation();
         }
