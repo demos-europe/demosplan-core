@@ -14,17 +14,13 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
@@ -75,46 +71,6 @@ class DemosPlanCustomerController extends BaseController
                     'title'        => $translator->trans('customer.settings'),
                 ]
             );
-        } catch (CustomerNotFoundException $e) {
-            $this->getLogger()->log('error', 'Customer not found', [$e]);
-            $this->getMessageBag()->add('error', 'error.generic');
-
-            return $this->redirectToRoute('core_home');
-        } catch (Exception $e) {
-            return $this->handleError($e);
-        }
-    }
-
-    /**
-     * @DplanPermissions("area_customer_settings")
-     *
-     * @throws MessageBagException
-     */
-    #[Route(path: '/einstellungen/plattform', methods: ['POST'], name: 'DemosPlan_user_setting_page_post', options: ['expose' => true])]
-    public function editSettingsAction(
-        CustomerHandler $customerHandler,
-        Request $request,
-        FileUploadService $fileUploadService,
-        FileService $fileService
-    ): Response {
-        try {
-            $messageBag = $this->getMessageBag();
-            $logoFile = null;
-            $logo = $fileUploadService->prepareFilesUpload($request, 'r_customerLogo');
-            if ('' !== $logo) {
-                $logoId = $fileService->getFileIdFromUploadFile($logo);
-                $logoFile = $fileService->getFileById($logoId);
-            }
-
-            $customerFormInput = CustomerFormInput::createFromFormRequest($request, $logoFile);
-            $customerHandler->updateCustomer($customerFormInput);
-            $messageBag->add('confirm', 'confirm.saved');
-
-            return $this->redirectToRoute('dplan_user_customer_showSettingsPage');
-        } catch (ViolationsException $e) {
-            $messageBag->addViolationExceptions($e);
-
-            return $this->redirectToRoute('dplan_user_customer_showSettingsPage');
         } catch (CustomerNotFoundException $e) {
             $this->getLogger()->log('error', 'Customer not found', [$e]);
             $this->getMessageBag()->add('error', 'error.generic');

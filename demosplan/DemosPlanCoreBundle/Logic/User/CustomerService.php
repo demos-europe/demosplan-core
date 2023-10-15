@@ -57,17 +57,6 @@ class CustomerService
     }
 
     /**
-     * @return Customer updated Customer
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function updateCustomer(Customer $customer): Customer
-    {
-        return $this->customerRepository->updateObject($customer);
-    }
-
-    /**
      * @throws ORMException
      * @throws ViolationsException
      */
