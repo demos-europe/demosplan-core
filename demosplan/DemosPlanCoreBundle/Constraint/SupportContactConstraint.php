@@ -22,8 +22,8 @@ use Symfony\Component\Validator\Constraint;
 #[Attribute]
 class SupportContactConstraint extends Constraint
 {
-    public const NO_TITLE_MESSAGE = 'error.customer.support.contact.no.title';
-    public const MISSING_CONTACT_MESSAGE = 'error.support.contact.missing.contact.info';
+    public const NO_TITLE_MESSAGE = 'error.mandatoryfield.title';
+    public const MISSING_CONTACT_MESSAGE = 'error.mandatoryfield.mail.or.phone';
 
     public function validatedBy(): string
     {

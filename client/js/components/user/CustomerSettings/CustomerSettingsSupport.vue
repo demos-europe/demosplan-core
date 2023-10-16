@@ -30,7 +30,7 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            data-dp-validate-error="error.title"
+            data-dp-validate-error="error.title.required"
             :placeholder="Translator.trans('customer.contact.title')"
             required
             type="text" />
@@ -40,7 +40,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            data-dp-validate-error="error.phone_or_email"
+            data-dp-validate-error="error.phone_or_email.required"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
             :placeholder="Translator.trans('customer.contact.phone_number')"
             :required="customerContact.eMailAddress === ''"
@@ -51,7 +51,7 @@
             autocomplete="email"
             class="u-mb-0_75"
             data-cy="emailAddress"
-            data-dp-validate-error="error.phone_or_email"
+            data-dp-validate-error="error.phone_or_email.required"
             :placeholder="Translator.trans('email.address')"
             :required="customerContact.phoneNumber === ''"
             type="email" />
