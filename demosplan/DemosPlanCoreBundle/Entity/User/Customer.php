@@ -191,6 +191,13 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
+    /**
+     * @var Collection<int, SupportContact>
+     *
+     * @ORM\OneToMany(targetEntity="SupportContact", mappedBy="customer")
+     */
+    protected Collection $contacts;
+
     public function __construct(/**
      * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
      */
@@ -204,6 +211,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->orgaStatuses = new ArrayCollection();
         $this->signLanguageOverviewVideos = new ArrayCollection();
         $this->customerCounties = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?string
