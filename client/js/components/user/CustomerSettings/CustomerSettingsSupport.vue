@@ -82,6 +82,13 @@
 import { DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
+const emptyCustomer = {
+  title: '',
+  phoneNumber: '',
+  eMailAddress: '',
+  text: '',
+  visible: false
+}
 export default {
   name: 'CustomerSettingsSupport',
 
@@ -96,13 +103,7 @@ export default {
 
   data () {
     return {
-      customerContact: {
-        title: '',
-        phoneNumber: '',
-        eMailAddress: '',
-        text: '',
-        visible: false
-      },
+      customerContact: emptyCustomer,
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('customer.contact.new'),
@@ -189,11 +190,7 @@ export default {
     },
 
     resetForm () {
-      this.customerContact.title = ''
-      this.customerContact.phoneNumber = ''
-      this.customerContact.eMailAddress = ''
-      this.customerContact.visible = false
-      this.customerContact.text = ''
+      this.customerContact = emptyCustomer
     },
 
     updateForm (index) {
