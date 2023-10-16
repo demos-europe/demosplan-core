@@ -24,7 +24,7 @@ All rights reserved
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="contactLength === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
+      :class="contactCount === 1 ? '' : 'grid lg:grid-cols-3 gap-3'">
       <li
         v-for="contact in contacts"
         :key="contact.id"
@@ -69,7 +69,7 @@ export default {
       contacts: 'items'
     }),
 
-    contactLength () {
+    contactCount () {
       return Object.entries(this.contacts).length
     }
   },
