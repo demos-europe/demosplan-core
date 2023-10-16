@@ -182,6 +182,13 @@ class DemosPlanKernel extends Kernel
             );
         }
 
+        // use distinct logfiles for parallel tests if needed
+        if ('test' === $this->getEnvironment()) {
+            $dir = DemosPlanPath::getTemporaryPath(
+                sprintf('dplan/%s/logs/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+            );
+        }
+
         return $dir;
     }
 

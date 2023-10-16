@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
@@ -97,6 +98,46 @@ class StatementDeleterTest extends FunctionalTestCase
 
         $createdCopy = $this->statementService->getStatement($createdCopy->getId());
         static::assertInstanceOf(Statement::class, $createdCopy);
+    }
+
+    /**
+     * testDeleteStatementWithSimilarStatementSubmitters
+     * Cover deletion of a single statement with related procedure person, by just asserting that the statement
+     * is correctly deleted.
+     */
+    public function testDeleteStatementWithRelatedProcedurePerson()
+    {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        static::assertGreaterThan(0, $testStatement->getSimilarStatementSubmitters()->count());
+
+        $deleted = $this->sut->deleteStatementObject($testStatement);
+        static::assertTrue($deleted);
+        $testStatement = $this->find(Statement::class, $testStatementId);
+        static::assertNull($testStatement);
+    }
+
+    /**
+     * Cover deletion of related ProcedurePerson on deletion of a Statement.
+     */
+    public function testCascadeDeleteRelatedSubmitterOnDeleteStatement()
+    {
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        $submitters = $testStatement->getSimilarStatementSubmitters();
+        static::assertGreaterThan(0, $submitters->count());
+        $relatedSubmittersIds =
+            collect($submitters)->map(fn (ProcedurePerson $procedurePerson) => $procedurePerson->getId());
+
+        $deleted = $this->sut->deleteStatementObject($testStatement);
+        static::assertTrue($deleted);
+        $testStatement = $this->find(Statement::class, $testStatementId);
+        static::assertNull($testStatement);
+
+        // orphan removal deletes "detached" ProcedurePerson, even if another Statement is connected!
+        foreach ($relatedSubmittersIds as $id) {
+            static::assertNull($this->find(ProcedurePerson::class, $id));
+        }
     }
 
     public function testDeleteStatement(): void
