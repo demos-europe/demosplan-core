@@ -20,7 +20,7 @@ All rights reserved
       {{ Translator.trans('support.contact.advice') }}
     </p>
     <h3 class="u-mt-0_75">
-      {{ Translator.trans('support.content') }}
+      {{ Translator.trans('support') }}
     </h3>
     <ul
       class="u-mb-0_75"
