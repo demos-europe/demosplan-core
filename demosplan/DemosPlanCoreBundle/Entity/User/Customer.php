@@ -66,13 +66,13 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="customer")
      */
     protected $orgaStatuses;
     /**
@@ -194,10 +194,10 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     public function __construct(/**
      * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
      */
-    private string $name, /**
+        private string $name, /**
      * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
      */
-    private string $subdomain, string $mapAttribution = '')
+        private string $subdomain, string $mapAttribution = '')
     {
         $this->mapAttribution = $mapAttribution;
         $this->userRoles = new ArrayCollection();

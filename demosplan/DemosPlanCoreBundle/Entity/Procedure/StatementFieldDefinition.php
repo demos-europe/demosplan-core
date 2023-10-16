@@ -71,7 +71,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
          */
         private string $name,
         /**
-         * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="fieldDefinitions")
          *
          * @JoinColumn(referencedColumnName="id", nullable=false)
          */
