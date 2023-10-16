@@ -10,30 +10,13 @@ All rights reserved
 <template>
   <div>
     <section v-if="title">
-      <h4 class="font-semibold">
-        {{ title }}
-      </h4>
-    </section>
-    <section v-else>
-      <a
-        :href="`tel:${ Translator.trans('support.contact.number') }`"
-        class="u-mt-0_75 inline-block font-semibold">
-        <svg
-          class="inline-block"
-          height="15px"
-          width="16px"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 28.314 28.323"
-          style="enable-background:new 0 0 28.314 28.323"
-          xml:space="preserve">
-          <path d="m27.728 20.384-4.242-4.242a1.982 1.982 0 0 0-1.413-.586h-.002c-.534 0-1.036.209-1.413.586L17.83 18.97l-8.485-8.485 2.828-2.828c.78-.78.78-2.05-.001-2.83L7.929.585A1.986 1.986 0 0 0 6.516 0h-.001C5.98 0 5.478.209 5.101.587L.858 4.83C.729 4.958-.389 6.168.142 8.827c.626 3.129 3.246 7.019 7.787 11.56 6.499 6.499 10.598 7.937 12.953 7.937 1.63 0 2.426-.689 2.604-.867l4.242-4.242c.378-.378.587-.881.586-1.416 0-.534-.208-1.037-.586-1.415zm-5.656 5.658c-.028.028-3.409 2.249-12.729-7.07C-.178 9.452 2.276 6.243 2.272 6.244L6.515 2l4.243 4.244-3.535 3.535a.999.999 0 0 0 0 1.414l9.899 9.899a.999.999 0 0 0 1.414 0l3.535-3.536 4.243 4.244-4.242 4.242z" />
-        </svg>
-        {{ Translator.trans('support.contact.number') }}
-      </a>
+      <h4
+        class="font-semibold"
+        v-text="title" />
     </section>
     <section v-if="phoneNumber">
       <a
-        :href="`tel:${phoneNumber}`"
+        :href="`tel:${ phoneNumber }`"
         class="u-mt-0_75 inline-block font-semibold">
         <svg
           class="inline-block"
@@ -48,43 +31,44 @@ All rights reserved
         {{ phoneNumber }}
       </a>
     </section>
-
-    <section v-if="email">
-      <p>
-        {{ email }}
+    <section
+      v-if="email"
+      v-text="email" />
+    <section
+      v-if="reachability.service"
+      class="u-pb-0_75">
+      <h4
+        class="u-mt-0_75 font-semibold"
+        v-text="reachability.service" />
+      <p v-cleanhtml="reachability.officeHours">
       </p>
-    </section>
-
-    <section v-if="reachability">
-      <p class="u-mt-0_75 lg:mt-2 font-normal">
-        {{ (reachability).replace(/<\/?p[^>]*>/g, "") }}
-      </p>
+      <span
+        class="color--grey-light"
+        v-text="reachability.exception" />
     </section>
     <section
-        v-else
-        class="u-pb-0_75">
-      <h4 class="u-mt-0_75 font-semibold">
-        {{ Translator.trans('support.contact.service') }}
-      </h4>
-      <p>
-        Montag bis Freitag: 6.30 - 18 Uhr<br>
-        Freitag: 6.30 - 17Uhr
-      </p>
-      <span class="color--grey-light">
-        {{ Translator.trans('support.contact.exception') }}
-      </span>
+      v-else
+      v-cleanhtml="reachability.officeHours"
+      class="u-mt-0_75 lg:mt-2">
     </section>
   </div>
 </template>
 <script>
 
+import { CleanHtml } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'DpFaqSupportCard',
 
+  directives: {
+    cleanhtml: CleanHtml
+  },
+
   props: {
-    title: {
+    email: {
       required: false,
-      type: String
+      type: String,
+      default: ''
     },
 
     phoneNumber: {
@@ -93,17 +77,17 @@ export default {
       default: ''
     },
 
-    email: {
+    reachability: {
+      required: false,
+      type: Object,
+      default: () => {}
+    },
+
+    title: {
       required: false,
       type: String,
       default: ''
     },
-
-    reachability: {
-      required: false,
-      type: String,
-      default: ''
-    }
   }
 }
 </script>

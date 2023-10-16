@@ -29,19 +29,23 @@ All rights reserved
         v-for="contact in contacts"
         :key="contact.id"
         class="space-inset-m c-support__card color--black bg-color--white"
-        :class="contactLength === 1 ? 'lg:w-8/12' : ''">
+        :class="contactCount === 1 ? 'lg:w-8/12' : ''">
         <dp-faq-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
           :phone-number="contact.attributes.phoneNumber"
-          :reachability="contact.attributes.text" />
+          :reachability="{ officeHours: contact.attributes.text }" />
       </li>
     </ul>
     <h3>
       {{ Translator.trans('support.technical') }}
     </h3>
     <div class="lg:w-8/12 space-inset-m u-pv-0 c-support__card color--black bg-color--white">
-      <dp-faq-support-card />
+      <dp-faq-support-card
+        :phone-number="Translator.trans('support.contact.number')"
+        :reachability="{ service: Translator.trans('support.contact.service'),
+                         officeHours: Translator.trans('support.contact.office_hours'),
+                         exception: Translator.trans('support.contact.exception') }" />
     </div>
   </div>
 </template>
@@ -59,7 +63,7 @@ export default {
       contactList: this.contacts,
       email: '',
       phoneNumber: '',
-      reachability: '',
+      reachability: {},
       title: ''
     }
   },
