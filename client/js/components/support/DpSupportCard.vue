@@ -58,7 +58,7 @@ All rights reserved
 import { CleanHtml } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpFaqSupportCard',
+  name: 'DpSupportCard',
 
   directives: {
     cleanhtml: CleanHtml

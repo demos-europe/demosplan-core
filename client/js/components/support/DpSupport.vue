@@ -30,7 +30,7 @@ All rights reserved
         :key="contact.id"
         class="space-inset-m c-support__card color--black bg-color--white"
         :class="contactCount === 1 ? 'lg:w-8/12' : ''">
-        <dp-faq-support-card
+        <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
           :phone-number="contact.attributes.phoneNumber"
@@ -41,7 +41,7 @@ All rights reserved
       {{ Translator.trans('support.technical') }}
     </h3>
     <div class="lg:w-8/12 space-inset-m u-pv-0 c-support__card color--black bg-color--white">
-      <dp-faq-support-card
+      <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
           service: Translator.trans('support.contact.service'),
@@ -54,11 +54,11 @@ All rights reserved
 <script>
 
 import { mapActions, mapState } from 'vuex'
-import DpFaqSupportCard from './DpFaqSupportCard'
+import DpSupportCard from './DpSupportCard'
 
 export default {
-  name: 'DpFaqSupport',
-  components: { DpFaqSupportCard },
+  name: 'DpSupport',
+  components: { DpSupportCard },
 
   data() {
     return {
