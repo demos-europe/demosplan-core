@@ -43,9 +43,11 @@ All rights reserved
     <div class="lg:w-8/12 space-inset-m u-pv-0 c-support__card color--black bg-color--white">
       <dp-faq-support-card
         :phone-number="Translator.trans('support.contact.number')"
-        :reachability="{ service: Translator.trans('support.contact.service'),
-                         officeHours: Translator.trans('support.contact.office_hours'),
-                         exception: Translator.trans('support.contact.exception') }" />
+        :reachability="{
+          service: Translator.trans('support.contact.service'),
+          officeHours: Translator.trans('support.contact.office_hours'),
+          exception: Translator.trans('support.contact.exception')
+        }" />
     </div>
   </div>
 </template>
