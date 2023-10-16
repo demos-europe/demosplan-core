@@ -7,31 +7,32 @@
       @reset="resetForm"
       @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
       <template v-slot:list="contact">
-        <p
-          class="weight--bold u-mt"
-          v-text="contact.attributes.title" />
-        <span
-          class="block"
-          v-text="contact.attributes.phoneNumber" />
-        <span
-          class="block"
-          v-text="contact.attributes.eMailAddress" />
-        <span
-          class="block"
-          v-html="contact.attributes.text" />
-        <span v-text="Translator.trans('customer.contact.visibleText', {isVisible: contact.attributes.visible})" />
+        <h3 v-text="contact.attributes.title" />
+        <p v-text="contact.attributes.phoneNumber" />
+        <p v-text="contact.attributes.eMailAddress" />
+        <template v-html="contact.attributes.text" />
+        <dp-badge
+          class="color--white border-radius-extra-large whitespace--nowrap bg-color--grey u-mt-0_125"
+          size="smaller"
+          :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')" />
       </template>
       <template v-slot:form>
         <div
           id="contactForm"
-          data-dp-validate="contactData">
+          data-dp-validate="contactData"
+          class="space-stack-s space-inset-s border">
+          <p class="lbl">
+            {{ Translator.trans(updating ? 'customer.contact.change' : 'customer.contact.new') }}:
+          </p>
           <dp-input
             id="contactTitle"
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
             data-dp-validate-error="error.title.required"
-            :placeholder="Translator.trans('customer.contact.title')"
+            :label="{
+              text: Translator.trans('customer.contact.title')
+            }"
             required
             type="text" />
           <dp-input
@@ -40,9 +41,13 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            data-dp-validate-error="error.phone_or_email.required"
+            :data-dp-validate-error="customerContact.eMailAddress === ''
+              ? 'error.phone_or_email.required'
+              : 'error.phone.pattern'"
+            :label="{
+              text: Translator.trans('customer.contact.phone_number')
+            }"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
-            :placeholder="Translator.trans('customer.contact.phone_number')"
             :required="customerContact.eMailAddress === ''"
             type="tel" />
           <dp-input
@@ -51,8 +56,9 @@
             autocomplete="email"
             class="u-mb-0_75"
             data-cy="emailAddress"
-            data-dp-validate-error="error.phone_or_email.required"
-            :placeholder="Translator.trans('email.address')"
+            :label="{
+              text: Translator.trans('email.address')
+            }"
             :required="customerContact.phoneNumber === ''"
             type="email" />
           <dp-editor
@@ -79,7 +85,7 @@
 </template>
 
 <script>
-import { DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpBadge, DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 const emptyCustomer = {
@@ -93,6 +99,7 @@ export default {
   name: 'CustomerSettingsSupport',
 
   components: {
+    DpBadge,
     DpCheckbox,
     DpEditableList,
     DpEditor,
@@ -112,7 +119,8 @@ export default {
         update: Translator.trans('customer.contact.update'),
         noEntries: Translator.trans('customer.contact.no'),
         delete: Translator.trans('customer.contact.delete')
-      }
+      },
+      updating: false
     }
   },
 
@@ -136,41 +144,34 @@ export default {
 
     reset () {
       this.showContactForm = false
+      this.updating = false
     },
 
     createOrUpdateContact (id) {
-      if (id === 'new') {
-        const payload = {
-          type: 'CustomerContact',
-          attributes: {
-            title: this.customerContact.title,
-            phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
-            text: this.customerContact.text ? this.customerContact.text : null,
-            visible: this.customerContact.visible,
-            eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
-          }
+      const payload = {
+        ...((id === 'new') ? null : { id }),
+        type: 'CustomerContact',
+        attributes: {
+          title: this.customerContact.title,
+          phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
+          text: this.customerContact.text ? this.customerContact.text : null,
+          visible: this.customerContact.visible,
+          eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
         }
-        this.createContact(payload).then((response) => {
+      }
+
+      if (id === 'new') {
+        this.createContact(payload).then(() => {
           this.getContacts()
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       } else {
-        const payload = {
-          id: id,
-          type: 'CustomerContact',
-          attributes: {
-            title: this.customerContact.title,
-            phoneNumber: this.customerContact.phoneNumber ? this.customerContact.phoneNumber : null,
-            text: this.customerContact.text ? this.customerContact.text : null,
-            visible: this.customerContact.visible,
-            eMailAddress: this.customerContact.eMailAddress ? this.customerContact.eMailAddress : null
-          }
-        }
         this.updateContact(payload)
         this.saveContact(id).then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
       }
+
       this.$refs.editableList.toggleFormVisibility(false)
       this.resetForm()
     },
@@ -191,15 +192,20 @@ export default {
 
     resetForm () {
       this.customerContact = emptyCustomer
+      this.updating = false
     },
 
     updateForm (index) {
       const currentData = this.contacts[index].attributes
-      this.customerContact.title = currentData.title
-      this.customerContact.phoneNumber = currentData.phoneNumber ? currentData.phoneNumber : ''
-      this.customerContact.eMailAddress = currentData.eMailAddress ? currentData.eMailAddress : ''
-      this.customerContact.text = currentData.text ? currentData.text : ''
-      this.customerContact.visible = currentData.visible
+
+      this.updating = true
+      this.customerContact = {
+        title: currentData.title,
+        phoneNumber: currentData.phoneNumber ? currentData.phoneNumber : '',
+        eMailAddress: currentData.eMailAddress ? currentData.eMailAddress : '',
+        text: currentData.text ? currentData.text : '',
+        visible: currentData.visible
+      }
     }
   },
 
