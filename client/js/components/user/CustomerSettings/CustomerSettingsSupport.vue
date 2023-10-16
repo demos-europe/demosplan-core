@@ -83,7 +83,7 @@ import { DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
-  name: 'CustomerSettingsContact',
+  name: 'CustomerSettingsSupport',
 
   components: {
     DpCheckbox,

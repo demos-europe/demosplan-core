@@ -9,7 +9,6 @@ All rights reserved
 
 <template>
   <div
-    id="scFaq"
     class="c-support space-inset-m color--black bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}

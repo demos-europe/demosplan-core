@@ -178,7 +178,7 @@
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
         :title="Translator.trans('support')">
-        <customer-settings-contact />
+        <customer-settings-support />
       </customer-settings-section>
 
       <!-- Button row -->
@@ -201,7 +201,7 @@
 <script>
 import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsContact from './CustomerSettingsContact'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 
@@ -210,7 +210,7 @@ export default {
 
   components: {
     CustomerSettingsBranding,
-    CustomerSettingsContact,
+    CustomerSettingsSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
