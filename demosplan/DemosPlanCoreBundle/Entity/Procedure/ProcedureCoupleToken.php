@@ -58,7 +58,7 @@ class ProcedureCoupleToken implements UuidEntityInterface
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=true, unique=true)
      */

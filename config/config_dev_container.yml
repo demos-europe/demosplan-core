@@ -55,7 +55,3 @@ parameters:
     url_scheme: http
 
     wegewerk_dev_mode_rewrite: true
-
-services:
-    demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterHttp'
-    demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'
