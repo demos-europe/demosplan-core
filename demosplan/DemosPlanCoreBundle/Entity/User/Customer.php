@@ -68,13 +68,13 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="customer")
      */
     protected $orgaStatuses;
     /**
@@ -125,7 +125,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      *
-     * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
+     * @ORM\Column(type="text", length=4096, nullable=false, options={"default":""})
      */
     #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $mapAttribution = '';

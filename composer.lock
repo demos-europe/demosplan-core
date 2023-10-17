@@ -13342,16 +13342,16 @@
         },
         {
             "name": "symfony/http-client",
-            "version": "v5.4.26",
+            "version": "v5.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client.git",
-                "reference": "19d48ef7f38e5057ed1789a503cd3eccef039bce"
+                "reference": "04784c66cbee613a827363ee1e65db65392893c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client/zipball/19d48ef7f38e5057ed1789a503cd3eccef039bce",
-                "reference": "19d48ef7f38e5057ed1789a503cd3eccef039bce",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/04784c66cbee613a827363ee1e65db65392893c1",
+                "reference": "04784c66cbee613a827363ee1e65db65392893c1",
                 "shasum": ""
             },
             "require": {
@@ -13413,7 +13413,7 @@
                 "http"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client/tree/v5.4.26"
+                "source": "https://github.com/symfony/http-client/tree/v5.4.29"
             },
             "funding": [
                 {
@@ -13429,7 +13429,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-03T12:14:50+00:00"
+            "time": "2023-09-14T20:49:15+00:00"
         },
         {
             "name": "symfony/http-client-contracts",
@@ -19031,16 +19031,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.30.0",
+            "version": "v3.35.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "95c64693b2f149966a2bc05a7a4981b0343ea52f"
+                "reference": "ec1ccc264994b6764882669973ca435cf05bab08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/95c64693b2f149966a2bc05a7a4981b0343ea52f",
-                "reference": "95c64693b2f149966a2bc05a7a4981b0343ea52f",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/ec1ccc264994b6764882669973ca435cf05bab08",
+                "reference": "ec1ccc264994b6764882669973ca435cf05bab08",
                 "shasum": ""
             },
             "require": {
@@ -19073,8 +19073,6 @@
                 "phpspec/prophecy": "^1.16",
                 "phpspec/prophecy-phpunit": "^2.0",
                 "phpunit/phpunit": "^9.5",
-                "phpunitgoodpractices/polyfill": "^1.6",
-                "phpunitgoodpractices/traits": "^1.9.2",
                 "symfony/phpunit-bridge": "^6.2.3",
                 "symfony/yaml": "^5.4 || ^6.0"
             },
@@ -19114,7 +19112,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.30.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.35.1"
             },
             "funding": [
                 {
@@ -19122,7 +19120,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-26T22:10:43+00:00"
+            "time": "2023-10-12T13:47:26+00:00"
         },
         {
             "name": "goetas-webservices/xsd-reader",
@@ -22320,16 +22318,16 @@
         },
         {
             "name": "zenstruck/foundry",
-            "version": "v1.35.0",
+            "version": "v1.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zenstruck/foundry.git",
-                "reference": "4cb1fed923e8bf0ee6e977be74d3676d431291f9"
+                "reference": "1aefc394059a315ef8567de9745efd5ba6aacfd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/4cb1fed923e8bf0ee6e977be74d3676d431291f9",
-                "reference": "4cb1fed923e8bf0ee6e977be74d3676d431291f9",
+                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/1aefc394059a315ef8567de9745efd5ba6aacfd0",
+                "reference": "1aefc394059a315ef8567de9745efd5ba6aacfd0",
                 "shasum": ""
             },
             "require": {
@@ -22337,8 +22335,8 @@
                 "fakerphp/faker": "^1.10",
                 "php": ">=8.0",
                 "symfony/deprecation-contracts": "^2.2|^3.0",
-                "symfony/property-access": "^5.4|^6.0",
-                "symfony/string": "^5.4|^6.0",
+                "symfony/property-access": "^5.4|^6.0|^7.0",
+                "symfony/string": "^5.4|^6.0|^7.0",
                 "zenstruck/assert": "^1.0",
                 "zenstruck/callback": "^1.1"
             },
@@ -22354,9 +22352,9 @@
                 "doctrine/mongodb-odm-bundle": "^4.4.0",
                 "doctrine/orm": "^2.9",
                 "matthiasnoback/symfony-dependency-injection-test": "^4.1",
-                "symfony/framework-bundle": "^5.4|^6.0",
+                "symfony/framework-bundle": "^5.4|^6.0|^7.0",
                 "symfony/maker-bundle": "^1.49",
-                "symfony/phpunit-bridge": "^5.4|^6.0",
+                "symfony/phpunit-bridge": "^5.4|^6.0|^7.0",
                 "symfony/translation-contracts": "^2.5|^3.0"
             },
             "type": "library",
@@ -22389,6 +22387,7 @@
             "homepage": "https://github.com/zenstruck/foundry",
             "keywords": [
                 "Fixture",
+                "dev",
                 "doctrine",
                 "factory",
                 "faker",
@@ -22397,7 +22396,7 @@
             ],
             "support": {
                 "issues": "https://github.com/zenstruck/foundry/issues",
-                "source": "https://github.com/zenstruck/foundry/tree/v1.35.0"
+                "source": "https://github.com/zenstruck/foundry/tree/v1.36.0"
             },
             "funding": [
                 {
@@ -22405,7 +22404,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-10T14:39:33+00:00"
+            "time": "2023-10-13T18:44:57+00:00"
         }
     ],
     "aliases": [],

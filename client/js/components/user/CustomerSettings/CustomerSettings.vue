@@ -185,17 +185,31 @@
       <customer-settings-section
         v-if="hasPermission('feature_customer_support_contact_administration')"
         :title="Translator.trans('support')">
-        <customer-settings-contact />
+        <customer-settings-support />
       </customer-settings-section>
+
+      <!-- Button row -->
+      <div class="text-right space-inline-s">
+        <button
+          type="submit"
+          class="btn btn--primary"
+          v-text="Translator.trans('save')"
+          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
+        <!-- Reset link to reload the page to its initial values -->
+        <a
+          class="btn btn--secondary"
+          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
+          v-text="Translator.trans('reset')" />
+      </div>
     </template>
-  </div>
+  </form>
 </template>
 
 <script>
 import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsContact from './CustomerSettingsContact'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 
@@ -205,7 +219,7 @@ export default {
   components: {
     DpButtonRow,
     CustomerSettingsBranding,
-    CustomerSettingsContact,
+    CustomerSettingsSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
