@@ -97,28 +97,28 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $mapHintDefault = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintStatement = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintPersonalData = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintRecheck = '';
 
