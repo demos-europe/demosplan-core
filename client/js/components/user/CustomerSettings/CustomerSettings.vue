@@ -202,7 +202,7 @@
           v-text="Translator.trans('reset')" />
       </div>
     </template>
-  </form>
+  </div>
 </template>
 
 <script>
