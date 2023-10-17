@@ -33,6 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
+    final public const GROUP_UPDATE = 'group_update';
+
     /**
      * @var string|null
      *
@@ -66,13 +68,13 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="customer")
      */
     protected $userRoles;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="customer")
      */
     protected $orgaStatuses;
     /**
@@ -84,6 +86,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $dataProtection = '';
     /**
      * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
@@ -94,6 +97,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $termsOfUse = '';
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
@@ -102,6 +106,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      */
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $xplanning = '';
     /**
      * T15644:.
@@ -120,8 +125,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      *
-     * @ORM\Column(type="text", length=65535, nullable=false)
+     * @ORM\Column(type="text", length=4096, nullable=false)
      */
+    #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $mapAttribution = '';
     /**
      * T16986
@@ -133,6 +139,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
+    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerUrl = '';
     /**
      * T16986
@@ -144,6 +151,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
+    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerLayers = '';
     /**
      * @var BrandingInterface|null
@@ -157,7 +165,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
      */
-    #[Assert\Length(max: 65000)]
+    #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $accessibilityExplanation = '';
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.
@@ -191,6 +199,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
+    /**
+     * @var Collection<int, SupportContact>
+     *
+     * @ORM\OneToMany(targetEntity="SupportContact", mappedBy="customer")
+     */
+    #[Assert\Valid]
+    protected Collection $contacts;
+
     public function __construct(/**
      * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
      */
@@ -204,6 +220,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->orgaStatuses = new ArrayCollection();
         $this->signLanguageOverviewVideos = new ArrayCollection();
         $this->customerCounties = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -490,5 +507,21 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->overviewDescriptionInSimpleLanguage = $overviewDescriptionInSimpleLanguage;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, SupportContact>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    /**
+     * @param Collection<int, SupportContact> $contacts
+     */
+    public function setContacts(Collection $contacts): void
+    {
+        $this->contacts = $contacts;
     }
 }

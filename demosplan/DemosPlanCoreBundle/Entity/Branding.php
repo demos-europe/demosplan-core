@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Constraint\ValidCssVarsConstraint;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,6 +42,8 @@ class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterf
      * @var ?string
      *
      * @ORM\Column(type="text", nullable=true)
+     *
+     * @ValidCssVarsConstraint()
      */
     protected $cssvars;
 

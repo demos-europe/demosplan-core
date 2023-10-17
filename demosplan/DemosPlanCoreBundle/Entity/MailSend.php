@@ -183,7 +183,7 @@ class MailSend implements IntegerIdEntityInterface
     /**
      * @var array
      *
-     * @ORM\OneToMany(targetEntity="MailAttachment", mappedBy="mailSend", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailAttachment", mappedBy="mailSend", cascade={"persist"})
      */
     protected $attachments;
 
