@@ -9,6 +9,19 @@
 
 export const VuexApiRoutes = [
   {
+    module: 'branding',
+    action: 'list',
+    url: '/2.0/Branding'
+  },
+  {
+    module: 'branding',
+    action: 'update',
+    url: '/2.0/Branding/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
     module: 'customer',
     action: 'create',
     url: '/2.0/Customer'

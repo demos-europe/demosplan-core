@@ -20,7 +20,8 @@
         is-open
         :title="Translator.trans('customer.branding.label')">
         <customer-settings-branding
-          :branding="branding" />
+          :branding="branding"
+          :branding-id="customerBrandingId" />
       </customer-settings-section>
 
       <!-- Map -->
@@ -51,6 +52,10 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          primary
+          secondary
+          @primary-action="saveImprintSettings" />
       </customer-settings-section>
 
       <!-- Data Protection -->
@@ -69,6 +74,10 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          primary
+          secondary
+          @primary-action="saveDataProtectionSettings" />
       </customer-settings-section>
 
       <!-- Terms of use -->
@@ -183,7 +192,7 @@
 </template>
 
 <script>
-import { DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsContact from './CustomerSettingsContact'
@@ -194,6 +203,7 @@ export default {
   name: 'CustomerSettings',
 
   components: {
+    DpButtonRow,
     CustomerSettingsBranding,
     CustomerSettingsContact,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
@@ -250,7 +260,8 @@ export default {
     return {
       branding: {
         logo: null,
-        cssvars: ''
+        cssvars: '',
+        logoHash: ''
       },
       customer: {
         accessibilityExplanation: '',
@@ -262,6 +273,7 @@ export default {
         termsOfUse: '',
         xplanning: ''
       },
+      customerBrandingId: '',
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
       requestFields: {},
@@ -277,8 +289,16 @@ export default {
   },
 
   computed: {
+    ...mapState('branding', {
+      brandingList: 'items'
+    }),
+
     ...mapState('customer', {
-      customer: 'items'
+      customerList: 'items'
+    }),
+
+    ...mapState('file', {
+      fileList: 'items'
     }),
 
     isUnsavedSignLanguageVideo () {
@@ -288,11 +308,18 @@ export default {
   },
 
   methods: {
+    ...mapActions('branding', {
+      fetchBranding: 'list',
+      saveBranding: 'save'
+    }),
+
     ...mapActions('customer', {
-      createCustomer: 'create',
       fetchCustomer: 'list',
-      deleteCustomer: 'delete',
       saveCustomer: 'save'
+    }),
+
+    ...mapMutations('branding', {
+      updateBranding: 'setItem'
     }),
 
     ...mapMutations('customer', {
@@ -311,6 +338,14 @@ export default {
       const payload = this.getRequestPayload()
       this.fetchCustomer(payload, { serialize: true }).then(() => {
         this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
+
+        /// /Update fields
+        const currentData = this.customerList[this.currentCustomerId].attributes
+        this.customerBrandingId = this.customerList[this.currentCustomerId].relationships.branding.data.id
+
+        this.customer.imprint = currentData.imprint ? currentData.imprint : ''
+        this.customer.dataProtection = currentData.dataProtection ? currentData.dataProtection : ''
+        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships.logo.data.id].attributes.hash
       })
     },
 
@@ -431,6 +466,36 @@ export default {
         fields: this.requestFields,
         include: this.requestIncludes.join(',')
       }
+    },
+
+    saveDataProtectionSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          dataProtection: this.customer.dataProtection
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
+    saveImprintSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          imprint: this.customer.imprint
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
     },
 
     submit () {
