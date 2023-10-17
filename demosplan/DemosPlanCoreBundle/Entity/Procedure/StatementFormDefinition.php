@@ -72,7 +72,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * @var Collection<int, StatementFieldDefinition>
      *
      * @ORM\OneToMany(
-     *      targetEntity="StatementFieldDefinition",
+     *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition",
      *      mappedBy="statementFormDefinition",
      *      cascade={"persist", "remove"}
      *     )
@@ -90,7 +90,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="statementFormDefinition")
      *
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -103,7 +103,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="statementFormDefinition")
      *
      * @JoinColumn()
      */

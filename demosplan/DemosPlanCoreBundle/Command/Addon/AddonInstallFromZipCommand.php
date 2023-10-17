@@ -73,6 +73,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         );
 
         $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
+        $this->addOption('enable', '', InputOption::VALUE_NONE, 'Immediately enable addon during installation');
     }
 
     /**
@@ -84,6 +85,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $reinstall = $input->getOption('reinstall');
+        $enable = $input->getOption('enable');
 
         $this->setPaths($input->getArgument('path'));
         try {
@@ -132,22 +134,31 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        // If composer update went well, add the addon to the registry
-        $name = $this->installer->register($packageDefinition);
-
         try {
+            // If composer update went well, add the addon to the registry
+            $name = $this->installer->register($packageDefinition, $enable);
+
+            $kernel = $this->getApplication()->getKernel();
+            $environment = $kernel->getEnvironment();
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
             $batchReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear'])
-                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
+                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
+                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment])
                 ->run();
 
             if (0 === $batchReturn) {
+                $output->success("Addon {$name} successfully installed");
+
                 return Command::SUCCESS;
             }
         } catch (Exception $e) {
             $output->error($e->getMessage());
+            // this hint may be removed in symfony6 when we can update the efrane/console-additions
+            // to a version bigger than 0.7, as the batch will not swallow the exception anymore
+            $output->info('If you have no clue why this happened, you may try to install '.
+                'the addon manually by performing
+                `composer bin addons update --prefer-lowest -a -o`');
         }
 
         return Command::FAILURE;
@@ -280,7 +291,8 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
-        if (!array_key_exists($addonName, $composerContent['require'])) {
+        if (!array_key_exists('require', $composerContent)
+            || !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
