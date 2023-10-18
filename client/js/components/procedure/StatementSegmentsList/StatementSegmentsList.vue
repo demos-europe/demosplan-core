@@ -53,10 +53,9 @@
             </button>
           </div>
         </div>
-        <ul class="float-right u-m-0 space-inline-s flex">
-          <li class="inline-block">
+        <ul class="float-right space-inline-s flex">
+          <li v-if="!statement.attributes.synchronized">
             <dp-claim
-              v-if="!statement.attributes.synchronized"
               class="o-flyout__trigger u-ph-0_25 line-height--2"
               entity-type="statement"
               :assigned-id="currentAssignee.id"
@@ -67,18 +66,14 @@
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
               @click="toggleClaimStatement" />
           </li>
-          <li class="inline-block">
-            <a
-              class="line-height--2 inline-block u-ph-0_25"
+          <li>
+            <dp-button
+              class="u-ph-0_25"
               :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
-              rel="noopener">
-
-              {{ Translator.trans('export.verb') }}
-            </a>
+              :text="Translator.trans('export.verb')"
+              variant="subtle" />
           </li>
-          <li
-            class="inline-block"
-            v-if="hasPermission('feature_read_source_statement_via_api')">
+          <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
               <template slot="trigger">
                 <span>
@@ -93,22 +88,24 @@
                 <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
                   <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
-                    class="block whitespace-normal u-mr-0_75"
                     v-if="originalAttachment.hash"
-                    :attachment="originalAttachment" />
+                    :attachment="originalAttachment"
+                    class="block whitespace-normal u-mr-0_75"
+                    :procedure-id="procedureId" />
                   <span
                     v-if="additionalAttachments.length > 0"
                     class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
                   <statement-meta-attachments-link
-                    class="block whitespace-normal u-mr-0_75"
                     v-for="attachment in additionalAttachments"
                     :key="attachment.hash"
-                    :attachment="attachment" />
+                    :attachment="attachment"
+                    class="block whitespace-normal u-mr-0_75"
+                    :procedure-id="procedureId" />
                 </div>
               </template>
             </dp-flyout>
           </li>
-          <li class="inline-block">
+          <li>
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
@@ -164,6 +161,7 @@
 import {
   checkResponse,
   dpApi,
+  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement
@@ -184,6 +182,7 @@ export default {
 
   components: {
     DpClaim,
+    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,

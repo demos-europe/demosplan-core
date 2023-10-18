@@ -492,16 +492,9 @@ class DemosPlanUserController extends BaseController
     {
         $title = 'user.register';
 
-        $useSaml = false;
-        // this check needs to be reworked once we know better how to save saml parameters by customer //
-        if ('' !== $parameterBag->get('saml_idp_entityid') &&
-            'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
-            $useSaml = true;
-        }
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
-            ['title' => $title, 'useSaml' => $useSaml]
+            ['title' => $title, 'useSaml' => false]
         );
     }
 

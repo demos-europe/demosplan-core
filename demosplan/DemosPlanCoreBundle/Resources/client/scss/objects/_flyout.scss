@@ -15,10 +15,15 @@
     position: relative;
 
     &__trigger {
+        border-radius: $dp-button-radius;
+
         &:hover,
         .o-flyout.is-expanded & {
-            background-color: $dp-color-neutral-light-2;
-            border-radius: $dp-button-radius;
+            background-color: $dp-color-interactive-subtle-hover;
+        }
+
+        &:active {
+            background-color: $dp-color-interactive-subtle-active;
         }
     }
 
