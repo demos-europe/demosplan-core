@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use Doctrine\Persistence\ObjectManager;
 
-
 class LoadProcedureTypeData extends ProdFixture
 {
     public function load(ObjectManager $manager): void

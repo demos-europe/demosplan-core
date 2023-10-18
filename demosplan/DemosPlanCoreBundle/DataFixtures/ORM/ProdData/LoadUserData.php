@@ -26,7 +26,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectManager;
 
-
 class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
     public function __construct(

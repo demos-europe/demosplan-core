@@ -14,7 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Doctrine\Persistence\ObjectManager;
 
-
 class LoadRolesData extends ProdFixture
 {
     public function load(ObjectManager $manager): void

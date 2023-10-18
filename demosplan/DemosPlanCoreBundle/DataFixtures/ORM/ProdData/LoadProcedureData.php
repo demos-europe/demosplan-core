@@ -28,7 +28,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-
 class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
 {
     /** @var TranslatorInterface */

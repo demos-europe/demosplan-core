@@ -14,7 +14,6 @@ use demosplan\DemosPlanCoreBundle\Entity\MigrationVersions;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Finder\Finder;
 
-
 class LoadMigrationVersionData extends ProdFixture
 {
     /**
