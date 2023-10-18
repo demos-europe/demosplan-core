@@ -1033,6 +1033,7 @@ error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Ad
 error.phone.pattern: "Bitte geben Sie gültige Telefonnummer ein."
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
 error.title.required: "Bitte geben Sie einen Titel ein."
+error.title.unique: "Bitte verwenden Sie einen eindeutigen Titel."
 error.enddate.required: "Bitte geben Sie ein Enddatum ein"
 error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
 error.date: "Bitte geben Sie ein Datum ein."

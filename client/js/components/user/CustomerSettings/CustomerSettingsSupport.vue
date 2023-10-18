@@ -29,7 +29,8 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            data-dp-validate-error="error.title.required"
+            :pattern="titlesInUsePattern"
+            :data-dp-validate-error="customerContact.title === '' ? 'error.title.required' : 'error.title.unique'"
             :label="{
               text: Translator.trans('customer.contact.title')
             }"
@@ -127,7 +128,13 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    })
+    }),
+
+    titlesInUsePattern () {
+      return `^(?!(?:${Object.values(this.contacts)
+        .map(contact => contact.attributes.title)
+        .join('|')})$)`
+    }
   },
 
   methods: {
