@@ -988,7 +988,7 @@ email.text.notification_for_unsubmitted_statement.end_days: |
         =1 { einem Tag}
         other { # Tagen }
     }
-email.text.notification_for_unsubmitted_statement.statements: |
+email.text.notification_for_unsubmitted_statement.statements: >
     {count, plural,
         =1 { einen noch nicht eingereichten Entwurf einer Stellungnahme }
         other { # noch nicht eingereichte Stellungnahmen-Entwürfe }
