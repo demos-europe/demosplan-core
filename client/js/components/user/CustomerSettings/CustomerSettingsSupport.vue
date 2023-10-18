@@ -48,7 +48,7 @@
               text: Translator.trans('customer.contact.phone_number')
             }"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
-            :required="customerContact.eMailAddress === ''"
+            :required="customerContact.phoneNumber === ''"
             type="tel" />
           <dp-input
             id="emailAddress"
