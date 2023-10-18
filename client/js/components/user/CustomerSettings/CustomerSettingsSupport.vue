@@ -41,7 +41,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            :data-dp-validate-error="customerContact.eMailAddress === ''
+            :data-dp-validate-error="customerContact.phoneNumber === ''
               ? 'error.phone_or_email.required'
               : 'error.phone.pattern'"
             :label="{
@@ -59,7 +59,6 @@
             :label="{
               text: Translator.trans('email.address')
             }"
-            :required="customerContact.phoneNumber === ''"
             type="email" />
           <dp-editor
             id="supportText"
