@@ -173,7 +173,7 @@ export default {
     },
 
     toggle () {
-      this.$emit('input', (this.statementTabVisible === false))
+      this.$emit('toggletabs', (this.statementTabVisible === false))
     }
   }
 }
