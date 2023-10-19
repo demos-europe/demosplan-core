@@ -53,7 +53,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $creationDate;
 
@@ -62,7 +62,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @Gedmo\Timestampable(on="update")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $modificationDate;
 
@@ -97,28 +97,28 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $mapHintDefault = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintStatement = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintPersonalData = '';
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $statementFormHintRecheck = '';
 

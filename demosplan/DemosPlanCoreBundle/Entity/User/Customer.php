@@ -56,7 +56,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var string
      *
-     * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
+     * @ORM\Column(type="text", length=65535, nullable=false)
      */
     private $imprint = '';
     /**
@@ -125,7 +125,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      *
-     * @ORM\Column(type="text", length=4096, nullable=false, options={"default":""})
+     * @ORM\Column(type="text", length=4096, nullable=false)
      */
     #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $mapAttribution = '';
@@ -165,7 +165,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
      */
-    #[Assert\Length(max: 65000)]
     #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $accessibilityExplanation = '';
     /**
@@ -186,7 +185,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      *
-     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     * @ORM\Column(type="text", nullable=false)
      */
     private $signLanguageOverviewDescription = '';
     /**
@@ -195,7 +194,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @var string
      *
-     * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
+     * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false)
      */
     #[Assert\Length(max: 65536)]
     protected $overviewDescriptionInSimpleLanguage = '';
