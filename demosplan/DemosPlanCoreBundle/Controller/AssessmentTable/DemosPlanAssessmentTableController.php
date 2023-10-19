@@ -813,7 +813,7 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * Get complete text of a statement to be displayed in a <dp-height-limit> component.
+     * Get complete text of a statement to be displayed in a <height-limit> component.
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
