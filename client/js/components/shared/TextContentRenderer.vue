@@ -2,7 +2,7 @@
 import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpTextWrapper',
+  name: 'TextContentRenderer',
 
   functional: true,
 
