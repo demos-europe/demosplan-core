@@ -148,8 +148,8 @@ class AddonInstallFromZipCommand extends CoreCommand
                 ->run();
 
             if (0 === $batchReturn) {
-                $output->success("Addon {$name} successfully installed. Please remember to
-                    build the frontend assets when needed.");
+                $output->success("Addon {$name} successfully installed. Please remember to ".
+                    "build the frontend assets of the core and deployment to webserver folder when needed.");
 
                 return Command::SUCCESS;
             }
