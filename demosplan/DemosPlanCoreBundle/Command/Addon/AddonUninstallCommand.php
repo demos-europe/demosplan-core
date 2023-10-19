@@ -134,6 +134,11 @@ class AddonUninstallCommand extends CoreCommand
     {
         $installPath = $addonInfo->getInstallPath();
         $filesystem = new Filesystem();
+        // remove files in symlinked target if they exist
+        $symlinkedPath = $filesystem->readlink($installPath, true);
+        if (null !== $symlinkedPath) {
+            $filesystem->remove($symlinkedPath);
+        }
         $filesystem->remove($installPath);
         $output->info("Addon cache directory deleted successfully.");
 
