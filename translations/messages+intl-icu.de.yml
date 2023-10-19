@@ -1029,7 +1029,7 @@ error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht 
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
-error.phone.required: "Bitte geben sie eine gültige Telefonnummer ein."
+error.phone.required: "Bitte geben Sie eine Telefonnummer ein."
 error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
 error.phone.pattern: "Bitte geben Sie gültige Telefonnummer ein."
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
