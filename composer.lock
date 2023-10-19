@@ -18366,16 +18366,16 @@
         },
         {
             "name": "wsdltophp/packagegenerator",
-            "version": "4.1.10",
+            "version": "4.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc"
+                "reference": "4959c200a5fe06113e0b03e733dcee6d96c9a7d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/d418c3c463128aab50520bf6370a3743c5dbb5bc",
-                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/4959c200a5fe06113e0b03e733dcee6d96c9a7d5",
+                "reference": "4959c200a5fe06113e0b03e733dcee6d96c9a7d5",
                 "shasum": ""
             },
             "require": {
@@ -18492,6 +18492,11 @@
                     "role": "Contributor"
                 },
                 {
+                    "name": "gugglegum",
+                    "email": "gugglegum@gmail.com",
+                    "role": "Contributor"
+                },
+                {
                     "name": "tbreuss",
                     "email": "thomasbreuss@gmx.ch",
                     "role": "Contributor"
@@ -18508,9 +18513,9 @@
             "support": {
                 "email": "contact@wsdltophp.com",
                 "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.10"
+                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.11"
             },
-            "time": "2023-09-11T20:06:23+00:00"
+            "time": "2023-10-18T19:11:01+00:00"
         },
         {
             "name": "wsdltophp/phpgenerator",
@@ -22439,5 +22444,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
