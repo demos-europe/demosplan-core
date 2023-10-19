@@ -38,7 +38,7 @@
       </div><!--
    --><div
         class="layout__item u-1-of-2"
-        v-if="branding.logoHash">
+        v-if="brandingList[brandingId].relationships?.logo?.data">
         <p
           class="weight--bold"
           v-text="Translator.trans('logo.current')" />
@@ -147,6 +147,7 @@ export default {
 
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
+        this.$emit('saveBrandingUpdate')
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
       })
     }
