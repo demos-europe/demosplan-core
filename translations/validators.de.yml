@@ -14,6 +14,7 @@ error.mandatoryfield.title: "Bitte füllen Sie auch das Feld \"Titel\" aus."
 error.mandatoryfield.visibility: "Bitte füllen Sie auch das Feld \"Sichtbarkeit\" aus."
 error.news.description.toolong: "Der Kurztext für die Mitteilung ist zu lang. Bitte kürzen Sie ihn."
 error.news.text.toolong: "Der Mitteilungstext ist zu lang. Bitte kürzen Sie ihn."
+error.segmentation.invalid_draft_json: 'Der Abschnitt „{{ segmentText }}“ überschneidet sich mit dem vorherigem Abschnitt. Sie können versuchen die Abschnitte neu zu erstellen.'
 file.video.invalid: "Die Datei kann nicht als Video verwendet werden."
 institutionTag.label.not.null: "Der Feld 'Titel' darf nicht leer sein."
 mail.body.max.length: "Der Inhalt der E-Mail ist zu lang, bitte reduzieren Sie ihn auf {{ limit }} Zeichen."
