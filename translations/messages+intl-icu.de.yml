@@ -680,10 +680,24 @@ consultation.notification.mail.on.token.creation.confirmation: "Ein Zugangscode 
 consultation.notification.mail.on.token.creation.error: "Es konnte keine Email versendet werden."
 consultation.notification.mail.subject.on.token.creation: "Ihre Stellungnahme zum Verfahren {procedureName} ist eingegangen"
 
+contact: "Kontakt"
 contact.data: "Kontaktdaten"
+contact.add: "Kontakt hinzufügen"
+contact.change: "Kontakt bearbeiten"
+contact.delete: "Kontakt löschen"
+contact.deleted: "Der Kontakt wurde gelöscht."
+contact.new: "Neuen Kontakt anlegen"
+contact.no: "Keine Kontakte angelegt"
 contact.person: "Ansprechperson"
 contact.person.noname: "Es wurde keine Ansprechperson benannt."
-contact: "Kontakt"
+contact.phone_number: "Telefonnummer"
+contact.update: "Kontakt aktualisieren"
+contact.visible: "Diesen Kontakt sichtbar anzeigen"
+contact.visibleText: |
+    {isVisible, select,
+        true {Dieser Kontakt wird sichtbar angezeigt.}
+        other {Dieser Kontakt wird nicht sichtbar angezeigt.}
+    }
 content: "Inhalt"
 contextual.help.edit: "Kontexthilfe bearbeiten"
 contextual.help.new: "Kontexthilfe neu anlegen"
@@ -728,21 +742,6 @@ customer: |
 customer.accessibility.explanation.label: "Geben Sie hier die Informationen ein, die Sie auf der Informationsseite zur Barrierefreiheit anzeigen möchten."
 customer.branding.label: "Plattform-Branding"
 customer.branding.logo: "Plattform-Logo"
-customer.contact.add: "Kontakt hinzufügen"
-customer.contact.change: "Kontakt bearbeiten"
-customer.contact.delete: "Kontakt löschen"
-customer.contact.deleted: "Der Kontakt wurde gelöscht."
-customer.contact.new: "Neuen Kontakt anlegen"
-customer.contact.no: "Keine Kontakte angelegt"
-customer.contact.phone_number: "Telefonnummer"
-customer.contact.title: "Name"
-customer.contact.update: "Kontakt aktualisieren"
-customer.contact.visible: "Diesen Kontakt sichtbar anzeigen"
-customer.contact.visibleText: |
-    {isVisible, select,
-        true {Dieser Kontakt wird sichtbar angezeigt.}
-        other {Dieser Kontakt wird nicht sichtbar angezeigt.}
-    }
 customer.branding.logo.hint: "(wird im Kopfbereich der Seite angezeigt)"
 customer.data.protection.explanation: "Der hier eingegebene Text wird an die Datenschutzhinweise der Plattform angehängt."
 customer.imprint.explanation: "Bitte geben Sie hier einen Text für das Impressum ein. Diese Eingabe ist verpflichtend. Der Text wird neben den Anbieter-Informationen unter <a href=\"{url}\"><strong>{url}</strong></a> angezeigt."
@@ -1033,8 +1032,6 @@ error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Ad
 error.phone.pattern: "Bitte geben Sie gültige Telefonnummer ein."
 error.phone.required: "Bitte geben Sie eine Telefonnummer ein."
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
-error.title.required: "Bitte geben Sie einen Titel ein."
-error.title.unique: "Bitte verwenden Sie einen eindeutigen Titel."
 error.enddate.required: "Bitte geben Sie ein Enddatum ein"
 error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
 error.date: "Bitte geben Sie ein Datum ein."
@@ -1111,6 +1108,8 @@ error.mandatoryfields.no_asterisk: "Bitte füllen Sie alle Pflichtfelder korrekt
 error.mandatoryfields.missing_fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: {fields}. Erst dann können Sie Ihre Angaben speichern."
 error.mandatoryfields.send_email: "Bitte füllen Sie alle Pflichtfelder korrekt aus. Erst dann können Sie Ihre Stellungnahme versenden."
 error.missing.required.info: "Bitte füllen Sie alle Pflichtfelder(*) korrekt aus. Erst dann können Sie Ihre Angaben speichern."
+error.name.required: "Bitte geben Sie einen Namen ein."
+error.name.unique: "Bitte verwenden Sie einen Namen, der nicht bereits vergeben ist."
 error.news.text.toolong: "Der Mitteilungstext ist zu lang. Bitte kürzen Sie ihn."
 error.news.description.toolong: "Der Kurztext für die Mitteilung ist zu lang. Bitte kürzen Sie ihn."
 error.map.getcapabilities: "Fehler beim Abruf der Layerdaten. Ist die URL korrekt eingegeben?"
