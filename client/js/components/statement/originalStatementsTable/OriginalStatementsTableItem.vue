@@ -91,7 +91,7 @@
           <h3 class="font-size-medium weight--bold">
             {{ Translator.trans('statementtext') }}
           </h3>
-          <dp-height-limit
+          <height-limit
             :short-text="!statement.shortText ? statement.text : statement.shortText"
             :full-text="statement.text"
             :is-shortened="statement.textIsTruncated"
@@ -189,18 +189,18 @@ import {
   CleanHtml,
   dpApi,
   DpFlyout,
-  DpHeightLimit,
   formatDate,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
     DpFlyout,
-    DpHeightLimit
+    HeightLimit
   },
 
   directives: {

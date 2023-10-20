@@ -95,8 +95,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpTableCard } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
 export default {
   name: 'DpUserListExtendedItem',

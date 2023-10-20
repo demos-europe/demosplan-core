@@ -704,10 +704,10 @@ export default {
     },
 
     redirect () {
-      if (hasPermission('area_admin_dashboard')) {
-        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
-      } else {
+      if (hasPermission('area_admin_import')) {
         window.location.href = Routing.generate('DemosPlan_procedure_import', { procedureId: window.dplan.procedureId })
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
       }
     },
 

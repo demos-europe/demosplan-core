@@ -249,7 +249,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
      *
-     * @ORM\Column(name="imprint", type="text", length=65535, nullable=false, options={"default":""})
+     * @ORM\Column(name="imprint", type="text", length=65535, nullable=false)
      *
      * @var string
      */
@@ -312,13 +312,13 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * @var Collection<int, AddressBookEntryInterface>
      *                                                 One organisation has many address book entries. This is the inverse side.
      *
-     * @ORM\OneToMany(targetEntity="AddressBookEntry", mappedBy="organisation")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry", mappedBy="organisation")
      */
     protected $addressBookEntries;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="orga", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="orga", cascade={"persist"})
      */
     protected $statusInCustomers;
     /**
@@ -344,7 +344,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int,InstitutionTagInterface>
      *
-     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
      *
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
@@ -355,7 +355,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int,InstitutionTag>
      *
-     * @ORM\OneToMany(targetEntity="InstitutionTag", mappedBy="owningOrganisation")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
      *
      * @ORM\JoinColumn(referencedColumnName="id")
      *
@@ -1170,9 +1170,9 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         /** @var OrgaStatusInCustomer $item */
         foreach ($this->getStatusInCustomers() as $item) {
             if (
-                $customer === $item->getCustomer() &&
-                $orgaType === $item->getOrgaType() &&
-                $this === $item->getOrga()
+                $customer === $item->getCustomer()
+                && $orgaType === $item->getOrgaType()
+                && $this === $item->getOrga()
             ) {
                 $exists = true;
             }
