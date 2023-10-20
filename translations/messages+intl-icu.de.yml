@@ -3634,10 +3634,10 @@ text.statements.citizen.draft: |
     Die Stellungnahme ist dann eingereicht und kann nicht mehr verändert werden.
 text.statements.final.citizen: "Diese Liste enthält Ihre eingereichten Stellungnahmen. Die Stellungnahmen sind abgeschickt und können nicht mehr verändert werden. Mit der Funktion \"Download als PDF\" haben Sie die Möglichkeit, Ihre Stellungnahmen zu dokumentieren."
 text.statements.final: "Diese Liste enthält alle <strong>eingereichten</strong> Stellungnahmen Ihrer Organisation."
-text.statements.grouprelease: "Die Liste enthält alle <strong>freigegebenen</strong> Stellungnahmen Ihrer Organisation. Hinweis: \"Bitte reichen Sie die abgestimmten Stellungnahme(n) an den Verfahrensträger ein. Zur weiteren internen Bearbeitung können Sie die Stellungnahmen an die Verfassenden zurückweisen.\""
+text.statements.grouprelease: "Die Liste enthält alle <strong>freigegebenen</strong> Stellungnahmen Ihrer Organisation. Hinweis: Bitte reichen Sie die abgestimmten Stellungnahme(n) an den Verfahrensträger ein. Zur weiteren internen Bearbeitung können Sie die Stellungnahmen an die Verfassenden zurückweisen."
 text.statements.hidehint: "Diesen Hinweis zukünftig nicht mehr anzeigen"
 text.statements.owndraft.shorthand.submission: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe. Markieren Sie sie mit einem Häkchen und klicken Sie den Button \"Markierte Stellungnahmen einreichen\", um die Stellungnahmen an den Verfahrensträger zu schicken."
-text.statements.owndraft: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe.<br /> Hinweis: \"Bitte geben Sie Ihre fertigen Stellungnahme(n) an die Koordination Ihrer Organisation frei.\""
+text.statements.owndraft: "Diese Liste enthält Ihre noch bearbeitbaren Stellungnahmeentwürfe.<br /> Hinweis: Bitte geben Sie Ihre fertigen Stellungnahme(n) an die Koordination Ihrer Organisation frei."
 text.statements.owndraft.reminder: "Es existieren noch nicht eingereichte Stellungnahmeentwürfe!"
 text.statements.ownreleased: "Diese Liste enthält Ihre an die Koordination freigegebenen Stellungnahmen."
 text.statements.public.published: "Diese Liste enthält die Stellungnahmen, die von Bürger*innen eingereicht und veröffentlicht wurden. Sie können diese mitzeichnen und damit die Stellungnahme unterstützen."
