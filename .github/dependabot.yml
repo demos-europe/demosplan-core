@@ -39,6 +39,13 @@ updates:
       - dependency-name: chalk
         versions:
           - ">= 5"
+    groups:
+        babel:
+            patterns:
+                - "@babel/*"
+            ingnore-patterns:
+                - "@babel/plugin-*"
+                - "@babel/eslint-*"
     labels:
       - dependencies:yarn
 
