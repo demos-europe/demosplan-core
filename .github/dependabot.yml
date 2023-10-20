@@ -48,6 +48,9 @@ updates:
             ingnore-patterns:
                 - "@babel/plugin-*"
                 - "@babel/eslint-*"
+        sentry:
+            pattern:
+                - "@sentry*"
     labels:
       - dependencies:yarn
 
