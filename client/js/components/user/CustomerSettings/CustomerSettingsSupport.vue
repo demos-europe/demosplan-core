@@ -32,7 +32,7 @@
             :pattern="titlesInUsePattern"
             :data-dp-validate-error="customerContact.title === '' ? 'error.name.required' : 'error.name.unique'"
             :label="{
-              text: Translator.trans('contact.title')
+              text: Translator.trans('contact.name')
             }"
             required
             type="text" />
