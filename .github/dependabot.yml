@@ -39,6 +39,10 @@ updates:
       - dependency-name: chalk
         versions:
           - ">= 5"
+    groups:
+        sentry:
+            pattern:
+                - "@sentry*"
     labels:
       - dependencies:yarn
 
