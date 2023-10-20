@@ -43,6 +43,8 @@ updates:
         babel:
             patterns:
                 - "@babel/*"
+            # @babel-plugin-* and @babel/eslint have different update cycles and with that
+            # different a versioning. therefore we can't group them with the other babel packages
             ingnore-patterns:
                 - "@babel/plugin-*"
                 - "@babel/eslint-*"
