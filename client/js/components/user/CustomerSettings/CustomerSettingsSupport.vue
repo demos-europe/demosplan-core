@@ -115,7 +115,7 @@ export default {
         add: Translator.trans('contact.add'),
         abort: Translator.trans('abort'),
         update: Translator.trans('contact.update'),
-        noEntries: Translator.trans('contact.no'),
+        noEntries: Translator.trans('contact.no_entries'),
         delete: Translator.trans('contact.delete')
       },
       updating: false
