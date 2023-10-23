@@ -152,10 +152,11 @@ class EntrypointController extends BaseController
         return $this->processEntrypointRoute($entrypointRoute);
     }
 
-    #[AttributeDplanPermissions('area_public_participation')]
+    #[AttributeDplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
     public function loginIdpError(): RedirectResponse|Response
     {
+        // todo insert customer-login support to templateVars.
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
         );
