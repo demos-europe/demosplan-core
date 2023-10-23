@@ -53,24 +53,42 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         }
     }
 
-    public function testSaveStatic()
+    public function testSaveLoginPath(): void
     {
         try {
-            $variableKey = 'testKey';
-            $variableValue = 'testValue';
+            $loginPath = 'testValue';
 
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertNull($result);
+            $result = $this->sut->getLoginPath();
+            static::assertSame('', $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            static::assertEquals($loginPath, $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            static::assertEquals($loginPath, $result);
         } catch (Exception $e) {
-            $this->fail();
+            $this->fail($e->getMessage());
+        }
+    }
+    public function testSaveDisplayOrder(): void
+    {
+        try {
+            $displayOrder = 2;
+
+            $result = $this->sut->getDisplayOrder();
+            static::assertSame(0, $result);
+
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            static::assertEquals($displayOrder, $result);
+
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            static::assertEquals($displayOrder, $result);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
         }
     }
 
