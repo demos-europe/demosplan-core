@@ -29,11 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SupportContactConstraint]
 class SupportContact extends CoreEntity implements UuidEntityInterface
 {
+    use TimestampableEntity;
     public const SUPPORT_CONTACT_TYPE_DEFAULT = 'customer';
     public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
     public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
-
-    use TimestampableEntity;
 
     /**
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
@@ -121,7 +120,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface
         return $this->type;
     }
 
-    public function setType(String $type): void
+    public function setType(string $type): void
     {
         $this->type = $type;
     }
