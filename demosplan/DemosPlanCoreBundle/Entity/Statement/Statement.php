@@ -2543,7 +2543,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**
