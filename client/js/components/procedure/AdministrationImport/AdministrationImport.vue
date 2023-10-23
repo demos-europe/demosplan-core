@@ -39,6 +39,7 @@
 import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
+import ParticipationImport from './ParticipationImport/ParticipationImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -50,6 +51,7 @@ export default {
     DpTab,
     DpTabs,
     ExcelImport,
+    ParticipationImport,
     StatementFormImport
   },
 
@@ -120,6 +122,11 @@ export default {
           name: StatementFormImport.name,
           permissions: ['feature_simplified_new_statement_create'],
           title: 'import.options.form'
+        },
+        {
+          name: ParticipationImport.name,
+          permissions: ['feature_statements_participation_import_excel'],
+          title: 'import.options.participation'
         }
       ].filter((component) => {
         return hasAnyPermissions(component.permissions)
