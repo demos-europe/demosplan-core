@@ -9,10 +9,10 @@ All rights reserved
 
 <template>
   <div class="space-stack-s">
-    <p v-html="radioLabel()" />
+    <p v-text="Translator.trans('statement.participation.import')" />
 
     <form
-      :action="Routing.generate(entity.uploadPath, { procedureId: procedureId })"
+      :action="Routing.generate('DemosPlan_statement_participation_import', { procedureId: procedureId })"
       class="space-stack-s"
       method="post"
       enctype="multipart/form-data">
@@ -53,20 +53,11 @@ export default {
   data () {
     return {
       active: '',
-      entity: {
-        exampleFile: '/files/statement_import_template.xlsx',
-        label: 'statement.participation.import',
-        uploadPath: 'DemosPlan_statement_participation_import'
-      },
       fileIds: []
     }
   },
 
   methods: {
-    radioLabel () {
-      return `${Translator.trans(this.entity.label)} (<a download href="${Translator.trans(this.entity.exampleFile)}">${Translator.trans('example.file')}</a>)`
-    },
-
     removeFileIds (file) {
       const fileIdx = this.fileIds.findIndex(el => el === file.hash)
       this.fileIds.splice(fileIdx, 1)
