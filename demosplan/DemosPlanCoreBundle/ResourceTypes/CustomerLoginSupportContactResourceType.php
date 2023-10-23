@@ -38,7 +38,7 @@ use Webmozart\Assert\Assert;
  * @property-read EmailAddressResourceType $eMailAddress
  * @property-read CustomerResourceType     $customer
  */
- class CustomerLoginSupportContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
+class CustomerLoginSupportContactResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, UpdatableDqlResourceTypeInterface
 {
     public function __construct(
         protected readonly EmailAddressService $emailAddressService
