@@ -636,6 +636,11 @@ confirm.users.invited: "An {count} Nutzende wurde die Einladungsemail verschickt
 confirm.userStory.voting.offline: "Die Bewertung der Sitzung vor Ort wurde gespeichert."
 confirm.userStory.voting.reset: "Ihre Bewertung wurde zurückgesetzt."
 confirm.userStory.voting: "Ihre Bewertung wurde gespeichert."
+
+console.info.application: "Application information"
+console.info.versions: "Versions"
+console.info.none: "Diese Information steht nicht zur Verfügung."
+
 consideration: "Begründung"
 consideration.text.add: "Begründungstext ergänzen"
 consideration.text.add.error: "Bitte geben Sie einen Begründungstext ein."
