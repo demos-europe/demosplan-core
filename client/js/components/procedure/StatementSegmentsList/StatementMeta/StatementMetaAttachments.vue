@@ -29,7 +29,9 @@
         <li
           v-for="attachment in attachments.additionalAttachments"
           :key="attachment.hash">
-          <statement-meta-attachments-link :attachment="attachment" />
+          <statement-meta-attachments-link
+            :attachment="attachment"
+            :procedure-id="procedureId" />
         </li>
       </ul>
       <p
