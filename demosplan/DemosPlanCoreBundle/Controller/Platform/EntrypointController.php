@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Exception;
@@ -154,11 +155,18 @@ class EntrypointController extends BaseController
 
     #[AttributeDplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
-    public function loginIdpError(): RedirectResponse|Response
+    public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
     {
-        // todo insert customer-login support to templateVars.
+        $loginSupportEntities = $customerLoginSupportContactResourceType->listEntities([]);
+
+        // todo check format of customer-login support in templateVars.
+        //new TwigableWrapperObject()
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
+            [
+                'templateVars' => ['customerLoginSupport' => $loginSupportEntities],
+            ]
         );
     }
 
