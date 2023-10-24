@@ -49,7 +49,6 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType implemen
     {
         return [
             $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->supportType)->initializable(),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),
