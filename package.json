@@ -173,7 +173,7 @@
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-hot-middleware": "^2.25.4",
     "webpack-manifest-plugin": "^5.0.0",
-    "webpack-merge": "^5.9.0"
+    "webpack-merge": "^5.10.0"
   },
   "engines": {
     "npm": ">= 6.0.0",
