@@ -72,6 +72,11 @@ use Webmozart\Assert\Assert;
         return [
             // A CustomerLoginContact is only a CustomerLoginContact if it is connected to a customer
             $this->conditionFactory->propertyIsNotNull($this->customer),
+            // and if its supportType is this type explicitly.
+            $this->conditionFactory->propertyHasValue(
+                SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
+                $this->supportType
+            ),
             // Additionally, we limit the access to contacts of the current customer
             $this->conditionFactory->propertyHasValue($currentCustomerId, $this->customer->id),
             // the visibility has no meaning in regard to CustomerLoginSupportContacts - its default is true
@@ -96,7 +101,7 @@ use Webmozart\Assert\Assert;
 
     public static function getName(): string
     {
-        return 'CustomerContact';
+        return 'CustomerLoginSupportContact';
     }
 
     public function createObject(array $properties): ResourceChange

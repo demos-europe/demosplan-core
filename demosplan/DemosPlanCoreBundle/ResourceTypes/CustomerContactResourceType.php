@@ -77,6 +77,8 @@ class CustomerContactResourceType extends DplanResourceType implements Creatable
         $conditions = [
             // A CustomerContact is only a CustomerContact if it is connected to a customer
             $this->conditionFactory->propertyIsNotNull($this->customer),
+            // and if its supportType is of this type explicitly
+            $this->conditionFactory->propertyHasValue(SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT, $this->supportType),
             // Additionally, we limit the access to contacts of the current customer
             $this->conditionFactory->propertyHasValue($currentCustomerId, $this->customer->id),
         ];
