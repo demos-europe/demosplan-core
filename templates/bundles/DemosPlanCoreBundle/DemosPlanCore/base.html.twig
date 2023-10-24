@@ -9,7 +9,7 @@
 
 {# set login url - override in bobhh which treats users from intranet differently #}
 {% block login_path %}
-    {{ setStaticVariable('login_path', gatewayURL) }}
+    {{ setLoginPath(gatewayURL) }}
 {% endblock login_path %}
 
 {% import "@DemosPlanCore/macros.html.twig" as partial %}

@@ -249,7 +249,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
      *
-     * @ORM\Column(name="imprint", type="text", length=65535, nullable=false, options={"default":""})
+     * @ORM\Column(name="imprint", type="text", length=65535, nullable=false)
      *
      * @var string
      */
