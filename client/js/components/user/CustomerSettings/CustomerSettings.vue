@@ -184,6 +184,7 @@
       </customer-settings-section>
 
       <customer-settings-section
+        v-if="hasPermission('feature_customer_login_support_contact_administration')"
         :title="Translator.trans('technical_support')">
         <customer-settings-technical-support />
       </customer-settings-section>
@@ -208,9 +209,9 @@
 <script>
 import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsTechnicalSupport from './CustomerSettingsTechnicalSupport'
 
 export default {
@@ -218,10 +219,10 @@ export default {
 
   components: {
     CustomerSettingsBranding,
-    CustomerSettingsSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
+    CustomerSettingsSupport,
     CustomerSettingsTechnicalSupport,
     DpLabel,
     DpLoading,
@@ -418,11 +419,15 @@ export default {
         this.addAttributesToField('Customer', ['imprint'])
       }
 
-      // @todo add Permisson
-      this.requestIncludes.push('customerSettingsSupport')
-      this.requestIncludes.push('customerSettingsTechnicalSupport')
-      this.addAttributesToField('CustomerSettingsTechnicalSupport', ['title', 'text', 'phoneNumber', 'eMailAddress'])
-      this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+      if (hasPermission('feature_customer_support_contact_administration')) {
+        this.requestIncludes.push('customerSettingsSupport')
+        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+      }
+
+      if (hasPermission('feature_customer_login_support_contact_administration')) {
+        // this.requestIncludes.push('customerLoginSupportContacts')
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress'])
+      }
 
       // Transform arrays to csv strings ready to be passed into query
       for (const prop in this.requestFields) {
