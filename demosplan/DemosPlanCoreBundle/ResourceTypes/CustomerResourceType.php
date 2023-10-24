@@ -25,21 +25,23 @@ use EDT\PathBuilding\End;
 /**
  * @template-extends DplanResourceType<Customer>
  *
- * @property-read End                                   $name
- * @property-read End                                   $subdomain
- * @property-read End                                   $signLanguageOverviewDescription
- * @property-read End                                   $overviewDescriptionInSimpleLanguage
- * @property-read End                                   $imprint
- * @property-read SignLanguageOverviewVideoResourceType $signLanguageOverviewVideo
- * @property-read SignLanguageOverviewVideoResourceType $signLanguageOverviewVideos
- * @property-read BrandingResourceType                  $branding
- * @property-read End                                   $dataProtection
- * @property-read End                                   $termsOfUse
- * @property-read End                                   $xplanning
- * @property-read End                                   $accessibilityExplanation
- * @property-read End                                   $baseLayerUrl
- * @property-read End                                   $baseLayerLayers
- * @property-read End                                   $mapAttribution
+ * @property-read End                                       $name
+ * @property-read End                                       $subdomain
+ * @property-read End                                       $signLanguageOverviewDescription
+ * @property-read End                                       $overviewDescriptionInSimpleLanguage
+ * @property-read End                                       $imprint
+ * @property-read SignLanguageOverviewVideoResourceType     $signLanguageOverviewVideo
+ * @property-read SignLanguageOverviewVideoResourceType     $signLanguageOverviewVideos
+ * @property-read BrandingResourceType                      $branding
+ * @property-read End                                       $dataProtection
+ * @property-read End                                       $termsOfUse
+ * @property-read End                                       $xplanning
+ * @property-read End                                       $accessibilityExplanation
+ * @property-read End                                       $baseLayerUrl
+ * @property-read End                                       $baseLayerLayers
+ * @property-read End                                       $mapAttribution
+ * @property-read CustomerContactResourceType               $customerContacts
+ * @property-read CustomerLoginSupportContactResourceType   $customerLoginSupportContacts
  */
 final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
@@ -74,7 +76,9 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             'feature_customer_xplanning_edit',
             'field_customer_accessibility_explanation_edit',
             'field_sign_language_overview_video_edit',
-            'field_simple_language_overview_description_edit'
+            'field_simple_language_overview_description_edit',
+            'feature_customer_login_support_contact_administration',
+            'feature_customer_support_contact_administration'
         );
     }
 
@@ -188,6 +192,13 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             $properties[] = $this->createAttribute($this->baseLayerUrl)->readable();
             $properties[] = $this->createAttribute($this->baseLayerLayers)->readable();
             $properties[] = $this->createAttribute($this->mapAttribution)->readable();
+        }
+
+        if ($this->currentUser->hasPermission('feature_customer_login_support_contact_administration')) {
+            $properties[] = $this->createToManyRelationship($this->customerLoginSupportContacts)->readable();
+        }
+        if ($this->currentUser->hasPermission('feature_customer_support_contact_administration')) {
+            $properties[] = $this->createToManyRelationship($this->customerContacts)->readable();
         }
 
         return $properties;
