@@ -157,15 +157,14 @@ class EntrypointController extends BaseController
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
     public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
     {
+        // there is in practise only one customerLoginSupport entity for each customer
+        // therefore it is ok to pass the first entry of the array via reset($array)
         $loginSupportEntities = $customerLoginSupportContactResourceType->listEntities([]);
-
-        // todo check format of customer-login support in templateVars.
-        //new TwigableWrapperObject()
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
             [
-                'templateVars' => ['customerLoginSupport' => $loginSupportEntities],
+                'templateVars' => ['customerLoginSupport' => reset($loginSupportEntities)],
             ]
         );
     }
