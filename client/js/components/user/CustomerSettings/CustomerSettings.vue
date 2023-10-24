@@ -165,14 +165,14 @@
           v-model="customer.overviewDescriptionInSimpleLanguage"
           :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
+          }"
           :toolbar-items="{
             fullscreenButton: true,
             headings: [2,3,4],
             imageButton: true,
             linkButton: true
-          }"
-          :routes="{
-            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }"
           :tus-endpoint="dplan.paths.tusEndpoint" />
       </customer-settings-section>
@@ -181,6 +181,11 @@
         v-if="hasPermission('feature_customer_support_contact_administration')"
         :title="Translator.trans('support')">
         <customer-settings-support />
+      </customer-settings-section>
+
+      <customer-settings-section
+        :title="Translator.trans('technical_support')">
+        <customer-settings-technical-support />
       </customer-settings-section>
 
       <!-- Button row -->
@@ -206,6 +211,7 @@ import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
+import CustomerSettingsTechnicalSupport from './CustomerSettingsTechnicalSupport'
 
 export default {
   name: 'CustomerSettings',
@@ -216,6 +222,7 @@ export default {
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
+    CustomerSettingsTechnicalSupport,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
@@ -410,6 +417,12 @@ export default {
       if (hasPermission('feature_imprint_text_customized_view')) {
         this.addAttributesToField('Customer', ['imprint'])
       }
+
+      // @todo add Permisson
+      this.requestIncludes.push('customerSettingsSupport')
+      this.requestIncludes.push('customerSettingsTechnicalSupport')
+      this.addAttributesToField('CustomerSettingsTechnicalSupport', ['title', 'text', 'phoneNumber', 'eMailAddress'])
+      this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
 
       // Transform arrays to csv strings ready to be passed into query
       for (const prop in this.requestFields) {
