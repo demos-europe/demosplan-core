@@ -30,6 +30,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SupportContact extends CoreEntity implements UuidEntityInterface
 {
     use TimestampableEntity;
+
+    /**
+     * These constants represent all possible values the property
+     * {@link SupportContact::$supportType} can hold. This type is used to distinguish between support contacts used in
+     * different locations with different context.
+     * For example: A SupportContact can of type customerLogin in order to be shown under /idp/login/error on keycloak
+     * authentication failure - or it can be of type customer to be shown under /informationen - or even without any
+     * customer relation as type platform as a general support contact visible throughout all customers.
+     */
     public const SUPPORT_CONTACT_TYPE_DEFAULT = 'customer';
     public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
     public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
