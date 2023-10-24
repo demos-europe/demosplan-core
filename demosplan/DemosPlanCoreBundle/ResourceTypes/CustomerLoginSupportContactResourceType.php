@@ -227,6 +227,6 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType implemen
 
     protected function hasManagementPermission(): bool
     {
-        return $this->currentUser->hasPermission('feature_customer_support_contact_administration');
+        return $this->currentUser->hasPermission('feature_customer_login_support_contact_administration');
     }
 }
