@@ -43,8 +43,8 @@ use Webmozart\Assert\Assert;
  * @property-read End                                       $baseLayerLayers
  * @property-read End                                       $mapAttribution
  * @property-read CustomerContactResourceType               $contacts
- * @property-read CustomerContactResourceType               $customerSettingsSupport
- * @property-read CustomerLoginSupportContactResourceType   $customerSettingsTechnicalSupport
+ * @property-read CustomerContactResourceType               $customerContacts
+ * @property-read CustomerLoginSupportContactResourceType   $customerLoginSupportContact
  */
 final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
@@ -199,7 +199,7 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
         }
 
         if ($this->currentUser->hasPermission('feature_customer_login_support_contact_administration')) {
-            $properties[] = $this->createToOneRelationship($this->customerSettingsTechnicalSupport)
+            $properties[] = $this->createToOneRelationship($this->customerLoginSupportContact)
                 ->readable(
                     false,
                     function (Customer $customer): ?SupportContact {
@@ -213,7 +213,7 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
                 );
         }
         if ($this->currentUser->hasPermission('feature_customer_support_contact_administration')) {
-            $properties[] = $this->createToManyRelationship($this->customerSettingsSupport)
+            $properties[] = $this->createToManyRelationship($this->customerContacts)
                 ->aliasedPath($this->contacts)->readable();
         }
 

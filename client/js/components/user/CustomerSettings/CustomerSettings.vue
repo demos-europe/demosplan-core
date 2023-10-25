@@ -420,13 +420,15 @@ export default {
       }
 
       if (hasPermission('feature_customer_support_contact_administration')) {
-        this.requestIncludes.push('customerSettingsSupport')
+        this.requestIncludes.push('customerContacts')
         this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('Customer', ['customerContacts'])
       }
 
       if (hasPermission('feature_customer_login_support_contact_administration')) {
-        this.requestIncludes.push('customerLoginSupportContacts')
+        this.requestIncludes.push('customerLoginSupportContact')
         this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress'])
+        this.addAttributesToField('Customer', ['customerLoginSupportContact'])
       }
 
       // Transform arrays to csv strings ready to be passed into query

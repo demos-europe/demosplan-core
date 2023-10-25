@@ -107,7 +107,6 @@ export default {
   methods: {
     ...mapActions('customerLoginSupportContact', {
       create: 'create',
-      fetch: 'list',
       delete: 'delete',
       save: 'save'
     }),
@@ -193,10 +192,6 @@ export default {
           })
       }
     }
-  },
-
-  mounted () {
-    this.getContacts()
   }
 }
 </script>
