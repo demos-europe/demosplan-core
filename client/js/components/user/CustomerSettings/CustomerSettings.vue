@@ -425,7 +425,7 @@ export default {
       }
 
       if (hasPermission('feature_customer_login_support_contact_administration')) {
-        // this.requestIncludes.push('customerLoginSupportContacts')
+        this.requestIncludes.push('customerLoginSupportContacts')
         this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress'])
       }
 
