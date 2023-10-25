@@ -43,12 +43,14 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType implemen
     public function __construct(
         protected readonly EmailAddressService $emailAddressService
     ) {
+
     }
 
     protected function getProperties(): array
     {
         return [
             $this->createAttribute($this->id)->readable(true),
+            $this->createToOneRelationship($this->customer)->filterable(),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->phoneNumber)->readable()->initializable(),
             $this->createAttribute($this->text)->readable()->initializable(),

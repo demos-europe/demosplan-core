@@ -16,11 +16,13 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeIn
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use EDT\PathBuilding\End;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<Customer>
@@ -40,13 +42,15 @@ use EDT\PathBuilding\End;
  * @property-read End                                       $baseLayerUrl
  * @property-read End                                       $baseLayerLayers
  * @property-read End                                       $mapAttribution
- * @property-read CustomerContactResourceType               $customerContacts
- * @property-read CustomerLoginSupportContactResourceType   $customerLoginSupportContacts
+ * @property-read CustomerContactResourceType               $contacts
+ * @property-read CustomerContactResourceType               $customerSettingsSupport
+ * @property-read CustomerLoginSupportContactResourceType   $customerSettingsTechnicalSupport
  */
 final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
     public function __construct(
-        protected readonly BrandingRepository $brandingRepository
+        protected readonly BrandingRepository $brandingRepository,
+        protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType
     ) {
     }
 
@@ -195,10 +199,22 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
         }
 
         if ($this->currentUser->hasPermission('feature_customer_login_support_contact_administration')) {
-            $properties[] = $this->createToManyRelationship($this->customerLoginSupportContacts)->readable();
+            $properties[] = $this->createToOneRelationship($this->customerSettingsTechnicalSupport)
+                ->readable(
+                    false,
+                    function (Customer $customer): ?SupportContact {
+                        $supportContact = $this->customerLoginSupportContactResourceType-> listEntities([
+                            $this->conditionFactory->propertyHasValue($customer->getId(), $this->customerLoginSupportContactResourceType->customer->id)
+                        ]);
+                        Assert::lessThanEq(count($supportContact), 1);
+
+                        return array_pop($supportContact);
+                    }
+                );
         }
         if ($this->currentUser->hasPermission('feature_customer_support_contact_administration')) {
-            $properties[] = $this->createToManyRelationship($this->customerContacts)->readable();
+            $properties[] = $this->createToManyRelationship($this->customerSettingsSupport)
+                ->aliasedPath($this->contacts)->readable();
         }
 
         return $properties;
