@@ -31,9 +31,10 @@
         is-open
         :title="Translator.trans('map.mainpage.settings')">
         <customer-settings-map
+          :current-customer-id="currentCustomerId"
           :init-layer="initLayer"
           :init-layer-url="initLayerUrl"
-          :map-attribution="mapAttribution"
+          :init-map-attribution="mapAttribution"
           :map-extent="mapExtent" />
       </customer-settings-section>
 
@@ -54,8 +55,11 @@
             linkButton: true
           }" />
         <dp-button-row
+          class="u-mt"
           primary
           secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetImprintSettings"
           @primary-action="saveImprintSettings" />
       </customer-settings-section>
 
@@ -76,8 +80,11 @@
             linkButton: true
           }" />
         <dp-button-row
+          class="u-mt"
           primary
           secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetDataProtectionSettings"
           @primary-action="saveDataProtectionSettings" />
       </customer-settings-section>
 
@@ -97,6 +104,13 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetTermsOfUseSettings"
+          @primary-action="saveTermsOfUseSettings" />
       </customer-settings-section>
 
       <!-- Xplanning -->
@@ -212,9 +226,9 @@
 import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
+import CustomerSettingsSupport from './CustomerSettingsSupport'
 
 export default {
   name: 'CustomerSettings',
@@ -485,6 +499,18 @@ export default {
       }
     },
 
+    resetDataProtectionSettings () {
+      this.customer.dataProtection = this.customerList[this.currentCustomerId].attributes.dataProtection
+    },
+
+    resetImprintSettings () {
+      this.customer.imprint = this.customerList[this.currentCustomerId].attributes.imprint
+    },
+
+    resetTermsOfUseSettings () {
+      this.customer.termsOfuse = this.customerList[this.currentCustomerId].attributes.termsOfuse
+    },
+
     saveDataProtectionSettings () {
       const payload = {
         id: this.currentCustomerId,
@@ -507,6 +533,21 @@ export default {
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
           imprint: this.customer.imprint
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
+    saveTermsOfUseSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          imprint: this.customer.termsOfuse
         }
       }
       this.updateCustomer(payload)
