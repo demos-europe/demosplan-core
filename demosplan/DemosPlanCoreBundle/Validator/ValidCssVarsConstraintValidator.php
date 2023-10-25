@@ -30,8 +30,12 @@ class ValidCssVarsConstraintValidator extends ConstraintValidator
     /**
      * Incoming value is parsed to see if it is valid CSS or blank.
      */
-    private function validateTyped(string $value, ValidCssVarsConstraint $constraint): void
+    private function validateTyped(?string $value, ValidCssVarsConstraint $constraint): void
     {
+        if(null === $value) {
+            return;
+        }
+
         if ('' === $value) {
             return;
         }
