@@ -32,34 +32,25 @@ use Symfony\Component\Finder\SplFileInfo;
 class XlsxStatementImport
 {
     /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * @var array
      */
-    private $createdStatements;
+    private $createdStatements = [];
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
         private readonly EventDispatcherPostInterface $eventDispatcher,
         private readonly ExcelImporter $xlsxStatementImporter,
-        LoggerInterface $logger,
+        protected readonly LoggerInterface $logger,
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Permissions $permissions
     ) {
-        $this->logger = $logger;
-        $this->createdStatements = [];
     }
 
     /**
      * Import statements from excel document, which is located in the given FileInfo.
      * The extracted statements will be validated, persisted and indexed.
-     * Also report-entries will be generated and the StatementCreatedEvent dispatched.
-     * In case of an occurring error on generating the statements, the process will continued to getting all
+     * Also, report-entries will be generated and the StatementCreatedEvent dispatched.
+     * In case of an occurring error on generating the statements, the process will continue to get all
      * invalid cases and therefore allow to return collection of errors.
      * The generated Statements will only be persisted, if the document was processed without an error.
      *

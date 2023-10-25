@@ -43,6 +43,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -62,10 +63,12 @@ use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
@@ -87,6 +90,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use function explode;
 
 /**
  * Ausgabeseiten Stellungnahmen.
@@ -2107,7 +2111,7 @@ class DemosPlanStatementController extends BaseController
         $this->permissions->checkPermission('feature_statements_final_email');
 
         try {
-            $to = $this->getEmailAddresses($translator, \explode(',', (string) $requestPost->get('sendasemail_recipient')));
+            $to = $this->getEmailAddresses($translator, explode(',', (string) $requestPost->get('sendasemail_recipient')));
         } catch (InvalidArgumentException) {
             return $this->redirectToRoute(
                 'DemosPlan_statement_send',
@@ -2350,9 +2354,9 @@ class DemosPlanStatementController extends BaseController
     #[Route(name: 'DemosPlan_statement_import', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/import', options: ['expose' => true])]
     public function importStatementsAction(
         FileService $fileService,
-        PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        XlsxStatementImport $importer,
+        XlsxStatementImporterFactory $importerFactory,
+        ExcelImporter $excelImporter,
         string $procedureId,
         Request $request
     ): Response {
@@ -2364,43 +2368,31 @@ class DemosPlanStatementController extends BaseController
         }
 
         // recreate uploaded array
-        $uploads = \explode(',', (string) $requestPost['uploadedFiles']);
+        $uploads = explode(',', (string) $requestPost['uploadedFiles']);
+        $files = array_map([$fileService, 'getFileInfo'], $uploads);
+        $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
 
-        foreach ($uploads as $uploadHash) {
-            $file = $fileService->getFileInfo($uploadHash);
+        return $this->importStatements($files, $procedureId, $importer);
+    }
+
+    /**
+     * @param FileInfo[] $files
+     */
+    protected function importStatements(array $files, string $procedureId, XlsxStatementImport $importer): Response
+    {
+        foreach ($files as $file) {
             $fileName = $file->getFileName();
             try {
                 $importer->importFromFile($file);
 
                 if ($importer->hasErrors()) {
-                    return $this->renderTemplate(
-                        '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
-                        [
-                            'procedure'  => $procedureId,
-                            'context'    => 'statements',
-                            'title'      => 'statements.import',
-                            'errors'     => $importer->getErrorsAsArray(),
-                        ]
-                    );
+                    return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
                 }
 
-                // on success:
-                $numberOfCreatedStatements = is_countable($importer->getCreatedStatements()) ? count($importer->getCreatedStatements()) : 0;
-                $this->getMessageBag()->add(
-                    'confirm',
-                    'confirm.statements.imported.from.xlsx',
-                    ['count' => $numberOfCreatedStatements, 'fileName' => $fileName]
-                );
-                $route = 'dplan_procedure_statement_list';
-                // Change redirect target if data input user
-                if ($permissions->hasPermission('feature_statement_data_input_orga')) {
-                    $route = 'DemosPlan_statement_orga_list';
-                }
+                $createdStatements = $importer->getCreatedStatements();
+                $numberOfCreatedStatements = is_countable($createdStatements) ? count($createdStatements) : 0;
 
-                return $this->redirectToRoute(
-                    $route,
-                    compact('procedureId')
-                );
+                return $this->createSuccessResponse($procedureId, $numberOfCreatedStatements, $fileName);
             } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['fileName' => $fileName]);
@@ -2433,6 +2425,38 @@ class DemosPlanStatementController extends BaseController
 
         return $this->redirectToRoute(
             'DemosPlan_procedure_import',
+            compact('procedureId')
+        );
+    }
+
+    protected function createErrorResponse(string $procedureId, array $errors): Response
+    {
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
+            [
+                'procedure'  => $procedureId,
+                'context'    => 'statements',
+                'title'      => 'statements.import',
+                'errors'     => $errors,
+            ]
+        );
+    }
+
+    protected function createSuccessResponse(string $procedureId, int $numberOfCreatedStatements, string $fileName)
+    {
+        $this->getMessageBag()->add(
+            'confirm',
+            'confirm.statements.imported.from.xlsx',
+            ['count' => $numberOfCreatedStatements, 'fileName' => $fileName]
+        );
+        $route = 'dplan_procedure_statement_list';
+        // Change redirect target if data input user
+        if ($this->permissions->hasPermission('feature_statement_data_input_orga')) {
+            $route = 'DemosPlan_statement_orga_list';
+        }
+
+        return $this->redirectToRoute(
+            $route,
             compact('procedureId')
         );
     }

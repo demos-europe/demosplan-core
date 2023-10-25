@@ -61,7 +61,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
-class ExcelImporter extends CoreService
+class ExcelImporter extends CoreService implements StatementSpreadsheetImporterInterface
 {
     private const SUBMIT_TYPE_EMAIL_TRANSLATED = 'E-Mail';
     private const SUBMIT_TYPE_LETTER_TRANSLATED = 'Brief';
@@ -145,17 +145,6 @@ class ExcelImporter extends CoreService
     /**
      * Generates statements from incoming excel document, including validation.
      * This method does not persist or flush the generated Statements.
-     *
-     * @param SplFileInfo $fileInfo identifies the excel file which contains the data of statements to create
-     *
-     * @throws CopyException
-     * @throws InvalidDataException
-     * @throws MissingPostParameterException
-     * @throws StatementElementNotFoundException
-     * @throws UserNotFoundException
-     * @throws RowAwareViolationsException
-     * @throws UnexpectedWorksheetNameException
-     * @throws MissingDataException
      */
     public function process(SplFileInfo $fileInfo): void
     {
@@ -296,9 +285,6 @@ class ExcelImporter extends CoreService
         return $result;
     }
 
-    /**
-     * @return array<int, EntityInterface>
-     */
     public function getGeneratedTags(): array
     {
         return $this->generatedTags;
@@ -638,9 +624,6 @@ class ExcelImporter extends CoreService
         }
     }
 
-    /**
-     * @return Statement[]
-     */
     public function getGeneratedStatements(): array
     {
         return $this->generatedStatements;
@@ -654,9 +637,6 @@ class ExcelImporter extends CoreService
         return $this->generatedSegments;
     }
 
-    /**
-     * @return array<int, array>
-     */
     public function getErrorsAsArray(): array
     {
         $errorArray = [];
