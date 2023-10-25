@@ -149,6 +149,7 @@ export default {
       this.saveBranding(this.brandingId).then(() => {
         this.$emit('saveBrandingUpdate')
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.logoDelete = false
       })
     }
   }

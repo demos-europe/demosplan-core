@@ -362,7 +362,7 @@ export default {
 
         this.customer.imprint = currentData.imprint ? currentData.imprint : ''
         this.customer.dataProtection = currentData.dataProtection ? currentData.dataProtection : ''
-        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id].attributes.hash
+        this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash
       })
     },
 
@@ -372,7 +372,7 @@ export default {
       // The request is filtered by currentCustomer, so we assume that exactly one customer is returned
       this.customer = { ...customer.attributes }
 
-      if (hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')) {
+      if (hasPermission('feature_platform_logo_edit') && hasPermission('feature_customer_branding_edit')) {
         // Find branding relationship and set cssvars
         const brandingId = customer.relationships.branding?.data?.id
         const branding = response.data?.included.find(item => item.id === brandingId)
