@@ -203,8 +203,8 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
                 ->readable(
                     false,
                     function (Customer $customer): ?SupportContact {
-                        $supportContact = $this->customerLoginSupportContactResourceType-> listEntities([
-                            $this->conditionFactory->propertyHasValue($customer->getId(), $this->customerLoginSupportContactResourceType->customer->id)
+                        $supportContact = $this->customerLoginSupportContactResourceType->listEntities([
+                            $this->conditionFactory->propertyHasValue($customer->getId(), $this->customerLoginSupportContactResourceType->customer->id),
                         ]);
                         Assert::lessThanEq(count($supportContact), 1);
 

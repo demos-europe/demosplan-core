@@ -43,7 +43,6 @@ class CustomerLoginSupportContactResourceType extends DplanResourceType implemen
     public function __construct(
         protected readonly EmailAddressService $emailAddressService
     ) {
-
     }
 
     protected function getProperties(): array

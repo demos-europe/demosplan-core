@@ -28,12 +28,12 @@ class SupportContactConstraintValidator extends ConstraintValidator
     {
         /**
          * In the future it is planned to create SupportContact entities independent of specific customers without
-        * the need of a title. In that case the customer property will be null and the supportType will be
+         * the need of a title. In that case the customer property will be null and the supportType will be
          * {@link SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM}.
-        * Otherwise - in customer context - a title is mandatory and the supportTypes are one of the other two constants
+         * Otherwise - in customer context - a title is mandatory and the supportTypes are one of the other two constants
          * {@link SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT}.
          * {@link SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN}.
-        */
+         */
         $titleMissing = (null === $supportContact->getTitle() || '' === $supportContact->getTitle());
         if ($titleMissing
             && (null !== $supportContact->getCustomer()
