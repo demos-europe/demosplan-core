@@ -1,11 +1,7 @@
 <template>
-  <div
-    data-dp-validate="technicalSupport"
-    class="space-stack-s space-inset-s border">
-    <p class="lbl">
-      {{ Translator.trans(updating ? 'contact.change' : 'contact.new') }}:
-    </p>
+  <div data-dp-validate="technicalSupport">
     <dp-input
+      id="technicalSupportTitle"
       v-model="contact.title"
       class="u-mb-0_75"
       data-cy="contactTitle"
@@ -16,6 +12,7 @@
       required
       type="text" />
     <dp-input
+      id="technicalSupportPhone"
       v-model="contact.phoneNumber"
       autocomplete="tel"
       class="u-mb-0_75"
@@ -24,10 +21,11 @@
       :label="{
         text: Translator.trans('contact.phone_number')
       }"
-      pattern="^(\+?)(-| |[0-9]|\(|\))*$"
+      pattern="^(\(?\+?)(-| |[0-9]|\(|\))*$"
       required
       type="tel" />
     <dp-input
+      id="technicalSupportEmail"
       v-model="contact.eMailAddress"
       autocomplete="email"
       class="u-mb-0_75"
@@ -49,10 +47,12 @@
     <dp-button-row
       primary
       secondary
+      :secondary-text="Translator.trans('reset')"
       @primary-action="dpValidateAction('technicalSupport', () => updateContact(), false)"
-      @secondary-action="resetForm">
+      @secondary-action="setFormFromStore">
       <dp-button
         color="secondary"
+        :disabled="this.contact.id === 'new'"
         :text="Translator.trans('delete')"
         @click.prevent="deleteContact" />
     </dp-button-row>
@@ -63,11 +63,12 @@
 import { DpButton, DpButtonRow, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
-const emptyCustomer = {
+const emptyContact = {
   title: '',
   phoneNumber: '',
   eMailAddress: '',
-  text: ''
+  text: '',
+  id: 'new'
 }
 export default {
   name: 'CustomerSettingsTechnicalSupport',
@@ -83,7 +84,7 @@ export default {
 
   data () {
     return {
-      contact: emptyCustomer,
+      contact: emptyContact,
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('contact.new'),
@@ -98,7 +99,7 @@ export default {
   },
 
   computed: {
-    ...mapState('customerContact', {
+    ...mapState('customerLoginSupportContact', {
       contacts: 'items'
     })
   },
@@ -121,6 +122,16 @@ export default {
           return false
         }
       })
+
+      return true
+    },
+
+    deleteContact () {
+      if (this.contact.id !== 'new') {
+        this.delete(this.contact.id).then(() => {
+          dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
+        })
+      }
     },
 
     getContacts () {
@@ -133,21 +144,22 @@ export default {
             'eMailAddress'
           ].join()
         }
+      }).then(() => {
+        this.setFormFromStore()
       })
     },
 
-    reset () {
-      this.showContactForm = false
-      this.updating = false
-    },
-
-    resetForm () {
-      this.contact = emptyCustomer
-      this.updating = false
+    setFormFromStore () {
+      /*
+       * The ressource type is a 1-n relation to the customer, but we hve to use it like a 1 to 1 relationship.
+       * Therefor we have to fetch a list and then just use the first element
+       */
+      const contact = Object.values(this.contacts)[0]
+      this.contact = contact ? { ...contact.attributes, id: contact.id } : emptyContact
     },
 
     updateContact () {
-      const id = 'new'
+      const id = this.contact.id || 'new'
 
       if (this.checkIfContactIsEmpty()) {
         this.delete()
@@ -160,7 +172,7 @@ export default {
         type: 'CustomerLoginSupportContact',
         attributes: {
           title: this.contact.title,
-          phoneNumber: this.contact.phoneNumber ? this.contact.phoneNumber : null,
+          phoneNumber: this.contact.phoneNumber,
           text: this.contact.text ? this.contact.text : null,
           eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
         }
@@ -180,36 +192,10 @@ export default {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           })
       }
-    },
-
-    updateForm (index) {
-      const currentData = this.contacts[index].attributes
-
-      this.updating = true
-      this.contact = {
-        title: currentData.title,
-        phoneNumber: currentData.phoneNumber ? currentData.phoneNumber : '',
-        eMailAddress: currentData.eMailAddress ? currentData.eMailAddress : '',
-        text: currentData.text ? currentData.text : '',
-        visible: currentData.visible
-      }
     }
   },
 
   mounted () {
-    this.$on('showUpdateForm', (index) => {
-      this.updateForm(index)
-      this.$nextTick(() => {
-        document.getElementById('contactForm').scrollIntoView()
-      })
-    })
-
-    this.$on('delete', (id) => {
-      this.delete(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
-      })
-    })
-
     this.getContacts()
   }
 }

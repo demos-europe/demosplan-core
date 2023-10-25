@@ -58,9 +58,10 @@ import DpSupportCard from './DpSupportCard'
 
 export default {
   name: 'DpSupport',
+
   components: { DpSupportCard },
 
-  data() {
+  data () {
     return {
       contactList: this.contacts,
       email: '',
@@ -82,12 +83,12 @@ export default {
 
   methods: {
     ...mapActions('customerContact', {
-      fetchContact: 'list'
+      fetchContacts: 'list'
     })
   },
 
   mounted () {
-    this.fetchContact({
+    this.fetchContacts({
       fields: {
         CustomerContact: [
           'title',
