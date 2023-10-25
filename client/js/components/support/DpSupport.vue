@@ -9,7 +9,7 @@ All rights reserved
 
 <template>
   <div
-    class="c-support space-inset-m color--black bg-color--blue-light-3">
+    class="space-inset-m color--black bg-color--blue-light-3">
     <h2 class="font-normal color--black">
       {{ Translator.trans('support.heading') }}
     </h2>
