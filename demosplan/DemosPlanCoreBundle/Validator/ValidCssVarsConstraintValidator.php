@@ -32,11 +32,7 @@ class ValidCssVarsConstraintValidator extends ConstraintValidator
      */
     private function validateTyped(?string $value, ValidCssVarsConstraint $constraint): void
     {
-        if(null === $value) {
-            return;
-        }
-
-        if ('' === $value) {
+        if (null === $value || '' === $value) {
             return;
         }
 
