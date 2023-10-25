@@ -7,6 +7,6 @@ Den Stellungnahmen waren folgende Dateien angehaengt:
 {% for file in templateVars.files %}
 {{ file|getFile("name") }} {{ url("core_file", { "hash":file|getFile("hash")}) }}
 {% endfor %}
-Mit freundlichem Gruß
+Mit freundlichen Grüßen
 {{ templateVars.procedure.orgaName }}
 {% endblock %}
