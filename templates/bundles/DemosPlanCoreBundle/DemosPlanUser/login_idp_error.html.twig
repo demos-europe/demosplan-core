@@ -2,8 +2,8 @@
 
 {% block component_part %}
 
-    <div class="container flex justify-center">
-        <div class="text-center u-mt-2 max-w-xl justify-center">
+    <div class="o-page__padded flex justify-center">
+        <div class="layout__item u-1-of-1 text-center u-mt-1 max-w-xl justify-center u-p-0_5-palm u-p-lap-up">
             <svg
                 class="inline-block color-highlight u-mb"
                 width="70"
@@ -28,14 +28,16 @@
                 Bitte wenden Sie sich gegebenenfalls an ihre fachliche Leitstelle, um den Zugriff zu beantragen.
             </p>
 
-            <div class="justify-center flex">
-                <dp-support-card
-                    class="text-left u-mt-2 w-full max-w-sm bg-gray-50"
-                    title="{{ templateVars.customerLoginSupport.title|default }}"
-                    phone-number="{{ templateVars.customerLoginSupport.phoneNumber|default }}"
-                    :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }">
-                </dp-support-card>
-            </div>
+            {% if templateVars.customerLoginSupport.title|default != '' %}
+                <div class="justify-center flex">
+                    <dp-support-card
+                        class="text-left u-mt-2 w-full max-w-sm bg-gray-50"
+                        title="{{ templateVars.customerLoginSupport.title|default }}"
+                        phone-number="{{ templateVars.customerLoginSupport.phoneNumber|default }}"
+                        :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }">
+                    </dp-support-card>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock component_part %}
