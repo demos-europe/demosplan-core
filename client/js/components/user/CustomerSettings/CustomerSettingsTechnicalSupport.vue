@@ -108,6 +108,7 @@ export default {
     ...mapActions('customerLoginSupportContact', {
       create: 'create',
       delete: 'delete',
+      fetch: 'list',
       save: 'save'
     }),
 
@@ -118,16 +119,17 @@ export default {
     checkIfContactIsEmpty () {
       Object.values(this.contact).forEach(el => {
         if (el !== '') {
-          return false
+          return true
         }
       })
 
-      return true
+      return false
     },
 
     deleteContact () {
       if (this.contact.id !== 'new') {
         this.delete(this.contact.id).then(() => {
+          this.contact = emptyContact
           dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
         })
       }
@@ -149,12 +151,18 @@ export default {
     },
 
     setFormFromStore () {
-      /*
-       * The ressource type is a 1-n relation to the customer, but we hve to use it like a 1 to 1 relationship.
-       * Therefor we have to fetch a list and then just use the first element
-       */
       const contact = Object.values(this.contacts)[0]
-      this.contact = contact ? { ...contact.attributes, id: contact.id } : emptyContact
+      const attrs = contact.attributes
+
+      this.contact = contact
+        ? {
+            eMailAddress: attrs.eMailAddress || '',
+            id: contact.id,
+            phoneNumber: attrs.phoneNumber,
+            text: attrs.text || '',
+            title: attrs.title
+          }
+        : emptyContact
     },
 
     updateContact () {
@@ -172,8 +180,8 @@ export default {
         attributes: {
           title: this.contact.title,
           phoneNumber: this.contact.phoneNumber,
-          text: this.contact.text ? this.contact.text : null,
-          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
+          text: this.contact.text,
+          eMailAddress: this.contact.eMailAddress
         }
       }
 
@@ -192,6 +200,10 @@ export default {
           })
       }
     }
+  },
+
+  mounted () {
+    this.getContacts()
   }
 }
 </script>
