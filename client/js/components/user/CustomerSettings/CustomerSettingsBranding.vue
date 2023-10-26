@@ -34,7 +34,7 @@
           name="r_customerLogo"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          @upload-success="getFileId" />
+          @upload-success="$emit('uploadFile')" />
       </div><!--
    --><div
         class="layout__item u-1-of-2"
@@ -70,10 +70,6 @@
         <span v-html="Translator.trans('branding.styling.details.description')" />
       </dp-details>
     </div>
-    <dp-button-row
-      primary
-      secondary
-      @primary-action="saveBrandingSettings" />
   </div>
 </template>
 
@@ -98,16 +94,20 @@ export default {
       required: true,
       type: Object
     },
+
     brandingId: {
       required: true,
       type: String
-    }
-  },
+    },
 
-  data () {
-    return {
-      uploadedFileId: '',
-      logoDelete: false
+    logoDelete: {
+      required: true,
+      type: Boolean
+    },
+
+    uploadedFileId: {
+      required: true,
+      type: String
     }
   },
 
@@ -115,43 +115,6 @@ export default {
     ...mapState('branding', {
       brandingList: 'items'
     })
-  },
-
-  methods: {
-    ...mapActions('branding', {
-      fetchBranding: 'list',
-      saveBranding: 'save'
-    }),
-
-    ...mapMutations('branding', {
-      updateBranding: 'setItem'
-    }),
-
-    getFileId (file) {
-      this.uploadedFileId = file.fileId
-    },
-
-    saveBrandingSettings () {
-      const payload = {
-        id: this.brandingId,
-        type: 'Branding',
-        attributes: {
-          ...this.brandingList[this.brandingId].attributes
-        },
-        relationships: {
-          logo: {
-            data: this.logoDelete ? null : { id: this.uploadedFileId, type: 'file' }
-          }
-        }
-      }
-
-      this.updateBranding(payload)
-      this.saveBranding(this.brandingId).then(() => {
-        this.$emit('saveBrandingUpdate')
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.logoDelete = false
-      })
-    }
   }
 }
 </script>

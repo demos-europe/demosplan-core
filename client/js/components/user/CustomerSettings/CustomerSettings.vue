@@ -22,7 +22,13 @@
         <customer-settings-branding
           :branding="branding"
           :branding-id="customerBrandingId"
-          @saveBrandingUpdate="fetchCustomerData" />
+          :logo-delete="logoDelete"
+          :uploaded-file-id="uploadedFileId"
+          @upload-file="getFileId"/>
+        <dp-button-row
+          class="u-mt"
+          primary
+          @primary-action="saveBrandingSettings" />
       </customer-settings-section>
 
       <!-- Map -->
@@ -154,9 +160,9 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-          <h3
-            class="u-mt"
-            v-text="Translator.trans('video')" />
+        <h3
+          class="u-mt"
+          v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
           :sign-language-overview-video="signLanguageOverviewVideo"
@@ -226,20 +232,6 @@
         :title="Translator.trans('support')">
         <customer-settings-support />
       </customer-settings-section>
-
-      <!-- Button row -->
-      <div class="text-right space-inline-s">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          v-text="Translator.trans('save')"
-          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
-        <!-- Reset link to reload the page to its initial values -->
-        <a
-          class="btn btn--secondary"
-          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
-          v-text="Translator.trans('reset')" />
-      </div>
     </template>
   </div>
 </template>
@@ -284,13 +276,13 @@ export default {
       default: ''
     },
 
-    initLayerUrl: {
+    initLayer: {
       required: false,
       type: String,
       default: ''
     },
 
-    initLayer: {
+    initLayerUrl: {
       required: false,
       type: String,
       default: ''
@@ -329,6 +321,7 @@ export default {
       customerBrandingId: '',
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
+      logoDelete: false,
       requestFields: {},
       requestIncludes: [],
       signLanguageOverviewVideo: {
@@ -337,7 +330,8 @@ export default {
         id: null,
         mimetype: '',
         title: ''
-      }
+      },
+      uploadedFileId: ''
     }
   },
 
@@ -450,6 +444,10 @@ export default {
       this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
     },
 
+    getFileId (file) {
+      this.uploadedFileId = file.fileId
+    },
+
     getRequestPayload () {
       this.requestIncludes = []
       this.requestFields = {}
@@ -560,6 +558,28 @@ export default {
       })
     },
 
+    saveBrandingSettings () {
+      const payload = {
+        id: this.customerBrandingId,
+        type: 'Branding',
+        attributes: {
+          ...this.brandingList[this.customerBrandingId].attributes
+        },
+        relationships: {
+          logo: {
+            data: this.logoDelete ? null : { id: this.uploadedFileId, type: 'file' }
+          }
+        }
+      }
+
+      this.updateBranding(payload)
+      this.saveBranding(this.customerBrandingId).then(() => {
+        this.fetchCustomerData()
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.logoDelete = false
+      })
+    },
+
     saveOverviewDescriptionInSimpleLanguageSettings () {
       const payload = {
         id: this.currentCustomerId,
@@ -611,7 +631,7 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          termsOfUse: this.customer.termsOfuse
+          termsOfUse: this.customer.termsOfUse
         }
       }
       this.updateCustomer(payload)
