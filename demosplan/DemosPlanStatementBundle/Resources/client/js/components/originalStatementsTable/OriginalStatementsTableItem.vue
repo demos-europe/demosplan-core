@@ -185,7 +185,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from "demosplan-ui/directives"
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
@@ -304,6 +304,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations('statement', [
+      'updateStatement'
+    ]),
+
     formatDate (date) {
       return formatDate(date)
     },
