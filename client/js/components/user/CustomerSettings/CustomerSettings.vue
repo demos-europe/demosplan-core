@@ -185,7 +185,7 @@
 
       <customer-settings-section
         v-if="hasPermission('feature_customer_login_support_contact_administration')"
-        :title="Translator.trans('technical_support')">
+        :title="Translator.trans('support.technical')">
         <customer-settings-technical-support />
       </customer-settings-section>
 
