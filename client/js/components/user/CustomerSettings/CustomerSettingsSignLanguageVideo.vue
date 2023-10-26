@@ -28,10 +28,8 @@
       </div>
 
       <dp-button
-        :busy="isBusy"
         color="warning"
         :text="Translator.trans('delete')"
-        variant="outline"
         @click="deleteVideo" />
     </template>
 
@@ -71,12 +69,12 @@
         v-model="video.description"
         reduced-height />
 
-      <dp-button
-        :busy="isBusy"
-        :disabled="hasNoVideoInput"
-        :text="Translator.trans('save')"
-        variant="outline"
-        @click="dpValidateAction('signLanguageVideo', createVideo, false)" />
+      <dp-button-row
+        class="u-mt"
+        primary
+        secondary
+        :secondary-text="Translator.trans('reset')"
+        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
     </template>
   </div>
 </template>
@@ -84,19 +82,20 @@
 <script>
 import {
   dpApi,
-  DpButton,
+  DpButtonRow,
   DpInput,
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin,
   getFileIdsByHash
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
 
   components: {
-    DpButton,
+    DpButtonRow,
     DpInput,
     DpTextArea,
     DpUploadFiles,
@@ -121,17 +120,25 @@ export default {
           title: ''
         }
       }
-    }
+    },
+    signLanguageOverviewDescription: {
+      required: false,
+      type: String,
+      default: ''
+    },
   },
 
   data () {
     return {
-      isBusy: false,
       video: this.signLanguageOverviewVideo
     }
   },
 
   computed: {
+    ...mapState('customer', {
+      customerList: 'items'
+    }),
+
     hasNoVideoInput () {
       return this.video.title === '' && this.video.file === '' && this.video.description === ''
     },
@@ -147,8 +154,17 @@ export default {
   },
 
   methods: {
-    createVideo () {
-      this.isBusy = true
+    ...mapActions('customer', {
+      fetchCustomer: 'list',
+      saveCustomer: 'save'
+    }),
+
+    ...mapMutations('customer', {
+      updateCustomer: 'setItem'
+    }),
+
+    saveSignLanguageVideo () {
+      this.saveSignLanguage()
       this.saveVideo()
         .then(() => this.$emit('created'))
     },
@@ -160,6 +176,21 @@ export default {
       this.isBusy = true
       dpApi.delete(Routing.generate('api_resource_delete', { resourceType: 'SignLanguageOverviewVideo', resourceId: this.video.id }))
         .then(() => this.$emit('deleted'))
+    },
+
+    async saveSignLanguage() {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
     },
 
     async saveVideo () {

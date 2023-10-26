@@ -129,6 +129,13 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetXplanningSettings"
+          @primary-action="saveXplanningSettings" />
       </customer-settings-section>
 
       <!-- Sign language video page -->
@@ -147,12 +154,13 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-        <h3
-          class="u-mt"
-          v-text="Translator.trans('video')" />
+          <h3
+            class="u-mt"
+            v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
           :sign-language-overview-video="signLanguageOverviewVideo"
+          :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"
           @deleted="fetchCustomerData" />
         <dp-loading v-else />
@@ -174,6 +182,13 @@
             headings: [2,3,4],
             linkButton: true
           }" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetAccessibilityExplanationSettings"
+          @primary-action="saveAccessibilityExplanationSettings" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -197,6 +212,13 @@
             getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }"
           :tus-endpoint="dplan.paths.tusEndpoint" />
+        <dp-button-row
+          class="u-mt"
+          primary
+          secondary
+          :secondary-text="Translator.trans('reset')"
+          @secondary-action="resetOverviewDescriptionInSimpleLanguageSettings"
+          @primary-action="saveOverviewDescriptionInSimpleLanguageSettings" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -499,25 +521,52 @@ export default {
       }
     },
 
-    resetDataProtectionSettings () {
-      this.customer.dataProtection = this.customerList[this.currentCustomerId].attributes.dataProtection
+    resetAccessibilityExplanationSettings () {
+      this.customer.accessibilityExplanation = this.customerList[this.currentCustomerId].attributes.xplanning
     },
 
     resetImprintSettings () {
       this.customer.imprint = this.customerList[this.currentCustomerId].attributes.imprint
     },
 
+    resetDataProtectionSettings () {
+      this.customer.dataProtection = this.customerList[this.currentCustomerId].attributes.dataProtection
+    },
+
+    resetOverviewDescriptionInSimpleLanguageSettings () {
+      this.customer.overviewDescriptionInSimpleLanguage = this.customerList[this.currentCustomerId].attributes.overviewDescriptionInSimpleLanguage
+    },
+
     resetTermsOfUseSettings () {
       this.customer.termsOfuse = this.customerList[this.currentCustomerId].attributes.termsOfuse
     },
 
-    saveDataProtectionSettings () {
+    resetXplanningSettings () {
+      this.customer.xplanning = this.customerList[this.currentCustomerId].attributes.xplanning
+    },
+
+    saveAccessibilityExplanationSettings () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          dataProtection: this.customer.dataProtection
+          accessibilityExplanation: this.customer.accessibilityExplanation
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
+    saveOverviewDescriptionInSimpleLanguageSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          overviewDescriptionInSimpleLanguage: this.customer.overviewDescriptionInSimpleLanguage
         }
       }
       this.updateCustomer(payload)
@@ -541,13 +590,43 @@ export default {
       })
     },
 
+    saveDataProtectionSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          dataProtection: this.customer.dataProtection
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
     saveTermsOfUseSettings () {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          imprint: this.customer.termsOfuse
+          termsOfUse: this.customer.termsOfuse
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
+    saveXplanningSettings () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          xplanning: this.customer.xplanning
         }
       }
       this.updateCustomer(payload)
