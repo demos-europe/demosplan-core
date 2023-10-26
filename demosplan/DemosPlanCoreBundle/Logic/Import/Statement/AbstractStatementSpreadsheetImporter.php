@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -9,11 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
@@ -22,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -136,15 +138,8 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
         return $this->generatedStatements;
     }
 
-    protected function validateSubmitType(string $inputSubmitType, int $line, string $worksheetTitle): void
+    public function getGeneratedTags(): array
     {
-        $violations = $this->validator->validate($inputSubmitType, $this->getSubmitTypeConstraint($inputSubmitType));
-        if (0 !== $violations->count()) {
-            $this->addImportViolations($violations, $line, $worksheetTitle);
-        }
+        return $this->generatedTags;
     }
-
-    abstract protected function mapSubmitType(string $incomingSubmitType): string;
-
-    abstract protected function getSubmitTypeConstraint(string $inputSubmitType): Constraint;
 }

@@ -267,9 +267,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         return $result;
     }
 
-    public function getGeneratedTags(): array
+    protected function validateSubmitType(string $inputSubmitType, int $line, string $worksheetTitle): void
     {
-        return $this->generatedTags;
+        $violations = $this->validator->validate($inputSubmitType, $this->getSubmitTypeConstraint($inputSubmitType));
+        if (0 !== $violations->count()) {
+            $this->addImportViolations($violations, $line, $worksheetTitle);
+        }
     }
 
     /**

@@ -2119,6 +2119,16 @@ feature_statements_import_excel:
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
     parent: area_statements
+feature_statements_participation_import_excel:
+    description: |-
+        Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
+        The spreadsheets in the file must use the same format as the assessment table export.
+        If the extern ID of a statement to be imported is already in use that statement will be skipped (i.e.
+        not imported).
+    expose: true
+    label: 'Generate statements from uploaded assessment table spreadsheet export'
+    loginRequired: true
+    parent: area_statements
 feature_statements_like:
     label: 'Feature Stellungnahme als anonymer Nutzer liken aktiviert'
     loginRequired: false

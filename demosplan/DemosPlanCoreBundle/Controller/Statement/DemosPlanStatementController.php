@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporter;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -2357,6 +2358,42 @@ class DemosPlanStatementController extends BaseController
         ProcedureService $procedureService,
         XlsxStatementImporterFactory $importerFactory,
         ExcelImporter $excelImporter,
+        string $procedureId,
+        Request $request
+    ): Response {
+        $requestPost = $request->request->all();
+        $procedure = $procedureService->getProcedure($procedureId);
+
+        if (null === $procedure) {
+            throw ProcedureNotFoundException::createFromId($procedureId);
+        }
+
+        // recreate uploaded array
+        $uploads = explode(',', (string) $requestPost['uploadedFiles']);
+        $files = array_map([$fileService, 'getFileInfo'], $uploads);
+        $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
+
+        return $this->importStatements($files, $procedureId, $importer);
+    }
+
+    /**
+     * Imports Statements from a xlsx-file created by the assessment table export.
+     *
+     * @throws ProcedureNotFoundException
+     * @throws Exception
+     */
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['feature_statements_participation_import_excel'])]
+    #[Route(
+        path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
+        name: 'DemosPlan_statement_participation_import',
+        options: ['expose' => true],
+        methods: [Request::METHOD_POST])
+    ]
+    public function importParticipationStatementsAction(
+        FileService $fileService,
+        ProcedureService $procedureService,
+        XlsxStatementImporterFactory $importerFactory,
+        StatementSpreadsheetImporter $excelImporter,
         string $procedureId,
         Request $request
     ): Response {
