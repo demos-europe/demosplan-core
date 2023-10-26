@@ -52,7 +52,7 @@
       @secondary-action="setFormFromStore">
       <dp-button
         color="secondary"
-        :disabled="this.contact.id === 'new'"
+        :disabled="this.contact.id === emptyContact.id"
         :text="Translator.trans('delete')"
         @click.prevent="deleteContact" />
     </dp-button-row>
@@ -84,7 +84,8 @@ export default {
 
   data () {
     return {
-      contact: emptyContact,
+      emptyContact: emptyContact,
+      contact: Object.assign({}, emptyContact),
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('contact.new'),
@@ -127,11 +128,13 @@ export default {
     },
 
     deleteContact () {
-      if (this.contact.id !== 'new') {
+      if (this.contact.id !== emptyContact.id) {
         this.delete(this.contact.id).then(() => {
-          this.contact = emptyContact
+          this.contact = Object.assign({}, this.emptyContact)
           dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
         })
+      } else {
+        this.contact = Object.assign({}, this.emptyContact)
       }
     },
 
@@ -152,40 +155,40 @@ export default {
 
     setFormFromStore () {
       const contact = Object.values(this.contacts)[0]
-      const attrs = contact.attributes
+      const attrs = contact?.attributes || Object.assign({}, this.emptyContact)
 
       this.contact = contact
         ? {
             eMailAddress: attrs.eMailAddress || '',
-            id: contact.id,
+            id: contact?.id || emptyContact.id,
             phoneNumber: attrs.phoneNumber,
             text: attrs.text || '',
             title: attrs.title
           }
-        : emptyContact
+        : Object.assign({}, this.emptyContact)
     },
 
     updateContact () {
-      const id = this.contact.id || 'new'
+      const id = this.contact.id || emptyContact.id
 
       if (this.checkIfContactIsEmpty()) {
-        this.delete()
+        this.deleteContact()
 
         return
       }
 
       const payload = {
-        ...((id === 'new') ? null : { id }),
+        ...((id === emptyContact.id) ? null : { id }),
         type: 'CustomerLoginSupportContact',
         attributes: {
           title: this.contact.title,
-          phoneNumber: this.contact.phoneNumber,
-          text: this.contact.text,
-          eMailAddress: this.contact.eMailAddress
+          phoneNumber: this.contact.phoneNumber ,
+          text: this.contact.text ? this.contact.text : null,
+          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
         }
       }
 
-      if (id === 'new') {
+      if (id === emptyContact.id) {
         this.create(payload)
           .then(() => {
             this.getContacts()
