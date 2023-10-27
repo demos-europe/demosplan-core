@@ -538,7 +538,7 @@ export default {
     },
 
     resetTermsOfUseSettings () {
-      this.customer.termsOfuse = this.customerList[this.currentCustomerId].attributes.termsOfuse
+      this.customer.termsOfUse = this.customerList[this.currentCustomerId].attributes.termsOfUse
     },
 
     resetXplanningSettings () {
@@ -611,7 +611,7 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          termsOfUse: this.customer.termsOfuse
+          termsOfUse: this.customer.termsOfUse
         }
       }
       this.updateCustomer(payload)
