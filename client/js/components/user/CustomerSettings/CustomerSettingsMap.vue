@@ -149,7 +149,7 @@ export default {
       if (id === 'r_baseLayerUrl' || id === 'r_baseLayerLayers') {
         if (id === 'r_baseLayerUrl') {
           this.baseLayerUrl = value
-        } else if (id === 'r_baseLayerLayers') {
+        } else {
           this.baseLayerLayers = value
         }
         this.mapKey = Math.floor(Math.random() * 1000)
