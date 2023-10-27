@@ -85,7 +85,7 @@ export default {
   data () {
     return {
       emptyContact: emptyContact,
-      contact: Object.assign({}, emptyContact),
+      contact: { ...emptyContact },
       showContactForm: false,
       translationKeys: {
         new: Translator.trans('contact.new'),
@@ -130,11 +130,11 @@ export default {
     deleteContact () {
       if (this.contact.id !== emptyContact.id) {
         this.delete(this.contact.id).then(() => {
-          this.contact = Object.assign({}, this.emptyContact)
+          this.contact = { ...this.emptyContact }
           dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
         })
       } else {
-        this.contact = Object.assign({}, this.emptyContact)
+        this.contact = { ...this.emptyContact }
       }
     },
 
@@ -155,7 +155,7 @@ export default {
 
     setFormFromStore () {
       const contact = Object.values(this.contacts)[0]
-      const attrs = contact?.attributes || Object.assign({}, this.emptyContact)
+      const attrs = contact?.attributes || { ...this.emptyContact }
 
       this.contact = contact
         ? {
@@ -165,7 +165,7 @@ export default {
             text: attrs.text || '',
             title: attrs.title
           }
-        : Object.assign({}, this.emptyContact)
+        : { ...this.emptyContact }
     },
 
     updateContact () {
@@ -182,7 +182,7 @@ export default {
         type: 'CustomerLoginSupportContact',
         attributes: {
           title: this.contact.title,
-          phoneNumber: this.contact.phoneNumber ,
+          phoneNumber: this.contact.phoneNumber,
           text: this.contact.text ? this.contact.text : null,
           eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
         }
