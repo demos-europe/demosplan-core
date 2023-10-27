@@ -73,7 +73,6 @@
     <dp-button-row
       class="layout__item u-1-of-1"
       primary
-      secondary
       @primary-action="saveBrandingSettings" />
   </div>
 </template>
