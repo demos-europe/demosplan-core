@@ -215,7 +215,7 @@ final class OrgaResourceType extends DplanResourceType
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
         if ($this->currentUser->hasPermission('area_organisations')) {
-            $statusInCustomers->sortable()->filterable();
+            $statusInCustomers->sortable()->filterable()->readable();
         } else {
             $statusInCustomers->readable(false, $this->getRegistration(...));
         }
