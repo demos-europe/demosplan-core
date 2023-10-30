@@ -128,9 +128,11 @@ export default {
     }),
 
     titlesInUsePattern () {
-      return `^(?!(?:${Object.values(this.contacts)
+      const usedTitle = Object.values(this.contacts)
+        .filter(contact => contact.id !== this.customerContact.id)
         .map(contact => contact.attributes.title)
-        .join('|')})$)`
+
+      return `^(?!(?:${usedTitle.join('|')})$)`
     }
   },
 
@@ -199,8 +201,8 @@ export default {
       this.updating = false
     },
 
-    updateForm (index) {
-      const currentData = this.contacts[index].attributes
+    updateForm (id) {
+      const currentData = this.contacts[id].attributes
 
       this.updating = true
       this.customerContact = {
@@ -208,7 +210,8 @@ export default {
         phoneNumber: currentData.phoneNumber ? currentData.phoneNumber : '',
         eMailAddress: currentData.eMailAddress ? currentData.eMailAddress : '',
         text: currentData.text ? currentData.text : '',
-        visible: currentData.visible
+        visible: currentData.visible,
+        id: id
       }
     }
   },
