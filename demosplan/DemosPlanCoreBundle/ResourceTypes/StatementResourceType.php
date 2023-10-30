@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -34,9 +35,9 @@ use EDT\PathBuilding\End;
 use Elastica\Index;
 
 /**
- * @template-implements ReadableEsResourceTypeInterface<Statement>
- * @template-implements UpdatableDqlResourceTypeInterface<Statement>
- * @template-implements DeletableDqlResourceTypeInterface<Statement>
+ * @template-implements ReadableEsResourceTypeInterface<StatementInterface>
+ * @template-implements UpdatableDqlResourceTypeInterface<StatementInterface>
+ * @template-implements DeletableDqlResourceTypeInterface<StatementInterface>
  *
  * @property-read ClaimResourceType $assignee
  * @property-read End $documentParentId @deprecated Use {@link StatementResourceType::$document} instead
@@ -145,8 +146,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws UserNotFoundException
      */
     public function isAvailable(): bool

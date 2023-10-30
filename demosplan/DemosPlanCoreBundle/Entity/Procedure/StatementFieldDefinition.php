@@ -52,7 +52,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $creationDate;
 
@@ -61,7 +61,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
      *
      * @Gedmo\Timestampable(on="update")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $modificationDate;
 
@@ -71,7 +71,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
          */
         private string $name,
         /**
-         * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
+         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="fieldDefinitions")
          *
          * @JoinColumn(referencedColumnName="id", nullable=false)
          */

@@ -74,10 +74,10 @@ import {
   dpApi, DpButton,
   DpLoading,
   dpSelectAllMixin,
-  DpTableCardListHeader,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
 export default {

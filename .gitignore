@@ -1,6 +1,7 @@
 .idea/
 */vendor
 addonZip
+addonZips
 addons
 node_modules
 yarn-error.log

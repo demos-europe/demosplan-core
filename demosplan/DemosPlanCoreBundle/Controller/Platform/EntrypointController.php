@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -151,6 +152,15 @@ class EntrypointController extends BaseController
         return $this->processEntrypointRoute($entrypointRoute);
     }
 
+    #[AttributeDplanPermissions('area_public_participation')]
+    #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
+    public function loginIdpError(): RedirectResponse|Response
+    {
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
+        );
+    }
+
     /**
      * @return RedirectResponse|Response
      */
@@ -176,10 +186,6 @@ class EntrypointController extends BaseController
 
     /**
      * Public index start page template.
-     *
-     * @param string $title Must be empty instead of null to allow
-     *                      URL generation without $orgaSlug somewhere
-     *                      else in the application
      *
      * @return RedirectResponse|Response|null
      *
