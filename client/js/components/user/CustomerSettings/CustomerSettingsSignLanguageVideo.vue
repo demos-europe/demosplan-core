@@ -184,7 +184,6 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-
         }
       }
       this.updateCustomer(payload)

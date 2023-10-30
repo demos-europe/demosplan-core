@@ -165,7 +165,6 @@ export default {
     },
 
     saveMapSettings () {
-      console.log('saveMapSettings')
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',

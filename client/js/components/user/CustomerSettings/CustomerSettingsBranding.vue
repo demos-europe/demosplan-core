@@ -48,7 +48,7 @@
           style="max-width: 300px;">
         <dp-checkbox
           id="r_logoDelete"
-          v-model="logoDelete"
+          v-model="isDeleteLogo"
           :label="{
             bold: true,
             text: Translator.trans('logo.delete')
@@ -107,7 +107,7 @@ export default {
   data () {
     return {
       uploadedFileId: '',
-      logoDelete: false
+      isDeleteLogo: false
     }
   },
 
