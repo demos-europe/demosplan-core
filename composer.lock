@@ -1290,16 +1290,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.9",
+            "version": "v0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "4e525a92abc965f9833f2c86f7eb4f044e3fa856"
+                "reference": "c476528a5f260d592a27c4b0cb063509c96ff59d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/4e525a92abc965f9833f2c86f7eb4f044e3fa856",
-                "reference": "4e525a92abc965f9833f2c86f7eb4f044e3fa856",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/c476528a5f260d592a27c4b0cb063509c96ff59d",
+                "reference": "c476528a5f260d592a27c4b0cb063509c96ff59d",
                 "shasum": ""
             },
             "require": {
@@ -1337,9 +1337,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.9"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.10"
             },
-            "time": "2023-09-14T09:30:54+00:00"
+            "time": "2023-10-25T15:15:29+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -11478,16 +11478,16 @@
         },
         {
             "name": "stevenmaguire/oauth2-keycloak",
-            "version": "5.0.0",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenmaguire/oauth2-keycloak.git",
-                "reference": "a6441cc27412ef7125770ec4ea22ad6b4d69dd05"
+                "reference": "1b690b7377dfe7a23e1590373f37e12cf40a6d75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/a6441cc27412ef7125770ec4ea22ad6b4d69dd05",
-                "reference": "a6441cc27412ef7125770ec4ea22ad6b4d69dd05",
+                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/1b690b7377dfe7a23e1590373f37e12cf40a6d75",
+                "reference": "1b690b7377dfe7a23e1590373f37e12cf40a6d75",
                 "shasum": ""
             },
             "require": {
@@ -11533,9 +11533,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stevenmaguire/oauth2-keycloak/issues",
-                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/5.0.0"
+                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/5.1.0"
             },
-            "time": "2023-07-04T07:14:01+00:00"
+            "time": "2023-10-24T06:10:44+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
@@ -13024,16 +13024,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.20.2",
+            "version": "v1.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "a2554c7e1b669f5049c1b67bc56f13aa1c4bf7da"
+                "reference": "5529871fa173c74cf76eaeaed69c9a52e408b2c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/a2554c7e1b669f5049c1b67bc56f13aa1c4bf7da",
-                "reference": "a2554c7e1b669f5049c1b67bc56f13aa1c4bf7da",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/5529871fa173c74cf76eaeaed69c9a52e408b2c5",
+                "reference": "5529871fa173c74cf76eaeaed69c9a52e408b2c5",
                 "shasum": ""
             },
             "require": {
@@ -13069,7 +13069,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v1.20.2"
+                "source": "https://github.com/symfony/flex/tree/v1.21.0"
             },
             "funding": [
                 {
@@ -13085,7 +13085,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-04T09:02:01+00:00"
+            "time": "2023-10-22T18:04:44+00:00"
         },
         {
             "name": "symfony/form",
@@ -18366,16 +18366,16 @@
         },
         {
             "name": "wsdltophp/packagegenerator",
-            "version": "4.1.10",
+            "version": "4.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc"
+                "reference": "4959c200a5fe06113e0b03e733dcee6d96c9a7d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/d418c3c463128aab50520bf6370a3743c5dbb5bc",
-                "reference": "d418c3c463128aab50520bf6370a3743c5dbb5bc",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/4959c200a5fe06113e0b03e733dcee6d96c9a7d5",
+                "reference": "4959c200a5fe06113e0b03e733dcee6d96c9a7d5",
                 "shasum": ""
             },
             "require": {
@@ -18492,6 +18492,11 @@
                     "role": "Contributor"
                 },
                 {
+                    "name": "gugglegum",
+                    "email": "gugglegum@gmail.com",
+                    "role": "Contributor"
+                },
+                {
                     "name": "tbreuss",
                     "email": "thomasbreuss@gmx.ch",
                     "role": "Contributor"
@@ -18508,9 +18513,9 @@
             "support": {
                 "email": "contact@wsdltophp.com",
                 "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.10"
+                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.11"
             },
-            "time": "2023-09-11T20:06:23+00:00"
+            "time": "2023-10-18T19:11:01+00:00"
         },
         {
             "name": "wsdltophp/phpgenerator",
@@ -22439,5 +22444,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

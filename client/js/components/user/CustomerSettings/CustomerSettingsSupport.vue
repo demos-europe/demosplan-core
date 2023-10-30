@@ -22,16 +22,17 @@
           data-dp-validate="contactData"
           class="space-stack-s space-inset-s border">
           <p class="lbl">
-            {{ Translator.trans(updating ? 'customer.contact.change' : 'customer.contact.new') }}:
+            {{ Translator.trans(updating ? 'contact.change' : 'contact.new') }}:
           </p>
           <dp-input
             id="contactTitle"
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            data-dp-validate-error="error.title.required"
+            :pattern="titlesInUsePattern"
+            :data-dp-validate-error="customerContact.title === '' ? 'error.name.required' : 'error.name.unique'"
             :label="{
-              text: Translator.trans('customer.contact.title')
+              text: Translator.trans('contact.name')
             }"
             required
             type="text" />
@@ -41,14 +42,12 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            :data-dp-validate-error="customerContact.eMailAddress === ''
-              ? 'error.phone_or_email.required'
-              : 'error.phone.pattern'"
+            :data-dp-validate-error="!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern'"
             :label="{
-              text: Translator.trans('customer.contact.phone_number')
+              text: Translator.trans('contact.phone_number')
             }"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
-            :required="customerContact.eMailAddress === ''"
+            required
             type="tel" />
           <dp-input
             id="emailAddress"
@@ -59,7 +58,6 @@
             :label="{
               text: Translator.trans('email.address')
             }"
-            :required="customerContact.phoneNumber === ''"
             type="email" />
           <dp-editor
             id="supportText"
@@ -76,7 +74,7 @@
             v-model="customerContact.visible"
             data-cy="contactVisible"
             :label="{
-              text: Translator.trans('customer.contact.visible')
+              text: Translator.trans('contact.visible')
             }" />
         </div>
       </template>
@@ -113,12 +111,12 @@ export default {
       customerContact: emptyCustomer,
       showContactForm: false,
       translationKeys: {
-        new: Translator.trans('customer.contact.new'),
-        add: Translator.trans('customer.contact.add'),
+        new: Translator.trans('contact.new'),
+        add: Translator.trans('contact.add'),
         abort: Translator.trans('abort'),
-        update: Translator.trans('customer.contact.update'),
-        noEntries: Translator.trans('customer.contact.no'),
-        delete: Translator.trans('customer.contact.delete')
+        update: Translator.trans('contact.update'),
+        noEntries: Translator.trans('contact.no_entries'),
+        delete: Translator.trans('contact.delete')
       },
       updating: false
     }
@@ -127,7 +125,15 @@ export default {
   computed: {
     ...mapState('customerContact', {
       contacts: 'items'
-    })
+    }),
+
+    titlesInUsePattern () {
+      const usedTitle = Object.values(this.contacts)
+        .filter(contact => contact.id !== this.customerContact.id)
+        .map(contact => contact.attributes.title)
+
+      return `^(?!(?:${usedTitle.join('|')})$)`
+    }
   },
 
   methods: {
@@ -195,8 +201,8 @@ export default {
       this.updating = false
     },
 
-    updateForm (index) {
-      const currentData = this.contacts[index].attributes
+    updateForm (id) {
+      const currentData = this.contacts[id].attributes
 
       this.updating = true
       this.customerContact = {
@@ -204,7 +210,8 @@ export default {
         phoneNumber: currentData.phoneNumber ? currentData.phoneNumber : '',
         eMailAddress: currentData.eMailAddress ? currentData.eMailAddress : '',
         text: currentData.text ? currentData.text : '',
-        visible: currentData.visible
+        visible: currentData.visible,
+        id: id
       }
     }
   },
@@ -219,7 +226,7 @@ export default {
 
     this.$on('delete', (id) => {
       this.deleteContact(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('customer.contact.deleted'))
+        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
       })
     })
 
