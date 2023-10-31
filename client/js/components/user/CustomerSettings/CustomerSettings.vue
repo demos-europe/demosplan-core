@@ -60,8 +60,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetImprintSettings"
-          @primary-action="saveImprintSettings" />
+          @secondary-action="resetProperty(customer.imprint)"
+          @primary-action="saveSettings(customer.imprint)" />
       </customer-settings-section>
 
       <!-- Data Protection -->
@@ -86,8 +86,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetDataProtectionSettings"
-          @primary-action="saveDataProtectionSettings" />
+          @secondary-action="resetProperty(customer.dataProtection)"
+          @primary-action="saveSettings(customer.dataProtection)" />
       </customer-settings-section>
 
       <!-- Terms of use -->
@@ -112,8 +112,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetTermsOfUseSettings"
-          @primary-action="saveTermsOfUseSettings" />
+          @secondary-action="resetProperty(customer.termsOfUse)"
+          @primary-action="saveSettings(customer.termsOfUse)" />
       </customer-settings-section>
 
       <!-- Xplanning -->
@@ -138,8 +138,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetXplanningSettings"
-          @primary-action="saveXplanningSettings" />
+          @secondary-action="resetProperty(customer.xplanning)"
+          @primary-action="saveSettings(customer.xplanning)" />
       </customer-settings-section>
 
       <!-- Sign language video page -->
@@ -192,8 +192,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetAccessibilityExplanationSettings"
-          @primary-action="saveAccessibilityExplanationSettings" />
+          @secondary-action="resetProperty(customer.accessibilityExplanation)"
+          @primary-action="saveSettings(customer.accessibilityExplanation)" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -223,8 +223,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetOverviewDescriptionInSimpleLanguageSettings"
-          @primary-action="saveOverviewDescriptionInSimpleLanguageSettings" />
+          @secondary-action="resetProperty(customer.overviewDescriptionInSimpleLanguage)"
+          @primary-action="saveSettings(customer.overviewDescriptionInSimpleLanguage)" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -385,12 +385,15 @@ export default {
       this.fetchCustomer(payload, { serialize: true }).then(() => {
         this.isLoading = this.isLoadingSignLanguageOverviewVideo = false
 
-        /// /Update fields
-        const currentData = this.customerList[this.currentCustomerId].attributes
+        // Update fields
+        const currentCustomer = this.customerList[this.currentCustomerId]
+        const currentData = currentCustomer.attributes
         this.customerBrandingId = this.customerList[this.currentCustomerId].relationships?.branding?.data?.id
-
-        this.customer.imprint = currentData.imprint ? currentData.imprint : ''
-        this.customer.dataProtection = currentData.dataProtection ? currentData.dataProtection : ''
+        this.customer = {
+          ...this.customer,
+          imprint : currentData.imprint ? currentData.imprint : '',
+          dataProtection : currentData.dataProtection ? currentData.dataProtection : ''
+        }
         this.branding.logoHash = this.fileList[this.brandingList[this.customerBrandingId].relationships?.logo.data?.id]?.attributes.hash
       })
     },
@@ -514,123 +517,19 @@ export default {
       }
     },
 
-    resetAccessibilityExplanationSettings () {
-      this.customer.accessibilityExplanation = this.customerList[this.currentCustomerId].attributes.accessibilityExplanation
+    resetProperty(property) {
+      const currentCustomer = this.customerList[this.currentCustomerId]
+      this.customer[property] = currentCustomer.attributes[property]
     },
 
-    resetImprintSettings () {
-      this.customer.imprint = this.customerList[this.currentCustomerId].attributes.imprint
-    },
-
-    resetDataProtectionSettings () {
-      this.customer.dataProtection = this.customerList[this.currentCustomerId].attributes.dataProtection
-    },
-
-    resetOverviewDescriptionInSimpleLanguageSettings () {
-      this.customer.overviewDescriptionInSimpleLanguage = this.customerList[this.currentCustomerId].attributes.overviewDescriptionInSimpleLanguage
-    },
-
-    resetTermsOfUseSettings () {
-      this.customer.termsOfUse = this.customerList[this.currentCustomerId].attributes.termsOfUse
-    },
-
-    resetXplanningSettings () {
-      this.customer.xplanning = this.customerList[this.currentCustomerId].attributes.xplanning
-    },
-
-    saveAccessibilityExplanationSettings () {
+    saveSettings(property) {
       this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          accessibilityExplanation: this.customer.accessibilityExplanation
-        }
-      }
-      this.updateCustomer(payload)
-      this.saveCustomer(this.currentCustomerId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-      })
-    },
-
-    saveOverviewDescriptionInSimpleLanguageSettings () {
-      this.isBusy = true
-      const payload = {
-        id: this.currentCustomerId,
-        type: 'Customer',
-        attributes: {
-          ...this.customerList[this.currentCustomerId].attributes,
-          overviewDescriptionInSimpleLanguage: this.customer.overviewDescriptionInSimpleLanguage
-        }
-      }
-      this.updateCustomer(payload)
-      this.saveCustomer(this.currentCustomerId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-      })
-    },
-
-    saveImprintSettings () {
-      this.isBusy = true
-      const payload = {
-        id: this.currentCustomerId,
-        type: 'Customer',
-        attributes: {
-          ...this.customerList[this.currentCustomerId].attributes,
-          imprint: this.customer.imprint
-        }
-      }
-      this.updateCustomer(payload)
-      this.saveCustomer(this.currentCustomerId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-      })
-    },
-
-    saveDataProtectionSettings () {
-      this.isBusy = true
-      const payload = {
-        id: this.currentCustomerId,
-        type: 'Customer',
-        attributes: {
-          ...this.customerList[this.currentCustomerId].attributes,
-          dataProtection: this.customer.dataProtection
-        }
-      }
-      this.updateCustomer(payload)
-      this.saveCustomer(this.currentCustomerId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-      })
-    },
-
-    saveTermsOfUseSettings () {
-      this.isBusy = true
-      const payload = {
-        id: this.currentCustomerId,
-        type: 'Customer',
-        attributes: {
-          ...this.customerList[this.currentCustomerId].attributes,
-          termsOfUse: this.customer.termsOfUse
-        }
-      }
-      this.updateCustomer(payload)
-      this.saveCustomer(this.currentCustomerId).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.isBusy = false
-      })
-    },
-
-    saveXplanningSettings () {
-      this.isBusy = true
-      const payload = {
-        id: this.currentCustomerId,
-        type: 'Customer',
-        attributes: {
-          ...this.customerList[this.currentCustomerId].attributes,
-          xplanning: this.customer.xplanning
+          property: this.customer[property]
         }
       }
       this.updateCustomer(payload)

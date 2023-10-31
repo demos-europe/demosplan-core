@@ -157,22 +157,21 @@ export default {
     }, 1000),
 
     resetMapSettings () {
-      const lastState = this.customerItems[this.currentCustomerId].attributes
-
-      this.mapAttribution = lastState.mapAttribution
-      this.baseLayerLayers = lastState.baseLayerLayers
-      this.baseLayerUrl = lastState.baseLayerUrl
+      const previousState = this.customerItems[this.currentCustomerId].attributes
+      const properties = ['mapAttribution', 'baseLayerLayers', 'baserLayerUrl']
+      properties.forEach(prop => this[prop] = previousState[prop])
     },
 
     saveMapSettings () {
+      const { baseLayerLayers, baseLayerUrl, mapAttribution } = this
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
         attributes: {
           ...this.customerItems[this.currentCustomerId].attributes,
-          mapAttribution: this.mapAttribution,
-          baseLayerLayers: this.baseLayerLayers,
-          baseLayerUrl: this.baseLayerUrl
+          baseLayerLayers,
+          baseLayerUrl,
+          mapAttribution
         }
       }
       this.updateCustomer(payload)
