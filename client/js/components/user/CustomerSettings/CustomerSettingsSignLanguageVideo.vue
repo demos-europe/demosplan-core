@@ -73,6 +73,7 @@
         class="u-mt"
         primary
         secondary
+        :busy="isBusy"
         :secondary-text="Translator.trans('reset')"
         @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
     </template>
@@ -121,6 +122,7 @@ export default {
         }
       }
     },
+
     signLanguageOverviewDescription: {
       required: false,
       type: String,
@@ -130,6 +132,7 @@ export default {
 
   data () {
     return {
+      isBusy: false,
       video: this.signLanguageOverviewVideo
     }
   },
@@ -164,9 +167,13 @@ export default {
     }),
 
     saveSignLanguageVideo () {
+      this.isBusy = true
       this.saveSignLanguage()
       this.saveVideo()
-        .then(() => this.$emit('created'))
+        .then(() => {
+          this.$emit('created')
+          this.isBusy = false
+        })
     },
 
     deleteVideo () {
@@ -193,6 +200,7 @@ export default {
     },
 
     async saveVideo () {
+      this.isBusy = true
       const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {

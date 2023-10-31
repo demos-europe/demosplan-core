@@ -89,7 +89,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $dataProtection = '';
     /**
-     * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
+     * Terms of use setting of the customer which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *

@@ -34,7 +34,7 @@
           name="r_customerLogo"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          @upload-success="getFileId" />
+          @upload-success="setFile" />
       </div><!--
    --><div
         class="layout__item u-1-of-2"
@@ -45,10 +45,10 @@
         <img
           :src="Routing.generate('core_logo', { hash: branding.logoHash })"
           :alt="Translator.trans('logo.alt.customer')"
-          style="max-width: 300px;">
+          style="max-width: 300px">
         <dp-checkbox
           id="r_logoDelete"
-          v-model="isDeleteLogo"
+          v-model="isLogoDeleted"
           :label="{
             bold: true,
             text: Translator.trans('logo.delete')
@@ -73,6 +73,7 @@
     <dp-button-row
       class="layout__item u-1-of-1"
       primary
+      :busy="isBusy"
       @primary-action="saveBrandingSettings" />
   </div>
 </template>
@@ -98,6 +99,7 @@ export default {
       required: true,
       type: Object
     },
+
     brandingId: {
       required: true,
       type: String
@@ -106,8 +108,9 @@ export default {
 
   data () {
     return {
+      isLogoDeleted: false,
+      isBusy: false,
       uploadedFileId: '',
-      isDeleteLogo: false
     }
   },
 
@@ -127,30 +130,38 @@ export default {
       updateBranding: 'setItem'
     }),
 
-    getFileId (file) {
+    ...mapMutations('file', {
+      updateFile: 'setItem'
+    }),
+
+    setFile (file) {
+      this.branding.logoHash = file.hash
+      this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
       this.uploadedFileId = file.fileId
     },
 
     saveBrandingSettings () {
-      const payload = {
-        id: this.brandingId,
-        type: 'Branding',
-        attributes: {
-          ...this.brandingList[this.brandingId].attributes
-        },
-        relationships: {
-          logo: {
-            data: this.logoDelete ? null : { id: this.uploadedFileId, type: 'file' }
+      if (this.uploadedFileId) {
+        this.isBusy = true
+        const payload = {
+          id: this.brandingId,
+          type: 'Branding',
+          attributes: {
+            ...this.brandingList[this.brandingId].attributes
+          },
+          relationships: {
+            logo: {
+              data: this.isLogoDeleted ? null : { id: this.uploadedFileId, type: 'file' }
+            }
           }
         }
+        this.updateBranding(payload)
+        this.saveBranding(this.brandingId).then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isLogoDeleted = false
+          this.isBusy = false
+        })
       }
-
-      this.updateBranding(payload)
-      this.saveBranding(this.brandingId).then(() => {
-        this.$emit('saveBrandingUpdate')
-        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.logoDelete = false
-      })
     }
   }
 }

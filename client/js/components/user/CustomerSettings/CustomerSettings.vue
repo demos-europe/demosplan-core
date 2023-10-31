@@ -58,6 +58,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetImprintSettings"
           @primary-action="saveImprintSettings" />
@@ -83,6 +84,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetDataProtectionSettings"
           @primary-action="saveDataProtectionSettings" />
@@ -108,6 +110,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetTermsOfUseSettings"
           @primary-action="saveTermsOfUseSettings" />
@@ -133,6 +136,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetXplanningSettings"
           @primary-action="saveXplanningSettings" />
@@ -186,6 +190,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetAccessibilityExplanationSettings"
           @primary-action="saveAccessibilityExplanationSettings" />
@@ -216,6 +221,7 @@
           class="u-mt"
           primary
           secondary
+          :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
           @secondary-action="resetOverviewDescriptionInSimpleLanguageSettings"
           @primary-action="saveOverviewDescriptionInSimpleLanguageSettings" />
@@ -226,20 +232,6 @@
         :title="Translator.trans('support')">
         <customer-settings-support />
       </customer-settings-section>
-
-      <!-- Button row -->
-      <div class="text-right space-inline-s">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          v-text="Translator.trans('save')"
-          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
-        <!-- Reset link to reload the page to its initial values -->
-        <a
-          class="btn btn--secondary"
-          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
-          v-text="Translator.trans('reset')" />
-      </div>
     </template>
   </div>
 </template>
@@ -337,7 +329,8 @@ export default {
         id: null,
         mimetype: '',
         title: ''
-      }
+      },
+      isBusy:false
     }
   },
 
@@ -522,7 +515,7 @@ export default {
     },
 
     resetAccessibilityExplanationSettings () {
-      this.customer.accessibilityExplanation = this.customerList[this.currentCustomerId].attributes.xplanning
+      this.customer.accessibilityExplanation = this.customerList[this.currentCustomerId].attributes.accessibilityExplanation
     },
 
     resetImprintSettings () {
@@ -546,6 +539,7 @@ export default {
     },
 
     saveAccessibilityExplanationSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -557,10 +551,12 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
     saveOverviewDescriptionInSimpleLanguageSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -572,10 +568,12 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
     saveImprintSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -587,10 +585,12 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
     saveDataProtectionSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -602,10 +602,12 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
     saveTermsOfUseSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -617,10 +619,12 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
     saveXplanningSettings () {
+      this.isBusy = true
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
@@ -632,6 +636,7 @@ export default {
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        this.isBusy = false
       })
     },
 
