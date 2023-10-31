@@ -165,7 +165,7 @@ export default {
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
-      this.$parent.$parent.gotoTab(tabName)
+      this.$root.$emit('statement-modal:goto-tab', tabName)
     }
   }
 }

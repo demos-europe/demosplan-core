@@ -1460,6 +1460,10 @@ export default {
       }
     })
 
+    this.$root.$on('statement-modal:goto-tab', tabname => {
+      this.gotoTab(tabname)
+    })
+
     // Set draft statement Id from href
     this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
     this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
