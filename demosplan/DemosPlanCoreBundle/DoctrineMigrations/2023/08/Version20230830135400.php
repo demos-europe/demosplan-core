@@ -17,11 +17,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20230711125038 extends AbstractMigration
+class Version20230830135400 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs 32796 create ProcedureMessage in relation with XBeteiligung ';
+        return 'External orga id from identity provider can be longer than 36 chars.';
     }
 
     /**
@@ -30,8 +30,8 @@ class Version20230711125038 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE procedure_message DROP FOREIGN KEY FK_E7F5DA961624BCD2');
-        $this->addSql('DROP INDEX UNIQ_E7F5DA961624BCD2 ON procedure_message');
+
+        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(250) DEFAULT NULL');
     }
 
     /**
@@ -40,9 +40,11 @@ class Version20230711125038 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
+        $this->addSql('ALTER TABLE _orga CHANGE _o_gw_id _o_gw_id VARCHAR(36) DEFAULT NULL');
     }
 
-    /**S
+    /**
      * @throws Exception
      */
     private function abortIfNotMysql(): void

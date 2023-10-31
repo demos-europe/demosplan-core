@@ -258,7 +258,7 @@
                   :class="prefixClass('o-hellip')">
                   <a
                     :class="prefixClass('align-top')"
-                    :href="Routing.generate('core_file', { hash: file.hash })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank">
                     {{ file.name }}
@@ -281,11 +281,13 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
-                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+                  :basic-auth="dplan.settings.basicAuth"
+                  :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
                   :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"

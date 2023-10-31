@@ -23,13 +23,14 @@ def cancelPreviousBuilds() {
 //containerName = ""
 
 def _dockerExecAsUser(String command, String containerName) {
-    sh "echo $containerName"
-    return String.format('docker exec --user $(whoami) %s /bin/zsh -c "%s"', containerName, command)
+    _dockerExecAsRoot(command, containerName)
+    //sh "echo $containerName"
+    //return String.format('docker exec --user $(whoami) %s /bin/bash -c "%s"', containerName, command)
 }
 
 def _dockerExecAsRoot(String command, String containerName) {
     sh "echo $containerName"
-    return String.format('docker exec %s /bin/zsh -c "%s"', containerName, command)
+    return String.format('docker exec %s /bin/bash -c "%s"', containerName, command)
 }
 
 pipeline {
@@ -48,19 +49,18 @@ pipeline {
         }
         stage('Preparations') {
             steps {
-                sh '''grep -A3 'development:' /etc/dp/containers.yml | tail -n1 | awk '{ print $2}' | sed 's/"//g' > dockertag'''
                 withCredentials([usernamePassword(credentialsId: 'Docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-development:$(cat dockertag) '''
+                sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/demosplan-base:latest'''
                 }
                 script{
                     containerName = "testContainer" + env.BRANCH_NAME + env.BUILD_NUMBER
-                    commandDockerRun = 'docker run --cpus=1 -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-development:$(cat dockertag)'
+                    commandDockerRun = 'docker run --cpus=1 -d --name ' + containerName + ' -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$(whoami) --env CURRENT_HOST_USERID=$(id -u $(whoami)) demosdeutschland/demosplan-base:latest'
                     commandExecYarn =  _dockerExecAsRoot('yarn install --prefer-offline --frozen-lockfile', containerName)
                     commandExecComposer = _dockerExecAsRoot('composer install --no-interaction', containerName)
                     sh "mkdir -p .cache"
                     sh "echo ${PWD}"
                     sh "$commandDockerRun"
-                    sh "sleep 10"
+                    //sh "sleep 10"
                     sh "$commandExecYarn"
                     sh "$commandExecComposer"
 
@@ -74,12 +74,8 @@ pipeline {
                 stage('PHPUnit: Core') {
                     steps{
                         script {
-                            try {
-                                commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
-                                sh "$commandExec"
-                            } catch (err) {
-                                echo "PHPUnit Failed: ${err}"
-                            }
+                            commandExec = _dockerExecAsUser("APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core", containerName)
+                            sh "$commandExec"
                         }
                     }
                 }

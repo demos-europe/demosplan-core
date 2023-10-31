@@ -39,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\SegmentDraftJsonConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -92,6 +93,8 @@ use UnexpectedValueException;
  */
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
+    final public const DRAFT_JSON_VALIDATION_GROUP = 'draftJsonValidationGroup';
+
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -841,7 +844,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This is the user that is currently assigned to this statement. Assigned users are
      * exclusively permitted to change statements
      */
-    protected $assignee = null;
+    protected $assignee;
 
     /**
      * The representative Statement defines the cluster.
@@ -854,11 +857,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This is the owning side
      *
-     * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="cluster")
      *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
-    protected $headStatement = null;
+    protected $headStatement;
 
     /**
      * @var Collection<int, Statement>
@@ -866,7 +869,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This should not be persists automatic, because of checking the assignment in updateStatement()!
      * Doctrine-sited persists, would bypass this check!
      *
-     * @ORM\OneToMany(targetEntity="Statement", mappedBy="headStatement", cascade={"merge"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="headStatement", cascade={"merge"})
      *
      * @ORM\OrderBy({"externId" = "ASC"})
      */
@@ -939,6 +942,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(name="drafts_info_json", type="string", length=15000000, nullable=true)
      */
+    #[SegmentDraftJsonConstraint(groups: [self::DRAFT_JSON_VALIDATION_GROUP])]
     protected $draftsListJson;
 
     /**
@@ -2539,7 +2543,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**
@@ -2575,9 +2579,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return string|null returns the title of the parent paragraph (the paragraph of the paragraph version)
+     * @return string returns the title of the parent paragraph (the paragraph of the paragraph version)
      */
-    public function getParagraphParentTitle()
+    public function getParagraphParentTitle(): string
     {
         if (null === $this->paragraphParentTitle && $this->paragraph instanceof ParagraphVersion) {
             $parentTitle = null;
@@ -2591,9 +2595,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return string|null returns the title of the parent document (the document of the document version)
+     * @return string returns the title of the parent document (the document of the document version)
      */
-    public function getDocumentParentTitle()
+    public function getDocumentParentTitle(): string
     {
         if (null === $this->documentParentTitle && $this->document instanceof SingleDocumentVersion) {
             $documentTitle = null;
@@ -2603,7 +2607,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $this->documentParentTitle = $documentTitle;
         }
 
-        return trim($this->documentParentTitle);
+        return trim($this->documentParentTitle ?? '');
     }
 
     /**
@@ -3946,12 +3950,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getParagraphParentTitleOrDocumentParentTitle(): ?string
     {
         $title = $this->getParagraphParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 
         $title = $this->getDocumentParentTitle();
-        if (null !== $title && '' !== $title) {
+        if ('' !== $title) {
             return $title;
         }
 

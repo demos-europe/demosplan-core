@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
@@ -22,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use EDT\PathBuilding\End;
 
 /**
- * @template-extends DplanResourceType<File>
+ * @template-extends DplanResourceType<FileInterface>
  *
  * @property-read End $filename
  * @property-read End $ident

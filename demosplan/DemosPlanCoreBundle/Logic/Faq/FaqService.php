@@ -210,11 +210,11 @@ class FaqService extends CoreService
         }
         $manualSortScope = '';
         $nameSpace = '';
-        if ($faqs instanceof Faq) {
+        if (reset($faqs) instanceof Faq) {
             $manualSortScope = 'faq:category:'.$faqCategory->getId();
             $nameSpace = 'faq';
         }
-        if ($faqs instanceof PlatformFaq) {
+        if (reset($faqs) instanceof PlatformFaq) {
             $manualSortScope = 'platformFaq:category:'.$faqCategory->getId();
             $nameSpace = 'faq';
         }

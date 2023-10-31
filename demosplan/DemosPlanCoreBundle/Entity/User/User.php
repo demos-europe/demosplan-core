@@ -275,7 +275,7 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
     #[Assert\NotNull]
@@ -295,7 +295,7 @@ class User implements SamlUserInterface, AddonUserInterface
     protected $addresses;
 
     /** @var CustomerInterface */
-    protected $currentCustomer = null;
+    protected $currentCustomer;
 
     /**
      * @var Collection<int, SurveyVoteInterface>
@@ -919,7 +919,6 @@ class User implements SamlUserInterface, AddonUserInterface
      * Setzt eine Userflag. Wenn nicht vorhanden, wird sie neu generiert.
      *
      * @param string $flagKey
-     * @param mixed  $flagValue
      */
     protected function setFlagValue($flagKey, $flagValue)
     {

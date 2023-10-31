@@ -177,7 +177,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @var string
      *
-     * @ORM\Column(name="_ps_links", type="text", nullable=false, options={"default":""})
+     * @ORM\Column(name="_ps_links", type="text", nullable=false)
      */
     protected $links = '';
 
@@ -202,28 +202,28 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      *
      * @ORM\Column(name="_ps_designated_phase", type="string", length=50, nullable=true)
      */
-    protected $designatedPhase = null;
+    protected $designatedPhase;
 
     /**
      * @var string
      *
      * @ORM\Column(name="_ps_designated_public_phase", type="string", length=50, nullable=true)
      */
-    protected $designatedPublicPhase = null;
+    protected $designatedPublicPhase;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_switch_date", type="datetime", nullable=true)
      */
-    protected $designatedSwitchDate = null;
+    protected $designatedSwitchDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_switch_date", type="datetime", nullable=true)
      */
-    protected $designatedPublicSwitchDate = null;
+    protected $designatedPublicSwitchDate;
 
     /**
      * @var UserInterface|null
@@ -232,7 +232,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
-    protected $designatedPhaseChangeUser = null;
+    protected $designatedPhaseChangeUser;
 
     /**
      * @var UserInterface|null
@@ -241,21 +241,21 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
-    protected $designatedPublicPhaseChangeUser = null;
+    protected $designatedPublicPhaseChangeUser;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_end_date", type="datetime", nullable=true)
      */
-    protected $designatedEndDate = null;
+    protected $designatedEndDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_end_date", type="datetime", nullable=true)
      */
-    protected $designatedPublicEndDate = null;
+    protected $designatedPublicEndDate;
 
     /**
      * @var bool
@@ -830,8 +830,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * Set p.
      *
-     * @param ProcedureInterface $procedure
-     *
      * @return ProcedureSettingsInterface
      */
     public function setProcedure(ProcedureInterface $procedure = null)
@@ -902,8 +900,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @param string $designatedPublicPhase
-     *
-     * @return mixed
      */
     public function setDesignatedPublicPhase($designatedPublicPhase)
     {
@@ -977,8 +973,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     }
 
     /**
-     * @param mixed $designatedPublicEndDate
-     *
      * @return $this
      */
     public function setDesignatedPublicEndDate($designatedPublicEndDate)

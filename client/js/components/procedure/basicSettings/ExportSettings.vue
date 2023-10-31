@@ -18,7 +18,7 @@
       class="u-mb"
       :label="{
         bold: true,
-        text: Translator.trans('select.all')
+        text: Translator.trans('aria.select.all')
       }"
       @change="toggleAll" />
     <div class="inline-block u-pr align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
