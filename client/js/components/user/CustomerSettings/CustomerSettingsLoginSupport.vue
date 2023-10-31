@@ -1,7 +1,7 @@
 <template>
-  <div data-dp-validate="technicalSupport">
+  <div data-dp-validate="loginSupport">
     <dp-input
-      id="technicalSupportTitle"
+      id="loginSupportTitle"
       v-model="contact.title"
       class="u-mb-0_75"
       data-cy="contactTitle"
@@ -12,7 +12,7 @@
       required
       type="text" />
     <dp-input
-      id="technicalSupportPhone"
+      id="loginSupportPhone"
       v-model="contact.phoneNumber"
       autocomplete="tel"
       class="u-mb-0_75"
@@ -25,7 +25,7 @@
       required
       type="tel" />
     <dp-input
-      id="technicalSupportEmail"
+      id="loginSupportEmail"
       v-model="contact.eMailAddress"
       autocomplete="email"
       class="u-mb-0_75"
@@ -48,7 +48,7 @@
       primary
       secondary
       :secondary-text="Translator.trans('reset')"
-      @primary-action="dpValidateAction('technicalSupport', () => updateContact(), false)"
+      @primary-action="dpValidateAction('loginSupport', () => updateContact(), false)"
       @secondary-action="setFormFromStore">
       <dp-button
         color="secondary"
@@ -71,7 +71,7 @@ const emptyContact = {
   id: 'new'
 }
 export default {
-  name: 'CustomerSettingsTechnicalSupport',
+  name: 'CustomerSettingsloginSupport',
 
   components: {
     DpButton,
