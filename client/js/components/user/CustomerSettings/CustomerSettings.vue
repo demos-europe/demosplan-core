@@ -529,7 +529,7 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          property: this.customer[property]
+          [property]: this.customer[property]
         }
       }
       this.updateCustomer(payload)
