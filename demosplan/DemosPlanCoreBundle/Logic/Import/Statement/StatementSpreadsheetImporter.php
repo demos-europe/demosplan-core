@@ -49,7 +49,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Kreis'               => null,
             'Schlagwort'          => null,
             'Schlagwortkategorie' => null,
-            'Dokumentenkategorie' => [$builder, 'setPlanningDocumentCategoryName'],
+            'Dokumentenkategorie' => null,
             'Dokument'            => null,
             'Absatz'              => null,
             'Status'              => null,

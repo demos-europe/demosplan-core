@@ -633,9 +633,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      *
-     * FIXME: add translation
-     *
-     * @Assert\NotNull(message="import.statement.element.missing", groups={Statement::IMPORT_VALIDATION})
      **/
     protected $element;
 
