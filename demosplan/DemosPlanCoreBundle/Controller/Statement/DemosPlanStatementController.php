@@ -91,6 +91,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
 use function explode;
 
 /**
@@ -101,13 +102,13 @@ class DemosPlanStatementController extends BaseController
     private NameGenerator $nameGenerator;
 
     public function __construct(private readonly CurrentProcedureService $currentProcedureService,
-                                private readonly CurrentUserService $currentUser,
-                                private readonly DraftStatementHandler $draftStatementHandler,
-                                private readonly DraftStatementService $draftStatementService,
-                                private readonly Environment $twig,
-                                private readonly MailService $mailService,
-                                private readonly PermissionsInterface $permissions,
-                                NameGenerator $nameGenerator
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        NameGenerator $nameGenerator
     ) {
         $this->nameGenerator = $nameGenerator;
     }
@@ -133,8 +134,8 @@ class DemosPlanStatementController extends BaseController
         Request $request,
         NameGenerator $nameGenerator,
         TranslatorInterface $translator,
-                                $procedure,
-                                $type
+        $procedure,
+        $type
     ) {
         $itemsToExport = null;
         $draftStatementList = [];
@@ -1095,8 +1096,8 @@ class DemosPlanStatementController extends BaseController
             $inData['procedureId'] = $procedure;
             $storageResult = $this->draftStatementHandler->updateDraftStatement($inData);
 
-            if (false !== $storageResult && \array_key_exists('id', $storageResult) &&
-                !\array_key_exists('mandatoryfieldwarning', $storageResult)
+            if (false !== $storageResult && \array_key_exists('id', $storageResult)
+                && !\array_key_exists('mandatoryfieldwarning', $storageResult)
             ) {
                 $messageBag->add('confirm', $translator->trans('confirm.statement.saved'));
                 $urlFragment = '#'.$storageResult['id'];
@@ -1529,6 +1530,7 @@ class DemosPlanStatementController extends BaseController
 
         $draftFilterList = $session->get('draftListFilters') ?? [];
         $procedureId = $request->get('procedure');
+
         /* @var DraftStatementListFilters $procedureFilters */
         return $draftFilterList[$procedureId][$templateName];
     }
@@ -2004,9 +2006,9 @@ class DemosPlanStatementController extends BaseController
         }
 
         if (
-            $this->permissions->hasPermission('feature_statement_notify_counties') &&
-            $procedureObject->getSettings()->getSendMailsToCounties() &&
-            (!$requestPost->has('r_receiver') || '' == $requestPost->get('r_receiver'))
+            $this->permissions->hasPermission('feature_statement_notify_counties')
+            && $procedureObject->getSettings()->getSendMailsToCounties()
+            && (!$requestPost->has('r_receiver') || '' == $requestPost->get('r_receiver'))
         ) {
             $isStatementValid = false;
             $this->getMessageBag()->add('error', 'error.statement.no.county');
@@ -2035,9 +2037,9 @@ class DemosPlanStatementController extends BaseController
                 );
 
                 // is permission to send notification email enabled?
-                if ($permissions->hasPermission('feature_statement_notify_counties') &&
-                    '' != $receiverId &&
-                    $procedureObject->getSettings()->getSendMailsToCounties()
+                if ($permissions->hasPermission('feature_statement_notify_counties')
+                    && '' != $receiverId
+                    && $procedureObject->getSettings()->getSendMailsToCounties()
                 ) {
                     $countyNotificationData = $statementHandler->getCountyNotificationData(
                         $requestPost->get('item_check'),

@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
@@ -19,11 +27,11 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 use function is_string;
 
 /**
@@ -163,7 +171,6 @@ class StatementFromRowBuilder
 
     public function setSubmitDate(Cell $cell): ?ConstraintViolationListInterface
     {
-
         $date = $this->getDate($cell);
         if ($date instanceof ConstraintViolationListInterface) {
             return $date;
@@ -259,8 +266,8 @@ class StatementFromRowBuilder
             // in Excel the DateTime format counts the days starting at the year 1900,
             // so we validate the expected integer for at least technical validity
             $violations = $this->validator->validate($value, new Range([
-                'min' => 1,
-                'max' => 2958465,
+                'min'               => 1,
+                'max'               => 2958465,
                 'notInRangeMessage' => 'The value {{ value }} is not a valid Excel date.',
             ]));
             if (0 === $violations->count()) {

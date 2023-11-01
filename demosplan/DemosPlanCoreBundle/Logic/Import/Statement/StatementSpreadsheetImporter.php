@@ -21,6 +21,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\RowCellIterator;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Webmozart\Assert\Assert;
+
 use function array_key_exists;
 
 class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
@@ -36,38 +37,38 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
      * `null` values indicate (currently) missing support for the corresponding column, while still allowing it to
      * be present in the input file. Such columns should be simply ignored.
      *
-     * @return array<string, null|callable(Cell): ConstraintViolationListInterface>
+     * @return array<string, callable(Cell): ConstraintViolationListInterface|null>
      */
     protected function getColumnCallbacks(StatementFromRowBuilder $builder, RowCellIterator $actualColumnNames): array
     {
         $columnMapping = [
-            'ID' => [$builder, 'setExternId'],
-            'Gruppenname' => null,
-            'Text' => [$builder, 'setText'],
-            'Begründung' => null,
-            'Kreis' => null,
-            'Schlagwort' => null,
+            'ID'                  => [$builder, 'setExternId'],
+            'Gruppenname'         => null,
+            'Text'                => [$builder, 'setText'],
+            'Begründung'          => null,
+            'Kreis'               => null,
+            'Schlagwort'          => null,
             'Schlagwortkategorie' => null,
             'Dokumentenkategorie' => [$builder, 'setPlanningDocumentCategoryName'],
-            'Dokument' => null,
-            'Absatz' => null,
-            'Status' => null,
-            'Priorität' => null,
-            'Votum' => null,
-            'Organisation' => [$builder, 'setOrgaName'],
-            'Abteilung' => [$builder, 'setDepartmentName'],
-            'Verfasser*in' => [$builder, 'setAuthorName'],
-            'Einreicher*in' => [$builder, 'setSubmitterName'],
-            'E-Mail' => [$builder, 'setSubmiterEmailAddress'],
-            'Straße' => [$builder, 'setSubmitterStreetName'],
-            'Hausnummer' => [$builder, 'setSubmitterHouseNumber'],
-            'PLZ' => [$builder, 'setSubmitterPostalCode'],
-            'Ort' => [$builder, 'setSubmitterCity'],
-            'Dateiname(n)' => null,
-            'Einreichungsdatum' => [$builder, 'setSubmitDate'],
-            'Verfassungsdatum' => [$builder, 'setAuthoredDate'],
-            'Eingangsnummer' => [$builder, 'setInternId'],
-            'Notiz' => [$builder, 'setMemo'],
+            'Dokument'            => null,
+            'Absatz'              => null,
+            'Status'              => null,
+            'Priorität'           => null,
+            'Votum'               => null,
+            'Organisation'        => [$builder, 'setOrgaName'],
+            'Abteilung'           => [$builder, 'setDepartmentName'],
+            'Verfasser*in'        => [$builder, 'setAuthorName'],
+            'Einreicher*in'       => [$builder, 'setSubmitterName'],
+            'E-Mail'              => [$builder, 'setSubmiterEmailAddress'],
+            'Straße'              => [$builder, 'setSubmitterStreetName'],
+            'Hausnummer'          => [$builder, 'setSubmitterHouseNumber'],
+            'PLZ'                 => [$builder, 'setSubmitterPostalCode'],
+            'Ort'                 => [$builder, 'setSubmitterCity'],
+            'Dateiname(n)'        => null,
+            'Einreichungsdatum'   => [$builder, 'setSubmitDate'],
+            'Verfassungsdatum'    => [$builder, 'setAuthoredDate'],
+            'Eingangsnummer'      => [$builder, 'setInternId'],
+            'Notiz'               => [$builder, 'setMemo'],
         ];
 
         // Currently an exception will be thrown in case of unsorted columns. To avoid that you can adjust the sorting

@@ -34,6 +34,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\ConsistentAnonymousOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\CorrectDateOrderConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
@@ -65,7 +66,6 @@ use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
-use demosplan\DemosPlanCoreBundle\Constraint\ConsistentAnonymousOrgaConstraint;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
@@ -634,6 +634,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      *
      * FIXME: add translation
+     *
      * @Assert\NotNull(message="import.statement.element.missing", groups={Statement::IMPORT_VALIDATION})
      **/
     protected $element;
