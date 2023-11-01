@@ -404,7 +404,7 @@ export default {
       // The request is filtered by currentCustomer, so we assume that exactly one customer is returned
       this.customer = { ...customer.attributes }
 
-      if (hasPermission('feature_platform_logo_edit') && hasPermission('feature_customer_branding_edit')) {
+      if (hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')) {
         // Find branding relationship and set cssvars
         const brandingId = customer.relationships.branding?.data?.id
         const branding = response.data?.included.find(item => item.id === brandingId)
