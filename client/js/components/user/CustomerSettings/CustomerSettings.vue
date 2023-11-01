@@ -60,8 +60,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.imprint)"
-          @primary-action="saveSettings(customer.imprint)" />
+          @secondary-action="resetProperty('imprint')"
+          @primary-action="saveSettings('imprint')" />
       </customer-settings-section>
 
       <!-- Data Protection -->
@@ -86,8 +86,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.dataProtection)"
-          @primary-action="saveSettings(customer.dataProtection)" />
+          @secondary-action="resetProperty('dataProtection')"
+          @primary-action="saveSettings('dataProtection')" />
       </customer-settings-section>
 
       <!-- Terms of use -->
@@ -112,8 +112,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.termsOfUse)"
-          @primary-action="saveSettings(customer.termsOfUse)" />
+          @secondary-action="resetProperty('termsOfUse')"
+          @primary-action="saveSettings('termsOfUse')" />
       </customer-settings-section>
 
       <!-- Xplanning -->
@@ -138,8 +138,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.xplanning)"
-          @primary-action="saveSettings(customer.xplanning)" />
+          @secondary-action="resetProperty('xplanning')"
+          @primary-action="saveSettings('xplanning')" />
       </customer-settings-section>
 
       <!-- Sign language video page -->
@@ -192,8 +192,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.accessibilityExplanation)"
-          @primary-action="saveSettings(customer.accessibilityExplanation)" />
+          @secondary-action="resetProperty('accessibilityExplanation')"
+          @primary-action="saveSettings('accessibilityExplanation')" />
       </customer-settings-section>
 
       <customer-settings-section
@@ -223,8 +223,8 @@
           secondary
           :busy="isBusy"
           :secondary-text="Translator.trans('reset')"
-          @secondary-action="resetProperty(customer.overviewDescriptionInSimpleLanguage)"
-          @primary-action="saveSettings(customer.overviewDescriptionInSimpleLanguage)" />
+          @secondary-action="resetProperty('overviewDescriptionInSimpleLanguage')"
+          @primary-action="saveSettings('overviewDescriptionInSimpleLanguage')" />
       </customer-settings-section>
 
       <customer-settings-section
