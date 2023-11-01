@@ -119,7 +119,8 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
         $columnCallbacks = $this->getColumnCallbacks($builder, $headIterator);
-        foreach ($rows as $row) {
+        for (; $rows->valid(); $rows->next()) {
+            $row = $rows->current();
             $zeroBasedStatementIndex = $row->getRowIndex() - 2;
             $cells = iterator_to_array($row->getCellIterator('A', $highestColumn));
 
