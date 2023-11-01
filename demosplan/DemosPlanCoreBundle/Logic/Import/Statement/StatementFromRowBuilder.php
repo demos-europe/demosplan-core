@@ -266,7 +266,7 @@ class StatementFromRowBuilder
      * Handles three cases
      * * empty cell: use the current date
      * * normal string: determine format and use it (see {@link https://php.net/manual/en/datetime.formats.php Date and Time Formats})
-     * * number, i.e. date formatted cell: convert from exel number to {@link DateTime}
+     * * number, i.e. date formatted cell: convert from exel number to {@link DateTime}.
      */
     protected function getDate(Cell $cell): DateTime|ConstraintViolationListInterface
     {
