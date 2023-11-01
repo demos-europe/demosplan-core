@@ -65,6 +65,7 @@ use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
+use demosplan\DemosPlanCoreBundle\Constraint\ConsistentAnonymousOrgaConstraint;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
@@ -80,6 +81,8 @@ use UnexpectedValueException;
  * @ClaimConstraint()
  *
  * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
+ * @ConsistentAnonymousOrgaConstraint(groups={StatementInterface::IMPORT_VALIDATION})
  *
  * @FormDefinitionConstraint()
  *
@@ -629,6 +632,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
+     *
+     * FIXME: add translation
+     * @Assert\NotNull(message="import.statement.element.missing", groups={Statement::IMPORT_VALIDATION})
      **/
     protected $element;
 

@@ -64,6 +64,7 @@ use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
+use function array_combine;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
@@ -484,6 +485,25 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): DemosPlanPaginator
     {
         return parent::getEntitiesForPage($conditions, $sortMethods, $pagination);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getExternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.externId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $externIds = array_column($query->getScalarResult(), 'externId');
+
+        return array_combine($externIds, $externIds);
     }
 
     /**

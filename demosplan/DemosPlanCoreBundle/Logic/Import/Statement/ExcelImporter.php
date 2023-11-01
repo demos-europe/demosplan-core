@@ -563,7 +563,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         return $this->generatedSegments;
     }
 
-    private function getFirstRowOfWorksheet(Worksheet $worksheet): array
+    protected function getFirstRowOfWorksheet(Worksheet $worksheet): array
     {
         $rowData = $worksheet->rangeToArray('A1:'.$worksheet->getHighestColumn().'1');
 
@@ -635,12 +635,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $line,
         string $currentWorksheetTitle
     ): string {
-        $violations = $this->validator->validate($statementText, new NotBlank(
-            null,
-            $this->translator->trans('error.text'),
-            false,
-            'trim'
-        ));
+        $violations = $this->validator->validate($statementText, $this->getStatementTextConstraint());
         if (0 !== $violations->count()) {
             $this->addImportViolations($violations, $line, $currentWorksheetTitle);
         }

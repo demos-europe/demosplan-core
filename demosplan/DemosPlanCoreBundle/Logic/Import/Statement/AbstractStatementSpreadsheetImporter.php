@@ -21,10 +21,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -54,7 +56,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
     public function __construct(
         protected readonly CurrentProcedureService $currentProcedureService,
-        protected readonly CurrentUserInterface $currentUser,
+        protected readonly CurrentUserService $currentUser,
         protected readonly ElementsService $elementsService,
         protected readonly OrgaService $orgaService,
         protected readonly StatementCopier $statementCopier,
@@ -115,7 +117,17 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
         return 0 !== count($this->errors);
     }
 
-    protected function replaceLineBreak($value)
+    protected function getStatementTextConstraint(): Constraint
+    {
+        return new NotBlank(
+            null,
+            $this->translator->trans('error.text'),
+            false,
+            'trim'
+        );
+    }
+
+    public function replaceLineBreak($value)
     {
         return str_replace(["_x000D_\n", "\n"], '<br>', strval($value));
     }
