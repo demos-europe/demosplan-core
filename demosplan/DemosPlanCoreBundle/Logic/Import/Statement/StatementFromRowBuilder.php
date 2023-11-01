@@ -56,6 +56,7 @@ use function is_string;
 class StatementFromRowBuilder
 {
     protected Statement $statement;
+    protected DateTime $now;
 
     /**
      * @param callable(string): string $textPostValidationProcessing
@@ -70,6 +71,7 @@ class StatementFromRowBuilder
         protected readonly mixed $textPostValidationProcessing
     ) {
         $this->statement = new Statement();
+        $this->now = Carbon::now();
     }
 
     public function setExternId(Cell $cell): ?ConstraintViolationListInterface
@@ -226,6 +228,15 @@ class StatementFromRowBuilder
             $newStatementMeta->setMiscDataValue(StatementMeta::SUBMITTER_ROLE, 'publicagency');
         }
 
+        $submitDate = $newOriginalStatement->getSubmitObject();
+        if (null === $submitDate) {
+            $newOriginalStatement->setSubmit($this->now);
+        }
+        $authoredDate = $newStatementMeta->getAuthoredDateObject();
+        if (null === $authoredDate) {
+            $newStatementMeta->setAuthoredDate($this->now);
+        }
+
         // set gdpr consent
         $gdprConsent = new GdprConsent();
         $gdprConsent->setStatement($newOriginalStatement);
@@ -251,10 +262,16 @@ class StatementFromRowBuilder
         return $newOriginalStatement;
     }
 
+    /**
+     * Handles three cases
+     * * empty cell: use the current date
+     * * normal string: determine format and use it (see {@link https://php.net/manual/en/datetime.formats.php Date and Time Formats})
+     * * number, i.e. date formatted cell: convert from exel number to {@link DateTime}
+     */
     protected function getDate(Cell $cell): DateTime|ConstraintViolationListInterface
     {
         $value = $cell->getValue();
-        if (is_string($value) || null === $value) {
+        if (is_string($value) && '' !== $value) {
             $violations = $this->validator->validate($value, [
                 new DateStringConstraint(),
                 new NotBlank(allowNull: false),
@@ -262,6 +279,8 @@ class StatementFromRowBuilder
             if (0 === $violations->count()) {
                 return Carbon::parse($value)->toDate();
             }
+        } elseif (null === $value || '' === $value) {
+            return $this->now;
         } else {
             // in Excel the DateTime format counts the days starting at the year 1900,
             // so we validate the expected integer for at least technical validity
