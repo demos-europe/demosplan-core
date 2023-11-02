@@ -964,7 +964,11 @@ elements.bulk.edit.change.state.hint: "Planungsdokumente, die bereits den hier g
 elements.bulk.edit.change.state.success: "Die automatische Umstellung wurde bei <strong>{changed}</strong> von <strong>{total}</strong> Planungsdokumenten erfolgreich aktiviert."
 elements.create.subcategory: "Neue Unterkategorie erstellen"
 elements.export: "Planungsdokumente herunterladen"
-elements.selected: "Elemente ausgewählt"
+elements.selected: |
+    {count, plural,
+        =1 { Element ausgewählt }
+        other { Elemente ausgewählt }
+    }
 elements.statement.global.explanation: "Hier können Sie eine Stellungnahme zum gesamten Verfahren abgeben"
 elements.statement.indicationerror.explanation: "Hier können Sie eine Fehlanzeige zum gesamten Verfahren abgeben."
 elements: "Planungsdokumente"
@@ -2161,6 +2165,11 @@ news.create: "Neue Mitteilung anlegen"
 news.edit: "Mitteilung bearbeiten"
 news.new: "Neue Mitteilung"
 news.notes: "Aktuelle Mitteilungen"
+news.notes.selected: |
+    {count, plural,
+        =1 { Aktuelle Mitteilung }
+        other { Aktuelle Mitteilungen }
+    }
 news.see.all: "zu allen Neuigkeiten"
 news.text: "Mitteilungstext"
 news: "Aktuelles"
