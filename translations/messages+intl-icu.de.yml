@@ -2167,8 +2167,8 @@ news.new: "Neue Mitteilung"
 news.notes: "Aktuelle Mitteilungen"
 news.notes.selected: |
     {count, plural,
-        =1 { Aktuelle Mitteilung }
-        other { Aktuelle Mitteilungen }
+        =1 { Eine aktuelle Mitteilung ausgewählt }
+        other { # aktuelle Mitteilungen ausgewählt }
     }
 news.see.all: "zu allen Neuigkeiten"
 news.text: "Mitteilungstext"
