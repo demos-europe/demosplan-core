@@ -966,8 +966,8 @@ elements.create.subcategory: "Neue Unterkategorie erstellen"
 elements.export: "Planungsdokumente herunterladen"
 elements.selected: |
     {count, plural,
-        =1 { Element ausgewählt }
-        other { Elemente ausgewählt }
+        =1 { Ein Element ausgewählt }
+        other { # Elemente ausgewählt }
     }
 elements.statement.global.explanation: "Hier können Sie eine Stellungnahme zum gesamten Verfahren abgeben"
 elements.statement.indicationerror.explanation: "Hier können Sie eine Fehlanzeige zum gesamten Verfahren abgeben."
