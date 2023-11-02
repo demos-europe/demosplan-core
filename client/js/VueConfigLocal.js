@@ -19,7 +19,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils'
 // Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
-import PortalVue from 'portal-vue'
+// import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
 
 /*
@@ -75,7 +75,7 @@ global.lscache = lscache
 global.dplan = dplan
 
 // Add plugins to Vue instance
-Vue.use(PortalVue)
+// Vue.use(PortalVue)
 
 Vue.use(DPVueCorePlugin)
 
