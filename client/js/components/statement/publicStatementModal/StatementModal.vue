@@ -455,7 +455,7 @@
               name="r_useName"
               data-cy="submitPublicly"
               value="1"
-              @change="val => setStatementData({r_useName: '1'})"
+              @change="val => setPrivacyPreference({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
@@ -482,7 +482,7 @@
               id="r_useName_0"
               name="r_useName"
               value="0"
-              @change="val => setStatementData({r_useName: '0'})"
+              @change="val => setPrivacyPreference({ r_useName: '0' })"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
@@ -885,6 +885,8 @@ export default {
   },
 
   computed: {
+    ...mapState('notify', ['messages']),
+
     ...mapState('publicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
@@ -962,6 +964,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations('notify', ['remove']),
+
     ...mapMutations('publicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
@@ -987,11 +991,11 @@ export default {
       }
 
       const invalidFields = this.dpValidate.invalidFields[formId]
-      const fieldDescriptions = invalidFields.map(field => {
+      const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
-      })
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${fieldDescriptions.join('')}</ul>`
+      })))
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
@@ -1342,6 +1346,13 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    setPrivacyPreference (data) {
+      this.setStatementData(data)
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
     },
 
     writeDraftStatementIdToSession (draftStatementId) {
