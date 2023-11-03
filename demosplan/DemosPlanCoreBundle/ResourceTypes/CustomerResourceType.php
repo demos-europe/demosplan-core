@@ -18,11 +18,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use EDT\PathBuilding\End;
-use Webmozart\Assert\Assert;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Customer>
@@ -50,7 +53,7 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
 {
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
-        protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType
+        private readonly ValidatorInterface $validator
     ) {
     }
 
@@ -227,8 +230,30 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
     {
         $updater = new PropertiesUpdater($properties);
 
-        $updater->ifPresent($this->baseLayerUrl, $object->setBaseLayerUrl(...));
-        $updater->ifPresent($this->baseLayerLayers, $object->setBaseLayerLayers(...));
+        $updater->ifPresent(
+            $this->baseLayerUrl,
+            function (string $baseLayerUrl) use ($object): void {
+                $violations = $this->validator->validate($baseLayerUrl, [new Url()]);
+                if (0 === $violations->count()) {
+                    $object->setBaseLayerUrl($baseLayerUrl);
+                } else {
+                    throw ViolationsException::fromConstraintViolationList($violations);
+                }
+            }
+        );
+
+        $updater->ifPresent(
+            $this->baseLayerLayers,
+            function (string $baseLayerLayers) use ($object): void {
+                $violations = $this->validator->validate($baseLayerLayers, [new Length(null, 5, 4096)]);
+                if (0 === $violations->count()) {
+                    $object->setBaseLayerLayers($baseLayerLayers);
+                } else {
+                    throw ViolationsException::fromConstraintViolationList($violations);
+                }
+            }
+        );
+
         $updater->ifPresent($this->mapAttribution, $object->setMapAttribution(...));
         $updater->ifPresent($this->imprint, $object->setImprint(...));
         $updater->ifPresent($this->dataProtection, $object->setDataProtection(...));

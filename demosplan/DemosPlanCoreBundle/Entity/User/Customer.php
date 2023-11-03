@@ -89,7 +89,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Length(max: 65000, groups: [self::GROUP_UPDATE])]
     protected $dataProtection = '';
     /**
-     * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
+     * Terms of use setting of the customer which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *
@@ -139,7 +139,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
-    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
+    #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerUrl = '';
     /**
      * T16986
@@ -151,7 +151,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
-    #[Assert\Length(min: 5, max: 4096, groups: [self::GROUP_UPDATE])]
+    #[Assert\Length(min: 0, max: 4096, groups: [self::GROUP_UPDATE])]
     protected $baseLayerLayers = '';
     /**
      * @var BrandingInterface|null
