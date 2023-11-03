@@ -229,7 +229,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         return [
             $this->createColumnDefinition('externId', 'id'),
-            $this->createColumnDefinition('name', 'name'),
+            $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('priorityAreaKeys', 'potential.area'),
             $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];
