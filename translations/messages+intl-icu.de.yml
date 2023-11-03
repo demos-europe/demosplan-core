@@ -2979,8 +2979,8 @@ segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
 items.selected.multi.page: |
     {count, plural,
-        =1 { Element ausgewählt (u.U. nicht auf Seite 1). }
-        other { Elemente (u.U. auf mehreren Seiten) ausgewählt. }
+        =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
+        other { # Elemente (u.U. auf mehreren Seiten) ausgewählt. }
     }
 select.all.on.page: "Alle auf dieser Seite auswählen"
 selection.no: "Keine Auswahl"
