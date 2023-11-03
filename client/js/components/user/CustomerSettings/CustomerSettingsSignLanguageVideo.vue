@@ -185,7 +185,7 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
-    async saveSignLanguage() {
+    saveSignLanguage() {
       const payload = {
         id: this.currentCustomerId,
         type: 'Customer',
