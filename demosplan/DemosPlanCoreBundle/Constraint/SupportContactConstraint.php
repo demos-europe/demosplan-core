@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraint;
 #[Attribute]
 class SupportContactConstraint extends Constraint
 {
+    public const WRONG_SUPPORT_TYPE = 'error.platform.support.with.customer.context';
     public const NO_TITLE_MESSAGE = 'error.mandatoryfield.title';
     public const MISSING_CONTACT_MESSAGE = 'error.mandatoryfield.mail.or.phone';
 

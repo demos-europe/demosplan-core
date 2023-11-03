@@ -207,14 +207,14 @@
           v-model="customer.overviewDescriptionInSimpleLanguage"
           :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
+          }"
           :toolbar-items="{
             fullscreenButton: true,
             headings: [2,3,4],
             imageButton: true,
             linkButton: true
-          }"
-          :routes="{
-            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }"
           :tus-endpoint="dplan.paths.tusEndpoint" />
         <dp-button-row
@@ -232,6 +232,26 @@
         :title="Translator.trans('support')">
         <customer-settings-support />
       </customer-settings-section>
+
+      <customer-settings-section
+        v-if="hasPermission('feature_customer_login_support_contact_administration')"
+        :title="Translator.trans('support.login')">
+        <customer-settings-login-support />
+      </customer-settings-section>
+
+      <!-- Button row -->
+      <div class="text-right space-inline-s">
+        <button
+          type="submit"
+          class="btn btn--primary"
+          v-text="Translator.trans('save')"
+          @click.prevent="dpValidateAction('customerSettings', submit, false)" />
+        <!-- Reset link to reload the page to its initial values -->
+        <a
+          class="btn btn--secondary"
+          :href="Routing.generate('dplan_user_customer_showSettingsPage')"
+          v-text="Translator.trans('reset')" />
+      </div>
     </template>
   </div>
 </template>
@@ -240,6 +260,7 @@
 import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
+import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 import CustomerSettingsSupport from './CustomerSettingsSupport'
@@ -250,10 +271,11 @@ export default {
   components: {
     DpButtonRow,
     CustomerSettingsBranding,
-    CustomerSettingsSupport,
+    CustomerSettingsLoginSupport,
     CustomerSettingsMap: () => import('./CustomerSettingsMap'),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
+    CustomerSettingsSupport,
     DpLabel,
     DpLoading,
     DpEditor: async () => {
@@ -496,6 +518,18 @@ export default {
 
       if (hasPermission('feature_imprint_text_customized_view')) {
         this.addAttributesToField('Customer', ['imprint'])
+      }
+
+      if (hasPermission('feature_customer_support_contact_administration')) {
+        this.requestIncludes.push('customerContacts')
+        this.addAttributesToField('CustomerSettingsSupport', ['title', 'text', 'phoneNumber', 'eMailAddress', 'visible'])
+        this.addAttributesToField('Customer', ['customerContacts'])
+      }
+
+      if (hasPermission('feature_customer_login_support_contact_administration')) {
+        this.requestIncludes.push('customerLoginSupportContact')
+        this.addAttributesToField('CustomerLoginSupportContact', ['title', 'text', 'phoneNumber', 'eMailAddress'])
+        this.addAttributesToField('Customer', ['customerLoginSupportContact'])
       }
 
       // Transform arrays to csv strings ready to be passed into query

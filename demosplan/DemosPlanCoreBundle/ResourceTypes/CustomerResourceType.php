@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeIn
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
@@ -25,30 +26,35 @@ use EDT\PathBuilding\End;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<Customer>
  *
- * @property-read End                                   $name
- * @property-read End                                   $subdomain
- * @property-read End                                   $signLanguageOverviewDescription
- * @property-read End                                   $overviewDescriptionInSimpleLanguage
- * @property-read End                                   $imprint
- * @property-read SignLanguageOverviewVideoResourceType $signLanguageOverviewVideo
- * @property-read SignLanguageOverviewVideoResourceType $signLanguageOverviewVideos
- * @property-read BrandingResourceType                  $branding
- * @property-read End                                   $dataProtection
- * @property-read End                                   $termsOfUse
- * @property-read End                                   $xplanning
- * @property-read End                                   $accessibilityExplanation
- * @property-read End                                   $baseLayerUrl
- * @property-read End                                   $baseLayerLayers
- * @property-read End                                   $mapAttribution
+ * @property-read End                                       $name
+ * @property-read End                                       $subdomain
+ * @property-read End                                       $signLanguageOverviewDescription
+ * @property-read End                                       $overviewDescriptionInSimpleLanguage
+ * @property-read End                                       $imprint
+ * @property-read SignLanguageOverviewVideoResourceType     $signLanguageOverviewVideo
+ * @property-read SignLanguageOverviewVideoResourceType     $signLanguageOverviewVideos
+ * @property-read BrandingResourceType                      $branding
+ * @property-read End                                       $dataProtection
+ * @property-read End                                       $termsOfUse
+ * @property-read End                                       $xplanning
+ * @property-read End                                       $accessibilityExplanation
+ * @property-read End                                       $baseLayerUrl
+ * @property-read End                                       $baseLayerLayers
+ * @property-read End                                       $mapAttribution
+ * @property-read CustomerContactResourceType               $contacts
+ * @property-read CustomerContactResourceType               $customerContacts
+ * @property-read CustomerLoginSupportContactResourceType   $customerLoginSupportContact
  */
 final class CustomerResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
+        protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
         private readonly ValidatorInterface $validator
     ) {
     }
@@ -79,7 +85,9 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             'feature_customer_xplanning_edit',
             'field_customer_accessibility_explanation_edit',
             'field_sign_language_overview_video_edit',
-            'field_simple_language_overview_description_edit'
+            'field_simple_language_overview_description_edit',
+            'feature_customer_login_support_contact_administration',
+            'feature_customer_support_contact_administration'
         );
     }
 
@@ -193,6 +201,25 @@ final class CustomerResourceType extends DplanResourceType implements UpdatableD
             $properties[] = $this->createAttribute($this->baseLayerUrl)->readable();
             $properties[] = $this->createAttribute($this->baseLayerLayers)->readable();
             $properties[] = $this->createAttribute($this->mapAttribution)->readable();
+        }
+
+        if ($this->currentUser->hasPermission('feature_customer_login_support_contact_administration')) {
+            $properties[] = $this->createToOneRelationship($this->customerLoginSupportContact)
+                ->readable(
+                    false,
+                    function (Customer $customer): ?SupportContact {
+                        $supportContact = $this->customerLoginSupportContactResourceType->listEntities([
+                            $this->conditionFactory->propertyHasValue($customer->getId(), $this->customerLoginSupportContactResourceType->customer->id),
+                        ]);
+                        Assert::lessThanEq(count($supportContact), 1);
+
+                        return array_pop($supportContact);
+                    }
+                );
+        }
+        if ($this->currentUser->hasPermission('feature_customer_support_contact_administration')) {
+            $properties[] = $this->createToManyRelationship($this->customerContacts)
+                ->aliasedPath($this->contacts)->readable();
         }
 
         return $properties;

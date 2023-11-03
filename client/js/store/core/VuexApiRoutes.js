@@ -74,6 +74,32 @@ export const VuexApiRoutes = [
     ]
   },
   {
+    module: 'customerLoginSupportContact',
+    action: 'create',
+    url: '/2.0/CustomerLoginSupportContact'
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'delete',
+    url: '/2.0/CustomerLoginSupportContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'list',
+    url: '/2.0/CustomerLoginSupportContact'
+  },
+  {
+    module: 'customerLoginSupportContact',
+    action: 'update',
+    url: '/2.0/CustomerLoginSupportContact/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
     module: 'report',
     action: 'list',
     url: '/1.0/reports/{procedureId}/{group}',
