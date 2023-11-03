@@ -5,7 +5,7 @@ abort.and.back: "Abbrechen und zurück"
 about.introduction: >-
     <p>Wenn räumliche Entwicklungen geplant oder vorbereitet werden, berührt das viele Interessengruppen.  Verschiedene
     Planwerke werden auf allen Ebenen der Verwaltung - vom Bund bis zu den Kommunen - ausgearbeitet und sind, abhängig
-    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der kommunalen Planung ist,
+    vom Plangeber, unterschiedlich in ihren inhaltlichen Schwerpunkten. Eine Aufgabe der behördlichen Planung ist,
     wesentliche Interessen abzuwägen, Konflikte zwischen verschiedenen Bereichen zu minimieren und Flächen bestmöglich
     zu nutzen.</p>
 
@@ -42,13 +42,13 @@ about.introduction: >-
 
     <p>Eine bundesweite Übersicht über alle raumbezogenen Planwerke und formalen Beteiligungsverfahren des Baugesetzbuches
     sowie perspektivisch der Raumordnung und Planfeststellung finden Sie in unserem
-    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>
+    <a class="o-link--external" href="https://portal.demo.diplanung.de/" target="_blank" rel="noopener">DiPlanPortal</a>.
     </p>
 
     <p>DiPlanBeteiligung ist als freie Software unter der Open-Source-Lizenz für die Europäische Union
-    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt.
+    „European Union Public License“ (EUPL) auf der Open CoDE Plattform der öffentlichen Verwaltung bereitgestellt
     <a class="o-link--external" href="https://gitlab.opencode.de/diplanung/" target="_blank" rel="noopener">
-    DiPlanung · GitLab (opencode.de)</a>
+    DiPlanung · GitLab (opencode.de)</a>.
     </p>
 
     <p>DiPlanBeteiligung ist eine Software-Komponente der DiPlanung-Produktfamilie. Mehr Informationen zur DiPlanung finden Sie
