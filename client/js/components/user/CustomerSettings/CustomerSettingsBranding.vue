@@ -161,6 +161,7 @@ export default {
           }
         }
       }
+
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
