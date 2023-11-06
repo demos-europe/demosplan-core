@@ -49,7 +49,7 @@ class CsrfSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->logger->info('CSRF token invalid', ['uri' => $request->getRequestUri(), 'token' => $token ?? 'null']);
+        $this->logger->info('CSRF token invalid', ['uri' => $request->getRequestUri(), 'token' => $tokenId]);
     }
 
     public static function getSubscribedEvents(): array
